@@ -319,7 +319,7 @@ export default class UiKitComponent {
   protected readonly apiKeyControl = new FormControl('sk-proj-abc123def456ghi789', {
     nonNullable: true,
   });
-  protected readonly webhookUrlControl = new FormControl('https://api.agentflix.com/webhooks/v1', {
+  protected readonly webhookUrlControl = new FormControl('https://api.interazap.com/webhooks/v1', {
     nonNullable: true,
   });
 

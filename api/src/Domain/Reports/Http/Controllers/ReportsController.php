@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Controlador para relatórios analíticos do AgentFlix.
+ * Controlador para relatórios analíticos do InteraZap.
  */
 final class ReportsController extends BaseController
 {

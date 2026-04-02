@@ -9,9 +9,9 @@ Electron uses [electron-updater](https://www.electron.build/auto-update) with Gi
 ```yaml
 # electron-builder.yml
 publish:
-  provider: github
-  owner: agentflix
-  repo: agentflix-desktop
+    provider: github
+    owner: interazap
+    repo: interazap-desktop
 ```
 
 ## Update Flow
@@ -36,30 +36,32 @@ Auto-update is disabled in development (NODE_ENV !== 'production').
 ### Creating a Release
 
 1. Build the app for the target platform:
-   ```bash
-   pnpm electron:build:win   # Windows
-   pnpm electron:build:mac  # macOS
-   pnpm electron:build:linux # Linux
-   ```
+
+    ```bash
+    pnpm electron:build:win   # Windows
+    pnpm electron:build:mac  # macOS
+    pnpm electron:build:linux # Linux
+    ```
 
 2. Create and push a tag:
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
+
+    ```bash
+    git tag v1.0.0
+    git push origin v1.0.0
+    ```
 
 3. Create the GitHub Release:
-   - Go to: https://github.com/agentflix/agentflix-desktop/releases/new
-   - Select the tag version (e.g., v1.0.0)
-   - Title: Version 1.0.0
-   - Attach the built artifacts from `release/` folder:
-     - Windows: `.exe` installer
-     - macOS: `.dmg` file
-     - Linux: `.AppImage`, `.deb`, `.rpm`
+    - Go to: https://github.com/interazap/interazap-desktop/releases/new
+    - Select the tag version (e.g., v1.0.0)
+    - Title: Version 1.0.0
+    - Attach the built artifacts from `release/` folder:
+        - Windows: `.exe` installer
+        - macOS: `.dmg` file
+        - Linux: `.AppImage`, `.deb`, `.rpm`
 
 ### Update Server URL
 
-Updates are served from: `https://github.com/agentflix/agentflix-desktop/releases`
+Updates are served from: `https://github.com/interazap/interazap-desktop/releases`
 
 ## Local Development
 

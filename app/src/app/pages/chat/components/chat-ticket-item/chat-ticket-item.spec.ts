@@ -102,9 +102,9 @@ describe('ChatTicketItemComponent', () => {
     });
 
     it('shows assigned_user badge', () => {
-      const ticket = buildTicket({ assigned_user: { id: '2', name: 'Admin AgentFlix' } });
+      const ticket = buildTicket({ assigned_user: { id: '2', name: 'Admin InteraZap' } });
       const el = render(ticket);
-      expect(el.textContent).toContain('Admin AgentFlix');
+      expect(el.textContent).toContain('Admin InteraZap');
     });
 
     it('shows unread count badge when unread_count > 0', () => {

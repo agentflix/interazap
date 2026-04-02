@@ -4,145 +4,145 @@
 # Autor: DevOps Agentflix
 # =====================================================
 
-- name: "Criar /tmp/ansible para Ansible module executor"
+- name: 'Criar /tmp/ansible para Ansible module executor'
   file:
-    path: /tmp/ansible
-    state: directory
-    mode: '0777'
+      path: /tmp/ansible
+      state: directory
+      mode: '0777'
 
-- name: "Instalar repositório ondrej/php (Ubuntu 24.04)"
+- name: 'Instalar repositório ondrej/php (Ubuntu 24.04)'
   apt_repository:
-    repo: 'ppa:ondrej/php'
-    state: present
+      repo: 'ppa:ondrej/php'
+      state: present
   when: ansible_facts['distribution'] == "Ubuntu"
 
-- name: "Instalar PHP 8.4 e extensões"
+- name: 'Instalar PHP 8.4 e extensões'
   apt:
-    name:
-      - php8.4
-      - php8.4-cli
-      - php8.4-fpm
-      - php8.4-mysql
-      - php8.4-pgsql
-      - php8.4-redis
-      - php8.4-mbstring
-      - php8.4-xml
-      - php8.4-curl
-      - php8.4-zip
-      - php8.4-bcmath
-      - php8.4-intl
-      - php8.4-gd
-      - php8.4-imap
-      - php8.4-soap
-      - php8.4-ldap
-      - php8.4-readline
-      - php8.4-msgpack
-      - php8.4-igbinary
-      - php8.4-memcached
-      - php8.4-opcache
-      - php8.4-swoole
-    state: present
-    install_recommends: no
+      name:
+          - php8.4
+          - php8.4-cli
+          - php8.4-fpm
+          - php8.4-mysql
+          - php8.4-pgsql
+          - php8.4-redis
+          - php8.4-mbstring
+          - php8.4-xml
+          - php8.4-curl
+          - php8.4-zip
+          - php8.4-bcmath
+          - php8.4-intl
+          - php8.4-gd
+          - php8.4-imap
+          - php8.4-soap
+          - php8.4-ldap
+          - php8.4-readline
+          - php8.4-msgpack
+          - php8.4-igbinary
+          - php8.4-memcached
+          - php8.4-opcache
+          - php8.4-swoole
+      state: present
+      install_recommends: no
 
-- name: "Evitar carregamento duplicado da extensão Swoole no php.ini"
+- name: 'Evitar carregamento duplicado da extensão Swoole no php.ini'
   lineinfile:
-    path: "{{ item }}"
-    regexp: '^\s*extension\s*=\s*["'']?swoole'
-    state: absent
+      path: '{{ item }}'
+      regexp: '^\s*extension\s*=\s*["'']?swoole'
+      state: absent
   loop:
-    - /etc/php/8.4/cli/php.ini
-    - /etc/php/8.4/fpm/php.ini
-  notify: "Reiniciar PHP-FPM"
+      - /etc/php/8.4/cli/php.ini
+      - /etc/php/8.4/fpm/php.ini
+  notify: 'Reiniciar PHP-FPM'
 
-- name: "Remover conf.d duplicados de Swoole (manter apenas o do pacote)"
+- name: 'Remover conf.d duplicados de Swoole (manter apenas o do pacote)'
   shell: |
-    # Listar todos os .ini em conf.d que carregam swoole
-    for dir in /etc/php/8.4/cli/conf.d /etc/php/8.4/fpm/conf.d; do
-      found=0
-      for f in "$dir"/*swoole*; do
-        [ -f "$f" ] || continue
-        found=$((found + 1))
-        # Manter o primeiro (20-swoole.ini do pacote), remover duplicatas
-        [ $found -gt 1 ] && rm -f "$f" && echo "removed $f"
+      # Listar todos os .ini em conf.d que carregam swoole
+      for dir in /etc/php/8.4/cli/conf.d /etc/php/8.4/fpm/conf.d; do
+        found=0
+        for f in "$dir"/*swoole*; do
+          [ -f "$f" ] || continue
+          found=$((found + 1))
+          # Manter o primeiro (20-swoole.ini do pacote), remover duplicatas
+          [ $found -gt 1 ] && rm -f "$f" && echo "removed $f"
+        done
       done
-    done
   changed_when: false
   ignore_errors: yes
 
-- name: "Baixar e instalar Composer"
+- name: 'Baixar e instalar Composer'
   get_url:
-    url: https://getcomposer.org/installer
-    dest: /tmp/composer-installer.php
-    mode: '0755'
+      url: https://getcomposer.org/installer
+      dest: /tmp/composer-installer.php
+      mode: '0755'
   register: composer_download
 
-- name: "Instalar Composer globalmente"
+- name: 'Instalar Composer globalmente'
   shell: |
-    php /tmp/composer-installer.php --install-dir=/usr/local/bin --filename=composer
-    rm /tmp/composer-installer.php
+      php /tmp/composer-installer.php --install-dir=/usr/local/bin --filename=composer
+      rm /tmp/composer-installer.php
   when: composer_download.changed
 
-- name: "Criar configuração customizada OPcache"
+- name: 'Criar configuração customizada OPcache'
   copy:
-    dest: /etc/php/8.4/fpm/conf.d/99-opcache.ini
-    content: |
-      ; Configuração OPcache otimizada para produção
-      opcache.enable=1
-      opcache.enable_cli=0
-      opcache.memory_consumption=128
-      opcache.interned_strings_buffer=8
-      opcache.max_accelerated_files=5000
-      opcache.revalidate_freq=0
-      opcache.validate_timestamps=0
-      opcache.fast_shutdown=1
-    mode: '0644'
-  notify: "Reiniciar PHP-FPM"
+      dest: /etc/php/8.4/fpm/conf.d/99-opcache.ini
+      content: |
+          ; Configuração OPcache otimizada para produção
+          opcache.enable=1
+          opcache.enable_cli=0
+          opcache.memory_consumption=128
+          opcache.interned_strings_buffer=8
+          opcache.max_accelerated_files=5000
+          opcache.revalidate_freq=0
+          opcache.validate_timestamps=0
+          opcache.fast_shutdown=1
+      mode: '0644'
+  notify: 'Reiniciar PHP-FPM'
 
-- name: "Configurar php.ini - upload e limites"
+- name: 'Configurar php.ini - upload e limites'
   ini_file:
-    dest: /etc/php/8.4/fpm/php.ini
-    section: null
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
+      dest: /etc/php/8.4/fpm/php.ini
+      section: null
+      option: '{{ item.option }}'
+      value: '{{ item.value }}'
   loop:
-    - { option: 'upload_max_filesize', value: '10M' }
-    - { option: 'post_max_size', value: '210M' }
-    - { option: 'max_file_uploads', value: '20' }
-    - { option: 'memory_limit', value: '512M' }
-    - { option: 'max_execution_time', value: '300' }
-    - { option: 'max_input_time', value: '300' }
-    - { option: 'display_errors', value: 'Off' }
-    - { option: 'log_errors', value: 'On' }
-    - { option: 'error_log', value: '/var/log/agentflix/php_errors.log' }
-    - { option: 'expose_php', value: 'Off' }
-    - { option: 'date.timezone', value: 'America/Sao_Paulo' }
-  notify: "Reiniciar PHP-FPM"
+      - { option: 'upload_max_filesize', value: '10M' }
+      - { option: 'post_max_size', value: '210M' }
+      - { option: 'max_file_uploads', value: '20' }
+      - { option: 'memory_limit', value: '512M' }
+      - { option: 'max_execution_time', value: '300' }
+      - { option: 'max_input_time', value: '300' }
+      - { option: 'display_errors', value: 'Off' }
+      - { option: 'log_errors', value: 'On' }
+      - { option: 'error_log', value: '/var/log/interazap/php_errors.log' }
+      - { option: 'expose_php', value: 'Off' }
+      - { option: 'date.timezone', value: 'America/Sao_Paulo' }
+  notify: 'Reiniciar PHP-FPM'
 
-- name: "Configurar pool PHP-FPM"
+- name: 'Configurar pool PHP-FPM'
   template:
-    src: www.conf.j2
-    dest: /etc/php/8.4/fpm/pool.d/www.conf
-    mode: '0644'
-  notify: "Reiniciar PHP-FPM"
+      src: www.conf.j2
+      dest: /etc/php/8.4/fpm/pool.d/www.conf
+      mode: '0644'
+  notify: 'Reiniciar PHP-FPM'
 
-- name: "Criar diretório de log PHP"
+- name: 'Criar diretório de log PHP'
   file:
-    path: /var/log/agentflix
-    owner: www-data
-    group: www-data
-    mode: '0755'
-    state: directory
+      path: /var/log/interazap
+      owner: www-data
+      group: www-data
+      mode: '0755'
+      state: directory
 
-- name: "Criar diretório socket PHP-FPM"
+- name: 'Criar diretório socket PHP-FPM'
   file:
-    path: /run/php
-    owner: www-data
-    group: www-data
-    mode: '0755'
-    state: directory
+      path: /run/php
+      owner: www-data
+      group: www-data
+      mode: '0755'
+      state: directory
 
-- name: "Habilitar e iniciar PHP-FPM"
+- name: 'Habilitar e iniciar PHP-FPM'
   service:
-    name: php8.4-fpm
-    state: started
-    enabled: yes
+      name: php8.4-fpm
+      state: started
+      enabled: yes

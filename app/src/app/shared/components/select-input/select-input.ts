@@ -18,10 +18,8 @@ import { resolveInputContainerClass } from '../input-container.util';
 import type { AfSelectOption, SelectOption } from './select-input.model';
 export * from './select-input.model';
 
-
-
 /**
- * Searchable select dropdown for AgentFlix UI Kit.
+ * Searchable select dropdown for InteraZap UI Kit.
  *
  * @description Custom dropdown with a search filter at the top.
  * Options are filtered in real-time. Single-select with FormControl sync.
@@ -274,6 +272,5 @@ export class AfSelectInputComponent implements OnDestroy {
     this.detachScrollListeners();
   }
 }
-
 
 export const SelectInputComponent = AfSelectInputComponent;

@@ -38,7 +38,7 @@ class PromptQuarantinedNotification extends Notification implements ShouldQueue
         $tenantName = $tenant !== null ? $tenant->name : 'N/A';
 
         return (new MailMessage)
-            ->subject('[AgentFlix] Prompt em Quarentena - Ação Necessária')
+            ->subject('[InteraZap] Prompt em Quarentena - Ação Necessária')
             ->greeting('Alerta de Segurança')
             ->line('Um prompt de tenant foi colocado em quarentena pelo sistema de segurança.')
             ->line('')
@@ -52,7 +52,7 @@ class PromptQuarantinedNotification extends Notification implements ShouldQueue
             ->action('Revisar no Painel', $this->getAdminUrl())
             ->line('')
             ->line('Por favor, revise este prompt e aprove ou rejeite-o manualmente.')
-            ->salutation('Equipe AgentFlix');
+            ->salutation('Equipe InteraZap');
     }
 
     /**

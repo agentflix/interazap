@@ -43,7 +43,7 @@ describe('WsAuthenticationService', () => {
           user: {
             id: 'user-1',
             tenant_id: 'tenant-1',
-            email: 'dev@agentflix.test',
+            email: 'dev@interazap.test',
           },
         },
       },

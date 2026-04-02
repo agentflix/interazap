@@ -182,7 +182,7 @@ export class WebhookDispatcherService {
       'Content-Type': 'application/json',
       'User-Agent':
         this.configService.get<string>('WEBHOOK_USER_AGENT') ??
-        'AgentFlix-Webhook/1.0',
+        'InteraZap-Webhook/1.0',
       ...request.headers,
     };
 

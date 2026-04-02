@@ -23,7 +23,7 @@ scrape_configs:
       relabel_configs:
           - source_labels: [__address__]
             target_label: instance
-            replacement: 'agentflix-api'
+            replacement: 'interazap-api'
 
     - job_name: 'gateway'
       metrics_path: '/metrics'
@@ -32,4 +32,4 @@ scrape_configs:
       relabel_configs:
           - source_labels: [__address__]
             target_label: instance
-            replacement: 'agentflix-gateway'
+            replacement: 'interazap-gateway'

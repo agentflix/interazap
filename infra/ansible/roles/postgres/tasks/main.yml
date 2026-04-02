@@ -162,12 +162,12 @@
       role_attr_flags: CREATEDB,LOGIN
       encrypted: yes
 
-- name: 'Criar banco de dados agentflix (Production)'
+- name: 'Criar banco de dados interazap (Production)'
   become: yes
   become_user: postgres
   shell: |
-      psql -tc "SELECT 1 FROM pg_database WHERE datname = 'agentflix'" | grep -q 1 || \
-      psql -c "CREATE DATABASE agentflix OWNER agentflix_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
+      psql -tc "SELECT 1 FROM pg_database WHERE datname = 'interazap'" | grep -q 1 || \
+      psql -c "CREATE DATABASE interazap OWNER agentflix_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
   register: create_db_agentflix
   changed_when: "'CREATE DATABASE' in create_db_agentflix.stdout"
 
@@ -206,7 +206,7 @@
       db: '{{ item }}'
       cascade: yes
   loop:
-      - agentflix
+      - interazap
       - agentflix_stage
       - gateway
       - gateway_stage
@@ -216,7 +216,7 @@
   become_user: postgres
   postgresql_ext:
       name: '{{ item }}'
-      db: agentflix
+      db: interazap
   loop:
       - pg_trgm
       - unaccent

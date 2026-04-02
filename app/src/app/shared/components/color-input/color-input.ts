@@ -19,10 +19,8 @@ import { resolveInputContainerClass } from '../input-container.util';
 import type { AfInputSize } from './color-input.model';
 export * from './color-input.model';
 
-
-
 /**
- * Color picker input for AgentFlix UI Kit.
+ * Color picker input for InteraZap UI Kit.
  *
  * @description Swatch circle + hex text input. The swatch opens the native
  * browser color picker. Both directions stay in sync via FormControl.

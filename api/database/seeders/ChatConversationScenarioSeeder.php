@@ -28,7 +28,7 @@ class ChatConversationScenarioSeeder extends Seeder
     public function run(): void
     {
         $adminUser = AuthUser::query()->withoutGlobalScopes()
-            ->where('email', 'admin@agentflix.com.br')->latest()
+            ->where('email', 'admin@interazap.com.br')->latest()
             ->first();
 
         $preferredTenant = null;
@@ -40,7 +40,7 @@ class ChatConversationScenarioSeeder extends Seeder
         if (! $preferredTenant) {
             $preferredTenant = PlatformTenant::query()
                 ->where('tenant_code', 'AGENTFLX')
-                ->orWhere('primary_email', 'admin@agentflix.com.br')
+                ->orWhere('primary_email', 'admin@interazap.com.br')
                 ->first() ?? PlatformTenant::query()->first();
         }
 
@@ -234,7 +234,7 @@ class ChatConversationScenarioSeeder extends Seeder
                     'name' => 'Contato Seed '.mb_substr((string) ($tenant->tenant_code ?? 'TENANT'), 0, 8),
                     'phone' => '+5511999999999',
                     'whatsapp' => '5511999999999',
-                    'email' => sprintf('seed.chat.%s@agentflix.local', strtolower((string) ($tenant->tenant_code ?? 'tenant'))),
+                    'email' => sprintf('seed.chat.%s@interazap.local', strtolower((string) ($tenant->tenant_code ?? 'tenant'))),
                     'is_active' => true,
                 ]);
 
@@ -363,7 +363,7 @@ class ChatConversationScenarioSeeder extends Seeder
 
         $adminTenant = PlatformTenant::query()->withoutGlobalScopes()
             ->where('tenant_code', 'AGENTFLX')
-            ->orWhere('primary_email', 'admin@agentflix.com.br')
+            ->orWhere('primary_email', 'admin@interazap.com.br')
             ->first();
 
         if ($adminTenant) {
@@ -402,7 +402,7 @@ class ChatConversationScenarioSeeder extends Seeder
                         'name' => 'Contato Seed AGENTFLX',
                         'phone' => '+5511999999999',
                         'whatsapp' => '5511999999999',
-                        'email' => 'seed.chat.agentflx@agentflix.local',
+                        'email' => 'seed.chat.agentflx@interazap.local',
                         'is_active' => true,
                     ]);
                 }

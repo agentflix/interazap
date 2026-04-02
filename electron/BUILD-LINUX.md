@@ -15,9 +15,9 @@ npm run electron:build:linux
 
 ## Output
 
-- `release/AgentFlix Desktop-1.0.0.AppImage` (Portable)
-- `release/agentflix-desktop_1.0.0_amd64.deb` (Debian/Ubuntu)
-- `release/agentflix-desktop-1.0.0.x86_64.rpm` (Fedora/RHEL)
+- `release/InteraZap Desktop-1.0.0.AppImage` (Portable)
+- `release/interazap-desktop_1.0.0_amd64.deb` (Debian/Ubuntu)
+- `release/interazap-desktop-1.0.0.x86_64.rpm` (Fedora/RHEL)
 
 ## AppImage Notes
 

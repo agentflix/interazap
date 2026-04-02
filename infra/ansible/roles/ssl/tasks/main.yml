@@ -4,152 +4,152 @@
 # Autor: DevOps Agentflix
 # =====================================================
 
-- name: "Instalar Certbot e plugin Nginx"
+- name: 'Instalar Certbot e plugin Nginx'
   apt:
-    name:
-      - openssl
-      - certbot
-      - python3-certbot-nginx
-    state: present
+      name:
+          - openssl
+          - certbot
+          - python3-certbot-nginx
+      state: present
 
-- name: "Definir domínios SSL"
+- name: 'Definir domínios SSL'
   set_fact:
-    ssl_domains:
-      - agentflix.com.br
-      - www.agentflix.com.br
-      - app.agentflix.com.br
-      - api.agentflix.com.br
-      - gateway.agentflix.com.br
-      - stage.www.agentflix.com.br
-      - stage.app.agentflix.com.br
-      - stage.api.agentflix.com.br
-      - stage.gateway.agentflix.com.br
+      ssl_domains:
+          - interazap.com.br
+          - www.interazap.com.br
+          - app.interazap.com.br
+          - api.interazap.com.br
+          - gateway.interazap.com.br
+          - stage.www.interazap.com.br
+          - stage.app.interazap.com.br
+          - stage.api.interazap.com.br
+          - stage.gateway.interazap.com.br
 
-- name: "Criar diretório para certificados"
+- name: 'Criar diretório para certificados'
   file:
-    path: /etc/letsencrypt/live
-    owner: root
-    group: root
-    mode: '0755'
-    state: directory
+      path: /etc/letsencrypt/live
+      owner: root
+      group: root
+      mode: '0755'
+      state: directory
 
-- name: "Criar diretório base para fallback self-signed"
+- name: 'Criar diretório base para fallback self-signed'
   file:
-    path: /etc/agentflix/selfsigned
-    owner: root
-    group: root
-    mode: '0755'
-    state: directory
+      path: /etc/interazap/selfsigned
+      owner: root
+      group: root
+      mode: '0755'
+      state: directory
 
-- name: "Criar diretórios fallback por domínio"
+- name: 'Criar diretórios fallback por domínio'
   file:
-    path: "/etc/agentflix/selfsigned/{{ item }}"
-    owner: root
-    group: root
-    mode: '0755'
-    state: directory
-  loop: "{{ ssl_domains }}"
+      path: '/etc/interazap/selfsigned/{{ item }}'
+      owner: root
+      group: root
+      mode: '0755'
+      state: directory
+  loop: '{{ ssl_domains }}'
 
-- name: "Gerar certificado temporário self-signed quando ausente"
+- name: 'Gerar certificado temporário self-signed quando ausente'
   command: >
-    openssl req -x509 -nodes -newkey rsa:2048
-    -keyout /etc/agentflix/selfsigned/{{ item }}/privkey.pem
-    -out /etc/agentflix/selfsigned/{{ item }}/fullchain.pem
-    -days 3
-    -subj "/CN={{ item }}"
+      openssl req -x509 -nodes -newkey rsa:2048
+      -keyout /etc/interazap/selfsigned/{{ item }}/privkey.pem
+      -out /etc/interazap/selfsigned/{{ item }}/fullchain.pem
+      -days 3
+      -subj "/CN={{ item }}"
   args:
-    creates: "/etc/agentflix/selfsigned/{{ item }}/fullchain.pem"
-  loop: "{{ ssl_domains }}"
+      creates: '/etc/interazap/selfsigned/{{ item }}/fullchain.pem'
+  loop: '{{ ssl_domains }}'
 
-- name: "Ajustar permissões dos arquivos fallback"
+- name: 'Ajustar permissões dos arquivos fallback'
   file:
-    path: "/etc/agentflix/selfsigned/{{ item.0 }}/{{ item.1 }}"
-    owner: root
-    group: root
-    mode: "{{ '0600' if item.1 == 'privkey.pem' else '0644' }}"
-    state: file
+      path: '/etc/interazap/selfsigned/{{ item.0 }}/{{ item.1 }}'
+      owner: root
+      group: root
+      mode: "{{ '0600' if item.1 == 'privkey.pem' else '0644' }}"
+      state: file
   loop: "{{ ssl_domains | product(['privkey.pem', 'fullchain.pem']) | list }}"
 
-- name: "Limpar certs self-signed injetados para certbot funcionar"
+- name: 'Limpar certs self-signed injetados para certbot funcionar'
   shell: |
-    if [ -d "/etc/letsencrypt/live/{{ item }}" ] && [ ! -f "/etc/letsencrypt/renewal/{{ item }}.conf" ]; then
-      rm -rf "/etc/letsencrypt/live/{{ item }}"
-      echo "removed"
-    else
-      echo "skipped"
-    fi
+      if [ -d "/etc/letsencrypt/live/{{ item }}" ] && [ ! -f "/etc/letsencrypt/renewal/{{ item }}.conf" ]; then
+        rm -rf "/etc/letsencrypt/live/{{ item }}"
+        echo "removed"
+      else
+        echo "skipped"
+      fi
   args:
-    executable: /bin/bash
-  loop: "{{ ssl_domains }}"
+      executable: /bin/bash
+  loop: '{{ ssl_domains }}'
   register: ssl_cleanup
   changed_when: "'removed' in ssl_cleanup.stdout"
 
-- name: "Remover lock stale do certbot"
+- name: 'Remover lock stale do certbot'
   file:
-    path: /var/lib/letsencrypt/.certbot.lock
-    state: absent
+      path: /var/lib/letsencrypt/.certbot.lock
+      state: absent
 
-- name: "Tentar emitir certificados reais via Certbot (por domínio)"
+- name: 'Tentar emitir certificados reais via Certbot (por domínio)'
   shell: |
-    if [ -f "/etc/letsencrypt/renewal/{{ item }}.conf" ]; then
-      echo "SKIP: cert already managed by certbot"
-      exit 0
-    fi
-    certbot certonly --nginx \
-      -d {{ item }} \
-      --cert-name {{ item }} \
-      --non-interactive \
-      --agree-tos \
-      --email admin@agentflix.com.br
+      if [ -f "/etc/letsencrypt/renewal/{{ item }}.conf" ]; then
+        echo "SKIP: cert already managed by certbot"
+        exit 0
+      fi
+      certbot certonly --nginx \
+        -d {{ item }} \
+        --cert-name {{ item }} \
+        --non-interactive \
+        --agree-tos \
+        --email admin@interazap.com.br
   args:
-    executable: /bin/bash
-  loop: "{{ ssl_domains }}"
+      executable: /bin/bash
+  loop: '{{ ssl_domains }}'
   loop_control:
-    pause: 3
+      pause: 3
   register: certbot_results
   ignore_errors: yes
 
-- name: "Verificar se certificado real foi emitido"
+- name: 'Verificar se certificado real foi emitido'
   stat:
-    path: "/etc/letsencrypt/live/{{ item }}/fullchain.pem"
-  loop: "{{ ssl_domains }}"
+      path: '/etc/letsencrypt/live/{{ item }}/fullchain.pem'
+  loop: '{{ ssl_domains }}'
   register: ssl_certbot_status
 
-- name: "Criar diretórios finais quando certbot falhar"
+- name: 'Criar diretórios finais quando certbot falhar'
   file:
-    path: "/etc/letsencrypt/live/{{ item.item }}"
-    owner: root
-    group: root
-    mode: '0755'
-    state: directory
-  loop: "{{ ssl_certbot_status.results }}"
+      path: '/etc/letsencrypt/live/{{ item.item }}'
+      owner: root
+      group: root
+      mode: '0755'
+      state: directory
+  loop: '{{ ssl_certbot_status.results }}'
   when: not item.stat.exists
 
-- name: "Injetar fullchain fallback quando necessário"
+- name: 'Injetar fullchain fallback quando necessário'
   copy:
-    src: "/etc/agentflix/selfsigned/{{ item.item }}/fullchain.pem"
-    dest: "/etc/letsencrypt/live/{{ item.item }}/fullchain.pem"
-    remote_src: true
-    owner: root
-    group: root
-    mode: '0644'
-  loop: "{{ ssl_certbot_status.results }}"
+      src: '/etc/interazap/selfsigned/{{ item.item }}/fullchain.pem'
+      dest: '/etc/letsencrypt/live/{{ item.item }}/fullchain.pem'
+      remote_src: true
+      owner: root
+      group: root
+      mode: '0644'
+  loop: '{{ ssl_certbot_status.results }}'
   when: not item.stat.exists
 
-- name: "Injetar privkey fallback quando necessário"
+- name: 'Injetar privkey fallback quando necessário'
   copy:
-    src: "/etc/agentflix/selfsigned/{{ item.item }}/privkey.pem"
-    dest: "/etc/letsencrypt/live/{{ item.item }}/privkey.pem"
-    remote_src: true
-    owner: root
-    group: root
-    mode: '0600'
-  loop: "{{ ssl_certbot_status.results }}"
+      src: '/etc/interazap/selfsigned/{{ item.item }}/privkey.pem'
+      dest: '/etc/letsencrypt/live/{{ item.item }}/privkey.pem'
+      remote_src: true
+      owner: root
+      group: root
+      mode: '0600'
+  loop: '{{ ssl_certbot_status.results }}'
   when: not item.stat.exists
 
-- name: "Renovar certificados automaticamente"
+- name: 'Renovar certificados automaticamente'
   cron:
-    name: "Certbot auto-renew"
-    hour: "3"
-    minute: "30"
-    job: "certbot renew --quiet --deploy-hook 'systemctl reload nginx'"
+      name: 'Certbot auto-renew'
+      hour: '3'
+      minute: '30'
+      job: "certbot renew --quiet --deploy-hook 'systemctl reload nginx'"

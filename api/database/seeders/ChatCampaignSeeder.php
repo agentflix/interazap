@@ -69,7 +69,7 @@ class ChatCampaignSeeder extends Seeder
                 'name' => 'Boas-vindas',
                 'status' => 'scheduled',
                 'scheduled_at' => now()->addHours(6),
-                'message' => 'Bem-vindo(a) ao AgentFlix! Estamos prontos para ajudar na sua jornada.',
+                'message' => 'Bem-vindo(a) ao InteraZap! Estamos prontos para ajudar na sua jornada.',
                 'filter_criteria' => ['segment' => 'new'],
             ],
         ];

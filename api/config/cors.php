@@ -9,10 +9,10 @@ declare(strict_types=1);
  * In development (local/testing), localhost origins are also permitted.
  */
 $productionOrigins = [
-    'https://app.agentflix.com.br',
-    'https://staging.agentflix.com.br',
-    'https://stage.app.agentflix.com.br',
-    'https://stage.api.agentflix.com.br',
+    'https://app.interazap.com.br',
+    'https://staging.interazap.com.br',
+    'https://stage.app.interazap.com.br',
+    'https://stage.api.interazap.com.br',
 ];
 
 $developmentOrigins = [

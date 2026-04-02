@@ -68,7 +68,7 @@ export const databaseConfig = registerAs(
   (): DatabaseConfiguration => ({
     url:
       process.env.DATABASE_URL ??
-      'postgres://agentflix:secret@localhost:5432/agentflix',
+      'postgres://interazap:secret@localhost:5432/interazap',
   }),
 );
 

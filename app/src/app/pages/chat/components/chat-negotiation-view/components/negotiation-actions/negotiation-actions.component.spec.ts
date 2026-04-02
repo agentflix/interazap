@@ -18,7 +18,7 @@ describe('NegotiationActionsComponent', () => {
     status: 'open',
     value: 3200,
     expected_close_date: '2026-04-15T12:00:00Z',
-    crm_company: { name: 'AgentFlix' },
+    crm_company: { name: 'InteraZap' },
     user: { name: 'Rafael' },
   } as Negotiation;
 

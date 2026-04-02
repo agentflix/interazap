@@ -12,7 +12,7 @@ final class AdminReportsPermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = AuthUser::query()->where('email', 'admin@agentflix.com.br')->first();
+        $admin = AuthUser::query()->where('email', 'admin@interazap.com.br')->first();
 
         if ($admin === null) {
             return;

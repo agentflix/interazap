@@ -62,7 +62,7 @@ class ChatChatbotSeeder extends Seeder
             [
                 'name' => 'Boas-vindas',
                 'trigger_text' => 'oi',
-                'response_text' => 'Oi! Eu sou o assistente virtual da AgentFlix. Em que posso ajudar?',
+                'response_text' => 'Oi! Eu sou o assistente virtual da InteraZap. Em que posso ajudar?',
                 'is_welcome' => true,
                 'cooldown_seconds' => 3600,
             ],

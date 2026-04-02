@@ -119,7 +119,7 @@ export class NativeNotificationService {
    * @param message - Mensagem de sistema
    */
   showSystemNotification(message: string): void {
-    this.show('AgentFlix', message, 'info');
+    this.show('InteraZap', message, 'info');
   }
 
   /**

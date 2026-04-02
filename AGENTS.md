@@ -1,4 +1,4 @@
-# AGENTS.md — AgentFlix Development Contract
+# AGENTS.md — InteraZap Development Contract
 
 > ⚠️ Read `.context/DOCS/MEMORY/` before starting any work.
 

@@ -4,122 +4,122 @@
 # Autor: DevOps Agentflix
 # =====================================================
 
-- name: "Criar grupo sudo deploy"
+- name: 'Criar grupo sudo deploy'
   group:
-    name: deploysudo
-    state: present
-    system: yes
+      name: deploysudo
+      state: present
+      system: yes
 
-- name: "Criar usuário deploy"
+- name: 'Criar usuário deploy'
   user:
-    name: deploy
-    comment: "Usuário para deploy AgentFlix"
-    groups: deploysudo, www-data
-    append: yes
-    shell: /bin/bash
-    password: "{{ agentflix_password | password_hash('sha512') }}"
-    create_home: yes
-    home: /home/deploy
-    skeleton: /etc/skel
-    system: no
-    state: present
+      name: deploy
+      comment: 'Usuário para deploy InteraZap'
+      groups: deploysudo, www-data
+      append: yes
+      shell: /bin/bash
+      password: "{{ agentflix_password | password_hash('sha512') }}"
+      create_home: yes
+      home: /home/deploy
+      skeleton: /etc/skel
+      system: no
+      state: present
 
-- name: "Criar diretório .ssh para deploy"
+- name: 'Criar diretório .ssh para deploy'
   file:
-    path: /home/deploy/.ssh
-    owner: deploy
-    group: deploy
-    mode: '0700'
-    state: directory
+      path: /home/deploy/.ssh
+      owner: deploy
+      group: deploy
+      mode: '0700'
+      state: directory
 
-- name: "Gerar chave SSH para o usuário deploy (se não existir)"
+- name: 'Gerar chave SSH para o usuário deploy (se não existir)'
   user:
-    name: deploy
-    generate_ssh_key: yes
-    ssh_key_type: ed25519
-    ssh_key_bits: 4096
-    ssh_key_comment: "deploy@agentflix"
+      name: deploy
+      generate_ssh_key: yes
+      ssh_key_type: ed25519
+      ssh_key_bits: 4096
+      ssh_key_comment: 'deploy@interazap'
   register: deploy_ssh_key
 
-- name: "Copiar chave SSH pública para authorized_keys"
+- name: 'Copiar chave SSH pública para authorized_keys'
   copy:
-    content: "{{ lookup('file', '/home/deploy/.ssh/id_ed25519.pub') }}"
-    dest: /home/deploy/.ssh/authorized_keys
-    owner: deploy
-    group: deploy
-    mode: '0600'
+      content: "{{ lookup('file', '/home/deploy/.ssh/id_ed25519.pub') }}"
+      dest: /home/deploy/.ssh/authorized_keys
+      owner: deploy
+      group: deploy
+      mode: '0600'
   ignore_errors: yes
   when: deploy_ssh_key.changed or lookup('file', '/home/deploy/.ssh/id_ed25519.pub', errors='ignore') != ''
 
-- name: "Exibir chave SSH pública do deploy (para adicionar ao GitHub)"
+- name: 'Exibir chave SSH pública do deploy (para adicionar ao GitHub)'
   debug:
-    msg:
-      - "=============================================="
-      - "CHAVE SSH PÚBLICA DO DEPLOY (adicionar ao GitHub Deploy Keys):"
-      - "=============================================="
-      - "{{ lookup('file', '/home/deploy/.ssh/id_ed25519.pub') }}"
-      - "=============================================="
+      msg:
+          - '=============================================='
+          - 'CHAVE SSH PÚBLICA DO DEPLOY (adicionar ao GitHub Deploy Keys):'
+          - '=============================================='
+          - "{{ lookup('file', '/home/deploy/.ssh/id_ed25519.pub') }}"
+          - '=============================================='
   when: deploy_ssh_key.changed
 
-- name: "Salvar chave SSH pública em arquivo para backup"
+- name: 'Salvar chave SSH pública em arquivo para backup'
   copy:
-    content: "{{ lookup('file', '/home/deploy/.ssh/id_ed25519.pub') }}"
-    dest: /root/deploy_ssh_public_key.txt
-    mode: '0644'
+      content: "{{ lookup('file', '/home/deploy/.ssh/id_ed25519.pub') }}"
+      dest: /root/deploy_ssh_public_key.txt
+      mode: '0644'
   when: deploy_ssh_key.changed
 
-- name: "Configurar sudo para grupo deploysudo"
+- name: 'Configurar sudo para grupo deploysudo'
   lineinfile:
-    path: /etc/sudoers.d/deploysudo
-    line: "%deploysudo ALL=(ALL) NOPASSWD: /usr/bin/apt-get *, /usr/bin/apt *, /usr/bin/systemctl reload nginx, /usr/bin/supervisorctl reread, /usr/bin/supervisorctl update, /usr/bin/supervisorctl restart agentflix:*, /usr/bin/supervisorctl status, /usr/bin/pm2 restart, /usr/bin/pm2 reload, /usr/bin/pm2 stop, /usr/bin/pm2 start, /usr/bin/pm2 status, /usr/bin/pm2 describe"
-    create: yes
-    validate: 'visudo -cf %s'
+      path: /etc/sudoers.d/deploysudo
+      line: '%deploysudo ALL=(ALL) NOPASSWD: /usr/bin/apt-get *, /usr/bin/apt *, /usr/bin/systemctl reload nginx, /usr/bin/supervisorctl reread, /usr/bin/supervisorctl update, /usr/bin/supervisorctl restart interazap:*, /usr/bin/supervisorctl status, /usr/bin/pm2 restart, /usr/bin/pm2 reload, /usr/bin/pm2 stop, /usr/bin/pm2 start, /usr/bin/pm2 status, /usr/bin/pm2 describe'
+      create: yes
+      validate: 'visudo -cf %s'
 
-- name: "Configurar sudo para deploy (senha requerida)"
+- name: 'Configurar sudo para deploy (senha requerida)'
   lineinfile:
-    path: /etc/sudoers.d/deploy
-    line: "deploy ALL=(ALL) ALL"
-    create: yes
-    validate: 'visudo -cf %s'
+      path: /etc/sudoers.d/deploy
+      line: 'deploy ALL=(ALL) ALL'
+      create: yes
+      validate: 'visudo -cf %s'
 
-- name: "Criar diretórios de aplicação - Production"
+- name: 'Criar diretórios de aplicação - Production'
   file:
-    path: "{{ item }}"
-    owner: www-data
-    group: www-data
-    mode: '0755'
-    state: directory
+      path: '{{ item }}'
+      owner: www-data
+      group: www-data
+      mode: '0755'
+      state: directory
   loop:
-    - /data/production/api/api
-    - /data/production/api/api/storage/app/public
-    - /data/production/api/api/storage/framework/cache
-    - /data/production/api/api/storage/framework/sessions
-    - /data/production/api/api/storage/framework/views
-    - /data/production/api/api/storage/logs
-    - /data/production/api/api/bootstrap/cache
-    - /data/production/api/api/public
-    - /data/production/app/dist/agentflix/browser
-    - /data/production/gateway/dist
-    - /data/production/landing/public
-    - /var/log/agentflix
+      - /data/production/api/api
+      - /data/production/api/api/storage/app/public
+      - /data/production/api/api/storage/framework/cache
+      - /data/production/api/api/storage/framework/sessions
+      - /data/production/api/api/storage/framework/views
+      - /data/production/api/api/storage/logs
+      - /data/production/api/api/bootstrap/cache
+      - /data/production/api/api/public
+      - /data/production/app/dist/interazap/browser
+      - /data/production/gateway/dist
+      - /data/production/landing/public
+      - /var/log/interazap
 
-- name: "Criar diretórios de aplicação - Staging"
+- name: 'Criar diretórios de aplicação - Staging'
   file:
-    path: "{{ item }}"
-    owner: www-data
-    group: www-data
-    mode: '0755'
-    state: directory
+      path: '{{ item }}'
+      owner: www-data
+      group: www-data
+      mode: '0755'
+      state: directory
   loop:
-    - /data/stage/api/api
-    - /data/stage/api/api/storage/app/public
-    - /data/stage/api/api/storage/framework/cache
-    - /data/stage/api/api/storage/framework/sessions
-    - /data/stage/api/api/storage/framework/views
-    - /data/stage/api/api/storage/logs
-    - /data/stage/api/api/bootstrap/cache
-    - /data/stage/api/api/public
-    - /data/stage/app/dist/agentflix/browser
-    - /data/stage/gateway/dist
-    - /data/stage/landing/public
-    - /var/log/agentflix
+      - /data/stage/api/api
+      - /data/stage/api/api/storage/app/public
+      - /data/stage/api/api/storage/framework/cache
+      - /data/stage/api/api/storage/framework/sessions
+      - /data/stage/api/api/storage/framework/views
+      - /data/stage/api/api/storage/logs
+      - /data/stage/api/api/bootstrap/cache
+      - /data/stage/api/api/public
+      - /data/stage/app/dist/interazap/browser
+      - /data/stage/gateway/dist
+      - /data/stage/landing/public
+      - /var/log/interazap

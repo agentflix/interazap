@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://stage.api.agentflix.com.br/api',
+  apiUrl: 'https://stage.api.interazap.com.br/api',
   gateway: {
-    url: 'https://stage.gateway.agentflix.com.br',
+    url: 'https://stage.gateway.interazap.com.br',
     path: '/ws',
   },
   sentry: {

@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, computed, output } from '@angular/core';
 
 /**
- * Primary button component for AgentFlix UI Kit.
+ * Primary button component for InteraZap UI Kit.
  *
  * @example
  * ```html

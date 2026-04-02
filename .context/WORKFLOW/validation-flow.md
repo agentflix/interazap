@@ -1,4 +1,4 @@
-# Validation Flow — AgentFlix
+# Validation Flow — InteraZap
 
 > Processo detalhado de validação de qualidade. Corresponde à **fase V (Validation)** do workflow PREVC.
 
@@ -70,6 +70,7 @@ cd api && composer gate:all
 ```
 
 **O que valida:**
+
 - PHPStan Level 6 + Larastan (análise estática)
 - Rector (refactoring automatizado)
 - Pest tests (testes unitários e de feature)
@@ -78,6 +79,7 @@ cd api && composer gate:all
 **Quando executar:** Sempre que houver mudança em `api/`
 
 **Se falhar:**
+
 1. Ler output do gate para identificar o erro
 2. Erros de PHPStan: corrigir tipos, PHPDoc, nullable
 3. Erros de teste: corrigir lógica ou atualizar assertivas
@@ -93,12 +95,14 @@ cd gateway && pnpm lint && pnpm test
 ```
 
 **O que valida:**
+
 - ESLint (análise estática)
 - Jest tests (testes unitários e de integração)
 
 **Quando executar:** Sempre que houver mudança em `gateway/`
 
 **Se falhar:**
+
 1. Erros de lint: corrigir ou revisar regras em `eslint.config.mjs`
 2. Erros de teste: corrigir lógica ou atualizar mocks
 3. Re-executar: `cd gateway && pnpm lint && pnpm test`
@@ -112,6 +116,7 @@ cd app && pnpm run gate:all
 ```
 
 **O que valida:**
+
 - ESLint (análise estática TypeScript/Angular)
 - Vitest tests (testes unitários e de componente)
 - Build check (compilação Angular)
@@ -119,6 +124,7 @@ cd app && pnpm run gate:all
 **Quando executar:** Sempre que houver mudança em `app/`
 
 **Se falhar:**
+
 1. Erros de lint: `cd app && pnpm run lint:fix`
 2. Erros de build: revisar imports, types, templates
 3. Erros de teste: corrigir lógica ou atualizar fixtures
@@ -209,12 +215,12 @@ Acionar agente `@REVIEWER` para revisão final:
 
 ### Classificação de Issues
 
-| Severidade | Ação |
-|------------|------|
-| 🔴 Critical | Bloqueia merge — deve ser corrigido |
-| 🟡 Major | Deve ser corrigido antes do merge |
-| 🟢 Minor | Pode ser corrigido em follow-up |
-| 💭 Suggestion | Opcional, para consideração futura |
+| Severidade    | Ação                                |
+| ------------- | ----------------------------------- |
+| 🔴 Critical   | Bloqueia merge — deve ser corrigido |
+| 🟡 Major      | Deve ser corrigido antes do merge   |
+| 🟢 Minor      | Pode ser corrigido em follow-up     |
+| 💭 Suggestion | Opcional, para consideração futura  |
 
 ---
 
@@ -234,8 +240,8 @@ Se qualquer item falhar → corrigir → re-executar validação completa.
 
 ## Referências
 
-| Documento | Caminho |
-|-----------|---------|
-| PREVC Workflow | `.context/WORKFLOW/prevc.md` |
+| Documento        | Caminho                                 |
+| ---------------- | --------------------------------------- |
+| PREVC Workflow   | `.context/WORKFLOW/prevc.md`            |
 | Development Flow | `.context/WORKFLOW/development-flow.md` |
-| Contrato | `AGENTS.md` |
+| Contrato         | `AGENTS.md`                             |

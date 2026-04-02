@@ -12,7 +12,7 @@ description: >
 
 Orchestrates the complete frontend development cycle for UI tasks.
 Guarantees that design is specified before code is written, using the existing
-shared component library and following the AgentFlix design system.
+shared component library and following the InteraZap design system.
 
 ---
 

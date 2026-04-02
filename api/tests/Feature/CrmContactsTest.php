@@ -109,16 +109,16 @@ class CRMContactsTest extends TestCase
 
         $contact = $this->postJson('/api/crm/contacts', [
             'name' => 'Maria',
-            'email' => 'maria@agentflix.test',
+            'email' => 'maria@interazap.test',
             'phone_e164' => '+5511900000003',
         ])->assertStatus(201)->json('data');
 
         $patch = $this->patchJson('/api/crm/contacts/'.$contact['id'], [
-            'email' => 'maria.nova@agentflix.test',
+            'email' => 'maria.nova@interazap.test',
             'document' => '12345678901',
         ])->assertStatus(200)->json('data');
 
-        $this->assertSame('maria.nova@agentflix.test', $patch['email']);
+        $this->assertSame('maria.nova@interazap.test', $patch['email']);
         $this->assertSame('12345678901', $patch['document']);
     }
 }

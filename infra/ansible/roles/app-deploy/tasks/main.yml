@@ -92,7 +92,7 @@
 - name: 'Criar/atualizar .env compartilhado'
   shell: |
       cat > {{ deploy_path }}/api/shared/.env << ENVEOF
-      APP_NAME=AgentFlix
+      APP_NAME=InteraZap
       APP_ENV={{ app_environment }}
       APP_KEY=${VAULT_APP_KEY}
       APP_DEBUG=false
@@ -102,7 +102,7 @@
       DB_CONNECTION=pgsql
       DB_HOST=127.0.0.1
       DB_PORT=5432
-      DB_DATABASE={{ 'agentflix_stage' if app_environment == 'staging' else 'agentflix' }}
+      DB_DATABASE={{ 'agentflix_stage' if app_environment == 'staging' else 'interazap' }}
       DB_USERNAME=agentflix_app
       DB_PASSWORD=${VAULT_DB_PASSWORD}
 
@@ -128,7 +128,7 @@
       LOG_CHANNEL=stack
       LOG_LEVEL={{ 'debug' if app_environment == 'staging' else 'info' }}
 
-      HORIZON_NAME={{ 'agentflix-staging' if app_environment == 'staging' else 'agentflix-prod' }}
+      HORIZON_NAME={{ 'interazap-staging' if app_environment == 'staging' else 'interazap-prod' }}
       ENVEOF
       chown www-data:www-data {{ deploy_path }}/api/shared/.env
       chmod 640 {{ deploy_path }}/api/shared/.env
@@ -136,9 +136,9 @@
       VAULT_APP_KEY: "{{ agentflix_secret_key_staging | default('') if app_environment == 'staging' else agentflix_secret_key_production | default('') }}"
       VAULT_DB_PASSWORD: "{{ postgres_app_password | default('') }}"
       VAULT_REDIS_PASSWORD: "{{ redis_password | default('') }}"
-      VAULT_REVERB_APP_ID: "{{ reverb_app_id_staging | default('agentflix-stage') if app_environment == 'staging' else reverb_app_id_production | default('agentflix-prod') }}"
-      VAULT_REVERB_APP_KEY: "{{ reverb_app_key_staging | default('agentflix-stage-key') if app_environment == 'staging' else reverb_app_key_production | default('agentflix-prod-key') }}"
-      VAULT_REVERB_APP_SECRET: "{{ reverb_app_secret_staging | default('agentflix-stage-secret') if app_environment == 'staging' else reverb_app_secret_production | default('agentflix-prod-secret') }}"
+      VAULT_REVERB_APP_ID: "{{ reverb_app_id_staging | default('interazap-stage') if app_environment == 'staging' else reverb_app_id_production | default('interazap-prod') }}"
+      VAULT_REVERB_APP_KEY: "{{ reverb_app_key_staging | default('interazap-stage-key') if app_environment == 'staging' else reverb_app_key_production | default('interazap-prod-key') }}"
+      VAULT_REVERB_APP_SECRET: "{{ reverb_app_secret_staging | default('interazap-stage-secret') if app_environment == 'staging' else reverb_app_secret_production | default('interazap-prod-secret') }}"
 
 - name: 'Linkar pastas compartilhadas (Storage/Logs)'
   file:
@@ -378,7 +378,7 @@
       cat > {{ deploy_path }}/gateway/shared/.env << ENVEOF
       NODE_ENV={{ app_environment }}
       PORT={{ 6001 if app_environment == 'staging' else 6002 }}
-      DATABASE_URL=postgres://agentflix_app:${VAULT_DB_PASSWORD}@127.0.0.1:5432/{{ 'agentflix_stage' if app_environment == 'staging' else 'agentflix' }}
+      DATABASE_URL=postgres://agentflix_app:${VAULT_DB_PASSWORD}@127.0.0.1:5432/{{ 'agentflix_stage' if app_environment == 'staging' else 'interazap' }}
       REDIS_URL=redis://${REDIS_AUTH_SEGMENT}127.0.0.1:6379/{{ '1' if app_environment == 'staging' else '0' }}
       API_URL=http://127.0.0.1:{{ octane_port | default(9501) }}
       JWT_SECRET=${VAULT_JWT_SECRET}
@@ -410,7 +410,7 @@
 
 - name: 'Definir processo PM2 e porta do Gateway'
   set_fact:
-      gateway_pm2_process: "{{ 'agentflix-gateway-stage' if app_environment == 'staging' else 'agentflix-gateway-prod' }}"
+      gateway_pm2_process: "{{ 'interazap-gateway-stage' if app_environment == 'staging' else 'interazap-gateway-prod' }}"
       gateway_port: "{{ 6001 if app_environment == 'staging' else 6002 }}"
 
 - name: 'Aplicar processo Gateway via PM2 (startOrRestart)'

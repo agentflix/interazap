@@ -1,4 +1,4 @@
-# PRD-CONFIG-001 — Modulo de Configuracao do AgentFlix
+# PRD-CONFIG-001 — Modulo de Configuracao do InteraZap
 
 > **Modulo:** Configuration
 > **Status:** rascunho
@@ -12,23 +12,23 @@
 
 ## 1. CONTEXTO
 
-O modulo Configuration e responsavel por centralizar todas as configuracoes operacionais e de sistema que dao suporte ao funcionamento dos demais modulos do AgentFlix. Diferentemente de modulos que encapsulam dominios de negocio (como CRM, Chat ou Billing), o modulo Configuration age como uma camada transversal que gerencia parametros de comportamento, preferencias de usuario, politicas de entrega de conteudo e disponibilidade de servicos.
+O modulo Configuration e responsavel por centralizar todas as configuracoes operacionais e de sistema que dao suporte ao funcionamento dos demais modulos do InteraZap. Diferentemente de modulos que encapsulam dominios de negocio (como CRM, Chat ou Billing), o modulo Configuration age como uma camada transversal que gerencia parametros de comportamento, preferencias de usuario, politicas de entrega de conteudo e disponibilidade de servicos.
 
-O AgentFlix e uma plataforma SaaS multi-tenant para comunicacao inteligente com clientes via WhatsApp, combinando CRM, Chat, Billing e Inteligencia Artificial em um unico ecossistema. Cada empresa (tenant) opera com total isolamento: seus contatos, conversas, cobrancas e configuracoes sao absolutamente privadas em relacao a outros tenants. O modulo Configuration garante que os parametros de operacao e as politicas de entrega sejam respeitadas individualmente por tenant.
+O InteraZap e uma plataforma SaaS multi-tenant para comunicacao inteligente com clientes via WhatsApp, combinando CRM, Chat, Billing e Inteligencia Artificial em um unico ecossistema. Cada empresa (tenant) opera com total isolamento: seus contatos, conversas, cobrancas e configuracoes sao absolutamente privadas em relacao a outros tenants. O modulo Configuration garante que os parametros de operacao e as politicas de entrega sejam respeitadas individualmente por tenant.
 
 ### 1.1 Historico e Evolucao
 
-O modulo Configuration foi projetado para resolver tres problemas fundamentais na arquitetura do AgentFlix:
+O modulo Configuration foi projetado para resolver tres problemas fundamentais na arquitetura do InteraZap:
 
 **Problema 1 — Fragmentacao de Configuracoes**: Em sistemas SaaS maduros, configuracoes tendem a se espalhar por multiplas tabelas e models sem nenhuma consolidacao. Inicialmente, parametros de funcionamento (horarios de atendimento, chaves de API, flags de funcionalidade) eram armazenados em colunas ad-hoc em tabelas de outros modulos. Isso gerava duplicacao de logica, dificuldade de manutencao e ausencia de auditabilidade. O modulo Configuration centraliza todas essas configuracoes em um dominio coeso com Models, Actions, Resources e Policies dedicados.
 
-**Problema 2 — Ausencia de Preferencias Personalizaveis por Usuario**: O AgentFlix precisava de um mecanismo para que cada usuario pudesse controlar quais tipos de notificacao receberia e por quais canais (UI em tempo real, email, push web, WhatsApp, webhook). Alem disso, cada usuario precisava poder definir horarios de silencio (quiet hours) para evitar interrupcoes fora do expediente. O modulo Configuration implementa esse sistema completo de preferencias de notificacao com suporte a 5 canais distintos e 9 tipos de notificacao.
+**Problema 2 — Ausencia de Preferencias Personalizaveis por Usuario**: O InteraZap precisava de um mecanismo para que cada usuario pudesse controlar quais tipos de notificacao receberia e por quais canais (UI em tempo real, email, push web, WhatsApp, webhook). Alem disso, cada usuario precisava poder definir horarios de silencio (quiet hours) para evitar interrupcoes fora do expediente. O modulo Configuration implementa esse sistema completo de preferencias de notificacao com suporte a 5 canais distintos e 9 tipos de notificacao.
 
 **Problema 3 — Logica de Disponibilidade de Atendimento**: A plataforma opera em um contexto onde o horario de funcionamento do tenant e critico para automacoes. Quando um cliente envia uma mensagem fora do horario de atendimento, o sistema precisa saber disso para rotear a mensagem para uma fila de atendimento humano, exibir uma mensagem de fora do expediente ou adiar o envio de uma notificacao ate o proximo dia util. O modulo Configuration fornece a logica de negocio para isso.
 
 ### 1.2 Arquitetura do Modulo
 
-O modulo Configuration segue a arquitetura DDD (Domain-Driven Design) adotada pelo AgentFlix em todos os seus modulos. Cada entidade de configuracao segue um caminho previsivel:
+O modulo Configuration segue a arquitetura DDD (Domain-Driven Design) adotada pelo InteraZap em todos os seus modulos. Cada entidade de configuracao segue um caminho previsivel:
 
 ```
 Controller (final class, HTTP/JSON)
@@ -76,7 +76,7 @@ O modulo Configuration niao e isolado — ele se integra profundamente com prati
 
 ## 2. OBJETIVO
 
-O objetivo deste PRD e documentar de forma abrangente todos os requisitos funcionais e nao-funcionais do modulo Configuration do AgentFlix, estabelecendo as regras de negocio, fluxos de usuario e sistema, estrutura de entidades, contratos de API, modelo de eventos, politicas de seguranca e criterios de aceite para a implementacao e evolucao do modulo.
+O objetivo deste PRD e documentar de forma abrangente todos os requisitos funcionais e nao-funcionais do modulo Configuration do InteraZap, estabelecendo as regras de negocio, fluxos de usuario e sistema, estrutura de entidades, contratos de API, modelo de eventos, politicas de seguranca e criterios de aceite para a implementacao e evolucao do modulo.
 
 ### 2.1 Objetivos Funcionais
 
@@ -110,99 +110,99 @@ O modulo Configuration deve prover as seguintes capacidades funcionais:
 
 ### 3.1 Regras de Notificacao
 
-| ID | Regra | Prioridade | Categoria |
-|----|-------|------------|-----------|
-| RN-001 | Toda notificacao deve pertencer a um tenant (`tenant_id`) e a um usuario destinatario (`user_id`) | Critica | Isolamento |
-| RN-002 | Notificacoes possuem status: `pending` (na fila), `sent` (enviada), `failed` (falhou), `read` (lida pelo usuario) | Critica | Ciclo de vida |
-| RN-003 | O campo `status` deve ser alterado exclusivamente atraves dos metodos `markAsSent()`, `markAsFailed()` e `markAsRead()` do model | Critica | Imutabilidade |
-| RN-004 | Apenas notificacoes com `status` diferente de `read` podem ser marcadas como lidas | Alta | Validacao |
-| RN-005 | O campo `read_at` deve ser preenchido automaticamente no momento da marcacao como lida | Alta | Auditoria |
-| RN-006 | Notificacoes pendentes durante quiet hours devem ter `status` = `pending` e `quiet_hours_blocked` = true nos dados | Alta | Quiet hours |
-| RN-007 | Notificacoes com prioridade `urgent` ignoram quiet hours e sao sempre processadas | Alta | Quiet hours |
-| RN-008 | O dispatcher deve verificar preferencias do usuario antes de criar registros de notificacao | Critica | Preferencias |
-| RN-009 | Se um usuario nao possui preferencia configurada para um tipo de notificacao, usar defaults: canais `['ui']` e `enabled = true` | Media | Default |
-| RN-010 | O debounce e aplicado por combinacao de: `tenant_id + user_id + type + channel + entity_type + entity_id` | Alta | Anti-spam |
-| RN-011 | A janela de debounce e de 5 minutos (`DEBOUNCE_TTL_MINUTES = 5`) | Alta | Anti-spam |
-| RN-012 | O modo digest e ativado quando o contador de notificacoes do mesmo tipo para o mesmo usuario excede 5 por minuto | Media | Agregacao |
-| RN-013 | Notificacoes em modo digest substituem o titulo por "Resumo de notificacoes" e body por mensagem agregada | Media | Agregacao |
-| RN-014 | O dispatcher suporta broadcast para todos os usuarios ativos do tenant quando `userIds = '*'` | Media | Broadcast |
-| RN-015 | Cada canal de entrega deve verificar suas precondicoes antes de executar (ex: push precisa de assinatura ativa, whatsapp precisa de instancia ativa) | Alta | Entrega |
+| ID     | Regra                                                                                                                                                | Prioridade | Categoria     |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------- |
+| RN-001 | Toda notificacao deve pertencer a um tenant (`tenant_id`) e a um usuario destinatario (`user_id`)                                                    | Critica    | Isolamento    |
+| RN-002 | Notificacoes possuem status: `pending` (na fila), `sent` (enviada), `failed` (falhou), `read` (lida pelo usuario)                                    | Critica    | Ciclo de vida |
+| RN-003 | O campo `status` deve ser alterado exclusivamente atraves dos metodos `markAsSent()`, `markAsFailed()` e `markAsRead()` do model                     | Critica    | Imutabilidade |
+| RN-004 | Apenas notificacoes com `status` diferente de `read` podem ser marcadas como lidas                                                                   | Alta       | Validacao     |
+| RN-005 | O campo `read_at` deve ser preenchido automaticamente no momento da marcacao como lida                                                               | Alta       | Auditoria     |
+| RN-006 | Notificacoes pendentes durante quiet hours devem ter `status` = `pending` e `quiet_hours_blocked` = true nos dados                                   | Alta       | Quiet hours   |
+| RN-007 | Notificacoes com prioridade `urgent` ignoram quiet hours e sao sempre processadas                                                                    | Alta       | Quiet hours   |
+| RN-008 | O dispatcher deve verificar preferencias do usuario antes de criar registros de notificacao                                                          | Critica    | Preferencias  |
+| RN-009 | Se um usuario nao possui preferencia configurada para um tipo de notificacao, usar defaults: canais `['ui']` e `enabled = true`                      | Media      | Default       |
+| RN-010 | O debounce e aplicado por combinacao de: `tenant_id + user_id + type + channel + entity_type + entity_id`                                            | Alta       | Anti-spam     |
+| RN-011 | A janela de debounce e de 5 minutos (`DEBOUNCE_TTL_MINUTES = 5`)                                                                                     | Alta       | Anti-spam     |
+| RN-012 | O modo digest e ativado quando o contador de notificacoes do mesmo tipo para o mesmo usuario excede 5 por minuto                                     | Media      | Agregacao     |
+| RN-013 | Notificacoes em modo digest substituem o titulo por "Resumo de notificacoes" e body por mensagem agregada                                            | Media      | Agregacao     |
+| RN-014 | O dispatcher suporta broadcast para todos os usuarios ativos do tenant quando `userIds = '*'`                                                        | Media      | Broadcast     |
+| RN-015 | Cada canal de entrega deve verificar suas precondicoes antes de executar (ex: push precisa de assinatura ativa, whatsapp precisa de instancia ativa) | Alta       | Entrega       |
 
 ### 3.2 Regras de Canais de Entrega
 
-| ID | Regra | Prioridade | Categoria |
-|----|-------|------------|-----------|
-| RN-016 | Canal `ui` utiliza broadcast WebSocket via GatewayBroadcastService para evento `notification.new` | Critica | Canal UI |
-| RN-017 | Canal `email` requer que o usuario tenha email cadastrado. Falha se `recipient->email` for vazio | Alta | Canal Email |
-| RN-018 | Canal `push` requer pelo menos uma assinatura ativa em `configuration_push_subscriptions` com `is_active = true` | Alta | Canal Push |
-| RN-019 | Canal `whatsapp` requer instancia ativa do Chat Gateway e telefone do destinatario | Alta | Canal WhatsApp |
-| RN-020 | Canal `webhook` delivers para todos os webhooks ativos do tenant que filtrem por `event_types` | Alta | Canal Webhook |
-| RN-021 | Mensagens de webhook incluem headers `X-Notification-Id` e `X-Notification-Type` | Alta | Webhook |
-| RN-022 | Se `webhook.secret` estiver configurado, incluir `X-Notification-Signature` com HMAC-SHA256 do payload | Alta | Webhook |
-| RN-023 | Cada falha de webhook incrementa `failure_count` e registra `last_failure_at` | Media | Webhook |
-| RN-024 | Cada sucesso de webhook reseta `failure_count` para 0 e registra `last_success_at` | Media | Webhook |
-| RN-025 | Telefone em canal WhatsApp deve ser normalizado (apenas digitos) antes do envio | Alta | WhatsApp |
-| RN-026 | Mensagem WhatsApp concatena titulo e body da notificacao em um texto unico | Media | WhatsApp |
+| ID     | Regra                                                                                                            | Prioridade | Categoria      |
+| ------ | ---------------------------------------------------------------------------------------------------------------- | ---------- | -------------- |
+| RN-016 | Canal `ui` utiliza broadcast WebSocket via GatewayBroadcastService para evento `notification.new`                | Critica    | Canal UI       |
+| RN-017 | Canal `email` requer que o usuario tenha email cadastrado. Falha se `recipient->email` for vazio                 | Alta       | Canal Email    |
+| RN-018 | Canal `push` requer pelo menos uma assinatura ativa em `configuration_push_subscriptions` com `is_active = true` | Alta       | Canal Push     |
+| RN-019 | Canal `whatsapp` requer instancia ativa do Chat Gateway e telefone do destinatario                               | Alta       | Canal WhatsApp |
+| RN-020 | Canal `webhook` delivers para todos os webhooks ativos do tenant que filtrem por `event_types`                   | Alta       | Canal Webhook  |
+| RN-021 | Mensagens de webhook incluem headers `X-Notification-Id` e `X-Notification-Type`                                 | Alta       | Webhook        |
+| RN-022 | Se `webhook.secret` estiver configurado, incluir `X-Notification-Signature` com HMAC-SHA256 do payload           | Alta       | Webhook        |
+| RN-023 | Cada falha de webhook incrementa `failure_count` e registra `last_failure_at`                                    | Media      | Webhook        |
+| RN-024 | Cada sucesso de webhook reseta `failure_count` para 0 e registra `last_success_at`                               | Media      | Webhook        |
+| RN-025 | Telefone em canal WhatsApp deve ser normalizado (apenas digitos) antes do envio                                  | Alta       | WhatsApp       |
+| RN-026 | Mensagem WhatsApp concatena titulo e body da notificacao em um texto unico                                       | Media      | WhatsApp       |
 
 ### 3.3 Regras de Preferencias de Notificacao
 
-| ID | Regra | Prioridade | Categoria |
-|----|-------|------------|-----------|
-| RN-027 | Cada usuario pode ter uma preferencia por tipo de notificacao | Critica | Preferencias |
-| RN-028 | Tipos de notificacao disponiveis: `new_ticket`, `ticket_assigned`, `ticket_updated`, `ticket_closed`, `reminder`, `event`, `mention`, `system`, `billing` | Critica | Tipos |
-| RN-029 | Canais disponiveis: `ui`, `email`, `push`, `whatsapp`, `webhook` | Critica | Canais |
-| RN-030 | O campo `channels` e um array JSON que pode conter um ou mais canais | Alta | Canais |
-| RN-031 | Se `channels` for array vazio ou null, usar `['ui']` como default | Media | Default |
-| RN-032 | Quiet hours sao definidas por horario de inicio (`quiet_start`) e fim (`quiet_end`) no formato HH:MM | Media | Quiet hours |
-| RN-033 | Quiet hours com `quiet_start > quiet_end` indicam periodo que cruza a meia-noite (ex: 22:00 a 06:00) | Media | Quiet hours |
-| RN-034 | Metodo `isQuietHours()` deve corretamente tratar periodos que cruzam meia-noite | Alta | Quiet hours |
-| RN-035 | Quiet hours apenas bloqueiam notificacoes nao-urgentes (`priority !== 'urgent'`) | Alta | Quiet hours |
-| RN-036 | Preferencias sao atualizadas via `updateOrCreate` garantindo que apenas um registro exista por `user_id + notification_type` | Alta | Persistencia |
-| RN-037 | Bulk update de preferencias deve ignorar tipos invalidos (nao presentes em `TYPES`) | Media | Validacao |
+| ID     | Regra                                                                                                                                                     | Prioridade | Categoria    |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------ |
+| RN-027 | Cada usuario pode ter uma preferencia por tipo de notificacao                                                                                             | Critica    | Preferencias |
+| RN-028 | Tipos de notificacao disponiveis: `new_ticket`, `ticket_assigned`, `ticket_updated`, `ticket_closed`, `reminder`, `event`, `mention`, `system`, `billing` | Critica    | Tipos        |
+| RN-029 | Canais disponiveis: `ui`, `email`, `push`, `whatsapp`, `webhook`                                                                                          | Critica    | Canais       |
+| RN-030 | O campo `channels` e um array JSON que pode conter um ou mais canais                                                                                      | Alta       | Canais       |
+| RN-031 | Se `channels` for array vazio ou null, usar `['ui']` como default                                                                                         | Media      | Default      |
+| RN-032 | Quiet hours sao definidas por horario de inicio (`quiet_start`) e fim (`quiet_end`) no formato HH:MM                                                      | Media      | Quiet hours  |
+| RN-033 | Quiet hours com `quiet_start > quiet_end` indicam periodo que cruza a meia-noite (ex: 22:00 a 06:00)                                                      | Media      | Quiet hours  |
+| RN-034 | Metodo `isQuietHours()` deve corretamente tratar periodos que cruzam meia-noite                                                                           | Alta       | Quiet hours  |
+| RN-035 | Quiet hours apenas bloqueiam notificacoes nao-urgentes (`priority !== 'urgent'`)                                                                          | Alta       | Quiet hours  |
+| RN-036 | Preferencias sao atualizadas via `updateOrCreate` garantindo que apenas um registro exista por `user_id + notification_type`                              | Alta       | Persistencia |
+| RN-037 | Bulk update de preferencias deve ignorar tipos invalidos (nao presentes em `TYPES`)                                                                       | Media      | Validacao    |
 
 ### 3.4 Regras de Horarios de Atendimento
 
-| ID | Regra | Prioridade | Categoria |
-|----|-------|------------|-----------|
-| RN-038 | `day_of_week` deve ser um inteiro de 0 (Domingo) a 6 (Sabado), seguindo a convencao PHP Carbon | Critica | Validacao |
-| RN-039 | `open_time` e `close_time` devem seguir o formato HH:MM (24 horas) | Critica | Validacao |
-| RN-040 | `open_time` deve ser estritamente menor que `close_time` | Critica | Validacao |
-| RN-041 | Um tenant pode ter no maximo 7 registros de horario (um por dia da semana) | Media | Cardinalidade |
-| RN-042 | A operacao `bulkReplace` deleta todos os horarios existentes antes de inserir os novos dentro de transacao atomica | Alta | Operacao |
-| RN-043 | Se nenhum horario estiver configurado para o dia atual, `is_open` deve retornar `false` | Alta | Verificacao |
-| RN-044 | Apenas horarios com `is_active = true` sao considerados na verificacao de abertura | Alta | Filtro |
-| RN-045 | O sistema deve considerar o timezone do tenant ao verificar abertura | Media | Timezone |
+| ID     | Regra                                                                                                              | Prioridade | Categoria     |
+| ------ | ------------------------------------------------------------------------------------------------------------------ | ---------- | ------------- |
+| RN-038 | `day_of_week` deve ser um inteiro de 0 (Domingo) a 6 (Sabado), seguindo a convencao PHP Carbon                     | Critica    | Validacao     |
+| RN-039 | `open_time` e `close_time` devem seguir o formato HH:MM (24 horas)                                                 | Critica    | Validacao     |
+| RN-040 | `open_time` deve ser estritamente menor que `close_time`                                                           | Critica    | Validacao     |
+| RN-041 | Um tenant pode ter no maximo 7 registros de horario (um por dia da semana)                                         | Media      | Cardinalidade |
+| RN-042 | A operacao `bulkReplace` deleta todos os horarios existentes antes de inserir os novos dentro de transacao atomica | Alta       | Operacao      |
+| RN-043 | Se nenhum horario estiver configurado para o dia atual, `is_open` deve retornar `false`                            | Alta       | Verificacao   |
+| RN-044 | Apenas horarios com `is_active = true` sao considerados na verificacao de abertura                                 | Alta       | Filtro        |
+| RN-045 | O sistema deve considerar o timezone do tenant ao verificar abertura                                               | Media      | Timezone      |
 
 ### 3.5 Regras de Push Subscription
 
-| ID | Regra | Prioridade | Categoria |
-|----|-------|------------|-----------|
-| RN-046 | Cada push subscription deve pertencer a um tenant e um usuario | Critica | Isolamento |
-| RN-047 | Push subscription e unica por combinacao de `tenant_id + user_id + endpoint` | Alta | Uniquiness |
-| RN-048 | Campos `p256dh` e `auth` sao obrigatorios e devem ser armazenados verbatim | Alta | Dados |
-| RN-049 | `content_encoding` default e `aes128gcm` | Media | Default |
-| RN-050 | `last_seen_at` deve ser atualizado a cada re-inscricao (upsert) | Media | Auditoria |
-| RN-051 | Ao desinscrever, `is_active` deve ser alterado para `false` — exclusao fisica proibida | Alta | Imutabilidade |
+| ID     | Regra                                                                                  | Prioridade | Categoria     |
+| ------ | -------------------------------------------------------------------------------------- | ---------- | ------------- |
+| RN-046 | Cada push subscription deve pertencer a um tenant e um usuario                         | Critica    | Isolamento    |
+| RN-047 | Push subscription e unica por combinacao de `tenant_id + user_id + endpoint`           | Alta       | Uniquiness    |
+| RN-048 | Campos `p256dh` e `auth` sao obrigatorios e devem ser armazenados verbatim             | Alta       | Dados         |
+| RN-049 | `content_encoding` default e `aes128gcm`                                               | Media      | Default       |
+| RN-050 | `last_seen_at` deve ser atualizado a cada re-inscricao (upsert)                        | Media      | Auditoria     |
+| RN-051 | Ao desinscrever, `is_active` deve ser alterado para `false` — exclusao fisica proibida | Alta       | Imutabilidade |
 
 ### 3.6 Regras de Transcricao de Midia
 
-| ID | Regra | Prioridade | Categoria |
-|----|-------|------------|-----------|
-| RN-052 | Configuracoes de transcricao de midia sao armazenadas no nivel do tenant | Critica | Escopo |
-| RN-053 | Apenas usuarios com permissao `ai.autopilots.manage` podem visualizar e alterar configuracoes de transcricao | Critica | Autorizacao |
-| RN-054 | Configuracoes incluem flags para audio, imagem e video alem de limites de uso | Media | Granularidade |
+| ID     | Regra                                                                                                        | Prioridade | Categoria     |
+| ------ | ------------------------------------------------------------------------------------------------------------ | ---------- | ------------- |
+| RN-052 | Configuracoes de transcricao de midia sao armazenadas no nivel do tenant                                     | Critica    | Escopo        |
+| RN-053 | Apenas usuarios com permissao `ai.autopilots.manage` podem visualizar e alterar configuracoes de transcricao | Critica    | Autorizacao   |
+| RN-054 | Configuracoes incluem flags para audio, imagem e video alem de limites de uso                                | Media      | Granularidade |
 
 ### 3.7 Regras de Seguranca e Isolamento
 
-| ID | Regra | Prioridade | Categoria |
-|----|-------|------------|-----------|
-| RN-055 | Todos os endpoints do modulo Configuration exigem autenticacao `auth:sanctum` | Critica | Autenticacao |
-| RN-056 | Todo acesso a dados deve ser filtrado pelo `tenant_id` via trait `BelongsToTenant` | Critica | Isolamento |
-| RN-057 | Soft delete e proibido em todas as entidades deste modulo — exclusao logica apenas quando explicitamente especificado | Alta | Imutabilidade |
-| RN-058 | UUIDs como chave primaria em todas as entidades — nunca auto-increment | Critica | Identidade |
-| RN-059 | Logs nunca devem conter tokens, passwords, API keys ou secrets de webhook | Critica | Seguranca |
-| RN-060 | Rate limiting: maximo 60 requisicoes por minuto por usuario para endpoints de preferencia | Media | Rate limit |
-| RN-061 | Secrets de webhook devem ser write-only — nunca retornados em responses da API | Critica | Seguranca |
+| ID     | Regra                                                                                                                 | Prioridade | Categoria     |
+| ------ | --------------------------------------------------------------------------------------------------------------------- | ---------- | ------------- |
+| RN-055 | Todos os endpoints do modulo Configuration exigem autenticacao `auth:sanctum`                                         | Critica    | Autenticacao  |
+| RN-056 | Todo acesso a dados deve ser filtrado pelo `tenant_id` via trait `BelongsToTenant`                                    | Critica    | Isolamento    |
+| RN-057 | Soft delete e proibido em todas as entidades deste modulo — exclusao logica apenas quando explicitamente especificado | Alta       | Imutabilidade |
+| RN-058 | UUIDs como chave primaria em todas as entidades — nunca auto-increment                                                | Critica    | Identidade    |
+| RN-059 | Logs nunca devem conter tokens, passwords, API keys ou secrets de webhook                                             | Critica    | Seguranca     |
+| RN-060 | Rate limiting: maximo 60 requisicoes por minuto por usuario para endpoints de preferencia                             | Media      | Rate limit    |
+| RN-061 | Secrets de webhook devem ser write-only — nunca retornados em responses da API                                        | Critica    | Seguranca     |
 
 ---
 
@@ -644,22 +644,22 @@ erDiagram
 
 **Campos:**
 
-| Campo | Tipo | Nulavel | Descricao |
-|-------|------|---------|-----------|
-| `id` | UUID | Nao | Chave primaria, UUID v4 ordenado |
-| `tenant_id` | UUID | Nao | FK para `platform_tenants` |
-| `user_id` | UUID | Nao | FK para `auth_users` (destinatario) |
-| `type` | string(100) | Nao | Tipo de notificacao (ex: `new_ticket`) |
-| `title` | string(255) | Nao | Titulo da notificacao |
-| `body` | text | Sim | Corpo/mensagem da notificacao |
-| `data` | JSON | Sim | Payload adicional (entity_id, priority, etc) |
-| `channel` | string(50) | Nao | Canal de entrega (ui, email, push, whatsapp, webhook) |
-| `status` | string(20) | Nao | Status: `pending`, `sent`, `failed`, `read` |
-| `sent_at` | datetime | Sim | Timestamp de envio efetivo |
-| `read_at` | datetime | Sim | Timestamp de leitura pelo usuario |
-| `error_message` | string(1000) | Sim | Mensagem de erro em caso de falha |
-| `created_at` | datetime | Nao | Timestamp de criacao |
-| `updated_at` | datetime | Nao | Timestamp de ultima alteracao |
+| Campo           | Tipo         | Nulavel | Descricao                                             |
+| --------------- | ------------ | ------- | ----------------------------------------------------- |
+| `id`            | UUID         | Nao     | Chave primaria, UUID v4 ordenado                      |
+| `tenant_id`     | UUID         | Nao     | FK para `platform_tenants`                            |
+| `user_id`       | UUID         | Nao     | FK para `auth_users` (destinatario)                   |
+| `type`          | string(100)  | Nao     | Tipo de notificacao (ex: `new_ticket`)                |
+| `title`         | string(255)  | Nao     | Titulo da notificacao                                 |
+| `body`          | text         | Sim     | Corpo/mensagem da notificacao                         |
+| `data`          | JSON         | Sim     | Payload adicional (entity_id, priority, etc)          |
+| `channel`       | string(50)   | Nao     | Canal de entrega (ui, email, push, whatsapp, webhook) |
+| `status`        | string(20)   | Nao     | Status: `pending`, `sent`, `failed`, `read`           |
+| `sent_at`       | datetime     | Sim     | Timestamp de envio efetivo                            |
+| `read_at`       | datetime     | Sim     | Timestamp de leitura pelo usuario                     |
+| `error_message` | string(1000) | Sim     | Mensagem de erro em caso de falha                     |
+| `created_at`    | datetime     | Nao     | Timestamp de criacao                                  |
+| `updated_at`    | datetime     | Nao     | Timestamp de ultima alteracao                         |
 
 **Constantes de Status:**
 
@@ -678,10 +678,12 @@ public const STATUS_READ    = 'read';
 - `scopeUnread(Builder $query): Builder` — Escopo para filtrar notificacoes nao lidas
 
 **Relacionamentos:**
+
 - `tenant(): BelongsTo` — Tenant proprietario
 - `user(): BelongsTo` — Usuario destinatario
 
 **Traits utilizadas:**
+
 - `BelongsToTenant` — Escopo automatico por tenant_id
 - `HasUuids` — UUIDs como primary key
 
@@ -697,18 +699,18 @@ public const STATUS_READ    = 'read';
 
 **Campos:**
 
-| Campo | Tipo | Nulavel | Descricao |
-|-------|------|---------|-----------|
-| `id` | UUID | Nao | Chave primaria |
-| `tenant_id` | UUID | Nao | FK para `platform_tenants` |
-| `user_id` | UUID | Nao | FK para `auth_users` |
-| `notification_type` | string(50) | Nao | Tipo de notificacao |
-| `channels` | JSON | Nao | Array de canais ativos |
-| `enabled` | boolean | Nao | Se notificacoes deste tipo estao habilitadas |
-| `quiet_start` | time | Sim | Inicio do horario de silencio (HH:MM) |
-| `quiet_end` | time | Sim | Fim do horario de silencio (HH:MM) |
-| `created_at` | datetime | Nao | Timestamp de criacao |
-| `updated_at` | datetime | Nao | Timestamp de alteracao |
+| Campo               | Tipo       | Nulavel | Descricao                                    |
+| ------------------- | ---------- | ------- | -------------------------------------------- |
+| `id`                | UUID       | Nao     | Chave primaria                               |
+| `tenant_id`         | UUID       | Nao     | FK para `platform_tenants`                   |
+| `user_id`           | UUID       | Nao     | FK para `auth_users`                         |
+| `notification_type` | string(50) | Nao     | Tipo de notificacao                          |
+| `channels`          | JSON       | Nao     | Array de canais ativos                       |
+| `enabled`           | boolean    | Nao     | Se notificacoes deste tipo estao habilitadas |
+| `quiet_start`       | time       | Sim     | Inicio do horario de silencio (HH:MM)        |
+| `quiet_end`         | time       | Sim     | Fim do horario de silencio (HH:MM)           |
+| `created_at`        | datetime   | Nao     | Timestamp de criacao                         |
+| `updated_at`        | datetime   | Nao     | Timestamp de alteracao                       |
 
 **Tipos de notificacao disponiveis:**
 
@@ -744,6 +746,7 @@ public const CHANNELS = [
 - `isQuietHours(): bool` — Verifica se o momento atual esta dentro do horario de silencio
 
 **Tratamento de timezone de quiet hours:**
+
 - Se `quiet_start > quiet_end` (ex: 22:00 a 06:00), o periodo cruza meia-noite
 - Nesses casos: retorna `true` se `now >= quiet_start OR now <= quiet_end`
 - Caso contrario: retorna `true` se `now >= quiet_start AND now <= quiet_end`
@@ -760,22 +763,23 @@ public const CHANNELS = [
 
 **Campos:**
 
-| Campo | Tipo | Nulavel | Descricao |
-|-------|------|---------|-----------|
-| `id` | UUID | Nao | Chave primaria |
-| `tenant_id` | UUID | Nao | FK para `platform_tenants` |
-| `name` | string(100) | Nao | Nome descritivo do webhook |
-| `url` | string(500) | Nao | URL do endpoint |
-| `secret` | string(255) | Sim | Secret para assinatura HMAC-SHA256 |
-| `event_types` | JSON | Sim | Array de tipos a filtrar (vazio = todos) |
-| `is_active` | boolean | Nao | Se o webhook esta ativo |
-| `failure_count` | integer | Nao | Contador de falhas consecutivas |
-| `last_failure_at` | datetime | Sim | Timestamp da ultima falha |
-| `last_success_at` | datetime | Sim | Timestamp do ultimo sucesso |
-| `created_at` | datetime | Nao | Timestamp de criacao |
-| `updated_at` | datetime | Nao | Timestamp de alteracao |
+| Campo             | Tipo        | Nulavel | Descricao                                |
+| ----------------- | ----------- | ------- | ---------------------------------------- |
+| `id`              | UUID        | Nao     | Chave primaria                           |
+| `tenant_id`       | UUID        | Nao     | FK para `platform_tenants`               |
+| `name`            | string(100) | Nao     | Nome descritivo do webhook               |
+| `url`             | string(500) | Nao     | URL do endpoint                          |
+| `secret`          | string(255) | Sim     | Secret para assinatura HMAC-SHA256       |
+| `event_types`     | JSON        | Sim     | Array de tipos a filtrar (vazio = todos) |
+| `is_active`       | boolean     | Nao     | Se o webhook esta ativo                  |
+| `failure_count`   | integer     | Nao     | Contador de falhas consecutivas          |
+| `last_failure_at` | datetime    | Sim     | Timestamp da ultima falha                |
+| `last_success_at` | datetime    | Sim     | Timestamp do ultimo sucesso              |
+| `created_at`      | datetime    | Nao     | Timestamp de criacao                     |
+| `updated_at`      | datetime    | Nao     | Timestamp de alteracao                   |
 
 **Relacionamentos:**
+
 - `tenant(): BelongsTo` — Tenant proprietario
 
 ---
@@ -790,21 +794,23 @@ public const CHANNELS = [
 
 **Campos:**
 
-| Campo | Tipo | Nulavel | Descricao |
-|-------|------|---------|-----------|
-| `id` | UUID | Nao | Chave primaria |
-| `tenant_id` | UUID | Nao | FK para `platform_tenants` |
-| `day_of_week` | integer | Nao | Dia 0=Domingo a 6=Sabado |
-| `open_time` | time | Nao | Hora de abertura (HH:MM) |
-| `close_time` | time | Nao | Hora de fechamento (HH:MM) |
-| `is_active` | boolean | Nao | Se este horario esta ativo |
-| `created_at` | datetime | Nao | Timestamp de criacao |
-| `updated_at` | datetime | Nao | Timestamp de alteracao |
+| Campo         | Tipo     | Nulavel | Descricao                  |
+| ------------- | -------- | ------- | -------------------------- |
+| `id`          | UUID     | Nao     | Chave primaria             |
+| `tenant_id`   | UUID     | Nao     | FK para `platform_tenants` |
+| `day_of_week` | integer  | Nao     | Dia 0=Domingo a 6=Sabado   |
+| `open_time`   | time     | Nao     | Hora de abertura (HH:MM)   |
+| `close_time`  | time     | Nao     | Hora de fechamento (HH:MM) |
+| `is_active`   | boolean  | Nao     | Se este horario esta ativo |
+| `created_at`  | datetime | Nao     | Timestamp de criacao       |
+| `updated_at`  | datetime | Nao     | Timestamp de alteracao     |
 
 **Escopos:**
+
 - `scopeActive(Builder $query): Builder` — Filtra apenas horarios ativos (`is_active = true`)
 
 **Validacoes de dominio:**
+
 - `day_of_week` deve estar entre 0 e 6
 - `open_time` deve ser menor que `close_time`
 - Nao pode haver dois registros ativos para o mesmo dia do mesmo tenant
@@ -821,21 +827,22 @@ public const CHANNELS = [
 
 **Campos:**
 
-| Campo | Tipo | Nulavel | Descricao |
-|-------|------|---------|-----------|
-| `id` | UUID | Nao | Chave primaria |
-| `tenant_id` | UUID | Nao | FK para `platform_tenants` |
-| `user_id` | UUID | Nao | FK para `auth_users` |
-| `endpoint` | string(1000) | Nao | URL unica do endpoint push |
-| `p256dh` | string(255) | Nao | Chave publica ECDH do assinante |
-| `auth` | string(255) | Nao | Chave de autenticacao |
-| `content_encoding` | string(50) | Nao | Encoding da payload (default: `aes128gcm`) |
-| `is_active` | boolean | Nao | Se a assinatura esta ativa |
-| `last_seen_at` | datetime | Sim | Ultima vez que o navegador confirmou a assinatura |
-| `created_at` | datetime | Nao | Timestamp de criacao |
-| `updated_at` | datetime | Nao | Timestamp de alteracao |
+| Campo              | Tipo         | Nulavel | Descricao                                         |
+| ------------------ | ------------ | ------- | ------------------------------------------------- |
+| `id`               | UUID         | Nao     | Chave primaria                                    |
+| `tenant_id`        | UUID         | Nao     | FK para `platform_tenants`                        |
+| `user_id`          | UUID         | Nao     | FK para `auth_users`                              |
+| `endpoint`         | string(1000) | Nao     | URL unica do endpoint push                        |
+| `p256dh`           | string(255)  | Nao     | Chave publica ECDH do assinante                   |
+| `auth`             | string(255)  | Nao     | Chave de autenticacao                             |
+| `content_encoding` | string(50)   | Nao     | Encoding da payload (default: `aes128gcm`)        |
+| `is_active`        | boolean      | Nao     | Se a assinatura esta ativa                        |
+| `last_seen_at`     | datetime     | Sim     | Ultima vez que o navegador confirmou a assinatura |
+| `created_at`       | datetime     | Nao     | Timestamp de criacao                              |
+| `updated_at`       | datetime     | Nao     | Timestamp de alteracao                            |
 
 **Relacionamentos:**
+
 - `tenant(): BelongsTo` — Tenant proprietario
 - `user(): BelongsTo` — Usuario assinante
 
@@ -859,37 +866,37 @@ Base path: `/api/notifications`
 
 **Query Parameters:**
 
-| Parametro | Tipo | Default | Descricao |
-|-----------|------|---------|-----------|
-| `limit` | integer | 20 | Numero maximo de notificacoes (1-100) |
+| Parametro | Tipo    | Default | Descricao                             |
+| --------- | ------- | ------- | ------------------------------------- |
+| `limit`   | integer | 20      | Numero maximo de notificacoes (1-100) |
 
 **Response 200:**
 
 ```json
 {
-  "data": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440001",
-      "tenant_id": "550e8400-e29b-41d4-a716-446655440000",
-      "user_id": "550e8400-e29b-41d4-a716-446655440002",
-      "type": "new_ticket",
-      "title": "Novo ticket criado",
-      "body": "Duvida sobre cobranca",
-      "data": {
-        "ticket_id": "660e8400-e29b-41d4-a716-446655440003",
-        "status": "open",
-        "assigned_to": "770e8400-e29b-41d4-a716-446655440004",
-        "priority": "high",
-        "quiet_hours_blocked": false
-      },
-      "channel": "ui",
-      "status": "sent",
-      "sent_at": "2026-03-28T10:00:00Z",
-      "read_at": null,
-      "created_at": "2026-03-28T10:00:00Z"
-    }
-  ],
-  "unread_count": 15
+    "data": [
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440001",
+            "tenant_id": "550e8400-e29b-41d4-a716-446655440000",
+            "user_id": "550e8400-e29b-41d4-a716-446655440002",
+            "type": "new_ticket",
+            "title": "Novo ticket criado",
+            "body": "Duvida sobre cobranca",
+            "data": {
+                "ticket_id": "660e8400-e29b-41d4-a716-446655440003",
+                "status": "open",
+                "assigned_to": "770e8400-e29b-41d4-a716-446655440004",
+                "priority": "high",
+                "quiet_hours_blocked": false
+            },
+            "channel": "ui",
+            "status": "sent",
+            "sent_at": "2026-03-28T10:00:00Z",
+            "read_at": null,
+            "created_at": "2026-03-28T10:00:00Z"
+        }
+    ],
+    "unread_count": 15
 }
 ```
 
@@ -909,16 +916,16 @@ Base path: `/api/notifications`
 
 **Path Parameters:**
 
-| Parametro | Tipo | Descricao |
-|-----------|------|-----------|
-| `id` | UUID | Identificador da notificacao |
+| Parametro | Tipo | Descricao                    |
+| --------- | ---- | ---------------------------- |
+| `id`      | UUID | Identificador da notificacao |
 
 **Response 200:**
 
 ```json
 {
-  "success": true,
-  "message": "Notification marked as read"
+    "success": true,
+    "message": "Notification marked as read"
 }
 ```
 
@@ -940,8 +947,8 @@ Base path: `/api/notifications`
 
 ```json
 {
-  "count": 15,
-  "message": "Marked notifications as read"
+    "count": 15,
+    "message": "Marked notifications as read"
 }
 ```
 
@@ -959,35 +966,35 @@ Base path: `/api/notifications`
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440001",
-      "notification_type": "new_ticket",
-      "channels": ["ui", "email"],
-      "enabled": true,
-      "quiet_start": "22:00",
-      "quiet_end": "08:00"
+    "success": true,
+    "data": [
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440001",
+            "notification_type": "new_ticket",
+            "channels": ["ui", "email"],
+            "enabled": true,
+            "quiet_start": "22:00",
+            "quiet_end": "08:00"
+        }
+    ],
+    "types": {
+        "new_ticket": "Novo Ticket",
+        "ticket_assigned": "Ticket Atribuido",
+        "ticket_updated": "Ticket Atualizado",
+        "ticket_closed": "Ticket Fechado",
+        "reminder": "Lembrete",
+        "event": "Evento",
+        "mention": "Mencao",
+        "system": "Sistema",
+        "billing": "Faturamento"
+    },
+    "channels": {
+        "ui": "Interface (Realtime)",
+        "email": "Email",
+        "push": "Push (Web)",
+        "whatsapp": "WhatsApp",
+        "webhook": "Webhook"
     }
-  ],
-  "types": {
-    "new_ticket": "Novo Ticket",
-    "ticket_assigned": "Ticket Atribuido",
-    "ticket_updated": "Ticket Atualizado",
-    "ticket_closed": "Ticket Fechado",
-    "reminder": "Lembrete",
-    "event": "Evento",
-    "mention": "Mencao",
-    "system": "Sistema",
-    "billing": "Faturamento"
-  },
-  "channels": {
-    "ui": "Interface (Realtime)",
-    "email": "Email",
-    "push": "Push (Web)",
-    "whatsapp": "WhatsApp",
-    "webhook": "Webhook"
-  }
 }
 ```
 
@@ -1003,22 +1010,23 @@ Base path: `/api/notifications`
 
 **Path Parameters:**
 
-| Parametro | Tipo | Descricao |
-|-----------|------|-----------|
-| `type` | string | Tipo de notificacao (ex: `new_ticket`) |
+| Parametro | Tipo   | Descricao                              |
+| --------- | ------ | -------------------------------------- |
+| `type`    | string | Tipo de notificacao (ex: `new_ticket`) |
 
 **Request Body:**
 
 ```json
 {
-  "channels": ["ui", "email"],
-  "enabled": true,
-  "quiet_start": "22:00",
-  "quiet_end": "08:00"
+    "channels": ["ui", "email"],
+    "enabled": true,
+    "quiet_start": "22:00",
+    "quiet_end": "08:00"
 }
 ```
 
 **Validacao:**
+
 - `channels`: array com valores de `ConfigurationNotificationPreference::CHANNELS`
 - `enabled`: boolean
 - `quiet_start`: formato HH:MM, opcional
@@ -1028,16 +1036,16 @@ Base path: `/api/notifications`
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440001",
-    "notification_type": "new_ticket",
-    "channels": ["ui", "email"],
-    "enabled": true,
-    "quiet_start": "22:00",
-    "quiet_end": "08:00"
-  },
-  "message": "Preference updated"
+    "success": true,
+    "data": {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "notification_type": "new_ticket",
+        "channels": ["ui", "email"],
+        "enabled": true,
+        "quiet_start": "22:00",
+        "quiet_end": "08:00"
+    },
+    "message": "Preference updated"
 }
 ```
 
@@ -1057,26 +1065,27 @@ Base path: `/api/notifications`
 
 ```json
 {
-  "preferences": [
-    {
-      "type": "new_ticket",
-      "channels": ["ui"],
-      "enabled": true,
-      "quiet_start": null,
-      "quiet_end": null
-    },
-    {
-      "type": "billing",
-      "channels": ["ui", "email", "whatsapp"],
-      "enabled": true,
-      "quiet_start": "22:00",
-      "quiet_end": "07:00"
-    }
-  ]
+    "preferences": [
+        {
+            "type": "new_ticket",
+            "channels": ["ui"],
+            "enabled": true,
+            "quiet_start": null,
+            "quiet_end": null
+        },
+        {
+            "type": "billing",
+            "channels": ["ui", "email", "whatsapp"],
+            "enabled": true,
+            "quiet_start": "22:00",
+            "quiet_end": "07:00"
+        }
+    ]
 }
 ```
 
 **Validacao:**
+
 - `preferences`: array de objetos com `type` (obrigatorio), `channels`, `enabled`, `quiet_start`, `quiet_end`
 - Tipos nao existentes em `TYPES` sao ignorados silenciosamente
 
@@ -1084,24 +1093,24 @@ Base path: `/api/notifications`
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440001",
-      "notification_type": "new_ticket",
-      "channels": ["ui"],
-      "enabled": true
-    },
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440002",
-      "notification_type": "billing",
-      "channels": ["ui", "email", "whatsapp"],
-      "enabled": true,
-      "quiet_start": "22:00",
-      "quiet_end": "07:00"
-    }
-  ],
-  "message": "Preferences updated"
+    "success": true,
+    "data": [
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440001",
+            "notification_type": "new_ticket",
+            "channels": ["ui"],
+            "enabled": true
+        },
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440002",
+            "notification_type": "billing",
+            "channels": ["ui", "email", "whatsapp"],
+            "enabled": true,
+            "quiet_start": "22:00",
+            "quiet_end": "07:00"
+        }
+    ],
+    "message": "Preferences updated"
 }
 ```
 
@@ -1119,16 +1128,17 @@ Base path: `/api/notifications`
 
 ```json
 {
-  "endpoint": "https://fcm.googleapis.com/fcm/send/abc123...",
-  "keys": {
-    "p256dh": "BNc2eLx0Fl1BfRjD6xMP... ",
-    "auth": "tBHItJI5svbpez7KI4UGXg=="
-  },
-  "content_encoding": "aes128gcm"
+    "endpoint": "https://fcm.googleapis.com/fcm/send/abc123...",
+    "keys": {
+        "p256dh": "BNc2eLx0Fl1BfRjD6xMP... ",
+        "auth": "tBHItJI5svbpez7KI4UGXg=="
+    },
+    "content_encoding": "aes128gcm"
 }
 ```
 
 **Validacao:**
+
 - `endpoint`: string, max 1000 caracteres, obrigatorio
 - `keys.p256dh`: string, obrigatorio
 - `keys.auth`: string, obrigatorio
@@ -1138,14 +1148,14 @@ Base path: `/api/notifications`
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440003",
-    "endpoint": "https://fcm.googleapis.com/fcm/send/abc123...",
-    "is_active": true,
-    "last_seen_at": "2026-03-28T10:00:00Z"
-  },
-  "message": "Push subscription saved"
+    "success": true,
+    "data": {
+        "id": "550e8400-e29b-41d4-a716-446655440003",
+        "endpoint": "https://fcm.googleapis.com/fcm/send/abc123...",
+        "is_active": true,
+        "last_seen_at": "2026-03-28T10:00:00Z"
+    },
+    "message": "Push subscription saved"
 }
 ```
 
@@ -1163,19 +1173,20 @@ Base path: `/api/notifications`
 
 ```json
 {
-  "endpoint": "https://fcm.googleapis.com/fcm/send/abc123..."
+    "endpoint": "https://fcm.googleapis.com/fcm/send/abc123..."
 }
 ```
 
 **Validacao:**
+
 - `endpoint`: string, max 1000 caracteres, obrigatorio
 
 **Response 200:**
 
 ```json
 {
-  "success": true,
-  "message": "Push subscription disabled"
+    "success": true,
+    "message": "Push subscription disabled"
 }
 ```
 
@@ -1197,29 +1208,29 @@ Base path: `/api/opening-hours`
 
 ```json
 {
-  "success": true,
-  "data": {
-    "opening_hours": [
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440010",
-        "day_of_week": 0,
-        "open_time": "08:00",
-        "close_time": "18:00",
-        "is_active": false,
-        "created_at": "2026-03-28T10:00:00Z",
-        "updated_at": "2026-03-28T10:00:00Z"
-      },
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440011",
-        "day_of_week": 1,
-        "open_time": "08:00",
-        "close_time": "18:00",
-        "is_active": true,
-        "created_at": "2026-03-28T10:00:00Z",
-        "updated_at": "2026-03-28T10:00:00Z"
-      }
-    ]
-  }
+    "success": true,
+    "data": {
+        "opening_hours": [
+            {
+                "id": "550e8400-e29b-41d4-a716-446655440010",
+                "day_of_week": 0,
+                "open_time": "08:00",
+                "close_time": "18:00",
+                "is_active": false,
+                "created_at": "2026-03-28T10:00:00Z",
+                "updated_at": "2026-03-28T10:00:00Z"
+            },
+            {
+                "id": "550e8400-e29b-41d4-a716-446655440011",
+                "day_of_week": 1,
+                "open_time": "08:00",
+                "close_time": "18:00",
+                "is_active": true,
+                "created_at": "2026-03-28T10:00:00Z",
+                "updated_at": "2026-03-28T10:00:00Z"
+            }
+        ]
+    }
 }
 ```
 
@@ -1237,14 +1248,15 @@ Base path: `/api/opening-hours`
 
 ```json
 {
-  "day_of_week": 1,
-  "open_time": "08:00",
-  "close_time": "18:00",
-  "is_active": true
+    "day_of_week": 1,
+    "open_time": "08:00",
+    "close_time": "18:00",
+    "is_active": true
 }
 ```
 
 **Validacao:**
+
 - `day_of_week`: integer entre 0 e 6
 - `open_time`: formato HH:MM
 - `close_time`: formato HH:MM, deve ser maior que `open_time`
@@ -1254,15 +1266,15 @@ Base path: `/api/opening-hours`
 
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440012",
-    "day_of_week": 1,
-    "open_time": "08:00",
-    "close_time": "18:00",
-    "is_active": true
-  },
-  "message": "Horario criado"
+    "success": true,
+    "data": {
+        "id": "550e8400-e29b-41d4-a716-446655440012",
+        "day_of_week": 1,
+        "open_time": "08:00",
+        "close_time": "18:00",
+        "is_active": true
+    },
+    "message": "Horario criado"
 }
 ```
 
@@ -1282,15 +1294,15 @@ Base path: `/api/opening-hours`
 
 ```json
 {
-  "opening_hours": [
-    { "day_of_week": 0, "open_time": "00:00", "close_time": "00:00", "is_active": false },
-    { "day_of_week": 1, "open_time": "08:00", "close_time": "18:00", "is_active": true },
-    { "day_of_week": 2, "open_time": "08:00", "close_time": "18:00", "is_active": true },
-    { "day_of_week": 3, "open_time": "08:00", "close_time": "18:00", "is_active": true },
-    { "day_of_week": 4, "open_time": "08:00", "close_time": "18:00", "is_active": true },
-    { "day_of_week": 5, "open_time": "08:00", "close_time": "18:00", "is_active": true },
-    { "day_of_week": 6, "open_time": "09:00", "close_time": "13:00", "is_active": true }
-  ]
+    "opening_hours": [
+        { "day_of_week": 0, "open_time": "00:00", "close_time": "00:00", "is_active": false },
+        { "day_of_week": 1, "open_time": "08:00", "close_time": "18:00", "is_active": true },
+        { "day_of_week": 2, "open_time": "08:00", "close_time": "18:00", "is_active": true },
+        { "day_of_week": 3, "open_time": "08:00", "close_time": "18:00", "is_active": true },
+        { "day_of_week": 4, "open_time": "08:00", "close_time": "18:00", "is_active": true },
+        { "day_of_week": 5, "open_time": "08:00", "close_time": "18:00", "is_active": true },
+        { "day_of_week": 6, "open_time": "09:00", "close_time": "13:00", "is_active": true }
+    ]
 }
 ```
 
@@ -1322,23 +1334,24 @@ Base path: `/api/opening-hours`
 
 ```json
 {
-  "success": true,
-  "data": {
-    "is_open": true,
-    "current_day": 1,
-    "current_time": "10:30",
-    "opening_hour": {
-      "id": "550e8400-e29b-41d4-a716-446655440011",
-      "day_of_week": 1,
-      "open_time": "08:00",
-      "close_time": "18:00",
-      "is_active": true
+    "success": true,
+    "data": {
+        "is_open": true,
+        "current_day": 1,
+        "current_time": "10:30",
+        "opening_hour": {
+            "id": "550e8400-e29b-41d4-a716-446655440011",
+            "day_of_week": 1,
+            "open_time": "08:00",
+            "close_time": "18:00",
+            "is_active": true
+        }
     }
-  }
 }
 ```
 
 **Logica de verificacao:**
+
 ```
 is_open = EXISTS(
   SELECT 1 FROM configuration_opening_hours
@@ -1416,16 +1429,16 @@ Base path: `/api/media-transcription`
 
 ```json
 {
-  "success": true,
-  "data": {
-    "audio_transcription_enabled": true,
-    "image_transcription_enabled": true,
-    "video_transcription_enabled": false,
-    "audio_transcription_limit": 100,
-    "image_transcription_limit": 50,
-    "video_transcription_limit": 10
-  },
-  "message": "Configuracoes de transcricao de midia"
+    "success": true,
+    "data": {
+        "audio_transcription_enabled": true,
+        "image_transcription_enabled": true,
+        "video_transcription_enabled": false,
+        "audio_transcription_limit": 100,
+        "image_transcription_limit": 50,
+        "video_transcription_limit": 10
+    },
+    "message": "Configuracoes de transcricao de midia"
 }
 ```
 
@@ -1443,12 +1456,12 @@ Base path: `/api/media-transcription`
 
 ```json
 {
-  "audio_transcription_enabled": true,
-  "image_transcription_enabled": true,
-  "video_transcription_enabled": true,
-  "audio_transcription_limit": 200,
-  "image_transcription_limit": 100,
-  "video_transcription_limit": 20
+    "audio_transcription_enabled": true,
+    "image_transcription_enabled": true,
+    "video_transcription_enabled": true,
+    "audio_transcription_limit": 200,
+    "image_transcription_limit": 100,
+    "video_transcription_limit": 20
 }
 ```
 
@@ -1456,16 +1469,16 @@ Base path: `/api/media-transcription`
 
 ```json
 {
-  "success": true,
-  "data": {
-    "audio_transcription_enabled": true,
-    "image_transcription_enabled": true,
-    "video_transcription_enabled": true,
-    "audio_transcription_limit": 200,
-    "image_transcription_limit": 100,
-    "video_transcription_limit": 20
-  },
-  "message": "Configuracoes de transcricao atualizadas"
+    "success": true,
+    "data": {
+        "audio_transcription_enabled": true,
+        "image_transcription_enabled": true,
+        "video_transcription_enabled": true,
+        "audio_transcription_limit": 200,
+        "image_transcription_limit": 100,
+        "video_transcription_limit": 20
+    },
+    "message": "Configuracoes de transcricao atualizadas"
 }
 ```
 
@@ -1481,25 +1494,25 @@ O modulo Configuration consome eventos de outros modulos e emite seus proprios e
 
 Estes eventos sao disparados por outros modulos e capturados por listeners do modulo Configuration:
 
-| Evento | Origem | Payload | Acao |
-|--------|--------|---------|------|
-| `TicketCreatedEvent` | Modulo Chat | `tenantId`, `ticketId` | Despacha `new_ticket` para todos usuarios |
-| `TicketAssignedEvent` | Modulo Chat | `tenantId`, `ticketId`, `userId` | Despacha `ticket_assigned` para usuario assignee |
-| `TicketClosedEvent` | Modulo Chat | `tenantId`, `ticketId`, `assignedUserId` | Despacha `ticket_closed` para assignee |
-| `BillingInvoiceCreatedEvent` | Modulo Billing | `tenantId`, `invoiceId`, `amount`, `referenceMonth` | Despacha `billing` para todos |
-| `BillingPaymentConfirmedEvent` | Modulo Billing | `tenantId`, `invoiceId`, `amount`, `referenceMonth` | Despacha `billing` para todos |
-| `BillingPaymentOverdueEvent` | Modulo Billing | `tenantId`, `invoiceId`, `amount`, `referenceMonth` | Despacha `billing` (urgent) para todos |
-| `NegotiationWonEvent` | Modulo CRM | `tenantId`, `negotiationId` | Despacha notificacao para todos |
-| `NegotiationLostEvent` | Modulo CRM | `tenantId`, `negotiationId` | Despacha notificacao para todos |
-| `EvaluationLowScoreEvent` | Modulo Evaluation | `tenantId`, `evaluationId` | Despacha notificação de alerta |
-| `AiHotLeadDetectedEvent` | Modulo AI | `tenantId`, `contactId`, `score` | Despacha hot lead alert |
-| `AiEscalationRequiredEvent` | Modulo AI | `tenantId`, `contactId`, `reason` | Despacha escalation alert |
-| `StorageLimitWarningEvent` | Modulo AI/Platform | `tenantId`, `currentUsage`, `limit` | Despacha warning para admins |
+| Evento                         | Origem             | Payload                                             | Acao                                             |
+| ------------------------------ | ------------------ | --------------------------------------------------- | ------------------------------------------------ |
+| `TicketCreatedEvent`           | Modulo Chat        | `tenantId`, `ticketId`                              | Despacha `new_ticket` para todos usuarios        |
+| `TicketAssignedEvent`          | Modulo Chat        | `tenantId`, `ticketId`, `userId`                    | Despacha `ticket_assigned` para usuario assignee |
+| `TicketClosedEvent`            | Modulo Chat        | `tenantId`, `ticketId`, `assignedUserId`            | Despacha `ticket_closed` para assignee           |
+| `BillingInvoiceCreatedEvent`   | Modulo Billing     | `tenantId`, `invoiceId`, `amount`, `referenceMonth` | Despacha `billing` para todos                    |
+| `BillingPaymentConfirmedEvent` | Modulo Billing     | `tenantId`, `invoiceId`, `amount`, `referenceMonth` | Despacha `billing` para todos                    |
+| `BillingPaymentOverdueEvent`   | Modulo Billing     | `tenantId`, `invoiceId`, `amount`, `referenceMonth` | Despacha `billing` (urgent) para todos           |
+| `NegotiationWonEvent`          | Modulo CRM         | `tenantId`, `negotiationId`                         | Despacha notificacao para todos                  |
+| `NegotiationLostEvent`         | Modulo CRM         | `tenantId`, `negotiationId`                         | Despacha notificacao para todos                  |
+| `EvaluationLowScoreEvent`      | Modulo Evaluation  | `tenantId`, `evaluationId`                          | Despacha notificação de alerta                   |
+| `AiHotLeadDetectedEvent`       | Modulo AI          | `tenantId`, `contactId`, `score`                    | Despacha hot lead alert                          |
+| `AiEscalationRequiredEvent`    | Modulo AI          | `tenantId`, `contactId`, `reason`                   | Despacha escalation alert                        |
+| `StorageLimitWarningEvent`     | Modulo AI/Platform | `tenantId`, `currentUsage`, `limit`                 | Despacha warning para admins                     |
 
 #### 7.1.2 Eventos Emitidos (Integração de Saida)
 
-| Evento | Payload | Descricao |
-|--------|---------|-----------|
+| Evento                     | Payload                     | Descricao                                                               |
+| -------------------------- | --------------------------- | ----------------------------------------------------------------------- |
 | `NotificationCreatedEvent` | `notificationId`, `channel` | Disparado apos persistencia de uma notificação, antes do envio pelo job |
 
 ### 7.2 Modelos de Eventos
@@ -1573,12 +1586,14 @@ final class NotificationCreatedEvent
 Responds to: `TicketCreatedEvent`, `TicketAssignedEvent`, `TicketClosedEvent`
 
 Logica:
+
 1. Recebe o evento e extrai o tipo
 2. Busca o ticket no banco para enriquecer o conteudo
 3. Determina os destinatarios (`*` para broadcast, userId especifico para assigned/closed)
 4. Chama `NotificationDispatcherService::dispatch()` com prioridade apropriada
 
 Prioridades usadas:
+
 - `new_ticket`: high
 - `ticket_assigned`: high
 - `ticket_closed`: normal
@@ -1590,6 +1605,7 @@ Responds to: `BillingInvoiceCreatedEvent`, `BillingPaymentConfirmedEvent`, `Bill
 Logica: Despacha para `userIds = '*'` (todos usuarios ativos do tenant)
 
 Prioridades:
+
 - `BillingInvoiceCreatedEvent`: normal
 - `BillingPaymentConfirmedEvent`: normal
 - `BillingPaymentOverdueEvent`: urgent (ignora quiet hours)
@@ -1614,16 +1630,16 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
 
 A autorizacao e implementada via Laravel Policies:
 
-| Controller | Policy | Metodo | Descricao |
-|------------|--------|--------|-----------|
-| ConfigurationNotificationController | ConfigurationNotificationPreferencePolicy | `viewAny` | Listar notificacoes e preferencias |
-| ConfigurationNotificationController | ConfigurationNotificationPreferencePolicy | `update` | Marcar como lida, atualizar preferencias |
-| ConfigurationOpeningHourController | ConfigurationOpeningHourPolicy | `viewAny` | Listar horarios |
-| ConfigurationOpeningHourController | ConfigurationOpeningHourPolicy | `view` | Ver horario especifico |
-| ConfigurationOpeningHourController | ConfigurationOpeningHourPolicy | `create` | Criar horario individual |
-| ConfigurationOpeningHourPolicy | `update` | Atualizar horario | |
-| ConfigurationOpeningHourController | ConfigurationOpeningHourPolicy | `delete` | Remover horario |
-| ConfigurationMediaTranscriptionController | Gate | `ai.autopilots.manage` | Vizualizar/alterar transcricao |
+| Controller                                | Policy                                    | Metodo                 | Descricao                                |
+| ----------------------------------------- | ----------------------------------------- | ---------------------- | ---------------------------------------- |
+| ConfigurationNotificationController       | ConfigurationNotificationPreferencePolicy | `viewAny`              | Listar notificacoes e preferencias       |
+| ConfigurationNotificationController       | ConfigurationNotificationPreferencePolicy | `update`               | Marcar como lida, atualizar preferencias |
+| ConfigurationOpeningHourController        | ConfigurationOpeningHourPolicy            | `viewAny`              | Listar horarios                          |
+| ConfigurationOpeningHourController        | ConfigurationOpeningHourPolicy            | `view`                 | Ver horario especifico                   |
+| ConfigurationOpeningHourController        | ConfigurationOpeningHourPolicy            | `create`               | Criar horario individual                 |
+| ConfigurationOpeningHourPolicy            | `update`                                  | Atualizar horario      |                                          |
+| ConfigurationOpeningHourController        | ConfigurationOpeningHourPolicy            | `delete`               | Remover horario                          |
+| ConfigurationMediaTranscriptionController | Gate                                      | `ai.autopilots.manage` | Vizualizar/alterar transcricao           |
 
 ### 8.3 Isolamento de Tenant
 
@@ -1663,6 +1679,7 @@ Endpoints de preferencia de notificacao (listagem, update) estao sujeitos a rate
 ### 8.7 Logs e Auditoria
 
 **Proibido em logs:**
+
 - Tokens de autenticacao
 - Senhas e password hashes
 - API keys de servicos externos
@@ -1670,6 +1687,7 @@ Endpoints de preferencia de notificacao (listagem, update) estao sujeitos a rate
 - Chaves p256dh e auth de push subscription
 
 **O que e logado:**
+
 - IDs de entidade (tenant, user, notification)
 - Tipos de operacao
 - Parametros de configuracao (sem valores sensiveis)
@@ -1812,6 +1830,7 @@ final class ConfigurationNotificationResource extends BaseJsonResource
 ```
 
 **Mapeamento de campos:**
+
 - Todos os campos do model sao expostos
 - `data` (JSON) e serializado como objeto
 - Timestamps convertidos para ISO 8601
@@ -1931,87 +1950,87 @@ Valida `POST /notifications/push-subscribe`:
 
 ### 10.1 Criterios de Notificacao
 
-| ID | Criterio | Metodo de Verificacao |
-|----|----------|----------------------|
-| CA-001 | Usuario autenticado consegue listar suas notificacoes nao lidas com paginacao | GET /notifications retorna 200 com array e unread_count |
-| CA-002 | Sistema retorna 401 quando token e invalido ou ausente | GET /notifications sem token retorna 401 |
-| CA-003 | Marcacao de notificacao como lida altera status para 'read' e preenche read_at | PATCH /notifications/{id}/read altera banco |
-| CA-004 | Marcacao de todas como lidas atualiza todos os registros unread do usuario | POST /notifications/read-all retorna count > 0 |
-| CA-005 | Atualizacao de preferencia persiste canais, enabled e quiet hours | PUT /preferences/{type} persiste no banco |
-| CA-006 | Bulk update de preferencias processa todos os itens validos e ignora invalidos | PUT /preferences com 9 tipos atualiza corretamente |
-| CA-007 | Push subscription e criada e retornada com id e is_active=true | POST /push-subscribe persiste subscription |
-| CA-008 | Push unsubscribe desativa assinatura (is_active=false) sem deletar | DELETE /push-subscribe atualiza is_active |
-| CA-009 | Notificacao criada via dispatcher tem tenant_id correto | Log/query do banco verifica tenant_id |
-| CA-010 | Debounce impede segunda notificacao da mesma entidade em 5 minutos | Segunda chamada com mesmo entity_id+type+channel e ignorada |
-| CA-011 | Quiet hours bloqueiam notificacoes non-urgent | Notificacao normal durante quiet hours fica com status=pending |
-| CA-012 | Prioridade urgent ignora quiet hours | Dispatch urgent durante quiet hours cria com status=sent |
-| CA-013 | Modo digest e ativado a partir da 6a notificacao do mesmo tipo | Log mostra payload agregado |
-| CA-014 | Broadcast para '*' entrega para todos usuarios ativos do tenant | Query verifica registros para cada usuario |
-| CA-015 | SendNotificationJob faz retry em caso de falha com backoff 10s, 60s, 300s | Log de job mostra tentativas em intervalos corretos |
+| ID     | Criterio                                                                       | Metodo de Verificacao                                          |
+| ------ | ------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| CA-001 | Usuario autenticado consegue listar suas notificacoes nao lidas com paginacao  | GET /notifications retorna 200 com array e unread_count        |
+| CA-002 | Sistema retorna 401 quando token e invalido ou ausente                         | GET /notifications sem token retorna 401                       |
+| CA-003 | Marcacao de notificacao como lida altera status para 'read' e preenche read_at | PATCH /notifications/{id}/read altera banco                    |
+| CA-004 | Marcacao de todas como lidas atualiza todos os registros unread do usuario     | POST /notifications/read-all retorna count > 0                 |
+| CA-005 | Atualizacao de preferencia persiste canais, enabled e quiet hours              | PUT /preferences/{type} persiste no banco                      |
+| CA-006 | Bulk update de preferencias processa todos os itens validos e ignora invalidos | PUT /preferences com 9 tipos atualiza corretamente             |
+| CA-007 | Push subscription e criada e retornada com id e is_active=true                 | POST /push-subscribe persiste subscription                     |
+| CA-008 | Push unsubscribe desativa assinatura (is_active=false) sem deletar             | DELETE /push-subscribe atualiza is_active                      |
+| CA-009 | Notificacao criada via dispatcher tem tenant_id correto                        | Log/query do banco verifica tenant_id                          |
+| CA-010 | Debounce impede segunda notificacao da mesma entidade em 5 minutos             | Segunda chamada com mesmo entity_id+type+channel e ignorada    |
+| CA-011 | Quiet hours bloqueiam notificacoes non-urgent                                  | Notificacao normal durante quiet hours fica com status=pending |
+| CA-012 | Prioridade urgent ignora quiet hours                                           | Dispatch urgent durante quiet hours cria com status=sent       |
+| CA-013 | Modo digest e ativado a partir da 6a notificacao do mesmo tipo                 | Log mostra payload agregado                                    |
+| CA-014 | Broadcast para '\*' entrega para todos usuarios ativos do tenant               | Query verifica registros para cada usuario                     |
+| CA-015 | SendNotificationJob faz retry em caso de falha com backoff 10s, 60s, 300s      | Log de job mostra tentativas em intervalos corretos            |
 
 ### 10.2 Criterios de Canais de Entrega
 
-| ID | Criterio | Metodo de Verificacao |
-|----|----------|----------------------|
-| CA-016 | Canal UI dispara broadcast WebSocket com evento notification.new | Frontend receives WebSocket event |
-| CA-017 | Canal email envia email se usuario tem email cadastrado | Mail trap/intercept verifica email |
-| CA-018 | Canal email falha graciosamente se email vazio | Status=failed com mensagem apropriada |
-| CA-019 | Canal push verifica subscriptions ativas antes de enviar | Query verification no banco |
-| CA-020 | Canal whatsapp normaliza telefone (remove caracteres nao-digiticos) | Teste com '(11) 99999-9999' vira '5511999999999' |
-| CA-021 | Canal webhook inclui X-Notification-Signature quando secret existe | Request intercepted mostra header correto |
-| CA-022 | Canal webhook entrega para todos webhooks ativos que filtram o tipo | Query verification de deliveries |
-| CA-023 | Falha de webhook incrementa failure_count | Apos POST falho, failure_count++ |
-| CA-024 | Sucesso de webhook reseta failure_count para 0 | Apos POST bem-sucedido, failure_count=0 |
-| CA-025 | Todos os canais falhados apos 3 retries marcam notification como failed | Status=failed no banco |
+| ID     | Criterio                                                                | Metodo de Verificacao                            |
+| ------ | ----------------------------------------------------------------------- | ------------------------------------------------ |
+| CA-016 | Canal UI dispara broadcast WebSocket com evento notification.new        | Frontend receives WebSocket event                |
+| CA-017 | Canal email envia email se usuario tem email cadastrado                 | Mail trap/intercept verifica email               |
+| CA-018 | Canal email falha graciosamente se email vazio                          | Status=failed com mensagem apropriada            |
+| CA-019 | Canal push verifica subscriptions ativas antes de enviar                | Query verification no banco                      |
+| CA-020 | Canal whatsapp normaliza telefone (remove caracteres nao-digiticos)     | Teste com '(11) 99999-9999' vira '5511999999999' |
+| CA-021 | Canal webhook inclui X-Notification-Signature quando secret existe      | Request intercepted mostra header correto        |
+| CA-022 | Canal webhook entrega para todos webhooks ativos que filtram o tipo     | Query verification de deliveries                 |
+| CA-023 | Falha de webhook incrementa failure_count                               | Apos POST falho, failure_count++                 |
+| CA-024 | Sucesso de webhook reseta failure_count para 0                          | Apos POST bem-sucedido, failure_count=0          |
+| CA-025 | Todos os canais falhados apos 3 retries marcam notification como failed | Status=failed no banco                           |
 
 ### 10.3 Criterios de Horarios de Atendimento
 
-| ID | Criterio | Metodo de Verificacao |
-|----|----------|----------------------|
-| CA-026 | CRUD completo de horarios funciona (create, read, update, delete) | Testes de cada operacao HTTP |
-| CA-027 | Bulk replace deleta existentes e insere novos atomica | Verificar count antes e depois da operacao |
+| ID     | Criterio                                                                | Metodo de Verificacao                         |
+| ------ | ----------------------------------------------------------------------- | --------------------------------------------- |
+| CA-026 | CRUD completo de horarios funciona (create, read, update, delete)       | Testes de cada operacao HTTP                  |
+| CA-027 | Bulk replace deleta existentes e insere novos atomica                   | Verificar count antes e depois da operacao    |
 | CA-028 | Bulk dentro de transacao — falha parcial nao deixa dados inconsistentes | Simular erro na insercao e verificar rollback |
-| CA-029 | isOpen retorna true durante horario configurado | Testar com horario atual do sistema |
-| CA-030 | isOpen retorna false fora do horario configurado | Testar fora da janela ou em dia inativo |
-| CA-031 | isOpen retorna false se nenhum horario configurado | Tabela vazia retorna is_open=false |
-| CA-032 | Apenas horarios com is_active=true sao considerados | Horario inativo e ignorado na query |
-| CA-033 | Validacao rejeita open_time >= close_time | POST com horario invalido retorna 422 |
-| CA-034 | Validacao rejeita dia fora de 0-6 | POST com day_of_week=7 retorna 422 |
+| CA-029 | isOpen retorna true durante horario configurado                         | Testar com horario atual do sistema           |
+| CA-030 | isOpen retorna false fora do horario configurado                        | Testar fora da janela ou em dia inativo       |
+| CA-031 | isOpen retorna false se nenhum horario configurado                      | Tabela vazia retorna is_open=false            |
+| CA-032 | Apenas horarios com is_active=true sao considerados                     | Horario inativo e ignorado na query           |
+| CA-033 | Validacao rejeita open_time >= close_time                               | POST com horario invalido retorna 422         |
+| CA-034 | Validacao rejeita dia fora de 0-6                                       | POST com day_of_week=7 retorna 422            |
 
 ### 10.4 Criterios de Seguranca e Isolamento
 
-| ID | Criterio | Metodo de Verificacao |
-|----|----------|----------------------|
-| CA-035 | Endpoint inacessivel sem token | Sem Authorization header retorna 401 |
-| CA-036 | Usuario so ve notificacoes do proprio tenant | Query cross-tenant retorna vazio |
-| CA-037 | Usuario so ve preferencias proprias | Not possible ver preferencias de outro user |
-| CA-038 | Horarios de tenant A inacessiveis para tenant B | Query por tenant diferente retorna vazio |
-| CA-039 | Secrets de webhook nunca retornados em GET de preferencias | Response nao contem campo secret |
-| CA-040 | Logs nao contem tokens, senhas ou secrets | Log auditado por reviewer |
-| CA-041 | Todos os IDs sao UUIDs (nenhum auto-increment) | Inspecionar tabela — sem integers sequenciais |
-| CA-042 | Rate limiting funciona em endpoints de preferencia | Flood test verifica 429 apos 60 req/min |
+| ID     | Criterio                                                   | Metodo de Verificacao                         |
+| ------ | ---------------------------------------------------------- | --------------------------------------------- |
+| CA-035 | Endpoint inacessivel sem token                             | Sem Authorization header retorna 401          |
+| CA-036 | Usuario so ve notificacoes do proprio tenant               | Query cross-tenant retorna vazio              |
+| CA-037 | Usuario so ve preferencias proprias                        | Not possible ver preferencias de outro user   |
+| CA-038 | Horarios de tenant A inacessiveis para tenant B            | Query por tenant diferente retorna vazio      |
+| CA-039 | Secrets de webhook nunca retornados em GET de preferencias | Response nao contem campo secret              |
+| CA-040 | Logs nao contem tokens, senhas ou secrets                  | Log auditado por reviewer                     |
+| CA-041 | Todos os IDs sao UUIDs (nenhum auto-increment)             | Inspecionar tabela — sem integers sequenciais |
+| CA-042 | Rate limiting funciona em endpoints de preferencia         | Flood test verifica 429 apos 60 req/min       |
 
 ### 10.5 Criterios de Integracao
 
-| ID | Criterio | Metodo de Verificacao |
-|----|----------|----------------------|
-| CA-043 | TicketCreatedEvent dispara notificação new_ticket via listener | Dispatch event e verificar notification criada |
-| CA-044 | BillingPaymentOverdueEvent dispara notificação com priority=urgent | Dispatch event e verificar priority no banco |
-| CA-045 | NotificationCreatedEvent e disparado apos criacao | Event listener intercepta evento |
-| CA-046 | GatewayBroadcastService recebe chamada correta do dispatcher | Mock/spy verification no teste |
-| CA-047 | ChatGatewayService e chamado para canal whatsapp | Mock verification no teste de job |
-| CA-048 | MediaTranscriptionController respeita gate ai.autopilots.manage | Usuario sem permissao recebe 403 |
+| ID     | Criterio                                                           | Metodo de Verificacao                          |
+| ------ | ------------------------------------------------------------------ | ---------------------------------------------- |
+| CA-043 | TicketCreatedEvent dispara notificação new_ticket via listener     | Dispatch event e verificar notification criada |
+| CA-044 | BillingPaymentOverdueEvent dispara notificação com priority=urgent | Dispatch event e verificar priority no banco   |
+| CA-045 | NotificationCreatedEvent e disparado apos criacao                  | Event listener intercepta evento               |
+| CA-046 | GatewayBroadcastService recebe chamada correta do dispatcher       | Mock/spy verification no teste                 |
+| CA-047 | ChatGatewayService e chamado para canal whatsapp                   | Mock verification no teste de job              |
+| CA-048 | MediaTranscriptionController respeita gate ai.autopilots.manage    | Usuario sem permissao recebe 403               |
 
 ### 10.6 Criterios de Frontend (Angular)
 
-| ID | Criterio | Metodo de Verificacao |
-|----|----------|----------------------|
+| ID     | Criterio                                                                             | Metodo de Verificacao               |
+| ------ | ------------------------------------------------------------------------------------ | ----------------------------------- |
 | CA-049 | NotificationApiService.fetchUnread() retorna Observable com NotificationListResponse | Unit test com HttpTestingController |
-| CA-050 | NotificationApiService.markAsRead() faz PATCH correto | Request verification |
-| CA-051 | OpeningHourService.bulkUpdate() envia array de 7 dias | Request body inspection |
-| CA-052 | OpeningHourService.isOpen() retorna is_open booleano | Response mapping verification |
-| CA-053 | Notification model e NotificationTypeEnum exportados corretamente | Compilacao TypeScript sem erro |
-| CA-054 | Componente dropdown de notificacao atualiza unread_count em tempo real | E2E test com WebSocket mock |
+| CA-050 | NotificationApiService.markAsRead() faz PATCH correto                                | Request verification                |
+| CA-051 | OpeningHourService.bulkUpdate() envia array de 7 dias                                | Request body inspection             |
+| CA-052 | OpeningHourService.isOpen() retorna is_open booleano                                 | Response mapping verification       |
+| CA-053 | Notification model e NotificationTypeEnum exportados corretamente                    | Compilacao TypeScript sem erro      |
+| CA-054 | Componente dropdown de notificacao atualiza unread_count em tempo real               | E2E test com WebSocket mock         |
 
 ---
 
@@ -2047,25 +2066,25 @@ public array $backoff = [10, 60, 300];
 
 ### A.2 Mapeamento de Rotas
 
-| Metodo | URI | Controller@metodo | Nome |
-|--------|-----|-------------------|------|
-| GET | /api/notifications | ConfigurationNotificationController@index | notifications.index |
-| PATCH | /api/notifications/{id}/read | ConfigurationNotificationController@markAsRead | notifications.markAsRead |
-| POST | /api/notifications/read-all | ConfigurationNotificationController@markAllAsRead | notifications.markAllAsRead |
-| GET | /api/notifications/preferences | ConfigurationNotificationController@preferences | notifications.preferences |
-| PUT | /api/notifications/preferences/{type} | ConfigurationNotificationController@updatePreference | notifications.updatePreference |
-| PUT | /api/notifications/preferences | ConfigurationNotificationController@updateAllPreferences | notifications.updateAllPreferences |
-| POST | /api/notifications/push-subscribe | ConfigurationNotificationController@pushSubscribe | notifications.pushSubscribe |
-| DELETE | /api/notifications/push-subscribe | ConfigurationNotificationController@pushUnsubscribe | notifications.pushUnsubscribe |
-| GET | /api/opening-hours | ConfigurationOpeningHourController@index | opening-hours.index |
-| POST | /api/opening-hours | ConfigurationOpeningHourController@store | opening-hours.store |
-| PUT | /api/opening-hours/bulk | ConfigurationOpeningHourController@bulk | opening-hours.bulk |
-| GET | /api/opening-hours/is-open | ConfigurationOpeningHourController@isOpen | opening-hours.isOpen |
-| GET | /api/opening-hours/{id} | ConfigurationOpeningHourController@show | opening-hours.show |
-| PUT | /api/opening-hours/{id} | ConfigurationOpeningHourController@update | opening-hours.update |
-| DELETE | /api/opening-hours/{id} | ConfigurationOpeningHourController@destroy | opening-hours.destroy |
-| GET | /api/media-transcription | ConfigurationMediaTranscriptionController@show | media-transcription.show |
-| PUT | /api/media-transcription | ConfigurationMediaTranscriptionController@update | media-transcription.update |
+| Metodo | URI                                   | Controller@metodo                                        | Nome                               |
+| ------ | ------------------------------------- | -------------------------------------------------------- | ---------------------------------- |
+| GET    | /api/notifications                    | ConfigurationNotificationController@index                | notifications.index                |
+| PATCH  | /api/notifications/{id}/read          | ConfigurationNotificationController@markAsRead           | notifications.markAsRead           |
+| POST   | /api/notifications/read-all           | ConfigurationNotificationController@markAllAsRead        | notifications.markAllAsRead        |
+| GET    | /api/notifications/preferences        | ConfigurationNotificationController@preferences          | notifications.preferences          |
+| PUT    | /api/notifications/preferences/{type} | ConfigurationNotificationController@updatePreference     | notifications.updatePreference     |
+| PUT    | /api/notifications/preferences        | ConfigurationNotificationController@updateAllPreferences | notifications.updateAllPreferences |
+| POST   | /api/notifications/push-subscribe     | ConfigurationNotificationController@pushSubscribe        | notifications.pushSubscribe        |
+| DELETE | /api/notifications/push-subscribe     | ConfigurationNotificationController@pushUnsubscribe      | notifications.pushUnsubscribe      |
+| GET    | /api/opening-hours                    | ConfigurationOpeningHourController@index                 | opening-hours.index                |
+| POST   | /api/opening-hours                    | ConfigurationOpeningHourController@store                 | opening-hours.store                |
+| PUT    | /api/opening-hours/bulk               | ConfigurationOpeningHourController@bulk                  | opening-hours.bulk                 |
+| GET    | /api/opening-hours/is-open            | ConfigurationOpeningHourController@isOpen                | opening-hours.isOpen               |
+| GET    | /api/opening-hours/{id}               | ConfigurationOpeningHourController@show                  | opening-hours.show                 |
+| PUT    | /api/opening-hours/{id}               | ConfigurationOpeningHourController@update                | opening-hours.update               |
+| DELETE | /api/opening-hours/{id}               | ConfigurationOpeningHourController@destroy               | opening-hours.destroy              |
+| GET    | /api/media-transcription              | ConfigurationMediaTranscriptionController@show           | media-transcription.show           |
+| PUT    | /api/media-transcription              | ConfigurationMediaTranscriptionController@update         | media-transcription.update         |
 
 ### A.3 Tabelas do Banco de Dados
 
@@ -2173,4 +2192,4 @@ CREATE TABLE configuration_push_subscriptions (
 
 ---
 
-*Documento gerado pelo agente DOC — 2026-03-28*
+_Documento gerado pelo agente DOC — 2026-03-28_

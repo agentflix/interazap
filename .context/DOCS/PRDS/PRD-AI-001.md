@@ -12,12 +12,12 @@
 
 ### 1.1 Visao Geral do Modulo
 
-O modulo AI e o cerebro inteligente do AgentFlix, responsavel por toda a logica de
+O modulo AI e o cerebro inteligente do InteraZap, responsavel por toda a logica de
 agentes de inteligencia artificial, automacao conversacional (Autopilot), gestao de
 conhecimento (RAG), orquestracao de ferramentas e controle de custos. O modulo opera
 em tres camadas sincronizadas: API (Laravel), Frontend (Angular) e Gateway (NestJS).
 
-O AgentFlix e um SaaS multi-tenant para comunicacao inteligente com clientes via
+O InteraZap e um SaaS multi-tenant para comunicacao inteligente com clientes via
 WhatsApp e outros canais, integrando CRM, Billing e IA. O modulo AI permite que cada
 empresa (tenant) configure agentes de IA especializados, automatize processos com
 Autopilots, e use uma base de conhecimento proprietaria (RAG) para respostas
@@ -108,17 +108,17 @@ e controle de custos granular.
 
 ### 1.5 Posicionamento no Ecossistema
 
-O modulo AI e consumido por todos os outros modulos do AgentFlix:
+O modulo AI e consumido por todos os outros modulos do InteraZap:
 
-| Modulo        | Relacao com AI                                              |
-|--------------|-------------------------------------------------------------|
-| Chat         | Origem das mensagens que disparam Autopilots; destino das respostas via SendMessageTool |
-| CRM          | Gatilhos baseados em negociacoes (NEGOTIATION_WON, STAGE_CHANGED) e contatos |
-| Billing      | Logs de uso alimentar faturas; budgets limitam consumo      |
-| Platform     | Gerenciamento de tenants e configuracao de modelos         |
-| Dashboard    | Agregacao de metricas de uso e custos AI                    |
-| Configuration| Parametros globais de IA (providers, API keys, limits)      |
-| Reports      | Relatorios detalhados de uso, transcriptions, top agents    |
+| Modulo        | Relacao com AI                                                                          |
+| ------------- | --------------------------------------------------------------------------------------- |
+| Chat          | Origem das mensagens que disparam Autopilots; destino das respostas via SendMessageTool |
+| CRM           | Gatilhos baseados em negociacoes (NEGOTIATION_WON, STAGE_CHANGED) e contatos            |
+| Billing       | Logs de uso alimentar faturas; budgets limitam consumo                                  |
+| Platform      | Gerenciamento de tenants e configuracao de modelos                                      |
+| Dashboard     | Agregacao de metricas de uso e custos AI                                                |
+| Configuration | Parametros globais de IA (providers, API keys, limits)                                  |
+| Reports       | Relatorios detalhados de uso, transcriptions, top agents                                |
 
 ### 1.6 Conceitos Fundamentais
 
@@ -213,144 +213,144 @@ configuraveis (D+1, D+7, D+30).
 
 ### 3.1 Agentes de IA
 
-| ID      | Regra                                                                                                                                 | Prioridade |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|------------|
-| RN-AI-001 | Todo AiAgent deve pertencer a exatamente um tenant (tenant_id obrigatorio), isolado via trait BelongsToTenant e escopo global.           | Critica    |
-| RN-AI-002 | AiAgent usa UUID como chave primaria — nao usar auto-increment em nenhuma entidade do modulo AI.                                          | Critica    |
-| RN-AI-003 | Cada agente pode ter um parent_agent_id, permitindo hierarquias de delegacao (agente pai delega para agentes filhos especializados).      | Alta       |
-| RN-AI-004 | AiAgentRole determina o comportamento default e as ferramentas disponiveis: sales_qualifier (qualificacao), support_l1 (suporte L1), cs_retention (retencao), post_sales (pos-venda), appointment (agendamento), general (geral). | Alta |
-| RN-AI-005 | Parametros de modelo: max_tokens (1-4096), temperature (0.0-2.0), top_p (0.0-1.0) devem ser validados e ter defaults seguros.             | Alta       |
-| RN-AI-006 | Token budgets: token_budget_input e token_budget_output sao limites por run. Quando atingidos, a execucao e cortada e fallback_message e usado. | Critica |
-| RN-AI-007 | fallback_message e obrigatorio para agentes que usam budgets — evita resposta vazia quando budget e excedido.                            | Alta       |
-| RN-AI-008 | Agentes podem ter classifiers dedicados (classifier_model) para intent classification antes da execucao do agente principal.             | Media      |
-| RN-AI-009 | Voice: agentes podem ter stt_model, tts_model, tts_voice, tts_speed, stt_language para respostas de voz (futuro).                       | Media      |
-| RN-AI-010 | AiAgent pode estar ativo ou inativo (is_active). Agentes inativos nao disparam triggers nem respondem a mensagens.                        | Alta       |
-| RN-AI-011 | Relacionamentos: AiAgent tem HasMany com AiAgentFile, AiAgentTrigger, AiAgentSkill, AiAgentChannel, AiAgentDelegation (source e target).   | Alta       |
-| RN-AI-012 | Soft delete obrigatorio em AiAgent — nunca exclusao fisica.                                                                             | Alta       |
-| RN-AI-013 | Auditoria obrigatoria em todas as alteracoes de AiAgent (usar OwenIt\Auditing ou equivalente).                                           | Media      |
-| RN-AI-014 | Campo metadata permite extensibilidade sem alteracao de schema (array JSON).                                                              | Media      |
-| RN-AI-015 | Todo acesso a AiAgent deve passar por Policy com authorize('ai.agents.manage') ou authorize('ai.agents.view').                            | Critica    |
+| ID        | Regra                                                                                                                                                                                                                             | Prioridade |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-AI-001 | Todo AiAgent deve pertencer a exatamente um tenant (tenant_id obrigatorio), isolado via trait BelongsToTenant e escopo global.                                                                                                    | Critica    |
+| RN-AI-002 | AiAgent usa UUID como chave primaria — nao usar auto-increment em nenhuma entidade do modulo AI.                                                                                                                                  | Critica    |
+| RN-AI-003 | Cada agente pode ter um parent_agent_id, permitindo hierarquias de delegacao (agente pai delega para agentes filhos especializados).                                                                                              | Alta       |
+| RN-AI-004 | AiAgentRole determina o comportamento default e as ferramentas disponiveis: sales_qualifier (qualificacao), support_l1 (suporte L1), cs_retention (retencao), post_sales (pos-venda), appointment (agendamento), general (geral). | Alta       |
+| RN-AI-005 | Parametros de modelo: max_tokens (1-4096), temperature (0.0-2.0), top_p (0.0-1.0) devem ser validados e ter defaults seguros.                                                                                                     | Alta       |
+| RN-AI-006 | Token budgets: token_budget_input e token_budget_output sao limites por run. Quando atingidos, a execucao e cortada e fallback_message e usado.                                                                                   | Critica    |
+| RN-AI-007 | fallback_message e obrigatorio para agentes que usam budgets — evita resposta vazia quando budget e excedido.                                                                                                                     | Alta       |
+| RN-AI-008 | Agentes podem ter classifiers dedicados (classifier_model) para intent classification antes da execucao do agente principal.                                                                                                      | Media      |
+| RN-AI-009 | Voice: agentes podem ter stt_model, tts_model, tts_voice, tts_speed, stt_language para respostas de voz (futuro).                                                                                                                 | Media      |
+| RN-AI-010 | AiAgent pode estar ativo ou inativo (is_active). Agentes inativos nao disparam triggers nem respondem a mensagens.                                                                                                                | Alta       |
+| RN-AI-011 | Relacionamentos: AiAgent tem HasMany com AiAgentFile, AiAgentTrigger, AiAgentSkill, AiAgentChannel, AiAgentDelegation (source e target).                                                                                          | Alta       |
+| RN-AI-012 | Soft delete obrigatorio em AiAgent — nunca exclusao fisica.                                                                                                                                                                       | Alta       |
+| RN-AI-013 | Auditoria obrigatoria em todas as alteracoes de AiAgent (usar OwenIt\Auditing ou equivalente).                                                                                                                                    | Media      |
+| RN-AI-014 | Campo metadata permite extensibilidade sem alteracao de schema (array JSON).                                                                                                                                                      | Media      |
+| RN-AI-015 | Todo acesso a AiAgent deve passar por Policy com authorize('ai.agents.manage') ou authorize('ai.agents.view').                                                                                                                    | Critica    |
 
 ### 3.2 Autopilot e Triggers
 
-| ID      | Regra                                                                                                                                 | Prioridade |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|------------|
-| RN-AI-020 | AutopilotTriggerType define 14 tipos de gatilho: MANUAL, INBOUND_MESSAGE, TICKET_CREATED, TICKET_IDLE, NEGOTIATION_STAGE_CHANGED, NEGOTIATION_WON, NEGOTIATION_LOST, CONTACT_CREATED, HUMAN_TAKEOVER_ENDED, SCHEDULED, TAG_ADDED, LEAD_SCORE_THRESHOLD, NO_RESPONSE_TIMEOUT. | Alta |
-| RN-AI-021 | Gatilhos schedule-based (TICKET_IDLE, SCHEDULED, NO_RESPONSE_TIMEOUT) requerem scheduler ativo (comando ai:run-scheduled-triggers a cada minuto). | Alta |
-| RN-AI-022 | AiAutopilotPlaybook contem steps serializados como JSON array. Cada step tem: id, type (tool/agent/delay/condition/approval), config, guardrails. | Alta |
-| RN-AI-023 | Playbook tem version numerico. Quando alterado, nova versao e criada em vez de update in-place (imutabilidade).                          | Media      |
-| RN-AI-024 | AiAutopilotRun registra cada execucao: agent_id, contact_id, trigger_type, playbook_id, status (pending/running/completed/failed/approved/timeout), started_at, completed_at, context (JSON). | Alta |
-| RN-AI-025 | Guardrails em playbooks definem regras de seguranca: bloquear se sentimento negativo, bloquear se urgencia detectada, bloquear se tema fora de escopo. Avaliados antes de cada tool call. | Alta |
-| RN-AI-026 | AiAutopilotApproval registra aprovacoes manuais: run_id, step_id, approved_by (user), approved_at, notes. Aprova 1 step por vez.          | Alta       |
-| RN-AI-027 | AiAutopilotTool registra definicoes de ferramentas: name, description, parameters_schema (JSON), return_schema, is_active.               | Alta       |
-| RN-AI-028 | Gatilho MANUAL permite que um agente dispare outro manualmente via SendMessageToolStrategy com parametro delegate_to_agent.               | Media      |
-| RN-AI-029 | Gatilho INBOUND_MESSAGE dispara quando uma mensagem e recebida em um canal configurado no agente.                                         | Alta       |
-| RN-AI-030 | Gatilho HUMAN_TAKEOVER_ENDED reativa o Autopilot quando um humano encerra o atendimento manual.                                           | Media      |
+| ID        | Regra                                                                                                                                                                                                                                                                        | Prioridade |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-AI-020 | AutopilotTriggerType define 14 tipos de gatilho: MANUAL, INBOUND_MESSAGE, TICKET_CREATED, TICKET_IDLE, NEGOTIATION_STAGE_CHANGED, NEGOTIATION_WON, NEGOTIATION_LOST, CONTACT_CREATED, HUMAN_TAKEOVER_ENDED, SCHEDULED, TAG_ADDED, LEAD_SCORE_THRESHOLD, NO_RESPONSE_TIMEOUT. | Alta       |
+| RN-AI-021 | Gatilhos schedule-based (TICKET_IDLE, SCHEDULED, NO_RESPONSE_TIMEOUT) requerem scheduler ativo (comando ai:run-scheduled-triggers a cada minuto).                                                                                                                            | Alta       |
+| RN-AI-022 | AiAutopilotPlaybook contem steps serializados como JSON array. Cada step tem: id, type (tool/agent/delay/condition/approval), config, guardrails.                                                                                                                            | Alta       |
+| RN-AI-023 | Playbook tem version numerico. Quando alterado, nova versao e criada em vez de update in-place (imutabilidade).                                                                                                                                                              | Media      |
+| RN-AI-024 | AiAutopilotRun registra cada execucao: agent_id, contact_id, trigger_type, playbook_id, status (pending/running/completed/failed/approved/timeout), started_at, completed_at, context (JSON).                                                                                | Alta       |
+| RN-AI-025 | Guardrails em playbooks definem regras de seguranca: bloquear se sentimento negativo, bloquear se urgencia detectada, bloquear se tema fora de escopo. Avaliados antes de cada tool call.                                                                                    | Alta       |
+| RN-AI-026 | AiAutopilotApproval registra aprovacoes manuais: run_id, step_id, approved_by (user), approved_at, notes. Aprova 1 step por vez.                                                                                                                                             | Alta       |
+| RN-AI-027 | AiAutopilotTool registra definicoes de ferramentas: name, description, parameters_schema (JSON), return_schema, is_active.                                                                                                                                                   | Alta       |
+| RN-AI-028 | Gatilho MANUAL permite que um agente dispare outro manualmente via SendMessageToolStrategy com parametro delegate_to_agent.                                                                                                                                                  | Media      |
+| RN-AI-029 | Gatilho INBOUND_MESSAGE dispara quando uma mensagem e recebida em um canal configurado no agente.                                                                                                                                                                            | Alta       |
+| RN-AI-030 | Gatilho HUMAN_TAKEOVER_ENDED reativa o Autopilot quando um humano encerra o atendimento manual.                                                                                                                                                                              | Media      |
 
 ### 3.3 RAG e Knowledge Base
 
-| ID      | Regra                                                                                                                                 | Prioridade |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|------------|
-| RN-AI-040 | AiKnowledgeDocument suporta tipos: TXT, CSV, MARKDOWN, JSON, PDF, URL. PDF e processado via Smalot\PdfParser (sem suporte a PDF protegido). | Alta |
-| RN-AI-041 | AiEmbeddingStatus define ciclo de vida: PENDING -> PROCESSING -> READY | FAILED. Somente READY pode ser usado em busca. Reprocessamento permitido apenas de FAILED. | Alta |
-| RN-AI-042 | Chunking: documentos sao fragmentados em chunks de ~500 tokens com 50 tokens de overlap. ChunkingServiceInterface permite implementacoes alternativas. | Alta |
-| RN-AI-043 | Embeddings: cada chunk gera um vetor via AiEmbeddingServiceInterface (OpenAI ada-002 default). Vetores armazenados com pgvector (1536 dimensoes para ada-002). | Alta |
-| RN-AI-044 | Jobs: AiKnowledgeProcessJob usa backoff [60, 300, 600] segundos, ate 3 tentativas, unique lock de 600s.                                 | Alta       |
-| RN-AI-045 | Reindex: documento pode ser reindexado via POST /api/ai/knowledge/{id}/reindex. Nova versao e criada, chunks antigos marcados como inativos. | Alta |
-| RN-AI-046 | Bulk delete: multiplos documentos podem ser deletados via POST /api/ai/knowledge/bulk-delete com array de IDs.                          | Media      |
-| RN-AI-047 | Bulk reindex: multiplos documentos podem ser reindexados via POST /api/ai/knowledge/bulk-reindex.                                         | Media      |
-| RN-AI-048 | Ingestao de URL: POST /api/ai/knowledge/ingest-url extrai texto via scraping, salva como MARKDOWN e dispara processamento.                   | Alta       |
-| RN-AI-049 | Versionamento: quando um documento e atualizado, o anterior e marcado como replaced_by. Antigos chunks permanecem para audit.           | Media      |
-| RN-AI-050 | is_active permite desativar documento sem deletar, preservando chunks para audit.                                                        | Media      |
-| RN-AI-051 | metadata extraido automaticamente: titulo, autor, data, palavras-chave. Armazenado em metadata do documento.                            | Media      |
-| RN-AI-052 | Busca: AiKnowledgeController::search() faz similarity search via pgvector, filtra por tenant, retorna chunks ordenados por score.         | Alta       |
-| RN-AI-053 | Chunk: AiKnowledgeChunk contem texto, embedding vector, chunk_index, document_id, token_count. Relaciona com documento via belongsTo.   | Alta       |
+| ID        | Regra                                                                                                                                                          | Prioridade                                                                                 |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---- |
+| RN-AI-040 | AiKnowledgeDocument suporta tipos: TXT, CSV, MARKDOWN, JSON, PDF, URL. PDF e processado via Smalot\PdfParser (sem suporte a PDF protegido).                    | Alta                                                                                       |
+| RN-AI-041 | AiEmbeddingStatus define ciclo de vida: PENDING -> PROCESSING -> READY                                                                                         | FAILED. Somente READY pode ser usado em busca. Reprocessamento permitido apenas de FAILED. | Alta |
+| RN-AI-042 | Chunking: documentos sao fragmentados em chunks de ~500 tokens com 50 tokens de overlap. ChunkingServiceInterface permite implementacoes alternativas.         | Alta                                                                                       |
+| RN-AI-043 | Embeddings: cada chunk gera um vetor via AiEmbeddingServiceInterface (OpenAI ada-002 default). Vetores armazenados com pgvector (1536 dimensoes para ada-002). | Alta                                                                                       |
+| RN-AI-044 | Jobs: AiKnowledgeProcessJob usa backoff [60, 300, 600] segundos, ate 3 tentativas, unique lock de 600s.                                                        | Alta                                                                                       |
+| RN-AI-045 | Reindex: documento pode ser reindexado via POST /api/ai/knowledge/{id}/reindex. Nova versao e criada, chunks antigos marcados como inativos.                   | Alta                                                                                       |
+| RN-AI-046 | Bulk delete: multiplos documentos podem ser deletados via POST /api/ai/knowledge/bulk-delete com array de IDs.                                                 | Media                                                                                      |
+| RN-AI-047 | Bulk reindex: multiplos documentos podem ser reindexados via POST /api/ai/knowledge/bulk-reindex.                                                              | Media                                                                                      |
+| RN-AI-048 | Ingestao de URL: POST /api/ai/knowledge/ingest-url extrai texto via scraping, salva como MARKDOWN e dispara processamento.                                     | Alta                                                                                       |
+| RN-AI-049 | Versionamento: quando um documento e atualizado, o anterior e marcado como replaced_by. Antigos chunks permanecem para audit.                                  | Media                                                                                      |
+| RN-AI-050 | is_active permite desativar documento sem deletar, preservando chunks para audit.                                                                              | Media                                                                                      |
+| RN-AI-051 | metadata extraido automaticamente: titulo, autor, data, palavras-chave. Armazenado em metadata do documento.                                                   | Media                                                                                      |
+| RN-AI-052 | Busca: AiKnowledgeController::search() faz similarity search via pgvector, filtra por tenant, retorna chunks ordenados por score.                              | Alta                                                                                       |
+| RN-AI-053 | Chunk: AiKnowledgeChunk contem texto, embedding vector, chunk_index, document_id, token_count. Relaciona com documento via belongsTo.                          | Alta                                                                                       |
 
 ### 3.4 Orquestracao e Gateway
 
-| ID      | Regra                                                                                                                                 | Prioridade |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|------------|
-| RN-AI-060 | AiRunOrchestratorService e o maestro: hydrate prompt -> assemble context -> execute tool call loop -> record metrics.                     | Critica    |
-| RN-AI-061 | Tool Call Loop: maximo 5 iteracoes por padrao (configuravel via maxToolIterations). Se excedido, run e finalizada e marcada como loop_exceeded. | Alta |
-| RN-AI-062 | PromptAssemblerService: monta prompt em camadas — system_prompt global + prompt do tenant + segment context + relevant knowledge chunks + conversation history. | Alta |
-| RN-AI-063 | ContextWindowService: gerencia limite de contexto por modelo (ex: 128k tokens para GPT-4 Turbo). Chunks mais antigos sao truncados ou compactados. | Alta |
-| RN-AI-064 | GuardrailEvaluatorService: avalia cada tool call antes da execucao. Avalia: PII detection, sentiment (bloquear se muito negativo), topic match, rate limits. | Alta |
-| RN-AI-065 | ToolExecutorService: executa tools via Redis RPC. Cada tool strategy implementa ToolStrategyInterface com execute(context) -> Promise<ToolResult>. | Alta |
-| RN-AI-066 | StreamHandlerService: suporta streaming SSE e WebSocket. Quando stream=true na request, retorna Server-Sent Events com tokens incremental. | Alta |
-| RN-AI-067 | AiMetricsService: registra a cada run — tokens_input, tokens_output, cost_input, cost_output, duration_ms, model, provider, run_id.   | Alta       |
-| RN-AI-068 | AIProviderFactory: factory que instancia provider correto (OpenAI/Claude/Gemini) baseado em AiProviderType. Adapter pattern isola SDK specifics. | Alta |
-| RN-AI-069 | Circuit breaker: provider externo com mais de 5 falhas consecutivas entra em estado open por 30s (backoff exponencial ate 5 min).        | Alta       |
-| RN-AI-070 | Idempotency: webhooks e consumer de Redis Stream usam SETNX para evitar processamento duplicado. Chave: ai:run:{run_id}:processed.       | Alta       |
-| RN-AI-071 | Redis Streams: ai.run.request e o stream principal. AiRunRequestConsumer consome com XREADGROUP BLOCK 5000ms.                             | Alta       |
-| RN-AI-072 | AiRunRequested event e disparado quando Chat recebe mensagem e deve ser processada por AI. Contem: tenant_id, agent_id, contact_id, message_id, channel. | Alta |
-| RN-AI-073 | AutopilotTriggerFired event e disparado pela trigger engine quando um gatilho match. AiAutopilotRunDispatcherListener consome e despacha para Redis Stream. | Alta |
+| ID        | Regra                                                                                                                                                           | Prioridade |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-AI-060 | AiRunOrchestratorService e o maestro: hydrate prompt -> assemble context -> execute tool call loop -> record metrics.                                           | Critica    |
+| RN-AI-061 | Tool Call Loop: maximo 5 iteracoes por padrao (configuravel via maxToolIterations). Se excedido, run e finalizada e marcada como loop_exceeded.                 | Alta       |
+| RN-AI-062 | PromptAssemblerService: monta prompt em camadas — system_prompt global + prompt do tenant + segment context + relevant knowledge chunks + conversation history. | Alta       |
+| RN-AI-063 | ContextWindowService: gerencia limite de contexto por modelo (ex: 128k tokens para GPT-4 Turbo). Chunks mais antigos sao truncados ou compactados.              | Alta       |
+| RN-AI-064 | GuardrailEvaluatorService: avalia cada tool call antes da execucao. Avalia: PII detection, sentiment (bloquear se muito negativo), topic match, rate limits.    | Alta       |
+| RN-AI-065 | ToolExecutorService: executa tools via Redis RPC. Cada tool strategy implementa ToolStrategyInterface com execute(context) -> Promise<ToolResult>.              | Alta       |
+| RN-AI-066 | StreamHandlerService: suporta streaming SSE e WebSocket. Quando stream=true na request, retorna Server-Sent Events com tokens incremental.                      | Alta       |
+| RN-AI-067 | AiMetricsService: registra a cada run — tokens_input, tokens_output, cost_input, cost_output, duration_ms, model, provider, run_id.                             | Alta       |
+| RN-AI-068 | AIProviderFactory: factory que instancia provider correto (OpenAI/Claude/Gemini) baseado em AiProviderType. Adapter pattern isola SDK specifics.                | Alta       |
+| RN-AI-069 | Circuit breaker: provider externo com mais de 5 falhas consecutivas entra em estado open por 30s (backoff exponencial ate 5 min).                               | Alta       |
+| RN-AI-070 | Idempotency: webhooks e consumer de Redis Stream usam SETNX para evitar processamento duplicado. Chave: ai:run:{run_id}:processed.                              | Alta       |
+| RN-AI-071 | Redis Streams: ai.run.request e o stream principal. AiRunRequestConsumer consome com XREADGROUP BLOCK 5000ms.                                                   | Alta       |
+| RN-AI-072 | AiRunRequested event e disparado quando Chat recebe mensagem e deve ser processada por AI. Contem: tenant_id, agent_id, contact_id, message_id, channel.        | Alta       |
+| RN-AI-073 | AutopilotTriggerFired event e disparado pela trigger engine quando um gatilho match. AiAutopilotRunDispatcherListener consome e despacha para Redis Stream.     | Alta       |
 
 ### 3.5 Custos e Orcamento
 
-| ID      | Regra                                                                                                                                 | Prioridade |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|------------|
-| RN-AI-080 | AiModelPricing define preco por 1M tokens de input e output para cada combinacao de provider + model.                                    | Alta       |
-| RN-AI-081 | AiUsageController summary retorna: total_tokens_input, total_tokens_output, total_cost_input, total_cost_output, currency, period.     | Alta       |
-| RN-AI-082 | AiUsageController daily retorna breakdown por dia (ultimos 30-90 dias). Inclui: date, tokens_input, tokens_output, cost, runs_count.    | Alta       |
-| RN-AI-083 | AiUsageController topAgents retorna ranking de agentes por consumo (token + custo). Limite 10-50 via parametro limit.                     | Media      |
-| RN-AI-084 | AiUsageController monthlyHistory retorna historico mensal (1-12 meses).                                         | Media      |
-| RN-AI-085 | AiBudgetController mostra budget atual do tenant: input_used, input_limit, output_used, output_limit, reset_at, percent_used.           | Alta       |
-| RN-AI-086 | AiBudgetController update permite alterar limits de budget por tenant.                                           | Alta       |
-| RN-AI-087 | AiBudgetThresholdExceeded event e disparado quando tenant atinge 80% do budget. Notificacao enviada ao owner do tenant.                  | Alta       |
-| RN-AI-088 | AiBudgetThresholdExceeded event tambem e disparado em 90% e 100%. Comportamento diferente por threshold: 80% (warning), 90% (alert), 100% (block). | Alta |
-| RN-AI-089 | AiRunTrackerJob detecta runs stale (sem update por >5 min) e marca como TIMEOUT. Schedule: a cada 5 minutos via ai:detect-stale-runs.  | Alta       |
-| RN-AI-090 | Purga: ai:purge-usage-logs deleta logs com mais de 90 dias (configuravel). Schedule: diario as 3am.                              | Media      |
-| RN-AI-091 | Transcriptions: custo separado para STT (speech-to-text). Relatorio em AiUsageController::transcriptionReport.                         | Media      |
+| ID        | Regra                                                                                                                                              | Prioridade |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-AI-080 | AiModelPricing define preco por 1M tokens de input e output para cada combinacao de provider + model.                                              | Alta       |
+| RN-AI-081 | AiUsageController summary retorna: total_tokens_input, total_tokens_output, total_cost_input, total_cost_output, currency, period.                 | Alta       |
+| RN-AI-082 | AiUsageController daily retorna breakdown por dia (ultimos 30-90 dias). Inclui: date, tokens_input, tokens_output, cost, runs_count.               | Alta       |
+| RN-AI-083 | AiUsageController topAgents retorna ranking de agentes por consumo (token + custo). Limite 10-50 via parametro limit.                              | Media      |
+| RN-AI-084 | AiUsageController monthlyHistory retorna historico mensal (1-12 meses).                                                                            | Media      |
+| RN-AI-085 | AiBudgetController mostra budget atual do tenant: input_used, input_limit, output_used, output_limit, reset_at, percent_used.                      | Alta       |
+| RN-AI-086 | AiBudgetController update permite alterar limits de budget por tenant.                                                                             | Alta       |
+| RN-AI-087 | AiBudgetThresholdExceeded event e disparado quando tenant atinge 80% do budget. Notificacao enviada ao owner do tenant.                            | Alta       |
+| RN-AI-088 | AiBudgetThresholdExceeded event tambem e disparado em 90% e 100%. Comportamento diferente por threshold: 80% (warning), 90% (alert), 100% (block). | Alta       |
+| RN-AI-089 | AiRunTrackerJob detecta runs stale (sem update por >5 min) e marca como TIMEOUT. Schedule: a cada 5 minutos via ai:detect-stale-runs.              | Alta       |
+| RN-AI-090 | Purga: ai:purge-usage-logs deleta logs com mais de 90 dias (configuravel). Schedule: diario as 3am.                                                | Media      |
+| RN-AI-091 | Transcriptions: custo separado para STT (speech-to-text). Relatorio em AiUsageController::transcriptionReport.                                     | Media      |
 
 ### 3.6 Prompts e Seguranca
 
-| ID      | Regra                                                                                                                                 | Prioridade |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|------------|
-| RN-AI-100 | Hierarquia de prompts: AiPromptMaster (template global, admin de plataforma) -> AiPromptPlan (parametrizacao, variaveis) -> AiPromptSegment (segmento de cliente) -> AiPromptTenant (customizacao por tenant). | Alta |
-| RN-AI-101 | AiPromptGuardianJob valida prompt via LLM antes da execucao. Verifica: prompt injection, PII (email, CPF, telefone, cartao), violencia, temas bloqueados. | Alta |
-| RN-AI-102 | Prompts suspeitas vao para AiPromptQuarantine (status quarantined). Devem ser aprovados ou rejeitados por um admin antes de uso.       | Alta       |
-| RN-AI-103 | AiPromptValidationStatus: pending, approved, rejected, quarantined. Aprovacao manual desbloqueia quarantined.                          | Alta       |
-| RN-AI-104 | Hash de prompt: AiPromptHashServiceInterface calcula hash SHA-256. Prompts ja validados sao cacheados para evitar re-validacao.         | Media      |
-| RN-AI-105 | AiNotificationController gerencia notificacoes de AI: budget threshold, prompt quarantine, run failed, approval required.               | Alta       |
-| RN-AI-106 | AiNotificationChannel: in_app, email, webhook. Configurado por tenant.                                                   | Media      |
-| RN-AI-107 | RN-AI-015: authorize() em todo controller action — sem excecao.                                                             | Critica    |
-| RN-AI-108 | Rate limiting: max 60 req/min por tenant para endpoints de chat, 30 req/min para knowledge search.                                  | Alta       |
-| RN-AI-109 | Logs nunca devem conter tokens, senhas, API keys ou PII. AiMetricsService deve sanitizar antes de persistir.                             | Critica    |
+| ID        | Regra                                                                                                                                                                                                          | Prioridade |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-AI-100 | Hierarquia de prompts: AiPromptMaster (template global, admin de plataforma) -> AiPromptPlan (parametrizacao, variaveis) -> AiPromptSegment (segmento de cliente) -> AiPromptTenant (customizacao por tenant). | Alta       |
+| RN-AI-101 | AiPromptGuardianJob valida prompt via LLM antes da execucao. Verifica: prompt injection, PII (email, CPF, telefone, cartao), violencia, temas bloqueados.                                                      | Alta       |
+| RN-AI-102 | Prompts suspeitas vao para AiPromptQuarantine (status quarantined). Devem ser aprovados ou rejeitados por um admin antes de uso.                                                                               | Alta       |
+| RN-AI-103 | AiPromptValidationStatus: pending, approved, rejected, quarantined. Aprovacao manual desbloqueia quarantined.                                                                                                  | Alta       |
+| RN-AI-104 | Hash de prompt: AiPromptHashServiceInterface calcula hash SHA-256. Prompts ja validados sao cacheados para evitar re-validacao.                                                                                | Media      |
+| RN-AI-105 | AiNotificationController gerencia notificacoes de AI: budget threshold, prompt quarantine, run failed, approval required.                                                                                      | Alta       |
+| RN-AI-106 | AiNotificationChannel: in_app, email, webhook. Configurado por tenant.                                                                                                                                         | Media      |
+| RN-AI-107 | RN-AI-015: authorize() em todo controller action — sem excecao.                                                                                                                                                | Critica    |
+| RN-AI-108 | Rate limiting: max 60 req/min por tenant para endpoints de chat, 30 req/min para knowledge search.                                                                                                             | Alta       |
+| RN-AI-109 | Logs nunca devem conter tokens, senhas, API keys ou PII. AiMetricsService deve sanitizar antes de persistir.                                                                                                   | Critica    |
 
 ### 3.7 Post-Sale e Follow-Up
 
-| ID      | Regra                                                                                                                                 | Prioridade |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|------------|
-| RN-AI-120 | AiPostSaleSchedule define follow-ups automaticos: D+1, D+7, D+30. Configurado por tenant e tipo de plano.                            | Alta       |
-| RN-AI-121 | AiPostSaleFollowUpJob processa follow-ups pendentes. Verifica se contato ja respondeu (evita spam).                                  | Alta       |
-| RN-AI-122 | Status: SCHEDULED -> SENT -> DELIVERED -> REPLIED. Se nao replied em 48h, marcar como FAILED e notificar.                             | Media      |
-| RN-AI-123 | AiPostSaleScheduleType: thank_you, review_request, upsell, renewal_reminder, check_in.                                                | Media      |
+| ID        | Regra                                                                                                     | Prioridade |
+| --------- | --------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-AI-120 | AiPostSaleSchedule define follow-ups automaticos: D+1, D+7, D+30. Configurado por tenant e tipo de plano. | Alta       |
+| RN-AI-121 | AiPostSaleFollowUpJob processa follow-ups pendentes. Verifica se contato ja respondeu (evita spam).       | Alta       |
+| RN-AI-122 | Status: SCHEDULED -> SENT -> DELIVERED -> REPLIED. Se nao replied em 48h, marcar como FAILED e notificar. | Media      |
+| RN-AI-123 | AiPostSaleScheduleType: thank_you, review_request, upsell, renewal_reminder, check_in.                    | Media      |
 
 ### 3.8 Integridade e Auditoria
 
-| ID      | Regra                                                                                                                                 | Prioridade |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|------------|
-| RN-AI-130 | Toda entidade do modulo AI deve usar BelongsToTenant trait para isolamento automatico de queries.                                         | Critica    |
-| RN-AI-131 | Eager loading obrigatorio em todas as queries — nunca N+1. Usar with() ou load() explicitamente.                                        | Critica    |
-| RN-AI-132 | DTOs devem ser readonly com fromRequest() e fromArray() quando aplicavel. Campos nullable devem ser Optional em PHP 8.1+.                 | Alta       |
-| RN-AI-133 | AiAutopilotTriggerLog registra cada trigger firing: playbook_id, trigger_type, context, fired_at, matched, reason.                        | Media      |
-| RN-AI-134 | Soft delete + timestamp em todas as entidades mutaveis (is_active, deleted_at, created_at, updated_at).                                  | Alta       |
-| RN-AI-135 | AiAgentDelegation rastreia delegacoes entre agentes: source_agent_id, target_agent_id, reason, delegated_at, result.                      | Media      |
+| ID        | Regra                                                                                                                     | Prioridade |
+| --------- | ------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-AI-130 | Toda entidade do modulo AI deve usar BelongsToTenant trait para isolamento automatico de queries.                         | Critica    |
+| RN-AI-131 | Eager loading obrigatorio em todas as queries — nunca N+1. Usar with() ou load() explicitamente.                          | Critica    |
+| RN-AI-132 | DTOs devem ser readonly com fromRequest() e fromArray() quando aplicavel. Campos nullable devem ser Optional em PHP 8.1+. | Alta       |
+| RN-AI-133 | AiAutopilotTriggerLog registra cada trigger firing: playbook_id, trigger_type, context, fired_at, matched, reason.        | Media      |
+| RN-AI-134 | Soft delete + timestamp em todas as entidades mutaveis (is_active, deleted_at, created_at, updated_at).                   | Alta       |
+| RN-AI-135 | AiAgentDelegation rastreia delegacoes entre agentes: source_agent_id, target_agent_id, reason, delegated_at, result.      | Media      |
 
 ### 3.9 Retencao de Dados e Monitoramento
 
-| ID      | Regra                                                                                                                                 | Prioridade |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|------------|
-| RN-AI-140 | Log de uso (ai_usage_logs) e retido por 90 dias por padrao. Apos isso, e purgado automaticamente pelo job `ai:purge-usage-logs`.          | Alta       |
-| RN-AI-141 | Purgacao de logs: `ai:purge-usage-logs` deleta registros com `created_at` superior a 90 dias. Schedule: diario as 3:00 AM.                    | Media      |
-| RN-AI-142 | Chunk de knowledge base e retido indefinidamente ate que o documento seja explicitamente deletado ou substituído.                          | Alta       |
-| RN-AI-143 | AiAutopilotRun e retido por 12 meses. Apos isso, runs com status `completed` ou `failed` sao arquivados (soft delete).                        | Media      |
-| RN-AI-144 | Runs com status `pending` ou `running` por mais de 5 minutos sem atualizacao sao marcados como `TIMEOUT` pelo job `ai:detect-stale-runs`.       | Alta       |
-| RN-AI-145 | Logs de trigger (AiAutopilotTriggerLog) sao retidos por 6 meses. Apos isso, entradas com `matched = false` sao purgadas.                    | Media      |
+| ID        | Regra                                                                                                                                        | Prioridade |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-AI-140 | Log de uso (ai_usage_logs) e retido por 90 dias por padrao. Apos isso, e purgado automaticamente pelo job `ai:purge-usage-logs`.             | Alta       |
+| RN-AI-141 | Purgacao de logs: `ai:purge-usage-logs` deleta registros com `created_at` superior a 90 dias. Schedule: diario as 3:00 AM.                   | Media      |
+| RN-AI-142 | Chunk de knowledge base e retido indefinidamente ate que o documento seja explicitamente deletado ou substituído.                            | Alta       |
+| RN-AI-143 | AiAutopilotRun e retido por 12 meses. Apos isso, runs com status `completed` ou `failed` sao arquivados (soft delete).                       | Media      |
+| RN-AI-144 | Runs com status `pending` ou `running` por mais de 5 minutos sem atualizacao sao marcados como `TIMEOUT` pelo job `ai:detect-stale-runs`.    | Alta       |
+| RN-AI-145 | Logs de trigger (AiAutopilotTriggerLog) sao retidos por 6 meses. Apos isso, entradas com `matched = false` sao purgadas.                     | Media      |
 | RN-AI-146 | AiMetricsService deve sanitizar todos os dados antes de persistir: remover tokens, senhas, API keys, emails, CPFs, telefones de payloads.    | Critica    |
-| RN-AI-147 | Circuit breaker: provider com mais de 5 falhas consecutivas entra em estado `open` por 30 segundos. Backoff exponencial ate 5 minutos.          | Alta       |
-| RN-AI-148 | AiRunRequestConsumer usa XREADGROUP com BLOCK 5000ms em Redis Stream. Se a mensagem for processada com sucesso, deve ser ACKed com XACK.       | Alta       |
-| RN-AI-149 | Idempotencia em webhooks e consumers: SETNX com chave `ai:run:{run_id}:processed` e TTL de 24 horas para evitar duplicacao de processamento.    | Alta       |
+| RN-AI-147 | Circuit breaker: provider com mais de 5 falhas consecutivas entra em estado `open` por 30 segundos. Backoff exponencial ate 5 minutos.       | Alta       |
+| RN-AI-148 | AiRunRequestConsumer usa XREADGROUP com BLOCK 5000ms em Redis Stream. Se a mensagem for processada com sucesso, deve ser ACKed com XACK.     | Alta       |
+| RN-AI-149 | Idempotencia em webhooks e consumers: SETNX com chave `ai:run:{run_id}:processed` e TTL de 24 horas para evitar duplicacao de processamento. | Alta       |
 
 ---
 
@@ -941,6 +941,7 @@ erDiagram
 O nucleo do modulo. Representa um agente de IA configurado por tenant.
 
 **Campos:**
+
 - `id` (UUID, PK): Identificador unico. Nao auto-increment.
 - `tenant_id` (UUID, FK): Empresa proprietaria. BelongsToTenant.
 - `name` (string): Nome amigavel do agente. Max 255 chars.
@@ -960,6 +961,7 @@ O nucleo do modulo. Representa um agente de IA configurado por tenant.
 - Voice fields: `voice_response_mode`, `stt_model`, `stt_language`, `tts_model`, `tts_voice`, `tts_speed`.
 
 **Relacionamentos:**
+
 - `parentAgent`: BelongsTo(AiAgent::class). Agente pai na hierarquia.
 - `files`: HasMany(AiAgentFile::class). Arquivos anexados ao agente.
 - `triggers`: HasMany(AiAgentTrigger::class). Gatilhos configurados.
@@ -973,6 +975,7 @@ O nucleo do modulo. Representa um agente de IA configurado por tenant.
 Define um playbook de automacao com steps sequenciais.
 
 **Campos:**
+
 - `id` (UUID, PK): Identificador unico.
 - `tenant_id` (UUID, FK): Proprietario.
 - `name` (string): Nome do playbook. Max 255.
@@ -980,15 +983,15 @@ Define um playbook de automacao com steps sequenciais.
 - `trigger_type` (AutopilotTriggerType): Quando dispara.
 - `version` (int): Versionamento. Incrementa em cada alteracao.
 - `steps` (JSON): Array de steps estruturados.
-  ```json
-  [
-    {"id": "step1", "type": "tool", "tool": "classify_intent", "guardrails": []},
-    {"id": "step2", "type": "condition", "expression": "intent == 'support'"},
-    {"id": "step2a", "type": "agent", "agent_id": "uuid", "guardrails": []},
-    {"id": "step3", "type": "approval", "timeout_seconds": 300},
-    {"id": "step4", "type": "tool", "tool": "send_message"}
-  ]
-  ```
+    ```json
+    [
+        { "id": "step1", "type": "tool", "tool": "classify_intent", "guardrails": [] },
+        { "id": "step2", "type": "condition", "expression": "intent == 'support'" },
+        { "id": "step2a", "type": "agent", "agent_id": "uuid", "guardrails": [] },
+        { "id": "step3", "type": "approval", "timeout_seconds": 300 },
+        { "id": "step4", "type": "tool", "tool": "send_message" }
+    ]
+    ```
 - `metadata` (JSON): Configuracoes extras.
 - `is_active` (bool): Se desativado, nao dispara.
 
@@ -997,6 +1000,7 @@ Define um playbook de automacao com steps sequenciais.
 Registro de uma execucao individual.
 
 **Campos:**
+
 - `id` (UUID, PK): Identificador unico.
 - `tenant_id` (UUID, FK): Proprietario.
 - `agent_id` (UUID, FK): Agente responsavel.
@@ -1013,6 +1017,7 @@ Registro de uma execucao individual.
 Documento na base de conhecimento RAG.
 
 **Campos:**
+
 - `id` (UUID, PK): Identificador.
 - `tenant_id` (UUID, FK): Proprietario.
 - `name` (string): Nome do documento.
@@ -1029,6 +1034,7 @@ Documento na base de conhecimento RAG.
 - `is_active` (bool): Ativo ou desativado.
 
 **Scopes:**
+
 - `active()`: where is_active = true.
 - `ready()`: where embedding_status = READY.
 - `searchable()`: active() + ready().
@@ -1039,6 +1045,7 @@ Documento na base de conhecimento RAG.
 Chunk individual de documento com embedding vetorial.
 
 **Campos:**
+
 - `id` (UUID, PK): Identificador.
 - `document_id` (UUID, FK): Documento pai.
 - `tenant_id` (UUID, FK): Proprietario.
@@ -1051,6 +1058,7 @@ Chunk individual de documento com embedding vetorial.
 #### 5.2.6 Hierarquia de Prompts (Master -> Plan -> Segment -> Tenant)
 
 **AiPromptMaster:**
+
 - `parent_id` (UUID, FK, nullable): Master pai para heranca.
 - `name` (string): Nome do template.
 - `role` (string): Papel do prompt (ex: sales_qualifier, support_l1).
@@ -1059,6 +1067,7 @@ Chunk individual de documento com embedding vetorial.
 - `variables` (JSON): Definicao de variaveis aceitas.
 
 **AiPromptPlan:**
+
 - `master_id` (UUID, FK): Master de origem.
 - `tenant_id` (UUID, FK): Tenant proprietario.
 - `name` (string): Nome do plano.
@@ -1067,12 +1076,14 @@ Chunk individual de documento com embedding vetorial.
 - `status` (AiPromptValidationStatus).
 
 **AiPromptSegment:**
+
 - `plan_id` (UUID, FK): Plan de origem.
 - `segment_key` (string): Chave do segmento (ex: vip, enterprise, free_trial).
 - `content` (text): Prompt customizado para o segmento.
 - `status` (AiPromptValidationStatus).
 
 **AiPromptTenant:**
+
 - `segment_id` (UUID, FK): Segment de origem.
 - `tenant_id` (UUID, FK): Tenant.
 - `content` (text): Prompt final do tenant.
@@ -1083,19 +1094,20 @@ Chunk individual de documento com embedding vetorial.
 Prompts suspeitos de injection ou PII.
 
 **Campos:**
+
 - `id` (UUID, PK).
 - `prompt_id` (UUID): ID do prompt original.
 - `prompt_type` (string): master | plan | segment | tenant.
 - `content` (text): Texto do prompt em quarentena.
 - `detected_issues` (JSON): Lista de problemas detectados.
-  ```json
-  {
-    "pii_email": ["user@example.com"],
-    "pii_cpf": ["123.456.789-00"],
-    "injection_system": true,
-    "violence": false
-  }
-  ```
+    ```json
+    {
+        "pii_email": ["user@example.com"],
+        "pii_cpf": ["123.456.789-00"],
+        "injection_system": true,
+        "violence": false
+    }
+    ```
 - `quarantined_by` (UUID): Job ou usuario que quarentenou.
 - `status` (string): quarantined, approved, rejected.
 - `reviewed_by` (UUID, nullable): Usuario que revisou.
@@ -1107,6 +1119,7 @@ Prompts suspeitos de injection ou PII.
 Tabela de precos por modelo e provider.
 
 **Campos:**
+
 - `id` (UUID, PK).
 - `provider` (AiProviderType): OPENAI, ANTHROPIC, GEMINI.
 - `model` (string): Identificador do modelo (ex: gpt-4-turbo, claude-3-opus-20240229).
@@ -1120,6 +1133,7 @@ Tabela de precos por modelo e provider.
 Agenda de follow-up pos-venda.
 
 **Campos:**
+
 - `id` (UUID, PK).
 - `tenant_id` (UUID, FK).
 - `contact_id` (UUID, FK): Contato a ser contactado.
@@ -1148,41 +1162,43 @@ Agenda de follow-up pos-venda.
 
 ### 6.1 Visão Geral da API
 
-| Prefixo              | Controlador              | Descricao                         |
-|---------------------|--------------------------|-----------------------------------|
-| /api/ai/agents      | AiAgentController        | CRUD de agentes                   |
-| /api/ai/autopilots  | AiAutopilotController    | CRUD de playbooks e runs           |
-| /api/ai/knowledge   | AiKnowledgeController    | Upload, busca e gestao de docs    |
-| /api/ai/prompts     | AiPrompt*Controller      | CRUD da hierarquia de prompts     |
-| /api/ai/usage       | AiUsageController        | Metricas e custos                 |
-| /api/ai/budget      | AiBudgetController       | Gestao de budgets                 |
-| /api/ai/notifications | AiNotificationController | Notificacoes AI                  |
+| Prefixo               | Controlador              | Descricao                      |
+| --------------------- | ------------------------ | ------------------------------ |
+| /api/ai/agents        | AiAgentController        | CRUD de agentes                |
+| /api/ai/autopilots    | AiAutopilotController    | CRUD de playbooks e runs       |
+| /api/ai/knowledge     | AiKnowledgeController    | Upload, busca e gestao de docs |
+| /api/ai/prompts       | AiPrompt\*Controller     | CRUD da hierarquia de prompts  |
+| /api/ai/usage         | AiUsageController        | Metricas e custos              |
+| /api/ai/budget        | AiBudgetController       | Gestao de budgets              |
+| /api/ai/notifications | AiNotificationController | Notificacoes AI                |
 
 ### 6.2 Endpoints de Agentes
 
 #### GET /api/ai/agents
+
 Lista agentes do tenant.
 
 **Request:** `?page=1&per_page=20&search=nome&is_active=1&role=sales_qualifier`
 
 **Response 200:**
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": "uuid",
-      "name": "Sales Qualifier Brasil",
-      "type": "sales_qualifier",
-      "model_id": "gpt-4-turbo",
-      "is_active": true,
-      "parent_agent_id": null,
-      "token_budget_input": 8000,
-      "token_budget_output": 2000,
-      "created_at": "2026-01-15T10:30:00Z"
-    }
-  ],
-  "meta": { "current_page": 1, "per_page": 20, "total": 5 }
+    "success": true,
+    "data": [
+        {
+            "id": "uuid",
+            "name": "Sales Qualifier Brasil",
+            "type": "sales_qualifier",
+            "model_id": "gpt-4-turbo",
+            "is_active": true,
+            "parent_agent_id": null,
+            "token_budget_input": 8000,
+            "token_budget_output": 2000,
+            "created_at": "2026-01-15T10:30:00Z"
+        }
+    ],
+    "meta": { "current_page": 1, "per_page": 20, "total": 5 }
 }
 ```
 
@@ -1191,24 +1207,26 @@ Lista agentes do tenant.
 ---
 
 #### POST /api/ai/agents
+
 Cria novo agente.
 
 **Request:**
+
 ```json
 {
-  "name": "Support L1 Portugues",
-  "type": "support_l1",
-  "model_id": "gpt-4o-mini",
-  "system_prompt": "Voce e um agente de suporte...",
-  "max_tokens": 1500,
-  "temperature": 0.7,
-  "top_p": 1.0,
-  "is_active": true,
-  "parent_agent_id": null,
-  "token_budget_input": 6000,
-  "token_budget_output": 1500,
-  "fallback_message": "Desculpe, nao consegui processar sua solicitacao.",
-  "metadata": { "language": "pt-BR", "region": "brasil" }
+    "name": "Support L1 Portugues",
+    "type": "support_l1",
+    "model_id": "gpt-4o-mini",
+    "system_prompt": "Voce e um agente de suporte...",
+    "max_tokens": 1500,
+    "temperature": 0.7,
+    "top_p": 1.0,
+    "is_active": true,
+    "parent_agent_id": null,
+    "token_budget_input": 6000,
+    "token_budget_output": 1500,
+    "fallback_message": "Desculpe, nao consegui processar sua solicitacao.",
+    "metadata": { "language": "pt-BR", "region": "brasil" }
 }
 ```
 
@@ -1217,6 +1235,7 @@ Cria novo agente.
 **Autorizacao:** `authorize('ai.agents.manage')`
 
 **Validacoes:**
+
 - `name`: required, string, max:255
 - `type`: required, in:sales_qualifier,support_l1,cs_retention,post_sales,appointment,general,custom
 - `model_id`: required, string
@@ -1232,6 +1251,7 @@ Cria novo agente.
 ---
 
 #### GET /api/ai/agents/{id}
+
 Detalhe de um agente.
 
 **Response 200:** `AiAgentResource` com relationships incluidas (files, triggers, skills, channels).
@@ -1243,6 +1263,7 @@ Detalhe de um agente.
 ---
 
 #### PUT /api/ai/agents/{id}
+
 Atualiza agente.
 
 **Request:** Campos parciais do POST.
@@ -1254,6 +1275,7 @@ Atualiza agente.
 ---
 
 #### DELETE /api/ai/agents/{id}
+
 Soft delete de agente.
 
 **Response 204:** Deletado com sucesso.
@@ -1263,34 +1285,39 @@ Soft delete de agente.
 ---
 
 #### POST /api/ai/agents/{id}/triggers
+
 Asocia trigger a agente.
 
 **Request:**
+
 ```json
 {
-  "trigger_type": "INBOUND_MESSAGE",
-  "playbook_id": "uuid",
-  "is_active": true,
-  "priority": 10
+    "trigger_type": "INBOUND_MESSAGE",
+    "playbook_id": "uuid",
+    "is_active": true,
+    "priority": 10
 }
 ```
 
 ---
 
 #### POST /api/ai/agents/{id}/delegate
+
 Delega manualmente para outro agente.
 
 **Request:**
+
 ```json
 {
-  "target_agent_id": "uuid",
-  "context": { "reason": "handoff", "priority": "high" }
+    "target_agent_id": "uuid",
+    "context": { "reason": "handoff", "priority": "high" }
 }
 ```
 
 ### 6.3 Endpoints de Knowledge
 
 #### GET /api/ai/knowledge
+
 Lista documentos do tenant.
 
 **Query params:** `?page=1&per_page=20&status=READY&search=nome&file_type=PDF`
@@ -1302,25 +1329,28 @@ Lista documentos do tenant.
 ---
 
 #### POST /api/ai/knowledge/upload
+
 Upload de documento para RAG.
 
 **Request:** `multipart/form-data`
+
 - `file`: required, file (max:50MB). Tipos: .pdf, .txt, .csv, .md, .json
 - `name`: required, string, max:255
 - `metadata`: optional, JSON
 
 **Response 202:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "uuid",
-    "name": "Manual de Produto v2",
-    "file_type": "PDF",
-    "embedding_status": "PENDING",
-    "chunk_count": 0
-  },
-  "message": "Documento enfileirado para processamento"
+    "success": true,
+    "data": {
+        "id": "uuid",
+        "name": "Manual de Produto v2",
+        "file_type": "PDF",
+        "embedding_status": "PENDING",
+        "chunk_count": 0
+    },
+    "message": "Documento enfileirado para processamento"
 }
 ```
 
@@ -1331,6 +1361,7 @@ Upload de documento para RAG.
 ---
 
 #### GET /api/ai/knowledge/{id}
+
 Detalhe do documento com chunks.
 
 **Query params:** `?include_chunks=1&page=1&per_page=50`
@@ -1340,6 +1371,7 @@ Detalhe do documento com chunks.
 ---
 
 #### DELETE /api/ai/knowledge/{id}
+
 Soft delete de documento.
 
 **Response 204.** Chunks asociados tambem sao deletados (cascade).
@@ -1349,6 +1381,7 @@ Soft delete de documento.
 ---
 
 #### POST /api/ai/knowledge/{id}/reindex
+
 Reindexa documento existente.
 
 **Request:** opcional `{ "chunk_size": 500, "overlap": 50 }`
@@ -1358,38 +1391,44 @@ Reindexa documento existente.
 ---
 
 #### POST /api/ai/knowledge/bulk-delete
+
 Deleta multiplos documentos.
 
 **Request:**
+
 ```json
 {
-  "ids": ["uuid1", "uuid2", "uuid3"]
+    "ids": ["uuid1", "uuid2", "uuid3"]
 }
 ```
 
 **Response 200:**
+
 ```json
 {
-  "success": true,
-  "data": { "deleted": 3 }
+    "success": true,
+    "data": { "deleted": 3 }
 }
 ```
 
 ---
 
 #### POST /api/ai/knowledge/bulk-reindex
+
 Reindexa multiplos documentos.
 
 **Request:**
+
 ```json
 {
-  "ids": ["uuid1", "uuid2"]
+    "ids": ["uuid1", "uuid2"]
 }
 ```
 
 ---
 
 #### GET /api/ai/knowledge/{id}/chunks
+
 Lista chunks de um documento.
 
 **Query params:** `?page=1&per_page=100`
@@ -1397,13 +1436,15 @@ Lista chunks de um documento.
 ---
 
 #### POST /api/ai/knowledge/ingest-url
+
 Ingesta conteudo de URL.
 
 **Request:**
+
 ```json
 {
-  "url": "https://exemplo.com/pagina",
-  "name": "Pagina de Precos"
+    "url": "https://exemplo.com/pagina",
+    "name": "Pagina de Precos"
 }
 ```
 
@@ -1412,86 +1453,93 @@ Ingesta conteudo de URL.
 ---
 
 #### GET /api/ai/knowledge/stats
+
 Estatisticas da knowledge base do tenant.
 
 **Response 200:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "total_documents": 42,
-    "active_documents": 38,
-    "total_chunks": 1250,
-    "ready_documents": 35,
-    "pending_documents": 3,
-    "failed_documents": 2,
-    "total_size_bytes": 52428800,
-    "average_chunk_size": 487
-  }
+    "success": true,
+    "data": {
+        "total_documents": 42,
+        "active_documents": 38,
+        "total_chunks": 1250,
+        "ready_documents": 35,
+        "pending_documents": 3,
+        "failed_documents": 2,
+        "total_size_bytes": 52428800,
+        "average_chunk_size": 487
+    }
 }
 ```
 
 ---
 
 #### GET /api/ai/knowledge/search
+
 Busca semantica na knowledge base.
 
 **Request:**
+
 ```json
 {
-  "query": "como fazer upgrade de plano?",
-  "limit": 5,
-  "min_score": 0.7,
-  "document_ids": ["uuid1", "uuid2"]  // opcional, filtra por docs
+    "query": "como fazer upgrade de plano?",
+    "limit": 5,
+    "min_score": 0.7,
+    "document_ids": ["uuid1", "uuid2"] // opcional, filtra por docs
 }
 ```
 
 **Response 200:**
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "chunk_id": "uuid",
-      "document_id": "uuid",
-      "document_name": "Manual de Planos",
-      "content": "Para fazer upgrade...",
-      "score": 0.92,
-      "chunk_index": 3
-    }
-  ]
+    "success": true,
+    "data": [
+        {
+            "chunk_id": "uuid",
+            "document_id": "uuid",
+            "document_name": "Manual de Planos",
+            "content": "Para fazer upgrade...",
+            "score": 0.92,
+            "chunk_index": 3
+        }
+    ]
 }
 ```
 
 ### 6.4 Endpoints de Autopilot
 
 #### GET /api/ai/autopilots
+
 Lista playbooks do tenant.
 
 #### POST /api/ai/autopilots
+
 Cria playbook.
 
 **Request:**
+
 ```json
 {
-  "name": "Qualificacao de Lead",
-  "description": "Playbook para qualificar leads automaticamente",
-  "trigger_type": "INBOUND_MESSAGE",
-  "is_active": true,
-  "steps": [
-    {"id": "classify", "type": "tool", "tool": "classify_intent"},
-    {"id": "qualify", "type": "agent", "agent_id": "uuid"},
-    {"id": "notify", "type": "tool", "tool": "send_message"}
-  ],
-  "guardrails": [
-    {"name": "block_negative_sentiment", "type": "sentiment", "config": {"threshold": -0.5}}
-  ]
+    "name": "Qualificacao de Lead",
+    "description": "Playbook para qualificar leads automaticamente",
+    "trigger_type": "INBOUND_MESSAGE",
+    "is_active": true,
+    "steps": [
+        { "id": "classify", "type": "tool", "tool": "classify_intent" },
+        { "id": "qualify", "type": "agent", "agent_id": "uuid" },
+        { "id": "notify", "type": "tool", "tool": "send_message" }
+    ],
+    "guardrails": [{ "name": "block_negative_sentiment", "type": "sentiment", "config": { "threshold": -0.5 } }]
 }
 ```
 
 ---
 
 #### GET /api/ai/autopilots/{id}/runs
+
 Lista runs de um playbook.
 
 **Query params:** `?status=running&from=2026-03-01&to=2026-03-28`
@@ -1499,81 +1547,92 @@ Lista runs de um playbook.
 ---
 
 #### POST /api/ai/autopilots/{id}/run
+
 Dispara run manual.
 
 **Request:**
+
 ```json
 {
-  "contact_id": "uuid",
-  "agent_id": "uuid",
-  "context": { "source": "manual", "priority": "high" }
+    "contact_id": "uuid",
+    "agent_id": "uuid",
+    "context": { "source": "manual", "priority": "high" }
 }
 ```
 
 **Response 202:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "run_id": "uuid",
-    "status": "pending"
-  }
+    "success": true,
+    "data": {
+        "run_id": "uuid",
+        "status": "pending"
+    }
 }
 ```
 
 ---
 
 #### GET /api/ai/autopilots/runs/{run_id}
+
 Status de uma run.
 
 **Response 200:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "uuid",
-    "status": "running",
-    "agent_id": "uuid",
-    "playbook_id": "uuid",
-    "current_step": "qualify",
-    "started_at": "2026-03-28T10:00:00Z",
-    "context": {}
-  }
+    "success": true,
+    "data": {
+        "id": "uuid",
+        "status": "running",
+        "agent_id": "uuid",
+        "playbook_id": "uuid",
+        "current_step": "qualify",
+        "started_at": "2026-03-28T10:00:00Z",
+        "context": {}
+    }
 }
 ```
 
 ---
 
 #### POST /api/ai/autopilots/runs/{run_id}/approve
+
 Aprova step pendente de aprovacao humana.
 
 **Request:**
+
 ```json
 {
-  "step_id": "step3",
-  "notes": "Aprovado, enviar proposta comercial"
+    "step_id": "step3",
+    "notes": "Aprovado, enviar proposta comercial"
 }
 ```
 
 ---
 
 #### POST /api/ai/autopilots/runs/{run_id}/reject
+
 Rejeita step pendente.
 
 **Request:**
+
 ```json
 {
-  "step_id": "step3",
-  "reason": "Cliente nao quer ser contactado"
+    "step_id": "step3",
+    "reason": "Cliente nao quer ser contactado"
 }
 ```
 
 ### 6.5 Endpoints de Prompts
 
 #### GET /api/ai/prompts/master
+
 Lista prompts master.
 
 #### POST /api/ai/prompts/master
+
 Cria prompt master.
 
 **Autorizacao:** SuperAdmin (cross-tenant).
@@ -1581,9 +1640,11 @@ Cria prompt master.
 ---
 
 #### GET /api/ai/prompts/plans
+
 Lista plans do tenant.
 
 #### POST /api/ai/prompts/plans
+
 Cria plan.
 
 **Autorizacao:** `authorize('ai.prompts.manage')`
@@ -1591,50 +1652,59 @@ Cria plan.
 ---
 
 #### GET /api/ai/prompts/segments
+
 Lista segments do tenant.
 
 #### POST /api/ai/prompts/segments
+
 Cria segment.
 
 ---
 
 #### GET /api/ai/prompts/tenant
+
 Lista prompts customizados do tenant.
 
 #### PUT /api/ai/prompts/tenant/{id}
+
 Atualiza customizacao do tenant.
 
 ---
 
 #### GET /api/ai/prompts/quarantine
+
 Lista prompts em quarentena.
 
 #### POST /api/ai/prompts/quarantine/{id}/approve
+
 Aprova prompt quarentenado.
 
 #### POST /api/ai/prompts/quarantine/{id}/reject
+
 Rejeita prompt quarentenado.
 
 ### 6.6 Endpoints de Usage
 
 #### GET /api/ai/usage/summary
+
 Resumo de uso do periodo atual.
 
 **Response 200:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "period": { "from": "2026-03-01", "to": "2026-03-28" },
-    "tokens_input": 1250000,
-    "tokens_output": 450000,
-    "cost_input": 1.875,
-    "cost_output": 2.25,
-    "total_cost": 4.125,
-    "currency": "USD",
-    "runs_count": 3500,
-    "top_agent": { "id": "uuid", "name": "Sales Qualifier", "cost": 1.5 }
-  }
+    "success": true,
+    "data": {
+        "period": { "from": "2026-03-01", "to": "2026-03-28" },
+        "tokens_input": 1250000,
+        "tokens_output": 450000,
+        "cost_input": 1.875,
+        "cost_output": 2.25,
+        "total_cost": 4.125,
+        "currency": "USD",
+        "runs_count": 3500,
+        "top_agent": { "id": "uuid", "name": "Sales Qualifier", "cost": 1.5 }
+    }
 }
 ```
 
@@ -1643,24 +1713,27 @@ Resumo de uso do periodo atual.
 ---
 
 #### GET /api/ai/usage/daily
+
 Breakdown diario.
 
 **Query params:** `?days=30` (max 90)
 
 **Response 200:**
+
 ```json
 {
-  "success": true,
-  "data": [
-    { "date": "2026-03-28", "tokens_input": 45000, "tokens_output": 16000, "cost": 0.15, "runs": 120 },
-    { "date": "2026-03-27", "tokens_input": 52000, "tokens_output": 18000, "cost": 0.18, "runs": 145 }
-  ]
+    "success": true,
+    "data": [
+        { "date": "2026-03-28", "tokens_input": 45000, "tokens_output": 16000, "cost": 0.15, "runs": 120 },
+        { "date": "2026-03-27", "tokens_input": 52000, "tokens_output": 18000, "cost": 0.18, "runs": 145 }
+    ]
 }
 ```
 
 ---
 
 #### GET /api/ai/usage/top-agents
+
 Ranking de agentes por consumo.
 
 **Query params:** `?limit=10` (max 50)
@@ -1668,6 +1741,7 @@ Ranking de agentes por consumo.
 ---
 
 #### GET /api/ai/usage/monthly-history
+
 Historico mensal.
 
 **Query params:** `?months=6` (max 12)
@@ -1675,67 +1749,72 @@ Historico mensal.
 ---
 
 #### GET /api/ai/usage/transcription-report
+
 Relatorio de transcricoes (STT).
 
 **Query params:** `?start_date=2026-03-01&end_date=2026-03-28`
 
 **Response 200:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "total_minutes": 125.5,
-    "total_cost": 0.62,
-    "by_date": [
-      { "date": "2026-03-28", "minutes": 5.2, "cost": 0.026 }
-    ]
-  }
+    "success": true,
+    "data": {
+        "total_minutes": 125.5,
+        "total_cost": 0.62,
+        "by_date": [{ "date": "2026-03-28", "minutes": 5.2, "cost": 0.026 }]
+    }
 }
 ```
 
 ### 6.7 Endpoints de Budget
 
 #### GET /api/ai/budget
+
 Mostra budget atual do tenant.
 
 **Response 200:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "tenant_id": "uuid",
-    "input_used": 800000,
-    "input_limit": 1000000,
-    "output_used": 300000,
-    "output_limit": 500000,
-    "total_used": 1100000,
-    "total_limit": 1500000,
-    "input_percent": 80,
-    "output_percent": 60,
-    "total_percent": 73.3,
-    "reset_at": "2026-04-01T00:00:00Z",
-    "alerts": { "input_threshold": 80, "output_threshold": 60 }
-  }
+    "success": true,
+    "data": {
+        "tenant_id": "uuid",
+        "input_used": 800000,
+        "input_limit": 1000000,
+        "output_used": 300000,
+        "output_limit": 500000,
+        "total_used": 1100000,
+        "total_limit": 1500000,
+        "input_percent": 80,
+        "output_percent": 60,
+        "total_percent": 73.3,
+        "reset_at": "2026-04-01T00:00:00Z",
+        "alerts": { "input_threshold": 80, "output_threshold": 60 }
+    }
 }
 ```
 
 ---
 
 #### PUT /api/ai/budget
+
 Atualiza limits de budget.
 
 **Request:**
+
 ```json
 {
-  "input_limit": 2000000,
-  "output_limit": 1000000,
-  "alert_thresholds": { "warning": 80, "critical": 90 }
+    "input_limit": 2000000,
+    "output_limit": 1000000,
+    "alert_thresholds": { "warning": 80, "critical": 90 }
 }
 ```
 
 ### 6.8 Endpoints de Notifications
 
 #### GET /api/ai/notifications
+
 Lista notificacoes de AI do tenant.
 
 **Query params:** `?read=false&reason=budget_exceeded&limit=20`
@@ -1743,35 +1822,38 @@ Lista notificacoes de AI do tenant.
 ---
 
 #### PUT /api/ai/notifications/{id}/read
+
 Marca como lida.
 
 ---
 
 #### PUT /api/ai/notifications/read-all
+
 Marca todas como lidas.
 
 ---
 
 #### DELETE /api/ai/notifications/{id}
+
 Deleta notificacao.
 
 ### 6.9 Tabela de Autorizacoes
 
-| Endpoint                    | Permissao                  | Roles que tem      |
-|----------------------------|---------------------------|--------------------|
-| GET /api/ai/agents        | ai.agents.view           | admin, manager     |
-| POST/PUT/DELETE /api/ai/agents | ai.agents.manage    | admin              |
-| GET /api/ai/knowledge     | ai.knowledge.view         | admin, manager     |
-| POST /api/ai/knowledge/upload | ai.knowledge.manage | admin          |
-| DELETE /api/ai/knowledge | ai.knowledge.manage       | admin              |
-| GET /api/ai/autopilots    | ai.autopilots.view        | admin, manager     |
-| POST /api/ai/autopilots   | ai.autopilots.manage      | admin              |
-| POST /api/ai/autopilots/*/run | ai.autopilots.execute | admin, manager |
-| GET /api/ai/usage/*       | ai.autopilots.manage      | admin              |
-| GET/PUT /api/ai/budget    | ai.autopilots.manage      | admin              |
-| GET /api/ai/prompts/*     | ai.prompts.view           | admin, manager     |
-| POST/PUT /api/ai/prompts/* | ai.prompts.manage    | admin              |
-| GET /api/ai/notifications | ai.notifications.view     | admin, manager     |
+| Endpoint                       | Permissao             | Roles que tem  |
+| ------------------------------ | --------------------- | -------------- |
+| GET /api/ai/agents             | ai.agents.view        | admin, manager |
+| POST/PUT/DELETE /api/ai/agents | ai.agents.manage      | admin          |
+| GET /api/ai/knowledge          | ai.knowledge.view     | admin, manager |
+| POST /api/ai/knowledge/upload  | ai.knowledge.manage   | admin          |
+| DELETE /api/ai/knowledge       | ai.knowledge.manage   | admin          |
+| GET /api/ai/autopilots         | ai.autopilots.view    | admin, manager |
+| POST /api/ai/autopilots        | ai.autopilots.manage  | admin          |
+| POST /api/ai/autopilots/\*/run | ai.autopilots.execute | admin, manager |
+| GET /api/ai/usage/\*           | ai.autopilots.manage  | admin          |
+| GET/PUT /api/ai/budget         | ai.autopilots.manage  | admin          |
+| GET /api/ai/prompts/\*         | ai.prompts.view       | admin, manager |
+| POST/PUT /api/ai/prompts/\*    | ai.prompts.manage     | admin          |
+| GET /api/ai/notifications      | ai.notifications.view | admin, manager |
 
 ---
 
@@ -1854,6 +1936,7 @@ classDiagram
 Disparado quando uma mensagem de entrada deve ser processada por AI.
 
 **Payload:**
+
 ```php
 [
     'tenant_id' => 'uuid',
@@ -1873,6 +1956,7 @@ Disparado quando uma mensagem de entrada deve ser processada por AI.
 **Consumers:** AiGateKeeperListener, AiAutopilotTriggerFiredListener.
 
 **Fluxo:**
+
 1. Chat salva mensagem, dispatch AiRunRequested.
 2. AiGateKeeperListener recebe, avalia triggers do tenant.
 3. Se trigger match, dispatch AutopilotTriggerFired.
@@ -1885,6 +1969,7 @@ Disparado quando uma mensagem de entrada deve ser processada por AI.
 Disparado quando um gatilho do Autopilot e ativado.
 
 **Payload:**
+
 ```php
 [
     'tenant_id' => 'uuid',
@@ -1904,6 +1989,7 @@ Disparado quando um gatilho do Autopilot e ativado.
 **Consumer:** AiAutopilotRunDispatcherListener.
 
 **Fluxo:**
+
 1. Listener cria AiAutopilotRun com status=pending.
 2. Listener adiciona mensagem na Redis Stream ai.run.request.
 3. Gateway consome, orquestra, executa.
@@ -1915,6 +2001,7 @@ Disparado quando um gatilho do Autopilot e ativado.
 Disparado ao final de uma run (sucesso, falha, timeout).
 
 **Payload:**
+
 ```php
 [
     'run_id' => 'uuid',
@@ -1944,6 +2031,7 @@ Disparado ao final de uma run (sucesso, falha, timeout).
 Disparado quando um agente delega para outro.
 
 **Payload:**
+
 ```php
 [
     'run_id' => 'uuid',
@@ -1965,6 +2053,7 @@ Disparado quando um agente delega para outro.
 Disparado quando o tenant atinge thresholds de budget.
 
 **Payload:**
+
 ```php
 [
     'tenant_id' => 'uuid',
@@ -1983,6 +2072,7 @@ Disparado quando o tenant atinge thresholds de budget.
 **Consumers:** AiNotificationController, Email/Webhook notification.
 
 **Acoes por threshold:**
+
 - 80%: WARNING — email ao owner, continuar execucao.
 - 90%: ALERT — email + in-app notification, sugerir acao.
 - 100%: BLOCK — bloquear novas runs, usar fallback_message.
@@ -1994,6 +2084,7 @@ Disparado quando o tenant atinge thresholds de budget.
 Disparado quando o processamento de documento termina.
 
 **Payload:**
+
 ```php
 [
     'document_id' => 'uuid',
@@ -2015,26 +2106,26 @@ Disparado quando o processamento de documento termina.
 
 ### 7.3 Listeners Registrados
 
-| Event                          | Listener                             | Acao                                                    |
-|-------------------------------|--------------------------------------|---------------------------------------------------------|
-| AiRunRequested                | AiGateKeeperListener                 | Avalia triggers, dispara AutopilotTriggerFired          |
-| AutopilotTriggerFired         | AiAutopilotRunDispatcherListener     | Cria run, adiciona na Redis Stream                     |
-| AiRunCompleted                | AiRunMetricsListener                 | Atualiza agregados de uso, notifica dashboard          |
-| AiRunCompleted                | AiRunAuditListener                   | Registra em log de auditoria                          |
-| AiBudgetThresholdExceeded     | AiBudgetNotificationListener         | Cria notificacao in-app, envia email/webhook           |
-| AiKnowledgeDocumentProcessed  | AiKnowledgeNotificationListener       | Notifica frontend que documento esta pronto             |
-| AiRunDelegating               | AiDelegationAuditListener            | Registra em AiAgentDelegation                          |
+| Event                        | Listener                         | Acao                                           |
+| ---------------------------- | -------------------------------- | ---------------------------------------------- |
+| AiRunRequested               | AiGateKeeperListener             | Avalia triggers, dispara AutopilotTriggerFired |
+| AutopilotTriggerFired        | AiAutopilotRunDispatcherListener | Cria run, adiciona na Redis Stream             |
+| AiRunCompleted               | AiRunMetricsListener             | Atualiza agregados de uso, notifica dashboard  |
+| AiRunCompleted               | AiRunAuditListener               | Registra em log de auditoria                   |
+| AiBudgetThresholdExceeded    | AiBudgetNotificationListener     | Cria notificacao in-app, envia email/webhook   |
+| AiKnowledgeDocumentProcessed | AiKnowledgeNotificationListener  | Notifica frontend que documento esta pronto    |
+| AiRunDelegating              | AiDelegationAuditListener        | Registra em AiAgentDelegation                  |
 
 ### 7.4 Jobs Agendados (Scheduled Commands)
 
-| Comando                        | Frequencia      | Acao                                                           |
-|-------------------------------|-----------------|----------------------------------------------------------------|
-| ai:purge-usage-logs           | Daily 3am       | Deleta logs de uso com mais de 90 dias                         |
-| ai:run-scheduled-triggers     | Every 1min      | Dispara gatilhos SCHEDULED, TICKET_IDLE, NO_RESPONSE_TIMEOUT   |
-| ai:generate-daily-summaries   | Daily 2am       | Agrega metricas diarias para dashboards                        |
-| ai:consume-run-responses      | Every 1min      | Processa responses pendentes do AI provider                    |
-| ai:consume-tool-requests      | Every 1min      | Processa requisicoes de ferramentas pendentes                |
-| ai:detect-stale-runs          | Every 5min      | Marca runs sem update >5min como TIMEOUT                       |
+| Comando                     | Frequencia | Acao                                                         |
+| --------------------------- | ---------- | ------------------------------------------------------------ |
+| ai:purge-usage-logs         | Daily 3am  | Deleta logs de uso com mais de 90 dias                       |
+| ai:run-scheduled-triggers   | Every 1min | Dispara gatilhos SCHEDULED, TICKET_IDLE, NO_RESPONSE_TIMEOUT |
+| ai:generate-daily-summaries | Daily 2am  | Agrega metricas diarias para dashboards                      |
+| ai:consume-run-responses    | Every 1min | Processa responses pendentes do AI provider                  |
+| ai:consume-tool-requests    | Every 1min | Processa requisicoes de ferramentas pendentes                |
+| ai:detect-stale-runs        | Every 5min | Marca runs sem update >5min como TIMEOUT                     |
 
 ---
 
@@ -2060,16 +2151,17 @@ class AiAgent extends Model
 
 **Politicas por recurso:**
 
-| Modelo                | Policy                  | Permissoes                             |
-|----------------------|-------------------------|----------------------------------------|
-| AiAgent              | AiAgentPolicy           | ai.agents.view, ai.agents.manage       |
-| AiAutopilotPlaybook  | AiAutopilotPolicy       | ai.autopilots.view, ai.autopilots.manage, ai.autopilots.execute |
-| AiKnowledgeDocument  | AiKnowledgePolicy       | ai.knowledge.view, ai.knowledge.manage |
-| AiPrompt*            | AiPromptPolicy          | ai.prompts.view, ai.prompts.manage    |
-| AiBudget            | AiBudgetPolicy          | ai.autopilots.manage                   |
-| AiNotification       | AiNotificationPolicy    | ai.notifications.view                  |
+| Modelo              | Policy               | Permissoes                                                      |
+| ------------------- | -------------------- | --------------------------------------------------------------- |
+| AiAgent             | AiAgentPolicy        | ai.agents.view, ai.agents.manage                                |
+| AiAutopilotPlaybook | AiAutopilotPolicy    | ai.autopilots.view, ai.autopilots.manage, ai.autopilots.execute |
+| AiKnowledgeDocument | AiKnowledgePolicy    | ai.knowledge.view, ai.knowledge.manage                          |
+| AiPrompt\*          | AiPromptPolicy       | ai.prompts.view, ai.prompts.manage                              |
+| AiBudget            | AiBudgetPolicy       | ai.autopilots.manage                                            |
+| AiNotification      | AiNotificationPolicy | ai.notifications.view                                           |
 
 **Implementacao:**
+
 ```php
 // Todo controller action:
 public function show(Request $request, string $id): JsonResponse
@@ -2082,6 +2174,7 @@ public function show(Request $request, string $id): JsonResponse
 ### 8.3 Seguranca de Prompts
 
 **Prompt Guardian Pipeline:**
+
 1. Antes de usar qualquer prompt, calcular SHA-256 hash.
 2. Verificar cache de validacao. Se valido, usar.
 3. Se nao cacheado, dispatch AiPromptGuardianJob.
@@ -2091,6 +2184,7 @@ public function show(Request $request, string $id): JsonResponse
 7. Se limpo: approved + cachear hash.
 
 **Padroes de Injection Detectados:**
+
 - Tentativas de override de system role
 - Tentativas de ignore de instrucoes anteriores
 - Pedidos de revelacao de configuracao interna
@@ -2098,6 +2192,7 @@ public function show(Request $request, string $id): JsonResponse
 - Bypass de guardrails via encoding
 
 **PII Detectado:**
+
 - Emails (regex + entropy)
 - CPF (formato brasileiro validado)
 - Telefones (mascaras BR)
@@ -2107,19 +2202,20 @@ public function show(Request $request, string $id): JsonResponse
 
 ### 8.4 Rate Limiting
 
-| Endpoint                  | Limite           | Janela    | Acao em Excesso      |
-|---------------------------|------------------|-----------|----------------------|
-| POST /api/ai/agents/*/chat | 60 req/min      | sliding   | 429 + Retry-After    |
-| GET /api/ai/knowledge/search | 30 req/min     | sliding   | 429 + Retry-After    |
-| POST /api/ai/knowledge/upload | 10 req/min   | sliding   | 429 + Retry-After    |
-| GET /api/ai/usage/*       | 120 req/min      | sliding   | 429                  |
-| POST /api/ai/autopilots/*/run | 30 req/min   | sliding   | 429                  |
+| Endpoint                       | Limite      | Janela  | Acao em Excesso   |
+| ------------------------------ | ----------- | ------- | ----------------- |
+| POST /api/ai/agents/\*/chat    | 60 req/min  | sliding | 429 + Retry-After |
+| GET /api/ai/knowledge/search   | 30 req/min  | sliding | 429 + Retry-After |
+| POST /api/ai/knowledge/upload  | 10 req/min  | sliding | 429 + Retry-After |
+| GET /api/ai/usage/\*           | 120 req/min | sliding | 429               |
+| POST /api/ai/autopilots/\*/run | 30 req/min  | sliding | 429               |
 
 **Implementacao:** Laravel throttle middleware com Redis como backend.
 
 ### 8.5 Protecao de Dados em Logs
 
 **Dados que NAO podem ser logados:**
+
 - Tokens de autenticacao
 - Senhas e API keys
 - Numeros de cartao de credito
@@ -2127,6 +2223,7 @@ public function show(Request $request, string $id): JsonResponse
 - Tokens de session
 
 **Sanitizacao obrigatoria:**
+
 ```php
 // AiMetricsService:
 public function sanitizeForLogging(array $data): array
@@ -2146,12 +2243,14 @@ public function sanitizeForLogging(array $data): array
 ### 8.6 Validação de Input
 
 **FormRequest em todos os endpoints:**
+
 - AiAgentStoreRequest: valida campos obrigatorios, ranges, formatos
 - AiKnowledgeUploadRequest: valida tipo e tamanho de arquivo
 - SearchKnowledgeRequest: valida query, limit, min_score
 - AiNotificationMarkAsReadRequest: valida ids
 
 **DTOs readonly:**
+
 ```php
 readonly final class AiAgentDTO
 {
@@ -2183,16 +2282,18 @@ readonly final class AiAgentDTO
 ### 8.7 Circuit Breaker e Idempotencia
 
 **Circuit Breaker no Gateway:**
+
 ```typescript
 // AiProviderFactory + CircuitBreakerService
 const breaker = new CircuitBreaker({
-  failureThreshold: 5,      // 5 falhas = open
-  resetTimeout: 30000,      // 30s para retry
-  maxTimeout: 300000,       // 5min max backoff
+    failureThreshold: 5, // 5 falhas = open
+    resetTimeout: 30000, // 30s para retry
+    maxTimeout: 300000, // 5min max backoff
 });
 ```
 
 **Idempotencia em Redis:**
+
 ```php
 // Em AiRunRequestConsumer:
 $key = "ai:run:{$runId}:processed";
@@ -2209,6 +2310,7 @@ Redis::expire($key, 86400); // 24h TTL
 ### 8.8 Auditoria
 
 **Eventos auditados:**
+
 - Criacao/alteracao/exclusao de agentes
 - Execucao de runs (sem conteudo, apenas metadados)
 - Aprovacao/rejeicao de prompts em quarentena
@@ -2217,6 +2319,7 @@ Redis::expire($key, 86400); // 24h TTL
 - Delegacoes entre agentes
 
 **Campos de auditoria:**
+
 - who: usuario ou job que executou
 - what: acao performed
 - when: timestamp
@@ -2689,21 +2792,21 @@ final class UsageAgentResource extends JsonResource
 
 ```typescript
 interface AiChatRequestDTO {
-  agentId: string;
-  tenantId: string;
-  contactId: string;
-  messageId: string;
-  channel: 'whatsapp' | 'webchat' | 'instagram';
-  message: string;
-  context?: {
-    conversationId?: string;
-    metadata?: Record<string, unknown>;
-  };
-  stream?: boolean;
-  maxTokens?: number;
-  temperature?: number;
-  runId?: string;
-  correlationId?: string;
+    agentId: string;
+    tenantId: string;
+    contactId: string;
+    messageId: string;
+    channel: 'whatsapp' | 'webchat' | 'instagram';
+    message: string;
+    context?: {
+        conversationId?: string;
+        metadata?: Record<string, unknown>;
+    };
+    stream?: boolean;
+    maxTokens?: number;
+    temperature?: number;
+    runId?: string;
+    correlationId?: string;
 }
 ```
 
@@ -2711,23 +2814,23 @@ interface AiChatRequestDTO {
 
 ```typescript
 interface AiChatResponseDTO {
-  runId: string;
-  status: 'completed' | 'streaming' | 'error' | 'blocked';
-  message?: string;
-  toolCalls?: ToolCallResult[];
-  metrics?: {
-    tokensInput: number;
-    tokensOutput: number;
-    costInput: number;
-    costOutput: number;
-    totalCost: number;
-    durationMs: number;
-    model: string;
-    provider: string;
-  };
-  streamToken?: string; // for streaming responses
-  blockedReason?: string;
-  fallbackMessage?: string;
+    runId: string;
+    status: 'completed' | 'streaming' | 'error' | 'blocked';
+    message?: string;
+    toolCalls?: ToolCallResult[];
+    metrics?: {
+        tokensInput: number;
+        tokensOutput: number;
+        costInput: number;
+        costOutput: number;
+        totalCost: number;
+        durationMs: number;
+        model: string;
+        provider: string;
+    };
+    streamToken?: string; // for streaming responses
+    blockedReason?: string;
+    fallbackMessage?: string;
 }
 ```
 
@@ -2735,13 +2838,13 @@ interface AiChatResponseDTO {
 
 ```typescript
 interface ToolCallResult {
-  toolName: string;
-  toolCallId: string;
-  arguments: Record<string, unknown>;
-  result: unknown;
-  status: 'success' | 'error' | 'blocked';
-  errorMessage?: string;
-  executionTimeMs: number;
+    toolName: string;
+    toolCallId: string;
+    arguments: Record<string, unknown>;
+    result: unknown;
+    status: 'success' | 'error' | 'blocked';
+    errorMessage?: string;
+    executionTimeMs: number;
 }
 ```
 
@@ -2753,151 +2856,151 @@ interface ToolCallResult {
 
 #### CA-AI-01: Configuracao de Agente
 
-| Criterio | Descricao | Validacao |
-|----------|-----------|-----------|
-| CA-01.1 | Usuario pode criar agente com nome, tipo, model, system_prompt, parametros | POST /api/ai/agents retorna 201 + recurso criado |
-| CA-01.2 | Sistema valida ranges de temperature (0-2), top_p (0-1), max_tokens (1-4096) | Request com valor fora do range retorna 422 |
-| CA-01.3 | Agente inativo (is_active=false) nao responde a triggers | Trigger disparado para agente inativo = ignorado |
-| CA-01.4 | Budget de tokens e respeitado — execucao cortada quando limite atingido | Run com budget=1000 tokens cortada em ~1000 tokens |
-| CA-01.5 | Fallback message e usada quando budget excedido ou erro | Execucao bloqueada retorna fallback_message |
-| CA-01.6 | Hierarquia de delegacao funciona — agente pai delega para filho | SendMessageTool com delegate_to_agent executa no child agent |
+| Criterio | Descricao                                                                    | Validacao                                                    |
+| -------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| CA-01.1  | Usuario pode criar agente com nome, tipo, model, system_prompt, parametros   | POST /api/ai/agents retorna 201 + recurso criado             |
+| CA-01.2  | Sistema valida ranges de temperature (0-2), top_p (0-1), max_tokens (1-4096) | Request com valor fora do range retorna 422                  |
+| CA-01.3  | Agente inativo (is_active=false) nao responde a triggers                     | Trigger disparado para agente inativo = ignorado             |
+| CA-01.4  | Budget de tokens e respeitado — execucao cortada quando limite atingido      | Run com budget=1000 tokens cortada em ~1000 tokens           |
+| CA-01.5  | Fallback message e usada quando budget excedido ou erro                      | Execucao bloqueada retorna fallback_message                  |
+| CA-01.6  | Hierarquia de delegacao funciona — agente pai delega para filho              | SendMessageTool com delegate_to_agent executa no child agent |
 
 #### CA-AI-02: RAG e Knowledge Base
 
-| Criterio | Descricao | Validacao |
-|----------|-----------|-----------|
-| CA-02.1 | Upload de PDF gera documento com status PENDING -> PROCESSING -> READY | Status evolui corretamente em 5min para PDF de 1MB |
-| CA-02.2 | Documento com status FAILED pode ser reindexado | POST /api/ai/knowledge/{id}/reindex funciona para FAILED |
-| CA-02.3 | Busca semantica retorna chunks ordenados por score | query "preco plano" retorna chunks com "preco" e "plano" primeiro |
-| CA-02.4 | Bulk delete remove multiplos documentos e seus chunks | 3 docs deletados = 3 docs + todos chunks removidos |
-| CA-02.5 | Ingestao de URL extrai texto e processa como MARKDOWN | URL processada gera documento com file_type=MARKDOWN |
-| CA-02.6 | Tenant ve apenas seus proprios documentos | Docs de Tenant A invisiveis para Tenant B |
-| CA-02.7 | Documentos READY sao usados como contexto em prompts | Chat com knowledge ativa retorna respostas baseadas no doc |
+| Criterio | Descricao                                                              | Validacao                                                         |
+| -------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| CA-02.1  | Upload de PDF gera documento com status PENDING -> PROCESSING -> READY | Status evolui corretamente em 5min para PDF de 1MB                |
+| CA-02.2  | Documento com status FAILED pode ser reindexado                        | POST /api/ai/knowledge/{id}/reindex funciona para FAILED          |
+| CA-02.3  | Busca semantica retorna chunks ordenados por score                     | query "preco plano" retorna chunks com "preco" e "plano" primeiro |
+| CA-02.4  | Bulk delete remove multiplos documentos e seus chunks                  | 3 docs deletados = 3 docs + todos chunks removidos                |
+| CA-02.5  | Ingestao de URL extrai texto e processa como MARKDOWN                  | URL processada gera documento com file_type=MARKDOWN              |
+| CA-02.6  | Tenant ve apenas seus proprios documentos                              | Docs de Tenant A invisiveis para Tenant B                         |
+| CA-02.7  | Documentos READY sao usados como contexto em prompts                   | Chat com knowledge ativa retorna respostas baseadas no doc        |
 
 #### CA-AI-03: Autopilot e Triggers
 
-| Criterio | Descricao | Validacao |
-|----------|-----------|-----------|
-| CA-03.1 | Trigger INBOUND_MESSAGE dispara playbook ao receber mensagem | Mensagem em canal configura -> playbook executa |
-| CA-03.2 | Trigger NEGOTIATION_WON dispara ao marcar negociacao como ganha | Update de negociacao para closed_won -> trigger dispara |
-| CA-03.3 | Tool Call Loop executa max 5 iteracoes por padrao | Loop com 5 tool_calls sem text final = loop_exceeded |
-| CA-03.4 | Guardrail de sentimento bloqueia execucao se sentimento negativo | Mensagem "estou muito irritado" = tool_call bloqueado |
-| CA-03.5 | Aprovacao humana pausa run ate aprovacao/rejeicao | Step com approval=true pausa run, aguarda POST approve |
-| CA-03.6 | Execucao manual via POST /api/ai/autopilots/{id}/run funciona | Run manual criada com status=pending -> executa |
-| CA-03.7 | Versao de playbook e incrementada em cada alteracao | Update de playbook = versao +1, nunca overwrite |
+| Criterio | Descricao                                                        | Validacao                                               |
+| -------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
+| CA-03.1  | Trigger INBOUND_MESSAGE dispara playbook ao receber mensagem     | Mensagem em canal configura -> playbook executa         |
+| CA-03.2  | Trigger NEGOTIATION_WON dispara ao marcar negociacao como ganha  | Update de negociacao para closed_won -> trigger dispara |
+| CA-03.3  | Tool Call Loop executa max 5 iteracoes por padrao                | Loop com 5 tool_calls sem text final = loop_exceeded    |
+| CA-03.4  | Guardrail de sentimento bloqueia execucao se sentimento negativo | Mensagem "estou muito irritado" = tool_call bloqueado   |
+| CA-03.5  | Aprovacao humana pausa run ate aprovacao/rejeicao                | Step com approval=true pausa run, aguarda POST approve  |
+| CA-03.6  | Execucao manual via POST /api/ai/autopilots/{id}/run funciona    | Run manual criada com status=pending -> executa         |
+| CA-03.7  | Versao de playbook e incrementada em cada alteracao              | Update de playbook = versao +1, nunca overwrite         |
 
 #### CA-AI-04: Custos e Budgets
 
-| Criterio | Descricao | Validacao |
-|----------|-----------|-----------|
-| CA-04.1 | Summary retorna totais de tokens e custos do periodo | GET /api/ai/usage/summary com dados corretos |
-| CA-04.2 | Budget 80% envia notificacao de warning | Uso atingir 80% = evento AiBudgetThresholdExceeded |
-| CA-04.3 | Budget 100% bloqueia novas runs | Uso atingir 100% = novas runs retornam fallback_message |
-| CA-04.4 | Purga de logs deleta registros com mais de 90 dias | Comando ai:purge-usage-logs remove logs > 90 dias |
-| CA-04.5 | Transcriptions reporta custo de STT separado | GET /api/ai/usage/transcription-report com minutos + custo |
-| CA-04.6 | Top agents ranking e ordenado por custo total | GET /api/ai/usage/top-agents ordenado por total_cost DESC |
+| Criterio | Descricao                                            | Validacao                                                  |
+| -------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| CA-04.1  | Summary retorna totais de tokens e custos do periodo | GET /api/ai/usage/summary com dados corretos               |
+| CA-04.2  | Budget 80% envia notificacao de warning              | Uso atingir 80% = evento AiBudgetThresholdExceeded         |
+| CA-04.3  | Budget 100% bloqueia novas runs                      | Uso atingir 100% = novas runs retornam fallback_message    |
+| CA-04.4  | Purga de logs deleta registros com mais de 90 dias   | Comando ai:purge-usage-logs remove logs > 90 dias          |
+| CA-04.5  | Transcriptions reporta custo de STT separado         | GET /api/ai/usage/transcription-report com minutos + custo |
+| CA-04.6  | Top agents ranking e ordenado por custo total        | GET /api/ai/usage/top-agents ordenado por total_cost DESC  |
 
 #### CA-AI-05: Prompts e Seguranca
 
-| Criterio | Descricao | Validacao |
-|----------|-----------|-----------|
-| CA-05.1 | Prompt com injection e detectado e quarentenado | System prompt com "ignore all previous instructions" = quarantined |
-| CA-05.2 | Prompt com PII e detectado e quarentenado | System prompt com email "joao@empresa.com" = quarantined |
-| CA-05.3 | Prompt quarentenado pode ser aprovado por admin | POST /api/ai/prompts/quarantine/{id}/approve = status=approved |
-| CA-05.4 | Hash de prompt cacheado evita re-validacao | Mesmo prompt validado twice = 1 chamada ao LLM Guardian |
-| CA-05.5 | Hierarquia de prompts funciona: Master -> Plan -> Segment -> Tenant | Execucao usa tenant prompt se existir, senao plan, senao master |
+| Criterio | Descricao                                                           | Validacao                                                          |
+| -------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| CA-05.1  | Prompt com injection e detectado e quarentenado                     | System prompt com "ignore all previous instructions" = quarantined |
+| CA-05.2  | Prompt com PII e detectado e quarentenado                           | System prompt com email "joao@empresa.com" = quarantined           |
+| CA-05.3  | Prompt quarentenado pode ser aprovado por admin                     | POST /api/ai/prompts/quarantine/{id}/approve = status=approved     |
+| CA-05.4  | Hash de prompt cacheado evita re-validacao                          | Mesmo prompt validado twice = 1 chamada ao LLM Guardian            |
+| CA-05.5  | Hierarquia de prompts funciona: Master -> Plan -> Segment -> Tenant | Execucao usa tenant prompt se existir, senao plan, senao master    |
 
 #### CA-AI-06: Gateway e Orquestracao
 
-| Criterio | Descricao | Validacao |
-|----------|-----------|-----------|
-| CA-06.1 | Gateway processa mensagem via Redis Stream | XADD ai.run.request -> XREADGROUP consome -> executa |
-| CA-06.2 | Tool Executor executa SendMessageTool corretamente | Tool send_message enviado ao Chat Module |
-| CA-06.3 | Streaming SSE retorna tokens incrementais | POST com stream=true retorna SSE com tokens |
-| CA-06.4 | Circuit breaker abre apos 5 falhas consecutivas | 6 falhas de provider = subsequent requests fail-fast |
-| CA-06.5 | Idempotencia previne duplicate run processing | Mesmo runId processado twice = 1 execucao |
-| CA-06.6 | Metricas registradas ao final de cada run | AiMetricsService registra tokens, custo, duracao |
+| Criterio | Descricao                                          | Validacao                                            |
+| -------- | -------------------------------------------------- | ---------------------------------------------------- |
+| CA-06.1  | Gateway processa mensagem via Redis Stream         | XADD ai.run.request -> XREADGROUP consome -> executa |
+| CA-06.2  | Tool Executor executa SendMessageTool corretamente | Tool send_message enviado ao Chat Module             |
+| CA-06.3  | Streaming SSE retorna tokens incrementais          | POST com stream=true retorna SSE com tokens          |
+| CA-06.4  | Circuit breaker abre apos 5 falhas consecutivas    | 6 falhas de provider = subsequent requests fail-fast |
+| CA-06.5  | Idempotencia previne duplicate run processing      | Mesmo runId processado twice = 1 execucao            |
+| CA-06.6  | Metricas registradas ao final de cada run          | AiMetricsService registra tokens, custo, duracao     |
 
 ### 10.2 Criterios NAO-Funcionais
 
 #### CA-NF-01: Performance
 
-| Criterio | Target | Validacao |
-|----------|--------|-----------|
-| NF-01.1 | Latencia P50 de run (sem tool calls) | < 2000ms para GPT-4o-mini |
-| NF-01.2 | Latencia P99 de run (sem tool calls) | < 5000ms para GPT-4o-mini |
-| NF-01.3 | Throughput de knowledge search | > 100 req/s com 1000 chunks |
-| NF-01.4 | Tempo de processamento de documento | < 30s para PDF de 10MB |
-| NF-01.5 | Redis Stream consumer backlog | < 100 mensagens pendentes |
+| Criterio | Target                               | Validacao                   |
+| -------- | ------------------------------------ | --------------------------- |
+| NF-01.1  | Latencia P50 de run (sem tool calls) | < 2000ms para GPT-4o-mini   |
+| NF-01.2  | Latencia P99 de run (sem tool calls) | < 5000ms para GPT-4o-mini   |
+| NF-01.3  | Throughput de knowledge search       | > 100 req/s com 1000 chunks |
+| NF-01.4  | Tempo de processamento de documento  | < 30s para PDF de 10MB      |
+| NF-01.5  | Redis Stream consumer backlog        | < 100 mensagens pendentes   |
 
 #### CA-NF-02: Confiabilidade
 
-| Criterio | Target | Validacao |
-|----------|--------|-----------|
-| NF-02.1 | Uptime do gateway | 99.9% mensal |
-| NF-02.2 | Job success rate (AiKnowledgeProcessJob) | > 95% em primeira tentativa |
-| NF-02.3 | Stale run detection | Runs > 5min sem update detectadas |
-| NF-02.4 | Fallback em provider failure | Transbordo para provider alternativo < 30s |
+| Criterio | Target                                   | Validacao                                  |
+| -------- | ---------------------------------------- | ------------------------------------------ |
+| NF-02.1  | Uptime do gateway                        | 99.9% mensal                               |
+| NF-02.2  | Job success rate (AiKnowledgeProcessJob) | > 95% em primeira tentativa                |
+| NF-02.3  | Stale run detection                      | Runs > 5min sem update detectadas          |
+| NF-02.4  | Fallback em provider failure             | Transbordo para provider alternativo < 30s |
 
 #### CA-NF-03: Seguranca
 
-| Criterio | Target | Validacao |
-|----------|--------|-----------|
-| NF-03.1 | Isolamento de tenant | Cross-tenant query retorna 0 resultados |
-| NF-03.2 | Rate limiting | Excesso retorna 429 com Retry-After |
-| NF-03.3 | PII em logs | Logs nao contem email, cpf, cartao |
-| NF-03.4 | Prompt injection detection | Falsos positivos < 5% em testes |
-| NF-03.5 | Autorizacao | Acesso sem permissao retorna 403 |
+| Criterio | Target                     | Validacao                               |
+| -------- | -------------------------- | --------------------------------------- |
+| NF-03.1  | Isolamento de tenant       | Cross-tenant query retorna 0 resultados |
+| NF-03.2  | Rate limiting              | Excesso retorna 429 com Retry-After     |
+| NF-03.3  | PII em logs                | Logs nao contem email, cpf, cartao      |
+| NF-03.4  | Prompt injection detection | Falsos positivos < 5% em testes         |
+| NF-03.5  | Autorizacao                | Acesso sem permissao retorna 403        |
 
 #### CA-NF-04: Escalabilidade
 
-| Criterio | Target | Validacao |
-|----------|--------|-----------|
-| NF-04.1 | Concorrencia de runs | 100 runs simultaneas por tenant |
-| NF-04.2 | Tamanho de knowledge base | 1000 documentos / 50000 chunks por tenant |
-| NF-04.3 | Context window | ate 128k tokens para GPT-4 Turbo |
-| NF-04.4 | Redis connection pool | 50 conexoes simultaneas |
+| Criterio | Target                    | Validacao                                 |
+| -------- | ------------------------- | ----------------------------------------- |
+| NF-04.1  | Concorrencia de runs      | 100 runs simultaneas por tenant           |
+| NF-04.2  | Tamanho de knowledge base | 1000 documentos / 50000 chunks por tenant |
+| NF-04.3  | Context window            | ate 128k tokens para GPT-4 Turbo          |
+| NF-04.4  | Redis connection pool     | 50 conexoes simultaneas                   |
 
 ### 10.3 Criterios de Teste
 
 #### CT-01: Testes Unitarios (Backend)
 
-| Entidade | Cobertura Minima | Testes Principais |
-|----------|-----------------|------------------|
-| AiAgentActions | 80% | create, update, delete, activate |
-| AiKnowledgeActions | 80% | upload, delete, reindex, search |
-| AiUsageSummaryAction | 90% | summary calculation, period filtering |
-| PromptAssemblerService | 90% | layered assembly, variable substitution |
-| ContextWindowService | 85% | truncation, token counting |
-| GuardrailEvaluatorService | 85% | PII detection, sentiment, blocking |
+| Entidade                  | Cobertura Minima | Testes Principais                       |
+| ------------------------- | ---------------- | --------------------------------------- |
+| AiAgentActions            | 80%              | create, update, delete, activate        |
+| AiKnowledgeActions        | 80%              | upload, delete, reindex, search         |
+| AiUsageSummaryAction      | 90%              | summary calculation, period filtering   |
+| PromptAssemblerService    | 90%              | layered assembly, variable substitution |
+| ContextWindowService      | 85%              | truncation, token counting              |
+| GuardrailEvaluatorService | 85%              | PII detection, sentiment, blocking      |
 
 #### CT-02: Testes de Integracao (Backend)
 
-| Cenario | Descricao |
-|---------|-----------|
-| CI-01 | Upload PDF -> processamento completo -> chunks prontos |
-| CI-02 | Trigger INBOUND_MESSAGE -> playbook executa -> run completa |
-| CI-03 | Budget 80% -> notification criada |
-| CI-04 | Prompt injection -> quarentenado -> aprovado -> ativo |
-| CI-05 | Delegacao agente -> filho executa -> retorno ao pai |
+| Cenario | Descricao                                                   |
+| ------- | ----------------------------------------------------------- |
+| CI-01   | Upload PDF -> processamento completo -> chunks prontos      |
+| CI-02   | Trigger INBOUND_MESSAGE -> playbook executa -> run completa |
+| CI-03   | Budget 80% -> notification criada                           |
+| CI-04   | Prompt injection -> quarentenado -> aprovado -> ativo       |
+| CI-05   | Delegacao agente -> filho executa -> retorno ao pai         |
 
 #### CT-03: Testes E2E (Frontend)
 
-| Cenario | Descricao |
-|---------|-----------|
-| CE-01 | Criar agente -> preencher todos campos -> salvar -> listar |
-| CE-02 | Upload documento -> ver progresso PENDING -> PROCESSING -> READY |
-| CE-03 | Buscar knowledge -> ver resultados com scores |
-| CE-04 | Ver usage dashboard -> summary, daily, top agents |
-| CE-05 | Verificar que tenant A nao ve docs de tenant B |
+| Cenario | Descricao                                                        |
+| ------- | ---------------------------------------------------------------- |
+| CE-01   | Criar agente -> preencher todos campos -> salvar -> listar       |
+| CE-02   | Upload documento -> ver progresso PENDING -> PROCESSING -> READY |
+| CE-03   | Buscar knowledge -> ver resultados com scores                    |
+| CE-04   | Ver usage dashboard -> summary, daily, top agents                |
+| CE-05   | Verificar que tenant A nao ve docs de tenant B                   |
 
 #### CT-04: Testes de Carga (Gateway)
 
-| Cenario | Target | Duracao |
-|---------|--------|---------|
-| CL-01 | 100 runs/s por 10 min | 0% errors, P99 < 3s |
-| CL-02 | 50 concurrent knowledge searches | P99 < 500ms |
-| CL-03 | Provider failover | < 30s de degradacao |
+| Cenario | Target                           | Duracao             |
+| ------- | -------------------------------- | ------------------- |
+| CL-01   | 100 runs/s por 10 min            | 0% errors, P99 < 3s |
+| CL-02   | 50 concurrent knowledge searches | P99 < 500ms         |
+| CL-03   | Provider failover                | < 30s de degradacao |
 
 ### 10.4 Checklists de Aceitacao
 
@@ -2963,47 +3066,47 @@ interface ToolCallResult {
 
 ## A. Glossario
 
-| Termo | Definicao |
-|-------|-----------|
-| RAG | Retrieval-Augmented Generation. Padrao onde um LLM consulta uma base de conhecimento vetorial antes de responder. |
-| Tool Call | Chamada de funcao feita pelo LLM durante a geracao. O LLM decide quando chamar tools baseado no contexto. |
-| Tool Call Loop | Padrao onde o LLM faz tool calls em loop ate produzir uma resposta textual final. |
-| Guardrail | Regra de seguranca que avalia tool calls antes da execucao, bloqueando se necessario. |
-| Autopilot | Automacao que reage a eventos do sistema (triggers) e executa playbooks com tools e agentes. |
-| Playbook | Sequencia de steps (tools, agents, delays, conditions, approvals) que compoe um Autopilot. |
-| Run | Execucao individual de um Autopilot triggered. |
-| Embedding | Representacao vetorial numerica de texto, usada em busca semantica. |
-| Chunk | Fragmento de documento RAG. Tipicamente 500 tokens com overlap. |
-| Prompt Guardian | Sistema de validacao de prompts via LLM para detectar injection, PII e安全问题. |
-| Budget | Limite de consumo de tokens por tenant, com alertas em 80% e 90% e block em 100%. |
-| Provider | Implementacao de cliente LLM (OpenAI, Anthropic, Gemini). |
-| Circuit Breaker | Padrao de resiliencia que abre o circuito quando um servico externo falha repetidamente. |
+| Termo           | Definicao                                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- |
+| RAG             | Retrieval-Augmented Generation. Padrao onde um LLM consulta uma base de conhecimento vetorial antes de responder. |
+| Tool Call       | Chamada de funcao feita pelo LLM durante a geracao. O LLM decide quando chamar tools baseado no contexto.         |
+| Tool Call Loop  | Padrao onde o LLM faz tool calls em loop ate produzir uma resposta textual final.                                 |
+| Guardrail       | Regra de seguranca que avalia tool calls antes da execucao, bloqueando se necessario.                             |
+| Autopilot       | Automacao que reage a eventos do sistema (triggers) e executa playbooks com tools e agentes.                      |
+| Playbook        | Sequencia de steps (tools, agents, delays, conditions, approvals) que compoe um Autopilot.                        |
+| Run             | Execucao individual de um Autopilot triggered.                                                                    |
+| Embedding       | Representacao vetorial numerica de texto, usada em busca semantica.                                               |
+| Chunk           | Fragmento de documento RAG. Tipicamente 500 tokens com overlap.                                                   |
+| Prompt Guardian | Sistema de validacao de prompts via LLM para detectar injection, PII e安全问题.                                   |
+| Budget          | Limite de consumo de tokens por tenant, com alertas em 80% e 90% e block em 100%.                                 |
+| Provider        | Implementacao de cliente LLM (OpenAI, Anthropic, Gemini).                                                         |
+| Circuit Breaker | Padrao de resiliencia que abre o circuito quando um servico externo falha repetidamente.                          |
 
 ---
 
 ## B. Referencias
 
-| Documento | Path |
-|-----------|------|
-| PRD Auth | `.context/DOCS/PRDS/PRD-AUTH-001-autenticacao-multi-tenant.md` |
-| Workflow PREVC | `.context/WORKFLOW/prevc.md` |
-| Task Template | `.context/WORKFLOW/task-template.md` |
-| Plan Template | `.context/WORKFLOW/plan-template.md` |
-| Validation Flow | `.context/WORKFLOW/validation-flow.md` |
-| AGENTS.md | `AGENTS.md` (root) |
+| Documento       | Path                                                           |
+| --------------- | -------------------------------------------------------------- |
+| PRD Auth        | `.context/DOCS/PRDS/PRD-AUTH-001-autenticacao-multi-tenant.md` |
+| Workflow PREVC  | `.context/WORKFLOW/prevc.md`                                   |
+| Task Template   | `.context/WORKFLOW/task-template.md`                           |
+| Plan Template   | `.context/WORKFLOW/plan-template.md`                           |
+| Validation Flow | `.context/WORKFLOW/validation-flow.md`                         |
+| AGENTS.md       | `AGENTS.md` (root)                                             |
 
 ---
 
 ## C. Metadados
 
-| Campo | Valor |
-|-------|-------|
-| Versao | 1.0 |
-| Status | Aprovado |
-| Data de criacao | 2026-03-28 |
-| Ultima atualizacao | 2026-03-28 |
-| Autor | PM |
-| Revisor(es) | ARCHITECT, DOC |
-| PRDs relacionados | PRD-AUTH-001 |
-| Features relacionadas | 034-reports-module |
-| Modulos dependentes | Auth, CRM, Chat, Billing, Platform |
+| Campo                 | Valor                              |
+| --------------------- | ---------------------------------- |
+| Versao                | 1.0                                |
+| Status                | Aprovado                           |
+| Data de criacao       | 2026-03-28                         |
+| Ultima atualizacao    | 2026-03-28                         |
+| Autor                 | PM                                 |
+| Revisor(es)           | ARCHITECT, DOC                     |
+| PRDs relacionados     | PRD-AUTH-001                       |
+| Features relacionadas | 034-reports-module                 |
+| Modulos dependentes   | Auth, CRM, Chat, Billing, Platform |

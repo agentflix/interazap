@@ -70,7 +70,7 @@ describe('ContactSectionComponent', (): void => {
     const summary: CalledContactSummary = {
       id: 'contact-1',
       name: 'João',
-      email: 'joao@agentflix.test',
+      email: 'joao@interazap.test',
       phone: '11999990000',
       whatsapp: '+5511999990000',
     };

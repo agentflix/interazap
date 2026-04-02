@@ -3,14 +3,14 @@ import { Title } from '@angular/platform-browser';
 import { type RouterStateSnapshot, TitleStrategy } from '@angular/router';
 
 /**
- * Custom title strategy that appends " - AgentFlix" suffix to route titles.
+ * Custom title strategy that appends " - InteraZap" suffix to route titles.
  * Reads `data.title` from the deepest activated route snapshot.
  */
 @Injectable()
 export class AppTitleStrategy extends TitleStrategy {
   private readonly title = inject(Title);
 
-  private readonly suffix = 'AgentFlix';
+  private readonly suffix = 'InteraZap';
 
   override updateTitle(snapshot: RouterStateSnapshot): void {
     const pageTitle = this.resolveTitle(snapshot);

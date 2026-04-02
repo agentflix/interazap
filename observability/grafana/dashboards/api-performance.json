@@ -141,12 +141,12 @@
     "refresh": "10s",
     "schemaVersion": 38,
     "style": "dark",
-    "tags": ["agentflix", "api", "performance"],
+    "tags": ["interazap", "api", "performance"],
     "templating": { "list": [] },
     "time": { "from": "now-1h", "to": "now" },
     "timepicker": {},
     "timezone": "browser",
-    "title": "AgentFlix API Performance",
-    "uid": "agentflix-api-perf",
+    "title": "InteraZap API Performance",
+    "uid": "interazap-api-perf",
     "version": 1
 }

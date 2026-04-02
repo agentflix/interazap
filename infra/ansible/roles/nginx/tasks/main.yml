@@ -4,184 +4,184 @@
 # Autor: DevOps Agentflix
 # =====================================================
 
-- name: "Instalar Nginx"
+- name: 'Instalar Nginx'
   apt:
-    name:
-      - nginx
-      - nginx-extras
-    state: present
+      name:
+          - nginx
+          - nginx-extras
+      state: present
 
-- name: "Criar diretório de snippets de configuração"
+- name: 'Criar diretório de snippets de configuração'
   file:
-    path: /etc/nginx/snippets
-    state: directory
-    mode: '0755'
+      path: /etc/nginx/snippets
+      state: directory
+      mode: '0755'
 
-- name: "Criar snippet de headers de segurança"
+- name: 'Criar snippet de headers de segurança'
   template:
-    src: security-headers.conf.j2
-    dest: /etc/nginx/snippets/security-headers.conf
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: security-headers.conf.j2
+      dest: /etc/nginx/snippets/security-headers.conf
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar snippet de configuração gzip"
+- name: 'Criar snippet de configuração gzip'
   template:
-    src: gzip.conf.j2
-    dest: /etc/nginx/snippets/gzip.conf
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: gzip.conf.j2
+      dest: /etc/nginx/snippets/gzip.conf
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar snippet de rate limiting"
+- name: 'Criar snippet de rate limiting'
   template:
-    src: rate-limit.conf.j2
-    dest: /etc/nginx/snippets/rate-limit.conf
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: rate-limit.conf.j2
+      dest: /etc/nginx/snippets/rate-limit.conf
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar configuração global de zonas de rate limiting"
+- name: 'Criar configuração global de zonas de rate limiting'
   template:
-    src: rate-limit-zones.conf.j2
-    dest: /etc/nginx/conf.d/agentflix-rate-limit-zones.conf
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: rate-limit-zones.conf.j2
+      dest: /etc/nginx/conf.d/interazap-rate-limit-zones.conf
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
 # =====================================================
 # PRODUCTION SITES
 # =====================================================
 
-- name: "Criar configuração do site www.agentflix.com.br (Production)"
+- name: 'Criar configuração do site www.interazap.com.br (Production)'
   template:
-    src: www-production.conf.j2
-    dest: /etc/nginx/sites-available/www.agentflix.com.br
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: www-production.conf.j2
+      dest: /etc/nginx/sites-available/www.interazap.com.br
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar configuração do redirect agentflix.com.br (Bare domain)"
+- name: 'Criar configuração do redirect interazap.com.br (Bare domain)'
   template:
-    src: bare-domain.conf.j2
-    dest: /etc/nginx/sites-available/agentflix.com.br
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: bare-domain.conf.j2
+      dest: /etc/nginx/sites-available/interazap.com.br
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar configuração do site app.agentflix.com.br (Production)"
+- name: 'Criar configuração do site app.interazap.com.br (Production)'
   template:
-    src: app-production.conf.j2
-    dest: /etc/nginx/sites-available/app.agentflix.com.br
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: app-production.conf.j2
+      dest: /etc/nginx/sites-available/app.interazap.com.br
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar configuração do site api.agentflix.com.br (Production)"
+- name: 'Criar configuração do site api.interazap.com.br (Production)'
   template:
-    src: api-production.conf.j2
-    dest: /etc/nginx/sites-available/api.agentflix.com.br
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: api-production.conf.j2
+      dest: /etc/nginx/sites-available/api.interazap.com.br
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar configuração do site gateway.agentflix.com.br (Production)"
+- name: 'Criar configuração do site gateway.interazap.com.br (Production)'
   template:
-    src: gateway-production.conf.j2
-    dest: /etc/nginx/sites-available/gateway.agentflix.com.br
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: gateway-production.conf.j2
+      dest: /etc/nginx/sites-available/gateway.interazap.com.br
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
 # =====================================================
 # STAGING SITES
 # =====================================================
 
-- name: "Criar configuração do site stage.www.agentflix.com.br (Staging)"
+- name: 'Criar configuração do site stage.www.interazap.com.br (Staging)'
   template:
-    src: www-staging.conf.j2
-    dest: /etc/nginx/sites-available/stage.www.agentflix.com.br
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: www-staging.conf.j2
+      dest: /etc/nginx/sites-available/stage.www.interazap.com.br
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar configuração do site stage.app.agentflix.com.br (Staging)"
+- name: 'Criar configuração do site stage.app.interazap.com.br (Staging)'
   template:
-    src: app-staging.conf.j2
-    dest: /etc/nginx/sites-available/stage.app.agentflix.com.br
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: app-staging.conf.j2
+      dest: /etc/nginx/sites-available/stage.app.interazap.com.br
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar configuração do site stage.api.agentflix.com.br (Staging)"
+- name: 'Criar configuração do site stage.api.interazap.com.br (Staging)'
   template:
-    src: api-staging.conf.j2
-    dest: /etc/nginx/sites-available/stage.api.agentflix.com.br
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: api-staging.conf.j2
+      dest: /etc/nginx/sites-available/stage.api.interazap.com.br
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
-- name: "Criar configuração do site stage.gateway.agentflix.com.br (Staging)"
+- name: 'Criar configuração do site stage.gateway.interazap.com.br (Staging)'
   template:
-    src: gateway-staging.conf.j2
-    dest: /etc/nginx/sites-available/stage.gateway.agentflix.com.br
-    mode: '0644'
-  notify: "Recarregar Nginx"
+      src: gateway-staging.conf.j2
+      dest: /etc/nginx/sites-available/stage.gateway.interazap.com.br
+      mode: '0644'
+  notify: 'Recarregar Nginx'
 
 # =====================================================
 # ENABLE SITES
 # =====================================================
 
-- name: "Habilitar sites de produção"
+- name: 'Habilitar sites de produção'
   file:
-    src: "/etc/nginx/sites-available/{{ item }}"
-    dest: "/etc/nginx/sites-enabled/{{ item }}"
-    state: link
+      src: '/etc/nginx/sites-available/{{ item }}'
+      dest: '/etc/nginx/sites-enabled/{{ item }}'
+      state: link
   loop:
-    - agentflix.com.br
-    - www.agentflix.com.br
-    - app.agentflix.com.br
-    - api.agentflix.com.br
-    - gateway.agentflix.com.br
-  notify: "Recarregar Nginx"
+      - interazap.com.br
+      - www.interazap.com.br
+      - app.interazap.com.br
+      - api.interazap.com.br
+      - gateway.interazap.com.br
+  notify: 'Recarregar Nginx'
 
-- name: "Habilitar sites de staging"
+- name: 'Habilitar sites de staging'
   file:
-    src: "/etc/nginx/sites-available/{{ item }}"
-    dest: "/etc/nginx/sites-enabled/{{ item }}"
-    state: link
+      src: '/etc/nginx/sites-available/{{ item }}'
+      dest: '/etc/nginx/sites-enabled/{{ item }}'
+      state: link
   loop:
-    - stage.www.agentflix.com.br
-    - stage.app.agentflix.com.br
-    - stage.api.agentflix.com.br
-    - stage.gateway.agentflix.com.br
-  notify: "Recarregar Nginx"
+      - stage.www.interazap.com.br
+      - stage.app.interazap.com.br
+      - stage.api.interazap.com.br
+      - stage.gateway.interazap.com.br
+  notify: 'Recarregar Nginx'
 
-- name: "Desabilitar site default"
+- name: 'Desabilitar site default'
   file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
-  notify: "Recarregar Nginx"
+      path: /etc/nginx/sites-enabled/default
+      state: absent
+  notify: 'Recarregar Nginx'
 
-- name: "Validar configuração Nginx"
-  command: "nginx -t"
+- name: 'Validar configuração Nginx'
+  command: 'nginx -t'
   changed_when: false
-  notify: "Recarregar Nginx"
+  notify: 'Recarregar Nginx'
 
-- name: "Configurar logrotate para logs Nginx"
+- name: 'Configurar logrotate para logs Nginx'
   copy:
-    dest: /etc/logrotate.d/nginx-agentflix
-    content: |
-      /var/log/nginx/*.log {
-          daily
-          missingok
-          rotate 14
-          compress
-          delaycompress
-          notifempty
-          create 0640 www-data adm
-          sharedscripts
-          prerotate
-          if [ -d /etc/logrotate.d/httpd-prerotate ]; then
-              run-parts /etc/logrotate.d/httpd-prerotate
-          fi
-          endscript
-          postrotate
-              invoke-rc.d nginx rotate > /dev/null 2>&1
-          endscript
-      }
-    mode: '0644'
+      dest: /etc/logrotate.d/nginx-interazap
+      content: |
+          /var/log/nginx/*.log {
+              daily
+              missingok
+              rotate 14
+              compress
+              delaycompress
+              notifempty
+              create 0640 www-data adm
+              sharedscripts
+              prerotate
+              if [ -d /etc/logrotate.d/httpd-prerotate ]; then
+                  run-parts /etc/logrotate.d/httpd-prerotate
+              fi
+              endscript
+              postrotate
+                  invoke-rc.d nginx rotate > /dev/null 2>&1
+              endscript
+          }
+      mode: '0644'
 
-- name: "Habilitar e iniciar Nginx"
+- name: 'Habilitar e iniciar Nginx'
   service:
-    name: nginx
-    state: started
-    enabled: yes
+      name: nginx
+      state: started
+      enabled: yes

@@ -120,12 +120,12 @@
     "refresh": "30s",
     "schemaVersion": 38,
     "style": "dark",
-    "tags": ["agentflix", "business"],
+    "tags": ["interazap", "business"],
     "templating": { "list": [] },
     "time": { "from": "now-24h", "to": "now" },
     "timepicker": {},
     "timezone": "browser",
-    "title": "AgentFlix Business Metrics",
-    "uid": "agentflix-business",
+    "title": "InteraZap Business Metrics",
+    "uid": "interazap-business",
     "version": 1
 }

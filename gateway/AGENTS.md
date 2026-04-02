@@ -1,4 +1,4 @@
-# AGENTS.md — AgentFlix Gateway (NestJS 11)
+# AGENTS.md — InteraZap Gateway (NestJS 11)
 
 > 📌 This extends the root `../AGENTS.md` — read it first for full project context.
 

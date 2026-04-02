@@ -4,13 +4,13 @@ set -e
 echo "=== Enabling Nginx sites ==="
 
 SITES=(
-    "stage.www.agentflix.com.br"
-    "stage.api.agentflix.com.br"
-    "api.agentflix.com.br"
-    "stage.app.agentflix.com.br"
-    "app.agentflix.com.br"
-    "stage.gateway.agentflix.com.br"
-    "gateway.agentflix.com.br"
+    "stage.www.interazap.com.br"
+    "stage.api.interazap.com.br"
+    "api.interazap.com.br"
+    "stage.app.interazap.com.br"
+    "app.interazap.com.br"
+    "stage.gateway.interazap.com.br"
+    "gateway.interazap.com.br"
 )
 
 for site in "${SITES[@]}"; do

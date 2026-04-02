@@ -29,7 +29,7 @@
 
 **Entrega:** Catálogo persistido para Gemini 2.5 e 3.1 no backend, sem alterar schema e sem quebrar a tabela existente | **Agente:** @BACKEND
 
-**Gate:** `cd /Users/rafael.silva/Documents/agentflix/api && composer gate:all`
+**Gate:** `cd /Users/rafael.silva/Documents/interazap/api && composer gate:all`
 
 ### TASK-029.1.1 — Criar migration aditiva para o catálogo Gemini
 
@@ -116,7 +116,7 @@ return new class extends Migration {
 - [ ]   2. Criar `api/database/migrations/2026_03_31_000001_add_gemini_models_to_ai_model_pricings.php`
 - [ ]   3. Implementar `up()` com `upsert` idempotente para os 4 modelos
 - [ ]   4. Implementar `down()` removendo apenas os 4 registros novos
-- [ ]   5. Verificar `cd /Users/rafael.silva/Documents/agentflix/api && php artisan migrate --pretend`
+- [ ]   5. Verificar `cd /Users/rafael.silva/Documents/interazap/api && php artisan migrate --pretend`
 
 **Critérios de conclusão**
 
@@ -224,7 +224,7 @@ Atualizar o seeder `AiModelPricingSeeder.php` para incluir os modelos Gemini 2.5
 - [ ]   2. Incluir os 4 modelos novos com `provider = google`
 - [ ]   3. Garantir que `notes` documente fallback quando os nomes comerciais divergirem do ID oficial
 - [ ]   4. Verificar que o fluxo de update/create permanece idempotente
-- [ ]   5. Verificar `cd /Users/rafael.silva/Documents/agentflix/api && composer gate:all`
+- [ ]   5. Verificar `cd /Users/rafael.silva/Documents/interazap/api && composer gate:all`
 
 **Critérios de conclusão**
 
@@ -245,7 +245,7 @@ Atualizar o seeder `AiModelPricingSeeder.php` para incluir os modelos Gemini 2.5
 
 **Entrega:** Configuração tipada e runtime base do provider Google disponível para o domínio AI | **Agente:** @DEV
 
-**Gate:** `cd /Users/rafael.silva/Documents/agentflix/gateway && pnpm lint && pnpm test`
+**Gate:** `cd /Users/rafael.silva/Documents/interazap/gateway && pnpm lint && pnpm test`
 
 ### TASK-029.2.1 — Estender `configuration.model.ts` com `GoogleConfiguration`
 
@@ -516,7 +516,7 @@ export class GeminiConfigService implements OnModuleInit {
 
 **Entrega:** Provider Google funcional no domínio AI, com tradução normalizada e registro completo no DI NestJS | **Agente:** @DEV
 
-**Gate:** `cd /Users/rafael.silva/Documents/agentflix/gateway && pnpm lint && pnpm test`
+**Gate:** `cd /Users/rafael.silva/Documents/interazap/gateway && pnpm lint && pnpm test`
 
 ### TASK-029.3.1 — Criar `GeminiTranslator`
 
@@ -837,7 +837,7 @@ imports: [RedisModule, OpenAIProviderModule, GeminiProviderModule, MetricsModule
 
 **Entrega:** Dependência do SDK e variáveis de ambiente documentadas para uso do provider Google | **Agente:** @DEV
 
-**Gate:** `cd /Users/rafael.silva/Documents/agentflix/gateway && pnpm lint && pnpm test`
+**Gate:** `cd /Users/rafael.silva/Documents/interazap/gateway && pnpm lint && pnpm test`
 
 ### TASK-029.4.1 — Adicionar SDK Google ao `gateway/package.json`
 
@@ -994,7 +994,7 @@ GOOGLE_MAX_RETRIES=3
 
 **Entrega:** Formulário de agentes exibe o catálogo Gemini suportado sem quebrar a experiência atual | **Agente:** @FRONTEND
 
-**Gate:** `cd /Users/rafael.silva/Documents/agentflix/app && pnpm run gate:all`
+**Gate:** `cd /Users/rafael.silva/Documents/interazap/app && pnpm run gate:all`
 
 **Skills obrigatórios:** `.claude/skills/design/SKILL.md`, `.claude/skills/frontend-flow/SKILL.md`, `.github/skills/angular-architect/SKILL.md`, `.github/skills/coding-guidelines/SKILL.md`
 
@@ -1058,7 +1058,7 @@ readonly modelOptions: AfSelectOption[] = [
 - [ ]   1. Atualizar `readonly modelOptions` em `app/src/app/pages/ai/pages/agents/agent-form/agent-form.ts`
 - [ ]   2. Garantir consistência entre `value` e IDs canônicos validados no Review
 - [ ]   3. Verificar que o default do formulário continua estável
-- [ ]   4. Verificar `cd /Users/rafael.silva/Documents/agentflix/app && pnpm run gate:all`
+- [ ]   4. Verificar `cd /Users/rafael.silva/Documents/interazap/app && pnpm run gate:all`
 
 **Critérios de conclusão**
 
@@ -1114,9 +1114,9 @@ Executar todos os gates das camadas afetadas, adicionar os testes de gateway pre
 - [ ]   1. Criar/atualizar `gateway/src/domains/ai/providers/google/gemini.config.spec.ts`
 - [ ]   2. Criar/atualizar `gateway/src/domains/ai/providers/google/gemini.translator.spec.ts`
 - [ ]   3. Criar/atualizar `gateway/src/domains/ai/providers/google/gemini-provider.adapter.spec.ts`
-- [ ]   4. Executar `cd /Users/rafael.silva/Documents/agentflix/api && composer gate:all`
-- [ ]   5. Executar `cd /Users/rafael.silva/Documents/agentflix/gateway && pnpm lint && pnpm test`
-- [ ]   6. Executar `cd /Users/rafael.silva/Documents/agentflix/app && pnpm run gate:all`
+- [ ]   4. Executar `cd /Users/rafael.silva/Documents/interazap/api && composer gate:all`
+- [ ]   5. Executar `cd /Users/rafael.silva/Documents/interazap/gateway && pnpm lint && pnpm test`
+- [ ]   6. Executar `cd /Users/rafael.silva/Documents/interazap/app && pnpm run gate:all`
 - [ ]   7. Registrar resultados em `Evidências` nas tasks executadas
 
 **Critérios de conclusão**

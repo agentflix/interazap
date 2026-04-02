@@ -13,7 +13,7 @@ import { type FormControl, ReactiveFormsModule } from '@angular/forms';
 import { resolveInputContainerClass } from '../input-container.util';
 
 /**
- * Switch/toggle input component for AgentFlix UI Kit.
+ * Switch/toggle input component for InteraZap UI Kit.
  *
  * @description Styled toggle switch supporting both FormControl and standalone modes.
  *

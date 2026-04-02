@@ -152,7 +152,7 @@ class UzapiAdapterTest extends TestCase
             'https://api.test/instance/status' => Http::response([
                 'status' => 'CONNECTED',
                 'phone' => '5511999999999',
-                'profileName' => 'AgentFlix',
+                'profileName' => 'InteraZap',
             ], 200),
         ]);
 
@@ -161,7 +161,7 @@ class UzapiAdapterTest extends TestCase
 
         $this->assertTrue($status->connected);
         $this->assertSame('5511999999999', $status->phone);
-        $this->assertSame('AgentFlix', $status->name);
+        $this->assertSame('InteraZap', $status->name);
     }
 
     public function test_check_number_exists_and_profile_picture(): void

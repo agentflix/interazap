@@ -3,7 +3,7 @@ import { AfModalComponent } from '../modal/modal';
 import { AfButtonComponent } from '../button/button';
 
 /**
- * Confirm modal component for AgentFlix UI Kit.
+ * Confirm modal component for InteraZap UI Kit.
  *
  * @description Pre-built confirmation dialog with icon, message, and action buttons.
  * Supports danger and warning variants for destructive actions.

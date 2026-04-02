@@ -4,10 +4,8 @@ import { LucideAngularModule } from 'lucide-angular';
 import type { AfUploadFile } from './file-upload.model';
 export * from './file-upload.model';
 
-
-
 /**
- * File upload component for AgentFlix UI Kit.
+ * File upload component for InteraZap UI Kit.
  *
  * @description Drag & drop zone with file list, progress bars,
  * and cancel buttons. Supports single and multi-file upload.

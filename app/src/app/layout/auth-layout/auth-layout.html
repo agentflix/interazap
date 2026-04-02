@@ -1,225 +1,219 @@
+<div class="relative min-h-screen overflow-hidden bg-neutral-50 dark:bg-neutral-950">
+  <!-- Background ambient blurs (mobile only, hero covers left on lg) -->
+  <div class="pointer-events-none absolute inset-0 lg:hidden" aria-hidden="true">
+    <div
+      class="absolute -left-32 -top-32 h-[40rem] w-[40rem] rounded-full bg-primary-400/20 blur-[120px] dark:bg-primary-500/10"
+    ></div>
+    <div
+      class="absolute -right-32 -bottom-32 h-[36rem] w-[36rem] rounded-full bg-accent-400/15 blur-[120px] dark:bg-accent-500/10"
+    ></div>
+  </div>
 
-    <div class="relative min-h-screen overflow-hidden bg-neutral-50 dark:bg-neutral-950">
-      <!-- Background ambient blurs (mobile only, hero covers left on lg) -->
-      <div class="pointer-events-none absolute inset-0 lg:hidden" aria-hidden="true">
-        <div
-          class="absolute -left-32 -top-32 h-[40rem] w-[40rem] rounded-full bg-primary-400/20 blur-[120px] dark:bg-primary-500/10"
-        ></div>
-        <div
-          class="absolute -right-32 -bottom-32 h-[36rem] w-[36rem] rounded-full bg-accent-400/15 blur-[120px] dark:bg-accent-500/10"
-        ></div>
-      </div>
-
-      <!-- Full-screen grid -->
-      <div
-        class="relative z-10 grid min-h-screen lg:grid-cols-[1fr_28rem] xl:grid-cols-[1fr_32rem]"
+  <!-- Full-screen grid -->
+  <div class="relative z-10 grid min-h-screen lg:grid-cols-[1fr_28rem] xl:grid-cols-[1fr_32rem]">
+    <!-- Left hero panel -->
+    <section
+      class="hidden lg:flex relative flex-col overflow-hidden bg-linear-to-br from-primary-600 via-primary-700 to-accent-700 text-white"
+    >
+      <!-- Decorative grid pattern -->
+      <svg
+        class="pointer-events-none absolute inset-0 h-full w-full opacity-[0.07]"
+        aria-hidden="true"
       >
-        <!-- Left hero panel -->
-        <section
-          class="hidden lg:flex relative flex-col overflow-hidden bg-linear-to-br from-primary-600 via-primary-700 to-accent-700 text-white"
-        >
-          <!-- Decorative grid pattern -->
-          <svg
-            class="pointer-events-none absolute inset-0 h-full w-full opacity-[0.07]"
-            aria-hidden="true"
+        <defs>
+          <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+            <path d="M 32 0 L 0 0 0 32" fill="none" stroke="white" stroke-width="0.5" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+      </svg>
+
+      <!-- Decorative gradient orbs -->
+      <div
+        class="pointer-events-none absolute top-1/4 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute bottom-1/4 right-0 h-48 w-48 rounded-full bg-accent-400/20 blur-3xl"
+        aria-hidden="true"
+      ></div>
+
+      <!-- Content -->
+      <div class="relative z-10 flex flex-1 flex-col justify-between p-10 xl:p-14">
+        <!-- Logo -->
+        <a routerLink="/" class="inline-flex items-center gap-3.5 self-start group">
+          <span
+            class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-lg shadow-black/10 group-hover:bg-white/20 transition-colors"
           >
-            <defs>
-              <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-                <path d="M 32 0 L 0 0 0 32" fill="none" stroke="white" stroke-width="0.5" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="InteraZap icon"
+            >
+              <path
+                d="M13 2L4 14h6l-1 8 9-12h-6l1-8Z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="text-2xl font-bold tracking-tight">InteraZap</span>
+        </a>
 
-          <!-- Decorative gradient orbs -->
-          <div
-            class="pointer-events-none absolute top-1/4 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
-            aria-hidden="true"
-          ></div>
-          <div
-            class="pointer-events-none absolute bottom-1/4 right-0 h-48 w-48 rounded-full bg-accent-400/20 blur-3xl"
-            aria-hidden="true"
-          ></div>
+        <!-- Hero text -->
+        <div class="space-y-6 max-w-lg">
+          <div class="flex items-center gap-2">
+            <span class="h-px w-8 bg-white/40"></span>
+            <p class="text-[11px] uppercase tracking-[0.3em] font-semibold text-white/60">
+              Plataforma Inteligente
+            </p>
+          </div>
+          <h2 class="text-[2.75rem] xl:text-5xl font-bold leading-[1.1] tracking-tight">
+            Automatize com
+            <span class="text-primary-200">confiança</span>
+            e escale sem limites.
+          </h2>
+          <p class="text-base xl:text-lg text-white/70 leading-relaxed max-w-md">
+            Gerencie conversas, equipes e dados em um ambiente seguro com controle total por
+            organização.
+          </p>
+        </div>
 
-          <!-- Content -->
-          <div class="relative z-10 flex flex-1 flex-col justify-between p-10 xl:p-14">
-            <!-- Logo -->
-            <a routerLink="/" class="inline-flex items-center gap-3.5 self-start group">
-              <span
-                class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-lg shadow-black/10 group-hover:bg-white/20 transition-colors"
+        <!-- Feature cards -->
+        <div class="grid gap-3">
+          <div
+            class="group flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] px-5 py-4 backdrop-blur-sm hover:bg-white/[0.12] transition-colors"
+          >
+            <span
+              class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15"
+            >
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               >
-                <svg
-                  class="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  role="img"
-                  aria-label="AgentFlix icon"
-                >
-                  <path
-                    d="M13 2L4 14h6l-1 8 9-12h-6l1-8Z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </span>
-              <span class="text-2xl font-bold tracking-tight">AgentFlix</span>
-            </a>
-
-            <!-- Hero text -->
-            <div class="space-y-6 max-w-lg">
-              <div class="flex items-center gap-2">
-                <span class="h-px w-8 bg-white/40"></span>
-                <p class="text-[11px] uppercase tracking-[0.3em] font-semibold text-white/60">
-                  Plataforma Inteligente
-                </p>
-              </div>
-              <h2 class="text-[2.75rem] xl:text-5xl font-bold leading-[1.1] tracking-tight">
-                Automatize com
-                <span class="text-primary-200">confiança</span>
-                e escale sem limites.
-              </h2>
-              <p class="text-base xl:text-lg text-white/70 leading-relaxed max-w-md">
-                Gerencie conversas, equipes e dados em um ambiente seguro com controle total por
-                organização.
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </span>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold">Segurança corporativa</p>
+              <p class="mt-0.5 text-sm text-white/60">
+                Compliance, trilha auditável e proteção de dados sensíveis
               </p>
             </div>
-
-            <!-- Feature cards -->
-            <div class="grid gap-3">
-              <div
-                class="group flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] px-5 py-4 backdrop-blur-sm hover:bg-white/[0.12] transition-colors"
+          </div>
+          <div
+            class="group flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] px-5 py-4 backdrop-blur-sm hover:bg-white/[0.12] transition-colors"
+          >
+            <span
+              class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15"
+            >
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               >
-                <span
-                  class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15"
-                >
-                  <svg
-                    class="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  </svg>
-                </span>
-                <div class="min-w-0">
-                  <p class="text-sm font-semibold">Segurança corporativa</p>
-                  <p class="mt-0.5 text-sm text-white/60">
-                    Compliance, trilha auditável e proteção de dados sensíveis
-                  </p>
-                </div>
-              </div>
-              <div
-                class="group flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] px-5 py-4 backdrop-blur-sm hover:bg-white/[0.12] transition-colors"
-              >
-                <span
-                  class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15"
-                >
-                  <svg
-                    class="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <line x1="3" y1="9" x2="21" y2="9" />
-                    <line x1="9" y1="21" x2="9" y2="9" />
-                  </svg>
-                </span>
-                <div class="min-w-0">
-                  <p class="text-sm font-semibold">Corporativo nativo</p>
-                  <p class="mt-0.5 text-sm text-white/60">
-                    Isolamento e controle granular em toda a plataforma
-                  </p>
-                </div>
-              </div>
-              <div
-                class="group flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] px-5 py-4 backdrop-blur-sm hover:bg-white/[0.12] transition-colors"
-              >
-                <span
-                  class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15"
-                >
-                  <svg
-                    class="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                  </svg>
-                </span>
-                <div class="min-w-0">
-                  <p class="text-sm font-semibold">Automação inteligente</p>
-                  <p class="mt-0.5 text-sm text-white/60">
-                    Fluxos de atendimento com IA integrada e respostas em tempo real
-                  </p>
-                </div>
-              </div>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="9" y1="21" x2="9" y2="9" />
+              </svg>
+            </span>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold">Corporativo nativo</p>
+              <p class="mt-0.5 text-sm text-white/60">
+                Isolamento e controle granular em toda a plataforma
+              </p>
             </div>
           </div>
-        </section>
-
-        <!-- Right form panel -->
-        <div
-          class="relative flex flex-col justify-center overflow-hidden bg-white dark:bg-neutral-900 px-6 py-10 sm:px-10 sm:py-12 lg:px-12 lg:py-16 xl:px-16"
-        >
-          <!-- Top shimmer -->
           <div
-            class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-b from-primary-50/60 via-primary-50/20 to-transparent dark:from-primary-950/30 dark:via-primary-950/10"
-            aria-hidden="true"
-          ></div>
-
-          <!-- Subtle corner accent -->
-          <div
-            class="pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-primary-400/10 blur-3xl dark:bg-primary-400/5"
-            aria-hidden="true"
-          ></div>
-
-          <!-- Mobile logo -->
-          <a routerLink="/" class="mb-8 flex items-center justify-center lg:hidden">
-            <span class="inline-flex items-center gap-3">
-              <span
-                class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-500 text-white shadow-lg shadow-primary-500/25"
+            class="group flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] px-5 py-4 backdrop-blur-sm hover:bg-white/[0.12] transition-colors"
+          >
+            <span
+              class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15"
+            >
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               >
-                <svg
-                  class="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  role="img"
-                  aria-label="AgentFlix icon"
-                >
-                  <path
-                    d="M13 2L4 14h6l-1 8 9-12h-6l1-8Z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </span>
-              <span class="text-3xl font-bold text-neutral-900 dark:text-neutral-50">
-                AgentFlix
-              </span>
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
             </span>
-          </a>
-
-          <div class="relative">
-            <router-outlet />
+            <div class="min-w-0">
+              <p class="text-sm font-semibold">Automação inteligente</p>
+              <p class="mt-0.5 text-sm text-white/60">
+                Fluxos de atendimento com IA integrada e respostas em tempo real
+              </p>
+            </div>
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- Right form panel -->
+    <div
+      class="relative flex flex-col justify-center overflow-hidden bg-white dark:bg-neutral-900 px-6 py-10 sm:px-10 sm:py-12 lg:px-12 lg:py-16 xl:px-16"
+    >
+      <!-- Top shimmer -->
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-b from-primary-50/60 via-primary-50/20 to-transparent dark:from-primary-950/30 dark:via-primary-950/10"
+        aria-hidden="true"
+      ></div>
+
+      <!-- Subtle corner accent -->
+      <div
+        class="pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-primary-400/10 blur-3xl dark:bg-primary-400/5"
+        aria-hidden="true"
+      ></div>
+
+      <!-- Mobile logo -->
+      <a routerLink="/" class="mb-8 flex items-center justify-center lg:hidden">
+        <span class="inline-flex items-center gap-3">
+          <span
+            class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-500 text-white shadow-lg shadow-primary-500/25"
+          >
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="InteraZap icon"
+            >
+              <path
+                d="M13 2L4 14h6l-1 8 9-12h-6l1-8Z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="text-3xl font-bold text-neutral-900 dark:text-neutral-50"> InteraZap </span>
+        </span>
+      </a>
+
+      <div class="relative">
+        <router-outlet />
+      </div>
     </div>
-  
+  </div>
+</div>

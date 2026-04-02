@@ -55,7 +55,7 @@ describe('ChatContactView', (): void => {
     const summary: CalledContactSummary = {
       id: 'contact-1',
       name: 'Ana',
-      email: 'ana@agentflix.test',
+      email: 'ana@interazap.test',
       phone: '11999990000',
       whatsapp: '+5511999990000',
     };
@@ -73,7 +73,7 @@ describe('ChatContactView', (): void => {
     const summary: CalledContactSummary = {
       id: 'contact-2',
       name: 'Bia',
-      email: 'bia@agentflix.test',
+      email: 'bia@interazap.test',
       phone: '11999990000',
       whatsapp: '+5511999990000',
     };
@@ -81,7 +81,7 @@ describe('ChatContactView', (): void => {
     const fullContact = createContact({
       id: 'contact-2',
       name: 'Beatriz',
-      email: 'bia@agentflix.test',
+      email: 'bia@interazap.test',
       whatsapp: '+5511999990000',
       custom_fields: { role: 'Support', notes: 'VIP' },
     });
@@ -94,7 +94,7 @@ describe('ChatContactView', (): void => {
     expect(component.isLoading()).toBe(false);
     expect(component.contactSignal()).toEqual(fullContact);
     expect(component.form.controls.name.value).toBe('Beatriz');
-    expect(component.form.controls.email.value).toBe('bia@agentflix.test');
+    expect(component.form.controls.email.value).toBe('bia@interazap.test');
     expect(component.form.controls.role.value).toBe('Support');
   });
 
@@ -127,7 +127,7 @@ describe('ChatContactView', (): void => {
     const summary: CalledContactSummary = {
       id: 'contact-4',
       name: 'Carlos',
-      email: 'carlos@agentflix.test',
+      email: 'carlos@interazap.test',
       phone: '11999990000',
       whatsapp: undefined,
     };
@@ -156,7 +156,7 @@ describe('ChatContactView', (): void => {
     component.form.patchValue({
       name: 'Carlos Silva',
       whatsapp: '11 99999-0000',
-      email: 'carlos@agentflix.test',
+      email: 'carlos@interazap.test',
       role: 'Support',
       notes: 'Priority',
     });
@@ -183,7 +183,7 @@ describe('ChatContactView', (): void => {
     const summary: CalledContactSummary = {
       id: 'contact-5',
       name: 'Dani',
-      email: 'dani@agentflix.test',
+      email: 'dani@interazap.test',
       phone: '11999990000',
       whatsapp: '+5511999990000',
     };

@@ -22,11 +22,11 @@ function tab () {
 EOF
 }
 
-tab "cd ~/Documents/agentflix/api && php artisan serve"
-tab "cd ~/Documents/agentflix/api && php artisan streams:chat-consume"
-tab "cd ~/Documents/agentflix/api && php artisan ai:consume-run-responses"
-tab "cd ~/Documents/agentflix/api && php artisan ai:consume-tool-requests"
-tab "cd ~/Documents/agentflix/api && php artisan cache:clear && php artisan horizon"
-tab "cd ~/Documents/agentflix/app && ng serve"
-tab "cd ~/Documents/agentflix/gateway && npm run start"
-tab "cd ~/Documents/agentflix && ngrok http 3000"
+tab "cd ~/Documents/interazap/api && php artisan serve"
+tab "cd ~/Documents/interazap/api && php artisan streams:chat-consume"
+tab "cd ~/Documents/interazap/api && php artisan ai:consume-run-responses"
+tab "cd ~/Documents/interazap/api && php artisan ai:consume-tool-requests"
+tab "cd ~/Documents/interazap/api && php artisan cache:clear && php artisan horizon"
+tab "cd ~/Documents/interazap/app && ng serve"
+tab "cd ~/Documents/interazap/gateway && npm run start"
+tab "cd ~/Documents/interazap && ngrok http 3000"

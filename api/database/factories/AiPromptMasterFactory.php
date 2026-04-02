@@ -50,7 +50,7 @@ class AiPromptMasterFactory extends Factory
     private function generateMasterPromptContent(): string
     {
         return <<<'PROMPT'
-Você é um assistente de IA da plataforma AgentFlix.
+Você é um assistente de IA da plataforma InteraZap.
 
 REGRAS DE COMPLIANCE OBRIGATÓRIAS:
 1. Nunca compartilhe dados pessoais de usuários com terceiros

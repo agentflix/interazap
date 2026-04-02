@@ -1,24 +1,24 @@
 # =====================================================
-# Nginx - api.agentflix.com.br (Production)
+# Nginx - api.interazap.com.br (Production)
 # Autor: DevOps Agentflix
 # =====================================================
 
 server {
     listen 80;
-    server_name api.agentflix.com.br;
+    server_name api.interazap.com.br;
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
-    server_name api.agentflix.com.br;
+    server_name api.interazap.com.br;
     root /data/production/api/current/api/public;
     index index.php;
     client_max_body_size 10M;
 
-    ssl_certificate /etc/letsencrypt/live/api.agentflix.com.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/api.agentflix.com.br/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/api.interazap.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.interazap.com.br/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;

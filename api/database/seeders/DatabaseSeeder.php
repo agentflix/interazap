@@ -39,8 +39,8 @@ class DatabaseSeeder extends Seeder
 
         $tenant->fill([
             'id' => $tenant->id ?: $tenantId,
-            'name' => 'AgentFlix',
-            'primary_email' => 'admin@agentflix.com.br',
+            'name' => 'InteraZap',
+            'primary_email' => 'admin@interazap.com.br',
             'is_active' => true,
             'plan_id' => $defaultPlan?->id,
             'billing_webhook_token' => $tenant->billing_webhook_token ?: (string) Str::uuid(),
@@ -74,12 +74,12 @@ class DatabaseSeeder extends Seeder
         $this->call(RolePermissionSeeder::class);
 
         $admin = AuthUser::query()->withTrashed()->firstOrNew([
-            'email' => 'admin@agentflix.com.br',
+            'email' => 'admin@interazap.com.br',
         ]);
 
         $admin->fill([
             'tenant_id' => $tenant->id,
-            'name' => 'Admin AgentFlix',
+            'name' => 'Admin InteraZap',
             'password' => Hash::make('password'),
             'is_active' => true,
         ]);

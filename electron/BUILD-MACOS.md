@@ -26,7 +26,7 @@ npm run electron:build:mac
 
 ## Output
 
-- `release/AgentFlix Desktop-1.0.0.dmg`
+- `release/InteraZap Desktop-1.0.0.dmg`
 
 ## Notes
 

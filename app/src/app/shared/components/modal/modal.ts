@@ -3,7 +3,7 @@ import { A11yModule } from '@angular/cdk/a11y';
 import { AfScrollAreaComponent } from '@shared/components/scroll-area/scroll-area';
 
 /**
- * Modal dialog component for AgentFlix UI Kit.
+ * Modal dialog component for InteraZap UI Kit.
  *
  * @description Full-featured modal with backdrop, header, body, and footer slots.
  * Supports multiple sizes and closes on Escape key and backdrop click.

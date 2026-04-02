@@ -242,7 +242,7 @@ class ChatMessageActionsTest extends TestCase
                 'contact' => [
                     'fullName' => 'Contato',
                     'phoneNumber' => '5511',
-                    'organization' => 'AgentFlix',
+                    'organization' => 'InteraZap',
                 ],
             ],
         ]);
@@ -288,7 +288,7 @@ class ChatMessageActionsTest extends TestCase
                 'location' => [
                     'latitude' => -23.0,
                     'longitude' => -46.0,
-                    'name' => 'AgentFlix HQ',
+                    'name' => 'InteraZap HQ',
                 ],
             ],
         ]);

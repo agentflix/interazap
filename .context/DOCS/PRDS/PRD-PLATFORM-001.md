@@ -1,4 +1,4 @@
-# PRD-PLATFORM-001 - Modulo Platform AgentFlix
+# PRD-PLATFORM-001 - Modulo Platform InteraZap
 
 > **Modulo:** Platform (Administracao da Plataforma SaaS)
 > **Status:** rascunho
@@ -13,19 +13,19 @@
 
 ### 1.1 Posicionamento no Ecossistema
 
-O modulo Platform e o nucleo administrativo da plataforma AgentFlix,responsavel por toda a gerencia centralizada dos tenants (empresas/clientes),
+O modulo Platform e o nucleo administrativo da plataforma InteraZap,responsavel por toda a gerencia centralizada dos tenants (empresas/clientes),
 planos de assinatura, integracoes WhatsApp via gateway Uazapi, usuarios de plataforma e monitoramento de filas. Este modulo opera
 em um nivel deprivilegio superior ao dos tenants individuais: enquanto os demais modulos (CRM, Chat, Billing, AI, etc.) funcionam
 dentro do contexto de um tenant especifico, o Platform opera no plano da plataforma como umtodo, gerenciando o ciclo de vida completo
 dos tenants, suas assinaturas e os recursos disponiveis.
 
 O modulo Platform e consumido exclusivamente por usuarios com роль SuperAdmin ou papel de administrador de plataforma. Esses usuarios
-tendem a ser colaboradores internos da AgentFlix ou operadores de SaaS que gerenciam a base de clientes. A interface nao deve ser
+tendem a ser colaboradores internos da InteraZap ou operadores de SaaS que gerenciam a base de clientes. A interface nao deve ser
 exposta a usuarios finais dos tenants.
 
 ### 1.2 Historico e Evolucao
 
-O modulo Platform foi construdo a partir de um modelo multi-tenant ja existente na arquitetura AgentFlix, que ja utilizava `BelongsToTenant`
+O modulo Platform foi construdo a partir de um modelo multi-tenant ja existente na arquitetura InteraZap, que ja utilizava `BelongsToTenant`
 em todas as entidades. A principal evolucao foi a formalizacao de um dominio dedicado com:
 
 - Modelo `PlatformTenant` como entidade raiz, com status de billing próprio (ativo, grace, bloqueado, purge)
@@ -57,18 +57,18 @@ sem intervencao manual.
 
 ### 1.4 Decisoes Arquiteturais Chave
 
-| Decisao | Justificativa |
-|---------|---------------|
-| UUID como primary key em todas as entidades | Garante que IDs internos nunca vazem informacao sequencial; facilita migracoes e replica |
-| `final class` em Controllers, Actions e DTOs | Impoe imutabilidade de interface e previne heranca acidental |
-| `readonly` DTOs com `fromRequest()` / `fromArray()` | Garante que DTOs sao imutaveis e podem ser reconstruidos de qualquer fonte |
-| `BelongsToTenant` trait em PlatformUazapiInstance | Even in the platform admin domain, instance ownership is per-tenant for multi-tenant isolation |
-| Catalog-driven bootstrap | Permite segmentacao sem alterar codigo; catálogos podem ser extendidos via config |
-| SuperAdmin força segmento SAAS | Garante que tenants criados por super-admins sempre tengan catálogos SaaS padrao |
-| Storage calculado em cache 5 min | Calculo de storage e I/O intensivo; cache reduz carga sem perder precisao |
-| Rate limiting em /health/* | Endpoints internos de monitoramento nao devem ser abusados externamente |
-| Asaas como gateway de pagamento | Integracao com Asaas para gestao de faturas, cobranca e cobrancas recorrentes |
-| Gateway como fachada HTTP | O Backend nunca chama diretamente o WhatsApp provider; usa NestJS Gateway como proxy |
+| Decisao                                             | Justificativa                                                                                  |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| UUID como primary key em todas as entidades         | Garante que IDs internos nunca vazem informacao sequencial; facilita migracoes e replica       |
+| `final class` em Controllers, Actions e DTOs        | Impoe imutabilidade de interface e previne heranca acidental                                   |
+| `readonly` DTOs com `fromRequest()` / `fromArray()` | Garante que DTOs sao imutaveis e podem ser reconstruidos de qualquer fonte                     |
+| `BelongsToTenant` trait em PlatformUazapiInstance   | Even in the platform admin domain, instance ownership is per-tenant for multi-tenant isolation |
+| Catalog-driven bootstrap                            | Permite segmentacao sem alterar codigo; catálogos podem ser extendidos via config              |
+| SuperAdmin força segmento SAAS                      | Garante que tenants criados por super-admins sempre tengan catálogos SaaS padrao               |
+| Storage calculado em cache 5 min                    | Calculo de storage e I/O intensivo; cache reduz carga sem perder precisao                      |
+| Rate limiting em /health/\*                         | Endpoints internos de monitoramento nao devem ser abusados externamente                        |
+| Asaas como gateway de pagamento                     | Integracao com Asaas para gestao de faturas, cobranca e cobrancas recorrentes                  |
+| Gateway como fachada HTTP                           | O Backend nunca chama diretamente o WhatsApp provider; usa NestJS Gateway como proxy           |
 
 ### 1.5 Modulos Dependentes
 
@@ -85,15 +85,16 @@ O modulo Platform possui relacoes de dependencia com os seguintes modulos:
 O `PlatformTenantBootstrapCatalogService` suporta os seguintes segmentos, cada um com
 agentes, funis, tags e departamentos customizados:
 
-| Segmento | Codigo | Uso |
-|----------|--------|-----|
-| GENERAL | Padrao | Uso geral / multi-segmento |
-| SAAS | FORCED_SUPER_ADMIN_SEGMENT_CODE | Tenants criados por SuperAdmin (forcado) |
-| ECOMMERCE | ECOMMERCE | E-commerce e retail |
-| HEALTHCARE | HEALTHCARE | Clinicas e saude |
-| REAL_ESTATE | REAL_ESTATE | Imobiliarias |
+| Segmento    | Codigo                          | Uso                                      |
+| ----------- | ------------------------------- | ---------------------------------------- |
+| GENERAL     | Padrao                          | Uso geral / multi-segmento               |
+| SAAS        | FORCED_SUPER_ADMIN_SEGMENT_CODE | Tenants criados por SuperAdmin (forcado) |
+| ECOMMERCE   | ECOMMERCE                       | E-commerce e retail                      |
+| HEALTHCARE  | HEALTHCARE                      | Clinicas e saude                         |
+| REAL_ESTATE | REAL_ESTATE                     | Imobiliarias                             |
 
 Cada segmento define:
+
 - `prompt_suffix`: Sufixo do prompt AI do tenant
 - `agents[]`: Lista de agentes padrao com skills, files, channels e tools
 - `funnels[]`: Funis de negociacao com etapas
@@ -136,15 +137,16 @@ UazapiGatewayService
 
 ### 2.1 Objetivo Geral
 
-Prover um sistema completo de administracao da plataforma SaaS AgentFlix que permita a operadores internos (SuperAdmin) e administradores de plataforma gerenciar todo o ciclo de vida dos clientes da plataforma, desde a contratacao e onboarding automatico, passando pela operacao diaria e enforcement de limites, ate a cobranca, bloqueio e purge de tenants inadimplentes.
+Prover um sistema completo de administracao da plataforma SaaS InteraZap que permita a operadores internos (SuperAdmin) e administradores de plataforma gerenciar todo o ciclo de vida dos clientes da plataforma, desde a contratacao e onboarding automatico, passando pela operacao diaria e enforcement de limites, ate a cobranca, bloqueio e purge de tenants inadimplentes.
 
-O modulo Platform e o ponto unico de controle centralizado onde toda alogica de administracao, governance e observabilidade da plataforma AgentFlix reside. Ele nao opera dentro do contexto de um tenant individual, mas sim no plano meta da plataforma, enxergando todos os tenants e seus recursos.
+O modulo Platform e o ponto unico de controle centralizado onde toda alogica de administracao, governance e observabilidade da plataforma InteraZap reside. Ele nao opera dentro do contexto de um tenant individual, mas sim no plano meta da plataforma, enxergando todos os tenants e seus recursos.
 
 ### 2.2 Objetivos Especificos
 
 **2.2.1 Gestao do Ciclo de Vida de Tenants**
 
 Permitir que SuperAdmins executem todas as operacoes de gestao de tenants (empresas/clientes):
+
 - Criacao de novos tenants com dados cadastrais completos (razao social, CNPJ, endereco, contato)
 - Edicao de dados cadastrais e de endereco
 - Ativacao e inativacao de tenants sem exclusao (toggle de is_active)
@@ -156,6 +158,7 @@ Permitir que SuperAdmins executem todas as operacoes de gestao de tenants (empre
 **2.2.2 Onboarding Automatico via Bootstrap**
 
 Garantir que cada novo tenant receba um ambiente operacional completo e funcional no momento da criacao:
+
 - Geracao automatica de agentes AI customizados por segmento de negocio (GENERAL, SAAS, ECOMMERCE, HEALTHCARE, REAL_ESTATE)
 - Provisionamento de funis de negociacao CRM com etapas pre-configuradas
 - Criacao de motivos de perda padrao
@@ -167,6 +170,7 @@ Garantir que cada novo tenant receba um ambiente operacional completo e funciona
 **2.2.3 Gestao de Planos de Assinatura**
 
 Permitir que SuperAdmins configurem e gerenciem planos de assinatura com granularidade total:
+
 - CRUD de planos com nomenclatura, precificacao mensal e integracao Asaas
 - Configuracao de limites tecnicos por plano: quantidade de usuarios, espaco de armazenamento, numero de instancias WhatsApp, quantidade de negociacoes CRM
 - Configuracao de modo de relatórios: BASIC (volume de chat), ADVANCED (+ CRM, agentes, AI), FULL (+ SLA, CSAT/NPS, exportacao)
@@ -177,6 +181,7 @@ Permitir que SuperAdmins configurem e gerenciem planos de assinatura com granula
 **2.2.4 Enforcement Automatico de Limites**
 
 Garantir que o sistema enforceie automaticamente os limites de cada plano em todas as operacoes:
+
 - `canCreateUser()`: Verifica contagem de usuarios vs limite do plano ativo
 - `canCreateInstance()`: Verifica instancias WhatsApp vs limite do plano
 - `canCreateNegotiation()`: Verifica negociacoes vs limite quando modo e LIMITED
@@ -190,6 +195,7 @@ Garantir que o sistema enforceie automaticamente os limites de cada plano em tod
 **2.2.5 Integracao WhatsApp via Gateway**
 
 Orquestrar todas as conexoes WhatsApp de todos os tenants de forma centralizada:
+
 - Criacao de instancias no gateway Uazapi (NestJS Gateway)
 - Conexao via QR Code (exibicao para scan pelo administrador)
 - Conexao via pareamento direto (codigo PIN/code)
@@ -207,6 +213,7 @@ Orquestrar todas as conexoes WhatsApp de todos os tenants de forma centralizada:
 **2.2.6 Gestao de Usuarios de Plataforma**
 
 Permitir gerenciamento centralizado de usuarios que pertencem a tenants especificos:
+
 - Listagem de usuarios de todos os tenants (SuperAdmin)
 - Criacao, edicao e exclusao de usuarios cross-tenant
 - Upload e remocao de avatar de usuario
@@ -216,6 +223,7 @@ Permitir gerenciamento centralizado de usuarios que pertencem a tenants especifi
 **2.2.7 Gestao Financeira Centralizada**
 
 Prover visibilidade consolidada de todas as faturas de todos os tenants:
+
 - Listagem de invoices de todos os tenants em uma unica tela
 - Criacao de faturas manuais (cobrancas avulsas)
 - Exclusao de faturas (estorno)
@@ -224,6 +232,7 @@ Prover visibilidade consolidada de todas as faturas de todos os tenants:
 **2.2.8 Monitoramento de Observabilidade**
 
 Fornecer metricas de sade das filas BullMQ para alertas e dashboards:
+
 - Tamanho atual de cada fila (critical, high, default, low, ai, media)
 - Quantidade de jobs atrasados (delayed) por fila
 - Quantidade de jobs travados (reserved antes de threshold)
@@ -235,6 +244,7 @@ Fornecer metricas de sade das filas BullMQ para alertas e dashboards:
 **2.2.9 Exportacao de Dados**
 
 Permitir exportacao de dados de tenants para integracoes externas:
+
 - Exportacao de tenants para CSV com stream (memoria constante)
 - Suporte a filtros idênticos à listagem (busca, status, data, trashed)
 - BOM UTF-8 para compatibilidade com Microsoft Excel
@@ -259,230 +269,230 @@ O modulo Platform NAO tem como objetivo:
 
 ### 3.1 Regras Gerais de Tenant
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-001 | Todo tenant deve ter um `tenant_code` unico de 8 caracteres alfanumericos maiusculos, gerado automaticamente na criacao se nao fornecido | Critica |
-| RN-002 | `tenant_code` deve ser unico globalmente; caso de colisao, gerar novo codigo ate conseguir | Critica |
-| RN-003 | CNPJ e telefone devem ter Digitos apenas (sem pontuacao) armazenados no banco; normalizados via DTO | Alta |
-| RN-004 | Campo `state` deve ser armazenado em maiusculo (UF de 2 digitos, ex: SP, MG) | Media |
-| RN-005 | Campos de data de billing (`grace_deadline`, `purge_deadline`) sao `date` (nao datetime) | Media |
-| RN-006 | `billing_webhook_token` deve ser gerado automaticamente via UUID na criacao se nao fornecido | Alta |
-| RN-007 | `asaas_customer_id` pode ser null ate a primeira sincronizacao com gateway Asaas | Media |
-| RN-008 | Todos os tenants devem pertencer a um `AiPromptSegment`; se nenhum for especificado, usar o segmento GENERAL | Alta |
-| RN-009 | Tenants criados por SuperAdmin devem ser forçados ao segmento SAAS, ignorando qualquer segment_id fornecido | Critica |
-| RN-010 | Tenant com `is_active = false` deve continuar funcionando se `billing_status` nao for LOCKED ou PENDING_PURGE | Media |
-| RN-011 | Soft deletes em todos os tenants; exclusao fisica apenas via `forceDelete` com autorizacao explicita | Alta |
-| RN-012 | Restore de tenant excluido restaura `is_active = false` por padrao | Media |
-| RN-013 | Metodo `isLocked()` retorna true se `billing_status === BillingTenantStatus::LOCKED` | Alta |
-| RN-014 | Metodo `isInGrace()` retorna true se `billing_status === BillingTenantStatus::GRACE` | Alta |
-| RN-015 | Metodo `isPendingPurge()` retorna true se `billing_status === BillingTenantStatus::PENDING_PURGE` | Alta |
+| ID     | Regra                                                                                                                                    | Prioridade |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-001 | Todo tenant deve ter um `tenant_code` unico de 8 caracteres alfanumericos maiusculos, gerado automaticamente na criacao se nao fornecido | Critica    |
+| RN-002 | `tenant_code` deve ser unico globalmente; caso de colisao, gerar novo codigo ate conseguir                                               | Critica    |
+| RN-003 | CNPJ e telefone devem ter Digitos apenas (sem pontuacao) armazenados no banco; normalizados via DTO                                      | Alta       |
+| RN-004 | Campo `state` deve ser armazenado em maiusculo (UF de 2 digitos, ex: SP, MG)                                                             | Media      |
+| RN-005 | Campos de data de billing (`grace_deadline`, `purge_deadline`) sao `date` (nao datetime)                                                 | Media      |
+| RN-006 | `billing_webhook_token` deve ser gerado automaticamente via UUID na criacao se nao fornecido                                             | Alta       |
+| RN-007 | `asaas_customer_id` pode ser null ate a primeira sincronizacao com gateway Asaas                                                         | Media      |
+| RN-008 | Todos os tenants devem pertencer a um `AiPromptSegment`; se nenhum for especificado, usar o segmento GENERAL                             | Alta       |
+| RN-009 | Tenants criados por SuperAdmin devem ser forçados ao segmento SAAS, ignorando qualquer segment_id fornecido                              | Critica    |
+| RN-010 | Tenant com `is_active = false` deve continuar funcionando se `billing_status` nao for LOCKED ou PENDING_PURGE                            | Media      |
+| RN-011 | Soft deletes em todos os tenants; exclusao fisica apenas via `forceDelete` com autorizacao explicita                                     | Alta       |
+| RN-012 | Restore de tenant excluido restaura `is_active = false` por padrao                                                                       | Media      |
+| RN-013 | Metodo `isLocked()` retorna true se `billing_status === BillingTenantStatus::LOCKED`                                                     | Alta       |
+| RN-014 | Metodo `isInGrace()` retorna true se `billing_status === BillingTenantStatus::GRACE`                                                     | Alta       |
+| RN-015 | Metodo `isPendingPurge()` retorna true se `billing_status === BillingTenantStatus::PENDING_PURGE`                                        | Alta       |
 
 ### 3.2 Regras de Bootstrap de Tenant
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-020 | Ao criar tenant, `PlatformTenantBootstrapAction::execute()` deve ser chamado dentro da mesma transacao | Critica |
-| RN-021 | Bootstrap deve ser catalog-driven: o `PlatformTenantBootstrapCatalogService` fornece todos os dados default por segmento | Alta |
-| RN-022 | Se `dry_run = true`, o bootstrap retorna o relatorio sem persistir dados | Media |
-| RN-023 | Bootstrap cria: AiPromptTenant (1), AiAgent (3+), AiAgentSkill (por agente), AiAgentChannel (por agente), AiAgentFile (por agente), CRMNegotiationFunnel, CRMNegotiationFunnelStep, CRMReasonLoss, CRMTag, CRMDepartment | Alta |
-| RN-024 | Segmento HEALTHCARE deve criar agentes que NAO diagnosticam, NAO prescrevem e orientam SAMU 192 para urgencias | Critica |
-| RN-025 | Segmento REAL_ESTATE deve criar agentes focados em match de imovel e agendamento de visitas | Alta |
-| RN-026 | Segmento ECOMMERCE deve criar agentes focados em carrinho abandonado, rastreio de pedidos e pos-venda | Alta |
-| RN-027 | Tags sao criadas com cor automaticamente gerada a partir de `md5(nome)` para consistencia visual | Media |
-| RN-028 | Funis de negociacao devem ter steps ordenados pelo campo `order` | Alta |
-| RN-029 | Agents ja existentes com mesmo nome no tenant devem ser atualizados (upsert), nao duplicados | Alta |
-| RN-030 | Bootstrap deve executar dentro de `TenantContext::run()` para garantir isolamento de tenant | Critica |
-| RN-031 | `AgentToolEnum` deve ser importado corretamente ao referenciar ferramentas nos catálogos | Alta |
+| ID     | Regra                                                                                                                                                                                                                    | Prioridade |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
+| RN-020 | Ao criar tenant, `PlatformTenantBootstrapAction::execute()` deve ser chamado dentro da mesma transacao                                                                                                                   | Critica    |
+| RN-021 | Bootstrap deve ser catalog-driven: o `PlatformTenantBootstrapCatalogService` fornece todos os dados default por segmento                                                                                                 | Alta       |
+| RN-022 | Se `dry_run = true`, o bootstrap retorna o relatorio sem persistir dados                                                                                                                                                 | Media      |
+| RN-023 | Bootstrap cria: AiPromptTenant (1), AiAgent (3+), AiAgentSkill (por agente), AiAgentChannel (por agente), AiAgentFile (por agente), CRMNegotiationFunnel, CRMNegotiationFunnelStep, CRMReasonLoss, CRMTag, CRMDepartment | Alta       |
+| RN-024 | Segmento HEALTHCARE deve criar agentes que NAO diagnosticam, NAO prescrevem e orientam SAMU 192 para urgencias                                                                                                           | Critica    |
+| RN-025 | Segmento REAL_ESTATE deve criar agentes focados em match de imovel e agendamento de visitas                                                                                                                              | Alta       |
+| RN-026 | Segmento ECOMMERCE deve criar agentes focados em carrinho abandonado, rastreio de pedidos e pos-venda                                                                                                                    | Alta       |
+| RN-027 | Tags sao criadas com cor automaticamente gerada a partir de `md5(nome)` para consistencia visual                                                                                                                         | Media      |
+| RN-028 | Funis de negociacao devem ter steps ordenados pelo campo `order`                                                                                                                                                         | Alta       |
+| RN-029 | Agents ja existentes com mesmo nome no tenant devem ser atualizados (upsert), nao duplicados                                                                                                                             | Alta       |
+| RN-030 | Bootstrap deve executar dentro de `TenantContext::run()` para garantir isolamento de tenant                                                                                                                              | Critica    |
+| RN-031 | `AgentToolEnum` deve ser importado corretamente ao referenciar ferramentas nos catálogos                                                                                                                                 | Alta       |
 
 ### 3.3 Regras de Plano de Assinatura
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-040 | Planos podem ser criados com `slug` automatico (Slug de name) se nao fornecido | Media |
-| RN-041 | Slug do plano deve ser unico globalmente; validacao via `validateSlug()` antes de salvar | Critica |
-| RN-042 | `storage_mode` pode ser UNLIMITED (sem limite de bytes) ou LIMITED (com `storage_limit_bytes`) | Alta |
-| RN-043 | `negotiations_mode` pode ser UNLIMITED ou LIMITED com `negotiations_limit` | Alta |
-| RN-044 | `reports_mode` pode ser BASIC, ADVANCED ou FULL — define quais relatorios o tenant pode acessar | Alta |
-| RN-045 | Campo `ai_enabled` booleano controla se funcionalidades de IA estao disponiveis para o tenant | Alta |
-| RN-046 | `whatsapp_integrations_limit` define maximo de instancias WhatsApp; 0 ou null significa ilimitado | Media |
-| RN-047 | `asaas_product_id` linka o plano a um produto no gateway Asaas para cobranca automatica | Media |
-| RN-048 | `price_monthly` e `decimal:2` (ex: 99.90); null significa plano custom/gratuito | Media |
-| RN-049 | Exclusao de plano so e permitida se NAO houver invoices ativas (PAID, PENDING, OVERDUE) vinculadas | Critica |
-| RN-050 | Toggle de plano (`PATCH /plans/{id}/toggle`) ativa/inativa sem excluir | Media |
+| ID     | Regra                                                                                              | Prioridade |
+| ------ | -------------------------------------------------------------------------------------------------- | ---------- |
+| RN-040 | Planos podem ser criados com `slug` automatico (Slug de name) se nao fornecido                     | Media      |
+| RN-041 | Slug do plano deve ser unico globalmente; validacao via `validateSlug()` antes de salvar           | Critica    |
+| RN-042 | `storage_mode` pode ser UNLIMITED (sem limite de bytes) ou LIMITED (com `storage_limit_bytes`)     | Alta       |
+| RN-043 | `negotiations_mode` pode ser UNLIMITED ou LIMITED com `negotiations_limit`                         | Alta       |
+| RN-044 | `reports_mode` pode ser BASIC, ADVANCED ou FULL — define quais relatorios o tenant pode acessar    | Alta       |
+| RN-045 | Campo `ai_enabled` booleano controla se funcionalidades de IA estao disponiveis para o tenant      | Alta       |
+| RN-046 | `whatsapp_integrations_limit` define maximo de instancias WhatsApp; 0 ou null significa ilimitado  | Media      |
+| RN-047 | `asaas_product_id` linka o plano a um produto no gateway Asaas para cobranca automatica            | Media      |
+| RN-048 | `price_monthly` e `decimal:2` (ex: 99.90); null significa plano custom/gratuito                    | Media      |
+| RN-049 | Exclusao de plano so e permitida se NAO houver invoices ativas (PAID, PENDING, OVERDUE) vinculadas | Critica    |
+| RN-050 | Toggle de plano (`PATCH /plans/{id}/toggle`) ativa/inativa sem excluir                             | Media      |
 
 ### 3.4 Regras de Enforcement de Plano
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-060 | `canCreateUser()` retorna false se `count >= limit_users`; se limit <= 0 retorna true (ilimitado) | Critica |
-| RN-061 | `canCreateInstance()` retorna false se `count >= whatsapp_integrations_limit` | Critica |
-| RN-062 | `canCreateNegotiation()` retorna false se `count >= negotiations_limit` quando mode e LIMITED | Critica |
-| RN-063 | `canUploadFile()` compara `(usado + novo_arquivo) <= limite` em bytes | Alta |
-| RN-064 | `canDownloadFile()` compara `usado < limite` em bytes | Alta |
-| RN-065 | Storage sem plano ativo usa `MAX_STORAGE_LIMIT_BYTES = 50GB` como default | Media |
-| RN-066 | Storage mode UNLIMITED tambem usa 50GB como teto fisico | Media |
-| RN-067 | `getReportsMode()` retorna BASIC como padrao se tenant sem plano ativo | Alta |
-| RN-068 | Admin (role=admin) pode ver qualquer relatorio independentedo modo | Alta |
-| RN-069 | `getCurrentPlan()` consulta invoices mais recentes com status ativo (PAID, PENDING, OVERDUE, DRAFT) | Alta |
-| RN-070 | `isAiEnabled()` retorna `true` como default se tenant sem plano | Media |
+| ID     | Regra                                                                                               | Prioridade |
+| ------ | --------------------------------------------------------------------------------------------------- | ---------- |
+| RN-060 | `canCreateUser()` retorna false se `count >= limit_users`; se limit <= 0 retorna true (ilimitado)   | Critica    |
+| RN-061 | `canCreateInstance()` retorna false se `count >= whatsapp_integrations_limit`                       | Critica    |
+| RN-062 | `canCreateNegotiation()` retorna false se `count >= negotiations_limit` quando mode e LIMITED       | Critica    |
+| RN-063 | `canUploadFile()` compara `(usado + novo_arquivo) <= limite` em bytes                               | Alta       |
+| RN-064 | `canDownloadFile()` compara `usado < limite` em bytes                                               | Alta       |
+| RN-065 | Storage sem plano ativo usa `MAX_STORAGE_LIMIT_BYTES = 50GB` como default                           | Media      |
+| RN-066 | Storage mode UNLIMITED tambem usa 50GB como teto fisico                                             | Media      |
+| RN-067 | `getReportsMode()` retorna BASIC como padrao se tenant sem plano ativo                              | Alta       |
+| RN-068 | Admin (role=admin) pode ver qualquer relatorio independentedo modo                                  | Alta       |
+| RN-069 | `getCurrentPlan()` consulta invoices mais recentes com status ativo (PAID, PENDING, OVERDUE, DRAFT) | Alta       |
+| RN-070 | `isAiEnabled()` retorna `true` como default se tenant sem plano                                     | Media      |
 
 ### 3.5 Regras de Integracao WhatsApp (UazapiGatewayService)
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-080 | Criacao de instancia no gateway deve ser feita via `UazapiGatewayService::initInstance()` ANTES de persistir localmente | Critica |
-| RN-081 | `connectInstance()` pode receber `mode` (chat, retail, etc) e `phone` para pareamento direto | Media |
-| RN-082 | QR Code deve ser retornado para exibicao no frontend apos `connectInstance()` com status qr | Alta |
-| RN-083 | `disconnectInstance()` deve fazer logout da sessao no gateway antes de atualizar status local | Alta |
-| RN-084 | `deleteInstance()` remove a instancia do gateway e da base local | Alta |
-| RN-085 | `sendText()` e `sendFile()` requerem `token` da instancia no header da requisicao | Alta |
-| RN-086 | `updateProfileImage()` aceita URL, base64 ou 'remove' como valor de `image` | Media |
-| RN-087 | `updatePresence()` aceita 'available' ou 'unavailable' como valor | Media |
-| RN-088 | Todos os metodos de envio usam `tokenHeaders()` para passar token da instancia | Alta |
-| RN-089 | `syncContactsList()` recebe array de contatos e sincroniza com o gateway | Media |
-| RN-090 | Metodo `downloadMedia()` pode retornar `fileURL`, `mimetype`, `base64Data` ou `generate_mp3` | Media |
-| RN-091 | `sendTemplate()` requer `number`, `templateId`, `language` e `components` no payload | Media |
+| ID     | Regra                                                                                                                   | Prioridade |
+| ------ | ----------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-080 | Criacao de instancia no gateway deve ser feita via `UazapiGatewayService::initInstance()` ANTES de persistir localmente | Critica    |
+| RN-081 | `connectInstance()` pode receber `mode` (chat, retail, etc) e `phone` para pareamento direto                            | Media      |
+| RN-082 | QR Code deve ser retornado para exibicao no frontend apos `connectInstance()` com status qr                             | Alta       |
+| RN-083 | `disconnectInstance()` deve fazer logout da sessao no gateway antes de atualizar status local                           | Alta       |
+| RN-084 | `deleteInstance()` remove a instancia do gateway e da base local                                                        | Alta       |
+| RN-085 | `sendText()` e `sendFile()` requerem `token` da instancia no header da requisicao                                       | Alta       |
+| RN-086 | `updateProfileImage()` aceita URL, base64 ou 'remove' como valor de `image`                                             | Media      |
+| RN-087 | `updatePresence()` aceita 'available' ou 'unavailable' como valor                                                       | Media      |
+| RN-088 | Todos os metodos de envio usam `tokenHeaders()` para passar token da instancia                                          | Alta       |
+| RN-089 | `syncContactsList()` recebe array de contatos e sincroniza com o gateway                                                | Media      |
+| RN-090 | Metodo `downloadMedia()` pode retornar `fileURL`, `mimetype`, `base64Data` ou `generate_mp3`                            | Media      |
+| RN-091 | `sendTemplate()` requer `number`, `templateId`, `language` e `components` no payload                                    | Media      |
 
 ### 3.6 Regras de Status de Instancia WhatsApp
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-095 | Status possiveis: `connected`, `disconnected`, `connecting`, `qr` | Alta |
-| RN-096 | Campo `config` e JSONB para armazenar configuracoes arbitarias da instancia | Media |
-| RN-097 | Campo `metadata` e JSONB para dados de negocio arbitrarios | Media |
-| RN-098 | Campo `last_status_at` registra timestamp da ultima atualizacao de status | Media |
-| RN-099 | `webhook_url` deve ser configurado para receber eventos do gateway | Media |
-| RN-100 | Instancias pertencem a tenant via `BelongsToTenant` trait | Critica |
+| ID     | Regra                                                                       | Prioridade |
+| ------ | --------------------------------------------------------------------------- | ---------- |
+| RN-095 | Status possiveis: `connected`, `disconnected`, `connecting`, `qr`           | Alta       |
+| RN-096 | Campo `config` e JSONB para armazenar configuracoes arbitarias da instancia | Media      |
+| RN-097 | Campo `metadata` e JSONB para dados de negocio arbitrarios                  | Media      |
+| RN-098 | Campo `last_status_at` registra timestamp da ultima atualizacao de status   | Media      |
+| RN-099 | `webhook_url` deve ser configurado para receber eventos do gateway          | Media      |
+| RN-100 | Instancias pertencem a tenant via `BelongsToTenant` trait                   | Critica    |
 
 ### 3.7 Regras de Monitoramento de Filas
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-110 | Filas monitoradas: critical, high, default, low, ai, media | Alta |
-| RN-111 | `getQueueStats()` retorna `size` (numero de jobs) e `delayed` (jobs atrasados) por fila | Alta |
-| RN-112 | `getWorkerCount()` retorna -1 se Horizon nao estiver instalado ou configurado | Media |
-| RN-113 | `getStuckJobsCount()` conta jobs reservados antes de `now - threshold` (default 600s) | Alta |
-| RN-114 | `getHealthStatus()` retorna `healthy: false` se qualquer fila exceder `max_queue_size` (1000) | Alta |
-| RN-115 | `getHealthStatus()` retorna `healthy: false` se nao houver workers ativos | Critica |
-| RN-116 | `getHealthStatus()` retorna `healthy: false` se `stuck_jobs > max_stuck_jobs` (10) | Alta |
-| RN-117 | Todas as metricas incluem `checked_at` em ISO 8601 | Media |
-| RN-118 | Threshold configuravel via `config('queue.health.*')` | Media |
+| ID     | Regra                                                                                         | Prioridade |
+| ------ | --------------------------------------------------------------------------------------------- | ---------- |
+| RN-110 | Filas monitoradas: critical, high, default, low, ai, media                                    | Alta       |
+| RN-111 | `getQueueStats()` retorna `size` (numero de jobs) e `delayed` (jobs atrasados) por fila       | Alta       |
+| RN-112 | `getWorkerCount()` retorna -1 se Horizon nao estiver instalado ou configurado                 | Media      |
+| RN-113 | `getStuckJobsCount()` conta jobs reservados antes de `now - threshold` (default 600s)         | Alta       |
+| RN-114 | `getHealthStatus()` retorna `healthy: false` se qualquer fila exceder `max_queue_size` (1000) | Alta       |
+| RN-115 | `getHealthStatus()` retorna `healthy: false` se nao houver workers ativos                     | Critica    |
+| RN-116 | `getHealthStatus()` retorna `healthy: false` se `stuck_jobs > max_stuck_jobs` (10)            | Alta       |
+| RN-117 | Todas as metricas incluem `checked_at` em ISO 8601                                            | Media      |
+| RN-118 | Threshold configuravel via `config('queue.health.*')`                                         | Media      |
 
 ### 3.8 Regras de Billing de Plataforma
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-130 | Invoices de plataforma listam faturas de todos os tenants | Alta |
-| RN-131 | Permissao para invoices: SuperAdmin ou role admin (sem filtro por tenant) | Critica |
-| RN-132 | Campo `media_transcription_*` controla limites de transcricao de audio, video e imagem por tenant | Media |
-| RN-133 | `collection_count` e `last_collection_sent_at` rastreiam cobrancas enviadas | Media |
-| RN-134 | `grace_deadline` e `purge_deadline` sao calculados pelo modulo Billing | Media |
+| ID     | Regra                                                                                             | Prioridade |
+| ------ | ------------------------------------------------------------------------------------------------- | ---------- |
+| RN-130 | Invoices de plataforma listam faturas de todos os tenants                                         | Alta       |
+| RN-131 | Permissao para invoices: SuperAdmin ou role admin (sem filtro por tenant)                         | Critica    |
+| RN-132 | Campo `media_transcription_*` controla limites de transcricao de audio, video e imagem por tenant | Media      |
+| RN-133 | `collection_count` e `last_collection_sent_at` rastreiam cobrancas enviadas                       | Media      |
+| RN-134 | `grace_deadline` e `purge_deadline` sao calculados pelo modulo Billing                            | Media      |
 
 ### 3.9 Regras de Seguranca e RBAC
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-140 | `platform.tenants.manage` necessaria para criar, editar, excluir, restaurar, forcar exclusao e toggle de tenants | Critica |
-| RN-141 | `platform.plans.manage` necessaria para criar, editar, excluir e toggle de planos | Critica |
-| RN-142 | `whatsapp.manage` necessaria para gerenciar instancias Uazapi | Critica |
-| RN-143 | Billing invoices requer SuperAdmin ou role admin (sem granularidade especifica) | Critica |
-| RN-144 | SuperAdmin pode gerenciar usuarios de qualquer tenant via `/platform/users` | Alta |
-| RN-145 | Endpoint `/health/*` usa throttle `observability` (rate limit especifico) | Alta |
-| RN-146 | Todos os outros endpoints `/platform/*` usam `auth:sanctum` | Critica |
-| RN-147 | Nao expor tokens de gateway, webhooks ou credenciais Asaas em logs | Critica |
-| RN-148 | CNPJ validado: 14 digitos numericos (formato basico, sem digito verificador) | Media |
-| RN-149 | Telefone validado: DDD + 8 ou 9 digitos apos normalizacao (11-12 digitos) | Media |
+| ID     | Regra                                                                                                            | Prioridade |
+| ------ | ---------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-140 | `platform.tenants.manage` necessaria para criar, editar, excluir, restaurar, forcar exclusao e toggle de tenants | Critica    |
+| RN-141 | `platform.plans.manage` necessaria para criar, editar, excluir e toggle de planos                                | Critica    |
+| RN-142 | `whatsapp.manage` necessaria para gerenciar instancias Uazapi                                                    | Critica    |
+| RN-143 | Billing invoices requer SuperAdmin ou role admin (sem granularidade especifica)                                  | Critica    |
+| RN-144 | SuperAdmin pode gerenciar usuarios de qualquer tenant via `/platform/users`                                      | Alta       |
+| RN-145 | Endpoint `/health/*` usa throttle `observability` (rate limit especifico)                                        | Alta       |
+| RN-146 | Todos os outros endpoints `/platform/*` usam `auth:sanctum`                                                      | Critica    |
+| RN-147 | Nao expor tokens de gateway, webhooks ou credenciais Asaas em logs                                               | Critica    |
+| RN-148 | CNPJ validado: 14 digitos numericos (formato basico, sem digito verificador)                                     | Media      |
+| RN-149 | Telefone validado: DDD + 8 ou 9 digitos apos normalizacao (11-12 digitos)                                        | Media      |
 
 ### 3.10 Regras de Exportacao
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-160 | Export de tenants usa stream `fopen('php://output')` para evitar uso de memoria | Alta |
-| RN-161 | CSV usa BOM UTF-8 (`\xEF\xBB\xBF`) para compatibilidade com Excel | Media |
-| RN-162 | Delimitador CSV e `;` (padrao brasileiro) | Media |
-| RN-163 | Nome do arquivo: `tenants_export_{YYYYMMDD}.csv` | Media |
-| RN-164 | Celulas que comecam com `=`, `+`, `-`, `@` sao prefixadas com `'` para previnir injeccao de formulas | Critica |
-| RN-165 | Export respeita filtros aplicados (search, is_active, trashed, date range) | Alta |
+| ID     | Regra                                                                                                | Prioridade |
+| ------ | ---------------------------------------------------------------------------------------------------- | ---------- |
+| RN-160 | Export de tenants usa stream `fopen('php://output')` para evitar uso de memoria                      | Alta       |
+| RN-161 | CSV usa BOM UTF-8 (`\xEF\xBB\xBF`) para compatibilidade com Excel                                    | Media      |
+| RN-162 | Delimitador CSV e `;` (padrao brasileiro)                                                            | Media      |
+| RN-163 | Nome do arquivo: `tenants_export_{YYYYMMDD}.csv`                                                     | Media      |
+| RN-164 | Celulas que comecam com `=`, `+`, `-`, `@` sao prefixadas com `'` para previnir injeccao de formulas | Critica    |
+| RN-165 | Export respeita filtros aplicados (search, is_active, trashed, date range)                           | Alta       |
 
 ### 3.11 Regras de Gestao de Usuarios de Plataforma
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-170 | `/platform/users` lista usuarios de TODOS os tenants; filtro por `tenant_id` disponivel | Alta |
-| RN-171 | SuperAdmin pode criar usuario em qualquer tenant via POST /platform/users | Critica |
-| RN-172 | SuperAdmin pode atualizar usuario de qualquer tenant via PUT /platform/users/{id} | Alta |
-| RN-173 | SuperAdmin pode deletar usuario de qualquer tenant via DELETE /platform/users/{id} | Alta |
-| RN-174 | Toggle de usuario (PATCH /users/{id}/toggle) ativa/inativa sem excluir | Media |
-| RN-175 | Upload de avatar aceita apenas imagens (image/*), max 2MB | Alta |
-| RN-176 | Avatar e armazenado em Storage::disk('public') com path unico por usuario | Media |
-| RN-177 | Delete de avatar (DELETE /users/{id}/avatar) remove o arquivo fisico | Media |
-| RN-178 | Listagem de usuarios suporta filtro por role (admin, user, etc.) | Media |
-| RN-179 | Busca por usuarios (search) pesquisa name e email | Media |
-| RN-180 | Paginação em listagem de usuarios segue o padrao da plataforma (per_page, page) | Media |
+| ID     | Regra                                                                                   | Prioridade |
+| ------ | --------------------------------------------------------------------------------------- | ---------- |
+| RN-170 | `/platform/users` lista usuarios de TODOS os tenants; filtro por `tenant_id` disponivel | Alta       |
+| RN-171 | SuperAdmin pode criar usuario em qualquer tenant via POST /platform/users               | Critica    |
+| RN-172 | SuperAdmin pode atualizar usuario de qualquer tenant via PUT /platform/users/{id}       | Alta       |
+| RN-173 | SuperAdmin pode deletar usuario de qualquer tenant via DELETE /platform/users/{id}      | Alta       |
+| RN-174 | Toggle de usuario (PATCH /users/{id}/toggle) ativa/inativa sem excluir                  | Media      |
+| RN-175 | Upload de avatar aceita apenas imagens (image/\*), max 2MB                              | Alta       |
+| RN-176 | Avatar e armazenado em Storage::disk('public') com path unico por usuario               | Media      |
+| RN-177 | Delete de avatar (DELETE /users/{id}/avatar) remove o arquivo fisico                    | Media      |
+| RN-178 | Listagem de usuarios suporta filtro por role (admin, user, etc.)                        | Media      |
+| RN-179 | Busca por usuarios (search) pesquisa name e email                                       | Media      |
+| RN-180 | Paginação em listagem de usuarios segue o padrao da plataforma (per_page, page)         | Media      |
 
 ### 3.12 Regras de Monitoramento de Saude de Filas
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-185 | `getQueueStats()` retorna size e delayed para cada uma das 6 filas | Alta |
-| RN-186 | `getQueueSize()` usa `Redis::llen` para filas Redis; fallback para `Queue::size()` | Media |
-| RN-187 | `getDelayedCount()` usa `Redis::zcard` para filas delayed; so funciona com driver Redis | Media |
-| RN-188 | Jobs travados sao aqueles com `reserved_at < now - threshold` (default 600s) | Alta |
-| RN-189 | Contagem de stuck jobs varre todas as filas monitoradas | Alta |
-| RN-190 | `getWorkerCount()` retorna -1 quando Horizon nao esta instalado; retorna 0 quando nao ha workers | Media |
-| RN-191 | `getHealthStatus()` retorna `healthy: true` apenas se TODAS as condicoes estao OK | Alta |
-| RN-192 | `getHealthStatus()` lista TODOS os problemas em `issues[]`, nao para no primeiro | Media |
-| RN-193 | Thresholds `max_queue_size` (1000) e `max_stuck_jobs` (10) sao lidos de `config('queue.health.*')` | Media |
-| RN-194 | `getQueueConfig()` retorna `config('queue.queues')` com configuracao de cada fila | Media |
-| RN-195 | Todas as metricas de health incluem `checked_at` em ISO 8601 para rastreabilidade | Media |
-| RN-196 | Erros de conexao Redis sao silenciados (try/catch), retornando 0 ou fallback | Alta |
-| RN-197 | Endpoint de health usa throttle `observability` (rate limit especifico) | Alta |
-| RN-198 | `setQueues()` permite customizar quais filas sao monitoradas em testes | Media |
+| ID     | Regra                                                                                              | Prioridade |
+| ------ | -------------------------------------------------------------------------------------------------- | ---------- |
+| RN-185 | `getQueueStats()` retorna size e delayed para cada uma das 6 filas                                 | Alta       |
+| RN-186 | `getQueueSize()` usa `Redis::llen` para filas Redis; fallback para `Queue::size()`                 | Media      |
+| RN-187 | `getDelayedCount()` usa `Redis::zcard` para filas delayed; so funciona com driver Redis            | Media      |
+| RN-188 | Jobs travados sao aqueles com `reserved_at < now - threshold` (default 600s)                       | Alta       |
+| RN-189 | Contagem de stuck jobs varre todas as filas monitoradas                                            | Alta       |
+| RN-190 | `getWorkerCount()` retorna -1 quando Horizon nao esta instalado; retorna 0 quando nao ha workers   | Media      |
+| RN-191 | `getHealthStatus()` retorna `healthy: true` apenas se TODAS as condicoes estao OK                  | Alta       |
+| RN-192 | `getHealthStatus()` lista TODOS os problemas em `issues[]`, nao para no primeiro                   | Media      |
+| RN-193 | Thresholds `max_queue_size` (1000) e `max_stuck_jobs` (10) sao lidos de `config('queue.health.*')` | Media      |
+| RN-194 | `getQueueConfig()` retorna `config('queue.queues')` com configuracao de cada fila                  | Media      |
+| RN-195 | Todas as metricas de health incluem `checked_at` em ISO 8601 para rastreabilidade                  | Media      |
+| RN-196 | Erros de conexao Redis sao silenciados (try/catch), retornando 0 ou fallback                       | Alta       |
+| RN-197 | Endpoint de health usa throttle `observability` (rate limit especifico)                            | Alta       |
+| RN-198 | `setQueues()` permite customizar quais filas sao monitoradas em testes                             | Media      |
 
 ### 3.13 Regras de Transcricao de Midia
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-200 | `media_transcription_audio_enabled` controla se transcricao de audio esta habilitada | Media |
-| RN-201 | `media_transcription_video_enabled` controla se transcricao de video esta habilitada | Media |
-| RN-202 | `media_transcription_image_enabled` controla se analise de imagem esta habilitada | Media |
-| RN-203 | `media_transcription_audio_max_minutes` define duracao maxima de audio transcrito (default 10 min) | Media |
-| RN-204 | `media_transcription_video_max_seconds` define duracao maxima de video (default 60s) | Media |
-| RN-205 | `media_transcription_image_max_per_message` define maximo de imagens por mensagem (default 5) | Media |
-| RN-206 | Todos os campos de transcricao tem `false` como default | Media |
+| ID     | Regra                                                                                              | Prioridade |
+| ------ | -------------------------------------------------------------------------------------------------- | ---------- |
+| RN-200 | `media_transcription_audio_enabled` controla se transcricao de audio esta habilitada               | Media      |
+| RN-201 | `media_transcription_video_enabled` controla se transcricao de video esta habilitada               | Media      |
+| RN-202 | `media_transcription_image_enabled` controla se analise de imagem esta habilitada                  | Media      |
+| RN-203 | `media_transcription_audio_max_minutes` define duracao maxima de audio transcrito (default 10 min) | Media      |
+| RN-204 | `media_transcription_video_max_seconds` define duracao maxima de video (default 60s)               | Media      |
+| RN-205 | `media_transcription_image_max_per_message` define maximo de imagens por mensagem (default 5)      | Media      |
+| RN-206 | Todos os campos de transcricao tem `false` como default                                            | Media      |
 
 ### 3.14 Regras de Billing e Cobranca
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-210 | `collection_count` rastreia o numero de cobrancas enviadas ao tenant | Media |
-| RN-211 | `last_collection_sent_at` registra timestamp da ultima cobranca enviada | Media |
-| RN-212 | `grace_deadline` e calculado pelo modulo Billing e armazenado como date | Media |
-| RN-213 | `purge_deadline` e calculado pelo modulo Billing e armazenado como date | Alta |
-| RN-214 | `billing_lock_reason` registra o motivo do bloqueio (ex: inadimplencia, violacao de termos) | Media |
-| RN-215 | `asaas_customer_id` linka o tenant a um cliente no gateway Asaas | Media |
-| RN-216 | Invoices de plataforma listam TODOS os tenants sem filtro de tenant (SuperAdmin) | Alta |
-| RN-217 | Criacao de invoice manual via POST /platform/billing/invoices | Media |
-| RN-218 | Exclusao de invoice via DELETE remove o registro (estorno) | Media |
+| ID     | Regra                                                                                       | Prioridade |
+| ------ | ------------------------------------------------------------------------------------------- | ---------- |
+| RN-210 | `collection_count` rastreia o numero de cobrancas enviadas ao tenant                        | Media      |
+| RN-211 | `last_collection_sent_at` registra timestamp da ultima cobranca enviada                     | Media      |
+| RN-212 | `grace_deadline` e calculado pelo modulo Billing e armazenado como date                     | Media      |
+| RN-213 | `purge_deadline` e calculado pelo modulo Billing e armazenado como date                     | Alta       |
+| RN-214 | `billing_lock_reason` registra o motivo do bloqueio (ex: inadimplencia, violacao de termos) | Media      |
+| RN-215 | `asaas_customer_id` linka o tenant a um cliente no gateway Asaas                            | Media      |
+| RN-216 | Invoices de plataforma listam TODOS os tenants sem filtro de tenant (SuperAdmin)            | Alta       |
+| RN-217 | Criacao de invoice manual via POST /platform/billing/invoices                               | Media      |
+| RN-218 | Exclusao de invoice via DELETE remove o registro (estorno)                                  | Media      |
 
 ### 3.15 Regras de Segmentacao e Catologo
 
-| ID | Regra | Prioridade |
-|----|-------|-----------|
-| RN-220 | `PlatformTenantBootstrapCatalogService` define o catalogo por segmento de negocio | Alta |
-| RN-221 | Segmento padrao (DEFAULT_SEGMENT_CODE) e GENERAL quando nenhum especificado | Alta |
-| RN-222 | SuperAdmin forca segmento SAAS independentemente do segment_id fornecido | Critica |
-| RN-223 | Segmento HEALTHCARE cria agentes com instrucoes explicitas para NAO diagnosticar | Critica |
-| RN-224 | Segmento HEALTHCARE cria agentes que orientam SAMU 192 para sinais de urgencia | Critica |
-| RN-225 | Segmento REAL_ESTATE cria agentes focados em match de imovel e agendamento de visitas | Alta |
-| RN-226 | Segmento ECOMMERCE cria agentes focados em carrinho abandonado e rastreio | Alta |
-| RN-227 | Agentes com mesmo nome sao atualizados (upsert), nunca duplicados | Alta |
-| RN-228 | Tags CRM sao geradas com cor automatica: `md5(nome)[0..5]` prefixed with '#' | Media |
-| RN-229 | Funis CRM tem steps ordenados pelo campo `order`; primeira etapa tem order=1 | Alta |
-| RN-230 | `syncPrompt()` concatena `segment.content + "\n\n" + catalog.prompt_suffix` | Alta |
-| RN-231 | `AiToolEnum` e referenciado nos catalogos de agentes para listar ferramentas | Media |
-| RN-232 | Arquivos de agente (files) sao criados com `slug` unico dentro do agente | Media |
-| RN-233 | Departments sao criados com descricoes pre-definidas em constantes | Media |
+| ID     | Regra                                                                                 | Prioridade |
+| ------ | ------------------------------------------------------------------------------------- | ---------- |
+| RN-220 | `PlatformTenantBootstrapCatalogService` define o catalogo por segmento de negocio     | Alta       |
+| RN-221 | Segmento padrao (DEFAULT_SEGMENT_CODE) e GENERAL quando nenhum especificado           | Alta       |
+| RN-222 | SuperAdmin forca segmento SAAS independentemente do segment_id fornecido              | Critica    |
+| RN-223 | Segmento HEALTHCARE cria agentes com instrucoes explicitas para NAO diagnosticar      | Critica    |
+| RN-224 | Segmento HEALTHCARE cria agentes que orientam SAMU 192 para sinais de urgencia        | Critica    |
+| RN-225 | Segmento REAL_ESTATE cria agentes focados em match de imovel e agendamento de visitas | Alta       |
+| RN-226 | Segmento ECOMMERCE cria agentes focados em carrinho abandonado e rastreio             | Alta       |
+| RN-227 | Agentes com mesmo nome sao atualizados (upsert), nunca duplicados                     | Alta       |
+| RN-228 | Tags CRM sao geradas com cor automatica: `md5(nome)[0..5]` prefixed with '#'          | Media      |
+| RN-229 | Funis CRM tem steps ordenados pelo campo `order`; primeira etapa tem order=1          | Alta       |
+| RN-230 | `syncPrompt()` concatena `segment.content + "\n\n" + catalog.prompt_suffix`           | Alta       |
+| RN-231 | `AiToolEnum` e referenciado nos catalogos de agentes para listar ferramentas          | Media      |
+| RN-232 | Arquivos de agente (files) sao criados com `slug` unico dentro do agente              | Media      |
+| RN-233 | Departments sao criados com descricoes pre-definidas em constantes                    | Media      |
 
 ---
 
@@ -1568,24 +1578,24 @@ ExportTenantsJob (async export)
 
 ### 8.1 Autenticacao e Autorizacao
 
-| Camada | Mecanismo | Detalhe |
-|--------|-----------|---------|
-| Autenticacao | Laravel Sanctum | Token Bearer em todas as requisicoes /platform/* |
-| Autorizacao | Policies + Gates | PlatformTenantPolicy, PlatformPlanPolicy, PlatformUazapiInstancePolicy |
-| SuperAdmin | Role check | `hasRole('super-admin')` ou `hasRole('admin')` |
-| Rate Limiting | throttle middleware | /health/* usa throttle:observability |
-| CORS | config | Apenas dominios autorizados |
+| Camada        | Mecanismo           | Detalhe                                                                |
+| ------------- | ------------------- | ---------------------------------------------------------------------- |
+| Autenticacao  | Laravel Sanctum     | Token Bearer em todas as requisicoes /platform/\*                      |
+| Autorizacao   | Policies + Gates    | PlatformTenantPolicy, PlatformPlanPolicy, PlatformUazapiInstancePolicy |
+| SuperAdmin    | Role check          | `hasRole('super-admin')` ou `hasRole('admin')`                         |
+| Rate Limiting | throttle middleware | /health/\* usa throttle:observability                                  |
+| CORS          | config              | Apenas dominios autorizados                                            |
 
 ### 8.2 Permissoes RBAC
 
-| Permissao | Descricao | Controlador |
-|-----------|-----------|-------------|
-| `platform.tenants.manage` | CRUD completo de tenants | PlatformTenantController |
-| `platform.plans.manage` | CRUD completo de planos | PlatformPlanController |
-| `whatsapp.manage` | Gerenciar instancias WhatsApp | PlatformUazapiInstanceController, PlatformUazapiMessageController |
-| `platform.users.manage` | Gerenciar usuarios de plataforma | PlatformUserController |
-| `platform.billing.view` | Ver invoices de todos os tenants | PlatformBillingInvoiceController |
-| `platform.billing.manage` | Criar/excluir invoices | PlatformBillingInvoiceController |
+| Permissao                 | Descricao                        | Controlador                                                       |
+| ------------------------- | -------------------------------- | ----------------------------------------------------------------- |
+| `platform.tenants.manage` | CRUD completo de tenants         | PlatformTenantController                                          |
+| `platform.plans.manage`   | CRUD completo de planos          | PlatformPlanController                                            |
+| `whatsapp.manage`         | Gerenciar instancias WhatsApp    | PlatformUazapiInstanceController, PlatformUazapiMessageController |
+| `platform.users.manage`   | Gerenciar usuarios de plataforma | PlatformUserController                                            |
+| `platform.billing.view`   | Ver invoices de todos os tenants | PlatformBillingInvoiceController                                  |
+| `platform.billing.manage` | Criar/excluir invoices           | PlatformBillingInvoiceController                                  |
 
 ### 8.3 Protecoes de Dados
 
@@ -1692,27 +1702,27 @@ readonly class PlatformUazapiInstanceDTO
 
 ```json
 {
-  "id": "uuid",
-  "tenant_code": "A3K9X2PQ",
-  "name": "Empresa Exemplo Ltda",
-  "document": "12345678000199",
-  "primary_email": "admin@empresa.com",
-  "phone": "11999998888",
-  "address": {
-    "street": "Rua Exemplo",
-    "number": "123",
-    "complement": "Sala 1",
-    "district": "Bairro",
-    "city": "Sao Paulo",
-    "state": "SP",
-    "zip_code": "01001000"
-  },
-  "is_active": true,
-  "billing_status": "ACTIVE",
-  "segment_id": "uuid",
-  "plan_id": "uuid",
-  "created_at": "2026-03-28T10:00:00Z",
-  "updated_at": "2026-03-28T10:00:00Z"
+    "id": "uuid",
+    "tenant_code": "A3K9X2PQ",
+    "name": "Empresa Exemplo Ltda",
+    "document": "12345678000199",
+    "primary_email": "admin@empresa.com",
+    "phone": "11999998888",
+    "address": {
+        "street": "Rua Exemplo",
+        "number": "123",
+        "complement": "Sala 1",
+        "district": "Bairro",
+        "city": "Sao Paulo",
+        "state": "SP",
+        "zip_code": "01001000"
+    },
+    "is_active": true,
+    "billing_status": "ACTIVE",
+    "segment_id": "uuid",
+    "plan_id": "uuid",
+    "created_at": "2026-03-28T10:00:00Z",
+    "updated_at": "2026-03-28T10:00:00Z"
 }
 ```
 
@@ -1720,39 +1730,39 @@ readonly class PlatformUazapiInstanceDTO
 
 ```json
 {
-  "company": {
-    "id": "uuid",
-    "name": "Empresa Exemplo Ltda",
-    "tenant_code": "A3K9X2PQ",
-    "document": "12345678000199",
-    "primary_email": "admin@empresa.com",
-    "phone": "11999998888",
-    "address": "Rua Exemplo, 123, Sala 1, Bairro",
-    "is_active": true,
-    "created_at": "2026-03-28T10:00:00Z"
-  },
-  "contracted_plan": {
-    "id": "uuid",
-    "name": "Professional",
-    "slug": "professional",
-    "price_monthly": 99.90,
-    "is_active": true
-  },
-  "resources": {
-    "users": { "current": 12, "limit": 20, "available": 8 },
-    "instances": { "current": 2, "limit": 5, "available": 3 },
-    "storage": {
-      "used_bytes": 2147483648,
-      "limit_bytes": 10737418240,
-      "available_bytes": 8589934592,
-      "used_gb": 2.0,
-      "limit_gb": 10.0,
-      "available_gb": 8.0,
-      "mode": "LIMITED"
+    "company": {
+        "id": "uuid",
+        "name": "Empresa Exemplo Ltda",
+        "tenant_code": "A3K9X2PQ",
+        "document": "12345678000199",
+        "primary_email": "admin@empresa.com",
+        "phone": "11999998888",
+        "address": "Rua Exemplo, 123, Sala 1, Bairro",
+        "is_active": true,
+        "created_at": "2026-03-28T10:00:00Z"
     },
-    "ai": { "enabled": true },
-    "negotiations": { "current": 45, "limit": 100, "available": 55, "mode": "LIMITED" }
-  }
+    "contracted_plan": {
+        "id": "uuid",
+        "name": "Professional",
+        "slug": "professional",
+        "price_monthly": 99.9,
+        "is_active": true
+    },
+    "resources": {
+        "users": { "current": 12, "limit": 20, "available": 8 },
+        "instances": { "current": 2, "limit": 5, "available": 3 },
+        "storage": {
+            "used_bytes": 2147483648,
+            "limit_bytes": 10737418240,
+            "available_bytes": 8589934592,
+            "used_gb": 2.0,
+            "limit_gb": 10.0,
+            "available_gb": 8.0,
+            "mode": "LIMITED"
+        },
+        "ai": { "enabled": true },
+        "negotiations": { "current": 45, "limit": 100, "available": 55, "mode": "LIMITED" }
+    }
 }
 ```
 
@@ -1760,22 +1770,22 @@ readonly class PlatformUazapiInstanceDTO
 
 ```json
 {
-  "id": "uuid",
-  "name": "Professional",
-  "slug": "professional",
-  "limit_users": 20,
-  "storage_mode": "LIMITED",
-  "storage_limit_bytes": 10737418240,
-  "ai_enabled": true,
-  "whatsapp_integrations_limit": 5,
-  "negotiations_mode": "LIMITED",
-  "negotiations_limit": 100,
-  "reports_mode": "ADVANCED",
-  "price_monthly": 99.90,
-  "asaas_product_id": "prod_xxx",
-  "is_active": true,
-  "created_at": "2026-03-01T00:00:00Z",
-  "updated_at": "2026-03-01T00:00:00Z"
+    "id": "uuid",
+    "name": "Professional",
+    "slug": "professional",
+    "limit_users": 20,
+    "storage_mode": "LIMITED",
+    "storage_limit_bytes": 10737418240,
+    "ai_enabled": true,
+    "whatsapp_integrations_limit": 5,
+    "negotiations_mode": "LIMITED",
+    "negotiations_limit": 100,
+    "reports_mode": "ADVANCED",
+    "price_monthly": 99.9,
+    "asaas_product_id": "prod_xxx",
+    "is_active": true,
+    "created_at": "2026-03-01T00:00:00Z",
+    "updated_at": "2026-03-01T00:00:00Z"
 }
 ```
 
@@ -1783,18 +1793,18 @@ readonly class PlatformUazapiInstanceDTO
 
 ```json
 {
-  "id": "uuid",
-  "tenant_id": "uuid",
-  "name": "Atendimento Principal",
-  "system_name": "atendimento-principal",
-  "token": "tok_xxxxxxxxxxxxx",
-  "status": "connected",
-  "webhook_url": "https://api.agentflix.com.br/webhooks/uazapi/xxx",
-  "config": { "proxy": null, "timeout": 30 },
-  "metadata": { "phone": "5511999999999", "seller": "Joao Silva" },
-  "last_status_at": "2026-03-28T09:45:00Z",
-  "created_at": "2026-03-20T08:00:00Z",
-  "updated_at": "2026-03-28T09:45:00Z"
+    "id": "uuid",
+    "tenant_id": "uuid",
+    "name": "Atendimento Principal",
+    "system_name": "atendimento-principal",
+    "token": "tok_xxxxxxxxxxxxx",
+    "status": "connected",
+    "webhook_url": "https://api.interazap.com.br/webhooks/uazapi/xxx",
+    "config": { "proxy": null, "timeout": 30 },
+    "metadata": { "phone": "5511999999999", "seller": "Joao Silva" },
+    "last_status_at": "2026-03-28T09:45:00Z",
+    "created_at": "2026-03-20T08:00:00Z",
+    "updated_at": "2026-03-28T09:45:00Z"
 }
 ```
 
@@ -1804,108 +1814,108 @@ readonly class PlatformUazapiInstanceDTO
 
 ### 10.1 Gestao de Tenants
 
-| ID | Criterio | Teste |
-|----|----------|-------|
-| CA-001 | SuperAdmin pode criar tenant com dados minimos (name) e receber tenant_code auto-gerado | POST /platform/tenants {name} -> 201, tenant_code presente |
-| CA-002 | SuperAdmin pode criar tenant com todos os campos preenchidos | POST com document, phone, address, segment_id -> 201 |
-| CA-003 | CNPJ e telefone sao normalizados (sem pontuacao) no banco | Criar tenant com CNPJ "12.345.678/0001-99" -> banco contem "12345678000199" |
-| CA-004 | SuperAdmin pode criar tenant sem segment_id e recebe segmento GENERAL | POST sem segment_id -> 201, segment e GENERAL |
-| CA-005 | SuperAdmin pode criar tenant COM segment_id especificado | POST com segment_id -> 201, segment e o especificado |
-| CA-006 | SuperAdmin cria tenant e recebe bootstrap automatico com 3+ agentes | GET /platform/tenants/{id}/details -> agents count >= 3 |
-| CA-007 | SuperAdmin cria tenant HEALTHCARE e agentes NAO prescrevem | Segment HEALTHCARE -> agents[].system_prompt NAO contem "diagnostic" ou "prescrev" |
-| CA-008 | Tenant ja existente com mesmo nome de agente e atualizado, nao duplicado | Criar tenant -> criar tenant igual -> AiAgent::count() == 3 |
-| CA-009 | GET /platform/tenants/{id}/details retorna resources com metricas corretas | users/instances/negotiations counts == valores reais |
-| CA-010 | GET /platform/tenants/export retorna CSV com BOM UTF-8 | CSV comecando com \xEF\xBB\xBF |
-| CA-011 | Celulas CSV comecando com '=' sao prefixadas com "'" | Export com name="=HACK()" -> "'=HACK()" no CSV |
-| CA-012 | SuperAdmin pode soft delete tenant | DELETE -> 204, deleted_at preenchido |
-| CA-013 | SuperAdmin pode restaurar tenant | POST /restore -> 200, deleted_at = null, is_active = false |
-| CA-014 | SuperAdmin pode force delete tenant | DELETE /force -> 204, tenant removido fisicamente |
-| CA-015 | SuperAdmin pode toggle is_active | PATCH /toggle-active -> is_active alternado |
-| CA-016 | Tenant com is_active=false continua acessivel | is_active=false -> GET /show retorna 200 |
-| CA-017 | Tenant com billing_status=LOCKED e bloqueado | isLocked() retorna true |
-| CA-018 | Filtros de busca funcionam em GET /platform/tenants | search, is_active, trashed, created_from, created_to retornam resultados filtrados |
-| CA-019 | Pagination funciona corretamente | per_page=5, page=2 -> retorna 5 resultados corretos |
-| CA-020 | Ordenacao funciona em todos os campos | sort_by=created_at&sort_dir=desc -> ordenacao correta |
+| ID     | Criterio                                                                                | Teste                                                                              |
+| ------ | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| CA-001 | SuperAdmin pode criar tenant com dados minimos (name) e receber tenant_code auto-gerado | POST /platform/tenants {name} -> 201, tenant_code presente                         |
+| CA-002 | SuperAdmin pode criar tenant com todos os campos preenchidos                            | POST com document, phone, address, segment_id -> 201                               |
+| CA-003 | CNPJ e telefone sao normalizados (sem pontuacao) no banco                               | Criar tenant com CNPJ "12.345.678/0001-99" -> banco contem "12345678000199"        |
+| CA-004 | SuperAdmin pode criar tenant sem segment_id e recebe segmento GENERAL                   | POST sem segment_id -> 201, segment e GENERAL                                      |
+| CA-005 | SuperAdmin pode criar tenant COM segment_id especificado                                | POST com segment_id -> 201, segment e o especificado                               |
+| CA-006 | SuperAdmin cria tenant e recebe bootstrap automatico com 3+ agentes                     | GET /platform/tenants/{id}/details -> agents count >= 3                            |
+| CA-007 | SuperAdmin cria tenant HEALTHCARE e agentes NAO prescrevem                              | Segment HEALTHCARE -> agents[].system_prompt NAO contem "diagnostic" ou "prescrev" |
+| CA-008 | Tenant ja existente com mesmo nome de agente e atualizado, nao duplicado                | Criar tenant -> criar tenant igual -> AiAgent::count() == 3                        |
+| CA-009 | GET /platform/tenants/{id}/details retorna resources com metricas corretas              | users/instances/negotiations counts == valores reais                               |
+| CA-010 | GET /platform/tenants/export retorna CSV com BOM UTF-8                                  | CSV comecando com \xEF\xBB\xBF                                                     |
+| CA-011 | Celulas CSV comecando com '=' sao prefixadas com "'"                                    | Export com name="=HACK()" -> "'=HACK()" no CSV                                     |
+| CA-012 | SuperAdmin pode soft delete tenant                                                      | DELETE -> 204, deleted_at preenchido                                               |
+| CA-013 | SuperAdmin pode restaurar tenant                                                        | POST /restore -> 200, deleted_at = null, is_active = false                         |
+| CA-014 | SuperAdmin pode force delete tenant                                                     | DELETE /force -> 204, tenant removido fisicamente                                  |
+| CA-015 | SuperAdmin pode toggle is_active                                                        | PATCH /toggle-active -> is_active alternado                                        |
+| CA-016 | Tenant com is_active=false continua acessivel                                           | is_active=false -> GET /show retorna 200                                           |
+| CA-017 | Tenant com billing_status=LOCKED e bloqueado                                            | isLocked() retorna true                                                            |
+| CA-018 | Filtros de busca funcionam em GET /platform/tenants                                     | search, is_active, trashed, created_from, created_to retornam resultados filtrados |
+| CA-019 | Pagination funciona corretamente                                                        | per_page=5, page=2 -> retorna 5 resultados corretos                                |
+| CA-020 | Ordenacao funciona em todos os campos                                                   | sort_by=created_at&sort_dir=desc -> ordenacao correta                              |
 
 ### 10.2 Gestao de Planos
 
-| ID | Criterio | Teste |
-|----|----------|-------|
-| CA-030 | SuperAdmin pode criar plano com todos os campos | POST /platform/plans -> 201 |
-| CA-031 | Slug e auto-gerado a partir do name se nao fornecido | POST {name: "Plano Teste"} -> slug = "plano-teste" |
-| CA-032 | Slug duplicado e rejeitado com available=false | POST slug existente -> validate-slug retorna {available: false} |
-| CA-033 | SuperAdmin nao pode excluir plano com invoices ativas | DELETE plano com invoice PENDING -> 422 |
-| CA-034 | SuperAdmin pode excluir plano sem invoices ativas | DELETE plano sem invoice -> 204 |
-| CA-035 | Toggle de plano ativa/inativa sem excluir | PATCH /toggle -> is_active alternado |
-| CA-036 | Plano com storage_mode=LIMITED respeita limite de bytes | Plano 10GB -> canUploadFile() respeita 10GB |
-| CA-037 | Plano com negotiations_mode=UNLIMITED nao tem limite | Plano UNLIMITED -> canCreateNegotiation() == true sempre |
-| CA-038 | Plano com reports_mode=BASIC so permite chat.volume | Plano BASIC -> canViewReport('reports.crm.funnel') == false |
-| CA-039 | Plano com reports_mode=FULL permite todos os relatorios | Plano FULL -> canViewReport('reports.crm.funnel') == true |
+| ID     | Criterio                                                | Teste                                                           |
+| ------ | ------------------------------------------------------- | --------------------------------------------------------------- |
+| CA-030 | SuperAdmin pode criar plano com todos os campos         | POST /platform/plans -> 201                                     |
+| CA-031 | Slug e auto-gerado a partir do name se nao fornecido    | POST {name: "Plano Teste"} -> slug = "plano-teste"              |
+| CA-032 | Slug duplicado e rejeitado com available=false          | POST slug existente -> validate-slug retorna {available: false} |
+| CA-033 | SuperAdmin nao pode excluir plano com invoices ativas   | DELETE plano com invoice PENDING -> 422                         |
+| CA-034 | SuperAdmin pode excluir plano sem invoices ativas       | DELETE plano sem invoice -> 204                                 |
+| CA-035 | Toggle de plano ativa/inativa sem excluir               | PATCH /toggle -> is_active alternado                            |
+| CA-036 | Plano com storage_mode=LIMITED respeita limite de bytes | Plano 10GB -> canUploadFile() respeita 10GB                     |
+| CA-037 | Plano com negotiations_mode=UNLIMITED nao tem limite    | Plano UNLIMITED -> canCreateNegotiation() == true sempre        |
+| CA-038 | Plano com reports_mode=BASIC so permite chat.volume     | Plano BASIC -> canViewReport('reports.crm.funnel') == false     |
+| CA-039 | Plano com reports_mode=FULL permite todos os relatorios | Plano FULL -> canViewReport('reports.crm.funnel') == true       |
 
 ### 10.3 Integracao WhatsApp
 
-| ID | Criterio | Teste |
-|----|----------|-------|
-| CA-050 | SuperAdmin pode criar instancia e receber token do gateway | POST /uazapi/instances -> 201, token presente |
-| CA-051 | SuperAdmin pode conectar instancia e receber QR ou pair code | POST /connect -> 200, status qr ou connecting |
-| CA-052 | SuperAdmin pode desconectar instancia | POST /disconnect -> 200, status = disconnected |
-| CA-053 | SuperAdmin pode deletar instancia do gateway e local | DELETE /instances/{id} -> 204, instance removida |
-| CA-054 | SuperAdmin pode enviar mensagem de texto | POST /messages/text -> 200, id retornado |
-| CA-055 | SuperAdmin pode enviar arquivo via URL | POST /messages/file -> 200 |
-| CA-056 | Envio de mensagem em instancia desconectada retorna erro | instance status=disconnected -> POST /messages -> 422 |
-| CA-057 | SuperAdmin pode atualizar webhook da instancia | PATCH /admin-fields webhook_url -> 200 |
-| CA-058 | SuperAdmin pode atualizar presence da instancia | POST /presence {available} -> 200 |
-| CA-059 | SuperAdmin pode atualizar imagem de perfil da instancia | POST /profile-image -> 200 |
-| CA-060 | Filtro por status funciona em GET /uazapi/instances | ?status=connected -> apenas connected |
-| CA-061 | Filtro por tenant funciona em GET /uazapi/instances | ?tenant_id=X -> apenas instancias do tenant |
+| ID     | Criterio                                                     | Teste                                                 |
+| ------ | ------------------------------------------------------------ | ----------------------------------------------------- |
+| CA-050 | SuperAdmin pode criar instancia e receber token do gateway   | POST /uazapi/instances -> 201, token presente         |
+| CA-051 | SuperAdmin pode conectar instancia e receber QR ou pair code | POST /connect -> 200, status qr ou connecting         |
+| CA-052 | SuperAdmin pode desconectar instancia                        | POST /disconnect -> 200, status = disconnected        |
+| CA-053 | SuperAdmin pode deletar instancia do gateway e local         | DELETE /instances/{id} -> 204, instance removida      |
+| CA-054 | SuperAdmin pode enviar mensagem de texto                     | POST /messages/text -> 200, id retornado              |
+| CA-055 | SuperAdmin pode enviar arquivo via URL                       | POST /messages/file -> 200                            |
+| CA-056 | Envio de mensagem em instancia desconectada retorna erro     | instance status=disconnected -> POST /messages -> 422 |
+| CA-057 | SuperAdmin pode atualizar webhook da instancia               | PATCH /admin-fields webhook_url -> 200                |
+| CA-058 | SuperAdmin pode atualizar presence da instancia              | POST /presence {available} -> 200                     |
+| CA-059 | SuperAdmin pode atualizar imagem de perfil da instancia      | POST /profile-image -> 200                            |
+| CA-060 | Filtro por status funciona em GET /uazapi/instances          | ?status=connected -> apenas connected                 |
+| CA-061 | Filtro por tenant funciona em GET /uazapi/instances          | ?tenant_id=X -> apenas instancias do tenant           |
 
 ### 10.4 Monitoramento de Filas
 
-| ID | Criterio | Teste |
-|----|----------|-------|
-| CA-070 | GET /health/queues retorna healthy=true quando tudo OK | Filas vazias, workers ativos -> healthy: true |
+| ID     | Criterio                                                    | Teste                                                         |
+| ------ | ----------------------------------------------------------- | ------------------------------------------------------------- |
+| CA-070 | GET /health/queues retorna healthy=true quando tudo OK      | Filas vazias, workers ativos -> healthy: true                 |
 | CA-071 | GET /health/queues retorna healthy=false quando fila > 1000 | Fila critical com 1500 jobs -> healthy: false, issue presente |
-| CA-072 | GET /health/queues retorna healthy=false quando sem workers | workerCount = 0 -> healthy: false |
-| CA-073 | GET /health/queues retorna stuck_jobs count | Jobs reservados > 600s -> stuck_jobs > 0 |
-| CA-074 | GET /health/queues inclui checked_at em ISO 8601 | checked_at e data valida ISO 8601 |
-| CA-075 | GET /health/queues retorna todas as 6 filas | queues contem: critical, high, default, low, ai, media |
-| CA-076 | Rate limiting em /health/* nao bloqueia requests legitimas | 60 req/min -> todas aceitas |
-| CA-077 | Rate limiting em /health/* bloqueia em excesso | 61 req/min -> 429 Too Many Requests |
+| CA-072 | GET /health/queues retorna healthy=false quando sem workers | workerCount = 0 -> healthy: false                             |
+| CA-073 | GET /health/queues retorna stuck_jobs count                 | Jobs reservados > 600s -> stuck_jobs > 0                      |
+| CA-074 | GET /health/queues inclui checked_at em ISO 8601            | checked_at e data valida ISO 8601                             |
+| CA-075 | GET /health/queues retorna todas as 6 filas                 | queues contem: critical, high, default, low, ai, media        |
+| CA-076 | Rate limiting em /health/\* nao bloqueia requests legitimas | 60 req/min -> todas aceitas                                   |
+| CA-077 | Rate limiting em /health/\* bloqueia em excesso             | 61 req/min -> 429 Too Many Requests                           |
 
 ### 10.5 Seguranca
 
-| ID | Criterio | Teste |
-|----|----------|-------|
-| CA-090 | Usuario nao autenticado recebe 401 em todos /platform/* | curl sem token -> 401 |
-| CA-091 | Usuario sem permissao platform.tenants.manage recebe 403 | Usuario sem role -> POST /platform/tenants -> 403 |
-| CA-092 | SuperAdmin com permissao acessa todos os endpoints | SuperAdmin role -> todas requisicoes 200/201/204 |
-| CA-093 | Billing invoices so acessivel a SuperAdmin ou admin | SuperAdmin -> 200, Usuario normal -> 403 |
-| CA-094 | Token de gateway nao aparece em logs de erro | Erro em UazapiGatewayService -> log NAO contem token |
-| CA-095 | Billing webhook token nao aparece em logs | Qualquer operacao com webhook -> log NAO contem billing_webhook_token |
-| CA-096 | UUIDs internos nunca vazam em URLs publicas | Todos os IDs sao UUIDs, nao sequenciais |
+| ID     | Criterio                                                 | Teste                                                                 |
+| ------ | -------------------------------------------------------- | --------------------------------------------------------------------- |
+| CA-090 | Usuario nao autenticado recebe 401 em todos /platform/\* | curl sem token -> 401                                                 |
+| CA-091 | Usuario sem permissao platform.tenants.manage recebe 403 | Usuario sem role -> POST /platform/tenants -> 403                     |
+| CA-092 | SuperAdmin com permissao acessa todos os endpoints       | SuperAdmin role -> todas requisicoes 200/201/204                      |
+| CA-093 | Billing invoices so acessivel a SuperAdmin ou admin      | SuperAdmin -> 200, Usuario normal -> 403                              |
+| CA-094 | Token de gateway nao aparece em logs de erro             | Erro em UazapiGatewayService -> log NAO contem token                  |
+| CA-095 | Billing webhook token nao aparece em logs                | Qualquer operacao com webhook -> log NAO contem billing_webhook_token |
+| CA-096 | UUIDs internos nunca vazam em URLs publicas              | Todos os IDs sao UUIDs, nao sequenciais                               |
 
 ### 10.6 Enforcement de Plano
 
-| ID | Criterio | Teste |
-|----|----------|-------|
-| CA-100 | canCreateUser() retorna false quando no limite | 20 usuarios, limite 20 -> false |
-| CA-101 | canCreateInstance() retorna true quando abaixo do limite | 4 instancias, limite 5 -> true |
-| CA-102 | canUploadFile() retorna false quando storage + novo > limite | used=9GB, limit=10GB, novo=2GB -> false |
-| CA-103 | canDownloadFile() retorna false quando storage cheio | used == limit -> false |
-| CA-104 | Plano semai_enabled desabilita IA | ai_enabled=false -> isAiEnabled() = false |
-| CA-105 | Tenant sem plano ativo recebe limites generosos (50GB, ilimitado) | getCurrentPlan(null) -> MAX_STORAGE_LIMIT_BYTES = 50GB |
-| CA-106 | getReportsMode() retorna BASIC como padrao para tenant sem plano | getReportsMode(tenant sem plano) -> BASIC |
-| CA-107 | getReportsMode() retorna ADVANCED para plano ADVANCED | Plano ADVANCED -> canViewReport('reports.crm.funnel') = true |
-| CA-108 | Plano FULL permite exportacao de relatorios | Plano FULL -> canViewReport('reports.export') = true |
+| ID     | Criterio                                                          | Teste                                                        |
+| ------ | ----------------------------------------------------------------- | ------------------------------------------------------------ |
+| CA-100 | canCreateUser() retorna false quando no limite                    | 20 usuarios, limite 20 -> false                              |
+| CA-101 | canCreateInstance() retorna true quando abaixo do limite          | 4 instancias, limite 5 -> true                               |
+| CA-102 | canUploadFile() retorna false quando storage + novo > limite      | used=9GB, limit=10GB, novo=2GB -> false                      |
+| CA-103 | canDownloadFile() retorna false quando storage cheio              | used == limit -> false                                       |
+| CA-104 | Plano semai_enabled desabilita IA                                 | ai_enabled=false -> isAiEnabled() = false                    |
+| CA-105 | Tenant sem plano ativo recebe limites generosos (50GB, ilimitado) | getCurrentPlan(null) -> MAX_STORAGE_LIMIT_BYTES = 50GB       |
+| CA-106 | getReportsMode() retorna BASIC como padrao para tenant sem plano  | getReportsMode(tenant sem plano) -> BASIC                    |
+| CA-107 | getReportsMode() retorna ADVANCED para plano ADVANCED             | Plano ADVANCED -> canViewReport('reports.crm.funnel') = true |
+| CA-108 | Plano FULL permite exportacao de relatorios                       | Plano FULL -> canViewReport('reports.export') = true         |
 
 ### 10.7 Gestao de Planos
 
-| ID | Criterio | Teste |
-|----|----------|-------|
-| CA-110 | Plano criado com slug vazio gera slug automaticamente | POST sem slug -> slug = slugify(name) |
-| CA-111 | Plano atualizado com slug ja existente em outro plano e rejeitado | PUT slug existente em outro plano -> 422 |
-| CA-112 | SuperAdmin pode listar todos os planos | GET /platform/plans -> 200, todos planos |
-| CA-113 | SuperAdmin pode buscar planos por nome | GET /platform/plans?search=Pro -> retorna apenas "Professional" |
+| ID     | Criterio                                                          | Teste                                                           |
+| ------ | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| CA-110 | Plano criado com slug vazio gera slug automaticamente             | POST sem slug -> slug = slugify(name)                           |
+| CA-111 | Plano atualizado com slug ja existente em outro plano e rejeitado | PUT slug existente em outro plano -> 422                        |
+| CA-112 | SuperAdmin pode listar todos os planos                            | GET /platform/plans -> 200, todos planos                        |
+| CA-113 | SuperAdmin pode buscar planos por nome                            | GET /platform/plans?search=Pro -> retorna apenas "Professional" |
 
 ---
 
@@ -1984,12 +1994,12 @@ api/src/Domain/Platform/
 
 ## B. ANEXO: Comparativo de Planos (Referencia)
 
-| Campo | Starter | Professional | Enterprise |
-|-------|---------|-------------|------------|
-| limit_users | 5 | 20 | Ilimitado |
-| storage_mode | LIMITED (5GB) | LIMITED (50GB) | UNLIMITED |
-| ai_enabled | true | true | true |
-| whatsapp_integrations_limit | 1 | 5 | Ilimitado |
-| negotiations_mode | LIMITED (100) | LIMITED (500) | UNLIMITED |
-| reports_mode | BASIC | ADVANCED | FULL |
-| price_monthly | 29.90 | 99.90 | 299.90 |
+| Campo                       | Starter       | Professional   | Enterprise |
+| --------------------------- | ------------- | -------------- | ---------- |
+| limit_users                 | 5             | 20             | Ilimitado  |
+| storage_mode                | LIMITED (5GB) | LIMITED (50GB) | UNLIMITED  |
+| ai_enabled                  | true          | true           | true       |
+| whatsapp_integrations_limit | 1             | 5              | Ilimitado  |
+| negotiations_mode           | LIMITED (100) | LIMITED (500)  | UNLIMITED  |
+| reports_mode                | BASIC         | ADVANCED       | FULL       |
+| price_monthly               | 29.90         | 99.90          | 299.90     |

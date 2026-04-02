@@ -5,7 +5,7 @@ import { OfflineBannerComponent } from './shared/components/offline-banner/offli
 import { UpdateNotificationComponent } from './shared/components/update-notification/update-notification.component';
 
 /**
- * Root application component for AgentFlix.
+ * Root application component for InteraZap.
  * Provides the main layout with offline banner, router outlet for page content,
  * toast notifications via ngx-sonner, and update notifications.
  */
@@ -18,5 +18,5 @@ import { UpdateNotificationComponent } from './shared/components/update-notifica
 })
 export class AppComponent {
   /** Application title identifier */
-  title = 'agentflix-new';
+  title = 'interazap-new';
 }

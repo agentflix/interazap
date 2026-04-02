@@ -12,13 +12,13 @@
 
 ### 1.1 O que e o Modulo UAZAPI
 
-O modulo UAZAPI e o componente de integracao entre o ecossistema AgentFlix e o provedor de mensageria WhatsApp atraves da plataforma uazapi.com. Seu objetivo e permitir que cada tenant do AgentFlix gerencie uma ou mais instancias WhatsApp -- desde a criacao e conexao (QR Code ou Pair Code) ate o envio e recebimento de mensagens, gerenciamento de contatos, atualizacao de perfil e monitoramento de presenca -- tudo de forma totalmente integrada com o modulo Chat, o Gateway NestJS e a interface Angular.
+O modulo UAZAPI e o componente de integracao entre o ecossistema InteraZap e o provedor de mensageria WhatsApp atraves da plataforma uazapi.com. Seu objetivo e permitir que cada tenant do InteraZap gerencie uma ou mais instancias WhatsApp -- desde a criacao e conexao (QR Code ou Pair Code) ate o envio e recebimento de mensagens, gerenciamento de contatos, atualizacao de perfil e monitoramento de presenca -- tudo de forma totalmente integrada com o modulo Chat, o Gateway NestJS e a interface Angular.
 
 O modulo e parte do dominio Platform porque encapsula a gestao de instancias de conexao (Infrastructure as a Service), isolando a complexidade de comunicacao com provedores externos WhatsApp. Os eventos de mensagem gerados por essas instancias alimentam o modulo Chat (tickets, mensagens, webhooks), enquanto os dados de contato alimentam o modulo CRM.
 
 ### 1.2 O Problema que Resolve
 
-O AgentFlix precisa conectar-se ao WhatsApp de forma confiavel e escalavel para viabilizar o atendimento ao cliente via chat. Cada tenant deseja ter controle sobre suas conexoes WhatsApp sem depender de integracoes manuais ou provedores proprietarios. O modulo UAZAPI resolve:
+O InteraZap precisa conectar-se ao WhatsApp de forma confiavel e escalavel para viabilizar o atendimento ao cliente via chat. Cada tenant deseja ter controle sobre suas conexoes WhatsApp sem depender de integracoes manuais ou provedores proprietarios. O modulo UAZAPI resolve:
 
 - **Criacao e ciclo de vida de instancias**: cada tenant pode criar, conectar, desconectar e remover instancias WhatsApp via API REST, sem intervencao manual.
 - **Autenticacao dupla**: instancia receber QR/Pair codes para parear com o WhatsApp, enquanto o sistema usa token administrativo para operacoes de gerenciamento.
@@ -58,16 +58,16 @@ O backend Laravel e responsavel por:
 
 **Artefatos principais:**
 
-| Artefato | Caminho |
-|----------|---------|
-| Model | `src/Domain/Platform/Models/PlatformUazapiInstance.php` |
+| Artefato                | Caminho                                                                     |
+| ----------------------- | --------------------------------------------------------------------------- |
+| Model                   | `src/Domain/Platform/Models/PlatformUazapiInstance.php`                     |
 | Controller (Instancias) | `src/Domain/Platform/Http/Controllers/PlatformUazapiInstanceController.php` |
-| Controller (Mensagens) | `src/Domain/Platform/Http/Controllers/PlatformUazapiMessageController.php` |
-| Actions | `src/Domain/Platform/Actions/PlatformUazapiInstanceActions.php` |
-| Gateway Service | `src/Domain/Platform/Services/UazapiGatewayService.php` |
-| DTO | `src/Domain/Platform/DTOs/PlatformUazapiInstanceDTO.php` |
-| Policy | `src/Domain/Platform/Policies/PlatformUazapiInstancePolicy.php` |
-| Routes | `src/Domain/Platform/Routes/platform.php` |
+| Controller (Mensagens)  | `src/Domain/Platform/Http/Controllers/PlatformUazapiMessageController.php`  |
+| Actions                 | `src/Domain/Platform/Actions/PlatformUazapiInstanceActions.php`             |
+| Gateway Service         | `src/Domain/Platform/Services/UazapiGatewayService.php`                     |
+| DTO                     | `src/Domain/Platform/DTOs/PlatformUazapiInstanceDTO.php`                    |
+| Policy                  | `src/Domain/Platform/Policies/PlatformUazapiInstancePolicy.php`             |
+| Routes                  | `src/Domain/Platform/Routes/platform.php`                                   |
 
 #### 1.3.2 Camada NestJS Gateway (gateway/src/domains/chat/)
 
@@ -80,15 +80,15 @@ O Gateway NestJS age como proxy HTTP inteligente entre a API Laravel e o provedo
 
 **Artefatos principais:**
 
-| Artefato | Caminho |
-|----------|---------|
-| Client HTTP | `gateway/src/domains/chat/providers/uazapi/uazapi.client.ts` |
-| Provider/Normalizer | `gateway/src/domains/chat/providers/uazapi/uazapi.provider.ts` |
-| Adapter | `gateway/src/domains/chat/providers/uazapi/uazapi.adapter.ts` |
-| DTOs | `gateway/src/domains/chat/providers/uazapi/uazapi.dto.ts` |
-| Model | `gateway/src/domains/chat/models/uazapi.model.ts` |
+| Artefato             | Caminho                                                               |
+| -------------------- | --------------------------------------------------------------------- |
+| Client HTTP          | `gateway/src/domains/chat/providers/uazapi/uazapi.client.ts`          |
+| Provider/Normalizer  | `gateway/src/domains/chat/providers/uazapi/uazapi.provider.ts`        |
+| Adapter              | `gateway/src/domains/chat/providers/uazapi/uazapi.adapter.ts`         |
+| DTOs                 | `gateway/src/domains/chat/providers/uazapi/uazapi.dto.ts`             |
+| Model                | `gateway/src/domains/chat/models/uazapi.model.ts`                     |
 | Instances Controller | `gateway/src/domains/chat/controllers/uazapi-instances.controller.ts` |
-| Messages Controller | `gateway/src/domains/chat/controllers/uazapi-messages.controller.ts` |
+| Messages Controller  | `gateway/src/domains/chat/controllers/uazapi-messages.controller.ts`  |
 
 ### 1.4 Decisoes Arquiteturais Chave
 
@@ -116,9 +116,9 @@ Ao inicializar uma instancia, o Gateway automaticamente configura o webhook na u
 #### 1.4.5 Dual Token Authentication
 
 - **Instance token**: enviado no header `token` em todas as chamadas de envio de mensagem e operacoes de instancia especificas. Identifica a instancia do tenant.
-- **Admin token**: enviado no header `admintoken` em operacoes de gerenciamento (initInstance, listInstances, deleteInstance). Identifica a conta administrativa do AgentFlix junto ao provedor.
+- **Admin token**: enviado no header `admintoken` em operacoes de gerenciamento (initInstance, listInstances, deleteInstance). Identifica a conta administrativa do InteraZap junto ao provedor.
 
-### 1.5 Integracao com o Ecossistema AgentFlix
+### 1.5 Integracao com o Ecossistema InteraZap
 
 ```
 UAZAPI Module
@@ -148,50 +148,50 @@ UAZAPI Module
 
 #### Variaveis do Gateway (NestJS)
 
-| Variavel | Descricao | Default |
-|----------|-----------|---------|
-| `UAZAPI_BASE_URL` | URL base da API uazapi.com | `https://free.uazapi.com` |
-| `UAZAPI_ADMIN_TOKEN` | Token administrativo da conta AgentFlix | - |
-| `UAZAPI_WEBHOOK_URL` | URL base para receber webhooks | - |
-| `UAZAPI_WEBHOOK_EVENTS` | Eventos a assinar (virgula) | `connection,messages,messages_update` |
-| `UAZAPI_WEBHOOK_EXCLUDE_MESSAGES` | Mensagens a excluir | `wasSentByApi` |
-| `UAZAPI_WEBHOOK_RETRIES` | Tentativas de configuracao de webhook | `3` |
+| Variavel                          | Descricao                               | Default                               |
+| --------------------------------- | --------------------------------------- | ------------------------------------- |
+| `UAZAPI_BASE_URL`                 | URL base da API uazapi.com              | `https://free.uazapi.com`             |
+| `UAZAPI_ADMIN_TOKEN`              | Token administrativo da conta InteraZap | -                                     |
+| `UAZAPI_WEBHOOK_URL`              | URL base para receber webhooks          | -                                     |
+| `UAZAPI_WEBHOOK_EVENTS`           | Eventos a assinar (virgula)             | `connection,messages,messages_update` |
+| `UAZAPI_WEBHOOK_EXCLUDE_MESSAGES` | Mensagens a excluir                     | `wasSentByApi`                        |
+| `UAZAPI_WEBHOOK_RETRIES`          | Tentativas de configuracao de webhook   | `3`                                   |
 
 #### Variaveis da API (Laravel)
 
-| Variavel | Descricao |
-|----------|-----------|
-| `GATEWAY_BASE_URL` | URL base do NestJS Gateway |
-| `GATEWAY_API_KEY` | Chave de autenticacao API -> Gateway |
+| Variavel           | Descricao                            |
+| ------------------ | ------------------------------------ |
+| `GATEWAY_BASE_URL` | URL base do NestJS Gateway           |
+| `GATEWAY_API_KEY`  | Chave de autenticacao API -> Gateway |
 
 ### 1.7 Provedor uazapi.com — Endpoints Utilizados
 
-| Metodo | Path | Uso |
-|--------|------|-----|
-| POST | `/instance/init` | Criar nova instancia |
-| GET | `/instance/all` | Listar instancias |
-| POST | `/instance/connect` | Conectar (QR/Pair) |
-| POST | `/instance/disconnect` | Desconectar/logout |
-| GET | `/instance/status` | Consultar status |
-| POST | `/instance/presence` | Definir presenca global |
-| DELETE | `/instance` | Remover instancia |
-| POST | `/webhook` | Configurar webhook |
-| POST | `/send/text` | Enviar mensagem de texto |
-| POST | `/send/media` | Enviar midia (todas) |
-| POST | `/send/contact` | Enviar contato |
-| POST | `/send/location` | Enviar localizacao |
-| POST | `/send/template` | Enviar template |
-| POST | `/message/presence` | Presenca em conversa |
-| POST | `/message/react` | Reagir a mensagem |
-| POST | `/message/edit` | Editar mensagem |
-| POST | `/message/delete` | Apagar mensagem |
-| POST | `/message/download` | Baixar midia |
-| POST | `/chat/read` | Marcar como lido |
-| GET | `/contacts` | Listar contatos |
-| POST | `/contacts/list` | Sincronizar lista |
-| POST | `/contact/add` | Adicionar contato |
-| POST | `/contact/remove` | Remover contato |
-| POST | `/profile/image` | Alterar foto de perfil |
+| Metodo | Path                   | Uso                      |
+| ------ | ---------------------- | ------------------------ |
+| POST   | `/instance/init`       | Criar nova instancia     |
+| GET    | `/instance/all`        | Listar instancias        |
+| POST   | `/instance/connect`    | Conectar (QR/Pair)       |
+| POST   | `/instance/disconnect` | Desconectar/logout       |
+| GET    | `/instance/status`     | Consultar status         |
+| POST   | `/instance/presence`   | Definir presenca global  |
+| DELETE | `/instance`            | Remover instancia        |
+| POST   | `/webhook`             | Configurar webhook       |
+| POST   | `/send/text`           | Enviar mensagem de texto |
+| POST   | `/send/media`          | Enviar midia (todas)     |
+| POST   | `/send/contact`        | Enviar contato           |
+| POST   | `/send/location`       | Enviar localizacao       |
+| POST   | `/send/template`       | Enviar template          |
+| POST   | `/message/presence`    | Presenca em conversa     |
+| POST   | `/message/react`       | Reagir a mensagem        |
+| POST   | `/message/edit`        | Editar mensagem          |
+| POST   | `/message/delete`      | Apagar mensagem          |
+| POST   | `/message/download`    | Baixar midia             |
+| POST   | `/chat/read`           | Marcar como lido         |
+| GET    | `/contacts`            | Listar contatos          |
+| POST   | `/contacts/list`       | Sincronizar lista        |
+| POST   | `/contact/add`         | Adicionar contato        |
+| POST   | `/contact/remove`      | Remover contato          |
+| POST   | `/profile/image`       | Alterar foto de perfil   |
 
 ---
 
@@ -199,7 +199,7 @@ UAZAPI Module
 
 ### 2.1 Objetivo Geral
 
-Fornecer um modulo completo de gestao de instancias WhatsApp para o ecossistema AgentFlix que permita: (1) criar e destruir instancias de conexao com o provedor uazapi.com; (2) autenticar instancias via QR Code (navegador) ou Pair Code (telefone); (3) consultar e sincronizar o status de conexao em tempo real; (4) enviar mensagens de texto, midia, contatos, localizacao e templates; (5) receber e normalizar eventos de webhook do provedor; (6) gerenciar contatos da agenda da instancia; (7) atualizar perfil e presenca da instancia; e (8) garantir isolamento multi-tenant total em todas as operacoes.
+Fornecer um modulo completo de gestao de instancias WhatsApp para o ecossistema InteraZap que permita: (1) criar e destruir instancias de conexao com o provedor uazapi.com; (2) autenticar instancias via QR Code (navegador) ou Pair Code (telefone); (3) consultar e sincronizar o status de conexao em tempo real; (4) enviar mensagens de texto, midia, contatos, localizacao e templates; (5) receber e normalizar eventos de webhook do provedor; (6) gerenciar contatos da agenda da instancia; (7) atualizar perfil e presenca da instancia; e (8) garantir isolamento multi-tenant total em todas as operacoes.
 
 ### 2.2 Objetivos Especificos
 
@@ -232,132 +232,132 @@ Fornecer um modulo completo de gestao de instancias WhatsApp para o ecossistema 
 
 ### 3.1 Ciclo de Vida de Instancias
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-001 | Toda instancia deve pertencer a exatamente um tenant, definido pelo campo `tenant_id` obrigatorio e nao-nulo | Critica |
-| RN-002 | O `id` da instancia e um UUID gerado por `Str::orderedUuid()` no momento da criacao, nunca auto-increment | Critica |
-| RN-003 | O `token` da instancia e gerado pelo provedor uazapi.com durante a chamada `initInstance` e persiste localmente | Critica |
-| RN-004 | O campo `status` segue o enum: `disconnected` (padrao), `connecting`, `qr`, `connected` | Critica |
-| RN-005 | O campo `webhook_url` e montado automaticamente como `{UAZAPI_WEBHOOK_URL}/webhooks/uazapi/instances/{token}` e configurado no provedor via `ensureWebhookConfigured` | Alta |
-| RN-006 | O campo `config` e um JSONB que armazena configuracoes arbitrarias da instancia (max 255 caracteres por chave) | Media |
-| RN-007 | O campo `metadata` e um JSONB que armazena a resposta bruta do gateway e dados de status sincronizados | Media |
-| RN-008 | O campo `last_status_at` registra o timestamp da ultima sincronizacao de status | Media |
-| RN-009 | A remocao de uma instancia (`destroy`) deleta o registro local E chama `deleteInstance` no gateway para remover do provedor | Critica |
-| RN-010 | Instancias com status `connecting` ou `qr` que ficarem mais de 5 minutos sem evoluir para `connected` devem ser marcadas como `disconnected` (cleanup job futuro) | Media |
+| ID     | Regra                                                                                                                                                                 | Prioridade |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-001 | Toda instancia deve pertencer a exatamente um tenant, definido pelo campo `tenant_id` obrigatorio e nao-nulo                                                          | Critica    |
+| RN-002 | O `id` da instancia e um UUID gerado por `Str::orderedUuid()` no momento da criacao, nunca auto-increment                                                             | Critica    |
+| RN-003 | O `token` da instancia e gerado pelo provedor uazapi.com durante a chamada `initInstance` e persiste localmente                                                       | Critica    |
+| RN-004 | O campo `status` segue o enum: `disconnected` (padrao), `connecting`, `qr`, `connected`                                                                               | Critica    |
+| RN-005 | O campo `webhook_url` e montado automaticamente como `{UAZAPI_WEBHOOK_URL}/webhooks/uazapi/instances/{token}` e configurado no provedor via `ensureWebhookConfigured` | Alta       |
+| RN-006 | O campo `config` e um JSONB que armazena configuracoes arbitrarias da instancia (max 255 caracteres por chave)                                                        | Media      |
+| RN-007 | O campo `metadata` e um JSONB que armazena a resposta bruta do gateway e dados de status sincronizados                                                                | Media      |
+| RN-008 | O campo `last_status_at` registra o timestamp da ultima sincronizacao de status                                                                                       | Media      |
+| RN-009 | A remocao de uma instancia (`destroy`) deleta o registro local E chama `deleteInstance` no gateway para remover do provedor                                           | Critica    |
+| RN-010 | Instancias com status `connecting` ou `qr` que ficarem mais de 5 minutos sem evoluir para `connected` devem ser marcadas como `disconnected` (cleanup job futuro)     | Media      |
 
 ### 3.2 Autenticacao e Conexao
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-011 | O modo de conexao `qr` gera um QR Code que o tenant escaneia com o app WhatsApp | Alta |
-| RN-012 | O modo de conexao `pair` requer o parametro `phone` com 10 a 15 digitos numericos (`/^\d{10,15}$/`) | Alta |
-| RN-013 | Somente instancias com status `disconnected` podem iniciar conexao. Instancias ja `connected` retornam erro 422 se tentarem conectar novamente | Alta |
-| RN-014 | A conexao via `connect` atualiza o status local para `connecting` antes da chamada HTTP (otimista) | Media |
-| RN-015 | A desconexao (`disconnect`) atualiza o status para `disconnected` e persiste a resposta do gateway em `metadata` | Alta |
-| RN-016 | A exclusao de uma instancia conectada deve desconectar primeiro antes de deletar (ou forcar delete no provedor) | Media |
-| RN-017 | O token administrativo (`UAZAPI_ADMIN_TOKEN`) e usado exclusivamente em operacoes de gerenciamento (init, list, delete), nunca em envio de mensagens | Critica |
+| ID     | Regra                                                                                                                                                | Prioridade |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-011 | O modo de conexao `qr` gera um QR Code que o tenant escaneia com o app WhatsApp                                                                      | Alta       |
+| RN-012 | O modo de conexao `pair` requer o parametro `phone` com 10 a 15 digitos numericos (`/^\d{10,15}$/`)                                                  | Alta       |
+| RN-013 | Somente instancias com status `disconnected` podem iniciar conexao. Instancias ja `connected` retornam erro 422 se tentarem conectar novamente       | Alta       |
+| RN-014 | A conexao via `connect` atualiza o status local para `connecting` antes da chamada HTTP (otimista)                                                   | Media      |
+| RN-015 | A desconexao (`disconnect`) atualiza o status para `disconnected` e persiste a resposta do gateway em `metadata`                                     | Alta       |
+| RN-016 | A exclusao de uma instancia conectada deve desconectar primeiro antes de deletar (ou forcar delete no provedor)                                      | Media      |
+| RN-017 | O token administrativo (`UAZAPI_ADMIN_TOKEN`) e usado exclusivamente em operacoes de gerenciamento (init, list, delete), nunca em envio de mensagens | Critica    |
 
 ### 3.3 Sincronizacao de Status
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-018 | O metodo `extractStatus` lida com: string direta, booleano, array com `status`, array com `connected` (bool), array com `loggedIn` (bool) | Alta |
-| RN-019 | O metodo `normalizeStatus` converte: `true` -> `connected`, `false` -> `disconnected`, strings validas passam transparente | Critica |
-| RN-020 | A sincronizacao via `status()` atualiza: `status`, `last_status_at` e `metadata` no mesmo `save()` | Alta |
-| RN-021 | Campos booleanos `connected` e `loggedIn` em arrays de resposta sao normalizados para `connected`/`disconnected` | Alta |
-| RN-022 | O `last_status_at` e persistido em UTC usando `now()` do Laravel | Media |
+| ID     | Regra                                                                                                                                     | Prioridade |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-018 | O metodo `extractStatus` lida com: string direta, booleano, array com `status`, array com `connected` (bool), array com `loggedIn` (bool) | Alta       |
+| RN-019 | O metodo `normalizeStatus` converte: `true` -> `connected`, `false` -> `disconnected`, strings validas passam transparente                | Critica    |
+| RN-020 | A sincronizacao via `status()` atualiza: `status`, `last_status_at` e `metadata` no mesmo `save()`                                        | Alta       |
+| RN-021 | Campos booleanos `connected` e `loggedIn` em arrays de resposta sao normalizados para `connected`/`disconnected`                          | Alta       |
+| RN-022 | O `last_status_at` e persistido em UTC usando `now()` do Laravel                                                                          | Media      |
 
 ### 3.4 Envio de Mensagens
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-023 | O `authorize()` do `PlatformUazapiSendTextRequest` valida que o token da instancia pertence ao tenant do usuario logado | Critica |
-| RN-024 | O `number` do destinatario deve ter no minimo 6 caracteres alfanumericos (`/^[0-9@.\w-]{6,}$/`) | Alta |
-| RN-025 | O corpo do texto (`text`) e obrigatorio e deve ser string nao-vazia | Critica |
-| RN-026 | O parametro `quotedMessageId` (replyid) permite responder a uma mensagem especifica | Media |
-| RN-027 | O envio de midia (`sendFile`) requer `url` valida (URL absoluta) e aceita `caption` opcional | Alta |
-| RN-028 | Campos `linkPreview*` em `sendText` sao opcionais e permitem mostrar preview de links | Media |
-| RN-029 | O `UazapiMessagesController` no Gateway normaliza nomes de campos: `url` -> `file`, `caption` -> `text`, `fileName` -> `docName` | Alta |
-| RN-030 | Imagens com MIME type nao-suportado pelo WhatsApp (WebP, SVG, HEIC, HEIF, AVIF) sao automaticamente convertidas para `type: document` | Media |
-| RN-031 | O Gateway extrai MIME type do payload, de data URI prefix (`data:image/png;base64,...`) ou da extensao do arquivo na URL | Media |
-| RN-032 | O `sendText` retorna `messageId` ou `id` extraido da resposta normalizada | Alta |
+| ID     | Regra                                                                                                                                 | Prioridade |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-023 | O `authorize()` do `PlatformUazapiSendTextRequest` valida que o token da instancia pertence ao tenant do usuario logado               | Critica    |
+| RN-024 | O `number` do destinatario deve ter no minimo 6 caracteres alfanumericos (`/^[0-9@.\w-]{6,}$/`)                                       | Alta       |
+| RN-025 | O corpo do texto (`text`) e obrigatorio e deve ser string nao-vazia                                                                   | Critica    |
+| RN-026 | O parametro `quotedMessageId` (replyid) permite responder a uma mensagem especifica                                                   | Media      |
+| RN-027 | O envio de midia (`sendFile`) requer `url` valida (URL absoluta) e aceita `caption` opcional                                          | Alta       |
+| RN-028 | Campos `linkPreview*` em `sendText` sao opcionais e permitem mostrar preview de links                                                 | Media      |
+| RN-029 | O `UazapiMessagesController` no Gateway normaliza nomes de campos: `url` -> `file`, `caption` -> `text`, `fileName` -> `docName`      | Alta       |
+| RN-030 | Imagens com MIME type nao-suportado pelo WhatsApp (WebP, SVG, HEIC, HEIF, AVIF) sao automaticamente convertidas para `type: document` | Media      |
+| RN-031 | O Gateway extrai MIME type do payload, de data URI prefix (`data:image/png;base64,...`) ou da extensao do arquivo na URL              | Media      |
+| RN-032 | O `sendText` retorna `messageId` ou `id` extraido da resposta normalizada                                                             | Alta       |
 
 ### 3.5 Webhooks e Eventos
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-033 | O DTO `UazapiWebhookDto` suporta tres tipos de evento: `messages`, `messages_update`, `connection` | Critica |
-| RN-034 | O normalizador `UazapiProvider.normalize()` extrai `body` de: `message.body`, `content.text`, `content.caption`, `content.url` (nessa ordem de prioridade) | Alta |
-| RN-035 | A direcao da mensagem e determinada pelo campo booleano `fromMe`: `true` = outgoing (empresa->cliente), `false` = incoming (cliente->empresa) | Critica |
-| RN-036 | Campos de midia (`mediaUrl`, `mimeType`, `fileName`) sao extraidos de multiplas paths: `content.url`, `content.mediaUrl`, `content.media_url`, `content.file` | Alta |
-| RN-037 | O `UazapiAdapter.normalizeWebhook()` mapeia: `incoming` -> `inbound`, `outgoing` -> `outbound` para o contrato interno do gateway | Alta |
-| RN-038 | A idempotencia e garantida pela chave `{token}:{eventType}:{messageId}` no Redis com TTL 600s | Critica |
-| RN-039 | Eventos duplicados retornam `{success:true, duplicate:true}` sem re-processamento | Alta |
-| RN-040 | O `UazapiWebhookDto` preserva campos desconhecidos via index signature `[key: string]: unknown` para manter o payload bruto | Media |
-| RN-041 | O `UazapiProvider` prefere o payload bruto original (`raw.message`) sobre o DTO validado, porque `ValidationPipe(whitelist:true)` remove campos desconhecidos | Alta |
+| ID     | Regra                                                                                                                                                         | Prioridade |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-033 | O DTO `UazapiWebhookDto` suporta tres tipos de evento: `messages`, `messages_update`, `connection`                                                            | Critica    |
+| RN-034 | O normalizador `UazapiProvider.normalize()` extrai `body` de: `message.body`, `content.text`, `content.caption`, `content.url` (nessa ordem de prioridade)    | Alta       |
+| RN-035 | A direcao da mensagem e determinada pelo campo booleano `fromMe`: `true` = outgoing (empresa->cliente), `false` = incoming (cliente->empresa)                 | Critica    |
+| RN-036 | Campos de midia (`mediaUrl`, `mimeType`, `fileName`) sao extraidos de multiplas paths: `content.url`, `content.mediaUrl`, `content.media_url`, `content.file` | Alta       |
+| RN-037 | O `UazapiAdapter.normalizeWebhook()` mapeia: `incoming` -> `inbound`, `outgoing` -> `outbound` para o contrato interno do gateway                             | Alta       |
+| RN-038 | A idempotencia e garantida pela chave `{token}:{eventType}:{messageId}` no Redis com TTL 600s                                                                 | Critica    |
+| RN-039 | Eventos duplicados retornam `{success:true, duplicate:true}` sem re-processamento                                                                             | Alta       |
+| RN-040 | O `UazapiWebhookDto` preserva campos desconhecidos via index signature `[key: string]: unknown` para manter o payload bruto                                   | Media      |
+| RN-041 | O `UazapiProvider` prefere o payload bruto original (`raw.message`) sobre o DTO validado, porque `ValidationPipe(whitelist:true)` remove campos desconhecidos | Alta       |
 
 ### 3.6 Presenca e Perfil
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-042 | A alteracao de imagem de perfil (`profileImage`) requer que a instancia esteja `connected`, caso contrario retorna 422 | Critica |
-| RN-043 | O parametro `image` pode ser: URL HTTP/HTTPS, string Base64 com prefixo `data:image/...;base64,`, ou literal `remove` | Alta |
-| RN-044 | A alteracao de presenca global (`presence`) requer que a instancia esteja `connected`, caso contrario retorna 422 | Critica |
-| RN-045 | O campo `presence` aceita apenas `available` ou `unavailable` como valores validos | Alta |
-| RN-046 | A presenca local (`sendPresence` em conversa) permite estados como `composing`, `recording`, `paused` | Media |
-| RN-047 | A `current_presence` e armazenada em `metadata` da instancia para auditoria | Media |
+| ID     | Regra                                                                                                                  | Prioridade |
+| ------ | ---------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-042 | A alteracao de imagem de perfil (`profileImage`) requer que a instancia esteja `connected`, caso contrario retorna 422 | Critica    |
+| RN-043 | O parametro `image` pode ser: URL HTTP/HTTPS, string Base64 com prefixo `data:image/...;base64,`, ou literal `remove`  | Alta       |
+| RN-044 | A alteracao de presenca global (`presence`) requer que a instancia esteja `connected`, caso contrario retorna 422      | Critica    |
+| RN-045 | O campo `presence` aceita apenas `available` ou `unavailable` como valores validos                                     | Alta       |
+| RN-046 | A presenca local (`sendPresence` em conversa) permite estados como `composing`, `recording`, `paused`                  | Media      |
+| RN-047 | A `current_presence` e armazenada em `metadata` da instancia para auditoria                                            | Media      |
 
 ### 3.7 Contatos
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-048 | A listagem de contatos (`listContacts`) usa o token da instancia no header `token` | Alta |
-| RN-049 | A sincronizacao em batch (`syncContactsList`) permite enviar ate N contatos por vez, cada um com `number` e `name` | Alta |
-| RN-050 | A remocao de contato (`removeContact`) recebe `number` ou `jid` para identificacao | Media |
-| RN-051 | O `addContact` recebe `phone` (obrigatorio) e `name` (obrigatorio) alem de campos opcionais: organization, email, url | Media |
+| ID     | Regra                                                                                                                 | Prioridade |
+| ------ | --------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-048 | A listagem de contatos (`listContacts`) usa o token da instancia no header `token`                                    | Alta       |
+| RN-049 | A sincronizacao em batch (`syncContactsList`) permite enviar ate N contatos por vez, cada um com `number` e `name`    | Alta       |
+| RN-050 | A remocao de contato (`removeContact`) recebe `number` ou `jid` para identificacao                                    | Media      |
+| RN-051 | O `addContact` recebe `phone` (obrigatorio) e `name` (obrigatorio) alem de campos opcionais: organization, email, url | Media      |
 
 ### 3.8 Seguranca e Autorizacao
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-052 | A Policy `PlatformUazapiInstancePolicy` exige a permissao `whatsapp.manage` em todos os metodos | Critica |
-| RN-053 | O metodo `viewAny` e `create` tambem exigem `whatsapp.manage` alem de estar autenticado | Alta |
-| RN-054 | Os metodos `view`, `update`, `delete` exigem `whatsapp.manage` E que a instancia pertenca ao tenant do usuario (`belongsToTenant`) | Critica |
-| RN-055 | O `PlatformUazapiInstanceResource` nunca expoe o token completo: apenas `has_token` (bool) e `token_preview` (ex: `****abc1`) | Critica |
-| RN-056 | O campo `webhook_url` e exposto no resource apenas se configurado | Media |
-| RN-057 | O `metadata` e exposto no resource para fins de debugging e transparencia | Media |
-| RN-058 | Logs nunca devem conter tokens, numeros de telefone ou URLs de webhook completas (ASCARISCO) | Critica |
-| RN-059 | O `maskSecrets` no client HTTP do Gateway mascara headers e body antes de logar | Alta |
-| RN-060 | Todas as datas no resource sao formatadas como ISO 8601 via `BaseJsonResource::iso()` | Media |
+| ID     | Regra                                                                                                                              | Prioridade |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-052 | A Policy `PlatformUazapiInstancePolicy` exige a permissao `whatsapp.manage` em todos os metodos                                    | Critica    |
+| RN-053 | O metodo `viewAny` e `create` tambem exigem `whatsapp.manage` alem de estar autenticado                                            | Alta       |
+| RN-054 | Os metodos `view`, `update`, `delete` exigem `whatsapp.manage` E que a instancia pertenca ao tenant do usuario (`belongsToTenant`) | Critica    |
+| RN-055 | O `PlatformUazapiInstanceResource` nunca expoe o token completo: apenas `has_token` (bool) e `token_preview` (ex: `****abc1`)      | Critica    |
+| RN-056 | O campo `webhook_url` e exposto no resource apenas se configurado                                                                  | Media      |
+| RN-057 | O `metadata` e exposto no resource para fins de debugging e transparencia                                                          | Media      |
+| RN-058 | Logs nunca devem conter tokens, numeros de telefone ou URLs de webhook completas (ASCARISCO)                                       | Critica    |
+| RN-059 | O `maskSecrets` no client HTTP do Gateway mascara headers e body antes de logar                                                    | Alta       |
+| RN-060 | Todas as datas no resource sao formatadas como ISO 8601 via `BaseJsonResource::iso()`                                              | Media      |
 
 ### 3.9 Multi-Tenancy
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-061 | Toda query de instancia filtra automaticamente por `tenant_id` via `BelongsToTenant` trait | Critica |
-| RN-062 | O `list()` aceita filtro `status` para buscar apenas instancias conectadas ou desconectadas | Media |
-| RN-063 | O `list()` aceita filtro `search` que busca por `name` ou `system_name` com `ilike` (ou `like` em SQLite) | Media |
-| RN-064 | A paginacao usa `per_page` (padrao 15) e `page` conforme convencao Laravel | Media |
-| RN-065 | O `resolveAuthorizedInstanceToken` no MessageController busca a instancia pelo token e valida tenant_id antes de usar | Critica |
+| ID     | Regra                                                                                                                 | Prioridade |
+| ------ | --------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-061 | Toda query de instancia filtra automaticamente por `tenant_id` via `BelongsToTenant` trait                            | Critica    |
+| RN-062 | O `list()` aceita filtro `status` para buscar apenas instancias conectadas ou desconectadas                           | Media      |
+| RN-063 | O `list()` aceita filtro `search` que busca por `name` ou `system_name` com `ilike` (ou `like` em SQLite)             | Media      |
+| RN-064 | A paginacao usa `per_page` (padrao 15) e `page` conforme convencao Laravel                                            | Media      |
+| RN-065 | O `resolveAuthorizedInstanceToken` no MessageController busca a instancia pelo token e valida tenant_id antes de usar | Critica    |
 
 ### 3.10 Circuit Breaker e Resiliencia
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-066 | O circuit breaker `whatsapp:uazapi` abre apos 5 falhas consecutivas de qualquer operacao HTTP | Alta |
-| RN-067 | O circuit breaker reseta apos 30 segundos de inatividade (half-open state) | Alta |
-| RN-068 | Chamadas rejeitadas por circuit breaker retornam HTTP 503 com mensagem "Uazapi circuit breaker is open" | Alta |
-| RN-069 | Erros de Axios sao transformados em `HttpException` com status code da resposta ou 500 | Alta |
-| RN-070 | O metodo `retry` no client usa backoff exponencial: `delayMs * attempt` | Media |
+| ID     | Regra                                                                                                   | Prioridade |
+| ------ | ------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-066 | O circuit breaker `whatsapp:uazapi` abre apos 5 falhas consecutivas de qualquer operacao HTTP           | Alta       |
+| RN-067 | O circuit breaker reseta apos 30 segundos de inatividade (half-open state)                              | Alta       |
+| RN-068 | Chamadas rejeitadas por circuit breaker retornam HTTP 503 com mensagem "Uazapi circuit breaker is open" | Alta       |
+| RN-069 | Erros de Axios sao transformados em `HttpException` com status code da resposta ou 500                  | Alta       |
+| RN-070 | O metodo `retry` no client usa backoff exponencial: `delayMs * attempt`                                 | Media      |
 
 ### 3.11 Campos Computados e Resources
 
-| ID    | Regra | Prioridade |
-|-------|-------|------------|
-| RN-071 | O campo `has_token` e um booleano computado: `token !== null && token !== ''` | Media |
-| RN-072 | O campo `token_preview` mostra `****` + ultimos 4 caracteres do token para referencia rapida | Media |
-| RN-073 | O campo `last_seen_at` no resource mapeia para `last_status_at` (alias) | Media |
-| RN-074 | Timestamps `created_at`, `updated_at`, `last_status_at` sao sempre incluidos no resource | Alta |
+| ID     | Regra                                                                                        | Prioridade |
+| ------ | -------------------------------------------------------------------------------------------- | ---------- |
+| RN-071 | O campo `has_token` e um booleano computado: `token !== null && token !== ''`                | Media      |
+| RN-072 | O campo `token_preview` mostra `****` + ultimos 4 caracteres do token para referencia rapida | Media      |
+| RN-073 | O campo `last_seen_at` no resource mapeia para `last_status_at` (alias)                      | Media      |
+| RN-074 | Timestamps `created_at`, `updated_at`, `last_status_at` sao sempre incluidos no resource     | Alta       |
 
 ---
 
@@ -730,20 +730,20 @@ graph TB
 
 **Campos:**
 
-| Campo | Tipo | Descricao |
-|-------|------|-----------|
-| `id` | `uuid` PK | UUID v7 ordenado, gerado por `Str::orderedUuid()` no evento `creating` |
-| `tenant_id` | `uuid` FK | Referencia a `platform_tenants.id`. Nao-nulo via constraints de BD |
-| `name` | `string(255)` | Nome amigavel da instancia, retornado pelo gateway na criacao |
-| `system_name` | `string(100)` nullable | Nome interno/sistema, configurado pelo tenant na requisicao |
-| `token` | `string(255)` | Token da instancia no provedor, usado no header de autenticacao |
-| `status` | `string(20)` | Enum local: `disconnected`, `connecting`, `qr`, `connected` |
-| `webhook_url` | `string(500)` nullable | URL do webhook configurado no provedor |
-| `config` | `jsonb` | Configuracoes arbitrarias da instancia (pares chave-valor) |
-| `metadata` | `jsonb` | Resposta bruta do gateway, status detalhado, qrcode, phone |
-| `last_status_at` | `timestamp` nullable | Data da ultima sincronizacao de status |
-| `created_at` | `timestamp` | auto |
-| `updated_at` | `timestamp` | auto |
+| Campo            | Tipo                   | Descricao                                                              |
+| ---------------- | ---------------------- | ---------------------------------------------------------------------- |
+| `id`             | `uuid` PK              | UUID v7 ordenado, gerado por `Str::orderedUuid()` no evento `creating` |
+| `tenant_id`      | `uuid` FK              | Referencia a `platform_tenants.id`. Nao-nulo via constraints de BD     |
+| `name`           | `string(255)`          | Nome amigavel da instancia, retornado pelo gateway na criacao          |
+| `system_name`    | `string(100)` nullable | Nome interno/sistema, configurado pelo tenant na requisicao            |
+| `token`          | `string(255)`          | Token da instancia no provedor, usado no header de autenticacao        |
+| `status`         | `string(20)`           | Enum local: `disconnected`, `connecting`, `qr`, `connected`            |
+| `webhook_url`    | `string(500)` nullable | URL do webhook configurado no provedor                                 |
+| `config`         | `jsonb`                | Configuracoes arbitrarias da instancia (pares chave-valor)             |
+| `metadata`       | `jsonb`                | Resposta bruta do gateway, status detalhado, qrcode, phone             |
+| `last_status_at` | `timestamp` nullable   | Data da ultima sincronizacao de status                                 |
+| `created_at`     | `timestamp`            | auto                                                                   |
+| `updated_at`     | `timestamp`            | auto                                                                   |
 
 **Casts:**
 
@@ -785,29 +785,29 @@ public function tenant(): BelongsTo
 
 ```typescript
 export type NormalizedUazapiEvent = {
-  provider: 'uazapi';
-  event_type: 'messages' | 'messages_update' | 'connection';
-  instance_webhook_token: string;
-  owner?: string;
-  base_url?: string;
-  direction?: 'incoming' | 'outgoing';
-  chat?: Record<string, unknown>;
-  message?: {
-    id?: string;
-    from?: string;
-    to?: string;
-    chatid?: string;
-    body?: string;
-    type?: MessageType;
-    timestamp?: number | string;
-    fromMe?: boolean;
-    media?: Record<string, unknown>;
-    mediaUrl?: string;
-    mimeType?: string;
-    fileName?: string;
-    senderPhoto?: string;
-  };
-  raw: Record<string, unknown>;
+    provider: 'uazapi';
+    event_type: 'messages' | 'messages_update' | 'connection';
+    instance_webhook_token: string;
+    owner?: string;
+    base_url?: string;
+    direction?: 'incoming' | 'outgoing';
+    chat?: Record<string, unknown>;
+    message?: {
+        id?: string;
+        from?: string;
+        to?: string;
+        chatid?: string;
+        body?: string;
+        type?: MessageType;
+        timestamp?: number | string;
+        fromMe?: boolean;
+        media?: Record<string, unknown>;
+        mediaUrl?: string;
+        mimeType?: string;
+        fileName?: string;
+        senderPhoto?: string;
+    };
+    raw: Record<string, unknown>;
 };
 ```
 
@@ -821,39 +821,39 @@ export type NormalizedUazapiEvent = {
 
 ```typescript
 export class UazapiWebhookDto {
-  @IsString()
-  EventType!: 'messages' | 'messages_update' | 'connection';
+    @IsString()
+    EventType!: 'messages' | 'messages_update' | 'connection';
 
-  @IsOptional()
-  message?: {
-    id?: string;
-    type?: MessageType;
-    from?: string;
-    to?: string;
-    body?: string;
-    timestamp?: number | string;
-    [key: string]: unknown;
-  };
+    @IsOptional()
+    message?: {
+        id?: string;
+        type?: MessageType;
+        from?: string;
+        to?: string;
+        body?: string;
+        timestamp?: number | string;
+        [key: string]: unknown;
+    };
 
-  @IsOptional()
-  chat?: Record<string, unknown>;
+    @IsOptional()
+    chat?: Record<string, unknown>;
 
-  @IsOptional()
-  instance?: Record<string, unknown>;
+    @IsOptional()
+    instance?: Record<string, unknown>;
 
-  @IsOptional()
-  instanceName?: string;
+    @IsOptional()
+    instanceName?: string;
 
-  @IsOptional()
-  BaseUrl?: string;
+    @IsOptional()
+    BaseUrl?: string;
 
-  @IsOptional()
-  owner?: string;
+    @IsOptional()
+    owner?: string;
 
-  @IsOptional()
-  token?: string;
+    @IsOptional()
+    token?: string;
 
-  [key: string]: unknown;  // preserva campos desconhecidos
+    [key: string]: unknown; // preserva campos desconhecidos
 }
 ```
 
@@ -867,14 +867,14 @@ export class UazapiWebhookDto {
 
 ```typescript
 export interface WhatsAppProvider {
-  readonly name: string;
+    readonly name: string;
 
-  sendText(instanceToken: string, request: SendTextRequest): Promise<SendMessageResult>;
-  sendMedia(instanceToken: string, request: SendMediaRequest): Promise<SendMessageResult>;
-  getStatus(instanceToken: string): Promise<InstanceStatus>;
-  disconnect(instanceToken: string): Promise<void>;
-  getQrCode(instanceToken: string): Promise<string | null>;
-  normalizeWebhook(token: string, rawPayload: unknown): NormalizedWebhookEvent;
+    sendText(instanceToken: string, request: SendTextRequest): Promise<SendMessageResult>;
+    sendMedia(instanceToken: string, request: SendMediaRequest): Promise<SendMessageResult>;
+    getStatus(instanceToken: string): Promise<InstanceStatus>;
+    disconnect(instanceToken: string): Promise<void>;
+    getQrCode(instanceToken: string): Promise<string | null>;
+    normalizeWebhook(token: string, rawPayload: unknown): NormalizedWebhookEvent;
 }
 ```
 
@@ -958,36 +958,36 @@ Lista todas as instancias do tenant com suporte a filtros e paginacao.
 
 **Query Parameters:**
 
-| Param | Tipo | Descricao | Exemplo |
-|-------|------|-----------|---------|
-| `status` | string | Filtrar por status | `connected`, `disconnected`, `connecting`, `qr` |
-| `search` | string | Busca por nome ou system_name (case-insensitive) | `vendas` |
-| `per_page` | int | Itens por pagina (padrao: 15, max: 100) | `25` |
-| `page` | int | Numero da pagina | `2` |
+| Param      | Tipo   | Descricao                                        | Exemplo                                         |
+| ---------- | ------ | ------------------------------------------------ | ----------------------------------------------- |
+| `status`   | string | Filtrar por status                               | `connected`, `disconnected`, `connecting`, `qr` |
+| `search`   | string | Busca por nome ou system_name (case-insensitive) | `vendas`                                        |
+| `per_page` | int    | Itens por pagina (padrao: 15, max: 100)          | `25`                                            |
+| `page`     | int    | Numero da pagina                                 | `2`                                             |
 
 **Resposta 200:**
 
 ```json
 {
-  "data": [
-    {
-      "id": "0191xxx-...",
-      "tenant_id": "0191xxx-...",
-      "name": "Vendas Principal",
-      "system_name": "vendas-01",
-      "has_token": true,
-      "token_preview": "****abc1",
-      "status": "connected",
-      "webhook_url": "https://...",
-      "config": {},
-      "metadata": { "owner": "55119999..." },
-      "last_status_at": "2026-03-28T10:00:00Z",
-      "last_seen_at": "2026-03-28T10:00:00Z",
-      "created_at": "2026-03-28T09:00:00Z",
-      "updated_at": "2026-03-28T10:00:00Z"
-    }
-  ],
-  "meta": { "current_page": 1, "per_page": 15, "total": 3 }
+    "data": [
+        {
+            "id": "0191xxx-...",
+            "tenant_id": "0191xxx-...",
+            "name": "Vendas Principal",
+            "system_name": "vendas-01",
+            "has_token": true,
+            "token_preview": "****abc1",
+            "status": "connected",
+            "webhook_url": "https://...",
+            "config": {},
+            "metadata": { "owner": "55119999..." },
+            "last_status_at": "2026-03-28T10:00:00Z",
+            "last_seen_at": "2026-03-28T10:00:00Z",
+            "created_at": "2026-03-28T09:00:00Z",
+            "updated_at": "2026-03-28T10:00:00Z"
+        }
+    ],
+    "meta": { "current_page": 1, "per_page": 15, "total": 3 }
 }
 ```
 
@@ -1005,20 +1005,20 @@ Cria uma nova instancia. Realiza chamamada ao gateway (que cria no provedor) e p
 
 ```json
 {
-  "name": "Atendimento Suporte",
-  "system_name": "suporte-01",
-  "config": {
-    "auto_reply": true,
-    "department_id": "0191xxx-..."
-  }
+    "name": "Atendimento Suporte",
+    "system_name": "suporte-01",
+    "config": {
+        "auto_reply": true,
+        "department_id": "0191xxx-..."
+    }
 }
 ```
 
-| Campo | Tipo | Obrigatorio | Descricao |
-|-------|------|-------------|-----------|
-| `name` | string | Sim | Nome da instancia (max 100 chars) |
-| `system_name` | string | Nao | Nome interno/sistema (max 100 chars) |
-| `config` | object | Nao | Pares chave-valor de configuracao |
+| Campo         | Tipo   | Obrigatorio | Descricao                            |
+| ------------- | ------ | ----------- | ------------------------------------ |
+| `name`        | string | Sim         | Nome da instancia (max 100 chars)    |
+| `system_name` | string | Nao         | Nome interno/sistema (max 100 chars) |
+| `config`      | object | Nao         | Pares chave-valor de configuracao    |
 
 **Resposta 201:** `PlatformUazapiInstanceResource`
 
@@ -1054,14 +1054,14 @@ Sincroniza o status da instancia com o provedor.
 
 ```json
 {
-  "data": {
-    "instance": {
-      "status": "connected",
-      "owner": "5511999998888"
+    "data": {
+        "instance": {
+            "status": "connected",
+            "owner": "5511999998888"
+        },
+        "connected": true
     },
-    "connected": true
-  },
-  "meta": { "synced_at": "2026-03-28T10:00:00Z" }
+    "meta": { "synced_at": "2026-03-28T10:00:00Z" }
 }
 ```
 
@@ -1081,21 +1081,23 @@ Inicia o processo de conexao (QR Code ou Pair Code).
 
 ```json
 {
-  "mode": "qr"
-}
-```
-ou
-```json
-{
-  "mode": "pair",
-  "phone": "5511999998888"
+    "mode": "qr"
 }
 ```
 
-| Campo | Tipo | Obrigatorio | Descricao |
-|-------|------|-------------|-----------|
-| `mode` | string | Nao (padrao: `qr`) | `qr` ou `pair` |
-| `phone` | string | Sim se mode=pair | 10-15 digitos |
+ou
+
+```json
+{
+    "mode": "pair",
+    "phone": "5511999998888"
+}
+```
+
+| Campo   | Tipo   | Obrigatorio        | Descricao      |
+| ------- | ------ | ------------------ | -------------- |
+| `mode`  | string | Nao (padrao: `qr`) | `qr` ou `pair` |
+| `phone` | string | Sim se mode=pair   | 10-15 digitos  |
 
 **Regex do phone:** `/^\d{10,15}$/`
 
@@ -1148,7 +1150,7 @@ Atualiza o nome amigavel da instancia.
 
 ```json
 {
-  "name": "Novo Nome da Instancia"
+    "name": "Novo Nome da Instancia"
 }
 ```
 
@@ -1168,10 +1170,10 @@ Atualiza campos de configuracao JSONB (`config`).
 
 ```json
 {
-  "config": {
-    "auto_reply": false,
-    "greeting_message": "Ola! Como podemos ajudar?"
-  }
+    "config": {
+        "auto_reply": false,
+        "greeting_message": "Ola! Como podemos ajudar?"
+    }
 }
 ```
 
@@ -1193,19 +1195,23 @@ Altera a foto de perfil da instancia.
 
 ```json
 {
-  "image": "https://example.com/avatar.png"
+    "image": "https://example.com/avatar.png"
 }
 ```
+
 ou
+
 ```json
 {
-  "image": "data:image/png;base64,iVBORw0KGgo..."
+    "image": "data:image/png;base64,iVBORw0KGgo..."
 }
 ```
+
 ou
+
 ```json
 {
-  "image": "remove"
+    "image": "remove"
 }
 ```
 
@@ -1236,13 +1242,15 @@ Define a presenca global da instancia (available/unavailable).
 
 ```json
 {
-  "presence": "available"
+    "presence": "available"
 }
 ```
+
 ou
+
 ```json
 {
-  "presence": "unavailable"
+    "presence": "unavailable"
 }
 ```
 
@@ -1285,32 +1293,32 @@ Envia mensagem de texto.
 
 ```json
 {
-  "number": "5511988887777",
-  "text": "Ola! Como podemos ajudar?",
-  "linkPreview": true,
-  "linkPreviewTitle": "Site",
-  "replyid": "msg_abc123",
-  "mentions": "5511999999999"
+    "number": "5511988887777",
+    "text": "Ola! Como podemos ajudar?",
+    "linkPreview": true,
+    "linkPreviewTitle": "Site",
+    "replyid": "msg_abc123",
+    "mentions": "5511999999999"
 }
 ```
 
-| Campo | Tipo | Obrigatorio | Descricao |
-|-------|------|-------------|-----------|
-| `number` | string | Sim | Numero do destinatario |
-| `text` | string | Sim | Conteudo da mensagem |
-| `linkPreview` | boolean | Nao | Habilitar preview de link |
-| `replyid` | string | Nao | ID da mensagem para responder |
-| `mentions` | string | Nao | Numeros mencionados |
+| Campo         | Tipo    | Obrigatorio | Descricao                     |
+| ------------- | ------- | ----------- | ----------------------------- |
+| `number`      | string  | Sim         | Numero do destinatario        |
+| `text`        | string  | Sim         | Conteudo da mensagem          |
+| `linkPreview` | boolean | Nao         | Habilitar preview de link     |
+| `replyid`     | string  | Nao         | ID da mensagem para responder |
+| `mentions`    | string  | Nao         | Numeros mencionados           |
 
 **Resposta 200:**
 
 ```json
 {
-  "data": {
-    "messageId": "msg_abc123",
-    "success": true
-  },
-  "meta": { "sent_at": "2026-03-28T10:00:00Z" }
+    "data": {
+        "messageId": "msg_abc123",
+        "success": true
+    },
+    "meta": { "sent_at": "2026-03-28T10:00:00Z" }
 }
 ```
 
@@ -1326,21 +1334,21 @@ Envia arquivo ou midia.
 
 ```json
 {
-  "number": "5511988887777",
-  "url": "https://example.com/documento.pdf",
-  "caption": "Segue o documento solicitado",
-  "fileName": "documento.pdf",
-  "mimeType": "application/pdf"
+    "number": "5511988887777",
+    "url": "https://example.com/documento.pdf",
+    "caption": "Segue o documento solicitado",
+    "fileName": "documento.pdf",
+    "mimeType": "application/pdf"
 }
 ```
 
-| Campo | Tipo | Obrigatorio | Descricao |
-|-------|------|-------------|-----------|
-| `number` | string | Sim | Numero do destinatario |
-| `url` | URL | Sim | URL do arquivo (HTTP/HTTPS) |
-| `caption` | string | Nao | Texto junto a midia |
-| `fileName` | string | Nao | Nome do arquivo |
-| `mimeType` | string | Nao | Tipo MIME do arquivo |
+| Campo      | Tipo   | Obrigatorio | Descricao                   |
+| ---------- | ------ | ----------- | --------------------------- |
+| `number`   | string | Sim         | Numero do destinatario      |
+| `url`      | URL    | Sim         | URL do arquivo (HTTP/HTTPS) |
+| `caption`  | string | Nao         | Texto junto a midia         |
+| `fileName` | string | Nao         | Nome do arquivo             |
+| `mimeType` | string | Nao         | Tipo MIME do arquivo        |
 
 **Normalizacoes do Gateway:**
 
@@ -1353,10 +1361,10 @@ Envia arquivo ou midia.
 
 ```json
 {
-  "data": {
-    "messageId": "msg_def456",
-    "success": true
-  }
+    "data": {
+        "messageId": "msg_def456",
+        "success": true
+    }
 }
 ```
 
@@ -1366,33 +1374,33 @@ Envia arquivo ou midia.
 
 Estes endpoints sao expostos pelo NestJS Gateway e chamados pela API Laravel. Nao sao acessados diretamente pelo frontend.
 
-| Metodo | Path | Descricao |
-|--------|------|-----------|
-| POST | `/uazapi/instances` | Inicializar instancia no provedor |
-| GET | `/uazapi/instances` | Listar instancias no provedor |
-| POST | `/uazapi/instances/{token}/connect` | Conectar instancia |
-| POST | `/uazapi/instances/{token}/disconnect` | Desconectar instancia |
-| GET | `/uazapi/instances/{token}/status` | Consultar status |
-| POST | `/uazapi/instances/{token}/webhook` | Configurar webhook |
-| POST | `/uazapi/instances/{token}/delete` | Remover instancia |
-| POST | `/uazapi/instances/{token}/profile-image` | Alterar foto |
-| POST | `/uazapi/instances/{token}/presence` | Definir presenca global |
-| POST | `/send/text` | Enviar texto (token via header) |
-| POST | `/send/file` | Enviar arquivo (token via header) |
-| POST | `/send/media` | Enviar midia (alias) |
-| POST | `/send/contact` | Enviar contato |
-| POST | `/send/location` | Enviar localizacao |
-| POST | `/send/template` | Enviar template |
-| POST | `/message/presence` | Presenca em conversa |
-| POST | `/message/react` | Reagir |
-| POST | `/message/edit` | Editar |
-| POST | `/message/delete` | Apagar |
-| POST | `/message/download` | Baixar midia |
-| POST | `/chat/read` | Marcar como lido |
-| GET | `/contacts` | Listar contatos |
-| POST | `/contacts/list` | Sincronizar batch |
-| POST | `/contact/add` | Adicionar |
-| POST | `/contact/remove` | Remover |
+| Metodo | Path                                      | Descricao                         |
+| ------ | ----------------------------------------- | --------------------------------- |
+| POST   | `/uazapi/instances`                       | Inicializar instancia no provedor |
+| GET    | `/uazapi/instances`                       | Listar instancias no provedor     |
+| POST   | `/uazapi/instances/{token}/connect`       | Conectar instancia                |
+| POST   | `/uazapi/instances/{token}/disconnect`    | Desconectar instancia             |
+| GET    | `/uazapi/instances/{token}/status`        | Consultar status                  |
+| POST   | `/uazapi/instances/{token}/webhook`       | Configurar webhook                |
+| POST   | `/uazapi/instances/{token}/delete`        | Remover instancia                 |
+| POST   | `/uazapi/instances/{token}/profile-image` | Alterar foto                      |
+| POST   | `/uazapi/instances/{token}/presence`      | Definir presenca global           |
+| POST   | `/send/text`                              | Enviar texto (token via header)   |
+| POST   | `/send/file`                              | Enviar arquivo (token via header) |
+| POST   | `/send/media`                             | Enviar midia (alias)              |
+| POST   | `/send/contact`                           | Enviar contato                    |
+| POST   | `/send/location`                          | Enviar localizacao                |
+| POST   | `/send/template`                          | Enviar template                   |
+| POST   | `/message/presence`                       | Presenca em conversa              |
+| POST   | `/message/react`                          | Reagir                            |
+| POST   | `/message/edit`                           | Editar                            |
+| POST   | `/message/delete`                         | Apagar                            |
+| POST   | `/message/download`                       | Baixar midia                      |
+| POST   | `/chat/read`                              | Marcar como lido                  |
+| GET    | `/contacts`                               | Listar contatos                   |
+| POST   | `/contacts/list`                          | Sincronizar batch                 |
+| POST   | `/contact/add`                            | Adicionar                         |
+| POST   | `/contact/remove`                         | Remover                           |
 
 ---
 
@@ -1414,26 +1422,26 @@ Content-Type: application/json
 
 ```json
 {
-  "EventType": "messages",
-  "message": {
-    "id": "msg_xxx",
-    "type": "text",
-    "from": "5511988887777",
-    "to": "5511999998888",
-    "body": "Ola, preciso de ajuda",
-    "timestamp": 1711612800,
-    "fromMe": false,
-    "content": {
-      "text": "Ola, preciso de ajuda"
-    }
-  },
-  "chat": {
-    "id": "5511988887777",
-    "name": "Cliente Exemplo"
-  },
-  "instance": { "name": "Vendas Principal" },
-  "owner": "5511999998888",
-  "BaseUrl": "https://free.uazapi.com"
+    "EventType": "messages",
+    "message": {
+        "id": "msg_xxx",
+        "type": "text",
+        "from": "5511988887777",
+        "to": "5511999998888",
+        "body": "Ola, preciso de ajuda",
+        "timestamp": 1711612800,
+        "fromMe": false,
+        "content": {
+            "text": "Ola, preciso de ajuda"
+        }
+    },
+    "chat": {
+        "id": "5511988887777",
+        "name": "Cliente Exemplo"
+    },
+    "instance": { "name": "Vendas Principal" },
+    "owner": "5511999998888",
+    "BaseUrl": "https://free.uazapi.com"
 }
 ```
 
@@ -1441,10 +1449,10 @@ Content-Type: application/json
 
 ```json
 {
-  "EventType": "connection",
-  "instance": { "name": "Vendas Principal" },
-  "instanceName": "Vendas Principal",
-  "owner": "5511999998888"
+    "EventType": "connection",
+    "instance": { "name": "Vendas Principal" },
+    "instanceName": "Vendas Principal",
+    "owner": "5511999998888"
 }
 ```
 
@@ -1499,8 +1507,8 @@ Disparado quando o status de uma mensagem e alterada (enviada -> entregue -> lid
 
 ```typescript
 {
-  eventType: 'messages_update';
-  // ... mesmo contrato
+    eventType: 'messages_update';
+    // ... mesmo contrato
 }
 ```
 
@@ -1510,12 +1518,12 @@ Disparado quando o status da conexao muda.
 
 ```typescript
 {
-  eventType: 'connection';
-  connection: {
-    status: string;
-    connected: boolean;
-  };
-  // ... resto do contrato
+    eventType: 'connection';
+    connection: {
+        status: string;
+        connected: boolean;
+    }
+    // ... resto do contrato
 }
 ```
 
@@ -1523,32 +1531,32 @@ Disparado quando o status da conexao muda.
 
 O Chat Module utiliza o Gateway WebSocket para transmitir eventos em tempo real.
 
-| Evento | Descricao | Payload |
-|--------|-----------|---------|
-| `chat.message.new` | Nova mensagem recebida | `{ ticket_id, message }` |
-| `chat.message.update` | Status de mensagem alterado | `{ message_id, status }` |
-| `chat.ticket.update` | Ticket atualizado | `{ ticket_id, changes }` |
-| `chat.instance.status` | Status de instancia mudou | `{ instance_id, status }` |
-| `chat.typing` | Indicacao de digitacao | `{ ticket_id, user_id, state }` |
+| Evento                 | Descricao                   | Payload                         |
+| ---------------------- | --------------------------- | ------------------------------- |
+| `chat.message.new`     | Nova mensagem recebida      | `{ ticket_id, message }`        |
+| `chat.message.update`  | Status de mensagem alterado | `{ message_id, status }`        |
+| `chat.ticket.update`   | Ticket atualizado           | `{ ticket_id, changes }`        |
+| `chat.instance.status` | Status de instancia mudou   | `{ instance_id, status }`       |
+| `chat.typing`          | Indicacao de digitacao      | `{ ticket_id, user_id, state }` |
 
 ### 7.3 Eventos de Auditoria (Backend Laravel)
 
-| Evento | Trigger | Dados |
-|--------|---------|-------|
-| `UazapiInstanceCreated` | store() | instance_id, tenant_id, name |
-| `UazapiInstanceConnected` | connect() | instance_id, mode, status |
-| `UazapiInstanceDisconnected` | disconnect() | instance_id |
-| `UazapiInstanceDeleted` | destroy() | instance_id |
-| `UazapiMessageSent` | sendText/sendFile | instance_id, to, type |
+| Evento                       | Trigger           | Dados                        |
+| ---------------------------- | ----------------- | ---------------------------- |
+| `UazapiInstanceCreated`      | store()           | instance_id, tenant_id, name |
+| `UazapiInstanceConnected`    | connect()         | instance_id, mode, status    |
+| `UazapiInstanceDisconnected` | disconnect()      | instance_id                  |
+| `UazapiInstanceDeleted`      | destroy()         | instance_id                  |
+| `UazapiMessageSent`          | sendText/sendFile | instance_id, to, type        |
 
 ### 7.4 Jobs em Fila (BullMQ)
 
-| Job | Fila | Trigger | Descricao |
-|-----|------|---------|-----------|
-| `ChatWebhookIngressJob` | `chat:webhook` | webhook received | Processa mensagem, cria ticket, notifica |
-| `ChatMediaDownloadJob` | `chat:media` | message with media | Baixa midia de provedores |
-| `ChatSentimentAnalysisJob` | `sentiment` | ticket closed | Analisa sentimento da conversa |
-| `ProcessCampaignJob` | `chat:campaign` | campaign scheduled | Dispara mensagens de campanha |
+| Job                        | Fila            | Trigger            | Descricao                                |
+| -------------------------- | --------------- | ------------------ | ---------------------------------------- |
+| `ChatWebhookIngressJob`    | `chat:webhook`  | webhook received   | Processa mensagem, cria ticket, notifica |
+| `ChatMediaDownloadJob`     | `chat:media`    | message with media | Baixa midia de provedores                |
+| `ChatSentimentAnalysisJob` | `sentiment`     | ticket closed      | Analisa sentimento da conversa           |
+| `ProcessCampaignJob`       | `chat:campaign` | campaign scheduled | Dispara mensagens de campanha            |
 
 ---
 
@@ -1620,16 +1628,16 @@ final readonly class PlatformUazapiInstanceDTO
 
 #### FormRequests
 
-| Request | Campos Validados |
-|---------|-----------------|
-| `PlatformUazapiInstanceRequest` | `name` (required, string, max:100), `system_name` (nullable, max:100), `config` (nullable, array) |
-| `PlatformUazapiConnectRequest` | `mode` (nullable, in:qr,pair), `phone` (nullable, regex `/^\d{10,15}$/`) |
-| `PlatformUazapiSendTextRequest` | `number` (required, regex `/^[0-9@.\w-]{6,}$/`), `text` (required, string), `replyid`, `linkPreview*`, `mentions` |
-| `PlatformUazapiSendFileRequest` | `number` (required, regex), `url` (required, url), `caption` (nullable) |
-| `PlatformUazapiInstanceUpdateNameRequest` | `name` (required, string, max:100) |
-| `PlatformUazapiInstanceUpdateAdminFieldsRequest` | `config` (required, array) |
-| `PlatformUazapiInstanceProfileImageRequest` | `image` (required, string) |
-| `PlatformUazapiInstancePresenceRequest` | `presence` (required, in:available,unavailable) |
+| Request                                          | Campos Validados                                                                                                  |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `PlatformUazapiInstanceRequest`                  | `name` (required, string, max:100), `system_name` (nullable, max:100), `config` (nullable, array)                 |
+| `PlatformUazapiConnectRequest`                   | `mode` (nullable, in:qr,pair), `phone` (nullable, regex `/^\d{10,15}$/`)                                          |
+| `PlatformUazapiSendTextRequest`                  | `number` (required, regex `/^[0-9@.\w-]{6,}$/`), `text` (required, string), `replyid`, `linkPreview*`, `mentions` |
+| `PlatformUazapiSendFileRequest`                  | `number` (required, regex), `url` (required, url), `caption` (nullable)                                           |
+| `PlatformUazapiInstanceUpdateNameRequest`        | `name` (required, string, max:100)                                                                                |
+| `PlatformUazapiInstanceUpdateAdminFieldsRequest` | `config` (required, array)                                                                                        |
+| `PlatformUazapiInstanceProfileImageRequest`      | `image` (required, string)                                                                                        |
+| `PlatformUazapiInstancePresenceRequest`          | `presence` (required, in:available,unavailable)                                                                   |
 
 **Authorize() em SendTextRequest e SendFileRequest:**
 
@@ -1652,22 +1660,22 @@ public function authorize(): bool
 
 ```typescript
 export class SendTextDto {
-  @IsString()
-  number!: string;
+    @IsString()
+    number!: string;
 
-  @IsString()
-  text!: string;
+    @IsString()
+    text!: string;
 
-  @IsOptional()
-  @IsString()
-  quoted?: string;
+    @IsOptional()
+    @IsString()
+    quoted?: string;
 
-  @IsOptional()
-  linkPreview?: boolean;
+    @IsOptional()
+    linkPreview?: boolean;
 
-  @IsOptional()
-  @IsString()
-  replyid?: string;
+    @IsOptional()
+    @IsString()
+    replyid?: string;
 }
 ```
 
@@ -1675,36 +1683,36 @@ export class SendTextDto {
 
 ```typescript
 export class SendFileDto {
-  @IsString()
-  number!: string;
+    @IsString()
+    number!: string;
 
-  @IsOptional()
-  @IsString()
-  url?: string;
+    @IsOptional()
+    @IsString()
+    url?: string;
 
-  @IsOptional()
-  @IsString()
-  file?: string;  // alias para url
+    @IsOptional()
+    @IsString()
+    file?: string; // alias para url
 
-  @IsOptional()
-  @IsString()
-  caption?: string;
+    @IsOptional()
+    @IsString()
+    caption?: string;
 
-  @IsOptional()
-  @IsString()
-  fileName?: string;
+    @IsOptional()
+    @IsString()
+    fileName?: string;
 
-  @IsOptional()
-  @IsString()
-  docName?: string;  // alias para fileName
+    @IsOptional()
+    @IsString()
+    docName?: string; // alias para fileName
 
-  @IsOptional()
-  @IsString()
-  mimeType?: string;
+    @IsOptional()
+    @IsString()
+    mimeType?: string;
 
-  @IsOptional()
-  @IsString()
-  type?: string;
+    @IsOptional()
+    @IsString()
+    type?: string;
 }
 ```
 
@@ -1712,13 +1720,13 @@ export class SendFileDto {
 
 ```typescript
 export class ConnectInstanceDto {
-  @IsOptional()
-  @IsString()
-  mode?: 'qr' | 'pair';
+    @IsOptional()
+    @IsString()
+    mode?: 'qr' | 'pair';
 
-  @IsOptional()
-  @IsString()
-  phone?: string;
+    @IsOptional()
+    @IsString()
+    phone?: string;
 }
 ```
 
@@ -1726,8 +1734,8 @@ export class ConnectInstanceDto {
 
 ```typescript
 export class UpdateProfileImageDto {
-  @IsString()
-  image!: string;  // URL, base64, ou 'remove'
+    @IsString()
+    image!: string; // URL, base64, ou 'remove'
 }
 ```
 
@@ -1735,8 +1743,8 @@ export class UpdateProfileImageDto {
 
 ```typescript
 export class UpdatePresenceDto {
-  @IsString()
-  presence!: 'available' | 'unavailable';
+    @IsString()
+    presence!: 'available' | 'unavailable';
 }
 ```
 
@@ -1771,20 +1779,20 @@ final class PlatformUazapiInstanceResource extends BaseJsonResource
 
 **Contrato interno do Resource:**
 
-| Campo | Tipo | Protegido |
-|-------|------|-----------|
-| `id` | uuid | Nao |
-| `tenant_id` | uuid | Nao (para referencia) |
-| `name` | string | Nao |
-| `system_name` | string? | Nao |
-| `has_token` | bool | Computado |
-| `token_preview` | string? | **SIM** — mascara |
-| `status` | enum | Nao |
-| `webhook_url` | string? | Nao |
-| `config` | object | Nao |
-| `metadata` | object | Nao (debugging) |
-| `last_status_at` | ISO8601 | Nao |
-| `created_at` | ISO8601 | Nao |
+| Campo            | Tipo    | Protegido             |
+| ---------------- | ------- | --------------------- |
+| `id`             | uuid    | Nao                   |
+| `tenant_id`      | uuid    | Nao (para referencia) |
+| `name`           | string  | Nao                   |
+| `system_name`    | string? | Nao                   |
+| `has_token`      | bool    | Computado             |
+| `token_preview`  | string? | **SIM** — mascara     |
+| `status`         | enum    | Nao                   |
+| `webhook_url`    | string? | Nao                   |
+| `config`         | object  | Nao                   |
+| `metadata`       | object  | Nao (debugging)       |
+| `last_status_at` | ISO8601 | Nao                   |
+| `created_at`     | ISO8601 | Nao                   |
 
 ---
 
@@ -1890,35 +1898,35 @@ final class PlatformUazapiInstanceResource extends BaseJsonResource
 
 ### 11.1 Dependencias Externas
 
-| Dependencia | Versao | Uso |
-|-------------|--------|-----|
-| `uazapi.com` API | - | Provedor WhatsApp |
-| `axios` | ^1.x | Cliente HTTP no Gateway |
-| `class-validator` | ^0.14 | Validacao de DTOs no Gateway |
-| `socket.io` | ^4.x | Realtime no Gateway |
-| Laravel Sanctum | ^4.x | Autenticacao na API |
-| Spatie Permissions | ^5.x | Permissoes (whatsapp.manage) |
+| Dependencia        | Versao | Uso                          |
+| ------------------ | ------ | ---------------------------- |
+| `uazapi.com` API   | -      | Provedor WhatsApp            |
+| `axios`            | ^1.x   | Cliente HTTP no Gateway      |
+| `class-validator`  | ^0.14  | Validacao de DTOs no Gateway |
+| `socket.io`        | ^4.x   | Realtime no Gateway          |
+| Laravel Sanctum    | ^4.x   | Autenticacao na API          |
+| Spatie Permissions | ^5.x   | Permissoes (whatsapp.manage) |
 
 ### 11.2 Arquivos que Devem Existir (Implementacao Futura)
 
 Os seguintes arquivos ainda nao existem no codebase mas sao referenciados neste PRD:
 
-| Arquivo | Motivo |
-|---------|--------|
-| `database/migrations/YYYY_*_create_platform_uazapi_instances_table.php` | Migration de tabela |
-| `database/factories/PlatformUazapiInstanceFactory.php` | Factory para testes |
-| `gateway/src/domains/chat/contracts/provider.interface.ts` | Interface WhatsAppProvider |
-| `gateway/src/domains/chat/providers/uazapi/uazapi.dto.ts` (ja existe) | DTOs SendText, SendFile, ConnectInstance |
-| `gateway/src/domains/chat/controllers/uazapi-contacts.controller.ts` | Endpoints de contatos |
+| Arquivo                                                                 | Motivo                                   |
+| ----------------------------------------------------------------------- | ---------------------------------------- |
+| `database/migrations/YYYY_*_create_platform_uazapi_instances_table.php` | Migration de tabela                      |
+| `database/factories/PlatformUazapiInstanceFactory.php`                  | Factory para testes                      |
+| `gateway/src/domains/chat/contracts/provider.interface.ts`              | Interface WhatsAppProvider               |
+| `gateway/src/domains/chat/providers/uazapi/uazapi.dto.ts` (ja existe)   | DTOs SendText, SendFile, ConnectInstance |
+| `gateway/src/domains/chat/controllers/uazapi-contacts.controller.ts`    | Endpoints de contatos                    |
 
 ### 11.3 Divergencias de Implementacao
 
-| Item | Status | Nota |
-|------|--------|------|
-| Migration de tabela | **Pendente** | Deve ser criada conforme schema neste PRD |
-| Factory de testes | **Pendente** | Necessaria para Pest |
-| Interface `WhatsAppProvider` | **Pendente** | Depende do modulo Chat |
-| Controller de contatos | **Pendente** | Referenciado no scope |
+| Item                         | Status       | Nota                                      |
+| ---------------------------- | ------------ | ----------------------------------------- |
+| Migration de tabela          | **Pendente** | Deve ser criada conforme schema neste PRD |
+| Factory de testes            | **Pendente** | Necessaria para Pest                      |
+| Interface `WhatsAppProvider` | **Pendente** | Depende do modulo Chat                    |
+| Controller de contatos       | **Pendente** | Referenciado no scope                     |
 
 ### 11.4 Extensibilidade
 
@@ -1926,4 +1934,4 @@ O modulo UAZAPI foi projetado para suportar outros provedores WhatsApp. O padrao
 
 ---
 
-*Documento gerado em 2026-03-28. Última atualizacao: versao inicial 1.0.*
+_Documento gerado em 2026-03-28. Última atualizacao: versao inicial 1.0._

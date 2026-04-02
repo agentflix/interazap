@@ -1,5 +1,5 @@
 /**
- * AgentFlix UI Kit — Barrel exports for all 112 shared components.
+ * InteraZap UI Kit — Barrel exports for all 112 shared components.
  *
  * Import from this file:
  * ```ts

@@ -58,7 +58,7 @@ const buildConfigService = (
   const defaults: Record<string, unknown> = {
     UAZAPI_BASE_URL: 'https://free.uazapi.com',
     UAZAPI_ADMIN_TOKEN: 'admin-token',
-    UAZAPI_WEBHOOK_URL: 'https://hooks.agentflix.local',
+    UAZAPI_WEBHOOK_URL: 'https://hooks.interazap.local',
     UAZAPI_WEBHOOK_EVENTS: 'connection,messages',
     UAZAPI_WEBHOOK_EXCLUDE_MESSAGES: 'wasSentByApi',
     UAZAPI_WEBHOOK_RETRIES: '2',
@@ -100,7 +100,7 @@ describe('UazapiClient', () => {
     expect(response).toMatchObject({
       token: 'abc-token',
       webhook: {
-        url: 'https://hooks.agentflix.local/webhooks/uazapi/instances/abc-token',
+        url: 'https://hooks.interazap.local/webhooks/uazapi/instances/abc-token',
       },
     });
 
@@ -115,7 +115,7 @@ describe('UazapiClient', () => {
       throw new Error('Webhook payload must be an object');
     }
     expect(getString(payload, 'url')).toBe(
-      'https://hooks.agentflix.local/webhooks/uazapi/instances/abc-token',
+      'https://hooks.interazap.local/webhooks/uazapi/instances/abc-token',
     );
 
     const configRecord = isRecord(config) ? config : null;

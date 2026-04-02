@@ -25,7 +25,7 @@ export class DatabaseService implements OnModuleDestroy {
   constructor(private readonly configService: ConfigService) {
     const connectionString =
       this.configService.get<string>('DATABASE_URL') ??
-      'postgres://agentflix:secret@localhost:5432/agentflix';
+      'postgres://interazap:secret@localhost:5432/interazap';
 
     this.pool = this.createPool(connectionString);
 

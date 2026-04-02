@@ -1,5 +1,5 @@
 # =====================================================
-# AgentFlix - Template de Variáveis Seguras (Vault)
+# InteraZap - Template de Variáveis Seguras (Vault)
 # =====================================================
 # COPIAR PARA vault.yml E PREENCHER VALORES REAIS
 # Autor: DevOps Agentflix
@@ -16,7 +16,7 @@
 # USUÁRIOS
 # =====================================================
 
-# Senha do usuário agentflix (hash SHA512)
+# Senha do usuário interazap (hash SHA512)
 agentflix_password: "SENHA_STRONG_AQUI"
 
 # =====================================================

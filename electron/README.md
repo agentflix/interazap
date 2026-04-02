@@ -1,20 +1,23 @@
-# AgentFlix Desktop
+# InteraZap Desktop
 
 Multi-OS Desktop Application built with Electron + Angular.
 
 ## Quick Start
 
 ### Prerequisites
+
 - Node.js 20+
 - npm 10+
 
 ### Installation
+
 ```bash
 cd electron
 npm install
 ```
 
 ### Development
+
 ```bash
 # Terminal 1: Start Angular dev server
 cd ../app

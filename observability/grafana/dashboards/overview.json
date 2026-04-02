@@ -202,12 +202,12 @@
     "refresh": "10s",
     "schemaVersion": 38,
     "style": "dark",
-    "tags": ["agentflix", "overview"],
+    "tags": ["interazap", "overview"],
     "templating": { "list": [] },
     "time": { "from": "now-1h", "to": "now" },
     "timepicker": {},
     "timezone": "browser",
-    "title": "AgentFlix Overview",
-    "uid": "agentflix-overview",
+    "title": "InteraZap Overview",
+    "uid": "interazap-overview",
     "version": 1
 }

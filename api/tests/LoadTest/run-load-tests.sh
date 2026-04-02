@@ -133,7 +133,7 @@ print_summary() {
 # Main execution
 main() {
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  AgentFlix Load Test Suite${NC}"
+    echo -e "${BLUE}  InteraZap Load Test Suite${NC}"
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     echo "Configuration:"

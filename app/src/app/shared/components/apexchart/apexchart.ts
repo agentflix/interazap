@@ -20,7 +20,7 @@ type ApexExtraOptions = Record<string, unknown>;
 
 /**
  * AfApexchartComponent — Lightweight wrapper around the ApexCharts library
- * that applies AgentFlix design tokens and reacts to dark mode changes.
+ * that applies InteraZap design tokens and reacts to dark mode changes.
  *
  * > Note: Requires `apexcharts` to be installed (`npm install apexcharts`).
  * > This component uses the vanilla JS API directly to avoid the need for
@@ -58,7 +58,7 @@ export class AfApexchartComponent implements OnDestroy {
   /** Optional chart title */
   readonly chartTitle = input<string>();
 
-  /** Custom color palette (defaults to AgentFlix tokens) */
+  /** Custom color palette (defaults to InteraZap tokens) */
   readonly colors = input<string[]>([
     '#6366f1', // accent-500
     '#8b5cf6', // violet

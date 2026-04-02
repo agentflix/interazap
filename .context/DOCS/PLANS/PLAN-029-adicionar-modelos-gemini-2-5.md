@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Adicionar suporte completo aos modelos **Gemini 2.5 Pro**, **Gemini 2.5 Flash**, **Gemini 3.1** e **Gemini 3.1 Flash** (Google) no sistema AgentFlix, cobrindo as três camadas: Backend (pricing/seeder), Gateway (provider adapter) e Frontend (seleção de modelo). O plano também passa a incluir a validação dos identificadores oficiais dos modelos no SDK/endpoint da Google antes da implementação final.
+Adicionar suporte completo aos modelos **Gemini 2.5 Pro**, **Gemini 2.5 Flash**, **Gemini 3.1** e **Gemini 3.1 Flash** (Google) no sistema InteraZap, cobrindo as três camadas: Backend (pricing/seeder), Gateway (provider adapter) e Frontend (seleção de modelo). O plano também passa a incluir a validação dos identificadores oficiais dos modelos no SDK/endpoint da Google antes da implementação final.
 
 ## Módulo relacionado
 
@@ -40,12 +40,12 @@ Adicionar suporte completo aos modelos **Gemini 2.5 Pro**, **Gemini 2.5 Flash**,
 
 ### Backend (Ai)
 
-| Arquivo                                                                                                                                    | Descrição                                                          |
-| ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| [api/src/Domain/Ai/Enums/AiProviderType.php](api/src/Domain/Ai/Enums/AiProviderType.php)                                                   | Enum já possui `GOOGLE = 'google'` com default `gemini-pro`        |
-| [api/src/Domain/Ai/Models/AiModelPricing.php](api/src/Domain/Ai/Models/AiModelPricing.php)                                                 | Model com `findByModel()`, `calculateTotalCost()`, schema flexível |
+| Arquivo                                                                                                                                    | Descrição                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| [api/src/Domain/Ai/Enums/AiProviderType.php](api/src/Domain/Ai/Enums/AiProviderType.php)                                                   | Enum já possui `GOOGLE = 'google'` com default `gemini-pro`          |
+| [api/src/Domain/Ai/Models/AiModelPricing.php](api/src/Domain/Ai/Models/AiModelPricing.php)                                                 | Model com `findByModel()`, `calculateTotalCost()`, schema flexível   |
 | [api/database/seeders/AiModelPricingSeeder.php](api/database/seeders/AiModelPricingSeeder.php)                                             | Já tem `gemini-1.5-pro`; precisa adicionar 2.5 Pro/Flash e 3.1/Flash |
-| [api/database/migrations/2026_01_01_000050_create_ai_core_tables.php](api/database/migrations/2026_01_01_000050_create_ai_core_tables.php) | Schema `ai_model_pricings` com unique(`provider`, `model_name`)    |
+| [api/database/migrations/2026_01_01_000050_create_ai_core_tables.php](api/database/migrations/2026_01_01_000050_create_ai_core_tables.php) | Schema `ai_model_pricings` com unique(`provider`, `model_name`)      |
 
 ### Gateway (NestJS)
 
@@ -110,12 +110,12 @@ Adicionar suporte completo aos modelos **Gemini 2.5 Pro**, **Gemini 2.5 Flash**,
 
 **Entregas:** 4 | **Tasks:** 6
 
-| Entrega | Descrição                                 | Tasks                       | Esforço | Status |
-| ------- | ----------------------------------------- | --------------------------- | ------- | ------ |
-| 1       | Backend: Migration + Seeder Gemini 2.5 e 3.1 | TASK-029.1.1             | XS      | todo   |
-| 2       | Gateway: Gemini Provider Adapter completo | TASK-029.2.1 — TASK-029.2.3 | M       | todo   |
-| 3       | Frontend: Opções de modelo Gemini no form | TASK-029.3.1                | S       | todo   |
-| 4       | Config .env + Testes unitários            | TASK-029.4.1                | S       | todo   |
+| Entrega | Descrição                                    | Tasks                       | Esforço | Status |
+| ------- | -------------------------------------------- | --------------------------- | ------- | ------ |
+| 1       | Backend: Migration + Seeder Gemini 2.5 e 3.1 | TASK-029.1.1                | XS      | todo   |
+| 2       | Gateway: Gemini Provider Adapter completo    | TASK-029.2.1 — TASK-029.2.3 | M       | todo   |
+| 3       | Frontend: Opções de modelo Gemini no form    | TASK-029.3.1                | S       | todo   |
+| 4       | Config .env + Testes unitários               | TASK-029.4.1                | S       | todo   |
 
 ---
 
@@ -123,10 +123,10 @@ Adicionar suporte completo aos modelos **Gemini 2.5 Pro**, **Gemini 2.5 Flash**,
 
 ### Backend (Laravel)
 
-| Arquivo              | Ação          | Caminho                                                                                   |
-| -------------------- | ------------- | ----------------------------------------------------------------------------------------- |
+| Arquivo                 | Ação          | Caminho                                                                                |
+| ----------------------- | ------------- | -------------------------------------------------------------------------------------- |
 | Migration Gemini models | **criar**     | `api/database/migrations/2026_03_31_000001_add_gemini_models_to_ai_model_pricings.php` |
-| AiModelPricingSeeder | **modificar** | `api/database/seeders/AiModelPricingSeeder.php`                                           |
+| AiModelPricingSeeder    | **modificar** | `api/database/seeders/AiModelPricingSeeder.php`                                        |
 
 ### Gateway (NestJS)
 
@@ -206,30 +206,30 @@ Adicionar suporte completo aos modelos **Gemini 2.5 Pro**, **Gemini 2.5 Flash**,
 
 ### Gemini 3.1
 
-| Propriedade          | Valor |
-| -------------------- | ----- |
-| `provider`           | `google` |
-| `model_name`         | `gemini-3.1` |
-| `display_name`       | `Gemini 3.1 (Avançado)` |
-| `input_cost_per_1m`  | `a validar com documentação oficial antes da migration final` |
-| `output_cost_per_1m` | `a validar com documentação oficial antes da migration final` |
-| `max_context_tokens` | `a validar com documentação oficial antes da migration final` |
-| `max_output_tokens`  | `a validar com documentação oficial antes da migration final` |
-| `is_active`          | `true` |
+| Propriedade          | Valor                                                                                              |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| `provider`           | `google`                                                                                           |
+| `model_name`         | `gemini-3.1`                                                                                       |
+| `display_name`       | `Gemini 3.1 (Avançado)`                                                                            |
+| `input_cost_per_1m`  | `a validar com documentação oficial antes da migration final`                                      |
+| `output_cost_per_1m` | `a validar com documentação oficial antes da migration final`                                      |
+| `max_context_tokens` | `a validar com documentação oficial antes da migration final`                                      |
+| `max_output_tokens`  | `a validar com documentação oficial antes da migration final`                                      |
+| `is_active`          | `true`                                                                                             |
 | `notes`              | `Modelo solicitado pelo produto; confirmar ID canônico e pricing no SDK Google antes de persistir` |
 
 ### Gemini 3.1 Flash
 
-| Propriedade          | Valor |
-| -------------------- | ----- |
-| `provider`           | `google` |
-| `model_name`         | `gemini-3.1-flash` |
-| `display_name`       | `Gemini 3.1 Flash (Rápido)` |
-| `input_cost_per_1m`  | `a validar com documentação oficial antes da migration final` |
-| `output_cost_per_1m` | `a validar com documentação oficial antes da migration final` |
-| `max_context_tokens` | `a validar com documentação oficial antes da migration final` |
-| `max_output_tokens`  | `a validar com documentação oficial antes da migration final` |
-| `is_active`          | `true` |
+| Propriedade          | Valor                                                                                              |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| `provider`           | `google`                                                                                           |
+| `model_name`         | `gemini-3.1-flash`                                                                                 |
+| `display_name`       | `Gemini 3.1 Flash (Rápido)`                                                                        |
+| `input_cost_per_1m`  | `a validar com documentação oficial antes da migration final`                                      |
+| `output_cost_per_1m` | `a validar com documentação oficial antes da migration final`                                      |
+| `max_context_tokens` | `a validar com documentação oficial antes da migration final`                                      |
+| `max_output_tokens`  | `a validar com documentação oficial antes da migration final`                                      |
+| `is_active`          | `true`                                                                                             |
 | `notes`              | `Modelo solicitado pelo produto; confirmar ID canônico e pricing no SDK Google antes de persistir` |
 
 ---
@@ -279,13 +279,13 @@ AIProvider (interface/port)
 
 ### Riscos
 
-| Risco                                                 | Probabilidade | Impacto | Mitigação                                                                  |
-| ----------------------------------------------------- | ------------- | ------- | -------------------------------------------------------------------------- |
-| Diferenças no formato de tools entre OpenAI e Gemini  | Alta          | Médio   | Translator deve normalizar function_declarations ↔ tools                   |
-| Rate limiting da API Google diferente do OpenAI       | Média         | Médio   | Circuit breaker + config de retry separado por provider                    |
-| Preços dos modelos podem mudar rapidamente            | Média         | Baixo   | Tabela `ai_model_pricings` é editável; migration usa valores de referência |
-| SDK `@google/generative-ai` pode ter breaking changes | Baixa         | Alto    | Pinnar versão exata no `package.json`                                      |
-| IDs oficiais de `Gemini 3.1` e `Gemini 3.1 Flash` podem diferir do nome solicitado | Alta | Alto | Validar nome canônico na documentação Google antes de concluir migration, se necessário manter `display_name` solicitado e `model_name` oficial |
+| Risco                                                                              | Probabilidade | Impacto | Mitigação                                                                                                                                       |
+| ---------------------------------------------------------------------------------- | ------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Diferenças no formato de tools entre OpenAI e Gemini                               | Alta          | Médio   | Translator deve normalizar function_declarations ↔ tools                                                                                        |
+| Rate limiting da API Google diferente do OpenAI                                    | Média         | Médio   | Circuit breaker + config de retry separado por provider                                                                                         |
+| Preços dos modelos podem mudar rapidamente                                         | Média         | Baixo   | Tabela `ai_model_pricings` é editável; migration usa valores de referência                                                                      |
+| SDK `@google/generative-ai` pode ter breaking changes                              | Baixa         | Alto    | Pinnar versão exata no `package.json`                                                                                                           |
+| IDs oficiais de `Gemini 3.1` e `Gemini 3.1 Flash` podem diferir do nome solicitado | Alta          | Alto    | Validar nome canônico na documentação Google antes de concluir migration, se necessário manter `display_name` solicitado e `model_name` oficial |
 
 ### Dependências
 

@@ -41,18 +41,18 @@ describe('AppTitleStrategy', () => {
     titleService = TestBed.inject(Title);
   });
 
-  it('should set "PageName - AgentFlix" when data.title is present', () => {
+  it('should set "PageName - InteraZap" when data.title is present', () => {
     const snapshot = createSnapshot('Dashboard');
     strategy.updateTitle(snapshot);
 
-    expect(titleService.getTitle()).toBe('Dashboard - AgentFlix');
+    expect(titleService.getTitle()).toBe('Dashboard - InteraZap');
   });
 
-  it('should set only "AgentFlix" when no title is defined', () => {
+  it('should set only "InteraZap" when no title is defined', () => {
     const snapshot = createSnapshot();
     strategy.updateTitle(snapshot);
 
-    expect(titleService.getTitle()).toBe('AgentFlix');
+    expect(titleService.getTitle()).toBe('InteraZap');
   });
 
   it('should work with different page titles', () => {
@@ -62,7 +62,7 @@ describe('AppTitleStrategy', () => {
       const snapshot = createSnapshot(title);
       strategy.updateTitle(snapshot);
 
-      expect(titleService.getTitle()).toBe(`${title} - AgentFlix`);
+      expect(titleService.getTitle()).toBe(`${title} - InteraZap`);
     }
   });
 });

@@ -9,7 +9,7 @@
 const CHAT_MUTED_STORAGE_KEY = 'chat:muted';
 
 /** Legacy storage keys from previous implementations (for migration) */
-const LEGACY_MUTED_STORAGE_KEYS = ['agentflix:chat:sound-muted'];
+const LEGACY_MUTED_STORAGE_KEYS = ['interazap:chat:sound-muted'];
 
 /** Global scope property name for cross-tab mute state synchronization */
 const GLOBAL_MUTED_FLAG = '__CHAT_MUTED__';

@@ -15,7 +15,7 @@ import { AfFormErrorComponent } from '../form-error/form-error';
 import { resolveInputContainerClass } from '../input-container.util';
 
 /**
- * Checkbox input component for AgentFlix UI Kit.
+ * Checkbox input component for InteraZap UI Kit.
  *
  * @description Styled checkbox with inline label and FormControl integration.
  * Uses a custom visual checkbox (hidden native input + styled div overlay) to

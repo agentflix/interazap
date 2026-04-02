@@ -7,12 +7,8 @@ import { resolveInputContainerClass } from '../input-container.util';
 import type { AfTextInputType, AfInputSize } from './text-input.model';
 export * from './text-input.model';
 
-
-
-
-
 /**
- * Text input component for AgentFlix UI Kit.
+ * Text input component for InteraZap UI Kit.
  *
  * @description Standardized text input with label, validation error, and E2E test support.
  * Works with Angular Reactive Forms via FormControl passed as input.

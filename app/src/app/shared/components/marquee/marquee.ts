@@ -6,7 +6,7 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
  * @example
  * ```html
  * <af-marquee speed="slow">
- *   <span>Breaking news: AgentFlix v2.0 launched!</span>
+ *   <span>Breaking news: InteraZap v2.0 launched!</span>
  * </af-marquee>
  * ```
  */

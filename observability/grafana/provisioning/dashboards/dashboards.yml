@@ -1,10 +1,10 @@
 apiVersion: 1
 
 providers:
-    - name: 'AgentFlix'
+    - name: 'InteraZap'
       orgId: 1
-      folder: 'AgentFlix'
-      folderUid: 'agentflix'
+      folder: 'InteraZap'
+      folderUid: 'interazap'
       type: file
       disableDeletion: false
       updateIntervalSeconds: 30

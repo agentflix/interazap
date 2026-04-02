@@ -17,19 +17,19 @@ N/A (feature独立)
 ### Incluído
 
 - Substituir TODOS os 6 planos antigos por 3 novos: Starter, Professional, Business
-- Tenant padrão Super Admin AgentFlix deve ficar no plano Business
+- Tenant padrão Super Admin InteraZap deve ficar no plano Business
 - Adição de campo `reports_mode` na tabela `platform_plans` (BASIC, ADVANCED, FULL)
 - Atualização do `PlatformPlanEnforcementService` com método `canViewReport()`
 - Atualização do `ReportsPolicy` para consultar modo do plano via `PlatformPlanEnforcementService`
 - Atualização do `RolePermissionSeeder` com permissões `reports.*` por plano
 - Mapeamento de permissões de relatórios:
 
-| Plano | Relatórios |
-|-------|-----------|
-| Starter | `reports.chat.volume` |
-| Professional | `reports.chat.*` (exceto admin), `reports.crm.*`, `reports.ai.autopilot_performance`, `reports.ai.sentiment` |
-| Business | `reports.*` (todos) + `reports.export` |
-| Admin (qualquer plano) | `reports.ai.usage_cost`, `reports.billing.revenue` |
+| Plano                  | Relatórios                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Starter                | `reports.chat.volume`                                                                                        |
+| Professional           | `reports.chat.*` (exceto admin), `reports.crm.*`, `reports.ai.autopilot_performance`, `reports.ai.sentiment` |
+| Business               | `reports.*` (todos) + `reports.export`                                                                       |
+| Admin (qualquer plano) | `reports.ai.usage_cost`, `reports.billing.revenue`                                                           |
 
 - Admin override: `isAdmin = user->hasRole('admin')` (Spatie) — libera `reports.ai.usage_cost` e `reports.billing.revenue` independente do plano
 
@@ -53,23 +53,23 @@ N/A (feature独立)
 
 ## Tasks derivadas
 
-| Task | Descrição | Agente | Status |
-|------|-----------|--------|--------|
-| TASK-005 | Migrar schema com coluna reports_mode | DBA | todo |
-| TASK-006 | Atualizar PlatformPlanSeeder com 3 planos | BACKEND | todo |
-| TASK-007 | Criar enum PlatformReportsMode | BACKEND | todo |
-| TASK-008 | Atualizar PlatformPlanEnforcementService com canViewReport | BACKEND | todo |
-| TASK-009 | Atualizar ReportsPolicy com filtro RBAC por plano | BACKEND | todo |
-| TASK-010 | Atualizar RolePermissionSeeder com permissões reports | BACKEND | todo |
-| TASK-011 | Validar seeders e gates | QA | todo |
+| Task     | Descrição                                                  | Agente  | Status |
+| -------- | ---------------------------------------------------------- | ------- | ------ |
+| TASK-005 | Migrar schema com coluna reports_mode                      | DBA     | todo   |
+| TASK-006 | Atualizar PlatformPlanSeeder com 3 planos                  | BACKEND | todo   |
+| TASK-007 | Criar enum PlatformReportsMode                             | BACKEND | todo   |
+| TASK-008 | Atualizar PlatformPlanEnforcementService com canViewReport | BACKEND | todo   |
+| TASK-009 | Atualizar ReportsPolicy com filtro RBAC por plano          | BACKEND | todo   |
+| TASK-010 | Atualizar RolePermissionSeeder com permissões reports      | BACKEND | todo   |
+| TASK-011 | Validar seeders e gates                                    | QA      | todo   |
 
 ## Riscos e dependências
 
 ### Riscos
 
-| Risco | Probabilidade | Impacto | Mitigação |
-|-------|--------------|---------|-----------|
-| Breaking change em permissões existentes | Baixa | Médio | Verificar role_permission_seeder antes de aplicar |
+| Risco                                    | Probabilidade | Impacto | Mitigação                                         |
+| ---------------------------------------- | ------------- | ------- | ------------------------------------------------- |
+| Breaking change em permissões existentes | Baixa         | Médio   | Verificar role_permission_seeder antes de aplicar |
 
 ### Dependências
 
@@ -77,9 +77,9 @@ N/A (feature独立)
 
 ## Estimativa
 
-| Item | Valor |
-|------|-------|
-| Complexidade | Média |
-| Camadas afetadas | Backend |
-| Migrações necessárias | Sim (1 migração) |
+| Item                          | Valor                            |
+| ----------------------------- | -------------------------------- |
+| Complexidade                  | Média                            |
+| Camadas afetadas              | Backend                          |
+| Migrações necessárias         | Sim (1 migração)                 |
 | Impacto em módulos existentes | Sim (Platform, Billing, Reports) |

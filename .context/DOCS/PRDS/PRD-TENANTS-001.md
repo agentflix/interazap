@@ -1,4 +1,4 @@
-# PRD-TENANTS-001 — Modulo de Tenants AgentFlix
+# PRD-TENANTS-001 — Modulo de Tenants InteraZap
 
 > **Modulo:** Tenants / Multi-Tenancy
 > **Status:** rascunho
@@ -13,13 +13,13 @@
 
 ### 1.1 Posicionamento no Ecossistema
 
-O modulo de Tenants e o nucleo da arquitetura multi-tenant do AgentFlix. Ele representa a entidade central que define o isolamento de dados, controle de acesso baseado em organizacao, ciclo de vida de cobranca e gestao de recursos para cada cliente da plataforma SaaS.
+O modulo de Tenants e o nucleo da arquitetura multi-tenant do InteraZap. Ele representa a entidade central que define o isolamento de dados, controle de acesso baseado em organizacao, ciclo de vida de cobranca e gestao de recursos para cada cliente da plataforma SaaS.
 
-O AgentFlix e uma plataforma SaaS multi-tenant para comunicacao inteligente via WhatsApp com CRM, billing, AI e reporting integrados. Cada tenant representa uma organizacao/cliente distinta que opera de forma completamente isolada das demais, com usuarios propios, agentes de IA, instancias de chat, negociacoes e dados financeiros segregados.
+O InteraZap e uma plataforma SaaS multi-tenant para comunicacao inteligente via WhatsApp com CRM, billing, AI e reporting integrados. Cada tenant representa uma organizacao/cliente distinta que opera de forma completamente isolada das demais, com usuarios propios, agentes de IA, instancias de chat, negociacoes e dados financeiros segregados.
 
 ### 1.2 Modelo de Dados Multi-Tenant
 
-A arquitetura multi-tenant do AgentFlix segue o padrao de isolacao por `tenant_id` em todas as entidades de negocio:
+A arquitetura multi-tenant do InteraZap segue o padrao de isolacao por `tenant_id` em todas as entidades de negocio:
 
 ```
 PlatformTenant (Raiz Agregadora)
@@ -57,28 +57,33 @@ Todas as entidades de negocio utilizam o trait `BelongsToTenant` que aplica auto
 O modulo de Tenants evoluiu atraves de multiplas fases:
 
 **Fase 1 - Infraestrutura Basica:**
+
 - Criacao da tabela `platform_tenants` com campos basicos (id, name, document)
 - Trait `BelongsToTenant` para isolacao automatica
 - Global Scope `TenantScope` para filtragem por tenant_id
 
 **Fase 2 - Autenticacao e Autorizacao:**
+
 - Integracao com Laravel Sanctum para autenticacao via token
 - Modelo `AuthUser` com relacao a `PlatformTenant`
 - Integracao com Spatie Permissions para RBAC
 - Papel especial `SUPER_ADMIN` com bypass de tenant scope
 
 **Fase 3 - Gestao de Billing:**
+
 - Campo `billing_status` com statuses: ACTIVE, GRACE, LOCKED, PENDING_PURGE, PURGED
 - Data de bloqueio por inadimplencia (`billing_locked_at`)
 - Prazo de cura (`grace_deadline`) e purge (`purge_deadline`)
 - Integracao com modulo Billing para gestao de ciclo de receita
 
 **Fase 4 - Bootstrap de Tenant:**
+
 - `PlatformTenantBootstrapAction` para provisionamento automatico
 - Catalogo de defaults por segmento: GENERAL, SAAS, ECOMMERCE, HEALTHCARE, REAL_ESTATE
 - Criacao automatica de agentes, funis, tags, departamentos e prompt de IA
 
 **Fase 5 - Recursos de Midia:**
+
 - Configuracoes de transcricao de audio/video/imagem
 - Limites maximos por tipo de midia
 - Integracao com servicos de transcricao
@@ -102,45 +107,51 @@ HTTP Request
 
 **Decisoes Arquiteturais Chave:**
 
-| Decisao | Justificativa |
-|---------|---------------|
-| UUID como PK em todos os models | Evita enumeracao de IDs e facilita distribuicao horizontal |
+| Decisao                                 | Justificativa                                                                               |
+| --------------------------------------- | ------------------------------------------------------------------------------------------- |
+| UUID como PK em todos os models         | Evita enumeracao de IDs e facilita distribuicao horizontal                                  |
 | Trait `BelongsToTenant` + `TenantScope` | Isolacao automatica em nivel de query; nenhum developer pode esquecer de filtrar por tenant |
-| SuperAdmin bypass de tenant scope | SuperAdmin e plataforma precisa acessar qualquer tenant para suporte e gestao |
-| `TenantContext` com stack para nesting | Permite operacoes cross-tenant em background jobs sem perder contexto original |
-| `TenantContextMiddleware` por request | Garante que todo request HTTP tenha o contexto de tenant corretamente configurado |
-| Bootstrap on-demand na criacao | Proporciona tenant ja operacional imediatamente apos criacao |
-| Soft delete com cascade | Permite recuperacao de tenant excluido e mantem audit trail |
+| SuperAdmin bypass de tenant scope       | SuperAdmin e plataforma precisa acessar qualquer tenant para suporte e gestao               |
+| `TenantContext` com stack para nesting  | Permite operacoes cross-tenant em background jobs sem perder contexto original              |
+| `TenantContextMiddleware` por request   | Garante que todo request HTTP tenha o contexto de tenant corretamente configurado           |
+| Bootstrap on-demand na criacao          | Proporciona tenant ja operacional imediatamente apos criacao                                |
+| Soft delete com cascade                 | Permite recuperacao de tenant excluido e mantem audit trail                                 |
 
 ### 1.5 Integracoes com Outros Modulos
 
 O modulo Tenants e integrado com todos os outros modulos da plataforma:
 
 **Auth (Autenticacao):**
+
 - `AuthUser` possui `tenant_id` que referencia `PlatformTenant`
 - Middleware de autenticacao extrai `tenant_id` do usuario autenticado
 - Spatie Permissions com guarda `sanctum` para controle de acessos
 
 **Billing (Cobranca):**
+
 - `PlatformTenant.billing_status` controla ciclo de inadimplencia
 - `BillingLockTenantAction`, `BillingUnlockTenantAction`, `BillingPurgeTenantAction`
 - Eventos: `BillingTenantGraceEvent`, `BillingTenantLockedEvent`, `BillingTenantUnlockedEvent`, `BillingTenantPurgedEvent`
 
 **CRM:**
+
 - Contagens de negociacoes para calculo de limites de plano
 - Funis e etapas de negociacao criados no bootstrap
 - Tags e departamentos inicializados por segmento
 
 **Chat:**
+
 - `ChatInstance` relacionada ao tenant para multiplas instancias WhatsApp
 - Contagem de instancias para validacao de limites de plano
 
 **AI:**
+
 - `AiPromptSegment` define o segmento de prompts por defeito
 - `AiPromptTenant` armazenado por tenant
 - Agentes AI provisionados no bootstrap conforme catalogo
 
 **Configuration:**
+
 - Configuracoes de transcricao de midia por tenant
 - Limites de audio/video/imagem
 
@@ -182,13 +193,13 @@ ATIVO (ACTIVE)
 
 O campo `billing_status` controla o acesso do tenant a plataforma:
 
-| Status | Label | Acesso | Descricao |
-|--------|-------|--------|-----------|
-| ACTIVE | Ativo | TOTAL | Tenant com acesso completo a todas as funcionalidades |
-| GRACE | Periodo de gracia | TOTAL | Atraso de ate 5 dias; sistema envia lembretes |
-| LOCKED | Bloqueado | PARCIAL | Middleware bloqueia funcionalidades operacionais; apenas rotas de cobranca |
-| PENDING_PURGE | Pendente de exclusao | MINIMO | Exclusao agendada; apenas SuperAdmin pode intervir |
-| PURGED | Excluido | NENHUM | Todos os dados removidos; apenas relatorio LGPD disponivel |
+| Status        | Label                | Acesso  | Descricao                                                                  |
+| ------------- | -------------------- | ------- | -------------------------------------------------------------------------- |
+| ACTIVE        | Ativo                | TOTAL   | Tenant com acesso completo a todas as funcionalidades                      |
+| GRACE         | Periodo de gracia    | TOTAL   | Atraso de ate 5 dias; sistema envia lembretes                              |
+| LOCKED        | Bloqueado            | PARCIAL | Middleware bloqueia funcionalidades operacionais; apenas rotas de cobranca |
+| PENDING_PURGE | Pendente de exclusao | MINIMO  | Exclusao agendada; apenas SuperAdmin pode intervir                         |
+| PURGED        | Excluido             | NENHUM  | Todos os dados removidos; apenas relatorio LGPD disponivel                 |
 
 ---
 
@@ -196,7 +207,7 @@ O campo `billing_status` controla o acesso do tenant a plataforma:
 
 ### 2.1 Proposta de Valor
 
-O modulo de Tenants prove a infraestrutura fundamental para operacao multi-tenant do AgentFlix, garantindo:
+O modulo de Tenants prove a infraestrutura fundamental para operacao multi-tenant do InteraZap, garantindo:
 
 1. **Isolamento Completo de Dados:** Cada tenant opera com dados completamente segregados, impossibilitando vazamento cross-tenant
 2. **Gestao Centralizada de Ciclo de Vida:** Desde a criacao ate a purgacao, todo o ciclo de vida do tenant e gerenciado de forma centralizada
@@ -233,105 +244,105 @@ ONF-005: Sistema deve suportar 500+ tenants ativos simultaneos
 
 ### 3.1 Regras de Identificacao
 
-| ID | Regra | Prioridade |
-|----|-------|------------|
-| RN-TEN-001 | Todo tenant deve ter um `id` do tipo UUID como chave primaria, nunca auto-increment | Critica |
-| RN-TEN-002 | Todo tenant deve ter um `tenant_code` unico gerado automaticamente (8 caracteres alfanumericos maiusculos) se nao fornecido | Alta |
-| RN-TEN-003 | O campo `tenant_code` deve ser unico no sistema e imutavel apos criacao | Alta |
-| RN-TEN-004 | Todo tenant deve ter `name` obrigatorio com maximo de 255 caracteres | Alta |
-| RN-TEN-005 | Todo tenant deve ter `primary_email` para comunicacoes de billing e sistema | Alta |
-| RN-TEN-006 | O campo `document` (CNPJ/CPF) e opcional mas deve ser unico se fornecido, com maximo de 32 caracteres | Media |
-| RN-TEN-007 | O `billing_webhook_token` e gerado automaticamente na criacao (UUID) para validacao de webhooks | Alta |
-| RN-TEN-008 | SuperAdmin ao criar tenant tern seu `segment_id` forcado para 'SAAS' | Alta |
+| ID         | Regra                                                                                                                       | Prioridade |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-TEN-001 | Todo tenant deve ter um `id` do tipo UUID como chave primaria, nunca auto-increment                                         | Critica    |
+| RN-TEN-002 | Todo tenant deve ter um `tenant_code` unico gerado automaticamente (8 caracteres alfanumericos maiusculos) se nao fornecido | Alta       |
+| RN-TEN-003 | O campo `tenant_code` deve ser unico no sistema e imutavel apos criacao                                                     | Alta       |
+| RN-TEN-004 | Todo tenant deve ter `name` obrigatorio com maximo de 255 caracteres                                                        | Alta       |
+| RN-TEN-005 | Todo tenant deve ter `primary_email` para comunicacoes de billing e sistema                                                 | Alta       |
+| RN-TEN-006 | O campo `document` (CNPJ/CPF) e opcional mas deve ser unico se fornecido, com maximo de 32 caracteres                       | Media      |
+| RN-TEN-007 | O `billing_webhook_token` e gerado automaticamente na criacao (UUID) para validacao de webhooks                             | Alta       |
+| RN-TEN-008 | SuperAdmin ao criar tenant tern seu `segment_id` forcado para 'SAAS'                                                        | Alta       |
 
 ### 3.2 Regras de Isolamento
 
-| ID | Regra | Prioridade |
-|----|-------|------------|
-| RN-TEN-010 | Todo model que usa `BelongsToTenant` deve aplicar `TenantScope` automaticamente | Critica |
-| RN-TEN-011 | Queries em models tenant-scoped devem SEMPRE incluir filtro por `tenant_id` | Critica |
-| RN-TEN-012 | SuperAdmin (papel `SUPER_ADMIN`) pode fazer bypass do `TenantScope` usando `withoutGlobalScope(TenantScope::class)` | Critica |
-| RN-TEN-013 | O `TenantContextMiddleware` deve extrair `tenant_id` do usuario autenticado e configurar contexto | Critica |
-| RN-TEN-014 | O `TenantContext` deve suportar nested context via push/pop para background jobs | Alta |
-| RN-TEN-015 | Operacoes cross-tenant devem usar `TenantContext::run($tenantId, callback)` | Alta |
-| RN-TEN-016 | Middleware deve bloquear requests onde `X-Tenant-ID` header difere do tenant do usuario autenticado | Critica |
-| RN-TEN-017 | Respostas de API devem incluir header `X-Tenant-ID` para debugging | Media |
+| ID         | Regra                                                                                                               | Prioridade |
+| ---------- | ------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-TEN-010 | Todo model que usa `BelongsToTenant` deve aplicar `TenantScope` automaticamente                                     | Critica    |
+| RN-TEN-011 | Queries em models tenant-scoped devem SEMPRE incluir filtro por `tenant_id`                                         | Critica    |
+| RN-TEN-012 | SuperAdmin (papel `SUPER_ADMIN`) pode fazer bypass do `TenantScope` usando `withoutGlobalScope(TenantScope::class)` | Critica    |
+| RN-TEN-013 | O `TenantContextMiddleware` deve extrair `tenant_id` do usuario autenticado e configurar contexto                   | Critica    |
+| RN-TEN-014 | O `TenantContext` deve suportar nested context via push/pop para background jobs                                    | Alta       |
+| RN-TEN-015 | Operacoes cross-tenant devem usar `TenantContext::run($tenantId, callback)`                                         | Alta       |
+| RN-TEN-016 | Middleware deve bloquear requests onde `X-Tenant-ID` header difere do tenant do usuario autenticado                 | Critica    |
+| RN-TEN-017 | Respostas de API devem incluir header `X-Tenant-ID` para debugging                                                  | Media      |
 
 ### 3.3 Regras de Ciclo de Vida
 
-| ID | Regra | Prioridade |
-|----|-------|------------|
-| RN-TEN-020 | A criacao de tenant deve triggers o `PlatformTenantBootstrapAction` para provisionar dados iniciais | Critica |
-| RN-TEN-021 | O bootstrap deve criar agentes padrao conforme catalogo do segmento | Alta |
-| RN-TEN-022 | O bootstrap deve criar funis de negociacao padrao conforme catalogo | Alta |
-| RN-TEN-023 | O bootstrap deve criar tags e departamentos conforme catalogo | Alta |
-| RN-TEN-024 | O bootstrap deve criar o `AiPromptTenant` inicial baseado no segmento | Alta |
-| RN-TEN-025 | Soft delete de tenant deve cascade para todos os dados relacionados via `deleted_at` | Alta |
-| RN-TEN-026 | Restore de tenant deve recuperar todos os dados com `deleted_at` | Media |
-| RN-TEN-027 | Force delete (exclusao permanente) deve remover dados fisicamente apenas para tenants ja purgados pelo billing | Critica |
-| RN-TEN-028 | Tenant com `billing_status` = PURGED pode passar por force delete | Alta |
-| RN-TEN-029 | Tenant com `billing_status` diferente de PURGED nao pode passar por force delete | Critica |
-| RN-TEN-030 | O campo `is_active` controla disponibilidade do tenant independentedo billing_status | Media |
+| ID         | Regra                                                                                                          | Prioridade |
+| ---------- | -------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-TEN-020 | A criacao de tenant deve triggers o `PlatformTenantBootstrapAction` para provisionar dados iniciais            | Critica    |
+| RN-TEN-021 | O bootstrap deve criar agentes padrao conforme catalogo do segmento                                            | Alta       |
+| RN-TEN-022 | O bootstrap deve criar funis de negociacao padrao conforme catalogo                                            | Alta       |
+| RN-TEN-023 | O bootstrap deve criar tags e departamentos conforme catalogo                                                  | Alta       |
+| RN-TEN-024 | O bootstrap deve criar o `AiPromptTenant` inicial baseado no segmento                                          | Alta       |
+| RN-TEN-025 | Soft delete de tenant deve cascade para todos os dados relacionados via `deleted_at`                           | Alta       |
+| RN-TEN-026 | Restore de tenant deve recuperar todos os dados com `deleted_at`                                               | Media      |
+| RN-TEN-027 | Force delete (exclusao permanente) deve remover dados fisicamente apenas para tenants ja purgados pelo billing | Critica    |
+| RN-TEN-028 | Tenant com `billing_status` = PURGED pode passar por force delete                                              | Alta       |
+| RN-TEN-029 | Tenant com `billing_status` diferente de PURGED nao pode passar por force delete                               | Critica    |
+| RN-TEN-030 | O campo `is_active` controla disponibilidade do tenant independentedo billing_status                           | Media      |
 
 ### 3.4 Regras de Billing e Status
 
-| ID | Regra | Prioridade |
-|----|-------|------------|
-| RN-TEN-040 | `billing_status` deve ser um dos valores: ACTIVE, GRACE, LOCKED, PENDING_PURGE, PURGED | Critica |
-| RN-TEN-041 | Tenant com `billing_status` = LOCKED ou PENDING_PURGE ou PURGED deve ter acesso bloqueado pelo `BillingDelinquencyMiddleware` | Critica |
-| RN-TEN-042 | Middleware deve permitir acesso irrestrito para SuperAdmin mesmo com tenant bloqueado | Critica |
-| RN-TEN-043 | Tenant em GRACE continua com acesso total por 5 dias antes do bloqueio | Alta |
-| RN-TEN-044 | O campo `grace_deadline` define quando termina o periodo de gracia | Alta |
-| RN-TEN-045 | O campo `purge_deadline` define quando o purge automatico sera executado | Alta |
-| RN-TEN-046 | `billing_locked_at` registra timestamp do bloqueio por inadimplencia | Alta |
-| RN-TEN-047 | `billing_lock_reason` registra razao do bloqueio | Media |
-| RN-TEN-048 | `isLocked()` retorna true apenas quando billing_status = LOCKED | Alta |
-| RN-TEN-049 | `isInGrace()` retorna true apenas quando billing_status = GRACE | Alta |
-| RN-TEN-050 | `isPendingPurge()` retorna true apenas quando billing_status = PENDING_PURGE | Alta |
-| RN-TEN-051 | Unlock de tenant deve limpar todos os campos de inadimplencia | Alta |
-| RN-TEN-052 | Cache Redis de status de billing deve ser invalidado em qualquer mudanca de status | Alta |
+| ID         | Regra                                                                                                                         | Prioridade |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-TEN-040 | `billing_status` deve ser um dos valores: ACTIVE, GRACE, LOCKED, PENDING_PURGE, PURGED                                        | Critica    |
+| RN-TEN-041 | Tenant com `billing_status` = LOCKED ou PENDING_PURGE ou PURGED deve ter acesso bloqueado pelo `BillingDelinquencyMiddleware` | Critica    |
+| RN-TEN-042 | Middleware deve permitir acesso irrestrito para SuperAdmin mesmo com tenant bloqueado                                         | Critica    |
+| RN-TEN-043 | Tenant em GRACE continua com acesso total por 5 dias antes do bloqueio                                                        | Alta       |
+| RN-TEN-044 | O campo `grace_deadline` define quando termina o periodo de gracia                                                            | Alta       |
+| RN-TEN-045 | O campo `purge_deadline` define quando o purge automatico sera executado                                                      | Alta       |
+| RN-TEN-046 | `billing_locked_at` registra timestamp do bloqueio por inadimplencia                                                          | Alta       |
+| RN-TEN-047 | `billing_lock_reason` registra razao do bloqueio                                                                              | Media      |
+| RN-TEN-048 | `isLocked()` retorna true apenas quando billing_status = LOCKED                                                               | Alta       |
+| RN-TEN-049 | `isInGrace()` retorna true apenas quando billing_status = GRACE                                                               | Alta       |
+| RN-TEN-050 | `isPendingPurge()` retorna true apenas quando billing_status = PENDING_PURGE                                                  | Alta       |
+| RN-TEN-051 | Unlock de tenant deve limpar todos os campos de inadimplencia                                                                 | Alta       |
+| RN-TEN-052 | Cache Redis de status de billing deve ser invalidado em qualquer mudanca de status                                            | Alta       |
 
 ### 3.5 Regras de Recursos de Midia
 
-| ID | Regra | Prioridade |
-|----|-------|------------|
-| RN-TEN-060 | `media_transcription_audio_enabled` controla se transcricao de audio esta ativa | Media |
-| RN-TEN-061 | `media_transcription_video_enabled` controla se transcricao de video esta ativa | Media |
-| RN-TEN-062 | `media_transcription_image_enabled` controla se transcricao de imagem esta ativa | Media |
-| RN-TEN-063 | `media_transcription_audio_max_minutes` define limite de minutos de audio por mensagem | Media |
-| RN-TEN-064 | `media_transcription_image_max_per_message` define limite de imagens por mensagem | Media |
-| RN-TEN-065 | `media_transcription_video_max_seconds` define limite de segundos de video por mensagem | Media |
+| ID         | Regra                                                                                   | Prioridade |
+| ---------- | --------------------------------------------------------------------------------------- | ---------- |
+| RN-TEN-060 | `media_transcription_audio_enabled` controla se transcricao de audio esta ativa         | Media      |
+| RN-TEN-061 | `media_transcription_video_enabled` controla se transcricao de video esta ativa         | Media      |
+| RN-TEN-062 | `media_transcription_image_enabled` controla se transcricao de imagem esta ativa        | Media      |
+| RN-TEN-063 | `media_transcription_audio_max_minutes` define limite de minutos de audio por mensagem  | Media      |
+| RN-TEN-064 | `media_transcription_image_max_per_message` define limite de imagens por mensagem       | Media      |
+| RN-TEN-065 | `media_transcription_video_max_seconds` define limite de segundos de video por mensagem | Media      |
 
 ### 3.6 Regras de Autorizacao
 
-| ID | Regra | Prioridade |
-|----|-------|------------|
-| RN-TEN-070 | Apenas SuperAdmin ou usuarios com permissao `platform.tenants.manage` podem criar tenants | Critica |
-| RN-TEN-071 | Apenas SuperAdmin ou usuarios com permissao `platform.tenants.manage` podem atualizar tenants | Critica |
-| RN-TEN-072 | Apenas SuperAdmin ou usuarios com permissao `platform.tenants.manage` podem deletar tenants | Critica |
-| RN-TEN-073 | Qualquer usuario autenticado pode visualizar detalhes do proprio tenant | Alta |
-| RN-TEN-074 | Listagem de tenants disponivel apenas para SuperAdmin ou quem tem `platform.tenants.manage` | Critica |
-| RN-TEN-075 | Toggle de active/inactive disponivel apenas para SuperAdmin ou quem tem `platform.tenants.manage` | Alta |
-| RN-TEN-076 | Restore de tenant deletado disponivel apenas para SuperAdmin ou quem tem `platform.tenants.manage` | Alta |
-| RN-TEN-077 | Force delete disponivel apenas para SuperAdmin | Critica |
+| ID         | Regra                                                                                              | Prioridade |
+| ---------- | -------------------------------------------------------------------------------------------------- | ---------- |
+| RN-TEN-070 | Apenas SuperAdmin ou usuarios com permissao `platform.tenants.manage` podem criar tenants          | Critica    |
+| RN-TEN-071 | Apenas SuperAdmin ou usuarios com permissao `platform.tenants.manage` podem atualizar tenants      | Critica    |
+| RN-TEN-072 | Apenas SuperAdmin ou usuarios com permissao `platform.tenants.manage` podem deletar tenants        | Critica    |
+| RN-TEN-073 | Qualquer usuario autenticado pode visualizar detalhes do proprio tenant                            | Alta       |
+| RN-TEN-074 | Listagem de tenants disponivel apenas para SuperAdmin ou quem tem `platform.tenants.manage`        | Critica    |
+| RN-TEN-075 | Toggle de active/inactive disponivel apenas para SuperAdmin ou quem tem `platform.tenants.manage`  | Alta       |
+| RN-TEN-076 | Restore de tenant deletado disponivel apenas para SuperAdmin ou quem tem `platform.tenants.manage` | Alta       |
+| RN-TEN-077 | Force delete disponivel apenas para SuperAdmin                                                     | Critica    |
 
 ### 3.7 Regras de Integracao com Asaas
 
-| ID | Regra | Prioridade |
-|----|-------|------------|
-| RN-TEN-080 | Todo tenant deve ter `asaas_customer_id` para integracao com gateway de pagamento | Alta |
-| RN-TEN-081 | `asaas_customer_id` e criado automaticamente na primeira geracao de cobranca se nao existir | Alta |
-| RN-TEN-082 | O `billing_webhook_token` e usado para validar autenticidade de webhooks do Asaas | Critica |
+| ID         | Regra                                                                                       | Prioridade |
+| ---------- | ------------------------------------------------------------------------------------------- | ---------- |
+| RN-TEN-080 | Todo tenant deve ter `asaas_customer_id` para integracao com gateway de pagamento           | Alta       |
+| RN-TEN-081 | `asaas_customer_id` e criado automaticamente na primeira geracao de cobranca se nao existir | Alta       |
+| RN-TEN-082 | O `billing_webhook_token` e usado para validar autenticidade de webhooks do Asaas           | Critica    |
 
 ### 3.8 Regras de Segmento e Plano
 
-| ID | Regra | Prioridade |
-|----|-------|------------|
-| RN-TEN-090 | Todo tenant deve ter `segment_id` que referencia `AiPromptSegment` | Alta |
-| RN-TEN-091 | Todo tenant deve ter `plan_id` que referencia `PlatformPlan` | Critica |
-| RN-TEN-092 | Segmento determina o catalogo de bootstrap (GENERAL, SAAS, ECOMMERCE, HEALTHCARE, REAL_ESTATE) | Alta |
-| RN-TEN-093 | SuperAdmin criando tenant tern segmento forcado para SAAS | Alta |
-| RN-TEN-094 | Se nenhum segmento for fornecido na criacao, usar GENERAL como padrao | Alta |
+| ID         | Regra                                                                                          | Prioridade |
+| ---------- | ---------------------------------------------------------------------------------------------- | ---------- |
+| RN-TEN-090 | Todo tenant deve ter `segment_id` que referencia `AiPromptSegment`                             | Alta       |
+| RN-TEN-091 | Todo tenant deve ter `plan_id` que referencia `PlatformPlan`                                   | Critica    |
+| RN-TEN-092 | Segmento determina o catalogo de bootstrap (GENERAL, SAAS, ECOMMERCE, HEALTHCARE, REAL_ESTATE) | Alta       |
+| RN-TEN-093 | SuperAdmin criando tenant tern segmento forcado para SAAS                                      | Alta       |
+| RN-TEN-094 | Se nenhum segmento for fornecido na criacao, usar GENERAL como padrao                          | Alta       |
 
 ---
 
@@ -605,42 +616,42 @@ sequenceDiagram
 
 **Campos:**
 
-| Campo | Tipo | Nulavel | Descricao |
-|-------|------|---------|-----------|
-| id | UUID | NAO | Chave primaria |
-| name | string(255) | NAO | Nome da organizacao |
-| tenant_code | string(12) | SIM | Codigo unico alfanumerico |
-| primary_email | string(255) | SIM | Email principal para comunicacoes |
-| document | string(32) | SIM | CNPJ ou CPF |
-| phone | string(20) | SIM | Telefone de contato |
-| street | string(255) | SIM | Logradouro do endereco |
-| number | string(20) | SIM | Numero do endereco |
-| complement | string(120) | SIM | Complemento do endereco |
-| district | string(120) | SIM | Bairro |
-| city | string(120) | SIM | Cidade |
-| state | string(2) | SIM | UF |
-| zip_code | string(20) | SIM | CEP |
-| is_active | boolean | NAO | Se o tenant esta ativo (default: true) |
-| segment_id | UUID | SIM | FK para ai_prompt_segments |
-| plan_id | UUID | NAO | FK para platform_plans |
-| billing_status | enum | NAO | Status de billing (ACTIVE, GRACE, LOCKED, PENDING_PURGE, PURGED) |
-| billing_locked_at | datetime | SIM | Data/hora do bloqueio |
-| billing_lock_reason | string | SIM | Razao do bloqueio |
-| billing_grace_deadline | date | SIM | Termino do periodo de gracia |
-| billing_purge_deadline | date | SIM | Data para purge automatico |
-| last_collection_sent_at | datetime | SIM | Ultimo lembrete enviado |
-| collection_count | integer | NAO | Contagem de lembretes enviados |
-| asaas_customer_id | string | SIM | ID do cliente no gateway Asaas |
-| billing_webhook_token | string | SIM | Token para validacao de webhooks |
-| media_transcription_audio_enabled | boolean | NAO | Transcricao de audio habilitada |
-| media_transcription_video_enabled | boolean | NAO | Transcricao de video habilitada |
-| media_transcription_image_enabled | boolean | NAO | Transcricao de imagem habilitada |
-| media_transcription_audio_max_minutes | integer | NAO | Limite de minutos de audio |
-| media_transcription_image_max_per_message | integer | NAO | Limite de imagens por mensagem |
-| media_transcription_video_max_seconds | integer | NAO | Limite de segundos de video |
-| created_at | datetime | NAO | Timestamp de criacao |
-| updated_at | datetime | NAO | Timestamp de atualizacao |
-| deleted_at | datetime | SIM | Timestamp de exclusao logica |
+| Campo                                     | Tipo        | Nulavel | Descricao                                                        |
+| ----------------------------------------- | ----------- | ------- | ---------------------------------------------------------------- |
+| id                                        | UUID        | NAO     | Chave primaria                                                   |
+| name                                      | string(255) | NAO     | Nome da organizacao                                              |
+| tenant_code                               | string(12)  | SIM     | Codigo unico alfanumerico                                        |
+| primary_email                             | string(255) | SIM     | Email principal para comunicacoes                                |
+| document                                  | string(32)  | SIM     | CNPJ ou CPF                                                      |
+| phone                                     | string(20)  | SIM     | Telefone de contato                                              |
+| street                                    | string(255) | SIM     | Logradouro do endereco                                           |
+| number                                    | string(20)  | SIM     | Numero do endereco                                               |
+| complement                                | string(120) | SIM     | Complemento do endereco                                          |
+| district                                  | string(120) | SIM     | Bairro                                                           |
+| city                                      | string(120) | SIM     | Cidade                                                           |
+| state                                     | string(2)   | SIM     | UF                                                               |
+| zip_code                                  | string(20)  | SIM     | CEP                                                              |
+| is_active                                 | boolean     | NAO     | Se o tenant esta ativo (default: true)                           |
+| segment_id                                | UUID        | SIM     | FK para ai_prompt_segments                                       |
+| plan_id                                   | UUID        | NAO     | FK para platform_plans                                           |
+| billing_status                            | enum        | NAO     | Status de billing (ACTIVE, GRACE, LOCKED, PENDING_PURGE, PURGED) |
+| billing_locked_at                         | datetime    | SIM     | Data/hora do bloqueio                                            |
+| billing_lock_reason                       | string      | SIM     | Razao do bloqueio                                                |
+| billing_grace_deadline                    | date        | SIM     | Termino do periodo de gracia                                     |
+| billing_purge_deadline                    | date        | SIM     | Data para purge automatico                                       |
+| last_collection_sent_at                   | datetime    | SIM     | Ultimo lembrete enviado                                          |
+| collection_count                          | integer     | NAO     | Contagem de lembretes enviados                                   |
+| asaas_customer_id                         | string      | SIM     | ID do cliente no gateway Asaas                                   |
+| billing_webhook_token                     | string      | SIM     | Token para validacao de webhooks                                 |
+| media_transcription_audio_enabled         | boolean     | NAO     | Transcricao de audio habilitada                                  |
+| media_transcription_video_enabled         | boolean     | NAO     | Transcricao de video habilitada                                  |
+| media_transcription_image_enabled         | boolean     | NAO     | Transcricao de imagem habilitada                                 |
+| media_transcription_audio_max_minutes     | integer     | NAO     | Limite de minutos de audio                                       |
+| media_transcription_image_max_per_message | integer     | NAO     | Limite de imagens por mensagem                                   |
+| media_transcription_video_max_seconds     | integer     | NAO     | Limite de segundos de video                                      |
+| created_at                                | datetime    | NAO     | Timestamp de criacao                                             |
+| updated_at                                | datetime    | NAO     | Timestamp de atualizacao                                         |
+| deleted_at                                | datetime    | SIM     | Timestamp de exclusao logica                                     |
 
 **Relacionamentos:**
 
@@ -731,20 +742,20 @@ protected $casts = [
 
 **Campos Principais:**
 
-| Campo | Tipo | Nulavel | Descricao |
-|-------|------|---------|-----------|
-| id | UUID | NAO | Chave primaria |
-| tenant_id | UUID | NAO | FK para platform_tenants |
-| name | string(255) | NAO | Nome do usuario |
-| email | string(255) | NAO | Email unico |
-| password | string | NAO | Hash de senha |
-| phone | string | SIM | Telefone |
-| avatar_url | string | SIM | URL do avatar |
-| is_active | boolean | NAO | Se o usuario esta ativo |
-| two_factor_enabled | boolean | NAO | Se 2FA esta habilitado |
-| two_factor_secret | string | SIM | Segredo TOTP |
-| two_factor_recovery_codes | json | SIM | Cores de recuperacao 2FA |
-| email_verified_at | datetime | SIM | Data de verificacao de email |
+| Campo                     | Tipo        | Nulavel | Descricao                    |
+| ------------------------- | ----------- | ------- | ---------------------------- |
+| id                        | UUID        | NAO     | Chave primaria               |
+| tenant_id                 | UUID        | NAO     | FK para platform_tenants     |
+| name                      | string(255) | NAO     | Nome do usuario              |
+| email                     | string(255) | NAO     | Email unico                  |
+| password                  | string      | NAO     | Hash de senha                |
+| phone                     | string      | SIM     | Telefone                     |
+| avatar_url                | string      | SIM     | URL do avatar                |
+| is_active                 | boolean     | NAO     | Se o usuario esta ativo      |
+| two_factor_enabled        | boolean     | NAO     | Se 2FA esta habilitado       |
+| two_factor_secret         | string      | SIM     | Segredo TOTP                 |
+| two_factor_recovery_codes | json        | SIM     | Cores de recuperacao 2FA     |
+| email_verified_at         | datetime    | SIM     | Data de verificacao de email |
 
 **Traits Utilizados:**
 
@@ -791,13 +802,13 @@ public function tenant(): BelongsTo
 
 **Valores:**
 
-| Valor | Label | Cor UI | isBlocked() |
-|-------|-------|--------|-------------|
-| ACTIVE | Ativo | success | false |
-| GRACE | Periodo de gracia | warning | false |
-| LOCKED | Bloqueado | danger | true |
-| PENDING_PURGE | Pendente de exclusao | warning | true |
-| PURGED | Excluido | default | true |
+| Valor         | Label                | Cor UI  | isBlocked() |
+| ------------- | -------------------- | ------- | ----------- |
+| ACTIVE        | Ativo                | success | false       |
+| GRACE         | Periodo de gracia    | warning | false       |
+| LOCKED        | Bloqueado            | danger  | true        |
+| PENDING_PURGE | Pendente de exclusao | warning | true        |
+| PURGED        | Excluido             | default | true        |
 
 **Metodos:**
 
@@ -947,50 +958,50 @@ GET /api/platform/tenants
 
 **Query Parameters:**
 
-| Parametro | Tipo | Descricao |
-|-----------|------|-----------|
-| search | string | Busca por nome, email, tenant_code, document |
-| is_active | boolean | Filtra por status ativo |
-| trashed | boolean | Inclui tenants deletados |
-| sort_by | string | Campo de ordenacao (name, document, created_at, etc) |
-| sort_dir | string | Direcao de ordenacao (asc, desc) |
-| created_from | date | Data minima de criacao |
-| created_to | date | Data maxima de criacao |
-| per_page | int | Items por pagina (default: 15, max: 100) |
-| page | int | Numero da pagina |
+| Parametro    | Tipo    | Descricao                                            |
+| ------------ | ------- | ---------------------------------------------------- |
+| search       | string  | Busca por nome, email, tenant_code, document         |
+| is_active    | boolean | Filtra por status ativo                              |
+| trashed      | boolean | Inclui tenants deletados                             |
+| sort_by      | string  | Campo de ordenacao (name, document, created_at, etc) |
+| sort_dir     | string  | Direcao de ordenacao (asc, desc)                     |
+| created_from | date    | Data minima de criacao                               |
+| created_to   | date    | Data maxima de criacao                               |
+| per_page     | int     | Items por pagina (default: 15, max: 100)             |
+| page         | int     | Numero da pagina                                     |
 
 **Resposta 200:**
 
 ```json
 {
-  "success": true,
-  "message": "Tenants listados",
-  "data": [
-    {
-      "id": "uuid",
-      "name": "Empresa ABC",
-      "tenant_code": "ABC12345",
-      "primary_email": "contato@empresa.com",
-      "document": "12345678000190",
-      "phone": "11999999999",
-      "is_active": true,
-      "segment_id": "uuid",
-      "plan_id": "uuid",
-      "created_at": "2026-01-15T10:00:00Z"
+    "success": true,
+    "message": "Tenants listados",
+    "data": [
+        {
+            "id": "uuid",
+            "name": "Empresa ABC",
+            "tenant_code": "ABC12345",
+            "primary_email": "contato@empresa.com",
+            "document": "12345678000190",
+            "phone": "11999999999",
+            "is_active": true,
+            "segment_id": "uuid",
+            "plan_id": "uuid",
+            "created_at": "2026-01-15T10:00:00Z"
+        }
+    ],
+    "meta": {
+        "current_page": 1,
+        "total": 50,
+        "per_page": 15,
+        "last_page": 4
+    },
+    "links": {
+        "first": "/api/platform/tenants?page=1",
+        "last": "/api/platform/tenants?page=4",
+        "prev": null,
+        "next": "/api/platform/tenants?page=2"
     }
-  ],
-  "meta": {
-    "current_page": 1,
-    "total": 50,
-    "per_page": 15,
-    "last_page": 4
-  },
-  "links": {
-    "first": "/api/platform/tenants?page=1",
-    "last": "/api/platform/tenants?page=4",
-    "prev": null,
-    "next": "/api/platform/tenants?page=2"
-  }
 }
 ```
 
@@ -1010,27 +1021,29 @@ POST /api/platform/tenants
 
 ```json
 {
-  "name": "Empresa ABC",
-  "tenant_code": "ABC12345",
-  "email": "contato@empresa.com",
-  "document": "12345678000190",
-  "phone": "11999999999",
-  "street": "Rua Example",
-  "number": "100",
-  "complement": "Sala 1",
-  "district": "Bairro",
-  "city": "Sao Paulo",
-  "state": "SP",
-  "zip_code": "01001000",
-  "is_active": true,
-  "segment_id": "uuid"
+    "name": "Empresa ABC",
+    "tenant_code": "ABC12345",
+    "email": "contato@empresa.com",
+    "document": "12345678000190",
+    "phone": "11999999999",
+    "street": "Rua Example",
+    "number": "100",
+    "complement": "Sala 1",
+    "district": "Bairro",
+    "city": "Sao Paulo",
+    "state": "SP",
+    "zip_code": "01001000",
+    "is_active": true,
+    "segment_id": "uuid"
 }
 ```
 
 **Campos Obrigatorios:**
+
 - `name` (string, max 255)
 
 **Campos Opcionais:**
+
 - `tenant_code` (string, max 12, unico)
 - `email` (email valido)
 - `document` (string, max 32)
@@ -1041,20 +1054,20 @@ POST /api/platform/tenants
 
 ```json
 {
-  "success": true,
-  "message": "Tenant criado com sucesso",
-  "data": {
-    "id": "uuid",
-    "name": "Empresa ABC",
-    "tenant_code": "ABC12345",
-    "primary_email": "contato@empresa.com",
-    "document": "12345678000190",
-    "is_active": true,
-    "segment_id": "uuid",
-    "plan_id": "uuid",
-    "billing_status": "active",
-    "created_at": "2026-03-28T10:00:00Z"
-  }
+    "success": true,
+    "message": "Tenant criado com sucesso",
+    "data": {
+        "id": "uuid",
+        "name": "Empresa ABC",
+        "tenant_code": "ABC12345",
+        "primary_email": "contato@empresa.com",
+        "document": "12345678000190",
+        "is_active": true,
+        "segment_id": "uuid",
+        "plan_id": "uuid",
+        "billing_status": "active",
+        "created_at": "2026-03-28T10:00:00Z"
+    }
 }
 ```
 
@@ -1074,30 +1087,30 @@ GET /api/platform/tenants/{id}
 
 ```json
 {
-  "success": true,
-  "message": "Tenant carregado",
-  "data": {
-    "id": "uuid",
-    "name": "Empresa ABC",
-    "tenant_code": "ABC12345",
-    "primary_email": "contato@empresa.com",
-    "document": "12345678000190",
-    "phone": "11999999999",
-    "address": "Rua Example, 100, Sala 1, Bairro",
-    "street": "Rua Example",
-    "number": "100",
-    "complement": "Sala 1",
-    "district": "Bairro",
-    "city": "Sao Paulo",
-    "state": "SP",
-    "zip_code": "01001000",
-    "is_active": true,
-    "segment_id": "uuid",
-    "plan_id": "uuid",
-    "billing_status": "active",
-    "created_at": "2026-03-28T10:00:00Z",
-    "updated_at": "2026-03-28T10:00:00Z"
-  }
+    "success": true,
+    "message": "Tenant carregado",
+    "data": {
+        "id": "uuid",
+        "name": "Empresa ABC",
+        "tenant_code": "ABC12345",
+        "primary_email": "contato@empresa.com",
+        "document": "12345678000190",
+        "phone": "11999999999",
+        "address": "Rua Example, 100, Sala 1, Bairro",
+        "street": "Rua Example",
+        "number": "100",
+        "complement": "Sala 1",
+        "district": "Bairro",
+        "city": "Sao Paulo",
+        "state": "SP",
+        "zip_code": "01001000",
+        "is_active": true,
+        "segment_id": "uuid",
+        "plan_id": "uuid",
+        "billing_status": "active",
+        "created_at": "2026-03-28T10:00:00Z",
+        "updated_at": "2026-03-28T10:00:00Z"
+    }
 }
 ```
 
@@ -1117,61 +1130,61 @@ GET /api/platform/tenants/{id}/details
 
 ```json
 {
-  "success": true,
-  "message": "Detalhes do tenant carregados",
-  "data": {
-    "company": {
-      "id": "uuid",
-      "name": "Empresa ABC",
-      "tenant_code": "ABC12345",
-      "document": "12345678000190",
-      "primary_email": "contato@empresa.com",
-      "phone": "11999999999",
-      "address": "Rua Example, 100",
-      "city": "Sao Paulo",
-      "state": "SP",
-      "zip_code": "01001000",
-      "is_active": true,
-      "created_at": "2026-01-15T10:00:00Z"
-    },
-    "contracted_plan": {
-      "id": "uuid",
-      "name": "Plano Profissional",
-      "slug": "professional",
-      "price_monthly": 299.90,
-      "is_active": true
-    },
-    "resources": {
-      "users": {
-        "current": 15,
-        "limit": 50,
-        "available": 35
-      },
-      "instances": {
-        "current": 3,
-        "limit": 10,
-        "available": 7
-      },
-      "storage": {
-        "used_bytes": 5368709120,
-        "limit_bytes": 10737418240,
-        "available_bytes": 5368709120,
-        "used_gb": 5.0,
-        "limit_gb": 10.0,
-        "available_gb": 5.0,
-        "mode": "LIMITED"
-      },
-      "ai": {
-        "enabled": true
-      },
-      "negotiations": {
-        "current": 150,
-        "limit": 500,
-        "available": 350,
-        "mode": "LIMITED"
-      }
+    "success": true,
+    "message": "Detalhes do tenant carregados",
+    "data": {
+        "company": {
+            "id": "uuid",
+            "name": "Empresa ABC",
+            "tenant_code": "ABC12345",
+            "document": "12345678000190",
+            "primary_email": "contato@empresa.com",
+            "phone": "11999999999",
+            "address": "Rua Example, 100",
+            "city": "Sao Paulo",
+            "state": "SP",
+            "zip_code": "01001000",
+            "is_active": true,
+            "created_at": "2026-01-15T10:00:00Z"
+        },
+        "contracted_plan": {
+            "id": "uuid",
+            "name": "Plano Profissional",
+            "slug": "professional",
+            "price_monthly": 299.9,
+            "is_active": true
+        },
+        "resources": {
+            "users": {
+                "current": 15,
+                "limit": 50,
+                "available": 35
+            },
+            "instances": {
+                "current": 3,
+                "limit": 10,
+                "available": 7
+            },
+            "storage": {
+                "used_bytes": 5368709120,
+                "limit_bytes": 10737418240,
+                "available_bytes": 5368709120,
+                "used_gb": 5.0,
+                "limit_gb": 10.0,
+                "available_gb": 5.0,
+                "mode": "LIMITED"
+            },
+            "ai": {
+                "enabled": true
+            },
+            "negotiations": {
+                "current": 150,
+                "limit": 500,
+                "available": 350,
+                "mode": "LIMITED"
+            }
+        }
     }
-  }
 }
 ```
 
@@ -1191,13 +1204,13 @@ PUT /api/platform/tenants/{id}
 
 ```json
 {
-  "name": "Empresa ABC Ltda",
-  "email": "novo@empresa.com",
-  "phone": "11988888888",
-  "street": "Rua Nova",
-  "number": "200",
-  "city": "Campinas",
-  "state": "SP"
+    "name": "Empresa ABC Ltda",
+    "email": "novo@empresa.com",
+    "phone": "11988888888",
+    "street": "Rua Nova",
+    "number": "200",
+    "city": "Campinas",
+    "state": "SP"
 }
 ```
 
@@ -1205,15 +1218,15 @@ PUT /api/platform/tenants/{id}
 
 ```json
 {
-  "success": true,
-  "message": "Tenant atualizado com sucesso",
-  "data": {
-    "id": "uuid",
-    "name": "Empresa ABC Ltda",
-    "tenant_code": "ABC12345",
-    "primary_email": "novo@empresa.com",
-    "updated_at": "2026-03-28T12:00:00Z"
-  }
+    "success": true,
+    "message": "Tenant atualizado com sucesso",
+    "data": {
+        "id": "uuid",
+        "name": "Empresa ABC Ltda",
+        "tenant_code": "ABC12345",
+        "primary_email": "novo@empresa.com",
+        "updated_at": "2026-03-28T12:00:00Z"
+    }
 }
 ```
 
@@ -1247,13 +1260,13 @@ POST /api/platform/tenants/{id}/restore
 
 ```json
 {
-  "success": true,
-  "message": "Tenant restaurado",
-  "data": {
-    "id": "uuid",
-    "name": "Empresa ABC",
-    "deleted_at": null
-  }
+    "success": true,
+    "message": "Tenant restaurado",
+    "data": {
+        "id": "uuid",
+        "name": "Empresa ABC",
+        "deleted_at": null
+    }
 }
 ```
 
@@ -1289,12 +1302,12 @@ PATCH /api/platform/tenants/{id}/toggle-active
 
 ```json
 {
-  "success": true,
-  "message": "Status atualizado",
-  "data": {
-    "id": "uuid",
-    "is_active": false
-  }
+    "success": true,
+    "message": "Status atualizado",
+    "data": {
+        "id": "uuid",
+        "is_active": false
+    }
 }
 ```
 
@@ -1350,6 +1363,7 @@ public function __construct(
 **Descricao:** Disparado quando tenant entra em periodo de gracia por inadimplencia.
 
 **Ouvintes Potenciais:**
+
 - Envio de email de notificacao de grace
 - Atualizacao de dashboard de inadimplencia
 - Log de auditoria
@@ -1373,6 +1387,7 @@ public function __construct(
 **Descricao:** Dispara quando tenant e bloqueado por inadimplencia.
 
 **Acoes Disparadas:**
+
 - Invalidacao de cache de status
 - Envio de notificacao ao SuperAdmin
 - Atualizacao de metricas de billing
@@ -1396,6 +1411,7 @@ public function __construct(
 **Descricao:** Disparado quando tenant e desbloqueado apos regularizacao.
 
 **Acoes Disparadas:**
+
 - Reativacao de acesso ao tenant
 - Envio de email de confirmacao
 - Log de auditoria
@@ -1419,6 +1435,7 @@ public function __construct(
 **Descricao:** Disparado quando purge de tenant e concluido.
 
 **Acoes Disparadas:**
+
 - Envio de email com relatorio LGPD
 - Atualizacao de metricas
 - Limpeza de cache
@@ -1484,6 +1501,7 @@ $this->authorize('delete', $tenant);                  // destroy
 ```
 
 **Policy:** `PlatformTenantPolicy` verifica:
+
 - `user->isSuperAdmin()` - acesso total
 - `user->hasPermissionTo('platform.tenants.manage', 'sanctum')` - permissao especifica
 
@@ -1501,12 +1519,14 @@ if ($tenantId !== null && $requestedTenant !== null && $tenantId !== $requestedT
 ### 8.4 Rate Limiting
 
 Rotas publicas de tenant (se houver) devem ter rate limiting configurado:
+
 - Criacao de tenant: 10 requests por minuto por IP
 - Listagem: 60 requests por minuto por usuario
 
 ### 8.5 Auditoria
 
 Todos os eventos de tenant sao logados com `AuditLogger`:
+
 - Bloqueio e desbloqueio por billing
 - Criacao e exclusao
 - Atualizacoes de status
@@ -1553,6 +1573,7 @@ final readonly class PlatformTenantDTO
 ```
 
 **Normalizacoes:**
+
 - `state` e convertido para uppercase
 - `zip_code`, `zip`, `zipcode` sao normalizados para `zip_code` (apenas digitos)
 - `phone` e `document` tem digitos extraidos
@@ -1760,35 +1781,35 @@ final class PlatformTenantDetailsResource extends JsonResource
 
 ## APENDICE A - Tabela de Status de Billing
 
-| Status | Label | Acceso | Duracao | Acoes Possiveis |
-|--------|-------|--------|---------|-----------------|
-| ACTIVE | Ativo | Total | Indefinida | Pagamento normal |
-| GRACE | Periodo de gracia | Total | 5 dias | Pagamento, lock manual por admin |
-| LOCKED | Bloqueado | Minimo (billing only) | 30 dias | Pagamento, unlock manual |
-| PENDING_PURGE | Pendente de exclusao | Minimo | Ate prazo | Pagamento, unlock manual, purge |
-| PURGED | Excluido | Nenhum | Permanente | Force delete, visualizacao de relatorio |
+| Status        | Label                | Acceso                | Duracao    | Acoes Possiveis                         |
+| ------------- | -------------------- | --------------------- | ---------- | --------------------------------------- |
+| ACTIVE        | Ativo                | Total                 | Indefinida | Pagamento normal                        |
+| GRACE         | Periodo de gracia    | Total                 | 5 dias     | Pagamento, lock manual por admin        |
+| LOCKED        | Bloqueado            | Minimo (billing only) | 30 dias    | Pagamento, unlock manual                |
+| PENDING_PURGE | Pendente de exclusao | Minimo                | Ate prazo  | Pagamento, unlock manual, purge         |
+| PURGED        | Excluido             | Nenhum                | Permanente | Force delete, visualizacao de relatorio |
 
 ---
 
 ## APENDICE B - Segmentos de Bootstrap
 
-| Segmento | Codigo | Agentes | Tags | Departamentos |
-|----------|--------|---------|------|---------------|
-| General | GENERAL | Recepcao Inteligente, Peggy, Don | Quente, Morno, Frio, VIP | Comercial, Suporte, CS, Financeiro |
-| SaaS | SAAS | + Super Admin SAAS | Lead-qualificado, Trial | Pré-vendas, Vendas, Onboarding |
-| Ecommerce | ECOMMERCE | + Cart Recovery, Order Tracking | carrinho-abandonado, primeira-compra | Vendas Online, SAC, Logistica |
-| Healthcare | HEALTHCARE | Clara (triagem) | urgente, retorno | Recepcao, Agendamento |
-| Real Estate | REAL_ESTATE | Max (imobiliario) | compra, aluguel | Vendas, Locação |
+| Segmento    | Codigo      | Agentes                          | Tags                                 | Departamentos                      |
+| ----------- | ----------- | -------------------------------- | ------------------------------------ | ---------------------------------- |
+| General     | GENERAL     | Recepcao Inteligente, Peggy, Don | Quente, Morno, Frio, VIP             | Comercial, Suporte, CS, Financeiro |
+| SaaS        | SAAS        | + Super Admin SAAS               | Lead-qualificado, Trial              | Pré-vendas, Vendas, Onboarding     |
+| Ecommerce   | ECOMMERCE   | + Cart Recovery, Order Tracking  | carrinho-abandonado, primeira-compra | Vendas Online, SAC, Logistica      |
+| Healthcare  | HEALTHCARE  | Clara (triagem)                  | urgente, retorno                     | Recepcao, Agendamento              |
+| Real Estate | REAL_ESTATE | Max (imobiliario)                | compra, aluguel                      | Vendas, Locação                    |
 
 ---
 
 ## APENDICE C - Mapeamento de Permissoes
 
-| Permissao | Descricao | Papéis Padrao |
-|-----------|-----------|---------------|
-| platform.tenants.manage | Gerenciar tenants (CRUD) | SuperAdmin |
-| platform.tenants.view | Visualizar tenants | SuperAdmin, Gerente |
-| platform.tenants.export | Exportar tenants | SuperAdmin |
+| Permissao               | Descricao                | Papéis Padrao       |
+| ----------------------- | ------------------------ | ------------------- |
+| platform.tenants.manage | Gerenciar tenants (CRUD) | SuperAdmin          |
+| platform.tenants.view   | Visualizar tenants       | SuperAdmin, Gerente |
+| platform.tenants.export | Exportar tenants         | SuperAdmin          |
 
 ---
 
@@ -1805,6 +1826,6 @@ GET    /api/platform/tenants/{id}  (apenas para visualizacao de status de cobran
 
 ## HISTORICO DE ALTERACOES
 
-| Versao | Data | Autor | Alteracoes |
-|--------|------|-------|------------|
-| 1.0 | 2026-03-28 | PM | Versao inicial do PRD |
+| Versao | Data       | Autor | Alteracoes            |
+| ------ | ---------- | ----- | --------------------- |
+| 1.0    | 2026-03-28 | PM    | Versao inicial do PRD |

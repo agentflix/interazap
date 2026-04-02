@@ -1,5 +1,5 @@
 /**
- * k6 Load Test Script for AgentFlix Gateway
+ * k6 Load Test Script for InteraZap Gateway
  *
  * Simulates webhook traffic to test gateway performance.
  *
@@ -165,7 +165,7 @@ function textSummary(data, options) {
   const indent = options.indent || '';
   let summary = '\n';
   summary += `${indent}╔══════════════════════════════════════════════════════════════╗\n`;
-  summary += `${indent}║           AgentFlix Gateway Load Test Summary                ║\n`;
+  summary += `${indent}║           InteraZap Gateway Load Test Summary                ║\n`;
   summary += `${indent}╠══════════════════════════════════════════════════════════════╣\n`;
 
   const metrics = data.metrics;

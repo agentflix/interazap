@@ -66,13 +66,13 @@ describe('LoginComponent', () => {
     const authService = TestBed.inject(AuthService);
 
     vi.spyOn(authService, 'login').mockReturnValue(
-      of({ data: { email: 'admin@agentflix.com.br', two_factor_required: true } }),
+      of({ data: { email: 'admin@interazap.com.br', two_factor_required: true } }),
     );
 
-    component.form.patchValue({ email: 'admin@agentflix.com.br', password: '123456' });
+    component.form.patchValue({ email: 'admin@interazap.com.br', password: '123456' });
     component.submit();
 
-    expect(component.twoFactorPendingEmail()).toBe('admin@agentflix.com.br');
+    expect(component.twoFactorPendingEmail()).toBe('admin@interazap.com.br');
     expect(component.isSubmitDisabled()).toBe(true);
   });
 
@@ -90,7 +90,7 @@ describe('LoginComponent', () => {
           user: {
             id: '1',
             name: 'Admin',
-            email: 'admin@agentflix.com.br',
+            email: 'admin@interazap.com.br',
           },
           permissions: ['chat.view'],
           tenant_plan: null,
@@ -100,7 +100,7 @@ describe('LoginComponent', () => {
     const setAuthSpy = vi.spyOn(authStore, 'setAuth');
     const navSpy = vi.spyOn(router, 'navigate');
 
-    component.twoFactorPendingEmail.set('admin@agentflix.com.br');
+    component.twoFactorPendingEmail.set('admin@interazap.com.br');
     component.onTwoFactorCodeCompleted('123456');
     component.submit();
 

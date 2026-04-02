@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Criar PRDs para todos os 11 módulos de domínio do AgentFlix, estabelecendo a documentação funcional como fonte de verdade para requisitos de produto e regras de negócio. Cada PRD documentará o estado atual do módulo (as-is), servindo como baseline para evolução futura.
+Criar PRDs para todos os 11 módulos de domínio do InteraZap, estabelecendo a documentação funcional como fonte de verdade para requisitos de produto e regras de negócio. Cada PRD documentará o estado atual do módulo (as-is), servindo como baseline para evolução futura.
 
 ## Módulo relacionado
 
@@ -44,30 +44,30 @@ Todos: Auth | Ai | Billing | Chat | Configuration | CRM | Dashboard | Gateway | 
 
 ## Tasks derivadas
 
-| Task | Descrição | Agente | Status |
-|------|-----------|--------|--------|
-| TASK-001 | PRD Auth — Autenticação e Multi-Tenancy | PM | done |
-| TASK-002 | PRD Chat — Conversas WhatsApp e Mensageria | PM | todo |
-| TASK-003 | PRD CRM — Gestão de Contatos e Pipeline | PM | todo |
-| TASK-004 | PRD Billing — Cobrança e Assinaturas | PM | todo |
-| TASK-005 | PRD AI — Autopilot e Base de Conhecimento | PM | todo |
-| TASK-006 | PRD Dashboard — Analytics e Métricas | PM | todo |
-| TASK-007 | PRD Configuration — Configurações do Sistema | PM | todo |
-| TASK-008 | PRD Platform — Multi-tenancy e Onboarding | PM | todo |
-| TASK-009 | PRD Gateway — API Gateway e Webhooks | PM | todo |
-| TASK-010 | PRD Reports — Relatórios e Exportação | PM | todo |
-| TASK-011 | PRD Shared — Utilitários Compartilhados | PM | todo |
+| Task     | Descrição                                    | Agente | Status |
+| -------- | -------------------------------------------- | ------ | ------ |
+| TASK-001 | PRD Auth — Autenticação e Multi-Tenancy      | PM     | done   |
+| TASK-002 | PRD Chat — Conversas WhatsApp e Mensageria   | PM     | todo   |
+| TASK-003 | PRD CRM — Gestão de Contatos e Pipeline      | PM     | todo   |
+| TASK-004 | PRD Billing — Cobrança e Assinaturas         | PM     | todo   |
+| TASK-005 | PRD AI — Autopilot e Base de Conhecimento    | PM     | todo   |
+| TASK-006 | PRD Dashboard — Analytics e Métricas         | PM     | todo   |
+| TASK-007 | PRD Configuration — Configurações do Sistema | PM     | todo   |
+| TASK-008 | PRD Platform — Multi-tenancy e Onboarding    | PM     | todo   |
+| TASK-009 | PRD Gateway — API Gateway e Webhooks         | PM     | todo   |
+| TASK-010 | PRD Reports — Relatórios e Exportação        | PM     | todo   |
+| TASK-011 | PRD Shared — Utilitários Compartilhados      | PM     | todo   |
 
 ## Riscos e dependências
 
 ### Riscos
 
-| Risco | Probabilidade | Impacto | Mitigação |
-|-------|--------------|---------|-----------|
-| Funcionalidades implementadas não documentadas no código (lógica implícita) | Alta | Médio | Analisar routes, controllers, actions e tests para mapear funcionalidades completas |
-| Regras de negócio divergentes entre frontend e backend | Média | Alto | Cross-check entre Angular services/guards e Laravel policies/middleware |
-| Módulos com baixa cobertura de testes dificultam mapeamento de comportamentos esperados | Média | Médio | Priorizar análise de routes + FormRequests como fonte primária |
-| PRDs ficarem desatualizados com evolução do código | Alta | Alto | Vincular PRDs ao ciclo de desenvolvimento — todo feature deve atualizar PRD |
+| Risco                                                                                   | Probabilidade | Impacto | Mitigação                                                                           |
+| --------------------------------------------------------------------------------------- | ------------- | ------- | ----------------------------------------------------------------------------------- |
+| Funcionalidades implementadas não documentadas no código (lógica implícita)             | Alta          | Médio   | Analisar routes, controllers, actions e tests para mapear funcionalidades completas |
+| Regras de negócio divergentes entre frontend e backend                                  | Média         | Alto    | Cross-check entre Angular services/guards e Laravel policies/middleware             |
+| Módulos com baixa cobertura de testes dificultam mapeamento de comportamentos esperados | Média         | Médio   | Priorizar análise de routes + FormRequests como fonte primária                      |
+| PRDs ficarem desatualizados com evolução do código                                      | Alta          | Alto    | Vincular PRDs ao ciclo de desenvolvimento — todo feature deve atualizar PRD         |
 
 ### Dependências
 

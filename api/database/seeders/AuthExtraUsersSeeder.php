@@ -30,7 +30,7 @@ class AuthExtraUsersSeeder extends Seeder
             foreach ($roles as $role) {
                 for ($i = 1; $i <= 2; $i++) {
                     $email = sprintf(
-                        '%s.%d.%s@agentflix.test',
+                        '%s.%d.%s@interazap.test',
                         $role->name,
                         $i,
                         strtolower((string) $tenant->tenant_code)

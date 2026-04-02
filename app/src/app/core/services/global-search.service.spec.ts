@@ -74,17 +74,17 @@ describe('GlobalSearchService', () => {
       { id: '3', label: 'Mid', type: 'contact', url: '/c', timestamp: 2 },
     ];
 
-    localStorage.setItem('agentflix:recent_searches', JSON.stringify(unsorted));
+    localStorage.setItem('interazap:recent_searches', JSON.stringify(unsorted));
 
     const recents = service.getRecentSearches();
     expect(recents.map((item) => item.id)).toEqual(['2', '3', '1']);
   });
 
   it('clearRecentSearches should remove storage key', () => {
-    localStorage.setItem('agentflix:recent_searches', JSON.stringify([{ id: '1' }]));
+    localStorage.setItem('interazap:recent_searches', JSON.stringify([{ id: '1' }]));
 
     service.clearRecentSearches();
 
-    expect(localStorage.getItem('agentflix:recent_searches')).toBeNull();
+    expect(localStorage.getItem('interazap:recent_searches')).toBeNull();
   });
 });

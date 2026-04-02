@@ -9,7 +9,7 @@ import {
   type RecentSearch,
 } from '@shared/models/global-search.model';
 
-const RECENT_SEARCHES_KEY = 'agentflix:recent_searches';
+const RECENT_SEARCHES_KEY = 'interazap:recent_searches';
 const RECENT_SEARCHES_LIMIT = 5;
 
 /**

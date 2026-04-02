@@ -32,7 +32,7 @@ final class AiBudgetThresholdNotification extends Notification implements Should
         $percentage = number_format($this->event->ratio * 100, 2);
 
         return (new MailMessage)
-            ->subject('[AgentFlix] Autopilot Budget '.strtoupper($this->event->level))
+            ->subject('[InteraZap] Autopilot Budget '.strtoupper($this->event->level))
             ->greeting('Budget Alert')
             ->line('Autopilot budget threshold was reached for a tenant.')
             ->line('Tenant: '.$this->event->tenantId)

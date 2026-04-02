@@ -6,7 +6,7 @@ import { AfMaskDirective, type AfMaskPreset } from '../../directives/mask.direct
 import { resolveInputContainerClass } from '../input-container.util';
 
 /**
- * Masked input component for AgentFlix UI Kit.
+ * Masked input component for InteraZap UI Kit.
  *
  * @description Input with auto-formatting masks for Brazilian formats:
  * CPF, CNPJ, CPF/CNPJ auto-detect, CEP, phone, and currency (R$).

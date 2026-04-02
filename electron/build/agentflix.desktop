@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=AgentFlix Desktop
-Comment=AgentFlix Desktop Application
-Exec=agentflix-desktop %U
-Icon=agentflix-desktop
+Name=InteraZap Desktop
+Comment=InteraZap Desktop Application
+Exec=interazap-desktop %U
+Icon=interazap-desktop
 Terminal=false
 Type=Application
 Categories=Office;Network;
-MimeType=x-scheme-handler/agentflix;
-StartupWMClass=agentflix-desktop
+MimeType=x-scheme-handler/interazap;
+StartupWMClass=interazap-desktop

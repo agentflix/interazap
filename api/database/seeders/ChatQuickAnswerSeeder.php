@@ -75,7 +75,7 @@ class ChatQuickAnswerSeeder extends Seeder
                 'tenant_id' => $tenant->id,
                 'name' => 'Suporte Técnico',
                 'shortcut' => '/suporte',
-                'content' => 'Para suporte técnico, entre em contato com nossa equipe especializada através do email suporte@agentflix.local ou pelo telefone (11) 3000-0000.',
+                'content' => 'Para suporte técnico, entre em contato com nossa equipe especializada através do email suporte@interazap.local ou pelo telefone (11) 3000-0000.',
                 'category' => 'Suporte',
                 'is_active' => true,
             ],

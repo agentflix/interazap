@@ -156,7 +156,7 @@ class MetricsService
     private function recordAppInfo(CollectorRegistry $registry): void
     {
         $gauge = $registry->getOrRegisterGauge(
-            'agentflix',
+            'interazap',
             'app_info',
             'Application information',
             ['version', 'env']
@@ -172,11 +172,11 @@ class MetricsService
     {
         $metrics = $this->getQueueMetrics();
 
-        $registry->getOrRegisterGauge('agentflix', 'queue_jobs_total', 'Total queue jobs tracked')
+        $registry->getOrRegisterGauge('interazap', 'queue_jobs_total', 'Total queue jobs tracked')
             ->set($metrics['jobs_total']);
-        $registry->getOrRegisterGauge('agentflix', 'queue_jobs_pending', 'Pending jobs in queue')
+        $registry->getOrRegisterGauge('interazap', 'queue_jobs_pending', 'Pending jobs in queue')
             ->set($metrics['jobs_pending']);
-        $registry->getOrRegisterGauge('agentflix', 'queue_jobs_failed_total', 'Failed queue jobs')
+        $registry->getOrRegisterGauge('interazap', 'queue_jobs_failed_total', 'Failed queue jobs')
             ->set($metrics['jobs_failed']);
     }
 
@@ -184,7 +184,7 @@ class MetricsService
     {
         $metrics = $this->getDatabaseMetrics();
 
-        $registry->getOrRegisterGauge('agentflix', 'database_connections_active', 'Active database connections')
+        $registry->getOrRegisterGauge('interazap', 'database_connections_active', 'Active database connections')
             ->set($metrics['connections']);
     }
 
@@ -192,17 +192,17 @@ class MetricsService
     {
         $metrics = $this->getRedisMetrics();
 
-        $registry->getOrRegisterGauge('agentflix', 'redis_connected', 'Redis connection status')
+        $registry->getOrRegisterGauge('interazap', 'redis_connected', 'Redis connection status')
             ->set($metrics['connected']);
-        $registry->getOrRegisterGauge('agentflix', 'redis_memory_used_bytes', 'Redis memory usage in bytes')
+        $registry->getOrRegisterGauge('interazap', 'redis_memory_used_bytes', 'Redis memory usage in bytes')
             ->set($metrics['memory_used']);
     }
 
     private function recordSystemMetrics(CollectorRegistry $registry): void
     {
-        $registry->getOrRegisterGauge('agentflix', 'php_memory_usage_bytes', 'PHP memory usage in bytes')
+        $registry->getOrRegisterGauge('interazap', 'php_memory_usage_bytes', 'PHP memory usage in bytes')
             ->set((float) memory_get_usage(true));
-        $registry->getOrRegisterGauge('agentflix', 'php_memory_peak_bytes', 'PHP peak memory usage in bytes')
+        $registry->getOrRegisterGauge('interazap', 'php_memory_peak_bytes', 'PHP peak memory usage in bytes')
             ->set((float) memory_get_peak_usage(true));
     }
 
@@ -211,7 +211,7 @@ class MetricsService
         $metrics = $this->getBusinessMetrics();
 
         $ticketGauge = $registry->getOrRegisterGauge(
-            'agentflix',
+            'interazap',
             'chat_tickets_total',
             'Total chat tickets by status',
             ['status']
@@ -221,7 +221,7 @@ class MetricsService
         }
 
         $messageGauge = $registry->getOrRegisterGauge(
-            'agentflix',
+            'interazap',
             'chat_messages_total',
             'Total chat messages by direction',
             ['direction']
@@ -230,9 +230,9 @@ class MetricsService
             $messageGauge->set($message['count'], [$message['direction']]);
         }
 
-        $registry->getOrRegisterGauge('agentflix', 'crm_negotiations_value_total', 'Total value of CRM negotiations')
+        $registry->getOrRegisterGauge('interazap', 'crm_negotiations_value_total', 'Total value of CRM negotiations')
             ->set($metrics['negotiations_value']);
-        $registry->getOrRegisterGauge('agentflix', 'crm_negotiations_total', 'Total CRM negotiations')
+        $registry->getOrRegisterGauge('interazap', 'crm_negotiations_total', 'Total CRM negotiations')
             ->set($metrics['negotiations_count']);
     }
 

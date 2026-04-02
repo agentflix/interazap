@@ -10,17 +10,19 @@
 
 ## 1. CONTEXTO
 
-O módulo Auth é a fundação do AgentFlix — toda operação no sistema depende dele. Sem autenticação robusta e isolamento de dados entre empresas (tenants), nenhum outro módulo pode operar com segurança.
+O módulo Auth é a fundação do InteraZap — toda operação no sistema depende dele. Sem autenticação robusta e isolamento de dados entre empresas (tenants), nenhum outro módulo pode operar com segurança.
 
-O AgentFlix é um SaaS multi-tenant para comunicação inteligente com clientes via WhatsApp, integrando CRM, billing e IA. Cada empresa (tenant) opera em total isolamento: seus contatos, conversas, cobranças e configurações são invisíveis para outras empresas. O módulo Auth garante que esse contrato de isolamento seja respeitado em toda requisição.
+O InteraZap é um SaaS multi-tenant para comunicação inteligente com clientes via WhatsApp, integrando CRM, billing e IA. Cada empresa (tenant) opera em total isolamento: seus contatos, conversas, cobranças e configurações são invisíveis para outras empresas. O módulo Auth garante que esse contrato de isolamento seja respeitado em toda requisição.
 
 **Problema que resolve:**
+
 - Autenticação segura de usuários e máquinas (API tokens) em ambiente multi-tenant
 - Controle granular de acesso com RBAC (Role-Based Access Control) configurável por tenant
 - Isolamento completo de dados entre empresas, prevenindo data leaks cross-tenant
 - Suporte a 2FA (Two-Factor Authentication) para segurança adicional
 
 **Valor de negócio:**
+
 - Compliance com LGPD e políticas de segurança corporativas
 - Possibilita onboarding self-service de novas empresas
 - Base para todas as funcionalidades de billing (quem pode cobrar), CRM (quem pode ver contatos) e Chat (quem pode atender)
@@ -37,23 +39,23 @@ Prover autenticação segura com tokens Laravel Sanctum, controle de acesso base
 
 ### 3.1 Regras de Negócio
 
-| ID | Regra | Prioridade |
-|--------|-------|------------|
-| RN-001 | Todo usuário deve pertencer a exatamente uma empresa (tenant), definido pelo campo `tenant_id` obrigatório e não-nulo | Alta |
-| RN-002 | Tokens Sanctum devem ter expiração configurável via `SANCTUM_EXPIRATION` (env var, em minutos) | Alta |
-| RN-003 | Cada empresa tem seu próprio conjunto de roles e permissões (scoped por `guard_name: sanctum`) | Alta |
-| RN-004 | Usuários podem ter múltiplas roles simultaneamente | Média |
-| RN-005 | Toda query de dados deve ser filtrada pelo `tenant_id` do usuário autenticado (trait `BelongsToTenant`) | Crítica |
-| RN-006 | O role `super-admin` é o único que pode acessar dados cross-tenant e gerenciar a plataforma | Alta |
-| RN-007 | Login deve usar email + senha, com suporte opcional a 2FA (TOTP) | Alta |
-| RN-008 | Senhas devem usar bcrypt via cast `hashed` do Laravel (rounds configuráveis via `bcrypt.rounds`) | Alta |
-| RN-009 | Email deve ser único dentro do mesmo tenant (permitido o mesmo email em tenants diferentes) | Alta |
-| RN-010 | Usuários possuem estados `is_active` — quando desativado, o login deve ser recusado | Alta |
-| RN-011 | Todas as alterações em entidades Auth devem gerar registros de auditoria (via `OwenIt\Auditing`) | Média |
-| RN-012 | Soft delete obrigatório em `AuthUser` — exclusões lógicas, nunca físicas | Alta |
-| RN-013 | UUIDs como chave primária em todas as tabelas do módulo — nunca auto-increment | Alta |
-| RN-014 | Rate limiting agressivo em rotas públicas: máximo 5 requisições/minuto para login e reset de senha | Alta |
-| RN-015 | 2FA usa TOTP (Time-based One-Time Password) com recovery codes para recuperação | Média |
+| ID     | Regra                                                                                                                 | Prioridade |
+| ------ | --------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RN-001 | Todo usuário deve pertencer a exatamente uma empresa (tenant), definido pelo campo `tenant_id` obrigatório e não-nulo | Alta       |
+| RN-002 | Tokens Sanctum devem ter expiração configurável via `SANCTUM_EXPIRATION` (env var, em minutos)                        | Alta       |
+| RN-003 | Cada empresa tem seu próprio conjunto de roles e permissões (scoped por `guard_name: sanctum`)                        | Alta       |
+| RN-004 | Usuários podem ter múltiplas roles simultaneamente                                                                    | Média      |
+| RN-005 | Toda query de dados deve ser filtrada pelo `tenant_id` do usuário autenticado (trait `BelongsToTenant`)               | Crítica    |
+| RN-006 | O role `super-admin` é o único que pode acessar dados cross-tenant e gerenciar a plataforma                           | Alta       |
+| RN-007 | Login deve usar email + senha, com suporte opcional a 2FA (TOTP)                                                      | Alta       |
+| RN-008 | Senhas devem usar bcrypt via cast `hashed` do Laravel (rounds configuráveis via `bcrypt.rounds`)                      | Alta       |
+| RN-009 | Email deve ser único dentro do mesmo tenant (permitido o mesmo email em tenants diferentes)                           | Alta       |
+| RN-010 | Usuários possuem estados `is_active` — quando desativado, o login deve ser recusado                                   | Alta       |
+| RN-011 | Todas as alterações em entidades Auth devem gerar registros de auditoria (via `OwenIt\Auditing`)                      | Média      |
+| RN-012 | Soft delete obrigatório em `AuthUser` — exclusões lógicas, nunca físicas                                              | Alta       |
+| RN-013 | UUIDs como chave primária em todas as tabelas do módulo — nunca auto-increment                                        | Alta       |
+| RN-014 | Rate limiting agressivo em rotas públicas: máximo 5 requisições/minuto para login e reset de senha                    | Alta       |
+| RN-015 | 2FA usa TOTP (Time-based One-Time Password) com recovery codes para recuperação                                       | Média      |
 
 ### 3.2 Fluxos
 
@@ -116,44 +118,44 @@ Prover autenticação segura com tokens Laravel Sanctum, controle de acesso base
 
 ### 3.3 Validações
 
-| Campo | Regras | Escopo |
-|-------|--------|--------|
-| `email` | Obrigatório, formato email válido, único por tenant | Login, Registro, Perfil |
-| `password` | Obrigatório no login, mínimo 8 caracteres | Login, Registro, Reset |
-| `password_confirmation` | Deve coincidir com `password` | Reset, Alteração de senha |
-| `current_password` | Obrigatório e válido ao alterar senha | Perfil |
-| `name` | Obrigatório, string, máximo 255 | Registro, Perfil |
-| `phone` | Opcional, formato telefone válido | Registro, Perfil |
-| `two_factor_code` | Obrigatório no fluxo 2FA, 6 dígitos numéricos | Login 2FA |
-| `role_id` | UUID válido, role deve existir no tenant | Gestão de Usuários |
-| `tenant_id` | UUID válido, tenant deve existir e estar ativo | Cadastro (interno) |
-| `avatar` | Imagem (jpg, png, webp), máximo 2MB | Upload de Avatar |
+| Campo                   | Regras                                              | Escopo                    |
+| ----------------------- | --------------------------------------------------- | ------------------------- |
+| `email`                 | Obrigatório, formato email válido, único por tenant | Login, Registro, Perfil   |
+| `password`              | Obrigatório no login, mínimo 8 caracteres           | Login, Registro, Reset    |
+| `password_confirmation` | Deve coincidir com `password`                       | Reset, Alteração de senha |
+| `current_password`      | Obrigatório e válido ao alterar senha               | Perfil                    |
+| `name`                  | Obrigatório, string, máximo 255                     | Registro, Perfil          |
+| `phone`                 | Opcional, formato telefone válido                   | Registro, Perfil          |
+| `two_factor_code`       | Obrigatório no fluxo 2FA, 6 dígitos numéricos       | Login 2FA                 |
+| `role_id`               | UUID válido, role deve existir no tenant            | Gestão de Usuários        |
+| `tenant_id`             | UUID válido, tenant deve existir e estar ativo      | Cadastro (interno)        |
+| `avatar`                | Imagem (jpg, png, webp), máximo 2MB                 | Upload de Avatar          |
 
 ### 3.4 Estados
 
 #### Usuário (`AuthUser`)
 
-| Estado | Campo | Descrição | Transições |
-|--------|-------|-----------|------------|
-| Ativo | `is_active = true` | Pode fazer login e operar | → Desativado (toggle) |
-| Desativado | `is_active = false` | Login negado, dados preservados | → Ativo (toggle) |
-| Deletado | `deleted_at != null` | Soft delete, invisível em queries | → Restaurado (admin) |
+| Estado     | Campo                | Descrição                         | Transições            |
+| ---------- | -------------------- | --------------------------------- | --------------------- |
+| Ativo      | `is_active = true`   | Pode fazer login e operar         | → Desativado (toggle) |
+| Desativado | `is_active = false`  | Login negado, dados preservados   | → Ativo (toggle)      |
+| Deletado   | `deleted_at != null` | Soft delete, invisível em queries | → Restaurado (admin)  |
 
 #### Empresa (PlatformTenant)
 
-| Estado | Descrição | Transições |
-|--------|-----------|------------|
-| active | Empresa operando normalmente | → suspended, → inactive |
-| suspended | Temporariamente bloqueada (inadimplência, violação) | → active, → inactive |
-| inactive | Desativada permanentemente | → active (reativação manual) |
+| Estado    | Descrição                                           | Transições                   |
+| --------- | --------------------------------------------------- | ---------------------------- |
+| active    | Empresa operando normalmente                        | → suspended, → inactive      |
+| suspended | Temporariamente bloqueada (inadimplência, violação) | → active, → inactive         |
+| inactive  | Desativada permanentemente                          | → active (reativação manual) |
 
 #### 2FA
 
-| Estado | Descrição | Transições |
-|--------|-----------|------------|
-| disabled | 2FA não configurado | → setup (iniciar configuração) |
-| setup | QR code gerado, aguardando validação | → enabled (validar código), → disabled (cancelar) |
-| enabled | 2FA ativo e funcional | → disabled (desativar com senha) |
+| Estado   | Descrição                            | Transições                                        |
+| -------- | ------------------------------------ | ------------------------------------------------- |
+| disabled | 2FA não configurado                  | → setup (iniciar configuração)                    |
+| setup    | QR code gerado, aguardando validação | → enabled (validar código), → disabled (cancelar) |
+| enabled  | 2FA ativo e funcional                | → disabled (desativar com senha)                  |
 
 ---
 
@@ -225,22 +227,22 @@ flowchart TD
 
 ## 5. CRITÉRIOS DE ACEITAÇÃO
 
-| ID | Critério | Verificação |
-|--------|----------|-------------|
-| CA-001 | Usuário consegue fazer login com email + senha e recebe token Sanctum válido | Teste Feature: `POST /api/auth/login` retorna 200 com `token` |
-| CA-002 | Requisições sem token válido retornam 401 Unauthorized | Teste Feature: requisição sem header `Authorization` retorna 401 |
-| CA-003 | Requisições sem permissão adequada retornam 403 Forbidden | Teste Feature: usuário sem role tenta acessar rota protegida → 403 |
-| CA-004 | Dados de um tenant nunca são acessíveis por outro tenant | Teste Feature: criar 2 tenants, user A não vê dados do tenant B |
-| CA-005 | Roles e permissões são configuráveis por empresa | Teste Feature: criar role custom com permissões específicas por tenant |
-| CA-006 | Token expira conforme `SANCTUM_EXPIRATION` | Teste Feature: token expirado retorna 401 |
-| CA-007 | SuperAdmin pode gerenciar múltiplos tenants | Teste Feature: `super-admin` acessa dados cross-tenant |
-| CA-008 | Logout invalida o token do usuário | Teste Feature: `POST /api/auth/logout` → token anterior retorna 401 |
-| CA-009 | Login com 2FA exige código TOTP válido | Teste Feature: login com 2FA sem código → 200 `requires_2fa`; com código → 200 `token` |
-| CA-010 | Usuário desativado não consegue fazer login | Teste Feature: `is_active = false` → login retorna 403 |
-| CA-011 | Refresh de token gera novo token e invalida o anterior | Teste Feature: `POST /api/auth/refresh` retorna novo token, antigo invalida |
-| CA-012 | Rate limiting bloqueia após 5 tentativas/minuto em login | Teste Feature: 6ª tentativa retorna 429 |
-| CA-013 | Alterações em usuários/roles geram registros de auditoria | Teste Feature: update em user → registro em `audits` table |
-| CA-014 | Upload de avatar aceita jpg/png/webp até 2MB | Teste Feature: upload válido → 200; arquivo 3MB → 422 |
+| ID     | Critério                                                                     | Verificação                                                                            |
+| ------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| CA-001 | Usuário consegue fazer login com email + senha e recebe token Sanctum válido | Teste Feature: `POST /api/auth/login` retorna 200 com `token`                          |
+| CA-002 | Requisições sem token válido retornam 401 Unauthorized                       | Teste Feature: requisição sem header `Authorization` retorna 401                       |
+| CA-003 | Requisições sem permissão adequada retornam 403 Forbidden                    | Teste Feature: usuário sem role tenta acessar rota protegida → 403                     |
+| CA-004 | Dados de um tenant nunca são acessíveis por outro tenant                     | Teste Feature: criar 2 tenants, user A não vê dados do tenant B                        |
+| CA-005 | Roles e permissões são configuráveis por empresa                             | Teste Feature: criar role custom com permissões específicas por tenant                 |
+| CA-006 | Token expira conforme `SANCTUM_EXPIRATION`                                   | Teste Feature: token expirado retorna 401                                              |
+| CA-007 | SuperAdmin pode gerenciar múltiplos tenants                                  | Teste Feature: `super-admin` acessa dados cross-tenant                                 |
+| CA-008 | Logout invalida o token do usuário                                           | Teste Feature: `POST /api/auth/logout` → token anterior retorna 401                    |
+| CA-009 | Login com 2FA exige código TOTP válido                                       | Teste Feature: login com 2FA sem código → 200 `requires_2fa`; com código → 200 `token` |
+| CA-010 | Usuário desativado não consegue fazer login                                  | Teste Feature: `is_active = false` → login retorna 403                                 |
+| CA-011 | Refresh de token gera novo token e invalida o anterior                       | Teste Feature: `POST /api/auth/refresh` retorna novo token, antigo invalida            |
+| CA-012 | Rate limiting bloqueia após 5 tentativas/minuto em login                     | Teste Feature: 6ª tentativa retorna 429                                                |
+| CA-013 | Alterações em usuários/roles geram registros de auditoria                    | Teste Feature: update em user → registro em `audits` table                             |
+| CA-014 | Upload de avatar aceita jpg/png/webp até 2MB                                 | Teste Feature: upload válido → 200; arquivo 3MB → 422                                  |
 
 ---
 
@@ -277,34 +279,34 @@ Request → FormRequest (validação) → Controller → DTO::fromRequest() → 
 
 ```json
 {
-  "success": true,
-  "message": "Login realizado com sucesso",
-  "data": {
-    "token": "1|abc123def456...",
-    "user": {
-      "id": "550e8400-e29b-41d4-a716-446655440000",
-      "name": "Rafael Silva",
-      "email": "rafael@empresa.com",
-      "phone": "+5511999887766",
-      "avatar_url": "https://storage.agentflix.com/avatars/550e8400.jpg",
-      "is_active": true,
-      "two_factor_enabled": false
-    },
-    "tenant": {
-      "id": "660e8400-e29b-41d4-a716-446655440001",
-      "name": "Empresa Exemplo",
-      "status": "active"
-    },
-    "roles": ["Gerente"],
-    "permissions": [
-      "auth.users.list",
-      "auth.users.create",
-      "auth.users.update",
-      "auth.roles.list",
-      "crm.contacts.list",
-      "chat.conversations.list"
-    ]
-  }
+    "success": true,
+    "message": "Login realizado com sucesso",
+    "data": {
+        "token": "1|abc123def456...",
+        "user": {
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "name": "Rafael Silva",
+            "email": "rafael@empresa.com",
+            "phone": "+5511999887766",
+            "avatar_url": "https://storage.interazap.com/avatars/550e8400.jpg",
+            "is_active": true,
+            "two_factor_enabled": false
+        },
+        "tenant": {
+            "id": "660e8400-e29b-41d4-a716-446655440001",
+            "name": "Empresa Exemplo",
+            "status": "active"
+        },
+        "roles": ["Gerente"],
+        "permissions": [
+            "auth.users.list",
+            "auth.users.create",
+            "auth.users.update",
+            "auth.roles.list",
+            "crm.contacts.list",
+            "chat.conversations.list"
+        ]
+    }
 }
 ```
 
@@ -344,12 +346,12 @@ Request → FormRequest (validação) → Controller → DTO::fromRequest() → 
 
 ```json
 {
-  "success": true,
-  "message": "2FA requerido",
-  "data": {
-    "requires_2fa": true,
-    "user_id": "550e8400-e29b-41d4-a716-446655440000"
-  }
+    "success": true,
+    "message": "2FA requerido",
+    "data": {
+        "requires_2fa": true,
+        "user_id": "550e8400-e29b-41d4-a716-446655440000"
+    }
 }
 ```
 
@@ -357,11 +359,11 @@ Request → FormRequest (validação) → Controller → DTO::fromRequest() → 
 
 ```json
 {
-  "success": false,
-  "message": "Credenciais inválidas",
-  "errors": {
-    "email": ["O campo email é obrigatório."]
-  }
+    "success": false,
+    "message": "Credenciais inválidas",
+    "errors": {
+        "email": ["O campo email é obrigatório."]
+    }
 }
 ```
 
@@ -371,87 +373,87 @@ Request → FormRequest (validação) → Controller → DTO::fromRequest() → 
 
 ### Tabelas do Módulo Auth
 
-| Tabela | PK | Tenant-scoped | Descrição |
-|--------|-----|--------------|-----------|
-| `auth_users` | UUID | Sim (`tenant_id`) | Usuários do sistema |
-| `auth_roles` | UUID | Sim (via `Spatie`) | Roles (papéis) por tenant |
-| `auth_permissions` | UUID | Não | Permissões globais do sistema |
-| `model_has_roles` | Composta | — | Associação user ↔ role |
-| `model_has_permissions` | Composta | — | Associação user ↔ permission (diretas) |
-| `role_has_permissions` | Composta | — | Associação role ↔ permission |
-| `personal_access_tokens` | UUID | Sim (`tokenable_id`) | Tokens Sanctum |
-| `audits` | UUID | Sim | Registros de auditoria |
+| Tabela                   | PK       | Tenant-scoped        | Descrição                              |
+| ------------------------ | -------- | -------------------- | -------------------------------------- |
+| `auth_users`             | UUID     | Sim (`tenant_id`)    | Usuários do sistema                    |
+| `auth_roles`             | UUID     | Sim (via `Spatie`)   | Roles (papéis) por tenant              |
+| `auth_permissions`       | UUID     | Não                  | Permissões globais do sistema          |
+| `model_has_roles`        | Composta | —                    | Associação user ↔ role                 |
+| `model_has_permissions`  | Composta | —                    | Associação user ↔ permission (diretas) |
+| `role_has_permissions`   | Composta | —                    | Associação role ↔ permission           |
+| `personal_access_tokens` | UUID     | Sim (`tokenable_id`) | Tokens Sanctum                         |
+| `audits`                 | UUID     | Sim                  | Registros de auditoria                 |
 
 ### Roles Padrão
 
-| Constante | Valor | Descrição |
-|-----------|-------|-----------|
+| Constante     | Valor         | Descrição                              |
+| ------------- | ------------- | -------------------------------------- |
 | `SUPER_ADMIN` | `super-admin` | Acesso total cross-tenant (plataforma) |
-| `MANAGER` | `Gerente` | Admin do tenant — gestão completa |
-| `AGENT` | `Atendente` | Operador — acesso limitado |
+| `MANAGER`     | `Gerente`     | Admin do tenant — gestão completa      |
+| `AGENT`       | `Atendente`   | Operador — acesso limitado             |
 
 ---
 
 ## 9. ENDPOINTS
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| POST | `/api/auth/login` | Não | Login com email + senha |
-| POST | `/api/auth/login-with-2fa` | Não | Login com 2FA |
-| POST | `/api/auth/forgot-password` | Não | Solicitar reset de senha |
-| POST | `/api/auth/reset-password` | Não | Resetar senha com token |
-| GET | `/api/auth/me` | Sim | Dados do usuário autenticado |
-| POST | `/api/auth/logout` | Sim | Encerrar sessão |
-| POST | `/api/auth/refresh` | Sim | Renovar token |
-| GET | `/api/auth/get-menu` | Sim | Menu de navegação |
-| GET | `/api/auth/profile` | Sim | Ver perfil |
-| PUT | `/api/auth/profile` | Sim | Atualizar perfil |
-| PUT | `/api/auth/profile/password` | Sim | Alterar senha |
-| POST | `/api/auth/profile/avatar` | Sim | Upload de avatar |
-| DELETE | `/api/auth/profile/avatar` | Sim | Remover avatar |
-| GET | `/api/auth/2fa/status` | Sim | Status do 2FA |
-| POST | `/api/auth/2fa/setup` | Sim | Iniciar configuração 2FA |
-| POST | `/api/auth/2fa/validate` | Sim | Validar setup 2FA |
-| POST | `/api/auth/2fa/disable` | Sim | Desabilitar 2FA |
-| POST | `/api/auth/2fa/recovery-codes` | Sim | Regenerar recovery codes |
-| GET | `/api/auth/roles` | Sim | Listar roles do tenant |
-| POST | `/api/auth/roles` | Sim | Criar role |
-| GET | `/api/auth/roles/permissions` | Sim | Listar todas as permissões |
-| GET | `/api/auth/roles/{id}` | Sim | Detalhes de um role |
-| PUT | `/api/auth/roles/{id}` | Sim | Atualizar role |
-| DELETE | `/api/auth/roles/{id}` | Sim | Excluir role |
-| GET | `/api/auth/users` | Sim | Listar usuários do tenant |
-| POST | `/api/auth/users` | Sim | Criar usuário |
-| GET | `/api/auth/users/{id}` | Sim | Detalhes de um usuário |
-| PUT | `/api/auth/users/{id}` | Sim | Atualizar usuário |
-| DELETE | `/api/auth/users/{id}` | Sim | Excluir usuário (soft delete) |
-| POST | `/api/auth/users/{id}/toggle` | Sim | Ativar/desativar usuário |
-| POST | `/api/auth/users/{id}/avatar` | Sim | Upload de avatar do usuário |
-| DELETE | `/api/auth/users/{id}/avatar` | Sim | Remover avatar do usuário |
+| Método | Rota                           | Auth | Descrição                     |
+| ------ | ------------------------------ | ---- | ----------------------------- |
+| POST   | `/api/auth/login`              | Não  | Login com email + senha       |
+| POST   | `/api/auth/login-with-2fa`     | Não  | Login com 2FA                 |
+| POST   | `/api/auth/forgot-password`    | Não  | Solicitar reset de senha      |
+| POST   | `/api/auth/reset-password`     | Não  | Resetar senha com token       |
+| GET    | `/api/auth/me`                 | Sim  | Dados do usuário autenticado  |
+| POST   | `/api/auth/logout`             | Sim  | Encerrar sessão               |
+| POST   | `/api/auth/refresh`            | Sim  | Renovar token                 |
+| GET    | `/api/auth/get-menu`           | Sim  | Menu de navegação             |
+| GET    | `/api/auth/profile`            | Sim  | Ver perfil                    |
+| PUT    | `/api/auth/profile`            | Sim  | Atualizar perfil              |
+| PUT    | `/api/auth/profile/password`   | Sim  | Alterar senha                 |
+| POST   | `/api/auth/profile/avatar`     | Sim  | Upload de avatar              |
+| DELETE | `/api/auth/profile/avatar`     | Sim  | Remover avatar                |
+| GET    | `/api/auth/2fa/status`         | Sim  | Status do 2FA                 |
+| POST   | `/api/auth/2fa/setup`          | Sim  | Iniciar configuração 2FA      |
+| POST   | `/api/auth/2fa/validate`       | Sim  | Validar setup 2FA             |
+| POST   | `/api/auth/2fa/disable`        | Sim  | Desabilitar 2FA               |
+| POST   | `/api/auth/2fa/recovery-codes` | Sim  | Regenerar recovery codes      |
+| GET    | `/api/auth/roles`              | Sim  | Listar roles do tenant        |
+| POST   | `/api/auth/roles`              | Sim  | Criar role                    |
+| GET    | `/api/auth/roles/permissions`  | Sim  | Listar todas as permissões    |
+| GET    | `/api/auth/roles/{id}`         | Sim  | Detalhes de um role           |
+| PUT    | `/api/auth/roles/{id}`         | Sim  | Atualizar role                |
+| DELETE | `/api/auth/roles/{id}`         | Sim  | Excluir role                  |
+| GET    | `/api/auth/users`              | Sim  | Listar usuários do tenant     |
+| POST   | `/api/auth/users`              | Sim  | Criar usuário                 |
+| GET    | `/api/auth/users/{id}`         | Sim  | Detalhes de um usuário        |
+| PUT    | `/api/auth/users/{id}`         | Sim  | Atualizar usuário             |
+| DELETE | `/api/auth/users/{id}`         | Sim  | Excluir usuário (soft delete) |
+| POST   | `/api/auth/users/{id}/toggle`  | Sim  | Ativar/desativar usuário      |
+| POST   | `/api/auth/users/{id}/avatar`  | Sim  | Upload de avatar do usuário   |
+| DELETE | `/api/auth/users/{id}/avatar`  | Sim  | Remover avatar do usuário     |
 
 ---
 
 ## 10. DEPENDÊNCIAS
 
-### Internas (Módulos AgentFlix)
+### Internas (Módulos InteraZap)
 
-| Módulo | Relação | Descrição |
-|--------|---------|-----------|
+| Módulo   | Relação         | Descrição                                                                  |
+| -------- | --------------- | -------------------------------------------------------------------------- |
 | Platform | Auth depende de | `PlatformTenant` é o model de tenant referenciado por `AuthUser.tenant_id` |
-| Shared | Auth depende de | `BelongsToTenant` trait, `BaseController`, utilitários |
+| Shared   | Auth depende de | `BelongsToTenant` trait, `BaseController`, utilitários                     |
 
 ### Externas (Pacotes)
 
-| Pacote | Versão | Uso |
-|--------|--------|-----|
-| `laravel/sanctum` | ^4.x | Autenticação via API tokens |
-| `spatie/laravel-permission` | ^6.x | RBAC — roles e permissões |
-| `owen-it/laravel-auditing` | ^13.x | Auditoria de alterações |
+| Pacote                      | Versão | Uso                         |
+| --------------------------- | ------ | --------------------------- |
+| `laravel/sanctum`           | ^4.x   | Autenticação via API tokens |
+| `spatie/laravel-permission` | ^6.x   | RBAC — roles e permissões   |
+| `owen-it/laravel-auditing`  | ^13.x  | Auditoria de alterações     |
 
 ---
 
 ## Histórico de Revisões
 
-| Data | Versão | Autor | Mudança |
-|------|--------|-------|---------|
-| 2026-03-25 | 1.0 | PM | Criação inicial baseada em análise do código existente |
+| Data       | Versão | Autor | Mudança                                                |
+| ---------- | ------ | ----- | ------------------------------------------------------ |
+| 2026-03-25 | 1.0    | PM    | Criação inicial baseada em análise do código existente |

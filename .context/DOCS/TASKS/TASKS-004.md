@@ -1,4 +1,4 @@
-# TASKS — Lista de Tarefas AgentFlix
+# TASKS — Lista de Tarefas InteraZap
 
 > Arquivo único contendo todas as tasks do projeto.
 
@@ -62,8 +62,8 @@ Diagnosticar e corrigir bug em que o status `read` das mensagens não persiste a
 - **Arquivo do fix:** `api/src/Domain/Chat/Actions/ChatWebhookIngestor.php`
 - **Ajuste aplicado nesta rodada:** cleanup de logs diagnósticos (`info` → `debug` em pontos de rastreio e remoção de logs temporários BEFORE/AFTER SAVE), sem alteração de regra de negócio.
 - **Validação mínima executada (backend, escopo read status):**
-  - `cd api && php artisan test tests/Feature/ChatWebhookIngestorTest.php --filter "test_messages_update_without_message_key_updates_status_to_read|test_messages_update_with_stream_nested_raw_updates_status_to_delivered|test_status_update_with_numeric_ack_updates_timestamps"`
-  - Resultado: **3 passed (8 assertions)**
+    - `cd api && php artisan test tests/Feature/ChatWebhookIngestorTest.php --filter "test_messages_update_without_message_key_updates_status_to_read|test_messages_update_with_stream_nested_raw_updates_status_to_delivered|test_status_update_with_numeric_ack_updates_timestamps"`
+    - Resultado: **3 passed (8 assertions)**
 - **QA:** `APPROVED_WITH_NOTES` (sem blocker crítico; recomendação de follow-up para teste negativo cross-tenant explícito em `messages_update`).
 - **Code Review (REVIEWER):** `APPROVED` (sem blocker no escopo).
 - **Observação de governança:** commit semântico da TASK-003 realizado com staging isolado dos arquivos de escopo.

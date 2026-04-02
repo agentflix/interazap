@@ -167,7 +167,7 @@ return [
     */
 
     'tags' => [
-        'app_name' => env('APP_NAME', 'AgentFlix'),
+        'app_name' => env('APP_NAME', 'InteraZap'),
     ],
 
 ];

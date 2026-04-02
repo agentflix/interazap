@@ -64,7 +64,7 @@ class ChatMessageControllerTest extends TestCase
                 'contact' => [
                     'fullName' => 'Contato',
                     'phoneNumber' => '5511',
-                    'organization' => 'AgentFlix',
+                    'organization' => 'InteraZap',
                 ],
             ])
             ->assertCreated()

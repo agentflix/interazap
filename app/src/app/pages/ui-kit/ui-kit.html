@@ -1,1897 +1,1812 @@
+<div class="min-h-screen bg-surface-50 dark:bg-neutral-950 transition-colors duration-200">
+  <!-- Header -->
+  <div
+    class="sticky top-0 z-20 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200/60 dark:border-neutral-800/60"
+  >
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight text-primary-900 dark:text-accent-500">
+          UI Kit Showcase
+        </h1>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+          InteraZap Design System · {{ componentCount }} components
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button
+          (click)="toggleTheme()"
+          class="px-3 py-1.5 text-sm font-medium rounded-lg border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+        >
+          {{ theme.isDark() ? '☀️ Light' : '🌙 Dark' }}
+        </button>
+        <a
+          href="/"
+          class="px-3 py-1.5 text-sm font-medium rounded-lg bg-primary-900 text-white hover:bg-primary-700 transition-colors"
+        >
+          ← Back to App
+        </a>
+      </div>
+    </div>
+  </div>
 
-    <div class="min-h-screen bg-surface-50 dark:bg-neutral-950 transition-colors duration-200">
-      <!-- Header -->
-      <div
-        class="sticky top-0 z-20 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200/60 dark:border-neutral-800/60"
-      >
-        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1
-              class="text-2xl font-extrabold tracking-tight text-primary-900 dark:text-accent-500"
-            >
-              UI Kit Showcase
-            </h1>
-            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-              AgentFlix Design System · {{ componentCount }} components
-            </p>
-          </div>
-          <div class="flex items-center gap-3">
-            <button
-              (click)="toggleTheme()"
-              class="px-3 py-1.5 text-sm font-medium rounded-lg border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-            >
-              {{ theme.isDark() ? '☀️ Light' : '🌙 Dark' }}
-            </button>
-            <a
-              href="/"
-              class="px-3 py-1.5 text-sm font-medium rounded-lg bg-primary-900 text-white hover:bg-primary-700 transition-colors"
-            >
-              ← Back to App
-            </a>
-          </div>
-        </div>
+  <div class="max-w-7xl mx-auto px-6 py-10 space-y-16">
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- � BUTTON & ACTION EXTENSIONS                 -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
+          Button & Action Extensions
+        </h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Button Group · Dropdown · Table Actions · FAB</span
+        >
       </div>
 
-      <div class="max-w-7xl mx-auto px-6 py-10 space-y-16">
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- � BUTTON & ACTION EXTENSIONS                 -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Button & Action Extensions
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Button Group · Dropdown · Table Actions · FAB</span
-            >
+      <div class="space-y-10">
+        <!-- Button Group & Dropdown -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Button Group & Dropdown
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-button-group · af-dropdown-button · grouped actions
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="flex flex-wrap items-center gap-6">
+              <af-button-group spacing="sm">
+                <af-button size="sm" variant="secondary">Voltar</af-button>
+                <af-button size="sm" variant="primary">Salvar</af-button>
+              </af-button-group>
+
+              <af-dropdown-button
+                label="Ações rápidas"
+                [options]="previewDropdownButtonOptions"
+                (optionSelected)="lastPreviewAction.set($event)"
+              />
+            </div>
           </div>
+        </section>
 
-          <div class="space-y-10">
-            <!-- Button Group & Dropdown -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Button Group & Dropdown
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-button-group · af-dropdown-button · grouped actions
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        <!-- Table Actions -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Table Actions
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-table-actions · view, edit, delete controls
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <af-table-actions [showView]="true" />
+            <p class="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+              FAB ativo no canto inferior direito da tela.
+            </p>
+          </div>
+        </section>
+
+        <!-- Lists -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Lists</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-base-list · af-unified-list · structured list containers
+          </p>
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div
+              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+            >
+              <af-base-list>
+                <div header class="font-semibold">Base List</div>
+                <div filters class="text-sm text-neutral-500">Filtros rápidos</div>
+                <div table class="p-3 text-sm">Conteúdo da tabela</div>
+                <div pagination class="text-xs text-neutral-500">Paginação</div>
+              </af-base-list>
+            </div>
+
+            <div
+              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+            >
+              <af-unified-list
+                [total]="2"
+                [currentPage]="1"
+                [lastPage]="1"
+                [perPage]="10"
+                createLabel="Adicionar"
               >
-                <div class="flex flex-wrap items-center gap-6">
-                  <af-button-group spacing="sm">
-                    <af-button size="sm" variant="secondary">Voltar</af-button>
-                    <af-button size="sm" variant="primary">Salvar</af-button>
-                  </af-button-group>
+                <ng-template #tableHeader>
+                  <tr>
+                    <th class="px-3 py-2 text-left text-xs">Nome</th>
+                    <th class="px-3 py-2 text-left text-xs">Email</th>
+                  </tr>
+                </ng-template>
+                <ng-template #tableBody>
+                  <tr>
+                    <td class="px-3 py-2 text-sm">Ana</td>
+                    <td class="px-3 py-2 text-sm">ana&#64;interazap.dev</td>
+                  </tr>
+                  <tr>
+                    <td class="px-3 py-2 text-sm">Bruno</td>
+                    <td class="px-3 py-2 text-sm">bruno&#64;interazap.dev</td>
+                  </tr>
+                </ng-template>
+              </af-unified-list>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
 
-                  <af-dropdown-button
-                    label="Ações rápidas"
-                    [options]="previewDropdownButtonOptions"
-                    (optionSelected)="lastPreviewAction.set($event)"
-                  />
-                </div>
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 🧭 NAVIGATION                                 -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Navigation</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Breadcrumb · Tabs · Stepper · Accordion · Drawer</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <!-- Breadcrumb, Tabs & Stepper -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Breadcrumb, Tabs & Stepper
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-breadcrumb · af-tabs · af-stepper · route navigation
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-6"
+          >
+            <af-breadcrumb [items]="previewBreadcrumbItems" />
+            <af-tabs
+              [tabs]="previewTabs"
+              [activeTab]="previewActiveTab()"
+              (tabChange)="previewActiveTab.set($event)"
+            />
+            <af-stepper [steps]="previewSteps" [currentStep]="1" />
+          </div>
+        </section>
+
+        <!-- Accordion & Collapsible -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Accordion & Collapsible
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-accordion-item · af-collapsible · expand/collapse panels
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <af-accordion-item title="Accordion item" [open]="true">
+              <p class="text-sm text-neutral-500">Conteúdo expandido do accordion.</p>
+            </af-accordion-item>
+            <af-collapsible title="Collapsible section" [open]="true">
+              <p class="text-sm text-neutral-500">Bloco colapsável.</p>
+            </af-collapsible>
+          </div>
+        </section>
+
+        <!-- Navbar, Sidebar & Drawer -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Navbar, Sidebar & Drawer
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-navbar · af-sidebar-item · af-drawer · app shell
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <af-navbar title="CRM" [showBack]="true" />
+            <div class="flex gap-3">
+              <af-sidebar-item icon="users" label="Contatos" [active]="true" />
+              <af-sidebar-item icon="message-circle" label="Mensagens" [badge]="3" />
+            </div>
+            <div>
+              <af-button size="sm" variant="outline" (click)="previewDrawerOpen.set(true)">
+                Abrir Drawer
+              </af-button>
+            </div>
+            <af-drawer
+              [open]="previewDrawerOpen()"
+              title="Menu lateral"
+              (closed)="previewDrawerOpen.set(false)"
+            >
+              <p class="text-sm text-neutral-500">Conteúdo do drawer.</p>
+            </af-drawer>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 📊 DATA DISPLAY                               -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Data Display</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Progress · Timeline · Card · Table · Stat Card</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Data Display Components
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-progress-circle · af-timeline · af-card · af-stat-card · af-code-block
+          </p>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <af-progress-circle [value]="72" />
+            <af-timeline [entries]="previewTimelineEntries" />
+            <af-description-list [items]="previewDescriptionItems" layout="horizontal" />
+            <af-card>
+              <div header class="font-semibold">Card Header</div>
+              <p class="text-sm text-neutral-500">Conteúdo do card</p>
+            </af-card>
+            <af-data-table [striped]="true">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="px-3 py-2">Nome</th>
+                    <th class="px-3 py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="px-3 py-2">Conta 1</td>
+                    <td class="px-3 py-2">Ativa</td>
+                  </tr>
+                </tbody>
+              </table>
+            </af-data-table>
+            <af-code-block label="TypeScript" language="ts" code="const ok = true;" />
+            <af-meter [value]="64" label="Utilização" />
+            <af-stat-card label="MRR" value="R$ 98.300" change="+12%" changeType="positive" />
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- ✏️ ADVANCED FORM INPUTS                       -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
+          Advanced Form Inputs
+        </h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Date · Time · Autocomplete · Slider · Rating · OTP</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Date, Time & Range Inputs
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-date-picker · af-time-picker · af-autocomplete · af-slider · af-rating
+          </p>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <af-date-picker [control]="demoDateControl" label="Data" />
+            <af-date-range-picker
+              [startControl]="demoStartDateControl"
+              [endControl]="demoEndDateControl"
+              label="Período"
+            />
+            <af-time-picker [control]="demoTimeControl" label="Hora" />
+            <af-autocomplete
+              [control]="demoAutocompleteControl"
+              [options]="previewAutocompleteOptions"
+              label="Cidade"
+            />
+            <af-number-input
+              [control]="demoNumberControl"
+              [min]="1"
+              [max]="10"
+              label="Quantidade"
+            />
+            <af-slider [value]="35" label="Satisfação" />
+            <af-rating [value]="4" />
+            <af-otp-input [length]="6" label="OTP" />
+            <af-range-slider
+              [minControl]="demoRangeMinControl"
+              [maxControl]="demoRangeMaxControl"
+              [min]="0"
+              [max]="100"
+              label="Faixa"
+            />
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 💬 FEEDBACK & OVERLAY                         -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
+          Feedback & Overlay
+        </h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Alert · Banner · Callout · Popover · Sheet</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Alerts, Banners & Overlays
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-alert · af-banner · af-callout · af-popover · af-sheet
+          </p>
+          <div class="space-y-4">
+            <af-alert
+              variant="warning"
+              title="Atenção"
+              message="Este é um alerta real renderizado pelo af-alert"
+            />
+            <af-alert
+              variant="info"
+              title="Informação"
+              message="Alerta informativo com variante info"
+            />
+            <div class="rounded-lg overflow-hidden -mx-6">
+              <af-banner variant="info" message="Banner de informação" />
+            </div>
+            <af-callout variant="success" [title]="'Callout'">
+              <p>Mensagem destacada usando o componente.</p>
+            </af-callout>
+            <af-popover>
+              <af-button trigger variant="outline" size="sm">Abrir Popover</af-button>
+              <div content class="text-sm text-neutral-500">Conteúdo do popover.</div>
+            </af-popover>
+            <af-button variant="outline" size="sm" (click)="previewSheetOpen.set(true)"
+              >Abrir Sheet</af-button
+            >
+            <af-sheet
+              [open]="previewSheetOpen()"
+              title="Ações"
+              (closed)="previewSheetOpen.set(false)"
+            >
+              <p class="text-sm text-neutral-500">Conteúdo do sheet.</p>
+            </af-sheet>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 📐 LAYOUT PRIMITIVES                          -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
+          Layout Primitives
+        </h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Container · Grid · Stack · Scroll Area · Split Pane</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Layout Components
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-container · af-grid · af-stack · af-scroll-area · af-split-pane
+          </p>
+          <div class="space-y-4">
+            <af-container size="md">
+              <p class="text-sm text-neutral-500">Container centralizado</p>
+            </af-container>
+            <af-grid [cols]="3" gap="sm">
+              <div class="h-10 rounded bg-neutral-100 dark:bg-neutral-700"></div>
+              <div class="h-10 rounded bg-neutral-100 dark:bg-neutral-700"></div>
+              <div class="h-10 rounded bg-neutral-100 dark:bg-neutral-700"></div>
+            </af-grid>
+            <af-stack direction="row" gap="sm" align="center">
+              <af-badge variant="info">Stack</af-badge>
+              <af-badge variant="success">Horizontal</af-badge>
+            </af-stack>
+            <af-aspect-ratio ratio="16/9">
+              <div
+                class="w-full h-full rounded bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-xs"
+              >
+                16:9
               </div>
-            </section>
+            </af-aspect-ratio>
+            <af-scroll-area maxHeight="90px">
+              <div class="space-y-1 text-sm">
+                <p>Item 1</p>
+                <p>Item 2</p>
+                <p>Item 3</p>
+                <p>Item 4</p>
+                <p>Item 5</p>
+                <p>Item 6</p>
+              </div>
+            </af-scroll-area>
+            <div
+              class="h-32 border border-neutral-200 dark:border-neutral-700 rounded overflow-hidden"
+            >
+              <af-resizable-panel [initialWidth]="140">
+                <div class="p-2 text-xs">Resizable</div>
+              </af-resizable-panel>
+            </div>
+            <div
+              class="h-24 border border-neutral-200 dark:border-neutral-700 rounded overflow-hidden"
+            >
+              <af-split-pane [splitRatio]="35">
+                <div left class="p-2 text-xs">Left</div>
+                <div right class="p-2 text-xs">Right</div>
+              </af-split-pane>
+            </div>
+            <af-sticky-header>
+              <div header class="p-2 bg-neutral-100 dark:bg-neutral-700 rounded text-xs">
+                Sticky header slot
+              </div>
+              <div class="p-2 text-xs text-neutral-500">Conteúdo abaixo</div>
+            </af-sticky-header>
+          </div>
+        </section>
+      </div>
+    </div>
 
-            <!-- Table Actions -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Table Actions
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-table-actions · view, edit, delete controls
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 🧩 ADVANCED / COMPOSITE                       -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
+          Advanced / Composite
+        </h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Kanban · Tree View · Calendar · Image Cropper</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Composite Components
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-mention-input · af-kanban-column · af-tree-view · af-calendar
+          </p>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <af-mention-input [users]="previewMentionUsers" placeholder="Digite @ para mencionar" />
+            <af-kanban-column title="Em progresso" [cards]="previewKanbanCards" color="#f59e0b" />
+            <af-sortable-list [items]="previewSortableItems" />
+            <af-tree-view [nodes]="previewTreeNodes" />
+            <af-calendar [events]="previewCalendarEvents" />
+            <af-image-cropper src="https://picsum.photos/400/300" [aspectRatio]="1.5" />
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 🎯 INTERACTIVE                                -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Interactive</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Dropdown · Command Palette · Clipboard · Avatar Group</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <!-- Progress Bar -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Progress Bar</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-progress-bar · linear progress indicator · 3 variants
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <af-progress-bar [value]="68" label="Progresso da migração" variant="accent" />
+            <af-progress-bar [value]="42" label="Upload de dados" variant="info" />
+            <af-progress-bar [value]="90" label="Processamento" variant="warning" />
+          </div>
+        </section>
+
+        <!-- Clipboard & Keyboard -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Clipboard & Keyboard Shortcuts
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-clipboard · af-kbd · copy to clipboard + keyboard key display
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <af-clipboard text="npm run build" />
+            <af-clipboard text="git push origin main" />
+            <div class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <span>Atalhos:</span>
+              <af-kbd>⌘</af-kbd><af-kbd>K</af-kbd>
+              <span class="mx-2">|</span>
+              <af-kbd>Ctrl</af-kbd><af-kbd>Shift</af-kbd><af-kbd>P</af-kbd>
+            </div>
+          </div>
+        </section>
+
+        <!-- Avatar Group & Theme -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Avatar Group & Theme
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-avatar-group · af-theme-switch · af-color-palette · group + theme controls
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-6"
+          >
+            <div class="flex items-center justify-between">
+              <af-avatar-group [items]="previewAvatars" [max]="4" size="sm" />
+              <af-theme-switch
+                [mode]="previewThemeMode()"
+                (modeChange)="previewThemeMode.set($event)"
+              />
+            </div>
+            <af-color-palette
+              [colors]="previewColors"
+              [selected]="selectedPreviewColor()"
+              (colorSelected)="selectedPreviewColor.set($event)"
+            />
+          </div>
+        </section>
+
+        <!-- Dropdown Menu & Command Palette -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Dropdown Menu & Command Palette
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-dropdown-menu · af-command-palette · action menus + command search
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <div class="flex flex-wrap items-center gap-4">
+              <af-dropdown-menu
+                [items]="previewMenuItems"
+                (itemSelected)="lastPreviewAction.set($event)"
               >
-                <af-table-actions [showView]="true" />
-                <p class="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
-                  FAB ativo no canto inferior direito da tela.
+                <af-button variant="outline" size="sm">Abrir menu</af-button>
+              </af-dropdown-menu>
+              <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                ação: {{ lastPreviewAction() || '—' }}
+              </span>
+            </div>
+            <div class="flex flex-wrap items-center gap-4">
+              <af-button variant="secondary" size="sm" (click)="previewPaletteOpen.set(true)">
+                Abrir Command Palette
+              </af-button>
+              <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                comando: {{ lastPreviewCommand() || '—' }}
+              </span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- ⚙️ UTILITY                                    -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Utility</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Countdown · Marquee · Typewriter · Shortcuts · Scroll</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Utility Components
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-countdown · af-marquee · af-typewriter · af-shortcut-key · af-locale-switch
+          </p>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+            <af-countdown [targetDate]="previewCountdownTarget" />
+            <af-marquee>
+              <span class="text-sm">InteraZap UI Kit • novos componentes renderizados •</span>
+            </af-marquee>
+            <af-typewriter [texts]="['UI Kit completo', '112 componentes', 'Preview real']" />
+            <af-shortcut-key [keys]="['⌘', 'Shift', 'K']" />
+            <af-locale-switch [locales]="previewLocales" current="pt-BR" />
+            <af-infinite-scroll>
+              <div class="space-y-1 text-xs">
+                <div>Item A</div>
+                <div>Item B</div>
+                <div>Item C</div>
+              </div>
+            </af-infinite-scroll>
+            <af-virtual-scroll [itemCount]="20" [itemHeight]="28" [containerHeight]="120">
+              <div class="px-2 py-1 text-xs border-b border-neutral-200 dark:border-neutral-700">
+                Linha virtual
+              </div>
+            </af-virtual-scroll>
+            <af-error-boundary
+              title="Exemplo de erro"
+              message="Fallback visual do componente."
+              [showRetry]="true"
+            />
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 🎨 FOUNDATION                                 -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Foundation</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Buttons · Badges · Avatars</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <!-- Buttons -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Buttons</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-button · 6 variants · 3 sizes
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <af-button variant="primary">Primary</af-button>
+              <af-button variant="secondary">Secondary</af-button>
+              <af-button variant="outline">Outline</af-button>
+              <af-button variant="ghost">Ghost</af-button>
+              <af-button variant="danger">Danger</af-button>
+              <af-button variant="ghost">Link</af-button>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <af-button size="sm">Small</af-button>
+              <af-button size="md">Medium</af-button>
+              <af-button size="lg">Large</af-button>
+              <af-button [disabled]="true">Disabled</af-button>
+              <af-button [block]="true">Block</af-button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Loading / Icon buttons -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Button Variations
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-loading-button · af-icon-button
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <af-loading-button [loading]="isLoading()" variant="primary"
+                >Salvar</af-loading-button
+              >
+              <af-loading-button [loading]="isLoading()" variant="secondary"
+                >Processar</af-loading-button
+              >
+              <af-icon-button label="Adicionar" variant="outline"
+                ><lucide-icon name="plus" [size]="18"
+              /></af-icon-button>
+              <af-icon-button label="Editar" variant="outline"
+                ><lucide-icon name="pencil" [size]="18"
+              /></af-icon-button>
+              <af-icon-button label="Excluir" variant="danger"
+                ><lucide-icon name="trash-2" [size]="18"
+              /></af-icon-button>
+              <af-icon-button label="Configurações" variant="ghost"
+                ><lucide-icon name="settings" [size]="18"
+              /></af-icon-button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Badge & Status Badge -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Badges</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-badge · af-status-badge · variants + pulse
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <af-badge variant="default">Default</af-badge>
+              <af-badge variant="success">Success</af-badge>
+              <af-badge variant="warning">Warning</af-badge>
+              <af-badge variant="danger">Danger</af-badge>
+              <af-badge variant="info">Info</af-badge>
+            </div>
+            <af-divider />
+            <div class="flex flex-wrap items-center gap-6">
+              <af-status-badge status="online" [pulse]="true">Online</af-status-badge>
+              <af-status-badge status="offline">Offline</af-status-badge>
+              <af-status-badge status="warning">Warning</af-status-badge>
+              <af-status-badge status="error" [pulse]="true">Error</af-status-badge>
+              <af-status-badge status="idle">Idle</af-status-badge>
+            </div>
+          </div>
+        </section>
+
+        <!-- Avatar -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Avatar</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-avatar · Image, initials, fallback · 5 sizes
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="flex flex-wrap items-end gap-4">
+              <div class="flex flex-col items-center gap-1">
+                <af-avatar size="xs" initials="XS" />
+                <span class="text-[10px] text-neutral-400">xs</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <af-avatar size="sm" initials="SM" />
+                <span class="text-[10px] text-neutral-400">sm</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <af-avatar size="md" initials="MD" />
+                <span class="text-[10px] text-neutral-400">md</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <af-avatar size="lg" initials="LG" />
+                <span class="text-[10px] text-neutral-400">lg</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <af-avatar size="xl" initials="XL" />
+                <span class="text-[10px] text-neutral-400">xl</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Divider -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Divider</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-divider · horizontal · optional label
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <af-divider />
+            <af-divider label="OR" />
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 📦 LAYOUT & FEEDBACK                         -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
+          Layout & Feedback
+        </h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Spinner · Skeleton · Empty State</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <!-- Spinner -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Spinner</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-spinner · 4 sizes · 2 colors
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="flex flex-wrap items-center gap-6">
+              <af-spinner size="sm" />
+              <af-spinner size="md" />
+              <af-spinner size="lg" />
+              <af-spinner size="lg" />
+              <af-spinner size="md" color="white" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Skeleton -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Skeleton</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-skeleton · pulse animation · 3 variants
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-3"
+          >
+            <af-skeleton variant="text" class="w-3/4" />
+            <af-skeleton variant="text" class="w-1/2" />
+            <div class="flex items-center gap-3 mt-4">
+              <af-skeleton variant="circular" />
+              <div class="flex-1 space-y-2">
+                <af-skeleton variant="text" class="w-1/3" />
+                <af-skeleton variant="text" class="w-2/3" />
+              </div>
+            </div>
+            <af-skeleton variant="rectangular" class="w-full h-20 mt-4" />
+          </div>
+        </section>
+
+        <!-- Tooltip -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Tooltip</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-tooltip · top/bottom/left/right
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="flex flex-wrap items-center gap-6">
+              <af-tooltip text="Tooltip acima" position="top"
+                ><af-button variant="outline" size="sm">Top</af-button></af-tooltip
+              >
+              <af-tooltip text="Tooltip abaixo" position="bottom"
+                ><af-button variant="outline" size="sm">Bottom</af-button></af-tooltip
+              >
+              <af-tooltip text="Tooltip à esquerda" position="left"
+                ><af-button variant="outline" size="sm">Left</af-button></af-tooltip
+              >
+              <af-tooltip text="Tooltip à direita" position="right"
+                ><af-button variant="outline" size="sm">Right</af-button></af-tooltip
+              >
+            </div>
+          </div>
+        </section>
+
+        <!-- Page Title & Empty State -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Page Title & Empty State
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-page-title · af-empty-state
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-6"
+          >
+            <af-page-title title="Contatos" subtitle="Gerencie sua lista de contatos">
+              <af-button variant="primary" size="sm">+ Novo</af-button>
+            </af-page-title>
+            <af-divider />
+            <af-empty-state
+              title="Nenhum registro encontrado"
+              description="Crie seu primeiro registro para começar."
+            />
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 📝 FORM INPUTS                               -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Form Inputs</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Text · Search · Select · Tags · Masks · Password</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <!-- Text Input -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Text Input</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-text-input · label, error, sizes
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <af-text-input
+                [control]="nameControl"
+                label="Nome completo"
+                placeholder="João da Silva"
+                [required]="true"
+                [spacing]="false"
+              />
+              <af-text-input
+                [control]="emailControl"
+                label="Email"
+                placeholder="joao&#64;email.com"
+                type="email"
+                [spacing]="false"
+              />
+              <af-text-input
+                [control]="readOnlyControl"
+                label="Somente leitura"
+                [readOnly]="true"
+                [spacing]="false"
+              />
+              <af-text-input
+                [control]="nameControl"
+                label="Small"
+                size="sm"
+                placeholder="Tamanho sm"
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Search Input -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Search Input</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-search-input · magnifying glass + clear button
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <af-search-input [control]="searchControl" placeholder="Buscar contatos..." />
+              <af-search-input
+                [control]="searchControl2"
+                placeholder="Filtrar resultados..."
+                size="sm"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Addon Input -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Addon Input</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-addon-input · left button with icon and text
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <af-addon-input
+                [control]="tagControl"
+                label="Tag"
+                addonIcon="plus"
+                addonLabel="Add"
+                placeholder="Nova tag..."
+                classContainer="mb-0"
+              />
+              <af-addon-input
+                [control]="urlControl"
+                label="URL do site"
+                addonLabel="https://"
+                placeholder="meusite.com.br"
+                classContainer="mb-0"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Copy Input -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Copy Input</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-copy-input · clipboard copy with visual feedback
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <af-copy-input [control]="apiKeyControl" label="API Key" classContainer="mb-0" />
+              <af-copy-input
+                [control]="webhookUrlControl"
+                label="Webhook URL"
+                classContainer="mb-0"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Color Input -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Color Input</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-color-input · swatch + hex picker
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <af-color-input [control]="colorControl" label="Cor primária" [spacing]="false" />
+              <af-color-input [control]="colorControl2" label="Cor secundária" [spacing]="false" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Phone Input -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Phone Input</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-phone-input · country selector + phone mask
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <af-phone-input
+              [control]="phoneControl"
+              label="Telefone (WhatsApp)"
+              [required]="true"
+              classContainer="max-w-md"
+              [spacing]="false"
+            />
+          </div>
+        </section>
+
+        <!-- Masked Inputs -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Masked Inputs
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-masked-input · CPF, CNPJ, CEP, Currency (afMask directive)
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <af-masked-input [control]="cpfControl" label="CPF" mask="cpf" [spacing]="false" />
+              <af-masked-input [control]="cnpjControl" label="CNPJ" mask="cnpj" [spacing]="false" />
+              <af-masked-input
+                [control]="docControl"
+                label="CPF/CNPJ"
+                mask="cpf-cnpj"
+                [spacing]="false"
+              />
+              <af-masked-input [control]="cepControl" label="CEP" mask="cep" [spacing]="false" />
+              <af-masked-input
+                [control]="currencyControl"
+                label="Valor (R$)"
+                mask="currency"
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Password Inputs -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Password Inputs
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-password-input · show/hide · af-password-strength · meter + checklist
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <p
+                  class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-3 uppercase tracking-wider"
+                >
+                  Show / Hide
                 </p>
-              </div>
-            </section>
-
-            <!-- Lists -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Lists</h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-base-list · af-unified-list · structured list containers
-              </p>
-              <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <div
-                  class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
-                >
-                  <af-base-list>
-                    <div header class="font-semibold">Base List</div>
-                    <div filters class="text-sm text-neutral-500">Filtros rápidos</div>
-                    <div table class="p-3 text-sm">Conteúdo da tabela</div>
-                    <div pagination class="text-xs text-neutral-500">Paginação</div>
-                  </af-base-list>
-                </div>
-
-                <div
-                  class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
-                >
-                  <af-unified-list
-                    [total]="2"
-                    [currentPage]="1"
-                    [lastPage]="1"
-                    [perPage]="10"
-                    createLabel="Adicionar"
-                  >
-                    <ng-template #tableHeader>
-                      <tr>
-                        <th class="px-3 py-2 text-left text-xs">Nome</th>
-                        <th class="px-3 py-2 text-left text-xs">Email</th>
-                      </tr>
-                    </ng-template>
-                    <ng-template #tableBody>
-                      <tr>
-                        <td class="px-3 py-2 text-sm">Ana</td>
-                        <td class="px-3 py-2 text-sm">ana&#64;agentflix.dev</td>
-                      </tr>
-                      <tr>
-                        <td class="px-3 py-2 text-sm">Bruno</td>
-                        <td class="px-3 py-2 text-sm">bruno&#64;agentflix.dev</td>
-                      </tr>
-                    </ng-template>
-                  </af-unified-list>
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 🧭 NAVIGATION                                 -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Navigation</h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Breadcrumb · Tabs · Stepper · Accordion · Drawer</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <!-- Breadcrumb, Tabs & Stepper -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Breadcrumb, Tabs & Stepper
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-breadcrumb · af-tabs · af-stepper · route navigation
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-6"
-              >
-                <af-breadcrumb [items]="previewBreadcrumbItems" />
-                <af-tabs
-                  [tabs]="previewTabs"
-                  [activeTab]="previewActiveTab()"
-                  (tabChange)="previewActiveTab.set($event)"
-                />
-                <af-stepper [steps]="previewSteps" [currentStep]="1" />
-              </div>
-            </section>
-
-            <!-- Accordion & Collapsible -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Accordion & Collapsible
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-accordion-item · af-collapsible · expand/collapse panels
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
-              >
-                <af-accordion-item title="Accordion item" [open]="true">
-                  <p class="text-sm text-neutral-500">Conteúdo expandido do accordion.</p>
-                </af-accordion-item>
-                <af-collapsible title="Collapsible section" [open]="true">
-                  <p class="text-sm text-neutral-500">Bloco colapsável.</p>
-                </af-collapsible>
-              </div>
-            </section>
-
-            <!-- Navbar, Sidebar & Drawer -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Navbar, Sidebar & Drawer
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-navbar · af-sidebar-item · af-drawer · app shell
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
-              >
-                <af-navbar title="CRM" [showBack]="true" />
-                <div class="flex gap-3">
-                  <af-sidebar-item icon="users" label="Contatos" [active]="true" />
-                  <af-sidebar-item icon="message-circle" label="Mensagens" [badge]="3" />
-                </div>
-                <div>
-                  <af-button size="sm" variant="outline" (click)="previewDrawerOpen.set(true)">
-                    Abrir Drawer
-                  </af-button>
-                </div>
-                <af-drawer
-                  [open]="previewDrawerOpen()"
-                  title="Menu lateral"
-                  (closed)="previewDrawerOpen.set(false)"
-                >
-                  <p class="text-sm text-neutral-500">Conteúdo do drawer.</p>
-                </af-drawer>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 📊 DATA DISPLAY                               -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Data Display
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Progress · Timeline · Card · Table · Stat Card</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section
-              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-            >
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Data Display Components
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-progress-circle · af-timeline · af-card · af-stat-card · af-code-block
-              </p>
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <af-progress-circle [value]="72" />
-                <af-timeline [entries]="previewTimelineEntries" />
-                <af-description-list [items]="previewDescriptionItems" layout="horizontal" />
-                <af-card>
-                  <div header class="font-semibold">Card Header</div>
-                  <p class="text-sm text-neutral-500">Conteúdo do card</p>
-                </af-card>
-                <af-data-table [striped]="true">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th class="px-3 py-2">Nome</th>
-                        <th class="px-3 py-2">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td class="px-3 py-2">Conta 1</td>
-                        <td class="px-3 py-2">Ativa</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </af-data-table>
-                <af-code-block label="TypeScript" language="ts" code="const ok = true;" />
-                <af-meter [value]="64" label="Utilização" />
-                <af-stat-card label="MRR" value="R$ 98.300" change="+12%" changeType="positive" />
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- ✏️ ADVANCED FORM INPUTS                       -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Advanced Form Inputs
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Date · Time · Autocomplete · Slider · Rating · OTP</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section
-              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-            >
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Date, Time & Range Inputs
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-date-picker · af-time-picker · af-autocomplete · af-slider · af-rating
-              </p>
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <af-date-picker [control]="demoDateControl" label="Data" />
-                <af-date-range-picker
-                  [startControl]="demoStartDateControl"
-                  [endControl]="demoEndDateControl"
-                  label="Período"
-                />
-                <af-time-picker [control]="demoTimeControl" label="Hora" />
-                <af-autocomplete
-                  [control]="demoAutocompleteControl"
-                  [options]="previewAutocompleteOptions"
-                  label="Cidade"
-                />
-                <af-number-input
-                  [control]="demoNumberControl"
-                  [min]="1"
-                  [max]="10"
-                  label="Quantidade"
-                />
-                <af-slider [value]="35" label="Satisfação" />
-                <af-rating [value]="4" />
-                <af-otp-input [length]="6" label="OTP" />
-                <af-range-slider
-                  [minControl]="demoRangeMinControl"
-                  [maxControl]="demoRangeMaxControl"
-                  [min]="0"
-                  [max]="100"
-                  label="Faixa"
-                />
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 💬 FEEDBACK & OVERLAY                         -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Feedback & Overlay
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Alert · Banner · Callout · Popover · Sheet</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section
-              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-            >
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Alerts, Banners & Overlays
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-alert · af-banner · af-callout · af-popover · af-sheet
-              </p>
-              <div class="space-y-4">
-                <af-alert
-                  variant="warning"
-                  title="Atenção"
-                  message="Este é um alerta real renderizado pelo af-alert"
-                />
-                <af-alert
-                  variant="info"
-                  title="Informação"
-                  message="Alerta informativo com variante info"
-                />
-                <div class="rounded-lg overflow-hidden -mx-6">
-                  <af-banner variant="info" message="Banner de informação" />
-                </div>
-                <af-callout variant="success" [title]="'Callout'">
-                  <p>Mensagem destacada usando o componente.</p>
-                </af-callout>
-                <af-popover>
-                  <af-button trigger variant="outline" size="sm">Abrir Popover</af-button>
-                  <div content class="text-sm text-neutral-500">Conteúdo do popover.</div>
-                </af-popover>
-                <af-button variant="outline" size="sm" (click)="previewSheetOpen.set(true)"
-                  >Abrir Sheet</af-button
-                >
-                <af-sheet
-                  [open]="previewSheetOpen()"
-                  title="Ações"
-                  (closed)="previewSheetOpen.set(false)"
-                >
-                  <p class="text-sm text-neutral-500">Conteúdo do sheet.</p>
-                </af-sheet>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 📐 LAYOUT PRIMITIVES                          -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Layout Primitives
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Container · Grid · Stack · Scroll Area · Split Pane</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section
-              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-            >
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Layout Components
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-container · af-grid · af-stack · af-scroll-area · af-split-pane
-              </p>
-              <div class="space-y-4">
-                <af-container size="md">
-                  <p class="text-sm text-neutral-500">Container centralizado</p>
-                </af-container>
-                <af-grid [cols]="3" gap="sm">
-                  <div class="h-10 rounded bg-neutral-100 dark:bg-neutral-700"></div>
-                  <div class="h-10 rounded bg-neutral-100 dark:bg-neutral-700"></div>
-                  <div class="h-10 rounded bg-neutral-100 dark:bg-neutral-700"></div>
-                </af-grid>
-                <af-stack direction="row" gap="sm" align="center">
-                  <af-badge variant="info">Stack</af-badge>
-                  <af-badge variant="success">Horizontal</af-badge>
-                </af-stack>
-                <af-aspect-ratio ratio="16/9">
-                  <div
-                    class="w-full h-full rounded bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-xs"
-                  >
-                    16:9
-                  </div>
-                </af-aspect-ratio>
-                <af-scroll-area maxHeight="90px">
-                  <div class="space-y-1 text-sm">
-                    <p>Item 1</p>
-                    <p>Item 2</p>
-                    <p>Item 3</p>
-                    <p>Item 4</p>
-                    <p>Item 5</p>
-                    <p>Item 6</p>
-                  </div>
-                </af-scroll-area>
-                <div
-                  class="h-32 border border-neutral-200 dark:border-neutral-700 rounded overflow-hidden"
-                >
-                  <af-resizable-panel [initialWidth]="140">
-                    <div class="p-2 text-xs">Resizable</div>
-                  </af-resizable-panel>
-                </div>
-                <div
-                  class="h-24 border border-neutral-200 dark:border-neutral-700 rounded overflow-hidden"
-                >
-                  <af-split-pane [splitRatio]="35">
-                    <div left class="p-2 text-xs">Left</div>
-                    <div right class="p-2 text-xs">Right</div>
-                  </af-split-pane>
-                </div>
-                <af-sticky-header>
-                  <div header class="p-2 bg-neutral-100 dark:bg-neutral-700 rounded text-xs">
-                    Sticky header slot
-                  </div>
-                  <div class="p-2 text-xs text-neutral-500">Conteúdo abaixo</div>
-                </af-sticky-header>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 🧩 ADVANCED / COMPOSITE                       -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Advanced / Composite
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Kanban · Tree View · Calendar · Image Cropper</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section
-              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-            >
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Composite Components
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-mention-input · af-kanban-column · af-tree-view · af-calendar
-              </p>
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <af-mention-input
-                  [users]="previewMentionUsers"
-                  placeholder="Digite @ para mencionar"
-                />
-                <af-kanban-column
-                  title="Em progresso"
-                  [cards]="previewKanbanCards"
-                  color="#f59e0b"
-                />
-                <af-sortable-list [items]="previewSortableItems" />
-                <af-tree-view [nodes]="previewTreeNodes" />
-                <af-calendar [events]="previewCalendarEvents" />
-                <af-image-cropper src="https://picsum.photos/400/300" [aspectRatio]="1.5" />
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 🎯 INTERACTIVE                                -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Interactive
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Dropdown · Command Palette · Clipboard · Avatar Group</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <!-- Progress Bar -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Progress Bar
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-progress-bar · linear progress indicator · 3 variants
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
-              >
-                <af-progress-bar [value]="68" label="Progresso da migração" variant="accent" />
-                <af-progress-bar [value]="42" label="Upload de dados" variant="info" />
-                <af-progress-bar [value]="90" label="Processamento" variant="warning" />
-              </div>
-            </section>
-
-            <!-- Clipboard & Keyboard -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Clipboard & Keyboard Shortcuts
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-clipboard · af-kbd · copy to clipboard + keyboard key display
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
-              >
-                <af-clipboard text="npm run build" />
-                <af-clipboard text="git push origin main" />
-                <div class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-                  <span>Atalhos:</span>
-                  <af-kbd>⌘</af-kbd><af-kbd>K</af-kbd>
-                  <span class="mx-2">|</span>
-                  <af-kbd>Ctrl</af-kbd><af-kbd>Shift</af-kbd><af-kbd>P</af-kbd>
-                </div>
-              </div>
-            </section>
-
-            <!-- Avatar Group & Theme -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Avatar Group & Theme
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-avatar-group · af-theme-switch · af-color-palette · group + theme controls
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-6"
-              >
-                <div class="flex items-center justify-between">
-                  <af-avatar-group [items]="previewAvatars" [max]="4" size="sm" />
-                  <af-theme-switch
-                    [mode]="previewThemeMode()"
-                    (modeChange)="previewThemeMode.set($event)"
-                  />
-                </div>
-                <af-color-palette
-                  [colors]="previewColors"
-                  [selected]="selectedPreviewColor()"
-                  (colorSelected)="selectedPreviewColor.set($event)"
-                />
-              </div>
-            </section>
-
-            <!-- Dropdown Menu & Command Palette -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Dropdown Menu & Command Palette
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-dropdown-menu · af-command-palette · action menus + command search
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
-              >
-                <div class="flex flex-wrap items-center gap-4">
-                  <af-dropdown-menu
-                    [items]="previewMenuItems"
-                    (itemSelected)="lastPreviewAction.set($event)"
-                  >
-                    <af-button variant="outline" size="sm">Abrir menu</af-button>
-                  </af-dropdown-menu>
-                  <span class="text-xs text-neutral-500 dark:text-neutral-400">
-                    ação: {{ lastPreviewAction() || '—' }}
-                  </span>
-                </div>
-                <div class="flex flex-wrap items-center gap-4">
-                  <af-button variant="secondary" size="sm" (click)="previewPaletteOpen.set(true)">
-                    Abrir Command Palette
-                  </af-button>
-                  <span class="text-xs text-neutral-500 dark:text-neutral-400">
-                    comando: {{ lastPreviewCommand() || '—' }}
-                  </span>
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- ⚙️ UTILITY                                    -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Utility</h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Countdown · Marquee · Typewriter · Shortcuts · Scroll</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section
-              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-            >
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Utility Components
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-countdown · af-marquee · af-typewriter · af-shortcut-key · af-locale-switch
-              </p>
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-                <af-countdown [targetDate]="previewCountdownTarget" />
-                <af-marquee>
-                  <span class="text-sm">AgentFlix UI Kit • novos componentes renderizados •</span>
-                </af-marquee>
-                <af-typewriter [texts]="['UI Kit completo', '112 componentes', 'Preview real']" />
-                <af-shortcut-key [keys]="['⌘', 'Shift', 'K']" />
-                <af-locale-switch [locales]="previewLocales" current="pt-BR" />
-                <af-infinite-scroll>
-                  <div class="space-y-1 text-xs">
-                    <div>Item A</div>
-                    <div>Item B</div>
-                    <div>Item C</div>
-                  </div>
-                </af-infinite-scroll>
-                <af-virtual-scroll [itemCount]="20" [itemHeight]="28" [containerHeight]="120">
-                  <div
-                    class="px-2 py-1 text-xs border-b border-neutral-200 dark:border-neutral-700"
-                  >
-                    Linha virtual
-                  </div>
-                </af-virtual-scroll>
-                <af-error-boundary
-                  title="Exemplo de erro"
-                  message="Fallback visual do componente."
-                  [showRetry]="true"
-                />
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 🎨 FOUNDATION                                 -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Foundation</h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Buttons · Badges · Avatars</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <!-- Buttons -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Buttons</h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-button · 6 variants · 3 sizes
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
-              >
-                <div class="flex flex-wrap items-center gap-3">
-                  <af-button variant="primary">Primary</af-button>
-                  <af-button variant="secondary">Secondary</af-button>
-                  <af-button variant="outline">Outline</af-button>
-                  <af-button variant="ghost">Ghost</af-button>
-                  <af-button variant="danger">Danger</af-button>
-                  <af-button variant="ghost">Link</af-button>
-                </div>
-                <div class="flex flex-wrap items-center gap-3">
-                  <af-button size="sm">Small</af-button>
-                  <af-button size="md">Medium</af-button>
-                  <af-button size="lg">Large</af-button>
-                  <af-button [disabled]="true">Disabled</af-button>
-                  <af-button [block]="true">Block</af-button>
-                </div>
-              </div>
-            </section>
-
-            <!-- Loading / Icon buttons -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Button Variations
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-loading-button · af-icon-button
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
-              >
-                <div class="flex flex-wrap items-center gap-3">
-                  <af-loading-button [loading]="isLoading()" variant="primary"
-                    >Salvar</af-loading-button
-                  >
-                  <af-loading-button [loading]="isLoading()" variant="secondary"
-                    >Processar</af-loading-button
-                  >
-                  <af-icon-button label="Adicionar" variant="outline"
-                    ><lucide-icon name="plus" [size]="18"
-                  /></af-icon-button>
-                  <af-icon-button label="Editar" variant="outline"
-                    ><lucide-icon name="pencil" [size]="18"
-                  /></af-icon-button>
-                  <af-icon-button label="Excluir" variant="danger"
-                    ><lucide-icon name="trash-2" [size]="18"
-                  /></af-icon-button>
-                  <af-icon-button label="Configurações" variant="ghost"
-                    ><lucide-icon name="settings" [size]="18"
-                  /></af-icon-button>
-                </div>
-              </div>
-            </section>
-
-            <!-- Badge & Status Badge -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Badges</h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-badge · af-status-badge · variants + pulse
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
-              >
-                <div class="flex flex-wrap items-center gap-3">
-                  <af-badge variant="default">Default</af-badge>
-                  <af-badge variant="success">Success</af-badge>
-                  <af-badge variant="warning">Warning</af-badge>
-                  <af-badge variant="danger">Danger</af-badge>
-                  <af-badge variant="info">Info</af-badge>
-                </div>
-                <af-divider />
-                <div class="flex flex-wrap items-center gap-6">
-                  <af-status-badge status="online" [pulse]="true">Online</af-status-badge>
-                  <af-status-badge status="offline">Offline</af-status-badge>
-                  <af-status-badge status="warning">Warning</af-status-badge>
-                  <af-status-badge status="error" [pulse]="true">Error</af-status-badge>
-                  <af-status-badge status="idle">Idle</af-status-badge>
-                </div>
-              </div>
-            </section>
-
-            <!-- Avatar -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Avatar</h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-avatar · Image, initials, fallback · 5 sizes
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="flex flex-wrap items-end gap-4">
-                  <div class="flex flex-col items-center gap-1">
-                    <af-avatar size="xs" initials="XS" />
-                    <span class="text-[10px] text-neutral-400">xs</span>
-                  </div>
-                  <div class="flex flex-col items-center gap-1">
-                    <af-avatar size="sm" initials="SM" />
-                    <span class="text-[10px] text-neutral-400">sm</span>
-                  </div>
-                  <div class="flex flex-col items-center gap-1">
-                    <af-avatar size="md" initials="MD" />
-                    <span class="text-[10px] text-neutral-400">md</span>
-                  </div>
-                  <div class="flex flex-col items-center gap-1">
-                    <af-avatar size="lg" initials="LG" />
-                    <span class="text-[10px] text-neutral-400">lg</span>
-                  </div>
-                  <div class="flex flex-col items-center gap-1">
-                    <af-avatar size="xl" initials="XL" />
-                    <span class="text-[10px] text-neutral-400">xl</span>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Divider -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Divider</h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-divider · horizontal · optional label
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
-              >
-                <af-divider />
-                <af-divider label="OR" />
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 📦 LAYOUT & FEEDBACK                         -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Layout & Feedback
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Spinner · Skeleton · Empty State</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <!-- Spinner -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Spinner</h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-spinner · 4 sizes · 2 colors
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="flex flex-wrap items-center gap-6">
-                  <af-spinner size="sm" />
-                  <af-spinner size="md" />
-                  <af-spinner size="lg" />
-                  <af-spinner size="lg" />
-                  <af-spinner size="md" color="white" />
-                </div>
-              </div>
-            </section>
-
-            <!-- Skeleton -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Skeleton</h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-skeleton · pulse animation · 3 variants
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-3"
-              >
-                <af-skeleton variant="text" class="w-3/4" />
-                <af-skeleton variant="text" class="w-1/2" />
-                <div class="flex items-center gap-3 mt-4">
-                  <af-skeleton variant="circular" />
-                  <div class="flex-1 space-y-2">
-                    <af-skeleton variant="text" class="w-1/3" />
-                    <af-skeleton variant="text" class="w-2/3" />
-                  </div>
-                </div>
-                <af-skeleton variant="rectangular" class="w-full h-20 mt-4" />
-              </div>
-            </section>
-
-            <!-- Tooltip -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Tooltip</h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-tooltip · top/bottom/left/right
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="flex flex-wrap items-center gap-6">
-                  <af-tooltip text="Tooltip acima" position="top"
-                    ><af-button variant="outline" size="sm">Top</af-button></af-tooltip
-                  >
-                  <af-tooltip text="Tooltip abaixo" position="bottom"
-                    ><af-button variant="outline" size="sm">Bottom</af-button></af-tooltip
-                  >
-                  <af-tooltip text="Tooltip à esquerda" position="left"
-                    ><af-button variant="outline" size="sm">Left</af-button></af-tooltip
-                  >
-                  <af-tooltip text="Tooltip à direita" position="right"
-                    ><af-button variant="outline" size="sm">Right</af-button></af-tooltip
-                  >
-                </div>
-              </div>
-            </section>
-
-            <!-- Page Title & Empty State -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Page Title & Empty State
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-page-title · af-empty-state
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-6"
-              >
-                <af-page-title title="Contatos" subtitle="Gerencie sua lista de contatos">
-                  <af-button variant="primary" size="sm">+ Novo</af-button>
-                </af-page-title>
-                <af-divider />
-                <af-empty-state
-                  title="Nenhum registro encontrado"
-                  description="Crie seu primeiro registro para começar."
-                />
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 📝 FORM INPUTS                               -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Form Inputs
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Text · Search · Select · Tags · Masks · Password</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <!-- Text Input -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Text Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-text-input · label, error, sizes
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <af-text-input
-                    [control]="nameControl"
-                    label="Nome completo"
-                    placeholder="João da Silva"
-                    [required]="true"
-                    [spacing]="false"
-                  />
-                  <af-text-input
-                    [control]="emailControl"
-                    label="Email"
-                    placeholder="joao&#64;email.com"
-                    type="email"
-                    [spacing]="false"
-                  />
-                  <af-text-input
-                    [control]="readOnlyControl"
-                    label="Somente leitura"
-                    [readOnly]="true"
-                    [spacing]="false"
-                  />
-                  <af-text-input
-                    [control]="nameControl"
-                    label="Small"
-                    size="sm"
-                    placeholder="Tamanho sm"
-                    [spacing]="false"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Search Input -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Search Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-search-input · magnifying glass + clear button
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <af-search-input [control]="searchControl" placeholder="Buscar contatos..." />
-                  <af-search-input
-                    [control]="searchControl2"
-                    placeholder="Filtrar resultados..."
-                    size="sm"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Addon Input -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Addon Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-addon-input · left button with icon and text
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <af-addon-input
-                    [control]="tagControl"
-                    label="Tag"
-                    addonIcon="plus"
-                    addonLabel="Add"
-                    placeholder="Nova tag..."
-                    classContainer="mb-0"
-                  />
-                  <af-addon-input
-                    [control]="urlControl"
-                    label="URL do site"
-                    addonLabel="https://"
-                    placeholder="meusite.com.br"
-                    classContainer="mb-0"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Copy Input -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Copy Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-copy-input · clipboard copy with visual feedback
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <af-copy-input [control]="apiKeyControl" label="API Key" classContainer="mb-0" />
-                  <af-copy-input
-                    [control]="webhookUrlControl"
-                    label="Webhook URL"
-                    classContainer="mb-0"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Color Input -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Color Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-color-input · swatch + hex picker
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <af-color-input [control]="colorControl" label="Cor primária" [spacing]="false" />
-                  <af-color-input
-                    [control]="colorControl2"
-                    label="Cor secundária"
-                    [spacing]="false"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Phone Input -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Phone Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-phone-input · country selector + phone mask
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <af-phone-input
-                  [control]="phoneControl"
-                  label="Telefone (WhatsApp)"
+                <af-password-input
+                  [control]="pwLoginControl"
+                  label="Senha"
                   [required]="true"
-                  classContainer="max-w-md"
                   [spacing]="false"
                 />
               </div>
-            </section>
-
-            <!-- Masked Inputs -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Masked Inputs
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-masked-input · CPF, CNPJ, CEP, Currency (afMask directive)
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <af-masked-input
-                    [control]="cpfControl"
-                    label="CPF"
-                    mask="cpf"
-                    [spacing]="false"
-                  />
-                  <af-masked-input
-                    [control]="cnpjControl"
-                    label="CNPJ"
-                    mask="cnpj"
-                    [spacing]="false"
-                  />
-                  <af-masked-input
-                    [control]="docControl"
-                    label="CPF/CNPJ"
-                    mask="cpf-cnpj"
-                    [spacing]="false"
-                  />
-                  <af-masked-input
-                    [control]="cepControl"
-                    label="CEP"
-                    mask="cep"
-                    [spacing]="false"
-                  />
-                  <af-masked-input
-                    [control]="currencyControl"
-                    label="Valor (R$)"
-                    mask="currency"
-                    [spacing]="false"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Password Inputs -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Password Inputs
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-password-input · show/hide · af-password-strength · meter + checklist
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <p
-                      class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-3 uppercase tracking-wider"
-                    >
-                      Show / Hide
-                    </p>
-                    <af-password-input
-                      [control]="pwLoginControl"
-                      label="Senha"
-                      [required]="true"
-                      [spacing]="false"
-                    />
-                  </div>
-                  <div>
-                    <p
-                      class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-3 uppercase tracking-wider"
-                    >
-                      Com Força da Senha
-                    </p>
-                    <af-password-strength
-                      [control]="pwNewControl"
-                      label="Nova Senha"
-                      [required]="true"
-                      classContainer="mb-0"
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Select Input -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Select Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-select-input · searchable dropdown · single select
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <af-select-input
-                    [control]="selectControl"
-                    [options]="statusOptions"
-                    label="Status"
-                    [spacing]="false"
-                  />
-                  <af-select-input
-                    [control]="selectControl2"
-                    [options]="countryOptions"
-                    label="País"
-                    placeholder="Escolha um país..."
-                    [spacing]="false"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Tag Input -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Tag Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-tag-input · chips · Enter to add · × to remove
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <af-tag-input
-                    [control]="tagsControl"
-                    label="Tags"
-                    placeholder="Digite e pressione Enter..."
-                    [maxTags]="5"
-                    classContainer="mb-0"
-                  />
-                  <af-tag-input
-                    [control]="tagsControl2"
-                    label="Habilidades"
-                    placeholder="Ex: Angular, TypeScript..."
-                    classContainer="mb-0"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Checkbox & Switch -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Checkbox & Switch
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-checkbox-input · af-switch-input · FormControl + standalone
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div class="space-y-3">
-                    <p
-                      class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
-                    >
-                      Checkboxes
-                    </p>
-                    <af-checkbox-input
-                      [control]="checkboxControl"
-                      label="Aceito os termos de uso"
-                    />
-                    <af-checkbox-input
-                      [control]="checkboxControl2"
-                      label="Receber notificações por email"
-                    />
-                    <af-checkbox-input [control]="checkboxDisabled" label="Desabilitado" />
-                  </div>
-                  <div class="space-y-3">
-                    <p
-                      class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
-                    >
-                      Switches
-                    </p>
-                    <div class="space-y-3">
-                      <af-switch-input [control]="switchControl" label="Notificações ativas" />
-                      <af-switch-input
-                        [checked]="switchStandalone()"
-                        label="Modo standalone"
-                        labelPosition="left"
-                        (toggled)="onSwitchToggle($event)"
-                      />
-                      <af-switch-input
-                        [control]="switchDisabledControl"
-                        label="Desabilitado (ligado)"
-                        [disabled]="true"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 📁 FILE UPLOAD                                -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              File Upload
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Drag & drop · Progress · Cancel</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Single File Upload
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-file-upload · single file · progress bar
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <af-file-upload
-                  label="Avatar"
-                  accept=".jpg,.jpeg,.png,.webp"
-                  classContainer="mb-0"
-                />
-              </div>
-            </section>
-
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Multi File Upload
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-file-upload · multiple · cancel + remove
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <af-file-upload
-                  label="Documentos"
-                  [multiple]="true"
-                  accept=".pdf,.doc,.docx,.xls,.xlsx"
-                  classContainer="mb-0"
-                />
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- 🪟 MODALS                                     -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Modals</h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Dialogs · Confirm</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <!-- Modal -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Modal</h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-modal · header, body, footer slots · 4 sizes
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="flex flex-wrap items-center gap-3">
-                  <af-button variant="primary" size="sm" (click)="showModal.set(true)"
-                    >Abrir Modal</af-button
-                  >
-                  <af-button variant="outline" size="sm" (click)="showLargeModal.set(true)"
-                    >Modal Grande</af-button
-                  >
-                </div>
-              </div>
-            </section>
-
-            <!-- Confirm Modal -->
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Confirm Modal
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-confirm-modal · danger, warning, default variants
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="flex flex-wrap items-center gap-3">
-                  <af-button variant="danger" size="sm" (click)="showConfirmDanger.set(true)"
-                    >Excluir (Danger)</af-button
-                  >
-                  <af-button variant="outline" size="sm" (click)="showConfirmWarning.set(true)"
-                    >Aviso (Warning)</af-button
-                  >
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- DATA & CRUD                                   -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Data & CRUD
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Pagination · Skeleton Table · CRUD Page</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Pagination
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-pagination · prev/next · page numbers · ellipsis
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <af-pagination
-                  [currentPage]="paginationPage()"
-                  [lastPage]="12"
-                  [perPage]="15"
-                  [total]="178"
-                  (pageChange)="paginationPage.set($event)"
-                />
-              </div>
-            </section>
-
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Skeleton Table Row
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-skeleton-table-row · loading placeholder · configurable cols/rows
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
-              >
-                <af-skeleton-table-row [columns]="5" [rows]="4" />
-              </div>
-            </section>
-
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                CRUD Page
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-crud-page · orchestrates title, search, content, pagination, empty state
-              </p>
-              <div class="bg-neutral-100 dark:bg-neutral-900 rounded-xl p-4">
-                <af-crud-page
-                  title="Contatos"
-                  subtitle="Gerencie sua lista de contatos"
-                  createLabel="Novo Contato"
-                  [loading]="false"
-                  [empty]="false"
-                  [currentPage]="1"
-                  [lastPage]="5"
-                  [perPage]="10"
-                  [total]="48"
+              <div>
+                <p
+                  class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-3 uppercase tracking-wider"
                 >
-                  <!-- Sample table content -->
-                  <table class="w-full text-sm">
-                    <thead>
-                      <tr
-                        class="border-b border-neutral-200 dark:border-neutral-700 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
-                      >
-                        <th class="px-4 py-3">Nome</th>
-                        <th class="px-4 py-3">Email</th>
-                        <th class="px-4 py-3">Telefone</th>
-                        <th class="px-4 py-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody class="text-neutral-700 dark:text-neutral-300">
-                      <tr class="border-b border-neutral-100 dark:border-neutral-800">
-                        <td class="px-4 py-3 font-medium">Maria Silva</td>
-                        <td class="px-4 py-3">maria&#64;email.com</td>
-                        <td class="px-4 py-3">(11) 98765-4321</td>
-                        <td class="px-4 py-3">
-                          <af-status-badge status="online">Ativo</af-status-badge>
-                        </td>
-                      </tr>
-                      <tr class="border-b border-neutral-100 dark:border-neutral-800">
-                        <td class="px-4 py-3 font-medium">João Santos</td>
-                        <td class="px-4 py-3">joao&#64;email.com</td>
-                        <td class="px-4 py-3">(21) 91234-5678</td>
-                        <td class="px-4 py-3">
-                          <af-status-badge status="idle">Pendente</af-status-badge>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </af-crud-page>
+                  Com Força da Senha
+                </p>
+                <af-password-strength
+                  [control]="pwNewControl"
+                  label="Nova Senha"
+                  [required]="true"
+                  classContainer="mb-0"
+                />
               </div>
-            </section>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- COMPLEMENTARY INPUTS                          -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Complementary Inputs
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Radio · Textarea</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Radio Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-radio-input · horizontal/vertical · custom styled circles
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <af-radio-input
-                    [control]="radioControl"
-                    [options]="radioOptions"
-                    name="status-radio"
-                    label="Status"
-                    orientation="vertical"
-                    [spacing]="false"
-                  />
-                  <af-radio-input
-                    [control]="radioControl2"
-                    [options]="priorityOptions"
-                    name="priority-radio"
-                    label="Prioridade"
-                    orientation="horizontal"
-                    [spacing]="false"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Textarea Input
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-textarea-input · auto-resize · char counter · resize modes
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <af-textarea-input
-                    [control]="textareaControl"
-                    label="Descrição"
-                    placeholder="Digite a descrição do contato..."
-                    [maxLength]="500"
-                    resize="auto"
-                    [spacing]="false"
-                  />
-                  <af-textarea-input
-                    [control]="notesControl"
-                    label="Observações"
-                    placeholder="Notas internas..."
-                    [rows]="4"
-                    resize="vertical"
-                    [spacing]="false"
-                  />
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- DASHBOARD & REPORTS                           -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
-              Dashboard & Reports
-            </h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >KPI · Chart · Filters · Export</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                KPI Cards
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-kpi-card · value · trend indicator · loading state
-              </p>
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <af-kpi-card
-                  title="Receita"
-                  value="R$ 48.250"
-                  [change]="12.5"
-                  changeLabel="vs mês anterior"
-                  icon="dollar-sign"
-                />
-                <af-kpi-card
-                  title="Novos Contatos"
-                  value="1.284"
-                  [change]="-3.2"
-                  changeLabel="vs mês anterior"
-                  icon="users"
-                />
-                <af-kpi-card
-                  title="Taxa de Conversão"
-                  value="24.8%"
-                  [change]="5.1"
-                  changeLabel="vs semana anterior"
-                  icon="trending-up"
-                />
-                <af-kpi-card
-                  title="Mensagens"
-                  value="8.492"
-                  [change]="0"
-                  changeLabel="estável"
-                  icon="message-square"
-                  [loading]="false"
-                />
-              </div>
-            </section>
-
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Report Filters & Export
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-report-filters · af-report-export · date range + status
-              </p>
-              <div
-                class="flex flex-col md:flex-row md:items-end gap-6 p-4 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 w-full overflow-hidden"
-              >
-                <div class="flex-1 w-full max-w-full overflow-x-auto pb-1">
-                  <af-report-filters [statusOptions]="reportStatusOptions" />
-                </div>
-                <div class="shrink-0 pb-1 flex items-end">
-                  <af-report-export />
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════ -->
-        <!-- CHAT                                          -->
-        <!-- ══════════════════════════════════════════════ -->
-        <div>
-          <div class="flex items-center gap-2 mb-6">
-            <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Chat</h2>
-            <span
-              class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
-              >Bubble · List Item · Composer</span
-            >
-          </div>
-
-          <div class="space-y-10">
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Chat Bubble
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-chat-bubble · in/out direction · read receipts · timestamp
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
-              >
-                <div class="flex flex-col gap-3 max-w-lg mx-auto">
-                  <af-chat-bubble
-                    message="Olá! Gostaria de saber sobre o plano Enterprise."
-                    timestamp="14:30"
-                    senderName="Maria"
-                    direction="in"
-                  />
-                  <af-chat-bubble
-                    message="Claro, Maria! O plano Enterprise inclui atendentes ilimitados, API dedicada e suporte prioritário 24/7."
-                    timestamp="14:31"
-                    direction="out"
-                    status="delivered"
-                  />
-                  <af-chat-bubble
-                    message="Perfeito! Pode me enviar uma proposta?"
-                    timestamp="14:32"
-                    senderName="Maria"
-                    direction="in"
-                  />
-                  <af-chat-bubble
-                    message="Já enviei por email! Confira sua caixa de entrada 📩"
-                    timestamp="14:33"
-                    direction="out"
-                    status="read"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Chat List Item
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-chat-list-item · avatar · online dot · unread count · active state
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden max-w-sm"
-              >
-                <af-chat-list-item
-                  name="Maria Silva"
-                  lastMessage="Perfeito! Pode me enviar uma proposta?"
-                  timestamp="14:32"
-                  [unreadCount]="3"
-                  [online]="true"
-                  [active]="true"
-                />
-                <af-chat-list-item
-                  name="João Santos"
-                  lastMessage="Ok, obrigado pela informação"
-                  timestamp="13:15"
-                  [unreadCount]="0"
-                  [online]="true"
-                />
-                <af-chat-list-item
-                  name="Ana Oliveira"
-                  lastMessage="Vou verificar e retorno"
-                  timestamp="ontem"
-                  [unreadCount]="1"
-                  [online]="false"
-                />
-                <af-chat-list-item
-                  name="Carlos Pereira"
-                  lastMessage="Bom dia!"
-                  timestamp="seg"
-                  [unreadCount]="0"
-                  [online]="false"
-                />
-              </div>
-            </section>
-
-            <section>
-              <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-                Chat Composer
-              </h3>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
-                af-chat-composer · auto-resize · Enter to send · attach button
-              </p>
-              <div
-                class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden max-w-lg"
-              >
-                <af-chat-composer placeholder="Digite sua mensagem..." [maxLength]="1000" />
-              </div>
-            </section>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div
-        class="max-w-7xl mx-auto px-6 py-8 text-center text-xs text-neutral-400 dark:text-neutral-500"
-      >
-        AgentFlix UI Kit · Phases 1–7 · {{ componentCount }} primitives
-      </div>
-
-      <!-- Modal instances -->
-      <af-modal [open]="showModal()" title="Exemplo de modal" (closed)="showModal.set(false)">
-        <p class="text-sm text-neutral-600 dark:text-neutral-400">
-          Este é o corpo do modal. Pode conter qualquer conteúdo Angular.
-        </p>
-        <div
-          footer
-          class="flex justify-end gap-3 px-6 py-4 border-t border-neutral-200 dark:border-neutral-700"
-        >
-          <af-button variant="ghost" size="sm" (click)="showModal.set(false)">Cancelar</af-button>
-          <af-button variant="primary" size="sm" (click)="showModal.set(false)">Salvar</af-button>
-        </div>
-      </af-modal>
-
-      <af-modal
-        [open]="showLargeModal()"
-        title="Modal grande"
-        size="lg"
-        (closed)="showLargeModal.set(false)"
-      >
-        <div class="space-y-4">
-          <p class="text-sm text-neutral-600 dark:text-neutral-400">
-            Modal com tamanho lg para formulários complexos.
+        <!-- Select Input -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Select Input</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-select-input · searchable dropdown · single select
           </p>
-          <div class="grid grid-cols-2 gap-4">
-            <af-text-input [control]="nameControl" label="Nome" placeholder="João" />
-            <af-text-input
-              [control]="emailControl"
-              label="Email"
-              placeholder="joao&#64;email.com"
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <af-select-input
+                [control]="selectControl"
+                [options]="statusOptions"
+                label="Status"
+                [spacing]="false"
+              />
+              <af-select-input
+                [control]="selectControl2"
+                [options]="countryOptions"
+                label="País"
+                placeholder="Escolha um país..."
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Tag Input -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Tag Input</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-tag-input · chips · Enter to add · × to remove
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <af-tag-input
+                [control]="tagsControl"
+                label="Tags"
+                placeholder="Digite e pressione Enter..."
+                [maxTags]="5"
+                classContainer="mb-0"
+              />
+              <af-tag-input
+                [control]="tagsControl2"
+                label="Habilidades"
+                placeholder="Ex: Angular, TypeScript..."
+                classContainer="mb-0"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Checkbox & Switch -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Checkbox & Switch
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-checkbox-input · af-switch-input · FormControl + standalone
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div class="space-y-3">
+                <p
+                  class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+                >
+                  Checkboxes
+                </p>
+                <af-checkbox-input [control]="checkboxControl" label="Aceito os termos de uso" />
+                <af-checkbox-input
+                  [control]="checkboxControl2"
+                  label="Receber notificações por email"
+                />
+                <af-checkbox-input [control]="checkboxDisabled" label="Desabilitado" />
+              </div>
+              <div class="space-y-3">
+                <p
+                  class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+                >
+                  Switches
+                </p>
+                <div class="space-y-3">
+                  <af-switch-input [control]="switchControl" label="Notificações ativas" />
+                  <af-switch-input
+                    [checked]="switchStandalone()"
+                    label="Modo standalone"
+                    labelPosition="left"
+                    (toggled)="onSwitchToggle($event)"
+                  />
+                  <af-switch-input
+                    [control]="switchDisabledControl"
+                    label="Desabilitado (ligado)"
+                    [disabled]="true"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 📁 FILE UPLOAD                                -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">File Upload</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Drag & drop · Progress · Cancel</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Single File Upload
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-file-upload · single file · progress bar
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <af-file-upload label="Avatar" accept=".jpg,.jpeg,.png,.webp" classContainer="mb-0" />
+          </div>
+        </section>
+
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Multi File Upload
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-file-upload · multiple · cancel + remove
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <af-file-upload
+              label="Documentos"
+              [multiple]="true"
+              accept=".pdf,.doc,.docx,.xls,.xlsx"
+              classContainer="mb-0"
             />
           </div>
-        </div>
-        <div
-          footer
-          class="flex justify-end gap-3 px-6 py-4 border-t border-neutral-200 dark:border-neutral-700"
-        >
-          <af-button variant="ghost" size="sm" (click)="showLargeModal.set(false)"
-            >Cancelar</af-button
-          >
-          <af-button variant="primary" size="sm" (click)="showLargeModal.set(false)"
-            >Salvar</af-button
-          >
-        </div>
-      </af-modal>
-
-      <af-confirm-modal
-        [open]="showConfirmDanger()"
-        title="Excluir contato"
-        message="Tem certeza que deseja excluir este contato? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
-        variant="danger"
-        (confirmed)="showConfirmDanger.set(false)"
-        (cancelled)="showConfirmDanger.set(false)"
-      />
-
-      <af-confirm-modal
-        [open]="showConfirmWarning()"
-        title="Atenção"
-        message="Você está prestes a alterar as configurações do sistema. Deseja continuar?"
-        confirmLabel="Continuar"
-        variant="warning"
-        (confirmed)="showConfirmWarning.set(false)"
-        (cancelled)="showConfirmWarning.set(false)"
-      />
-
-      <af-fab icon="plus" ariaLabel="Novo item" position="bottom-left" />
-
-      <af-command-palette
-        [open]="previewPaletteOpen()"
-        [items]="previewCommandItems"
-        (closed)="previewPaletteOpen.set(false)"
-        (itemSelected)="onPreviewCommand($event)"
-      />
+        </section>
+      </div>
     </div>
-  
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- 🪟 MODALS                                     -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Modals</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Dialogs · Confirm</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <!-- Modal -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Modal</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-modal · header, body, footer slots · 4 sizes
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <af-button variant="primary" size="sm" (click)="showModal.set(true)"
+                >Abrir Modal</af-button
+              >
+              <af-button variant="outline" size="sm" (click)="showLargeModal.set(true)"
+                >Modal Grande</af-button
+              >
+            </div>
+          </div>
+        </section>
+
+        <!-- Confirm Modal -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Confirm Modal
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-confirm-modal · danger, warning, default variants
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <af-button variant="danger" size="sm" (click)="showConfirmDanger.set(true)"
+                >Excluir (Danger)</af-button
+              >
+              <af-button variant="outline" size="sm" (click)="showConfirmWarning.set(true)"
+                >Aviso (Warning)</af-button
+              >
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- DATA & CRUD                                   -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Data & CRUD</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Pagination · Skeleton Table · CRUD Page</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Pagination</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-pagination · prev/next · page numbers · ellipsis
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <af-pagination
+              [currentPage]="paginationPage()"
+              [lastPage]="12"
+              [perPage]="15"
+              [total]="178"
+              (pageChange)="paginationPage.set($event)"
+            />
+          </div>
+        </section>
+
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Skeleton Table Row
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-skeleton-table-row · loading placeholder · configurable cols/rows
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+          >
+            <af-skeleton-table-row [columns]="5" [rows]="4" />
+          </div>
+        </section>
+
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">CRUD Page</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-crud-page · orchestrates title, search, content, pagination, empty state
+          </p>
+          <div class="bg-neutral-100 dark:bg-neutral-900 rounded-xl p-4">
+            <af-crud-page
+              title="Contatos"
+              subtitle="Gerencie sua lista de contatos"
+              createLabel="Novo Contato"
+              [loading]="false"
+              [empty]="false"
+              [currentPage]="1"
+              [lastPage]="5"
+              [perPage]="10"
+              [total]="48"
+            >
+              <!-- Sample table content -->
+              <table class="w-full text-sm">
+                <thead>
+                  <tr
+                    class="border-b border-neutral-200 dark:border-neutral-700 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+                  >
+                    <th class="px-4 py-3">Nome</th>
+                    <th class="px-4 py-3">Email</th>
+                    <th class="px-4 py-3">Telefone</th>
+                    <th class="px-4 py-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="text-neutral-700 dark:text-neutral-300">
+                  <tr class="border-b border-neutral-100 dark:border-neutral-800">
+                    <td class="px-4 py-3 font-medium">Maria Silva</td>
+                    <td class="px-4 py-3">maria&#64;email.com</td>
+                    <td class="px-4 py-3">(11) 98765-4321</td>
+                    <td class="px-4 py-3">
+                      <af-status-badge status="online">Ativo</af-status-badge>
+                    </td>
+                  </tr>
+                  <tr class="border-b border-neutral-100 dark:border-neutral-800">
+                    <td class="px-4 py-3 font-medium">João Santos</td>
+                    <td class="px-4 py-3">joao&#64;email.com</td>
+                    <td class="px-4 py-3">(21) 91234-5678</td>
+                    <td class="px-4 py-3">
+                      <af-status-badge status="idle">Pendente</af-status-badge>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </af-crud-page>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- COMPLEMENTARY INPUTS                          -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
+          Complementary Inputs
+        </h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Radio · Textarea</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Radio Input</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-radio-input · horizontal/vertical · custom styled circles
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <af-radio-input
+                [control]="radioControl"
+                [options]="radioOptions"
+                name="status-radio"
+                label="Status"
+                orientation="vertical"
+                [spacing]="false"
+              />
+              <af-radio-input
+                [control]="radioControl2"
+                [options]="priorityOptions"
+                name="priority-radio"
+                label="Prioridade"
+                orientation="horizontal"
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Textarea Input
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-textarea-input · auto-resize · char counter · resize modes
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <af-textarea-input
+                [control]="textareaControl"
+                label="Descrição"
+                placeholder="Digite a descrição do contato..."
+                [maxLength]="500"
+                resize="auto"
+                [spacing]="false"
+              />
+              <af-textarea-input
+                [control]="notesControl"
+                label="Observações"
+                placeholder="Notas internas..."
+                [rows]="4"
+                resize="vertical"
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- DASHBOARD & REPORTS                           -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
+          Dashboard & Reports
+        </h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >KPI · Chart · Filters · Export</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">KPI Cards</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-kpi-card · value · trend indicator · loading state
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <af-kpi-card
+              title="Receita"
+              value="R$ 48.250"
+              [change]="12.5"
+              changeLabel="vs mês anterior"
+              icon="dollar-sign"
+            />
+            <af-kpi-card
+              title="Novos Contatos"
+              value="1.284"
+              [change]="-3.2"
+              changeLabel="vs mês anterior"
+              icon="users"
+            />
+            <af-kpi-card
+              title="Taxa de Conversão"
+              value="24.8%"
+              [change]="5.1"
+              changeLabel="vs semana anterior"
+              icon="trending-up"
+            />
+            <af-kpi-card
+              title="Mensagens"
+              value="8.492"
+              [change]="0"
+              changeLabel="estável"
+              icon="message-square"
+              [loading]="false"
+            />
+          </div>
+        </section>
+
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Report Filters & Export
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-report-filters · af-report-export · date range + status
+          </p>
+          <div
+            class="flex flex-col md:flex-row md:items-end gap-6 p-4 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 w-full overflow-hidden"
+          >
+            <div class="flex-1 w-full max-w-full overflow-x-auto pb-1">
+              <af-report-filters [statusOptions]="reportStatusOptions" />
+            </div>
+            <div class="shrink-0 pb-1 flex items-end">
+              <af-report-export />
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- CHAT                                          -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">Chat</h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Bubble · List Item · Composer</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Chat Bubble</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-chat-bubble · in/out direction · read receipts · timestamp
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="flex flex-col gap-3 max-w-lg mx-auto">
+              <af-chat-bubble
+                message="Olá! Gostaria de saber sobre o plano Enterprise."
+                timestamp="14:30"
+                senderName="Maria"
+                direction="in"
+              />
+              <af-chat-bubble
+                message="Claro, Maria! O plano Enterprise inclui atendentes ilimitados, API dedicada e suporte prioritário 24/7."
+                timestamp="14:31"
+                direction="out"
+                status="delivered"
+              />
+              <af-chat-bubble
+                message="Perfeito! Pode me enviar uma proposta?"
+                timestamp="14:32"
+                senderName="Maria"
+                direction="in"
+              />
+              <af-chat-bubble
+                message="Já enviei por email! Confira sua caixa de entrada 📩"
+                timestamp="14:33"
+                direction="out"
+                status="read"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Chat List Item
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-chat-list-item · avatar · online dot · unread count · active state
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden max-w-sm"
+          >
+            <af-chat-list-item
+              name="Maria Silva"
+              lastMessage="Perfeito! Pode me enviar uma proposta?"
+              timestamp="14:32"
+              [unreadCount]="3"
+              [online]="true"
+              [active]="true"
+            />
+            <af-chat-list-item
+              name="João Santos"
+              lastMessage="Ok, obrigado pela informação"
+              timestamp="13:15"
+              [unreadCount]="0"
+              [online]="true"
+            />
+            <af-chat-list-item
+              name="Ana Oliveira"
+              lastMessage="Vou verificar e retorno"
+              timestamp="ontem"
+              [unreadCount]="1"
+              [online]="false"
+            />
+            <af-chat-list-item
+              name="Carlos Pereira"
+              lastMessage="Bom dia!"
+              timestamp="seg"
+              [unreadCount]="0"
+              [online]="false"
+            />
+          </div>
+        </section>
+
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Chat Composer
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-chat-composer · auto-resize · Enter to send · attach button
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden max-w-lg"
+          >
+            <af-chat-composer placeholder="Digite sua mensagem..." [maxLength]="1000" />
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div
+    class="max-w-7xl mx-auto px-6 py-8 text-center text-xs text-neutral-400 dark:text-neutral-500"
+  >
+    InteraZap UI Kit · Phases 1–7 · {{ componentCount }} primitives
+  </div>
+
+  <!-- Modal instances -->
+  <af-modal [open]="showModal()" title="Exemplo de modal" (closed)="showModal.set(false)">
+    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+      Este é o corpo do modal. Pode conter qualquer conteúdo Angular.
+    </p>
+    <div
+      footer
+      class="flex justify-end gap-3 px-6 py-4 border-t border-neutral-200 dark:border-neutral-700"
+    >
+      <af-button variant="ghost" size="sm" (click)="showModal.set(false)">Cancelar</af-button>
+      <af-button variant="primary" size="sm" (click)="showModal.set(false)">Salvar</af-button>
+    </div>
+  </af-modal>
+
+  <af-modal
+    [open]="showLargeModal()"
+    title="Modal grande"
+    size="lg"
+    (closed)="showLargeModal.set(false)"
+  >
+    <div class="space-y-4">
+      <p class="text-sm text-neutral-600 dark:text-neutral-400">
+        Modal com tamanho lg para formulários complexos.
+      </p>
+      <div class="grid grid-cols-2 gap-4">
+        <af-text-input [control]="nameControl" label="Nome" placeholder="João" />
+        <af-text-input [control]="emailControl" label="Email" placeholder="joao&#64;email.com" />
+      </div>
+    </div>
+    <div
+      footer
+      class="flex justify-end gap-3 px-6 py-4 border-t border-neutral-200 dark:border-neutral-700"
+    >
+      <af-button variant="ghost" size="sm" (click)="showLargeModal.set(false)">Cancelar</af-button>
+      <af-button variant="primary" size="sm" (click)="showLargeModal.set(false)">Salvar</af-button>
+    </div>
+  </af-modal>
+
+  <af-confirm-modal
+    [open]="showConfirmDanger()"
+    title="Excluir contato"
+    message="Tem certeza que deseja excluir este contato? Esta ação não pode ser desfeita."
+    confirmLabel="Excluir"
+    variant="danger"
+    (confirmed)="showConfirmDanger.set(false)"
+    (cancelled)="showConfirmDanger.set(false)"
+  />
+
+  <af-confirm-modal
+    [open]="showConfirmWarning()"
+    title="Atenção"
+    message="Você está prestes a alterar as configurações do sistema. Deseja continuar?"
+    confirmLabel="Continuar"
+    variant="warning"
+    (confirmed)="showConfirmWarning.set(false)"
+    (cancelled)="showConfirmWarning.set(false)"
+  />
+
+  <af-fab icon="plus" ariaLabel="Novo item" position="bottom-left" />
+
+  <af-command-palette
+    [open]="previewPaletteOpen()"
+    [items]="previewCommandItems"
+    (closed)="previewPaletteOpen.set(false)"
+    (itemSelected)="onPreviewCommand($event)"
+  />
+</div>

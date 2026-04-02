@@ -74,7 +74,7 @@ Check logs and metrics:
 
 ```bash
 # New gateway logs
-docker logs -f agentflix-gateway
+docker logs -f interazap-gateway
 
 # Redis stream activity
 redis-cli XINFO STREAM chat.inbound_message_received
@@ -107,7 +107,7 @@ upstream gateway_backends {
 
 ```bash
 # Stop old gateway
-docker stop agentflix-gateway-old
+docker stop interazap-gateway-old
 
 # Remove legacy code (optional)
 rm -rf gateway/_legacy/
@@ -135,7 +135,7 @@ sudo nginx -s reload
 Check new gateway logs:
 
 ```bash
-docker logs agentflix-gateway 2>&1 | grep -i error
+docker logs interazap-gateway 2>&1 | grep -i error
 ```
 
 ## Validation Checklist
@@ -201,7 +201,7 @@ ASAAS_API_KEY=your-key
 
 For issues during migration:
 
-1. Check gateway logs: `docker logs agentflix-gateway`
+1. Check gateway logs: `docker logs interazap-gateway`
 2. Check Redis connectivity: `redis-cli ping`
 3. Run health check: `curl localhost:3000/health`
 4. Review this document's rollback procedure

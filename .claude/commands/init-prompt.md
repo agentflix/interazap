@@ -75,62 +75,62 @@ Tarefa Recebida
 
 ### 📋 Planejamento & Documentação
 
-| Skill | Descrição | Uso |
-|-------|-----------|-----|
-| `brainstorming` | Exploração de ideias antes de implementar. Obrigatório para features/funcionalidades novas. | `/brainstorming` |
-| `generate-prd` | Gera PRD (Product Requirements Document) para features de módulo. | `/generate-prd` |
-| `create-plan` | Cria plano de desenvolvimento a partir de requisitos. | `/create-plan` |
-| `create-task` | Cria task a partir de um plano aprovado. | `/create-task` |
-| `technical-design-doc-creator` | Cria Technical Design Documents (TDD) compreensivos. | `/technical-design-doc-creator` |
+| Skill                          | Descrição                                                                                   | Uso                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------- |
+| `brainstorming`                | Exploração de ideias antes de implementar. Obrigatório para features/funcionalidades novas. | `/brainstorming`                |
+| `generate-prd`                 | Gera PRD (Product Requirements Document) para features de módulo.                           | `/generate-prd`                 |
+| `create-plan`                  | Cria plano de desenvolvimento a partir de requisitos.                                       | `/create-plan`                  |
+| `create-task`                  | Cria task a partir de um plano aprovado.                                                    | `/create-task`                  |
+| `technical-design-doc-creator` | Cria Technical Design Documents (TDD) compreensivos.                                        | `/technical-design-doc-creator` |
 
 ### 🎨 Design & UI
 
-| Skill | Descrição | Uso |
-|-------|-----------|-----|
-| `frontend-design` | Cria interfaces frontend distintivas, production-grade. | `/frontend-design` |
-| `generate-mockup` | Gera mockups textuais ou wireframes ASCII para planejamento de UI. | `/generate-mockup` |
-| `generate-diagram` | Gera diagramas Mermaid para arquitetura, fluxos, ou relacionamentos. | `/generate-diagram` |
-| `web-design-reviewer` | Revisão visual de websites — verifica design, acessibilidade, UX. | `/web-design-reviewer` |
-| `web-design-guidelines` | Diretrizes de design web e compliance. | `/web-design-guidelines` |
+| Skill                   | Descrição                                                            | Uso                      |
+| ----------------------- | -------------------------------------------------------------------- | ------------------------ |
+| `frontend-design`       | Cria interfaces frontend distintivas, production-grade.              | `/frontend-design`       |
+| `generate-mockup`       | Gera mockups textuais ou wireframes ASCII para planejamento de UI.   | `/generate-mockup`       |
+| `generate-diagram`      | Gera diagramas Mermaid para arquitetura, fluxos, ou relacionamentos. | `/generate-diagram`      |
+| `web-design-reviewer`   | Revisão visual de websites — verifica design, acessibilidade, UX.    | `/web-design-reviewer`   |
+| `web-design-guidelines` | Diretrizes de design web e compliance.                               | `/web-design-guidelines` |
 
 ### 🧪 Qualidade & Testes
 
-| Skill | Descrição | Uso |
-|-------|-----------|-----|
-| `tdd` | Test-driven development com loop red-green-refactor. | `/tdd` |
-| `e2e-testing` | End-to-end testing com Playwright para workflows completos. | `/e2e-testing` |
+| Skill            | Descrição                                                     | Uso               |
+| ---------------- | ------------------------------------------------------------- | ----------------- |
+| `tdd`            | Test-driven development com loop red-green-refactor.          | `/tdd`            |
+| `e2e-testing`    | End-to-end testing com Playwright para workflows completos.   | `/e2e-testing`    |
 | `playwright-cli` | Automação de browser para testing, form filling, screenshots. | `/playwright-cli` |
-| `webapp-testing` | Testing de webapps locais com Playwright. | `/webapp-testing` |
+| `webapp-testing` | Testing de webapps locais com Playwright.                     | `/webapp-testing` |
 
 ### 💻 Especialistas Backend
 
-| Skill | Descrição | Uso |
-|-------|-----------|-----|
+| Skill                | Descrição                                                         | Uso                   |
+| -------------------- | ----------------------------------------------------------------- | --------------------- |
 | `laravel-specialist` | Laravel 10+ — Eloquent, Sanctum, Horizon, Livewire, APIs RESTful. | `/laravel-specialist` |
-| `php-pro` | PHP moderno 8.3+ — Laravel, Symfony, async patterns com Swoole. | `/php-pro` |
+| `php-pro`            | PHP moderno 8.3+ — Laravel, Symfony, async patterns com Swoole.   | `/php-pro`            |
 
 ### 🖥️ Especialistas Frontend
 
-| Skill | Descrição | Uso |
-|-------|-----------|-----|
+| Skill               | Descrição                                                 | Uso                  |
+| ------------------- | --------------------------------------------------------- | -------------------- |
 | `angular-architect` | Angular 17+ — standalone components, signals, NgRx, RxJS. | `/angular-architect` |
 
 ### ⚙️ DevOps & Infraestrutura
 
-| Skill | Descrição | Uso |
-|-------|-----------|-----|
-| `ansible-automation` | Ansible playbooks, roles, inventory para deploy. | `/ansible-automation` |
-| `electron` | Automação de apps desktop (VS Code, Slack, etc.) via Chrome DevTools. | `/electron` |
+| Skill                | Descrição                                                             | Uso                   |
+| -------------------- | --------------------------------------------------------------------- | --------------------- |
+| `ansible-automation` | Ansible playbooks, roles, inventory para deploy.                      | `/ansible-automation` |
+| `electron`           | Automação de apps desktop (VS Code, Slack, etc.) via Chrome DevTools. | `/electron`           |
 
 ### 📝 Utilitários
 
-| Skill | Descrição | Uso |
-|-------|-----------|-----|
-| `git-commit` | Commit semântico com Conventional Commits. | `/git-commit` |
-| `jsdoc-typescript-docs` | Documentação JSDoc para TypeScript. | `/jsdoc-typescript-docs` |
-| `task-management` | Task management simples com TASKS.md. | `/task-management` |
-| `prompt-builder` | Criação de prompts GitHub Copilot. | `/prompt-builder` |
-| `find-skills` | Descobre e instala skills. | `/find-skills` |
+| Skill                   | Descrição                                  | Uso                      |
+| ----------------------- | ------------------------------------------ | ------------------------ |
+| `git-commit`            | Commit semântico com Conventional Commits. | `/git-commit`            |
+| `jsdoc-typescript-docs` | Documentação JSDoc para TypeScript.        | `/jsdoc-typescript-docs` |
+| `task-management`       | Task management simples com TASKS.md.      | `/task-management`       |
+| `prompt-builder`        | Criação de prompts GitHub Copilot.         | `/prompt-builder`        |
+| `find-skills`           | Descobre e instala skills.                 | `/find-skills`           |
 
 ## Passo a Passo
 
@@ -139,6 +139,7 @@ Tarefa Recebida
 Analise a mensagem do usuário e classifique:
 
 **Por tipo:**
+
 - `brainstorming` — ideia nova, feature, funcionalidade
 - `prd` — gerar Product Requirements Document
 - `plan` — criar plano de implementação
@@ -152,32 +153,34 @@ Analise a mensagem do usuário e classifique:
 - `commit` — git commit
 
 **Por escopo:**
+
 - `simples` — 1 arquivo, 1 camada, ação única → agente único
 - `complexa` — multi-arquivo, multi-camada, multi-módulo → ORCHESTRATOR
 
 **Por módulo:**
+
 - `auth`, `crm`, `chat`, `billing`, `ai`, `platform`, `gateway`, `dashboard`, `configuration`, `reports`
 
 ### Etapa 2 — Match de Skills
 
 Verifique se a tarefa bate com alguma skill:
 
-| Keyword na mensagem | Skill para invocar |
-|---------------------|-------------------|
-| "nova feature", "criar feature", "implementar", "adicionar" | `brainstorming` |
-| "prd", "product requirements", "requisitos" | `generate-prd` |
-| "plano", "planejar", "implementação" | `create-plan` |
-| "task", "tarefa", "subtask" | `create-task` |
-| "mockup", "wireframe", "layout" | `generate-mockup` |
-| "diagrama", "arquitetura", "fluxo" | `generate-diagram` |
-| "tdd", "test-first", "red-green", "testes" | `tdd` |
-| "e2e", "end-to-end", "playwright" | `e2e-testing` |
-| "frontend", "angular", "componente", "ui" | `angular-architect` |
-| "backend", "laravel", "php", "api" | `laravel-specialist` |
-| "frontend design", "interface", "página" | `frontend-design` |
-| "revisar design", "review design", "ux" | `web-design-reviewer` |
-| "commit", "git" | `git-commit` |
-| "documentar", "jsdoc", "docs" | `jsdoc-typescript-docs` |
+| Keyword na mensagem                                         | Skill para invocar      |
+| ----------------------------------------------------------- | ----------------------- |
+| "nova feature", "criar feature", "implementar", "adicionar" | `brainstorming`         |
+| "prd", "product requirements", "requisitos"                 | `generate-prd`          |
+| "plano", "planejar", "implementação"                        | `create-plan`           |
+| "task", "tarefa", "subtask"                                 | `create-task`           |
+| "mockup", "wireframe", "layout"                             | `generate-mockup`       |
+| "diagrama", "arquitetura", "fluxo"                          | `generate-diagram`      |
+| "tdd", "test-first", "red-green", "testes"                  | `tdd`                   |
+| "e2e", "end-to-end", "playwright"                           | `e2e-testing`           |
+| "frontend", "angular", "componente", "ui"                   | `angular-architect`     |
+| "backend", "laravel", "php", "api"                          | `laravel-specialist`    |
+| "frontend design", "interface", "página"                    | `frontend-design`       |
+| "revisar design", "review design", "ux"                     | `web-design-reviewer`   |
+| "commit", "git"                                             | `git-commit`            |
+| "documentar", "jsdoc", "docs"                               | `jsdoc-typescript-docs` |
 
 ### Etapa 3 — Decidir Ação
 
@@ -229,19 +232,21 @@ Quando a tarefa requer multi-agente, leia `.claude/agents/ORCHESTRATOR.md` e del
 **Mensagem do usuário:** "preciso adicionar um dashboard de métricas"
 
 **Análise:**
+
 - Tipo: `code` + `feature`
 - Escopo: `complexo` (múltiplas camadas: API + Frontend)
 - Módulo: `dashboard`
 - Match: Nenhuma skill específica para dashboard
 
 **Ação:**
+
 ```
 👋dashboards require multi-layer implementation (API + Frontend). Invoking @ORCHESTRATOR for task coordination.
 
 @ORCHESTRATOR — Dashboard de Métricas
 
 ## Tarefa
-Adicionar dashboard de métricas ao AgentFlix
+Adicionar dashboard de métricas ao InteraZap
 
 ## Análise
 - Tipo: Feature nova

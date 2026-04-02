@@ -9,6 +9,6 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 export class AuthPageWrapperComponent {
   readonly title = input.required<string>();
   readonly subtitle = input.required<string>();
-  readonly eyebrow = input<string>('AgentFlix Access');
+  readonly eyebrow = input<string>('InteraZap Access');
   readonly highlight = input<string>('');
 }

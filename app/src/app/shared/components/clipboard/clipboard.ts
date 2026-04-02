@@ -6,7 +6,7 @@ import { LucideAngularModule } from 'lucide-angular';
  *
  * @example
  * ```html
- * <af-clipboard text="npm install agentflix" />
+ * <af-clipboard text="npm install interazap" />
  * ```
  */
 @Component({

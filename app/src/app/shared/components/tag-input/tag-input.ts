@@ -15,7 +15,7 @@ import { AfFormErrorComponent } from '../form-error/form-error';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * Tag/chip input for AgentFlix UI Kit.
+ * Tag/chip input for InteraZap UI Kit.
  *
  * @description User types text and presses Enter to add tags as pills.
  * Each pill has an × remove button. Value is stored as comma-separated

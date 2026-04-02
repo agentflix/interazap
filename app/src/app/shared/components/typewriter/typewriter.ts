@@ -12,7 +12,7 @@ import {
  *
  * @example
  * ```html
- * <af-typewriter [texts]="['Hello World', 'Welcome to AgentFlix']" [speed]="80" />
+ * <af-typewriter [texts]="['Hello World', 'Welcome to InteraZap']" [speed]="80" />
  * ```
  */
 @Component({

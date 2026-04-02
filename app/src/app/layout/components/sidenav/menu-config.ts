@@ -1,5 +1,5 @@
 /**
- * Sidebar menu configuration for AgentFlix.
+ * Sidebar menu configuration for InteraZap.
  * Defines all navigation items, grouped by section.
  *
  * To add a new menu item:
@@ -59,7 +59,7 @@ export type AiFeatureFlag =
   | 'ai_usage_tracking';
 
 /**
- * Complete sidebar menu structure for AgentFlix.
+ * Complete sidebar menu structure for InteraZap.
  * Organized by sections: Overview, Operations (Chat, CRM, Billing), AI, Administration, and Settings.
  * Some items have conditional visibility based on AI features and tenant plan.
  *

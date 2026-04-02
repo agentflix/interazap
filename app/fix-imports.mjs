@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-const ROOT = '/Users/rafael.silva/Documents/agentflix/app-new';
+const ROOT = '/Users/rafael.silva/Documents/interazap/app-new';
 
 // Get files with duplicate imports from lint output
 let lintOut = '';
@@ -42,15 +42,25 @@ function parseSingleLineImport(line) {
   // import type { ... } from 'module';
   const typeMatch = line.match(/^import\s+type\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]\s*;?\s*$/);
   if (typeMatch) {
-    const names = typeMatch[1].split(',').map(n => n.trim()).filter(Boolean);
-    return { module: typeMatch[2], names: names.map(n => ({ name: n, isType: true })), originalAllType: true };
+    const names = typeMatch[1]
+      .split(',')
+      .map((n) => n.trim())
+      .filter(Boolean);
+    return {
+      module: typeMatch[2],
+      names: names.map((n) => ({ name: n, isType: true })),
+      originalAllType: true,
+    };
   }
 
   // import { type A, B } from 'module'; (inline type specifiers)
   const inlineMatch = line.match(/^import\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]\s*;?\s*$/);
   if (inlineMatch) {
-    const parts = inlineMatch[1].split(',').map(n => n.trim()).filter(Boolean);
-    const names = parts.map(p => {
+    const parts = inlineMatch[1]
+      .split(',')
+      .map((n) => n.trim())
+      .filter(Boolean);
+    const names = parts.map((p) => {
       const tm = p.match(/^type\s+(.+)$/);
       return tm ? { name: tm[1].trim(), isType: true } : { name: p, isType: false };
     });
@@ -65,12 +75,12 @@ function parseSingleLineImport(line) {
  * Generates a merged import line from a list of named imports.
  */
 function generateImport(module, names) {
-  const allType = names.every(n => n.isType);
+  const allType = names.every((n) => n.isType);
   if (allType) {
-    const namesList = names.map(n => n.name).join(', ');
+    const namesList = names.map((n) => n.name).join(', ');
     return `import type { ${namesList} } from '${module}';`;
   }
-  const namesList = names.map(n => (n.isType ? `type ${n.name}` : n.name)).join(', ');
+  const namesList = names.map((n) => (n.isType ? `type ${n.name}` : n.name)).join(', ');
   return `import { ${namesList} } from '${module}';`;
 }
 

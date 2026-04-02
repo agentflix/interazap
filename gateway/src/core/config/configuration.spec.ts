@@ -63,7 +63,7 @@ describe('Configuration', () => {
 
       const config = databaseConfig();
       expect(config.url).toBe(
-        'postgres://agentflix:secret@localhost:5432/agentflix',
+        'postgres://interazap:secret@localhost:5432/interazap',
       );
     });
 

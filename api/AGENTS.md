@@ -1,4 +1,4 @@
-# AGENTS.md — AgentFlix Backend (Laravel 12 / PHP 8.3)
+# AGENTS.md — InteraZap Backend (Laravel 12 / PHP 8.3)
 
 > 📌 This extends the root `../AGENTS.md` — read it first for full project context.
 

@@ -15,9 +15,9 @@ fix(chat): fechamento PREVC da TASK-003 com evidências de QA e REVIEW
 - Status da `TASK-003-bugfix-chat-read-status` atualizado para `done` em `.context/DOCS/TASKS/TASKS-004.md` após commit semântico com staging isolado
 - Checklists de etapas e critérios da TASK-003 marcados com base em validação real de escopo
 - Seção de evidências da TASK-003 preenchida com:
-  - arquivo alvo do bugfix (`api/src/Domain/Chat/Actions/ChatWebhookIngestor.php`)
-  - comando e resultado do teste focado (`3 passed, 8 assertions`)
-  - pareceres formais de QA (`APPROVED_WITH_NOTES`) e REVIEWER (`APPROVED`)
+    - arquivo alvo do bugfix (`api/src/Domain/Chat/Actions/ChatWebhookIngestor.php`)
+    - comando e resultado do teste focado (`3 passed, 8 assertions`)
+    - pareceres formais de QA (`APPROVED_WITH_NOTES`) e REVIEWER (`APPROVED`)
 - Tabela de task derivada no plano `.context/DOCS/PLANS/PLAN-003-bugfix-chat-read-status.md` atualizada para `done`
 - Changelog de março atualizado com entrada de fechamento PREVC da TASK-003
 
@@ -192,11 +192,11 @@ docs(audit): AUDIT-GATEWAY-001 completo — 75 achados em 223 arquivos do gatewa
 
 ### Evento
 
-docs(prds): TASKS-007 completo — 14/14 PRDs AgentFlix gerados
+docs(prds): TASKS-007 completo — 14/14 PRDs InteraZap gerados
 
 ### Alteracoes
 
-- 14 PRDs documentados cobrindo todos os módulos do AgentFlix
+- 14 PRDs documentados cobrindo todos os módulos do InteraZap
 - Commits: 2d60e7847 (11 PRDs), a82f7c786 (PRD-UAZAPI-001), c66b111b8 (PRD-MONITORING-001, PRD-KNOWLEDGE-001)
 - Total: ~29.000 linhas de documentacao técnica
 - PRD-KNOWLEDGE-001 expandido (RN-KB-100 a RN-KB-142) após QA reprovado — REGRAS DE NEGÓCIO corrigido de ~110 para ~250 linhas
@@ -224,7 +224,7 @@ docs(prds): TASKS-007 completo — 14/14 PRDs AgentFlix gerados
 ### Impacto
 
 - TASKS-007 concluído com 14/14 PRDs
-- Base documentativa completa para todos os módulos do AgentFlix
+- Base documentativa completa para todos os módulos do InteraZap
 - Cada PRD contém: CONTEXTO, OBJETIVO, REGRAS DE NEGÓCIO (RN-XXX), FLUXOS (Mermaid), ENTIDADES, ENDPOINTS, EVENTOS, SEGURANÇA, DTOs, CRITÉRIOS DE ACEITAÇÃO (CA-XXX)
 
 ---

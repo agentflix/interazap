@@ -102,8 +102,8 @@
 
 - name: 'Criar script de inicialização PM2'
   template:
-      src: pm2-agentflix.service.j2
-      dest: /etc/systemd/system/pm2-agentflix.service
+      src: pm2-interazap.service.j2
+      dest: /etc/systemd/system/pm2-interazap.service
       mode: '0644'
 
 - name: 'Recarregar systemd'
@@ -112,7 +112,7 @@
 
 - name: 'Habilitar e iniciar PM2 service'
   service:
-      name: pm2-agentflix
+      name: pm2-interazap
       state: started
       enabled: yes
   ignore_errors: yes
@@ -127,14 +127,14 @@
   become: yes
   become_user: deploy
 
-- name: 'Criar ecosystem config para AgentFlix Gateway'
+- name: 'Criar ecosystem config para InteraZap Gateway'
   copy:
       dest: /home/deploy/ecosystem.config.js
       content: |
           module.exports = {
             apps: [
               {
-                name: 'agentflix-gateway-prod',
+                name: 'interazap-gateway-prod',
                 script: 'gateway/dist/main.js',
                 cwd: '/data/production/gateway/current',
                 instances: 1,
@@ -143,12 +143,12 @@
                   NODE_ENV: 'production',
                   PORT: 6002
                 },
-                error_file: '/home/deploy/.pm2/logs/agentflix-gateway-prod-error.log',
-                out_file: '/home/deploy/.pm2/logs/agentflix-gateway-prod-out.log',
+                error_file: '/home/deploy/.pm2/logs/interazap-gateway-prod-error.log',
+                out_file: '/home/deploy/.pm2/logs/interazap-gateway-prod-out.log',
                 time: true
               },
               {
-                name: 'agentflix-gateway-stage',
+                name: 'interazap-gateway-stage',
                 script: 'gateway/dist/main.js',
                 cwd: '/data/stage/gateway/current',
                 instances: 1,
@@ -157,8 +157,8 @@
                   NODE_ENV: 'staging',
                   PORT: 6001
                 },
-                error_file: '/home/deploy/.pm2/logs/agentflix-gateway-stage-error.log',
-                out_file: '/home/deploy/.pm2/logs/agentflix-gateway-stage-out.log',
+                error_file: '/home/deploy/.pm2/logs/interazap-gateway-stage-error.log',
+                out_file: '/home/deploy/.pm2/logs/interazap-gateway-stage-out.log',
                 time: true
               }
             ]

@@ -4,7 +4,7 @@ import { AfFormLabelComponent } from '../form-label/form-label';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * Copy-to-clipboard input for AgentFlix UI Kit.
+ * Copy-to-clipboard input for InteraZap UI Kit.
  *
  * @description Read-only text input with a trailing copy button.
  * Copies the value to the clipboard and briefly shows a check icon.

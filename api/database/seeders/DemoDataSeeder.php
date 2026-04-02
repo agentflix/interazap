@@ -148,7 +148,7 @@ class DemoDataSeeder extends Seeder
                 [
                     'id' => (string) Str::orderedUuid(),
                     'name' => $companyName,
-                    'primary_email' => strtolower(Str::slug($companyName)).'@agentflix.local',
+                    'primary_email' => strtolower(Str::slug($companyName)).'@interazap.local',
                     'billing_webhook_token' => (string) Str::uuid(),
                     'plan_id' => $plans->isNotEmpty() ? $plans->random()->id : null,
                     'is_active' => true,
@@ -247,7 +247,7 @@ class DemoDataSeeder extends Seeder
         TenantContext::run($tenantId, function () use ($tenantId, $tenantCode, $roles): void {
             foreach ($roles as $roleName => $role) {
                 $emailPrefix = str_replace('-', '', $roleName);
-                $email = strtolower("{$emailPrefix}.{$tenantCode}@agentflix.local");
+                $email = strtolower("{$emailPrefix}.{$tenantCode}@interazap.local");
 
                 $user = AuthUser::query()->firstOrCreate(
                     ['tenant_id' => $tenantId, 'email' => $email],

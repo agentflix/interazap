@@ -18,6 +18,6 @@ describe('App', () => {
   it('should have the expected title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toBe('agentflix-new');
+    expect(app.title).toBe('interazap-new');
   });
 });

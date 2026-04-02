@@ -1,4 +1,4 @@
-# AgentFlix - Ansible Deployment
+# InteraZap - Ansible Deployment
 
 ## Estrutura do Projeto
 
@@ -46,7 +46,7 @@ ansible --version
 ### 2. Gerar chave SSH do Ansible (para conectar ao servidor)
 
 ```bash
-ssh-keygen -t ed25519 -C "ansible@agentflix" -f ~/.ssh/ansible
+ssh-keygen -t ed25519 -C "ansible@interazap" -f ~/.ssh/ansible
 ```
 
 ### 3. Configurar Vault
@@ -62,15 +62,16 @@ ansible-vault edit vars/vault.yml
 ```
 
 **Variáveis obrigatórias no vault:**
+
 ```yaml
-agentflix_password: "SENHA_STRONG"
-postgres_root_password: "POSTGRES_ROOT_SENHA"
-postgres_app_password: "POSTGRES_APP_SENHA"
-redis_password: "REDIS_SENHA"
-agentflix_secret_key: "LARAVEL_APP_KEY"
-gateway_internal_api_key: "UUID-GERADO"
-gateway_jwt_secret: "JWT_32_CHARS_MINIMO"
-openai_api_key: "sk-..."
+agentflix_password: 'SENHA_STRONG'
+postgres_root_password: 'POSTGRES_ROOT_SENHA'
+postgres_app_password: 'POSTGRES_APP_SENHA'
+redis_password: 'REDIS_SENHA'
+agentflix_secret_key: 'LARAVEL_APP_KEY'
+gateway_internal_api_key: 'UUID-GERADO'
+gateway_jwt_secret: 'JWT_32_CHARS_MINIMO'
+openai_api_key: 'sk-...'
 ssh_port: 22
 ```
 
@@ -98,6 +99,7 @@ ansible-playbook -i inventory/hosts.ini playbook.yml --ask-vault-pass
 ```
 
 **O Ansible vai:**
+
 1. Criar usuário `deploy` com sudo
 2. Gerar chave SSH em `/home/deploy/.ssh/id_ed25519.pub`
 3. Instalar todos os serviços
@@ -106,6 +108,7 @@ ansible-playbook -i inventory/hosts.ini playbook.yml --ask-vault-pass
 ### PASSO 3: Copiar a chave SSH pública do deploy
 
 Após o Ansible rodar, a chave pública estará em:
+
 - `/root/deploy_ssh_public_key.txt` (copiado pelo Ansible)
 - `/home/deploy/.ssh/id_ed25519.pub`
 
@@ -118,11 +121,11 @@ cat /home/deploy/.ssh/id_ed25519.pub
 
 No GitHub, vá em **Settings → Secrets and variables → Actions** e adicione:
 
-| Secret | Valor |
-|--------|-------|
-| `VPS_HOST` | `186.202.209.180` |
-| `VPS_SSH_PORT` | `22` |
-| `VPS_DEPLOY_USER` | `deploy` |
+| Secret               | Valor                                                          |
+| -------------------- | -------------------------------------------------------------- |
+| `VPS_HOST`           | `186.202.209.180`                                              |
+| `VPS_SSH_PORT`       | `22`                                                           |
+| `VPS_DEPLOY_USER`    | `deploy`                                                       |
 | `VPS_DEPLOY_SSH_KEY` | Cole a **chave privada** (`~/.ssh/deploy` ou `~/.ssh/ansible`) |
 
 ### PASSO 5: Adicionar Deploy Key no GitHub
@@ -177,18 +180,18 @@ systemctl status postgresql
 systemctl status redis-server
 
 # Ver logs
-sudo tail -f /var/log/supervisor/agentflix-octane.log
-pm2 logs agentflix-gateway-prod
+sudo tail -f /var/log/supervisor/interazap-octane.log
+pm2 logs interazap-gateway-prod
 ```
 
 ### Reiniciar serviços manualmente
 
 ```bash
 # Todos os workers PHP
-sudo supervisorctl restart agentflix:*
+sudo supervisorctl restart interazap:*
 
 # Gateway
-pm2 restart agentflix-gateway-prod
+pm2 restart interazap-gateway-prod
 
 # Nginx
 sudo systemctl reload nginx
@@ -200,7 +203,7 @@ sudo systemctl reload nginx
 # Se algo der errado, voltar código
 sudo mv /data/production/api /data/production/apiBroken
 sudo mv /data/production/api.bak /data/production/api
-sudo supervisorctl restart agentflix:*
+sudo supervisorctl restart interazap:*
 ```
 
 ---
@@ -223,7 +226,7 @@ sudo supervisorctl restart agentflix:*
 │   │       ├── storage/
 │   │       └── vendor/
 │   ├── app/                    # Angular build
-│   │   └── dist/agentflix/browser/
+│   │   └── dist/interazap/browser/
 │   ├── gateway/               # NestJS build
 │   │   └── dist/
 │   └── landing/              # HTML estático
@@ -235,35 +238,35 @@ sudo supervisorctl restart agentflix:*
 
 ## Portas e Domínios
 
-| Domínio | Serviço | Porta | SSL |
-|---------|---------|-------|-----|
-| `www.agentflix.com.br` | Landing | 80/443 | ✅ |
-| `app.agentflix.com.br` | Angular | 443 | ✅ |
-| `api.agentflix.com.br` | Laravel (Octane) | 8082 | - |
-| `gateway.agentflix.com.br` | NestJS | 6002 | ✅ |
-| `stage.www.agentflix.com.br` | Landing | 8080 | - |
-| `stage.app.agentflix.com.br` | Angular | 4200 | - |
-| `stage.api.agentflix.com.br` | Laravel (Octane) | 8081 | - |
-| `stage.gateway.agentflix.com.br` | NestJS | 6001 | - |
+| Domínio                          | Serviço          | Porta  | SSL |
+| -------------------------------- | ---------------- | ------ | --- |
+| `www.interazap.com.br`           | Landing          | 80/443 | ✅  |
+| `app.interazap.com.br`           | Angular          | 443    | ✅  |
+| `api.interazap.com.br`           | Laravel (Octane) | 8082   | -   |
+| `gateway.interazap.com.br`       | NestJS           | 6002   | ✅  |
+| `stage.www.interazap.com.br`     | Landing          | 8080   | -   |
+| `stage.app.interazap.com.br`     | Angular          | 4200   | -   |
+| `stage.api.interazap.com.br`     | Laravel (Octane) | 8081   | -   |
+| `stage.gateway.interazap.com.br` | NestJS           | 6001   | -   |
 
 ---
 
 ## Workers PHP (Supervisor)
 
-| Worker | Comando | Ambiente |
-|--------|---------|----------|
-| `agentflix-octane` | `octane:start --workers=swoole` | Production |
-| `agentflix-streams-chat` | `streams:chat-consume` | Production |
-| `agentflix-ai-run-responses` | `ai:consume-run-responses` | Production |
-| `agentflix-ai-tool-requests` | `ai:consume-tool-requests` | Production |
-| `agentflix-horizon` | `horizon` | Production |
+| Worker                       | Comando                         | Ambiente   |
+| ---------------------------- | ------------------------------- | ---------- |
+| `interazap-octane`           | `octane:start --workers=swoole` | Production |
+| `interazap-streams-chat`     | `streams:chat-consume`          | Production |
+| `interazap-ai-run-responses` | `ai:consume-run-responses`      | Production |
+| `interazap-ai-tool-requests` | `ai:consume-tool-requests`      | Production |
+| `interazap-horizon`          | `horizon`                       | Production |
 
 ## Workers Node.js (PM2)
 
-| App | Porta | Ambiente |
-|-----|-------|----------|
-| `agentflix-gateway-prod` | 6002 | Production |
-| `agentflix-gateway-stage` | 6001 | Staging |
+| App                       | Porta | Ambiente   |
+| ------------------------- | ----- | ---------- |
+| `interazap-gateway-prod`  | 6002  | Production |
+| `interazap-gateway-stage` | 6001  | Staging    |
 
 ---
 
@@ -293,7 +296,7 @@ ansible-vault create vars/vault.yml
 
 ```bash
 # Ver logs do supervisor
-sudo tail -100 /var/log/supervisor/agentflix-octane.log
+sudo tail -100 /var/log/supervisor/interazap-octane.log
 
 # Verificar se as portas estão em uso
 sudo netstat -tlnp | grep -E '8082|9501|6002'
@@ -303,7 +306,7 @@ sudo netstat -tlnp | grep -E '8082|9501|6002'
 
 ```bash
 # Testar conexão PostgreSQL
-psql -h 127.0.0.1 -U agentflix_app -d agentflix
+psql -h 127.0.0.1 -U agentflix_app -d interazap
 
 # Ver logs PostgreSQL
 sudo tail -50 /var/log/postgresql/postgresql-18-main.log
@@ -336,11 +339,11 @@ sudo tail -50 /var/log/postgresql/postgresql-18-main.log
 
 ## Versões
 
-| Componente | Versão |
-|-----------|--------|
-| Ubuntu | 24.04 LTS |
-| PHP | 8.5.3 |
-| PostgreSQL | 18 |
-| Redis | 7 |
-| Node.js | 20 LTS |
-| Nginx | latest |
+| Componente | Versão    |
+| ---------- | --------- |
+| Ubuntu     | 24.04 LTS |
+| PHP        | 8.5.3     |
+| PostgreSQL | 18        |
+| Redis      | 7         |
+| Node.js    | 20 LTS    |
+| Nginx      | latest    |

@@ -1,4 +1,4 @@
-# PRD-MONITORING-001 — AgentFlix Monitoring / Observability Module
+# PRD-MONITORING-001 — InteraZap Monitoring / Observability Module
 
 **Versao:** 1.0.0
 **Data:** 2026-03-28
@@ -12,9 +12,9 @@
 
 ### 1.1 O que e Monitoring/Observability
 
-Monitoring e Observability sao disciplineas complementares que permitem que equipes de engenharia entendam o comportamento interno de um sistema atraves de dados externos. Enquanto o Monitoring tradicional foca em metricas pre-definidas e alertas sobre valores conhecidos, a Observability busca responder perguntas sobre o sistema mesmo quando ainda nao foram anticipadas. No contexto do AgentFlix, ambas as abordagens sao necessarias para garantir disponibilidade, performance e confiabilidade em um sistema distribuido composto por tres camadas principais: a API Laravel (backend PHP), o Gateway NestJS, e os servicos externos integrados (Redis, PostgreSQL, filas de mensageria).
+Monitoring e Observability sao disciplineas complementares que permitem que equipes de engenharia entendam o comportamento interno de um sistema atraves de dados externos. Enquanto o Monitoring tradicional foca em metricas pre-definidas e alertas sobre valores conhecidos, a Observability busca responder perguntas sobre o sistema mesmo quando ainda nao foram anticipadas. No contexto do InteraZap, ambas as abordagens sao necessarias para garantir disponibilidade, performance e confiabilidade em um sistema distribuido composto por tres camadas principais: a API Laravel (backend PHP), o Gateway NestJS, e os servicos externos integrados (Redis, PostgreSQL, filas de mensageria).
 
-O modulo de Monitoring/Observability do AgentFlix e responsavel por:
+O modulo de Monitoring/Observability do InteraZap e responsavel por:
 
 - Expor endpoints de health check para probes de orquestracao (Kubernetes liveness, readiness)
 - Fornecer metricas no formato Prometheus para scraping continuo
@@ -24,7 +24,7 @@ O modulo de Monitoring/Observability do AgentFlix e responsavel por:
 
 ### 1.2 Estado Atual
 
-O AgentFlix ja possui implementacoes parciais de monitoramento em ambas as camadas:
+O InteraZap ja possui implementacoes parciais de monitoramento em ambas as camadas:
 
 **API (Laravel) — `api/src/Domain/Shared/Services/`:**
 
@@ -103,11 +103,11 @@ Apesar da estrutura existente, o modulo de monitoring apresenta lacunas signific
 1. **Sem high availability para Prometheus:** O Prometheus esta rodando em modo standalone, sem replicacao.
 2. **Ausencia de long-term storage:** Metricas do Prometheus tem retencao limitada (tipicamente 15 dias).
 3. **Sem alerting para o proprio monitoramento:** Se o Prometheus ou Alertmanager falharem, nao ha alerta.
-4. **Falta de dashboard pre-configurado:** Nao ha Grafana dashboard documentado ou pre-configurado para o AgentFlix.
+4. **Falta de dashboard pre-configurado:** Nao ha Grafana dashboard documentado ou pre-configurado para o InteraZap.
 
 ### 1.4 Por que Monitoring e Essencial
 
-O AgentFlix e um sistema B2B SaaS multi-tenant que processa dados sensiveis de clientes. A disponibilidade e confiabilidade do sistema tem impacto direto na experiencia do usuario e na receita da empresa. Os motivos strategicos para investir em monitoring robusto incluem:
+O InteraZap e um sistema B2B SaaS multi-tenant que processa dados sensiveis de clientes. A disponibilidade e confiabilidade do sistema tem impacto direto na experiencia do usuario e na receita da empresa. Os motivos strategicos para investir em monitoring robusto incluem:
 
 **Prevencao de incidentes:** Com alerting proativo, a equipe de engenharia pode ser notificada sobre degradacao de servico antes que usuarios finais sejam impactados. Por exemplo, um `QueueBacklog` crescente pode indicar que workers nao estao processando jobs corretamente, e Intervention precoce evita perda de dados.
 
@@ -125,7 +125,7 @@ O AgentFlix e um sistema B2B SaaS multi-tenant que processa dados sensiveis de c
 
 ### 2.1 Meta Geral
 
-Estabelecer um sistema de Monitoring e Observability completo e confiavel para o AgentFlix, cobrindo todas as camadas da arquitetura (API Laravel, Gateway NestJS, serviços externos), com health checks precisos, metricas abrangentes, alertas acionáveis, e dashboards que permitam diagnostico rapido de incidentes.
+Estabelecer um sistema de Monitoring e Observability completo e confiavel para o InteraZap, cobrindo todas as camadas da arquitetura (API Laravel, Gateway NestJS, serviços externos), com health checks precisos, metricas abrangentes, alertas acionáveis, e dashboards que permitam diagnostico rapido de incidentes.
 
 ### 2.2 Metas Especificas
 
@@ -148,14 +148,14 @@ Garantir que a infraestrutura de monitoring (Prometheus, Alertmanager) seja conf
 
 O sucesso do modulo de Monitoring/Observability sera medido pelos seguintes indicadores:
 
-| Indicador | Meta | Metodo de Medicao |
-|-----------|------|-------------------|
-| Tempo medio de deteccao de incidente (MTTD) | < 5 minutos | Tempo entre ocorrencia e primeiro alerta |
-| Tempo medio de resolucao de incidente (MTTR) | < 30 minutos | Tempo entre primeiro alerta e resolucao |
-| Cobertura de health checks | 100% das dependencias | Auditoria de endpoints /health |
-| Taxa de falsos positivos de alertas | < 10% | Revisao mensal de alertas disparados |
-| Disponibilidade de metricas | > 99.9% | Uptime do endpoint /api/metrics e /metrics |
-| Latencia de health check | < 200ms (P95) | Histograma de latencia dos endpoints |
+| Indicador                                    | Meta                  | Metodo de Medicao                          |
+| -------------------------------------------- | --------------------- | ------------------------------------------ |
+| Tempo medio de deteccao de incidente (MTTD)  | < 5 minutos           | Tempo entre ocorrencia e primeiro alerta   |
+| Tempo medio de resolucao de incidente (MTTR) | < 30 minutos          | Tempo entre primeiro alerta e resolucao    |
+| Cobertura de health checks                   | 100% das dependencias | Auditoria de endpoints /health             |
+| Taxa de falsos positivos de alertas          | < 10%                 | Revisao mensal de alertas disparados       |
+| Disponibilidade de metricas                  | > 99.9%               | Uptime do endpoint /api/metrics e /metrics |
+| Latencia de health check                     | < 200ms (P95)         | Histograma de latencia dos endpoints       |
 
 ### 2.4 Escopo
 
@@ -399,7 +399,7 @@ Endpoints de health check e metricas devem ter rate limiting especifico:
 - `GET /metrics`: 30 req/min por IP
 
 **RN-MON-049 — Validacao de Webhook de Alertmanager**
-Se o Alertmanager for configurado para enviar webhooks para o AgentFlix (em vez de apenas Slack), o AgentFlix deve validar a assinatura do webhook usando um segredo compartilhado configurado via `ALERTMANAGER_WEBHOOK_SECRET`.
+Se o Alertmanager for configurado para enviar webhooks para o InteraZap (em vez de apenas Slack), o InteraZap deve validar a assinatura do webhook usando um segredo compartilhado configurado via `ALERTMANAGER_WEBHOOK_SECRET`.
 
 **RN-MON-050 — Logging de metricas**
 Nao deve ser permitido fazer logging de valores de metricas que contenham dados sensiveis (tokens, passwords, chaves de API). Labels de metricas devem ser normalizados e validados antes da exposicao. Esta regra e verificada estaticamente via PHPStan e ESLint.
@@ -644,12 +644,14 @@ Executa verificacoes em `database`, `redis`, e `queue` em paralelo (via sequenci
 ```
 
 **Metodo `checkDatabase(): array`:**
+
 1. Marca tempo inicial com `microtime(true)`
 2. Executa `DB::connection()->getPdo()` e `DB::select('SELECT 1')`
 3. Calcula latencia em milissegundos
 4. Retorna `['status' => 'healthy', 'latency_ms' => float]` ou `['status' => 'unhealthy', 'message' => string]`
 
 **Metodo `checkRedis(): array`:**
+
 1. Marca tempo inicial
 2. Escreve chave temporaria `health_check_{uniqid()}` com valor `'ok'`
 3. Le a chave de volta
@@ -658,6 +660,7 @@ Executa verificacoes em `database`, `redis`, e `queue` em paralelo (via sequenci
 6. Retorna status com latencia ou mensagem de erro
 
 **Metodo `checkQueue(): array`:**
+
 1. Marca tempo inicial
 2. Executa `Queue::size()` para obter tamanho da fila
 3. Obtem `queue.default` de config
@@ -670,6 +673,7 @@ Executa verificacoes em `database`, `redis`, e `queue` em paralelo (via sequenci
 **Responsabilidade:** Coletar e renderizar metricas no formato Prometheus
 
 **Metodo `collect(): string`:**
+
 1. Cria um `CollectorRegistry` transient com `InMemory` storage
 2. Chama `ensureHttpBaseline()` para garantir que metricas base existam
 3. Executa `recordAppInfo()`, `recordQueueMetrics()`, `recordDatabaseMetrics()`, `recordRedisMetrics()`, `recordSystemMetrics()`, `recordBusinessMetrics()`
@@ -708,6 +712,7 @@ Registra `agentflix_php_memory_usage_bytes` e `agentflix_php_memory_peak_bytes` 
 
 **Metodo `recordBusinessMetrics(CollectorRegistry $registry): void`:**
 Coleta metricas de negocio via `getBusinessMetrics()`:
+
 - `agentflix_chat_tickets_total` com label `status` por grupo
 - `agentflix_chat_messages_total` com label `direction` por grupo
 - `agentflix_crm_negotiations_value_total`
@@ -735,6 +740,7 @@ Executa queries agregadas em `chat_tickets`, `chat_messages`, e `crm_negotiation
 Executa `checkRedis()` e `checkConsumers()` em paralelo via `Promise.all`. Determina status consolidado. Retorna `HealthStatus`.
 
 **Metodo `checkRedis(): Promise<ServiceStatus>`:**
+
 1. Obtem cliente Redis via `redisService.getClient()`
 2. Executa `client.ping()`
 3. Se resposta !== 'PONG', retorna `unhealthy`
@@ -742,6 +748,7 @@ Executa `checkRedis()` e `checkConsumers()` em paralelo via `Promise.all`. Deter
 5. Retorna `status: 'healthy', latency_ms: number`
 
 **Metodo `checkConsumers(): Promise<ServiceStatus>`:**
+
 1. Lista de streams monitorados: `chat.inbound_message_received`, `chat.outbound_message`, `billing.payment_received`, `ai.run.request`, `ai.chat_request`, `ai.embedding_request`
 2. Executa `XINFO STREAM` para cada stream em paralelo
 3. Classifica cada stream como `active` (existe) ou `active: false`
@@ -761,28 +768,28 @@ Executa `client.xinfo('STREAM', stream)`. Trata erro "no such key" como `active:
 
 **Propriedades (Prometheus Metrics):**
 
-| Metric | Type | Labels | Description |
-|--------|------|--------|-------------|
-| `http_requests_total` | Counter | method, path, status | Total HTTP requests |
-| `http_request_duration_seconds` | Histogram | method, path | HTTP latency |
-| `websocket_connections_active` | Gauge | — | Active WS connections |
-| `websocket_messages_total` | Counter | event, direction | WS messages |
-| `redis_stream_messages_total` | Counter | stream, action | Redis stream operations |
-| `gateway_chat_events_total` | Counter | event_type | Chat events processed |
-| `gateway_webhook_ack_latency_seconds` | Histogram | provider, tenant, outcome | Webhook ACK latency |
-| `gateway_webhook_acks_total` | Counter | provider, tenant, outcome | Webhook ACKs |
-| `autopilot_run_duration_seconds` | Histogram | agent_id, model, status | Autopilot run duration |
-| `autopilot_tool_calls_total` | Counter | agent_id, tool_name, status | Tool call counts |
-| `autopilot_tokens_total` | Counter | agent_id, model, token_type | Token usage |
-| `autopilot_cost_dollars` | Counter | agent_id, model | Cost tracking |
-| `autopilot_classifier_decisions_total` | Counter | decision | Classifier routing |
-| `autopilot_stream_chunks_total` | Counter | agent_id | Streaming chunks |
-| `autopilot_delegation_total` | Counter | source_agent_id, target_agent_id, status | Agent delegations |
-| `autopilot_cache_hits_total` | Counter | cache_type, hit | Cache hits/misses |
-| `autopilot_iterations_per_run` | Histogram | agent_id | Loop iterations |
-| `autopilot_early_exits_total` | Counter | agent_id, reason | Early exits |
-| `autopilot_truncated_responses_total` | Counter | agent_id | Truncated responses |
-| `autopilot_run_tokens_per_run` | Histogram | agent_id, model | Tokens per run |
+| Metric                                 | Type      | Labels                                   | Description             |
+| -------------------------------------- | --------- | ---------------------------------------- | ----------------------- |
+| `http_requests_total`                  | Counter   | method, path, status                     | Total HTTP requests     |
+| `http_request_duration_seconds`        | Histogram | method, path                             | HTTP latency            |
+| `websocket_connections_active`         | Gauge     | —                                        | Active WS connections   |
+| `websocket_messages_total`             | Counter   | event, direction                         | WS messages             |
+| `redis_stream_messages_total`          | Counter   | stream, action                           | Redis stream operations |
+| `gateway_chat_events_total`            | Counter   | event_type                               | Chat events processed   |
+| `gateway_webhook_ack_latency_seconds`  | Histogram | provider, tenant, outcome                | Webhook ACK latency     |
+| `gateway_webhook_acks_total`           | Counter   | provider, tenant, outcome                | Webhook ACKs            |
+| `autopilot_run_duration_seconds`       | Histogram | agent_id, model, status                  | Autopilot run duration  |
+| `autopilot_tool_calls_total`           | Counter   | agent_id, tool_name, status              | Tool call counts        |
+| `autopilot_tokens_total`               | Counter   | agent_id, model, token_type              | Token usage             |
+| `autopilot_cost_dollars`               | Counter   | agent_id, model                          | Cost tracking           |
+| `autopilot_classifier_decisions_total` | Counter   | decision                                 | Classifier routing      |
+| `autopilot_stream_chunks_total`        | Counter   | agent_id                                 | Streaming chunks        |
+| `autopilot_delegation_total`           | Counter   | source_agent_id, target_agent_id, status | Agent delegations       |
+| `autopilot_cache_hits_total`           | Counter   | cache_type, hit                          | Cache hits/misses       |
+| `autopilot_iterations_per_run`         | Histogram | agent_id                                 | Loop iterations         |
+| `autopilot_early_exits_total`          | Counter   | agent_id, reason                         | Early exits             |
+| `autopilot_truncated_responses_total`  | Counter   | agent_id                                 | Truncated responses     |
+| `autopilot_run_tokens_per_run`         | Histogram | agent_id, model                          | Tokens per run          |
 
 **Metodo `onModuleInit(): void`:**
 Chama `collectDefaultMetrics({ register: this.registry })` para coletar metricas default do Node.js/V8.
@@ -832,7 +839,7 @@ scrape_configs:
       relabel_configs:
           - source_labels: [__address__]
             target_label: instance
-            replacement: 'agentflix-api'
+            replacement: 'interazap-api'
 
     - job_name: 'gateway'
       metrics_path: '/metrics'
@@ -841,7 +848,7 @@ scrape_configs:
       relabel_configs:
           - source_labels: [__address__]
             target_label: instance
-            replacement: 'agentflix-gateway'
+            replacement: 'interazap-gateway'
 ```
 
 **Notas sobre scrape configuration:**
@@ -858,29 +865,29 @@ scrape_configs:
 **Grupos de Alertas:**
 
 1. **agentflix_critical** (avaliacao: 15s)
-   - `HighErrorRate`: Erros HTTP 5xx > 1% por 5min
-   - `ServiceDown`: Target down por 1min
+    - `HighErrorRate`: Erros HTTP 5xx > 1% por 5min
+    - `ServiceDown`: Target down por 1min
 
 2. **agentflix_warning** (avaliacao: 15s)
-   - `SlowResponses`: P95 > 0.5s por 5min
-   - `HighLatencyP99`: P99 > 1s por 5min
-   - `QueueBacklog`: Jobs pending > 100 por 10min
-   - `HighFailedJobs`: Falhas > 10 em 1h por 5min
-   - `DatabaseConnectionsHigh`: Conexoes > 80 por 5min
-   - `RedisDown`: Redis desconectado por 1min
-   - `HighMemoryUsage`: Memoria > 90% do pico por 5min
-   - `BackupMissing`: Backup ausente por 24h por 1h
+    - `SlowResponses`: P95 > 0.5s por 5min
+    - `HighLatencyP99`: P99 > 1s por 5min
+    - `QueueBacklog`: Jobs pending > 100 por 10min
+    - `HighFailedJobs`: Falhas > 10 em 1h por 5min
+    - `DatabaseConnectionsHigh`: Conexoes > 80 por 5min
+    - `RedisDown`: Redis desconectado por 1min
+    - `HighMemoryUsage`: Memoria > 90% do pico por 5min
+    - `BackupMissing`: Backup ausente por 24h por 1h
 
 3. **autopilot_critical** (avaliacao: 15s)
-   - `AutopilotHighCostRate`: Custo projetado > $500/dia por 15min
-   - `AutopilotBudgetExceeded`: Budget > 100% por 5min
-   - `AutopilotHighGuardrailBlocks`: Taxa > 0.5/s por 10min
+    - `AutopilotHighCostRate`: Custo projetado > $500/dia por 15min
+    - `AutopilotBudgetExceeded`: Budget > 100% por 5min
+    - `AutopilotHighGuardrailBlocks`: Taxa > 0.5/s por 10min
 
 4. **autopilot_warning** (avaliacao: 15s)
-   - `AutopilotSlowRuns`: P95 > 10s por 10min
-   - `AutopilotBudgetWarning`: Budget > 80% por 5min
-   - `AutopilotHighToolFailureRate`: Falhas > 10% por 10min
-   - `AutopilotLowCacheHitRate`: Cache hits < 50% por 15min
+    - `AutopilotSlowRuns`: P95 > 10s por 10min
+    - `AutopilotBudgetWarning`: Budget > 80% por 5min
+    - `AutopilotHighToolFailureRate`: Falhas > 10% por 10min
+    - `AutopilotLowCacheHitRate`: Cache hits < 50% por 15min
 
 ### 5.7 Alertmanager Configuration
 
@@ -891,15 +898,15 @@ scrape_configs:
 ```yaml
 route:
     group_by: ['alertname', 'severity']
-    group_wait: 30s          # Aguarda 30s para agrupar alertas
-    group_interval: 5m       # Intervalo entre re-envios de grupo
-    repeat_interval: 4h      # Repete alerta se ainda firing
+    group_wait: 30s # Aguarda 30s para agrupar alertas
+    group_interval: 5m # Intervalo entre re-envios de grupo
+    repeat_interval: 4h # Repete alerta se ainda firing
     receiver: 'slack-notifications'
     routes:
         - match:
               severity: critical
           receiver: 'slack-critical'
-          repeat_interval: 1h  # Críticos repetem mais frequentemente
+          repeat_interval: 1h # Críticos repetem mais frequentemente
         - match:
               severity: warning
           receiver: 'slack-notifications'
@@ -908,10 +915,10 @@ route:
 
 **Receivers:**
 
-| Receiver | Channel | send_resolved | Titulo |
-|----------|---------|---------------|--------|
-| `slack-critical` | #alerts-critical | true | 🚨 {alertname} |
-| `slack-notifications` | #alerts | true | ⚠️ {alertname} |
+| Receiver              | Channel          | send_resolved | Titulo         |
+| --------------------- | ---------------- | ------------- | -------------- |
+| `slack-critical`      | #alerts-critical | true          | 🚨 {alertname} |
+| `slack-notifications` | #alerts          | true          | ⚠️ {alertname} |
 
 **Inhibit Rules:**
 
@@ -923,17 +930,17 @@ Alertas `critical` inibem alertas `warning` com o mesmo `alertname`. Isso previn
 
 ### 6.1 Tabela de Endpoints de Monitoring
 
-| Metodo | Path | Servico | Descricao | Autenticacao | Rate Limit |
-|--------|------|---------|-----------|--------------|------------|
-| GET | `/api/health` | API (Laravel) | Health check basico (liveness) | Nenhuma | 60 req/min/IP |
-| GET | `/api/health/deep` | API (Laravel) | Health check profundo (readiness) | Bearer Token (prod) | 30 req/min/IP |
-| GET | `/api/metrics` | API (Laravel) | Metricas Prometheus | Bearer Token (prod) | 30 req/min/IP |
-| GET | `/health` | Gateway (NestJS) | Health check basico | Nenhuma | 120 req/min/IP |
-| GET | `/health/deep` | Gateway (NestJS) | Health check profundo | Bearer Token (prod) | 30 req/min/IP |
-| GET | `/health/ready` | Gateway (NestJS) | Readiness probe K8s | Nenhuma | 30 req/min/IP |
-| GET | `/health/live` | Gateway (NestJS) | Liveness probe K8s | Nenhuma | 120 req/min/IP |
-| GET | `/metrics` | Gateway (NestJS) | Metricas Prometheus | Bearer Token (prod) | 30 req/min/IP |
-| POST | `/api/alerts` | API (Laravel) | Webhook para alertas do Alertmanager | HMAC Signature | 100 req/min |
+| Metodo | Path               | Servico          | Descricao                            | Autenticacao        | Rate Limit     |
+| ------ | ------------------ | ---------------- | ------------------------------------ | ------------------- | -------------- |
+| GET    | `/api/health`      | API (Laravel)    | Health check basico (liveness)       | Nenhuma             | 60 req/min/IP  |
+| GET    | `/api/health/deep` | API (Laravel)    | Health check profundo (readiness)    | Bearer Token (prod) | 30 req/min/IP  |
+| GET    | `/api/metrics`     | API (Laravel)    | Metricas Prometheus                  | Bearer Token (prod) | 30 req/min/IP  |
+| GET    | `/health`          | Gateway (NestJS) | Health check basico                  | Nenhuma             | 120 req/min/IP |
+| GET    | `/health/deep`     | Gateway (NestJS) | Health check profundo                | Bearer Token (prod) | 30 req/min/IP  |
+| GET    | `/health/ready`    | Gateway (NestJS) | Readiness probe K8s                  | Nenhuma             | 30 req/min/IP  |
+| GET    | `/health/live`     | Gateway (NestJS) | Liveness probe K8s                   | Nenhuma             | 120 req/min/IP |
+| GET    | `/metrics`         | Gateway (NestJS) | Metricas Prometheus                  | Bearer Token (prod) | 30 req/min/IP  |
+| POST   | `/api/alerts`      | API (Laravel)    | Webhook para alertas do Alertmanager | HMAC Signature      | 100 req/min    |
 
 ### 6.2 GET /api/health — API Laravel Liveness
 
@@ -942,18 +949,20 @@ Alertas `critical` inibem alertas `warning` com o mesmo `alertname`. Isso previn
 **Request:** Nenhum body.
 
 **Response 200 OK:**
+
 ```json
 {
-  "status": "ok",
-  "timestamp": "2026-03-28T12:00:00.000Z"
+    "status": "ok",
+    "timestamp": "2026-03-28T12:00:00.000Z"
 }
 ```
 
 **Response 503 Service Unavailable (processo em shutdown):**
+
 ```json
 {
-  "status": "shutting_down",
-  "timestamp": "2026-03-28T12:00:00.000Z"
+    "status": "shutting_down",
+    "timestamp": "2026-03-28T12:00:00.000Z"
 }
 ```
 
@@ -964,64 +973,66 @@ Alertas `critical` inibem alertas `warning` com o mesmo `alertname`. Isso previn
 **Request:** Nenhum body. Header `Authorization: Bearer {token}` necessario em production.
 
 **Response 200 OK (healthy):**
+
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2026-03-28T12:00:00.000Z",
-  "services": {
-    "database": {
-      "status": "healthy",
-      "latency_ms": 12.34,
-      "connections": 15
-    },
-    "redis": {
-      "status": "healthy",
-      "latency_ms": 3.21
-    },
-    "queue": {
-      "status": "healthy",
-      "latency_ms": 5.67,
-      "queue_size": 42,
-      "connection": "redis"
-    },
-    "filesystem": {
-      "status": "healthy",
-      "free_bytes": 53687091200,
-      "threshold_warning_bytes": 1073741824,
-      "threshold_critical_bytes": 104857600
+    "status": "healthy",
+    "timestamp": "2026-03-28T12:00:00.000Z",
+    "services": {
+        "database": {
+            "status": "healthy",
+            "latency_ms": 12.34,
+            "connections": 15
+        },
+        "redis": {
+            "status": "healthy",
+            "latency_ms": 3.21
+        },
+        "queue": {
+            "status": "healthy",
+            "latency_ms": 5.67,
+            "queue_size": 42,
+            "connection": "redis"
+        },
+        "filesystem": {
+            "status": "healthy",
+            "free_bytes": 53687091200,
+            "threshold_warning_bytes": 1073741824,
+            "threshold_critical_bytes": 104857600
+        }
     }
-  }
 }
 ```
 
 **Response 503 Service Unavailable (unhealthy/degraded):**
+
 ```json
 {
-  "status": "degraded",
-  "timestamp": "2026-03-28T12:00:00.000Z",
-  "services": {
-    "database": {
-      "status": "healthy",
-      "latency_ms": 12.34,
-      "connections": 15
-    },
-    "redis": {
-      "status": "unhealthy",
-      "message": "Connection refused"
-    },
-    "queue": {
-      "status": "healthy",
-      "latency_ms": 5.67,
-      "queue_size": 42,
-      "connection": "redis"
-    },
-    "filesystem": {
-      "status": "healthy",
-      "free_bytes": 53687091200,
-      "threshold_warning_bytes": 1073741824,
-      "threshold_critical_bytes": 104857600
+    "status": "degraded",
+    "timestamp": "2026-03-28T12:00:00.000Z",
+    "services": {
+        "database": {
+            "status": "healthy",
+            "latency_ms": 12.34,
+            "connections": 15
+        },
+        "redis": {
+            "status": "unhealthy",
+            "message": "Connection refused"
+        },
+        "queue": {
+            "status": "healthy",
+            "latency_ms": 5.67,
+            "queue_size": 42,
+            "connection": "redis"
+        },
+        "filesystem": {
+            "status": "healthy",
+            "free_bytes": 53687091200,
+            "threshold_warning_bytes": 1073741824,
+            "threshold_critical_bytes": 104857600
+        }
     }
-  }
 }
 ```
 
@@ -1032,6 +1043,7 @@ Alertas `critical` inibem alertas `warning` com o mesmo `alertname`. Isso previn
 **Request:** Nenhum body. Header `Authorization: Bearer {token}` necessario em production.
 
 **Response 200 OK (text/plain):**
+
 ```
 # HELP agentflix_app_info Application information
 # TYPE agentflix_app_info gauge
@@ -1102,9 +1114,10 @@ autopilot_budget_usage_ratio{} 0.72
 **Proposito:** Health check basico para liveness probe do Kubernetes.
 
 **Response 200 OK:**
+
 ```json
 {
-  "status": "ok"
+    "status": "ok"
 }
 ```
 
@@ -1113,9 +1126,10 @@ autopilot_budget_usage_ratio{} 0.72
 **Proposito:** Liveness probe separada para Kubernetes. Sempre retorna `alive: true` enquanto o processo estiver ativo.
 
 **Response 200 OK:**
+
 ```json
 {
-  "alive": true
+    "alive": true
 }
 ```
 
@@ -1124,16 +1138,18 @@ autopilot_budget_usage_ratio{} 0.72
 **Proposito:** Readiness probe que verifica se o Gateway pode receber tráfego. Retorna `ready: true` apenas quando todas as dependencias principais estao saudaveis.
 
 **Response 200 OK:**
+
 ```json
 {
-  "ready": true
+    "ready": true
 }
 ```
 
 **Response 503 Service Unavailable:**
+
 ```json
 {
-  "ready": false
+    "ready": false
 }
 ```
 
@@ -1142,66 +1158,64 @@ autopilot_budget_usage_ratio{} 0.72
 **Proposito:** Health check completo com verificacao de Redis e streams.
 
 **Response 200 OK (healthy):**
+
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2026-03-28T12:00:00.000Z",
-  "services": {
-    "redis": {
-      "status": "healthy",
-      "latency_ms": 2
-    },
-    "consumers": {
-      "status": "healthy",
-      "latency_ms": 45,
-      "details": {
-        "monitored_streams": [
-          "chat.inbound_message_received",
-          "chat.outbound_message",
-          "billing.payment_received",
-          "ai.run.request",
-          "ai.chat_request",
-          "ai.embedding_request"
-        ],
-        "active_streams": [
-          "chat.inbound_message_received",
-          "chat.outbound_message",
-          "ai.chat_request"
-        ],
-        "stream_errors": []
-      }
+    "status": "healthy",
+    "timestamp": "2026-03-28T12:00:00.000Z",
+    "services": {
+        "redis": {
+            "status": "healthy",
+            "latency_ms": 2
+        },
+        "consumers": {
+            "status": "healthy",
+            "latency_ms": 45,
+            "details": {
+                "monitored_streams": [
+                    "chat.inbound_message_received",
+                    "chat.outbound_message",
+                    "billing.payment_received",
+                    "ai.run.request",
+                    "ai.chat_request",
+                    "ai.embedding_request"
+                ],
+                "active_streams": ["chat.inbound_message_received", "chat.outbound_message", "ai.chat_request"],
+                "stream_errors": []
+            }
+        }
     }
-  }
 }
 ```
 
 **Response 503 Service Unavailable (unhealthy):**
+
 ```json
 {
-  "status": "unhealthy",
-  "timestamp": "2026-03-28T12:00:00.000Z",
-  "services": {
-    "redis": {
-      "status": "unhealthy",
-      "message": "Connection refused"
-    },
-    "consumers": {
-      "status": "healthy",
-      "latency_ms": 45,
-      "details": {
-        "monitored_streams": [
-          "chat.inbound_message_received",
-          "chat.outbound_message",
-          "billing.payment_received",
-          "ai.run.request",
-          "ai.chat_request",
-          "ai.embedding_request"
-        ],
-        "active_streams": [],
-        "stream_errors": []
-      }
+    "status": "unhealthy",
+    "timestamp": "2026-03-28T12:00:00.000Z",
+    "services": {
+        "redis": {
+            "status": "unhealthy",
+            "message": "Connection refused"
+        },
+        "consumers": {
+            "status": "healthy",
+            "latency_ms": 45,
+            "details": {
+                "monitored_streams": [
+                    "chat.inbound_message_received",
+                    "chat.outbound_message",
+                    "billing.payment_received",
+                    "ai.run.request",
+                    "ai.chat_request",
+                    "ai.embedding_request"
+                ],
+                "active_streams": [],
+                "stream_errors": []
+            }
+        }
     }
-  }
 }
 ```
 
@@ -1210,6 +1224,7 @@ autopilot_budget_usage_ratio{} 0.72
 **Proposito:** Expor metricas Prometheus do Gateway para scraping.
 
 **Response 200 OK (text/plain):**
+
 ```
 # HELP http_requests_total Total HTTP requests
 # TYPE http_requests_total counter
@@ -1284,6 +1299,7 @@ autopilot_cache_hits_total{cache_type="prompt",hit="false"} 456
 **Proposito:** Receber webhooks de alertas do Alertmanager para persistencia e acknowledgement.
 
 **Request Body (Alertmanager v2 payload):**
+
 ```json
 {
   "version": "4",
@@ -1300,7 +1316,7 @@ autopilot_cache_hits_total{cache_type="prompt",hit="false"} 456
   "commonAnnotations": {
     "summary": "High error rate detected",
     "description": "Error rate is 2.3% over the last 5 minutes",
-    "runbook_url": "https://github.com/agentflix/agentflix/blob/main/docs/runbooks/high-error-rate.md"
+    "runbook_url": "https://github.com/interazap/interazap/blob/main/docs/runbooks/high-error-rate.md"
   },
   "externalURL": "http://alertmanager:9093",
   "alerts": [
@@ -1309,7 +1325,7 @@ autopilot_cache_hits_total{cache_type="prompt",hit="false"} 456
       "labels": {
         "alertname": "HighErrorRate",
         "severity": "critical",
-        "instance": "agentflix-api"
+        "instance": "interazap-api"
       },
       "annotations": {
         "summary": "High error rate detected",
@@ -1323,10 +1339,11 @@ autopilot_cache_hits_total{cache_type="prompt",hit="false"} 456
 ```
 
 **Response 200 OK:**
+
 ```json
 {
-  "status": "received",
-  "alert_count": 1
+    "status": "received",
+    "alert_count": 1
 }
 ```
 
@@ -1337,6 +1354,7 @@ autopilot_cache_hits_total{cache_type="prompt",hit="false"} 456
 ### 7.1 Visão Geral dos Eventos
 
 O modulo de Monitoring/Observability emite e consome eventos de dominio que permitem:
+
 - Rastreamento de cambios de estado de saude
 - Auditoria de alertas disparados e resolvidos
 - Integração com sistemas externos (Slack, PagerDuty, etc.)
@@ -1350,6 +1368,7 @@ O modulo de Monitoring/Observability emite e consome eventos de dominio que perm
 **Data:** Ocorre quando uma regra de alerting é satisfeita (alert state transitions to FIRING)
 
 **Payload:**
+
 ```php
 [
     'event' => 'monitoring.alert.fired',
@@ -1357,14 +1376,14 @@ O modulo de Monitoring/Observability emite e consome eventos de dominio que perm
     'alert_name' => 'HighErrorRate',
     'severity' => 'critical', // critical | warning
     'service' => 'api', // api | gateway
-    'instance' => 'agentflix-api',
+    'instance' => 'interazap-api',
     'summary' => 'High error rate detected',
     'description' => 'Error rate is 2.3% over the last 5 minutes',
-    'runbook_url' => 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/high-error-rate.md',
+    'runbook_url' => 'https://github.com/interazap/interazap/blob/main/docs/runbooks/high-error-rate.md',
     'labels' => [
         'alertname' => 'HighErrorRate',
         'severity' => 'critical',
-        'instance' => 'agentflix-api',
+        'instance' => 'interazap-api',
     ],
     'starts_at' => '2026-03-28T12:00:00.000Z',
     'fired_at' => '2026-03-28T12:05:00.000Z', // when "for" duration was met
@@ -1381,6 +1400,7 @@ O modulo de Monitoring/Observability emite e consome eventos de dominio que perm
 **Data:** Ocorre quando uma regra de alerting volta ao estado normal (alert state transitions to RESOLVED)
 
 **Payload:**
+
 ```php
 [
     'event' => 'monitoring.alert.resolved',
@@ -1388,7 +1408,7 @@ O modulo de Monitoring/Observability emite e consome eventos de dominio que perm
     'alert_name' => 'HighErrorRate',
     'severity' => 'critical',
     'service' => 'api',
-    'instance' => 'agentflix-api',
+    'instance' => 'interazap-api',
     'summary' => 'High error rate detected',
     'starts_at' => '2026-03-28T12:00:00.000Z',
     'resolved_at' => '2026-03-28T12:45:00.000Z',
@@ -1406,6 +1426,7 @@ O modulo de Monitoring/Observability emite e consome eventos de dominio que perm
 **Data:** Ocorre quando um health check individual falha ou retorna status unhealthy
 
 **Payload:**
+
 ```php
 [
     'event' => 'monitoring.health_check.failed',
@@ -1430,6 +1451,7 @@ O modulo de Monitoring/Observability emite e consome eventos de dominio que perm
 **Data:** Ocorre quando um health check que estava falhando volta ao estado healthy
 
 **Payload:**
+
 ```php
 [
     'event' => 'monitoring.health_check.recovered',
@@ -1453,6 +1475,7 @@ O modulo de Monitoring/Observability emite e consome eventos de dominio que perm
 **Data:** Ocorre quando uma metrica atravessa um threshold configurado
 
 **Payload:**
+
 ```php
 [
     'event' => 'monitoring.metric.threshold_breached',
@@ -1480,6 +1503,7 @@ O modulo de Monitoring/Observability emite e consome eventos de dominio que perm
 **Data:** Ocorre quando o budget usage do Autopilot excede 80%
 
 **Payload:**
+
 ```php
 [
     'event' => 'monitoring.autopilot.budget_warning',
@@ -1496,15 +1520,15 @@ O modulo de Monitoring/Observability emite e consome eventos de dominio que perm
 
 ### 7.8 Tabela Resumo de Eventos
 
-| Evento | Emissor | Quando | Severidade |
-|--------|---------|--------|------------|
-| `monitoring.alert.fired` | Alertmanager | Regra de alerta transitiona para FIRING | varies |
-| `monitoring.alert.resolved` | Alertmanager | Regra de alerta transitiona para RESOLVED | varies |
-| `monitoring.health_check.failed` | HealthCheckService | Health check individual falha | critical |
-| `monitoring.health_check.recovered` | HealthCheckService | Health check volta a ser healthy | info |
-| `monitoring.metric.threshold_breached` | Alerting | Metrica cruza threshold | warning/critical |
-| `monitoring.autopilot.budget_warning` | Alerting | Budget Autopilot > 80% | warning |
-| `monitoring.autopilot.budget_exceeded` | Alerting | Budget Autopilot > 100% | critical |
+| Evento                                 | Emissor            | Quando                                    | Severidade       |
+| -------------------------------------- | ------------------ | ----------------------------------------- | ---------------- |
+| `monitoring.alert.fired`               | Alertmanager       | Regra de alerta transitiona para FIRING   | varies           |
+| `monitoring.alert.resolved`            | Alertmanager       | Regra de alerta transitiona para RESOLVED | varies           |
+| `monitoring.health_check.failed`       | HealthCheckService | Health check individual falha             | critical         |
+| `monitoring.health_check.recovered`    | HealthCheckService | Health check volta a ser healthy          | info             |
+| `monitoring.metric.threshold_breached` | Alerting           | Metrica cruza threshold                   | warning/critical |
+| `monitoring.autopilot.budget_warning`  | Alerting           | Budget Autopilot > 80%                    | warning          |
+| `monitoring.autopilot.budget_exceeded` | Alerting           | Budget Autopilot > 100%                   | critical         |
 
 ---
 
@@ -1564,19 +1588,20 @@ if (process.env.NODE_ENV === 'production') {
 
 Rate limiting protege os endpoints de monitoring contra abuso e garantir disponibilidade para probes criticos:
 
-| Endpoint | Limite | Janela | Key |
-|----------|--------|--------|-----|
-| `/api/health` | 60 | 1 minuto | IP |
-| `/api/health/deep` | 30 | 1 minuto | IP |
-| `/api/metrics` | 30 | 1 minuto | IP |
-| `/health` | 120 | 1 minuto | IP |
-| `/health/deep` | 30 | 1 minuto | IP |
-| `/health/ready` | 30 | 1 minuto | IP |
-| `/health/live` | 120 | 1 minuto | IP |
-| `/metrics` | 30 | 1 minuto | IP |
-| `/api/alerts` (webhook) | 100 | 1 minuto | IP |
+| Endpoint                | Limite | Janela   | Key |
+| ----------------------- | ------ | -------- | --- |
+| `/api/health`           | 60     | 1 minuto | IP  |
+| `/api/health/deep`      | 30     | 1 minuto | IP  |
+| `/api/metrics`          | 30     | 1 minuto | IP  |
+| `/health`               | 120    | 1 minuto | IP  |
+| `/health/deep`          | 30     | 1 minuto | IP  |
+| `/health/ready`         | 30     | 1 minuto | IP  |
+| `/health/live`          | 120    | 1 minuto | IP  |
+| `/metrics`              | 30     | 1 minuto | IP  |
+| `/api/alerts` (webhook) | 100    | 1 minuto | IP  |
 
 **Implementacao API Laravel:**
+
 ```php
 // routes/api.php
 Route::middleware(['throttle:health-basic'])->group(function () {
@@ -1593,6 +1618,7 @@ Route::middleware(['throttle:metrics'])->group(function () {
 ```
 
 **Implementacao Gateway NestJS:**
+
 ```typescript
 // ThrottlerModule config
 {
@@ -1603,7 +1629,7 @@ Route::middleware(['throttle:metrics'])->group(function () {
 
 ### 8.4 Validacao de Webhook — Alertmanager
 
-Se o AgentFlix receber webhooks diretamente do Alertmanager (além do Slack), a validacao de assinatura deve ser implementada:
+Se o InteraZap receber webhooks diretamente do Alertmanager (além do Slack), a validacao de assinatura deve ser implementada:
 
 **Header:** `X-Alertmanager-Webhook-Signature`
 **Algoritmo:** HMAC-SHA256
@@ -1662,6 +1688,7 @@ Endpoints de metricas podem ser alvo de ataques de DoS atraves de:
 3. **Webhooks maliciouses:** Mitigado por validacao de assinatura HMAC
 
 Adicionalmente, o Prometheus deve ser configurado para:
+
 - Ignorar metricas com mais de 10000 series por metric (`max_samples`)
 - Timeout de scrape de 30 segundos
 - Cache de metricas para evitar re-calculo excessivo
@@ -1943,38 +1970,38 @@ final readonly class AlertPayloadDTO
  * Overall gateway health status.
  */
 export interface HealthStatus {
-  /** Consolidated status: healthy, degraded, or unhealthy */
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  /** ISO 8601 timestamp of the check */
-  timestamp: string;
-  /** Individual status of each dependent service */
-  services: {
-    /** Redis health status */
-    redis: ServiceStatus;
-    /** Stream consumers health status */
-    consumers: ServiceStatus;
-  };
+    /** Consolidated status: healthy, degraded, or unhealthy */
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    /** ISO 8601 timestamp of the check */
+    timestamp: string;
+    /** Individual status of each dependent service */
+    services: {
+        /** Redis health status */
+        redis: ServiceStatus;
+        /** Stream consumers health status */
+        consumers: ServiceStatus;
+    };
 }
 
 /**
  * Health status of an individual service.
  */
 export interface ServiceStatus {
-  /** Service status: healthy or unhealthy */
-  status: 'healthy' | 'unhealthy';
-  /** Measured latency in milliseconds */
-  latency_ms?: number;
-  /** Descriptive status message */
-  message?: string;
-  /** Additional service details */
-  details?: {
-    /** List of monitored stream names */
-    monitored_streams: string[];
-    /** Streams that are currently active (exist and have data) */
-    active_streams: string[];
-    /** Any stream inspection errors */
-    stream_errors: Array<{ stream: string; error: string }>;
-  };
+    /** Service status: healthy or unhealthy */
+    status: 'healthy' | 'unhealthy';
+    /** Measured latency in milliseconds */
+    latency_ms?: number;
+    /** Descriptive status message */
+    message?: string;
+    /** Additional service details */
+    details?: {
+        /** List of monitored stream names */
+        monitored_streams: string[];
+        /** Streams that are currently active (exist and have data) */
+        active_streams: string[];
+        /** Any stream inspection errors */
+        stream_errors: Array<{ stream: string; error: string }>;
+    };
 }
 ```
 
@@ -1985,87 +2012,87 @@ export interface ServiceStatus {
  * HTTP request metric entry.
  */
 export interface HttpRequestMetric {
-  method: string;
-  path: string;
-  status: number;
-  durationMs: number;
-  timestamp: string;
+    method: string;
+    path: string;
+    status: number;
+    durationMs: number;
+    timestamp: string;
 }
 
 /**
  * WebSocket connection event.
  */
 export interface WebSocketConnectionEvent {
-  type: 'connected' | 'disconnected';
-  connectionsDelta: 1 | -1;
-  timestamp: string;
+    type: 'connected' | 'disconnected';
+    connectionsDelta: 1 | -1;
+    timestamp: string;
 }
 
 /**
  * WebSocket message metric.
  */
 export interface WebSocketMessageMetric {
-  event: string;
-  direction: 'in' | 'out';
-  count: number;
+    event: string;
+    direction: 'in' | 'out';
+    count: number;
 }
 
 /**
  * Redis stream operation metric.
  */
 export interface RedisStreamMetric {
-  stream: string;
-  action: 'read' | 'write';
-  count: number;
+    stream: string;
+    action: 'read' | 'write';
+    count: number;
 }
 
 /**
  * Chat event metric.
  */
 export interface ChatEventMetric {
-  eventType: string;
-  count: number;
+    eventType: string;
+    count: number;
 }
 
 /**
  * Webhook ACK metric with latency.
  */
 export interface WebhookAckMetric {
-  provider: string;
-  tenant: string;
-  outcome: 'success' | 'error';
-  latencyMs: number;
-  count: number;
+    provider: string;
+    tenant: string;
+    outcome: 'success' | 'error';
+    latencyMs: number;
+    count: number;
 }
 
 /**
  * Autopilot run summary.
  */
 export interface AutopilotRunMetric {
-  agentId: string;
-  model: string;
-  status: 'success' | 'error' | 'timeout';
-  durationSeconds: number;
-  tokenCount?: number;
-  costDollars?: number;
+    agentId: string;
+    model: string;
+    status: 'success' | 'error' | 'timeout';
+    durationSeconds: number;
+    tokenCount?: number;
+    costDollars?: number;
 }
 
 /**
  * Autopilot tool call metric.
  */
 export interface AutopilotToolCallMetric {
-  agentId: string;
-  toolName: string;
-  status: 'success' | 'error';
-  count: number;
+    agentId: string;
+    toolName: string;
+    status: 'success' | 'error';
+    count: number;
 }
 
 /**
  * Classifier decision metric.
  */
 export interface ClassifierDecisionMetric {
-  decision: 'RESPOND' | 'SKIP' | 'DEBOUNCE' | 'HUMAN_ONLY';
-  count: number;
+    decision: 'RESPOND' | 'SKIP' | 'DEBOUNCE' | 'HUMAN_ONLY';
+    count: number;
 }
 ```
 
@@ -2336,4 +2363,4 @@ Verificacao: Prometheus alerting config aponta para target correto
 
 ---
 
-*Documento gerado em 2026-03-28. Atualizar quando houver mudancas significativas na arquitetura ou nos requisitos.*
+_Documento gerado em 2026-03-28. Atualizar quando houver mudancas significativas na arquitetura ou nos requisitos._

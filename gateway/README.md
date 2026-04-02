@@ -1,4 +1,4 @@
-# AgentFlix Gateway
+# InteraZap Gateway
 
 NestJS Gateway for external integrations (UazAPI, Z-API, Asaas, OpenAI) with real-time WebSocket support.
 
@@ -162,4 +162,4 @@ pnpm test:cov
 
 ## License
 
-Private - AgentFlix
+Private - InteraZap

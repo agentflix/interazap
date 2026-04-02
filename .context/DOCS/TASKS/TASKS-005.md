@@ -1,4 +1,4 @@
-# TASKS — Lista de Tarefas AgentFlix
+# TASKS — Lista de Tarefas InteraZap
 
 ---
 
@@ -78,7 +78,7 @@ Substituir TODOS os 6 planos antigos por 3 novos: Starter (R$97), Professional (
 - [ ] Criar plano Starter: R$97, 5 users, 1 WhatsApp, 1GB, 50 negotiations, chatbot, BASIC
 - [ ] Criar plano Professional: R$297, 20 users, 5 WhatsApps, 5GB, 500 negotiations, AI, ADVANCED
 - [ ] Criar plano Business: R$897, 100 users, 25 WhatsApps, 10GB, ilimitado, AI, FULL
-- [ ] Garantir que tenant padrão (AGENTFLX / Super Admin AgentFlix) fique no plano Business (upsert invoice)
+- [ ] Garantir que tenant padrão (AGENTFLX / Super Admin InteraZap) fique no plano Business (upsert invoice)
 - [ ] Escrever testes
 
 ## Critérios de conclusão
@@ -168,7 +168,7 @@ Adicionar métodos `canViewReport()`, `getReportsMode()` e `isAdmin()` no Platfo
 - [ ] Adicionar método `getReportsMode(string $tenantId): PlatformReportsMode`
 - [ ] Adicionar método `canViewReport(string $tenantId, string $permission): bool`
 - [ ] Adicionar método `isAdmin(AuthUser $user): bool` — usar `user->hasRole('admin')` do Spatie
-- [ ] Implementar lógica: BASIC = só reports.chat.volume, ADVANCED = reports.chat.* + reports.crm.* + reports.ai.autopilot + reports.ai.sentiment, FULL = todos + export
+- [ ] Implementar lógica: BASIC = só reports.chat.volume, ADVANCED = reports.chat._ + reports.crm._ + reports.ai.autopilot + reports.ai.sentiment, FULL = todos + export
 - [ ] Admin override: `reports.ai.usage_cost` e `reports.billing.revenue` liberadas para qualquer plano
 - [ ] Escrever testes unitários
 
@@ -257,10 +257,10 @@ Atualizar o RolePermissionSeeder para incluir todas as permissões `reports.*` e
 
 ## Etapas
 
-- [ ] Mapear permissões reports.* por modo:
-  - BASIC: reports.chat.volume
-  - ADVANCED: reports.chat.volume, reports.chat.agent_performance, reports.crm.funnel, reports.crm.salesperson_performance, reports.crm.loss_reason, reports.crm.contact_crm, reports.ai.autopilot_performance, reports.ai.sentiment
-  - FULL: todos os reports.* + reports.export
+- [ ] Mapear permissões reports.\* por modo:
+    - BASIC: reports.chat.volume
+    - ADVANCED: reports.chat.volume, reports.chat.agent_performance, reports.crm.funnel, reports.crm.salesperson_performance, reports.crm.loss_reason, reports.crm.contact_crm, reports.ai.autopilot_performance, reports.ai.sentiment
+    - FULL: todos os reports.\* + reports.export
 - [ ] Admin (qualquer plano): reports.ai.usage_cost, reports.billing.revenue
 - [ ] Garantir que permissões admin supersedem plano
 

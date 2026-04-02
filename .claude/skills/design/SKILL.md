@@ -1,7 +1,7 @@
 ---
 name: design
 description: >
-    Visual design direction for AgentFlix. Read this skill before any UI task.
+    Visual design direction for InteraZap. Read this skill before any UI task.
     Defines aesthetic, tokens, typography, spacing rules, and what to avoid.
     Mandatory for @DESIGNER and @FRONTEND agents.
 ---

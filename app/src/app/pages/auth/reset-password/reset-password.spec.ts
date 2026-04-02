@@ -32,7 +32,7 @@ describe('ResetPasswordComponent', () => {
     const authService = TestBed.inject(AuthService);
 
     vi.spyOn(authService, 'forgotPassword').mockReturnValue(of({ success: true, message: 'ok' }));
-    component.form.patchValue({ email: 'user@agentflix.test' });
+    component.form.patchValue({ email: 'user@interazap.test' });
     component.submit();
 
     expect(component.successMessage()).toContain('sucesso');
@@ -44,7 +44,7 @@ describe('ResetPasswordComponent', () => {
     const authService = TestBed.inject(AuthService);
 
     vi.spyOn(authService, 'forgotPassword').mockReturnValue(throwError(() => new Error('fail')));
-    component.form.patchValue({ email: 'user@agentflix.test' });
+    component.form.patchValue({ email: 'user@interazap.test' });
     component.submit();
 
     expect(component.errorMessage()).toContain('Não foi possível');

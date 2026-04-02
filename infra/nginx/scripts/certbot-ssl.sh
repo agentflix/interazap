@@ -1,20 +1,20 @@
 #!/bin/bash
 set -e
 
-echo "=== Certbot SSL for AgentFlix ==="
+echo "=== Certbot SSL for InteraZap ==="
 
 certbot --nginx \
-  -d www.agentflix.com.br \
-  -d stage.www.agentflix.com.br \
-  -d stage.api.agentflix.com.br \
-  -d api.agentflix.com.br \
-  -d stage.app.agentflix.com.br \
-  -d app.agentflix.com.br \
-  -d stage.gateway.agentflix.com.br \
-  -d gateway.agentflix.com.br \
+  -d www.interazap.com.br \
+  -d stage.www.interazap.com.br \
+  -d stage.api.interazap.com.br \
+  -d api.interazap.com.br \
+  -d stage.app.interazap.com.br \
+  -d app.interazap.com.br \
+  -d stage.gateway.interazap.com.br \
+  -d gateway.interazap.com.br \
   --non-interactive \
   --agree-tos \
-  --email admin@agentflix.com.br \
+  --email admin@interazap.com.br \
   --redirect
 
 echo "=== SSL certificates deployed ==="

@@ -36,7 +36,7 @@ export class ChatListStateService {
   private readonly document = inject(DOCUMENT);
 
   private readonly listRefresh$ = new Subject<{ loadMore: boolean }>();
-  private readonly filterStorageKey = 'agentflix:chat:filter';
+  private readonly filterStorageKey = 'interazap:chat:filter';
 
   private readonly searchTerm = signal('');
   private readonly activeFilter = signal<'pending' | 'open' | 'all'>(this.restoreFilter());

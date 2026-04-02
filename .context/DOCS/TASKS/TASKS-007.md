@@ -1,4 +1,4 @@
-# TASKS-007 — Gerar PRDs AgentFlix
+# TASKS-007 — Gerar PRDs InteraZap
 
 > Gerar 14 Product Requirements Documents (PRDs) com mínimo 1000 linhas cada.
 
@@ -15,35 +15,36 @@
 
 ### Descrição
 
-Criar o PRD de Arquitetura do Sistema AgentFlix documentando:
+Criar o PRD de Arquitetura do Sistema InteraZap documentando:
 
 1. **Visão Geral da Arquitetura**
-   - Stack tecnológica completa
-   - Diagrama de componentes
-   - Fluxo de dados App → Backend → Gateway → Redis
+    - Stack tecnológica completa
+    - Diagrama de componentes
+    - Fluxo de dados App → Backend → Gateway → Redis
 
 2. **Comunicação entre Camadas**
-   - REST API (Laravel → Angular)
-   - WebSocket (Socket.io)
-   - Redis PubSub/Streams
-   - Filas (BullMQ)
+    - REST API (Laravel → Angular)
+    - WebSocket (Socket.io)
+    - Redis PubSub/Streams
+    - Filas (BullMQ)
 
 3. **Módulos e Dependências**
-   - Diagrama de módulos
-   - Dependências circulares
-   - Contratos entre módulos
+    - Diagrama de módulos
+    - Dependências circulares
+    - Contratos entre módulos
 
 4. **Segurança**
-   - Autenticação (Sanctum)
-   - Tenant isolation
-   - Rate limiting
+    - Autenticação (Sanctum)
+    - Tenant isolation
+    - Rate limiting
 
 5. **Infraestrutura**
-   - Docker Compose
-   - VPS (186.202.209.180)
-   - Nginx/SSL
+    - Docker Compose
+    - VPS (186.202.209.180)
+    - Nginx/SSL
 
 ### Locais para Consultar
+
 - `CLAUDE.md` — stack e convenções
 - `.context/ARCHETECTURE/` — diagramas existentes
 - `api/src/Domain/Shared/Services/GatewayBroadcastService.php`
@@ -66,6 +67,7 @@ Criar o PRD de Arquitetura do Sistema AgentFlix documentando:
 Criar PRD-REPORTS-001 documentando o módulo de relatórios.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Reports/`
 - `app/src/app/pages/reports/`
 - `docs/features/034-reports-module/`
@@ -86,6 +88,7 @@ Criar PRD-REPORTS-001 documentando o módulo de relatórios.
 Criar PRD-DASHBOARD-001 documentando o módulo de dashboard.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Dashboard/`
 - `app/src/app/pages/dashboard/`
 
@@ -105,6 +108,7 @@ Criar PRD-DASHBOARD-001 documentando o módulo de dashboard.
 Criar PRD-CHAT-001 documentando o módulo de chat.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Chat/`
 - `app/src/app/pages/chat/`
 - `gateway/src/domains/chat/`
@@ -125,6 +129,7 @@ Criar PRD-CHAT-001 documentando o módulo de chat.
 Criar PRD-BILLING-001 documentando o módulo de billing.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Billing/`
 - `app/src/app/pages/billing/`
 
@@ -144,6 +149,7 @@ Criar PRD-BILLING-001 documentando o módulo de billing.
 Criar PRD-AI-001 documentando o módulo de AI.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Ai/`
 - `app/src/app/pages/ai/`
 - `gateway/src/domains/ai/`
@@ -164,6 +170,7 @@ Criar PRD-AI-001 documentando o módulo de AI.
 Criar PRD-CRM-001 documentando o módulo de CRM.
 
 ### Locais para Consultar
+
 - `api/src/Domain/CRM/`
 - `app/src/app/pages/crm/`
 
@@ -183,6 +190,7 @@ Criar PRD-CRM-001 documentando o módulo de CRM.
 Criar PRD-GATEWAY-001 documentando o módulo Gateway.
 
 ### Locais para Consultar
+
 - `gateway/src/domains/realtime/`
 - `gateway/src/infrastructure/redis/`
 - `api/src/Domain/Shared/Services/GatewayBroadcastService.php`
@@ -203,6 +211,7 @@ Criar PRD-GATEWAY-001 documentando o módulo Gateway.
 Criar PRD-PLATFORM-001 documentando o módulo de Platform.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Platform/`
 - `app/src/app/pages/platform/`
 
@@ -222,6 +231,7 @@ Criar PRD-PLATFORM-001 documentando o módulo de Platform.
 Criar PRD-CONFIG-001 documentando o módulo de Configuration.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Configuration/`
 - `app/src/app/pages/configuration/`
 
@@ -241,6 +251,7 @@ Criar PRD-CONFIG-001 documentando o módulo de Configuration.
 Criar PRD-TENANTS-001 documentando o módulo de Tenants.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Platform/Models/PlatformTenant.php`
 - `api/src/Domain/Auth/Models/AuthUser.php`
 
@@ -260,6 +271,7 @@ Criar PRD-TENANTS-001 documentando o módulo de Tenants.
 Criar PRD-UAZAPI-001 documentando o módulo UAZAPI de instâncias WhatsApp.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Platform/`
 - `gateway/src/domains/chat/`
 
@@ -279,6 +291,7 @@ Criar PRD-UAZAPI-001 documentando o módulo UAZAPI de instâncias WhatsApp.
 Criar PRD-MONITORING-001 documentando o módulo de Monitoring.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Shared/Services/HealthCheckService.php`
 - `api/src/Domain/Shared/Services/MetricsService.php`
 - `gateway/src/health/`
@@ -299,27 +312,28 @@ Criar PRD-MONITORING-001 documentando o módulo de Monitoring.
 Criar PRD-KNOWLEDGE-001 documentando o módulo de Base de Conhecimento.
 
 ### Locais para Consultar
+
 - `api/src/Domain/Ai/Jobs/AiKnowledgeProcessJob.php`
 
 ---
 
 ## Resumo
 
-| Task | PRD | Linhas | Status | Commit |
-|------|-----|--------|--------|---------|
-| TASK-PRD-ARCH | PRD-ARCH-001 | 2,258 | ✅ done | 2d60e7847 |
-| TASK-PRD-REPORTS | PRD-REPORTS-001 | 1,191 | ✅ done | 2d60e7847 |
-| TASK-PRD-DASHBOARD | PRD-DASHBOARD-001 | 1,400 | ✅ done | 2d60e7847 |
-| TASK-PRD-CHAT | PRD-CHAT-001 | 1,891 | ✅ done | 2d60e7847 |
-| TASK-PRD-BILLING | PRD-BILLING-001 | 1,501 | ✅ done | 2d60e7847 |
-| TASK-PRD-AI | PRD-AI-001 | 2,905 | ✅ done | 2d60e7847 |
-| TASK-PRD-CRM | PRD-CRM-001 | 1,690 | ✅ done | 2d60e7847 |
-| TASK-PRD-GATEWAY | PRD-GATEWAY-001 | 1,830 | ✅ done | 2d60e7847 |
-| TASK-PRD-PLATFORM | PRD-PLATFORM-001 | 1,996 | ✅ done | 2d60e7847 |
-| TASK-PRD-CONFIG | PRD-CONFIG-001 | 2,176 | ✅ done | 2d60e7847 |
-| TASK-PRD-TENANTS | PRD-TENANTS-001 | 1,810 | ✅ done | 2d60e7847 |
-| TASK-PRD-UAZAPI | PRD-UAZAPI-001 | 1,929 | ✅ done | a82f7c786 |
-| TASK-PRD-MONITORING | PRD-MONITORING-001 | 2,339 | ✅ done | c66b111b8 |
-| TASK-PRD-KNOWLEDGE | PRD-KNOWLEDGE-001 | 1,671 | ✅ done | c66b111b8 |
+| Task                | PRD                | Linhas | Status  | Commit    |
+| ------------------- | ------------------ | ------ | ------- | --------- |
+| TASK-PRD-ARCH       | PRD-ARCH-001       | 2,258  | ✅ done | 2d60e7847 |
+| TASK-PRD-REPORTS    | PRD-REPORTS-001    | 1,191  | ✅ done | 2d60e7847 |
+| TASK-PRD-DASHBOARD  | PRD-DASHBOARD-001  | 1,400  | ✅ done | 2d60e7847 |
+| TASK-PRD-CHAT       | PRD-CHAT-001       | 1,891  | ✅ done | 2d60e7847 |
+| TASK-PRD-BILLING    | PRD-BILLING-001    | 1,501  | ✅ done | 2d60e7847 |
+| TASK-PRD-AI         | PRD-AI-001         | 2,905  | ✅ done | 2d60e7847 |
+| TASK-PRD-CRM        | PRD-CRM-001        | 1,690  | ✅ done | 2d60e7847 |
+| TASK-PRD-GATEWAY    | PRD-GATEWAY-001    | 1,830  | ✅ done | 2d60e7847 |
+| TASK-PRD-PLATFORM   | PRD-PLATFORM-001   | 1,996  | ✅ done | 2d60e7847 |
+| TASK-PRD-CONFIG     | PRD-CONFIG-001     | 2,176  | ✅ done | 2d60e7847 |
+| TASK-PRD-TENANTS    | PRD-TENANTS-001    | 1,810  | ✅ done | 2d60e7847 |
+| TASK-PRD-UAZAPI     | PRD-UAZAPI-001     | 1,929  | ✅ done | a82f7c786 |
+| TASK-PRD-MONITORING | PRD-MONITORING-001 | 2,339  | ✅ done | c66b111b8 |
+| TASK-PRD-KNOWLEDGE  | PRD-KNOWLEDGE-001  | 1,671  | ✅ done | c66b111b8 |
 
 **Total:** 14 PRDs, 14 ✅ completos (~29.000 linhas), 0 🔄 pendentes
