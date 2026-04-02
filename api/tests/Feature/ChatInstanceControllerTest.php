@@ -88,23 +88,23 @@ class ChatInstanceControllerTest extends TestCase
             ->assertJsonPath('data.settings.channel_fallback_message', 'Fallback atualizado');
 
         $this->actingAs($user, 'sanctum')
-            ->patchJson("/api/integrations/{$instanceId}/toggle-active")
+            ->patchJson("/api/channels/{$instanceId}/toggle-active")
             ->assertNoContent();
 
         $this->actingAs($user, 'sanctum')
-            ->postJson("/api/integrations/{$instanceId}/connect", [
+            ->postJson("/api/channels/{$instanceId}/connect", [
                 'mode' => 'qr',
             ])
             ->assertOk()
             ->assertJsonFragment(['mode' => 'qr']);
 
         $this->actingAs($user, 'sanctum')
-            ->getJson("/api/integrations/{$instanceId}/status")
+            ->getJson("/api/channels/{$instanceId}/status")
             ->assertOk()
             ->assertJsonFragment(['mode' => 'qr']);
 
         $this->actingAs($user, 'sanctum')
-            ->postJson("/api/integrations/{$instanceId}/disconnect")
+            ->postJson("/api/channels/{$instanceId}/disconnect")
             ->assertOk();
 
         $this->actingAs($user, 'sanctum')

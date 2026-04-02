@@ -351,7 +351,7 @@ export class ChatRealtimeService implements OnDestroy {
       this.processActivityEvent(event);
     });
 
-    this.socket.on('integration.connection', (event: IntegrationConnectionEvent) => {
+    this.socket.on('channel.connection', (event: IntegrationConnectionEvent) => {
       this.publishIntegrationConnectionIncoming(this.normalizeIntegrationConnectionEvent(event));
     });
   }
@@ -373,13 +373,13 @@ export class ChatRealtimeService implements OnDestroy {
     };
   }
 
-  /** Receives normalized integration.connection events before adapter buffering. */
+  /** Receives normalized channel.connection events before adapter buffering. */
   private publishIntegrationConnectionIncoming(event: IntegrationConnectionEvent): void {
     this._integrationConnectionIncoming.set(event);
     this._integrationConnectionIncomingCount.update((c) => c + 1);
   }
 
-  /** Receives buffered integration.connection events from the integration adapter. */
+  /** Receives buffered channel.connection events from the channel adapter. */
   publishBufferedIntegrationConnection(event: IntegrationConnectionEvent): void {
     this._integrationConnection.set(event);
     this._integrationConnectionCount.update((c) => c + 1);
