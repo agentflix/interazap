@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Domain\Auth\Models\AuthUser;
-use Domain\Chat\Models\ChatCampaign;
+use Domain\Chat\Models\ChatTransmissionList;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
-class ChatCampaignTest extends TestCase
+class ChatTransmissionListTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
@@ -22,10 +22,10 @@ class ChatCampaignTest extends TestCase
 
         // Setup permissions
         $permissions = [
-            'chat.campaigns.view',
-            'chat.campaigns.create',
-            'chat.campaigns.update',
-            'chat.campaigns.delete',
+            'chat.transmission_lists.view',
+            'chat.transmission_lists.create',
+            'chat.transmission_lists.update',
+            'chat.transmission_lists.delete',
         ];
 
         foreach ($permissions as $perm) {
@@ -38,45 +38,45 @@ class ChatCampaignTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_can_create_campaign(): void
+    public function test_can_create_transmission_list(): void
     {
         $payload = [
-            'name' => 'Campanha de Teste',
+            'name' => 'Lista de Teste',
             'message' => 'Olá {{name}}',
             'status' => 'draft',
             'filter_criteria' => ['tag' => 'cliente'],
         ];
 
-        $response = $this->postJson('/api/chat/campaigns', $payload);
+        $response = $this->postJson('/api/chat/transmission-lists', $payload);
 
         $response->assertCreated()
             ->assertJsonFragment([
-                'name' => 'Campanha de Teste',
+                'name' => 'Lista de Teste',
                 'message' => 'Olá {{name}}',
                 'filter_criteria' => ['tag' => 'cliente'],
             ]);
 
-        $this->assertDatabaseHas('chat_campaigns', [
-            'name' => 'Campanha de Teste',
+        $this->assertDatabaseHas('chat_transmission_lists', [
+            'name' => 'Lista de Teste',
             'tenant_id' => $this->user->tenant_id,
         ]);
     }
 
-    public function test_can_list_campaigns(): void
+    public function test_can_list_transmission_lists(): void
     {
-        ChatCampaign::factory()->count(3)->create([
+        ChatTransmissionList::factory()->count(3)->create([
             'tenant_id' => $this->user->tenant_id,
         ]);
 
-        $response = $this->getJson('/api/chat/campaigns');
+        $response = $this->getJson('/api/chat/transmission-lists');
 
         $response->assertOk()
             ->assertJsonCount(3, 'data');
     }
 
-    public function test_can_update_campaign(): void
+    public function test_can_update_transmission_list(): void
     {
-        $campaign = ChatCampaign::factory()->create([
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->user->tenant_id,
             'name' => 'Original Name',
         ]);
@@ -86,29 +86,29 @@ class ChatCampaignTest extends TestCase
             'message' => 'New Message',
         ];
 
-        $response = $this->putJson("/api/chat/campaigns/{$campaign->id}", $payload);
+        $response = $this->putJson("/api/chat/transmission-lists/{$transmissionList->id}", $payload);
 
         $response->assertOk()
             ->assertJsonFragment(['name' => 'Updated Name']);
 
-        $this->assertDatabaseHas('chat_campaigns', [
-            'id' => $campaign->id,
+        $this->assertDatabaseHas('chat_transmission_lists', [
+            'id' => $transmissionList->id,
             'name' => 'Updated Name',
             'message' => 'New Message',
         ]);
     }
 
-    public function test_can_delete_campaign(): void
+    public function test_can_delete_transmission_list(): void
     {
-        $campaign = ChatCampaign::factory()->create([
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->user->tenant_id,
         ]);
 
-        $response = $this->deleteJson("/api/chat/campaigns/{$campaign->id}");
+        $response = $this->deleteJson("/api/chat/transmission-lists/{$transmissionList->id}");
 
         $response->assertNoContent();
 
-        $this->assertDatabaseMissing('chat_campaigns', ['id' => $campaign->id]);
+        $this->assertDatabaseMissing('chat_transmission_lists', ['id' => $transmissionList->id]);
     }
 
     public function test_can_count_audience(): void
@@ -123,14 +123,14 @@ class ChatCampaignTest extends TestCase
             'is_active' => false,
         ]);
 
-        $response = $this->postJson('/api/chat/campaigns/audience', [
+        $response = $this->postJson('/api/chat/transmission-lists/audience', [
             'criteria' => ['status' => 'active'],
         ]);
 
         $response->assertOk()
             ->assertJsonPath('data.count', 3);
 
-        $responseAll = $this->postJson('/api/chat/campaigns/audience', [
+        $responseAll = $this->postJson('/api/chat/transmission-lists/audience', [
             'criteria' => ['status' => 'all'],
         ]);
         $responseAll->assertJsonPath('data.count', 4);

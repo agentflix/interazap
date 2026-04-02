@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-use Domain\Chat\Actions\ChatCampaignActions;
-use Domain\Chat\DTOs\ChatCampaignDTO;
-use Domain\Chat\Jobs\ProcessCampaignJob;
-use Domain\Chat\Models\ChatCampaign;
+use Domain\Chat\Actions\ChatTransmissionListActions;
+use Domain\Chat\DTOs\ChatTransmissionListDTO;
+use Domain\Chat\Jobs\ProcessTransmissionListJob;
+use Domain\Chat\Models\ChatTransmissionList;
+use Domain\Chat\Models\ChatTransmissionListContact;
 use Domain\CRM\Models\CRMContact;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\Queue;
@@ -16,12 +17,12 @@ uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 beforeEach(function (): void {
     Queue::fake();
     $this->tenant = PlatformTenant::factory()->create();
-    $this->actions = new ChatCampaignActions;
+    $this->actions = new ChatTransmissionListActions;
 });
 
 describe('list', function (): void {
-    it('returns paginated campaigns for tenant', function (): void {
-        ChatCampaign::factory()->count(5)->create([
+    it('returns paginated transmission lists for tenant', function (): void {
+        ChatTransmissionList::factory()->count(5)->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
@@ -31,14 +32,14 @@ describe('list', function (): void {
             ->and($result->total())->toBe(5);
     });
 
-    it('excludes other tenant campaigns', function (): void {
+    it('excludes other tenant transmission lists', function (): void {
         $otherTenant = PlatformTenant::factory()->create();
 
-        ChatCampaign::factory()->count(3)->create([
+        ChatTransmissionList::factory()->count(3)->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        ChatCampaign::factory()->count(5)->create([
+        ChatTransmissionList::factory()->count(5)->create([
             'tenant_id' => $otherTenant->id,
         ]);
 
@@ -49,8 +50,8 @@ describe('list', function (): void {
 });
 
 describe('create', function (): void {
-    it('creates a new campaign', function (): void {
-        $dto = new ChatCampaignDTO(
+    it('creates a new transmission list', function (): void {
+        $dto = new ChatTransmissionListDTO(
             name: 'Black Friday',
             status: 'draft',
             message: 'Check out our deals!',
@@ -58,7 +59,7 @@ describe('create', function (): void {
 
         $result = $this->actions->create($this->tenant->id, $dto);
 
-        expect($result)->toBeInstanceOf(ChatCampaign::class)
+        expect($result)->toBeInstanceOf(ChatTransmissionList::class)
             ->and($result->name)->toBe('Black Friday')
             ->and($result->message)->toBe('Check out our deals!')
             ->and($result->tenant_id)->toBe($this->tenant->id);
@@ -66,55 +67,55 @@ describe('create', function (): void {
 });
 
 describe('update', function (): void {
-    it('updates an existing campaign', function (): void {
-        $campaign = ChatCampaign::factory()->create([
+    it('updates an existing transmission list', function (): void {
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenant->id,
-            'name' => 'Old Campaign',
+            'name' => 'Old List',
         ]);
 
-        $dto = new ChatCampaignDTO(
-            name: 'Updated Campaign',
+        $dto = new ChatTransmissionListDTO(
+            name: 'Updated List',
             status: 'draft',
             message: 'New message',
         );
 
-        $result = $this->actions->update($this->tenant->id, $campaign->id, $dto);
+        $result = $this->actions->update($this->tenant->id, $transmissionList->id, $dto);
 
-        expect($result->name)->toBe('Updated Campaign')
+        expect($result->name)->toBe('Updated List')
             ->and($result->message)->toBe('New message');
     });
 });
 
 describe('delete', function (): void {
-    it('deletes a campaign', function (): void {
-        $campaign = ChatCampaign::factory()->create([
+    it('deletes a transmission list', function (): void {
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $this->actions->delete($this->tenant->id, $campaign->id);
+        $this->actions->delete($this->tenant->id, $transmissionList->id);
 
-        expect(\Domain\Chat\Models\ChatCampaign::query()->find($campaign->id))->toBeNull();
+        expect(ChatTransmissionList::query()->find($transmissionList->id))->toBeNull();
     });
 });
 
 describe('find', function (): void {
-    it('finds a campaign by id', function (): void {
-        $campaign = ChatCampaign::factory()->create([
+    it('finds a transmission list by id', function (): void {
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $result = $this->actions->find($this->tenant->id, $campaign->id);
+        $result = $this->actions->find($this->tenant->id, $transmissionList->id);
 
-        expect($result->id)->toBe($campaign->id);
+        expect($result->id)->toBe($transmissionList->id);
     });
 
-    it('throws exception for other tenant campaign', function (): void {
+    it('throws exception for other tenant transmission list', function (): void {
         $otherTenant = PlatformTenant::factory()->create();
-        $campaign = ChatCampaign::factory()->create([
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $otherTenant->id,
         ]);
 
-        expect(fn () => $this->actions->find($this->tenant->id, $campaign->id))
+        expect(fn () => $this->actions->find($this->tenant->id, $transmissionList->id))
             ->toThrow(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
     });
 });
@@ -218,8 +219,8 @@ describe('countAudience', function (): void {
 });
 
 describe('send', function (): void {
-    it('sends campaign and dispatches job', function (): void {
-        $campaign = ChatCampaign::factory()->create([
+    it('sends transmission list and dispatches job', function (): void {
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenant->id,
             'status' => 'draft',
         ]);
@@ -228,34 +229,34 @@ describe('send', function (): void {
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $result = $this->actions->send($this->tenant->id, $campaign->id);
+        $result = $this->actions->send($this->tenant->id, $transmissionList->id);
 
         expect($result->status)->toBe('running');
-        expect(\Domain\Chat\Models\ChatCampaignContact::query()->where('campaign_id', $campaign->id)->count())->toBe(3);
+        expect(ChatTransmissionListContact::query()->where('transmission_list_id', $transmissionList->id)->count())->toBe(3);
 
-        Queue::assertPushed(ProcessCampaignJob::class);
+        Queue::assertPushed(ProcessTransmissionListJob::class);
     });
 
     it('updates filter criteria when provided', function (): void {
-        $campaign = ChatCampaign::factory()->create([
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenant->id,
             'status' => 'draft',
             'filter_criteria' => [],
         ]);
 
         $criteria = ['status' => 'active'];
-        $result = $this->actions->send($this->tenant->id, $campaign->id, $criteria);
+        $result = $this->actions->send($this->tenant->id, $transmissionList->id, $criteria);
 
         expect($result->filter_criteria)->toBe($criteria);
     });
 
-    it('rejects sending when campaign is already running', function (): void {
-        $campaign = ChatCampaign::factory()->create([
+    it('rejects sending when transmission list is already running', function (): void {
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenant->id,
             'status' => 'running',
         ]);
 
-        expect(fn () => $this->actions->send($this->tenant->id, $campaign->id))
+        expect(fn () => $this->actions->send($this->tenant->id, $transmissionList->id))
             ->toThrow(ValidationException::class);
     });
 });

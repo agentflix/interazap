@@ -14,27 +14,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * Modelo de vínculo entre Campanha e Contato.
+ * Modelo de vínculo entre Lista de Transmissão e Contato.
  *
  * @property string $id
  * @property string $tenant_id
- * @property string $campaign_id
+ * @property string $transmission_list_id
  * @property string $contact_id
  * @property string $status (pending, sent, failed)
  * @property \Illuminate\Support\Carbon|null $sent_at
  * @property string|null $error
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
- * @property-read ChatCampaign $campaign
+ * @property-read ChatTransmissionList $transmissionList
  * @property-read \Domain\CRM\Models\CRMContact $contact
  */
-final class ChatCampaignContact extends Model
+final class ChatTransmissionListContact extends Model
 {
     use BelongsToTenant;
     use HasFactory;
     use HasUuids;
 
-    protected $table = 'chat_campaign_contacts';
+    protected $table = 'chat_transmission_list_contacts';
 
     public $incrementing = false;
 
@@ -43,7 +43,7 @@ final class ChatCampaignContact extends Model
     protected $fillable = [
         'id',
         'tenant_id',
-        'campaign_id',
+        'transmission_list_id',
         'contact_id',
         'status',
         'sent_at',
@@ -64,10 +64,10 @@ final class ChatCampaignContact extends Model
             if (! $item->tenant_id) {
                 $tenantId = TenantContext::get();
 
-                if (! $tenantId && $item->campaign_id) {
-                    $campaign = ChatCampaign::withoutGlobalScope(TenantScope::class)
-                        ->find($item->campaign_id);
-                    $tenantId = $campaign?->tenant_id;
+                if (! $tenantId && $item->transmission_list_id) {
+                    $transmissionList = ChatTransmissionList::withoutGlobalScope(TenantScope::class)
+                        ->find($item->transmission_list_id);
+                    $tenantId = $transmissionList?->tenant_id;
                 }
 
                 if ($tenantId) {
@@ -77,9 +77,9 @@ final class ChatCampaignContact extends Model
         });
     }
 
-    public function campaign(): BelongsTo
+    public function transmissionList(): BelongsTo
     {
-        return $this->belongsTo(ChatCampaign::class, 'campaign_id');
+        return $this->belongsTo(ChatTransmissionList::class, 'transmission_list_id');
     }
 
     public function contact(): BelongsTo

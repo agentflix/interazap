@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Domain\Chat\Models\ChatCampaign;
-use Domain\Chat\Models\ChatCampaignContact;
 use Domain\Chat\Models\ChatInstance;
+use Domain\Chat\Models\ChatTransmissionList;
+use Domain\Chat\Models\ChatTransmissionListContact;
 use Domain\CRM\Models\CRMContact;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class ChatCampaignSeeder extends Seeder
+class ChatTransmissionListSeeder extends Seeder
 {
     use WithoutModelEvents;
 
@@ -36,7 +36,7 @@ class ChatCampaignSeeder extends Seeder
 
         $instance = ChatInstance::query()->where('tenant_id', $tenant->id)->first();
 
-        $campaignsData = [
+        $transmissionListsData = [
             [
                 'name' => 'Reativacao de Leads',
                 'status' => 'scheduled',
@@ -74,30 +74,30 @@ class ChatCampaignSeeder extends Seeder
             ],
         ];
 
-        $campaigns = collect();
+        $transmissionLists = collect();
 
-        foreach ($campaignsData as $campaignData) {
-            $campaigns->push(ChatCampaign::factory()->create([
+        foreach ($transmissionListsData as $transmissionListData) {
+            $transmissionLists->push(ChatTransmissionList::factory()->create([
                 'tenant_id' => $tenant->id,
                 'instance_id' => $instance?->id,
-                'name' => $campaignData['name'],
-                'status' => $campaignData['status'],
-                'scheduled_at' => $campaignData['scheduled_at'],
-                'message' => $campaignData['message'],
-                'filter_criteria' => $campaignData['filter_criteria'],
+                'name' => $transmissionListData['name'],
+                'status' => $transmissionListData['status'],
+                'scheduled_at' => $transmissionListData['scheduled_at'],
+                'message' => $transmissionListData['message'],
+                'filter_criteria' => $transmissionListData['filter_criteria'],
                 'metadata' => ['env' => 'seed'],
             ]));
         }
 
-        foreach ($campaigns as $campaign) {
-            $contactsForCampaign = $contacts->shuffle()->take(fake()->numberBetween(8, 18));
+        foreach ($transmissionLists as $transmissionList) {
+            $contactsForTransmissionList = $contacts->shuffle()->take(fake()->numberBetween(8, 18));
 
-            foreach ($contactsForCampaign as $contact) {
+            foreach ($contactsForTransmissionList as $contact) {
                 $status = fake()->randomElement(['pending', 'sent', 'failed']);
 
-                ChatCampaignContact::query()->create([
+                ChatTransmissionListContact::query()->create([
                     'tenant_id' => $tenant->id,
-                    'campaign_id' => $campaign->id,
+                    'transmission_list_id' => $transmissionList->id,
                     'contact_id' => $contact->id,
                     'status' => $status,
                     'sent_at' => $status === 'sent' ? now()->subMinutes(fake()->numberBetween(5, 180)) : null,
@@ -106,6 +106,6 @@ class ChatCampaignSeeder extends Seeder
             }
         }
 
-        $this->command->info(sprintf('Chat campaigns created: %d', $campaigns->count()));
+        $this->command->info(sprintf('Chat transmission lists created: %d', $transmissionLists->count()));
     }
 }

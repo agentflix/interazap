@@ -7,11 +7,11 @@ namespace Domain\Chat\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Validação para preview de mensagem de campanha.
+ * Validação para preview de mensagem de lista de transmissão.
  *
  * @category Requests
  */
-final class ChatCampaignPreviewRequest extends FormRequest
+final class ChatTransmissionListPreviewRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ final class ChatCampaignPreviewRequest extends FormRequest
             return false;
         }
 
-        // User must have campaign permission and valid tenant
-        if ($user->can('chat.campaigns.manage')) {
+        if ($user->can('chat.transmission_lists.manage')) {
             return true;
         }
 

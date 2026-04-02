@@ -18,23 +18,22 @@ import {
   AfCrudPageComponent,
   AfStatusBadgeComponent,
 } from '@shared/components';
-import { type ChatCampaign, ChatCampaignService } from '@core/services/chat-campaign.service';
+import { type ChatTransmissionList, ChatTransmissionListService } from '@core/services/chat-transmission-list.service';
 import { ToastService } from '@core/services/toast.service';
 
 /**
- * Campaigns list page.
+ * Transmission list page.
  *
  * @remarks
- * Preserves legacy behavior while using app-new UI Kit visual layer.
- * Exibe listagem paginada de campanhas com busca, status e acoes.
+ * Exibe listagem paginada de listas de transmissão com busca, status e ações.
  *
  * @example
  * ```html
- * <app-campaigns />
+ * <app-chat-transmission-list />
  * ```
  */
 @Component({
-  selector: 'app-campaigns',
+  selector: 'app-chat-transmission-list',
   standalone: true,
   imports: [
     DatePipe,
@@ -46,15 +45,15 @@ import { ToastService } from '@core/services/toast.service';
     AfStatusBadgeComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './campaigns.html',
+  templateUrl: './chat-transmission-list.html',
 })
-export class CampaignsComponent implements OnInit {
-  private readonly service = inject(ChatCampaignService);
+export class ChatTransmissionListComponent implements OnInit {
+  private readonly service = inject(ChatTransmissionListService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly campaigns = signal<ChatCampaign[]>([]);
+  readonly transmissionLists = signal<ChatTransmissionList[]>([]);
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
   readonly searchTerm = signal('');
@@ -67,66 +66,66 @@ export class CampaignsComponent implements OnInit {
   });
 
   readonly isEmpty = computed(
-    () => !this.isLoading() && !this.hasError() && this.campaigns().length === 0,
+    () => !this.isLoading() && !this.hasError() && this.transmissionLists().length === 0,
   );
 
   ngOnInit(): void {
-    this.loadCampaigns();
+    this.loadTransmissionLists();
   }
 
   onSearch(term: string): void {
     this.searchTerm.set(term);
     this.page.set(1);
-    this.loadCampaigns();
+    this.loadTransmissionLists();
   }
 
   loadPage(nextPage: number): void {
     this.page.set(nextPage);
-    this.loadCampaigns();
+    this.loadTransmissionLists();
   }
 
   openCreate(): void {
-    void this.router.navigate(['/chat/campaigns/new']);
+    void this.router.navigate(['/chat/transmission-list/new']);
   }
 
-  openEdit(campaign: ChatCampaign): void {
-    void this.router.navigate(['/chat/campaigns', campaign.id]);
+  openEdit(transmissionList: ChatTransmissionList): void {
+    void this.router.navigate(['/chat/transmission-list', transmissionList.id]);
   }
 
-  handleCustomAction(event: { action: string; item: ChatCampaign }): void {
+  handleCustomAction(event: { action: string; item: ChatTransmissionList }): void {
     if (event.action === 'open') {
       this.openEdit(event.item);
     }
   }
 
-  remove(campaign: ChatCampaign): void {
-    const confirmed = window.confirm(`Deseja excluir a campanha "${campaign.name}"?`);
+  remove(transmissionList: ChatTransmissionList): void {
+    const confirmed = window.confirm(`Deseja excluir a lista de transmissão "${transmissionList.name}"?`);
 
     if (!confirmed) {
       return;
     }
 
     this.service
-      .delete(campaign.id)
+      .delete(transmissionList.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.toast.success('Campanha excluída com sucesso.');
-          this.loadCampaigns();
+          this.toast.success('Lista de transmissão excluída com sucesso.');
+          this.loadTransmissionLists();
         },
         error: () => {
-          this.toast.error('Erro ao excluir campanha.');
+          this.toast.error('Erro ao excluir lista de transmissão.');
         },
       });
   }
 
   retry(): void {
-    this.loadCampaigns();
+    this.loadTransmissionLists();
   }
 
-  statusBadge(status: ChatCampaign['status']): 'online' | 'offline' | 'warning' | 'error' | 'idle' {
+  statusBadge(status: ChatTransmissionList['status']): 'online' | 'offline' | 'warning' | 'error' | 'idle' {
     const statusMap: Record<
-      ChatCampaign['status'],
+      ChatTransmissionList['status'],
       'online' | 'offline' | 'warning' | 'error' | 'idle'
     > = {
       draft: 'warning',
@@ -140,8 +139,8 @@ export class CampaignsComponent implements OnInit {
     return statusMap[status];
   }
 
-  statusLabel(status: ChatCampaign['status']): string {
-    const labels: Record<ChatCampaign['status'], string> = {
+  statusLabel(status: ChatTransmissionList['status']): string {
+    const labels: Record<ChatTransmissionList['status'], string> = {
       draft: 'Rascunho',
       scheduled: 'Agendada',
       running: 'Em execução',
@@ -153,7 +152,7 @@ export class CampaignsComponent implements OnInit {
     return labels[status];
   }
 
-  private loadCampaigns(): void {
+  private loadTransmissionLists(): void {
     this.isLoading.set(true);
     this.hasError.set(false);
 
@@ -166,7 +165,7 @@ export class CampaignsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.campaigns.set(response.data.data);
+          this.transmissionLists.set(response.data.data);
           this.meta.set({
             current_page: response.data.current_page ?? 1,
             last_page: response.data.last_page ?? 1,
@@ -183,4 +182,4 @@ export class CampaignsComponent implements OnInit {
   }
 }
 
-export default CampaignsComponent;
+export default ChatTransmissionListComponent;

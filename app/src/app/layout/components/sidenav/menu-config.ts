@@ -95,9 +95,9 @@ export const SIDEBAR_MENU: SidebarMenuItem[] = [
         iconName: 'bot',
         requiresAiDisabled: true,
       },
-      { type: 'item', label: 'Campanhas', link: '/chat/campaigns', iconName: 'megaphone' },
+      { type: 'item', label: 'Listas de Transmissão', link: '/chat/transmission-list', iconName: 'megaphone' },
       { type: 'item', label: 'Respostas Rápidas', link: '/chat/quick-answers', iconName: 'zap' },
-      { type: 'item', label: 'Integrações', link: '/chat/integration', iconName: 'cable' },
+      { type: 'item', label: 'Canais', link: '/chat/channel', iconName: 'cable' },
     ],
   },
   {

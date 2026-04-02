@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Jobs;
 
-use Domain\Chat\Models\ChatCampaign;
+use Domain\Chat\Models\ChatTransmissionList;
 use Domain\Chat\Services\ChatGatewayService;
 use Domain\Shared\Concerns\HasJobDefaults;
 use Illuminate\Bus\Queueable;
@@ -15,10 +15,10 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Job de processamento de campanha.
+ * Job de processamento de lista de transmissão.
  * Executa o envio em lotes para evitar timeouts e respeitar rate limits.
  */
-class ProcessCampaignJob implements ShouldBeUnique, ShouldQueue
+class ProcessTransmissionListJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable;
     use HasJobDefaults;
@@ -32,7 +32,7 @@ class ProcessCampaignJob implements ShouldBeUnique, ShouldQueue
     public int $uniqueFor = 300;
 
     public function __construct(
-        public ChatCampaign $campaign
+        public ChatTransmissionList $transmissionList
     ) {}
 
     /**
@@ -40,55 +40,51 @@ class ProcessCampaignJob implements ShouldBeUnique, ShouldQueue
      */
     public function uniqueId(): string
     {
-        return $this->campaign->id;
+        return $this->transmissionList->id;
     }
 
     public function handle(ChatGatewayService $gateway): void
     {
-        // ... (methods implementation remains similar, ensuring type safety in inner logic if needed)
-        // Actually replaceVariables method signature is the main issue.
-        // Let's fix property type first.
-
-        $this->campaign->refresh();
-        if ($this->campaign->status !== 'running') {
+        $this->transmissionList->refresh();
+        if ($this->transmissionList->status !== 'running') {
             return;
         }
 
         // Get next batch of pending contacts
-        $pendingContacts = $this->campaign->contacts()
+        $pendingContacts = $this->transmissionList->contacts()
             ->where('status', 'pending')
             ->with('contact')
             ->take(20) // Batch size small to be safe
             ->get();
 
         if ($pendingContacts->isEmpty()) {
-            $this->campaign->status = 'completed';
-            $this->campaign->save();
+            $this->transmissionList->status = 'completed';
+            $this->transmissionList->save();
 
             return;
         }
 
-        foreach ($pendingContacts as $campaignContact) {
+        foreach ($pendingContacts as $transmissionListContact) {
             try {
-                $contact = $campaignContact->contact;
+                $contact = $transmissionListContact->contact;
 
                 // Skip if no valid number
                 $phone = $contact->whatsapp ?? $contact->phone;
                 if (! $phone) {
-                    $campaignContact->update(['status' => 'failed', 'error' => 'No phone number']);
+                    $transmissionListContact->update(['status' => 'failed', 'error' => 'No phone number']);
 
                     continue;
                 }
 
-                $message = $this->replaceVariables($this->campaign->message ?? '', $contact);
-                $instanceId = $this->campaign->instance_id;
+                $message = $this->replaceVariables($this->transmissionList->message ?? '', $contact);
+                $instanceId = $this->transmissionList->instance_id;
 
-                $token = $this->getInstanceToken($this->campaign->tenant_id, $instanceId);
+                $token = $this->getInstanceToken($this->transmissionList->tenant_id, $instanceId);
 
                 if (! $token) {
-                    $this->campaign->status = 'failed';
-                    $this->campaign->metadata = array_merge($this->campaign->metadata ?? [], ['error' => 'Instance token not found']);
-                    $this->campaign->save();
+                    $this->transmissionList->status = 'failed';
+                    $this->transmissionList->metadata = array_merge($this->transmissionList->metadata ?? [], ['error' => 'Instance token not found']);
+                    $this->transmissionList->save();
 
                     return;
                 }
@@ -99,23 +95,20 @@ class ProcessCampaignJob implements ShouldBeUnique, ShouldQueue
                     'text' => $message,
                 ]);
 
-                $campaignContact->update([
+                $transmissionListContact->update([
                     'status' => 'sent',
                     'sent_at' => now(),
                     'error' => null,
                 ]);
 
-                // Update campaign stats
-                $deliveries = ($this->campaign->metadata['deliveries'] ?? 0) + 1;
-                $metadata = $this->campaign->metadata ?? [];
+                // Update transmission list stats
+                $deliveries = ($this->transmissionList->metadata['deliveries'] ?? 0) + 1;
+                $metadata = $this->transmissionList->metadata ?? [];
                 $metadata['deliveries'] = $deliveries;
-                $this->campaign->update(['metadata' => $metadata]);
-
-                // Rate limiting handled by delay in next batch dispatch
-                // Removed sleep(1) to prevent worker blocking
+                $this->transmissionList->update(['metadata' => $metadata]);
 
             } catch (\Throwable $e) {
-                $campaignContact->update([
+                $transmissionListContact->update([
                     'status' => 'failed',
                     'error' => $e->getMessage(),
                 ]);
@@ -123,11 +116,11 @@ class ProcessCampaignJob implements ShouldBeUnique, ShouldQueue
         }
 
         // Dispatch next batch
-        if ($this->campaign->contacts()->where('status', 'pending')->exists()) {
-            self::dispatch($this->campaign)->delay(now()->addSeconds(5));
+        if ($this->transmissionList->contacts()->where('status', 'pending')->exists()) {
+            self::dispatch($this->transmissionList)->delay(now()->addSeconds(5));
         } else {
-            $this->campaign->status = 'completed';
-            $this->campaign->save();
+            $this->transmissionList->status = 'completed';
+            $this->transmissionList->save();
         }
     }
 

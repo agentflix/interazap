@@ -32,13 +32,13 @@ import {
   type AfSelectOption,
 } from '@shared/components';
 import {
-  type ChatCampaignPreview,
-  ChatCampaignService,
-} from '@core/services/chat-campaign.service';
+  type ChatTransmissionListPreview,
+  ChatTransmissionListService,
+} from '@core/services/chat-transmission-list.service';
 import { type Integration, IntegrationService } from '@core/services/integration.service';
 import { ToastService } from '@core/services/toast.service';
 
-interface CampaignFormControls {
+interface TransmissionListFormControls {
   name: FormControl<string>;
   instance_id: FormControl<string>;
   message: FormControl<string>;
@@ -50,19 +50,18 @@ interface CampaignFormControls {
 }
 
 /**
- * Campaign create/edit form page.
+ * Transmission list create/edit form page.
  *
  * @remarks
- * Keeps legacy functional flow while migrating the visual layer to UI Kit.
- * Suporta preview de mensagem, calculo de publica estimado e agendamento.
+ * Suporta preview de mensagem, cálculo de público estimado e agendamento.
  *
  * @example
  * ```html
- * <app-campaign-form />
+ * <app-chat-transmission-list-form />
  * ```
  */
 @Component({
-  selector: 'app-campaign-form',
+  selector: 'app-chat-transmission-list-form',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -79,18 +78,18 @@ interface CampaignFormControls {
     AfChatBubbleComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './campaign-form.html',
+  templateUrl: './chat-transmission-list-form.html',
 })
-export class CampaignFormComponent implements OnInit {
+export class ChatTransmissionListFormComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
-  private readonly campaignService = inject(ChatCampaignService);
+  private readonly transmissionListService = inject(ChatTransmissionListService);
   private readonly integrationService = inject(IntegrationService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toast = inject(ToastService);
 
-  readonly form: FormGroup<CampaignFormControls> = this.fb.group({
+  readonly form: FormGroup<TransmissionListFormControls> = this.fb.group({
     name: this.fb.control('', [Validators.required, Validators.minLength(3)]),
     instance_id: this.fb.control('', [Validators.required]),
     message: this.fb.control('', [Validators.required, Validators.minLength(10)]),
@@ -109,9 +108,9 @@ export class CampaignFormComponent implements OnInit {
   readonly hasError = signal(false);
   readonly audienceCount = signal<number | null>(null);
   readonly instances = signal<Integration[]>([]);
-  readonly previewData = signal<ChatCampaignPreview | null>(null);
+  readonly previewData = signal<ChatTransmissionListPreview | null>(null);
 
-  private campaignId: string | null = null;
+  private transmissionListId: string | null = null;
 
   readonly isEmpty = computed(
     () => !this.hasError() && !this.isLoading() && this.instances().length === 0,
@@ -148,7 +147,7 @@ export class CampaignFormComponent implements OnInit {
   }
 
   goBack(): void {
-    void this.router.navigate(['/chat/campaigns']);
+    void this.router.navigate(['/chat/transmission-list']);
   }
 
   retry(): void {
@@ -177,33 +176,33 @@ export class CampaignFormComponent implements OnInit {
       },
     };
 
-    if (this.isEditing() && this.campaignId) {
-      this.campaignService
-        .update(this.campaignId, payload)
+    if (this.isEditing() && this.transmissionListId) {
+      this.transmissionListService
+        .update(this.transmissionListId, payload)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            this.toast.success('Campanha atualizada!');
-            void this.router.navigate(['/chat/campaigns']);
+            this.toast.success('Lista de transmissão atualizada!');
+            void this.router.navigate(['/chat/transmission-list']);
           },
           error: () => {
-            this.toast.error('Erro ao salvar campanha.');
+            this.toast.error('Erro ao salvar lista de transmissão.');
             this.isSubmitting.set(false);
           },
         });
       return;
     }
 
-    this.campaignService
+    this.transmissionListService
       .create(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.toast.success('Campanha criada!');
-          void this.router.navigate(['/chat/campaigns']);
+          this.toast.success('Lista de transmissão criada!');
+          void this.router.navigate(['/chat/transmission-list']);
         },
         error: () => {
-          this.toast.error('Erro ao criar campanha.');
+          this.toast.error('Erro ao criar lista de transmissão.');
           this.isSubmitting.set(false);
         },
       });
@@ -249,9 +248,9 @@ export class CampaignFormComponent implements OnInit {
       const id = params.get('id');
 
       if (id && id !== 'new') {
-        this.campaignId = id;
+        this.transmissionListId = id;
         this.isEditing.set(true);
-        this.loadCampaign(id);
+        this.loadTransmissionList(id);
         return;
       }
 
@@ -292,32 +291,32 @@ export class CampaignFormComponent implements OnInit {
       });
   }
 
-  private loadCampaign(id: string): void {
-    this.campaignService
+  private loadTransmissionList(id: string): void {
+    this.transmissionListService
       .show(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const campaign = response.data;
+          const transmissionList = response.data;
 
           this.form.patchValue({
-            name: campaign.name,
-            instance_id: campaign.instance_id || '',
-            message: campaign.message || '',
-            scheduled_at: campaign.scheduled_at || null,
-            filter_tags: campaign.filter_criteria?.tags || [],
-            filter_status: campaign.filter_criteria?.status || 'active',
-            filter_company_id: campaign.filter_criteria?.company_id || null,
+            name: transmissionList.name,
+            instance_id: transmissionList.instance_id || '',
+            message: transmissionList.message || '',
+            scheduled_at: transmissionList.scheduled_at || null,
+            filter_tags: transmissionList.filter_criteria?.tags || [],
+            filter_status: transmissionList.filter_criteria?.status || 'active',
+            filter_company_id: transmissionList.filter_criteria?.company_id || null,
           });
 
-          if (campaign.filter_criteria?.tags?.length) {
-            this.tagsControl.setValue(campaign.filter_criteria.tags.join(', '), {
+          if (transmissionList.filter_criteria?.tags?.length) {
+            this.tagsControl.setValue(transmissionList.filter_criteria.tags.join(', '), {
               emitEvent: false,
             });
           }
 
-          if (campaign.message) {
-            this.loadPreview(campaign.message);
+          if (transmissionList.message) {
+            this.loadPreview(transmissionList.message);
           }
 
           this.updateAudience();
@@ -331,7 +330,7 @@ export class CampaignFormComponent implements OnInit {
   }
 
   private loadPreview(message: string): void {
-    this.campaignService
+    this.transmissionListService
       .preview(message)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -343,7 +342,7 @@ export class CampaignFormComponent implements OnInit {
   private updateAudience(): void {
     const value = this.form.getRawValue();
 
-    this.campaignService
+    this.transmissionListService
       .audience({
         tags: value.filter_tags,
         status: value.filter_status,
@@ -357,4 +356,4 @@ export class CampaignFormComponent implements OnInit {
   }
 }
 
-export default CampaignFormComponent;
+export default ChatTransmissionListFormComponent;

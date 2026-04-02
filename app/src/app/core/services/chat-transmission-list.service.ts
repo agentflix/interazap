@@ -3,16 +3,16 @@ import { Injectable, inject } from '@angular/core';
 import { type Observable, map } from 'rxjs';
 import { environment } from '@env/environment';
 
-/** Primitive metadata shape returned by campaign API. */
-interface CampaignMeta {
+/** Primitive metadata shape returned by transmission list API. */
+interface TransmissionListMeta {
   current_page?: number;
   last_page?: number;
   per_page?: number;
   total?: number;
 }
 
-/** Chat campaign entity used by campaigns screens. */
-export interface ChatCampaign {
+/** Chat transmission list entity used by transmission list screens. */
+export interface ChatTransmissionList {
   id: string;
   tenant_id: string;
   name: string;
@@ -33,8 +33,8 @@ export interface ChatCampaign {
   } | null;
 }
 
-/** Payload used to create/update a campaign. */
-export interface ChatCampaignPayload {
+/** Payload used to create/update a transmission list. */
+export interface ChatTransmissionListPayload {
   name: string;
   message?: string;
   filter_criteria?: {
@@ -48,10 +48,10 @@ export interface ChatCampaignPayload {
 }
 
 /** API shape returned by list endpoint after normalization. */
-export interface ChatCampaignListResponse {
+export interface ChatTransmissionListListResponse {
   success: boolean;
   data: {
-    data: ChatCampaign[];
+    data: ChatTransmissionList[];
     current_page?: number;
     last_page?: number;
     per_page?: number;
@@ -59,27 +59,27 @@ export interface ChatCampaignListResponse {
   };
 }
 
-interface ChatCampaignListEnvelope {
-  data?: ChatCampaign[];
-  meta?: CampaignMeta;
+interface ChatTransmissionListListEnvelope {
+  data?: ChatTransmissionList[];
+  meta?: TransmissionListMeta;
 }
 
-interface ChatCampaignListNestedEnvelope {
+interface ChatTransmissionListListNestedEnvelope {
   data?: {
-    data?: ChatCampaign[];
-    meta?: CampaignMeta;
+    data?: ChatTransmissionList[];
+    meta?: TransmissionListMeta;
   };
-  meta?: CampaignMeta;
+  meta?: TransmissionListMeta;
 }
 
 /** API shape returned by single item endpoints. */
-export interface ChatCampaignResponse {
+export interface ChatTransmissionListResponse {
   success: boolean;
-  data: ChatCampaign;
+  data: ChatTransmissionList;
 }
 
 /** Preview API response payload. */
-export interface ChatCampaignPreview {
+export interface ChatTransmissionListPreview {
   original: string;
   preview: string;
   vars_detected: string[];
@@ -87,16 +87,16 @@ export interface ChatCampaignPreview {
   warning?: string;
 }
 
-/** Service responsible for Chat Campaign CRUD and helper endpoints. */
+/** Service responsible for Chat Transmission List CRUD and helper endpoints. */
 @Injectable({ providedIn: 'root' })
-export class ChatCampaignService {
+export class ChatTransmissionListService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/chat/campaigns`;
+  private readonly apiUrl = `${environment.apiUrl}/chat/transmission-lists`;
 
-  /** Lists campaigns with pagination and optional search. */
+  /** Lists transmission lists with pagination and optional search. */
   list(
     params: { per_page?: number; page?: number; search?: string } = {},
-  ): Observable<ChatCampaignListResponse> {
+  ): Observable<ChatTransmissionListListResponse> {
     let httpParams = new HttpParams();
 
     if (params.per_page) {
@@ -111,7 +111,7 @@ export class ChatCampaignService {
 
     return this.http
       .get<
-        ChatCampaignListEnvelope | ChatCampaignListNestedEnvelope
+        ChatTransmissionListListEnvelope | ChatTransmissionListListNestedEnvelope
       >(this.apiUrl, { params: httpParams })
       .pipe(
         map((response) => {
@@ -132,41 +132,41 @@ export class ChatCampaignService {
       );
   }
 
-  /** Loads a campaign by id. */
-  show(id: string): Observable<ChatCampaignResponse> {
+  /** Loads a transmission list by id. */
+  show(id: string): Observable<ChatTransmissionListResponse> {
     return this.http
-      .get<{ data: ChatCampaign }>(`${this.apiUrl}/${id}`)
+      .get<{ data: ChatTransmissionList }>(`${this.apiUrl}/${id}`)
       .pipe(map((response) => ({ success: true, data: response.data })));
   }
 
-  /** Creates a new campaign. */
-  create(payload: ChatCampaignPayload): Observable<ChatCampaignResponse> {
+  /** Creates a new transmission list. */
+  create(payload: ChatTransmissionListPayload): Observable<ChatTransmissionListResponse> {
     return this.http
-      .post<{ data: ChatCampaign }>(this.apiUrl, payload)
+      .post<{ data: ChatTransmissionList }>(this.apiUrl, payload)
       .pipe(map((response) => ({ success: true, data: response.data })));
   }
 
-  /** Updates an existing campaign. */
-  update(id: string, payload: Partial<ChatCampaignPayload>): Observable<ChatCampaignResponse> {
+  /** Updates an existing transmission list. */
+  update(id: string, payload: Partial<ChatTransmissionListPayload>): Observable<ChatTransmissionListResponse> {
     return this.http
-      .put<{ data: ChatCampaign }>(`${this.apiUrl}/${id}`, payload)
+      .put<{ data: ChatTransmissionList }>(`${this.apiUrl}/${id}`, payload)
       .pipe(map((response) => ({ success: true, data: response.data })));
   }
 
-  /** Deletes a campaign. */
+  /** Deletes a transmission list. */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.apiUrl}/${id}`);
   }
 
-  /** Triggers campaign sending. */
+  /** Triggers transmission list sending. */
   send(id: string): Observable<null> {
     return this.http.post<null>(`${this.apiUrl}/${id}/send`, {});
   }
 
   /** Generates message preview based on contact sample interpolation. */
-  preview(message: string): Observable<ChatCampaignPreview> {
+  preview(message: string): Observable<ChatTransmissionListPreview> {
     return this.http
-      .post<{ data: ChatCampaignPreview }>(`${this.apiUrl}/preview`, { message })
+      .post<{ data: ChatTransmissionListPreview }>(`${this.apiUrl}/preview`, { message })
       .pipe(map((response) => response.data));
   }
 
@@ -182,8 +182,8 @@ export class ChatCampaignService {
   }
 
   private extractData(
-    response: ChatCampaignListEnvelope | ChatCampaignListNestedEnvelope,
-  ): ChatCampaign[] {
+    response: ChatTransmissionListListEnvelope | ChatTransmissionListListNestedEnvelope,
+  ): ChatTransmissionList[] {
     if (Array.isArray(response.data)) {
       return response.data;
     }
@@ -196,8 +196,8 @@ export class ChatCampaignService {
   }
 
   private extractMeta(
-    response: ChatCampaignListEnvelope | ChatCampaignListNestedEnvelope,
-  ): CampaignMeta | undefined {
+    response: ChatTransmissionListListEnvelope | ChatTransmissionListListNestedEnvelope,
+  ): TransmissionListMeta | undefined {
     if (response.data && !Array.isArray(response.data)) {
       return response.data.meta ?? response.meta;
     }

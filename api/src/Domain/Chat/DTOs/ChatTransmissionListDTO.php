@@ -7,20 +7,20 @@ namespace Domain\Chat\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Chat Campaign.
+ * DTO for Chat Transmission List.
  *
  * @readonly
  */
-final readonly class ChatCampaignDTO
+final readonly class ChatTransmissionListDTO
 {
     /**
-     * @param  string  $name  Campaign name.
+     * @param  string  $name  Transmission list name.
      * @param  string  $status  Status (draft, scheduled, etc).
      * @param  string|null  $message  Message content.
      * @param  array<string, mixed>|null  $filterCriteria  Contact filter criteria.
      * @param  string|null  $instanceId  WhatsApp instance ID.
      * @param  string|null  $scheduledAt  Scheduled dispatch datetime.
-     * @param  array<string, mixed>|null  $metadata  Additional campaign metadata.
+     * @param  array<string, mixed>|null  $metadata  Additional transmission list metadata.
      */
     public function __construct(
         public string $name,

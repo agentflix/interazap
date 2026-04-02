@@ -4,89 +4,86 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Actions;
 
-use Domain\Chat\DTOs\ChatCampaignDTO;
-use Domain\Chat\Models\ChatCampaign;
+use Domain\Chat\DTOs\ChatTransmissionListDTO;
+use Domain\Chat\Models\ChatTransmissionList;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Casos de Uso para Campanhas de Chat.
- *
- * Centraliza a lógica de gestão de disparos em lote (campanhas),
- * incluindo o rastreamento de status, contagem de envios e persistência.
+ * Casos de Uso para Listas de Transmissão de Chat.
  *
  * @category Actions
  */
-final class ChatCampaignActions
+final class ChatTransmissionListActions
 {
     /**
-     * Listar todas as campanhas do tenant com paginação.
+     * Listar todas as listas de transmissão do tenant com paginação.
      *
      * @param  string  $tenantId  Identificador do tenant.
-     * @return LengthAwarePaginator Paginador com registros de campanhas.
+     * @return LengthAwarePaginator Paginador com registros de listas.
      */
     public function list(string $tenantId): LengthAwarePaginator
     {
-        return ChatCampaign::query()
+        return ChatTransmissionList::query()
             ->where('tenant_id', $tenantId)
             ->latest()
             ->paginate();
     }
 
     /**
-     * Criar uma nova campanha.
+     * Criar uma nova lista de transmissão.
      *
      * @param  string  $tenantId  Identificador do tenant.
-     * @param  ChatCampaignDTO  $dto  Dados estruturados da campanha.
-     * @return ChatCampaign Modelo criado.
+     * @param  ChatTransmissionListDTO  $dto  Dados estruturados da lista.
+     * @return ChatTransmissionList Modelo criado.
      */
-    public function create(string $tenantId, ChatCampaignDTO $dto): ChatCampaign
+    public function create(string $tenantId, ChatTransmissionListDTO $dto): ChatTransmissionList
     {
-        return ChatCampaign::query()->create([
+        return ChatTransmissionList::query()->create([
             'tenant_id' => $tenantId,
             ...$dto->toArray(),
         ]);
     }
 
     /**
-     * Atualizar dados de uma campanha existente.
+     * Atualizar dados de uma lista de transmissão existente.
      *
      * @param  string  $tenantId  Identificador do tenant.
-     * @param  string  $id  Identificador UUID da campanha.
-     * @param  ChatCampaignDTO  $dto  Novos dados estruturados.
-     * @return ChatCampaign Modelo atualizado.
+     * @param  string  $id  Identificador UUID da lista.
+     * @param  ChatTransmissionListDTO  $dto  Novos dados estruturados.
+     * @return ChatTransmissionList Modelo atualizado.
      */
-    public function update(string $tenantId, string $id, ChatCampaignDTO $dto): ChatCampaign
+    public function update(string $tenantId, string $id, ChatTransmissionListDTO $dto): ChatTransmissionList
     {
-        $campaign = $this->find($tenantId, $id);
-        $campaign->fill($dto->toArray());
-        $campaign->save();
+        $transmissionList = $this->find($tenantId, $id);
+        $transmissionList->fill($dto->toArray());
+        $transmissionList->save();
 
-        return $campaign;
+        return $transmissionList;
     }
 
     /**
-     * Remover uma campanha do sistema.
+     * Remover uma lista de transmissão do sistema.
      *
      * @param  string  $tenantId  Identificador do tenant.
-     * @param  string  $id  Identificador UUID da campanha.
+     * @param  string  $id  Identificador UUID da lista.
      */
     public function delete(string $tenantId, string $id): void
     {
-        $campaign = $this->find($tenantId, $id);
-        $campaign->delete();
+        $transmissionList = $this->find($tenantId, $id);
+        $transmissionList->delete();
     }
 
     /**
-     * Localizar uma campanha garantindo o isolamento do tenant.
+     * Localizar uma lista de transmissão garantindo o isolamento do tenant.
      *
      * @param  string  $tenantId  Identificador do tenant.
-     * @param  string  $id  Identificador UUID da campanha.
-     * @return ChatCampaign Modelo encontrado.
+     * @param  string  $id  Identificador UUID da lista.
+     * @return ChatTransmissionList Modelo encontrado.
      */
-    public function find(string $tenantId, string $id): ChatCampaign
+    public function find(string $tenantId, string $id): ChatTransmissionList
     {
-        return ChatCampaign::query()
+        return ChatTransmissionList::query()
             ->where('tenant_id', $tenantId)
             ->findOrFail($id);
     }
@@ -148,34 +145,34 @@ final class ChatCampaignActions
     }
 
     /**
-     * Vincular contatos e iniciar o processamento da campanha.
+     * Vincular contatos e iniciar o processamento da lista de transmissão.
      *
      * @param  string  $tenantId  Identificador do tenant.
-     * @param  string  $id  Identificador UUID da campanha.
+     * @param  string  $id  Identificador UUID da lista.
      * @param  array<string, mixed>  $criteria  Critérios de filtro opcionais (se não salvos).
-     * @return ChatCampaign Modelo com status atualizado.
+     * @return ChatTransmissionList Modelo com status atualizado.
      */
-    public function send(string $tenantId, string $id, array $criteria = []): ChatCampaign
+    public function send(string $tenantId, string $id, array $criteria = []): ChatTransmissionList
     {
-        $campaign = $this->find($tenantId, $id);
+        $transmissionList = $this->find($tenantId, $id);
 
-        if (in_array($campaign->status, ['running', 'completed'], true)) {
+        if (in_array($transmissionList->status, ['running', 'completed'], true)) {
             throw ValidationException::withMessages([
-                'status' => 'Campaign cannot be sent in the current status.',
+                'status' => 'Transmission list cannot be sent in the current status.',
             ]);
         }
 
         if (! empty($criteria)) {
-            $campaign->filter_criteria = $criteria;
-            $campaign->save();
+            $transmissionList->filter_criteria = $criteria;
+            $transmissionList->save();
         }
 
-        $contacts = $this->resolveContacts($tenantId, $campaign->filter_criteria ?? []);
+        $contacts = $this->resolveContacts($tenantId, $transmissionList->filter_criteria ?? []);
 
         foreach ($contacts as $contact) {
-            \Domain\Chat\Models\ChatCampaignContact::firstOrCreate([
+            \Domain\Chat\Models\ChatTransmissionListContact::firstOrCreate([
                 'tenant_id' => $tenantId,
-                'campaign_id' => $campaign->id,
+                'transmission_list_id' => $transmissionList->id,
                 'contact_id' => $contact->id,
             ], [
                 'status' => 'pending',
@@ -184,12 +181,12 @@ final class ChatCampaignActions
             ]);
         }
 
-        $campaign->status = 'running';
-        $campaign->save();
+        $transmissionList->status = 'running';
+        $transmissionList->save();
 
-        \Domain\Chat\Jobs\ProcessCampaignJob::dispatch($campaign);
+        \Domain\Chat\Jobs\ProcessTransmissionListJob::dispatch($transmissionList);
 
-        return $campaign;
+        return $transmissionList;
     }
 
     /**

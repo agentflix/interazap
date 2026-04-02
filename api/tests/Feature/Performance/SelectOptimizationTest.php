@@ -288,24 +288,23 @@ describe('Task 5.3 - Lazy Loading for Exports', function (): void {
 });
 
 describe('Task 5.4 - Background Jobs', function (): void {
-    it('processes campaigns asynchronously via ProcessCampaignJob', function (): void {
+    it('processes transmission lists asynchronously via ProcessTransmissionListJob', function (): void {
         $instance = \Domain\Chat\Models\ChatInstance::factory()->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $campaign = \Domain\Chat\Models\ChatCampaign::factory()->create([
+        $transmissionList = \Domain\Chat\Models\ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenant->id,
             'instance_id' => $instance->id,
             'status' => 'draft',
         ]);
 
-        // Verify campaign send dispatches background job
         Bus::fake();
 
-        $actions = app(\Domain\Chat\Actions\ChatCampaignActions::class);
-        $result = $actions->send((string) $this->tenant->id, (string) $campaign->id, []);
+        $actions = app(\Domain\Chat\Actions\ChatTransmissionListActions::class);
+        $result = $actions->send((string) $this->tenant->id, (string) $transmissionList->id, []);
 
-        Bus::assertDispatched(\Domain\Chat\Jobs\ProcessCampaignJob::class);
+        Bus::assertDispatched(\Domain\Chat\Jobs\ProcessTransmissionListJob::class);
 
         expect($result->status)->toBe('running');
     });

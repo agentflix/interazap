@@ -1,13 +1,13 @@
 
     <af-crud-page
-      title="Campanhas"
+      title="Listas de Transmissão"
       subtitle="Chat"
-      createLabel="Nova Campanha"
-      searchPlaceholder="Buscar campanhas..."
+      createLabel="Nova Lista"
+      searchPlaceholder="Buscar listas..."
       [loading]="isLoading()"
       [empty]="isEmpty()"
-      emptyTitle="Nenhuma campanha encontrada"
-      emptyDescription="Crie uma campanha para começar a envios em massa."
+      emptyTitle="Nenhuma lista de transmissão encontrada"
+      emptyDescription="Crie uma lista de transmissão para começar a envios em massa."
       [skeletonColumns]="1"
       [skeletonRows]="5"
       [currentPage]="meta().current_page"
@@ -22,8 +22,8 @@
         <div class="p-6 space-y-3">
           <af-alert
             variant="danger"
-            title="Erro ao carregar campanhas"
-            message="Não foi possível carregar a listagem de campanhas."
+            title="Erro ao carregar listas"
+            message="Não foi possível carregar a listagem de listas de transmissão."
           />
           <af-button variant="outline" size="sm" (click)="retry()">
             <lucide-icon name="refresh-cw" [size]="14" class="block" />
@@ -32,38 +32,38 @@
         </div>
       } @else {
         <div class="p-4 grid grid-cols-1 gap-3">
-          @for (campaign of campaigns(); track campaign.id) {
+          @for (transmissionList of transmissionLists(); track transmissionList.id) {
             <af-card>
               <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="space-y-2 min-w-0">
                   <p class="font-semibold text-neutral-900 dark:text-neutral-100 truncate">
-                    {{ campaign.name }}
+                    {{ transmissionList.name }}
                   </p>
                   <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500">
                     <span>
                       Agendado:
                       {{
-                        campaign.scheduled_at
-                          ? (campaign.scheduled_at | date: 'dd/MM/yyyy HH:mm')
+                        transmissionList.scheduled_at
+                          ? (transmissionList.scheduled_at | date: 'dd/MM/yyyy HH:mm')
                           : '-'
                       }}
                     </span>
                     <span>
                       Criado em:
-                      {{ campaign.created_at | date: 'dd/MM/yyyy HH:mm' }}
+                      {{ transmissionList.created_at | date: 'dd/MM/yyyy HH:mm' }}
                     </span>
                   </div>
-                  <af-status-badge [status]="statusBadge(campaign.status)">
-                    {{ statusLabel(campaign.status) }}
+                  <af-status-badge [status]="statusBadge(transmissionList.status)">
+                    {{ statusLabel(transmissionList.status) }}
                   </af-status-badge>
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <af-button variant="ghost" size="sm" (click)="openEdit(campaign)">
+                  <af-button variant="ghost" size="sm" (click)="openEdit(transmissionList)">
                     <lucide-icon name="pencil" [size]="14" class="block" />
                     Editar
                   </af-button>
-                  <af-button variant="danger" size="sm" (click)="remove(campaign)">
+                  <af-button variant="danger" size="sm" (click)="remove(transmissionList)">
                     <lucide-icon name="trash-2" [size]="14" class="block" />
                     Excluir
                   </af-button>

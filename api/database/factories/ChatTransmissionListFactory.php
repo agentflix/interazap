@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use Domain\Chat\Models\ChatCampaign;
+use Domain\Chat\Models\ChatTransmissionList;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends Factory<ChatCampaign>
+ * @extends Factory<ChatTransmissionList>
  */
-class ChatCampaignFactory extends Factory
+class ChatTransmissionListFactory extends Factory
 {
-    protected $model = ChatCampaign::class;
+    protected $model = ChatTransmissionList::class;
 
     public function definition(): array
     {

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Domain\Chat\Enums;
 
 /**
- * Status possíveis de uma campanha de mensagens em massa.
+ * Status possíveis de uma lista de transmissão de mensagens em massa.
  */
-enum ChatCampaignStatus: string
+enum ChatTransmissionStatus: string
 {
     /** Rascunho — campanha ainda em configuração. */
     case DRAFT = 'draft';

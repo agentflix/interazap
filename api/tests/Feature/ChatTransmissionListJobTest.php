@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Domain\Auth\Models\AuthUser;
-use Domain\Chat\Jobs\ProcessCampaignJob;
-use Domain\Chat\Models\ChatCampaign;
+use Domain\Chat\Jobs\ProcessTransmissionListJob;
 use Domain\Chat\Models\ChatInstance;
+use Domain\Chat\Models\ChatTransmissionList;
+use Domain\Chat\Models\ChatTransmissionListContact;
 use Domain\Chat\Services\ChatGatewayService;
 use Domain\CRM\Models\CRMContact;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-class ChatCampaignJobTest extends TestCase
+class ChatTransmissionListJobTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
@@ -29,10 +30,10 @@ class ChatCampaignJobTest extends TestCase
 
         // Setup permissions
         $permissions = [
-            'chat.campaigns.view',
-            'chat.campaigns.create',
-            'chat.campaigns.update',
-            'chat.campaigns.delete',
+            'chat.transmission_lists.view',
+            'chat.transmission_lists.create',
+            'chat.transmission_lists.update',
+            'chat.transmission_lists.delete',
         ];
 
         foreach ($permissions as $perm) {
@@ -60,8 +61,8 @@ class ChatCampaignJobTest extends TestCase
                 ->andReturn(['id' => 'msg-123']);
         });
 
-        // Create Campaign
-        $campaign = ChatCampaign::factory()->create([
+        // Create Transmission List
+        $transmissionList = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->user->tenant_id,
             'instance_id' => $this->instance->id,
             'message' => 'Hello {{name}}',
@@ -77,27 +78,27 @@ class ChatCampaignJobTest extends TestCase
         ]);
 
         // Attach Contact
-        \Domain\Chat\Models\ChatCampaignContact::query()->create([
+        ChatTransmissionListContact::query()->create([
             'id' => (string) Str::uuid(),
-            'campaign_id' => $campaign->id,
+            'transmission_list_id' => $transmissionList->id,
             'contact_id' => $contact->id,
             'status' => 'pending',
         ]);
 
         // Run Job
-        $job = new ProcessCampaignJob($campaign);
+        $job = new ProcessTransmissionListJob($transmissionList);
         $job->handle(app(ChatGatewayService::class));
 
         // Assertions
-        $this->assertDatabaseHas('chat_campaign_contacts', [
-            'campaign_id' => $campaign->id,
+        $this->assertDatabaseHas('chat_transmission_list_contacts', [
+            'transmission_list_id' => $transmissionList->id,
             'contact_id' => $contact->id,
             'status' => 'sent',
         ]);
 
-        $campaign->refresh();
-        $this->assertEquals('completed', $campaign->status); // Completed because list is empty
-        $this->assertEquals(1, $campaign->metadata['deliveries']);
+        $transmissionList->refresh();
+        $this->assertEquals('completed', $transmissionList->status);
+        $this->assertEquals(1, $transmissionList->metadata['deliveries']);
     }
 
     public function test_preview_endpoint_returns_replaced_message(): void
@@ -109,7 +110,7 @@ class ChatCampaignJobTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->postJson('/api/chat/campaigns/preview', [
+        $response = $this->postJson('/api/chat/transmission-lists/preview', [
             'message' => 'Hi {{name}}, call {{phone}}',
         ]);
 

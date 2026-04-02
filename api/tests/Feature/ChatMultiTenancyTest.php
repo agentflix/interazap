@@ -6,10 +6,10 @@ namespace Tests\Feature;
 
 use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthUser;
-use Domain\Chat\Models\ChatCampaign;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatTicket;
+use Domain\Chat\Models\ChatTransmissionList;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
@@ -22,7 +22,7 @@ use Tests\TestCase;
  * - Tickets
  * - Messages
  * - Instances
- * - Campaigns
+ * - Transmission Lists
  */
 class ChatMultiTenancyTest extends TestCase
 {
@@ -58,12 +58,12 @@ class ChatMultiTenancyTest extends TestCase
             'chat.tickets.delete',
             'chat.messages.view',
             'chat.messages.create',
-            'chat.campaigns.view',
-            'chat.campaigns.create',
-            'chat.campaigns.update',
-            'chat.campaigns.delete',
-            'integrations.whatsapp.view',
-            'integrations.whatsapp.manage',
+            'chat.transmission_lists.view',
+            'chat.transmission_lists.create',
+            'chat.transmission_lists.update',
+            'chat.transmission_lists.delete',
+            'channels.whatsapp.view',
+            'channels.whatsapp.manage',
         ];
 
         foreach ($permissions as $permission) {
@@ -188,60 +188,60 @@ class ChatMultiTenancyTest extends TestCase
         ]);
     }
 
-    public function test_user_cannot_see_other_tenant_campaigns(): void
+    public function test_user_cannot_see_other_tenant_transmission_lists(): void
     {
-        ChatCampaign::factory()->create([
+        ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenantA->id,
-            'name' => 'Campaign A',
+            'name' => 'Transmission List A',
         ]);
 
-        ChatCampaign::factory()->create([
+        ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenantB->id,
-            'name' => 'Campaign B',
+            'name' => 'Transmission List B',
         ]);
 
         $this->actingAs($this->userA, 'sanctum')
-            ->getJson('/api/chat/campaigns')
+            ->getJson('/api/chat/transmission-lists')
             ->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.name', 'Campaign A');
+            ->assertJsonPath('data.0.name', 'Transmission List A');
 
         $this->actingAs($this->userB, 'sanctum')
-            ->getJson('/api/chat/campaigns')
+            ->getJson('/api/chat/transmission-lists')
             ->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.name', 'Campaign B');
+            ->assertJsonPath('data.0.name', 'Transmission List B');
     }
 
-    public function test_user_cannot_update_other_tenant_campaign(): void
+    public function test_user_cannot_update_other_tenant_transmission_list(): void
     {
-        $campaignB = ChatCampaign::factory()->create([
+        $transmissionListB = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenantB->id,
-            'name' => 'Campaign B',
+            'name' => 'Transmission List B',
         ]);
 
         $this->actingAs($this->userA, 'sanctum')
-            ->putJson("/api/chat/campaigns/{$campaignB->id}", [
-                'name' => 'Hacked Campaign',
+            ->putJson("/api/chat/transmission-lists/{$transmissionListB->id}", [
+                'name' => 'Hacked Transmission List',
             ])
             ->assertNotFound();
 
-        $campaignB->refresh();
-        $this->assertEquals('Campaign B', $campaignB->name);
+        $transmissionListB->refresh();
+        $this->assertEquals('Transmission List B', $transmissionListB->name);
     }
 
-    public function test_user_cannot_delete_other_tenant_campaign(): void
+    public function test_user_cannot_delete_other_tenant_transmission_list(): void
     {
-        $campaignB = ChatCampaign::factory()->create([
+        $transmissionListB = ChatTransmissionList::factory()->create([
             'tenant_id' => $this->tenantB->id,
         ]);
 
         $this->actingAs($this->userA, 'sanctum')
-            ->deleteJson("/api/chat/campaigns/{$campaignB->id}")
+            ->deleteJson("/api/chat/transmission-lists/{$transmissionListB->id}")
             ->assertNotFound();
 
-        $this->assertDatabaseHas('chat_campaigns', [
-            'id' => $campaignB->id,
+        $this->assertDatabaseHas('chat_transmission_lists', [
+            'id' => $transmissionListB->id,
         ]);
     }
 
@@ -258,7 +258,7 @@ class ChatMultiTenancyTest extends TestCase
         ]);
 
         $this->actingAs($this->userA, 'sanctum')
-            ->getJson('/api/integrations')
+            ->getJson('/api/channels')
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.name', 'Instance A');
@@ -271,7 +271,7 @@ class ChatMultiTenancyTest extends TestCase
         ]);
 
         $this->actingAs($this->userA, 'sanctum')
-            ->getJson("/api/integrations/{$instanceB->id}")
+            ->getJson("/api/channels/{$instanceB->id}")
             ->assertNotFound();
     }
 
@@ -282,7 +282,7 @@ class ChatMultiTenancyTest extends TestCase
         ]);
 
         $this->actingAs($this->userA, 'sanctum')
-            ->deleteJson("/api/integrations/{$instanceB->id}")
+            ->deleteJson("/api/channels/{$instanceB->id}")
             ->assertNotFound();
 
         $this->assertDatabaseHas('chat_instances', [
@@ -304,18 +304,18 @@ class ChatMultiTenancyTest extends TestCase
         $this->assertEquals((string) $this->tenantA->id, $ticket->tenant_id);
     }
 
-    public function test_campaign_creation_enforces_tenant_isolation(): void
+    public function test_transmission_list_creation_enforces_tenant_isolation(): void
     {
         $this->actingAs($this->userA, 'sanctum')
-            ->postJson('/api/chat/campaigns', [
-                'name' => 'My Campaign',
+            ->postJson('/api/chat/transmission-lists', [
+                'name' => 'My Transmission List',
                 'message' => 'Hello {{name}}',
                 'status' => 'draft',
             ])
             ->assertCreated();
 
-        $campaign = ChatCampaign::query()->latest()->first();
-        $this->assertEquals((string) $this->tenantA->id, $campaign->tenant_id);
+        $transmissionList = ChatTransmissionList::query()->latest()->first();
+        $this->assertEquals((string) $this->tenantA->id, $transmissionList->tenant_id);
     }
 
     public function test_ticket_counts_only_include_own_tenant(): void

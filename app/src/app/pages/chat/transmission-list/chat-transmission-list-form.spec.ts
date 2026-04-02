@@ -2,19 +2,19 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 import {
-  type ChatCampaign,
-  type ChatCampaignPayload,
-  ChatCampaignService,
-} from '@core/services/chat-campaign.service';
+  type ChatTransmissionList,
+  type ChatTransmissionListPayload,
+  ChatTransmissionListService,
+} from '@core/services/chat-transmission-list.service';
 import {
   type Integration,
   type IntegrationFilters,
   IntegrationService,
 } from '@core/services/integration.service';
 import { ToastService } from '@core/services/toast.service';
-import { CampaignFormComponent } from './campaign-form';
+import { ChatTransmissionListFormComponent } from './chat-transmission-list-form';
 
-class ChatCampaignServiceStub {
+class ChatTransmissionListServiceStub {
   show = vi.fn();
   create = vi.fn();
   update = vi.fn();
@@ -35,9 +35,9 @@ class RouterStub {
   navigate = vi.fn().mockResolvedValue(true);
 }
 
-describe('CampaignFormComponent', () => {
-  let component: CampaignFormComponent;
-  let campaignService: ChatCampaignServiceStub;
+describe('ChatTransmissionListFormComponent', () => {
+  let component: ChatTransmissionListFormComponent;
+  let transmissionListService: ChatTransmissionListServiceStub;
   let integrationService: IntegrationServiceStub;
   let toast: ToastServiceStub;
   let router: RouterStub;
@@ -54,10 +54,10 @@ describe('CampaignFormComponent', () => {
     },
   };
 
-  const campaign: ChatCampaign = {
-    id: 'campaign-1',
+  const transmissionList: ChatTransmissionList = {
+    id: 'transmission-list-1',
     tenant_id: 'tenant-1',
-    name: 'Campanha existente',
+    name: 'Lista existente',
     message: 'Olá {{name}}',
     instance_id: 'instance-1',
     filter_criteria: { tags: ['vip'], status: 'active', company_id: null as never },
@@ -71,7 +71,7 @@ describe('CampaignFormComponent', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: ChatCampaignService, useClass: ChatCampaignServiceStub },
+        { provide: ChatTransmissionListService, useClass: ChatTransmissionListServiceStub },
         { provide: IntegrationService, useClass: IntegrationServiceStub },
         { provide: ToastService, useClass: ToastServiceStub },
         { provide: Router, useClass: RouterStub },
@@ -84,7 +84,7 @@ describe('CampaignFormComponent', () => {
       ],
     });
 
-    campaignService = TestBed.inject(ChatCampaignService) as unknown as ChatCampaignServiceStub;
+    transmissionListService = TestBed.inject(ChatTransmissionListService) as unknown as ChatTransmissionListServiceStub;
     integrationService = TestBed.inject(IntegrationService) as unknown as IntegrationServiceStub;
     toast = TestBed.inject(ToastService) as unknown as ToastServiceStub;
     router = TestBed.inject(Router) as unknown as RouterStub;
@@ -95,19 +95,19 @@ describe('CampaignFormComponent', () => {
         meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
       }),
     );
-    campaignService.audience.mockReturnValue(of({ count: 10 }));
-    campaignService.preview.mockReturnValue(
+    transmissionListService.audience.mockReturnValue(of({ count: 10 }));
+    transmissionListService.preview.mockReturnValue(
       of({ original: 'Olá', preview: 'Olá João', vars_detected: ['name'], sample_contact: null }),
     );
-    campaignService.create.mockImplementation((payload: ChatCampaignPayload) =>
-      of({ data: { ...campaign, id: 'created', ...payload } }),
+    transmissionListService.create.mockImplementation((payload: ChatTransmissionListPayload) =>
+      of({ data: { ...transmissionList, id: 'created', ...payload } }),
     );
-    campaignService.update.mockImplementation((id: string, payload: Partial<ChatCampaignPayload>) =>
-      of({ data: { ...campaign, id, ...payload } }),
+    transmissionListService.update.mockImplementation((id: string, payload: Partial<ChatTransmissionListPayload>) =>
+      of({ data: { ...transmissionList, id, ...payload } }),
     );
-    campaignService.show.mockReturnValue(of({ data: campaign }));
+    transmissionListService.show.mockReturnValue(of({ data: transmissionList }));
 
-    component = TestBed.runInInjectionContext(() => new CampaignFormComponent());
+    component = TestBed.runInInjectionContext(() => new ChatTransmissionListFormComponent());
   });
 
   it('loads initial data for create flow', () => {
@@ -117,16 +117,16 @@ describe('CampaignFormComponent', () => {
     expect(integrationService.list).toHaveBeenCalled();
     expect(component.instances().length).toBe(1);
     expect(component.form.controls.instance_id.value).toBe('instance-1');
-    expect(campaignService.audience).toHaveBeenCalled();
+    expect(transmissionListService.audience).toHaveBeenCalled();
   });
 
-  it('loads campaign data for edit flow', () => {
+  it('loads transmission list data for edit flow', () => {
     component.ngOnInit();
-    paramMap$.next(convertToParamMap({ id: 'campaign-1' }));
+    paramMap$.next(convertToParamMap({ id: 'transmission-list-1' }));
 
     expect(component.isEditing()).toBe(true);
-    expect(campaignService.show).toHaveBeenCalledWith('campaign-1');
-    expect(component.form.controls.name.value).toBe('Campanha existente');
+    expect(transmissionListService.show).toHaveBeenCalledWith('transmission-list-1');
+    expect(component.form.controls.name.value).toBe('Lista existente');
   });
 
   it('updates preview when message changes', () => {
@@ -138,7 +138,7 @@ describe('CampaignFormComponent', () => {
     component.form.controls.message.setValue('Mensagem com preview');
     vi.advanceTimersByTime(600);
 
-    expect(campaignService.preview).toHaveBeenCalledWith('Mensagem com preview');
+    expect(transmissionListService.preview).toHaveBeenCalledWith('Mensagem com preview');
     expect(component.previewMessage()).toBe('Olá João');
 
     vi.useRealTimers();
@@ -152,15 +152,15 @@ describe('CampaignFormComponent', () => {
     component.save();
 
     expect(toast.error).toHaveBeenCalled();
-    expect(campaignService.create).not.toHaveBeenCalled();
+    expect(transmissionListService.create).not.toHaveBeenCalled();
   });
 
-  it('creates a campaign', () => {
+  it('creates a transmission list', () => {
     component.ngOnInit();
     paramMap$.next(convertToParamMap({ id: 'new' }));
 
     component.form.patchValue({
-      name: 'Nova campanha',
+      name: 'Nova lista',
       instance_id: 'instance-1',
       message: 'Mensagem com conteúdo suficiente',
       scheduled_at: null,
@@ -170,17 +170,17 @@ describe('CampaignFormComponent', () => {
 
     component.save();
 
-    expect(campaignService.create).toHaveBeenCalled();
+    expect(transmissionListService.create).toHaveBeenCalled();
     expect(toast.success).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/chat/campaigns']);
+    expect(router.navigate).toHaveBeenCalledWith(['/chat/transmission-list']);
   });
 
-  it('updates a campaign in edit mode', () => {
+  it('updates a transmission list in edit mode', () => {
     component.ngOnInit();
-    paramMap$.next(convertToParamMap({ id: 'campaign-1' }));
+    paramMap$.next(convertToParamMap({ id: 'transmission-list-1' }));
 
     component.form.patchValue({
-      name: 'Campanha editada',
+      name: 'Lista editada',
       instance_id: 'instance-1',
       message: 'Mensagem editada com tamanho válido',
       filter_status: 'active',
@@ -189,9 +189,9 @@ describe('CampaignFormComponent', () => {
 
     component.save();
 
-    expect(campaignService.update).toHaveBeenCalledWith(
-      'campaign-1',
-      expect.objectContaining({ name: 'Campanha editada' }),
+    expect(transmissionListService.update).toHaveBeenCalledWith(
+      'transmission-list-1',
+      expect.objectContaining({ name: 'Lista editada' }),
     );
   });
 
@@ -200,11 +200,11 @@ describe('CampaignFormComponent', () => {
     paramMap$.next(convertToParamMap({ id: 'new' }));
 
     component.form.patchValue({
-      name: 'Nova campanha',
+      name: 'Nova lista',
       instance_id: 'instance-1',
       message: 'Mensagem com conteúdo suficiente',
     });
-    campaignService.create.mockReturnValue(throwError(() => new Error('fail')));
+    transmissionListService.create.mockReturnValue(throwError(() => new Error('fail')));
 
     component.save();
 

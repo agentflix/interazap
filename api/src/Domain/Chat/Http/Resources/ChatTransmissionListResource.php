@@ -8,9 +8,9 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Chat Campaign serialization.
+ * Resource for Chat Transmission List serialization.
  */
-final class ChatCampaignResource extends BaseJsonResource
+final class ChatTransmissionListResource extends BaseJsonResource
 {
     /**
      * Transform the resource into an array.

@@ -1,6 +1,6 @@
 
     <main class="space-y-5">
-      <af-page-title [title]="isEditing() ? 'Editar Campanha' : 'Nova Campanha'" subtitle="Chat">
+      <af-page-title [title]="isEditing() ? 'Editar Lista de Transmissão' : 'Nova Lista de Transmissão'" subtitle="Chat">
         <af-button variant="outline" size="sm" (click)="goBack()">
           <lucide-icon name="arrow-left" [size]="14" class="block" />
           Voltar
@@ -10,7 +10,7 @@
       @if (isLoading()) {
         <af-card>
           <div class="py-10 flex justify-center text-sm text-neutral-500">
-            Carregando dados da campanha...
+            Carregando dados da lista...
           </div>
         </af-card>
       } @else if (hasError()) {
@@ -19,7 +19,7 @@
             <af-alert
               variant="danger"
               title="Erro ao carregar formulário"
-              message="Não foi possível carregar os dados necessários para esta campanha."
+              message="Não foi possível carregar os dados necessários para esta lista de transmissão."
             />
             <af-button variant="outline" size="sm" (click)="retry()">
               <lucide-icon name="refresh-cw" [size]="14" class="block" />
@@ -31,7 +31,7 @@
         <af-card>
           <af-empty-state
             title="Nenhuma conexão disponível"
-            description="Ative ao menos uma integração para criar campanhas."
+            description="Ative ao menos uma integração para criar listas de transmissão."
           />
         </af-card>
       } @else {
@@ -39,7 +39,7 @@
           <form [formGroup]="form" (ngSubmit)="save()" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <af-text-input
-                label="Nome da Campanha"
+                label="Nome da Lista"
                 [control]="form.controls.name"
                 placeholder="Ex: Promoção de Natal"
                 [required]="true"
@@ -75,7 +75,7 @@
             <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
               <div class="flex items-center justify-between gap-2">
                 <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  Público estimado
+                  Contatos estimados
                 </span>
                 @if (audienceCount() !== null) {
                   <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -140,7 +140,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <af-text-input
-                label="Agendamento (Opcional)"
+                label="Agendar envio (Opcional)"
                 [control]="form.controls.scheduled_at"
                 type="datetime-local"
                 [spacing]="false"

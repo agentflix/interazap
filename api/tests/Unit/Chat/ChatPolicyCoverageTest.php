@@ -7,13 +7,13 @@ namespace Tests\Unit\Chat;
 use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthUser;
 use Domain\Chat\Models\ChatAutoReplyRule;
-use Domain\Chat\Models\ChatCampaign;
 use Domain\Chat\Models\ChatQuickAnswer;
 use Domain\Chat\Models\ChatTicket;
+use Domain\Chat\Models\ChatTransmissionList;
 use Domain\Chat\Policies\ChatAutoReplyRulePolicy;
-use Domain\Chat\Policies\ChatCampaignPolicy;
 use Domain\Chat\Policies\ChatMessagePolicy;
 use Domain\Chat\Policies\ChatQuickAnswerPolicy;
+use Domain\Chat\Policies\ChatTransmissionListPolicy;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -33,32 +33,32 @@ class ChatPolicyCoverageTest extends TestCase
         }
     }
 
-    public function test_campaign_policy_permissions_and_tenant_scope(): void
+    public function test_transmission_list_policy_permissions_and_tenant_scope(): void
     {
         $user = AuthUser::factory()->create();
         $otherUser = AuthUser::factory()->create();
 
         $this->grantPermissions($user, [
-            'chat.campaigns.view',
-            'chat.campaigns.create',
-            'chat.campaigns.update',
-            'chat.campaigns.delete',
+            'chat.transmission_lists.view',
+            'chat.transmission_lists.create',
+            'chat.transmission_lists.update',
+            'chat.transmission_lists.delete',
         ]);
 
-        $campaign = ChatCampaign::factory()->create(['tenant_id' => $user->tenant_id]);
-        $foreignCampaign = ChatCampaign::factory()->create(['tenant_id' => $otherUser->tenant_id]);
+        $transmissionList = ChatTransmissionList::factory()->create(['tenant_id' => $user->tenant_id]);
+        $foreignTransmissionList = ChatTransmissionList::factory()->create(['tenant_id' => $otherUser->tenant_id]);
 
-        $policy = new ChatCampaignPolicy;
+        $policy = new ChatTransmissionListPolicy;
 
         $this->assertTrue($policy->viewAny($user));
-        $this->assertTrue($policy->view($user, $campaign));
+        $this->assertTrue($policy->view($user, $transmissionList));
         $this->assertTrue($policy->create($user));
-        $this->assertTrue($policy->update($user, $campaign));
-        $this->assertTrue($policy->delete($user, $campaign));
+        $this->assertTrue($policy->update($user, $transmissionList));
+        $this->assertTrue($policy->delete($user, $transmissionList));
 
-        $this->assertFalse($policy->view($user, $foreignCampaign));
-        $this->assertFalse($policy->update($user, $foreignCampaign));
-        $this->assertFalse($policy->delete($user, $foreignCampaign));
+        $this->assertFalse($policy->view($user, $foreignTransmissionList));
+        $this->assertFalse($policy->update($user, $foreignTransmissionList));
+        $this->assertFalse($policy->delete($user, $foreignTransmissionList));
     }
 
     public function test_quick_answer_policy_permissions_and_tenant_scope(): void

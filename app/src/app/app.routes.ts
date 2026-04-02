@@ -278,7 +278,7 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin/circuit-breaker-status/circuit-breaker-status'),
         data: { title: 'Circuit Breakers', permission: 'users.role.manage' },
       },
-      // ─── Chat Campaigns ────────────────────────────────────────────────────
+      // ─── Chat Transmission Lists ────────────────────────────────────────────────────
       {
         path: 'chat/ticket/:ticketId',
         canActivate: [permissionGuard],
@@ -305,28 +305,28 @@ export const routes: Routes = [
         data: { title: 'Respostas Rápidas', permission: 'chat.called.view' },
       },
       {
-        path: 'chat/campaigns/new',
+        path: 'chat/transmission-list/new',
         canActivate: [permissionGuard],
-        loadComponent: () => import('./pages/chat/campaigns/campaign-form'),
-        data: { title: 'Nova Campanha', permission: 'chat.called.view' },
+        loadComponent: () => import('./pages/chat/transmission-list/chat-transmission-list-form'),
+        data: { title: 'Nova Lista de Transmissão', permission: 'chat.transmission_lists.view' },
       },
       {
-        path: 'chat/campaigns/:id',
+        path: 'chat/transmission-list/:id',
         canActivate: [permissionGuard],
-        loadComponent: () => import('./pages/chat/campaigns/campaign-form'),
-        data: { title: 'Editar Campanha', permission: 'chat.called.view' },
+        loadComponent: () => import('./pages/chat/transmission-list/chat-transmission-list-form'),
+        data: { title: 'Editar Lista de Transmissão', permission: 'chat.transmission_lists.view' },
       },
       {
-        path: 'chat/campaigns',
+        path: 'chat/transmission-list',
         canActivate: [permissionGuard],
-        loadComponent: () => import('./pages/chat/campaigns/campaigns'),
-        data: { title: 'Campanhas', permission: 'chat.called.view' },
+        loadComponent: () => import('./pages/chat/transmission-list/chat-transmission-list'),
+        data: { title: 'Listas de Transmissão', permission: 'chat.transmission_lists.view' },
       },
       {
-        path: 'chat/integration',
+        path: 'chat/channel',
         canActivate: [permissionGuard],
-        loadComponent: () => import('./pages/chat/integration').then((m) => m.IntegrationPage),
-        data: { title: 'Integrações', permission: 'integrations.whatsapp.view' },
+        loadComponent: () => import('./pages/chat/channel').then((m) => m.ChannelPage),
+        data: { title: 'Canais', permission: 'channels.whatsapp.view' },
       },
       {
         path: 'chat',

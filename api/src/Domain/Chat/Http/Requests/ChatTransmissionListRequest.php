@@ -7,14 +7,11 @@ namespace Domain\Chat\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Validação para Campanhas de Chat.
- *
- * Define as regras de integridade para criação e atualização de campanhas,
- * validando campos como nome, status e agendamento.
+ * Validação para Listas de Transmissão de Chat.
  *
  * @category Requests
  */
-class ChatCampaignRequest extends FormRequest
+class ChatTransmissionListRequest extends FormRequest
 {
     /**
      * Determina se o usuário está autorizado a fazer esta requisição.
@@ -29,15 +26,15 @@ class ChatCampaignRequest extends FormRequest
             return false;
         }
 
-        if ($user->can('chat.campaigns.manage')) {
+        if ($user->can('chat.transmission_lists.manage')) {
             return true;
         }
 
         if ($this->isMethod('POST')) {
-            return $user->can('chat.campaigns.create');
+            return $user->can('chat.transmission_lists.create');
         }
 
-        return $user->can('chat.campaigns.update');
+        return $user->can('chat.transmission_lists.update');
     }
 
     /**

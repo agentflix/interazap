@@ -6,10 +6,9 @@ declare(strict_types=1);
  * Rotas do Módulo de Chat.
  *
  * Define os endpoints para gestão de tickets, mensagens, automações (auto-reply),
- * campanhas e integrações de instâncias WhatsApp.
+ * campanhas e canais de instâncias WhatsApp.
  */
 use Domain\Chat\Http\Controllers\ChatAutoReplyRuleController;
-use Domain\Chat\Http\Controllers\ChatTransmissionListController;
 use Domain\Chat\Http\Controllers\ChatInstanceController;
 use Domain\Chat\Http\Controllers\ChatMediaController;
 use Domain\Chat\Http\Controllers\ChatMessageController;
@@ -21,6 +20,7 @@ use Domain\Chat\Http\Controllers\ChatTicketController;
 use Domain\Chat\Http\Controllers\ChatTicketEvaluationController;
 use Domain\Chat\Http\Controllers\ChatTicketEvaluationPublicController;
 use Domain\Chat\Http\Controllers\ChatTicketTransferController;
+use Domain\Chat\Http\Controllers\ChatTransmissionListController;
 use Domain\Chat\Http\Controllers\ChatWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -80,18 +80,18 @@ Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttl
         Route::put('auto-reply/rules/{id}', [ChatAutoReplyRuleController::class, 'update']);
         Route::delete('auto-reply/rules/{id}', [ChatAutoReplyRuleController::class, 'destroy']);
 
-        Route::get('transmission-list', [ChatTransmissionListController::class, 'index']);
-        Route::post('transmission-list', [ChatTransmissionListController::class, 'store']);
-        Route::post('transmission-list/preview', [ChatTransmissionListController::class, 'preview']);
-        Route::post('transmission-list/audience', [ChatTransmissionListController::class, 'audience']);
-        Route::get('transmission-list/{id}', [ChatTransmissionListController::class, 'show']);
-        Route::put('transmission-list/{id}', [ChatTransmissionListController::class, 'update']);
-        Route::post('transmission-list/{id}/send', [ChatTransmissionListController::class, 'send']);
-        Route::delete('transmission-list/{id}', [ChatTransmissionListController::class, 'destroy']);
+        Route::get('transmission-lists', [ChatTransmissionListController::class, 'index']);
+        Route::post('transmission-lists', [ChatTransmissionListController::class, 'store']);
+        Route::post('transmission-lists/preview', [ChatTransmissionListController::class, 'preview']);
+        Route::post('transmission-lists/audience', [ChatTransmissionListController::class, 'audience']);
+        Route::get('transmission-lists/{id}', [ChatTransmissionListController::class, 'show']);
+        Route::put('transmission-lists/{id}', [ChatTransmissionListController::class, 'update']);
+        Route::post('transmission-lists/{id}/send', [ChatTransmissionListController::class, 'send']);
+        Route::delete('transmission-lists/{id}', [ChatTransmissionListController::class, 'destroy']);
         Route::post('media', [ChatMediaController::class, 'store']);
     });
 
-    Route::prefix('integrations')->group(function (): void {
+    Route::prefix('channels')->group(function (): void {
         Route::get('/', [ChatInstanceController::class, 'index']);
         Route::post('/', [ChatInstanceController::class, 'store']);
         Route::get('{id}', [ChatInstanceController::class, 'show']);
