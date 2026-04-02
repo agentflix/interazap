@@ -1,0 +1,206 @@
+
+    @if (loading()) {
+      <div
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5 space-y-3"
+      >
+        @for (i of [0, 1, 2]; track i) {
+          <div class="animate-pulse h-16 bg-neutral-100 dark:bg-neutral-800 rounded-lg"></div>
+        }
+      </div>
+    } @else if (error()) {
+      <div
+        class="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-6 text-center"
+      >
+        <lucide-icon
+          name="circle-alert"
+          [size]="28"
+          class="text-red-400 dark:text-red-500 mx-auto mb-3"
+        />
+        <p class="text-sm text-red-600 dark:text-red-400">{{ error() }}</p>
+      </div>
+    } @else {
+      <div class="space-y-5">
+        <!-- Header -->
+        <div
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="size-10 flex items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/20"
+              >
+                <lucide-icon
+                  name="zap"
+                  [size]="18"
+                  class="text-primary-500 dark:text-primary-400"
+                />
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                  Triggers
+                  <span
+                    class="ml-1.5 text-xs px-1.5 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
+                  >
+                    {{ triggers().length }}
+                  </span>
+                </h3>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  Gatilhos automáticos para execução do agente.
+                </p>
+              </div>
+            </div>
+            <af-button variant="primary" size="sm" (click)="openCreateModal()">
+              <lucide-icon name="plus" [size]="14" class="block" />
+              Novo Trigger
+            </af-button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        @if (triggers().length === 0) {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 py-16 text-center"
+          >
+            <div
+              class="size-14 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-4"
+            >
+              <lucide-icon name="zap" [size]="24" class="text-neutral-300 dark:text-neutral-600" />
+            </div>
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-1">
+              Nenhum trigger configurado
+            </p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">
+              Crie triggers para automatizar a execução do agente.
+            </p>
+          </div>
+        }
+
+        <!-- Triggers List -->
+        @if (triggers().length > 0) {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden divide-y divide-neutral-100 dark:divide-neutral-800"
+          >
+            @for (trigger of triggers(); track trigger.id) {
+              <div
+                class="flex items-center justify-between px-5 py-4 hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="size-10 flex items-center justify-center rounded-xl"
+                    [class]="triggerIconClass(trigger.type)"
+                  >
+                    <lucide-icon [name]="triggerIcon(trigger.type)" [size]="18" class="block" />
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                        {{ trigger.name }}
+                      </span>
+                      <af-status-badge
+                        [status]="trigger.status === 'active' ? 'online' : 'offline'"
+                        size="xs"
+                      >
+                        {{ trigger.status === 'active' ? 'Ativo' : 'Inativo' }}
+                      </af-status-badge>
+                    </div>
+                    <div
+                      class="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 mt-0.5"
+                    >
+                      <span
+                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-medium"
+                      >
+                        {{ formatTriggerType(trigger.type) }}
+                      </span>
+                      @if (trigger.type === 'cron' && trigger.config['cron_expression']) {
+                        <code
+                          class="text-xs px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 font-mono text-neutral-700 dark:text-neutral-300"
+                        >
+                          {{ trigger.config['cron_expression'] }}
+                        </code>
+                      }
+                      @if (trigger.type === 'event' && trigger.config['event_name']) {
+                        <span>{{ trigger.config['event_name'] }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <af-button variant="ghost" size="sm" (click)="openEditModal(trigger)">
+                    <lucide-icon name="pencil" [size]="14" class="block" />
+                  </af-button>
+                  <af-button variant="ghost" size="sm" (click)="deleteTrigger(trigger)">
+                    <lucide-icon name="trash-2" [size]="14" class="block text-red-500" />
+                  </af-button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Create/Edit Trigger Modal -->
+      @if (showModal()) {
+        <af-modal
+          [open]="showModal()"
+          [title]="editingTrigger() ? 'Editar Trigger' : 'Novo Trigger'"
+          (closed)="closeModal()"
+        >
+          <form [formGroup]="triggerForm" (ngSubmit)="saveTrigger()" class="space-y-4">
+            <af-text-input
+              [control]="triggerForm.controls.name"
+              label="Nome"
+              placeholder="Nome do trigger"
+              [required]="true"
+            />
+            <af-select-input
+              [control]="triggerForm.controls.trigger_type"
+              label="Tipo"
+              [options]="triggerTypeOptions"
+              [required]="true"
+            />
+
+            @switch (triggerForm.controls.trigger_type.value) {
+              @case ('cron') {
+                <af-text-input
+                  [control]="triggerForm.controls.cron_expression"
+                  label="Expressão Cron"
+                  placeholder="*/5 * * * *"
+                />
+              }
+              @case ('webhook') {
+                <af-text-input
+                  [control]="triggerForm.controls.webhook_url"
+                  label="URL do Webhook"
+                  placeholder="https://..."
+                />
+              }
+              @case ('event') {
+                <af-select-input
+                  [control]="triggerForm.controls.event_name"
+                  label="Evento"
+                  [options]="eventOptions"
+                />
+              }
+            }
+
+            <af-switch-input [control]="triggerForm.controls.is_active" label="Ativo" />
+
+            <div class="flex justify-end gap-2 pt-2">
+              <af-button variant="ghost" size="sm" type="button" (click)="closeModal()">
+                Cancelar
+              </af-button>
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                type="submit"
+                [loading]="saving()"
+                [disabled]="triggerForm.invalid"
+              >
+                Salvar
+              </af-loading-button>
+            </div>
+          </form>
+        </af-modal>
+      }
+    }
+  

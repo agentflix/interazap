@@ -1,0 +1,15 @@
+
+    <div
+      class="flex flex-col items-center justify-center min-h-screen bg-neutral-50 dark:bg-neutral-950 px-4"
+    >
+      <div class="w-full max-w-sm flex flex-col items-center gap-6">
+        <af-alert
+          variant="warning"
+          title="Acesso Negado"
+          [message]="displayMessage()"
+          class="w-full"
+        />
+        <af-button variant="primary" size="md" (clicked)="goHome()"> Voltar ao início </af-button>
+      </div>
+    </div>
+  

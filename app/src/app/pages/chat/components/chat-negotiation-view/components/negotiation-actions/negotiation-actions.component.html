@@ -1,0 +1,190 @@
+<div class="rounded-2xl border border-neutral-200 bg-card p-6">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <p class="text-xs font-semibold text-neutral-500">Negociação</p>
+      <h2 class="text-xl font-semibold text-neutral-900">
+        {{ selectedNegotiation().title }}
+      </h2>
+      <p class="text-xs text-neutral-500 mt-1">
+        {{ selectedNegotiation().crm_company?.name || 'Empresa não informada' }} · Responsável:
+        {{ selectedNegotiation().user?.name || 'Sem responsável' }}
+      </p>
+    </div>
+    <div class="space-y-2 text-right">
+      <span
+        class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
+        [class]="statusTone(selectedNegotiation().status)"
+      >
+        {{
+          selectedNegotiation().status === 'won'
+            ? 'Ganha'
+            : selectedNegotiation().status === 'lost'
+              ? 'Perdida'
+              : 'Aberta'
+        }}
+      </span>
+      <p class="text-sm font-semibold text-neutral-900">
+        {{ selectedNegotiation().value | currency: 'BRL' }}
+      </p>
+      <p class="text-xs text-neutral-500">
+        Previsão: {{ formatDate(selectedNegotiation().expected_close_date) }}
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="rounded-2xl border border-neutral-200 bg-card p-6 space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="text-base font-semibold text-neutral-900">Funil e previsão</h3>
+      <p class="text-xs text-neutral-500">Atualize estágio e estimativa rapidamente.</p>
+    </div>
+    <button
+      class="btn btn-sm bg-primary text-white"
+      type="button"
+      (click)="emitSaveDetails()"
+      [disabled]="isSavingDetails() || !canSaveDetails()"
+    >
+      {{ isSavingDetails() ? 'Salvando...' : 'Salvar alterações' }}
+    </button>
+  </div>
+  <div class="grid gap-4 md:grid-cols-3">
+    <div>
+      <label for="detail_funnel" class="text-xs font-semibold text-neutral-600">Funil</label>
+      <select
+        id="detail_funnel"
+        class="mt-1 form-input form-input-sm"
+        [value]="detailForm().funnelId"
+        (change)="onDetailSelectChange('funnelId', $event)"
+      >
+        <option value="">Selecione</option>
+        @for (funnel of funnels(); track funnel.id) {
+          <option [value]="funnel.id">{{ funnel.name }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label for="detail_step" class="text-xs font-semibold text-neutral-600">Etapa</label>
+      <select
+        id="detail_step"
+        class="mt-1 form-input form-input-sm"
+        [value]="detailForm().stepId"
+        (change)="onDetailSelectChange('stepId', $event)"
+      >
+        <option value="">Selecione</option>
+        @for (step of detailSteps(); track step.id) {
+          <option [value]="step.id">{{ step.name }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label for="detail_expected" class="text-xs font-semibold text-neutral-600"> Previsão </label>
+      <input
+        id="detail_expected"
+        type="date"
+        class="mt-1 form-input form-input-sm"
+        [value]="detailForm().expectedClose"
+        (change)="onDetailInputChange('expectedClose', $event)"
+      />
+    </div>
+  </div>
+</div>
+
+<div class="rounded-2xl border border-neutral-200 bg-card p-6 space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h3 class="text-base font-semibold text-neutral-900">Tarefas vinculadas</h3>
+      <p class="text-xs text-neutral-500">Planeje follow-ups e notificações.</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <input
+        type="text"
+        class="form-input form-input-sm"
+        placeholder="Título da tarefa"
+        [value]="taskForm().title"
+        (input)="onTaskTextInput('title', $event)"
+      />
+      <select
+        class="form-input form-input-sm"
+        [value]="taskForm().actionType"
+        (change)="onTaskSelectChange('actionType', $event)"
+      >
+        <option value="call">Ligação</option>
+        <option value="email">Email</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="meeting">Reunião</option>
+        <option value="follow_up">Follow-up</option>
+      </select>
+      <input
+        type="date"
+        class="form-input form-input-sm"
+        [value]="taskForm().dueDate"
+        (change)="onTaskTextInput('dueDate', $event)"
+      />
+      <input
+        type="time"
+        class="form-input form-input-sm"
+        [value]="taskForm().startTime"
+        (change)="onTaskTextInput('startTime', $event)"
+      />
+      <select
+        class="form-input form-input-sm"
+        [value]="taskForm().notifyChannel"
+        (change)="onTaskSelectChange('notifyChannel', $event)"
+      >
+        <option value="whatsapp">WhatsApp</option>
+        <option value="email">Email</option>
+        <option value="push">Push</option>
+        <option value="none">Apenas painel</option>
+      </select>
+      <button
+        class="btn btn-sm bg-primary text-white"
+        type="button"
+        (click)="emitCreateTask()"
+        [disabled]="isSavingTask() || !taskFormValid()"
+      >
+        {{ isSavingTask() ? 'Criando...' : 'Criar tarefa' }}
+      </button>
+    </div>
+  </div>
+
+  @if (isTasksLoading()) {
+    <p class="text-sm text-neutral-500">Carregando tarefas...</p>
+  } @else if (tasksError()) {
+    <div class="rounded-lg border border-danger/20 bg-danger/5 p-5 text-sm text-danger">
+      {{ tasksError() }}
+    </div>
+  } @else if (tasks().length === 0) {
+    <div
+      class="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-500"
+    >
+      Nenhuma tarefa cadastrada.
+    </div>
+  } @else {
+    <div class="space-y-3">
+      @for (task of tasks(); track task.id) {
+        <div
+          class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 flex flex-wrap items-center justify-between gap-3"
+        >
+          <div>
+            <p class="text-sm font-semibold text-neutral-900">{{ task.title }}</p>
+            <p class="text-xs text-neutral-500">
+              {{ task.action_type || 'tarefa' | titlecase }} ·
+              {{ task.due_date ? formatDate(task.due_date) : 'Sem data' }}
+            </p>
+          </div>
+          <button
+            class="btn btn-xs"
+            [class.bg-success/10]="task.is_completed"
+            [class.text-success]="task.is_completed"
+            type="button"
+            (click)="emitToggleTask(task)"
+            [disabled]="completingTaskId() === task.id"
+          >
+            {{ task.is_completed ? 'Concluída' : 'Concluir' }}
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

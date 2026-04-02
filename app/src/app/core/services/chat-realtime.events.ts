@@ -1,0 +1,193 @@
+/**
+ * Event payload for message status changes (sent, delivered, read, failed).
+ */
+export interface ChatMessageStatusEvent {
+  message_id?: string;
+  external_id?: string;
+  ticket_id?: string;
+  status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed' | 'deleted';
+  error_message?: string;
+  sent_at?: string;
+  delivered_at?: string;
+  read_at?: string;
+  file_url?: string | null;
+  file_name?: string | null;
+  mime_type?: string | null;
+  file_size?: number | null;
+  media_transcription_status?: 'pending' | 'processing' | 'completed' | 'failed' | null;
+  media_transcription?: string | null;
+}
+
+/**
+ * Event payload for typing indicator updates.
+ */
+export interface ChatTypingEvent {
+  ticket_id: string;
+  user_id?: string;
+  contact_id?: string;
+  is_typing: boolean;
+  presence?: 'composing' | 'recording' | 'paused';
+}
+
+/**
+ * Event payload for new incoming messages.
+ */
+export interface ChatNewMessageEvent {
+  ticket_id: string;
+  message: {
+    id: string;
+    content?: string;
+    type?: string;
+    direction?: string;
+    status?: string;
+    created_at?: string;
+    [key: string]: unknown;
+  };
+}
+
+/**
+ * Event payload for message reaction updates (emoji reactions).
+ */
+export interface ChatMessageReactionEvent {
+  message_id: string;
+  ticket_id: string;
+  tenant_id?: string;
+  emoji: string | null;
+  from_me?: boolean;
+  reactions?: { emoji: string; from_me: boolean; timestamp: string }[];
+}
+
+/**
+ * Event payload for message edit updates.
+ */
+export interface ChatMessageEditEvent {
+  message_id: string;
+  ticket_id: string;
+  tenant_id?: string;
+  external_id?: string;
+  content: string;
+  is_edited: boolean;
+  edited_at?: string | null;
+}
+
+/**
+ * Event payload for message deletion updates.
+ */
+export interface ChatMessageDeleteEvent {
+  message_id: string;
+  ticket_id: string;
+  tenant_id?: string;
+  status?: 'deleted';
+  deleted_at?: string | null;
+  deleted_by?: string | null;
+}
+
+/**
+ * Enumeration of subevent types within the unified chat.activity event.
+ */
+export type ChatActivitySubeventType =
+  | 'msg.received'
+  | 'msg.status'
+  | 'msg.reaction'
+  | 'msg.edit'
+  | 'msg.delete'
+  | 'ai.processing.started'
+  | 'ai.processing.completed'
+  | 'ai.processing.failed'
+  | 'ai.processing.rejected'
+  | 'ai.run.streaming'
+  | 'chat.list.updated'
+  | 'contact.updated'
+  | 'deal.updated'
+  | 'negotiation.status.changed'
+  | 'ticket.new'
+  | 'ticket.updated';
+
+/**
+ * A single subevent within the unified chat.activity event stream.
+ */
+export interface ChatActivitySubevent {
+  type: ChatActivitySubeventType;
+  data: unknown;
+}
+
+/**
+ * Unified chat activity event containing multiple subevents.
+ * V2.0 format that consolidates previously separate event types.
+ */
+export interface ChatActivityEvent {
+  event: 'chat.activity';
+  chatId?: string;
+  ticketId?: string;
+  tenantId?: string;
+  timestamp: string;
+  subevents: ChatActivitySubevent[];
+}
+
+/**
+ * Event payload for new ticket creation.
+ */
+export interface ChatNewTicketEvent {
+  ticket_id: string;
+  tenant_id?: string;
+  ticket: {
+    id: string;
+    protocol?: string;
+    contact_id?: string;
+    remote_jid?: string;
+    push_name?: string;
+    status?: string;
+    [key: string]: unknown;
+  };
+}
+
+/**
+ * Event payload for ticket updates (status, last message, etc.).
+ */
+export interface ChatTicketUpdatedEvent {
+  ticket_id: string;
+  tenant_id?: string;
+  ticket: {
+    id: string;
+    protocol?: string;
+    last_message_at?: string;
+    latest_message?: { content?: string; [key: string]: unknown };
+    [key: string]: unknown;
+  };
+}
+
+/**
+ * Event payload for ticket sentiment (AI-evaluated emotion) updates.
+ */
+export interface ChatTicketSentimentUpdatedEvent {
+  ticket_id: string;
+  tenant_id?: string;
+  sentiment: 'positive' | 'neutral' | 'negative' | 'critical';
+  sentiment_score: number;
+}
+
+/**
+ * Event payload for WhatsApp integration connection status changes.
+ */
+export interface IntegrationConnectionEvent {
+  tenant_id?: string | null;
+  instance_id?: string | null;
+  token?: string | null;
+  status?: string | null;
+  connected?: boolean;
+  qrcode?: string | null;
+  paircode?: string | null;
+  raw?: unknown;
+}
+
+/**
+ * Discriminated union of all realtime event types stored in ChatRealtimeStore.
+ */
+export type ChatRealtimeEvent =
+  | { type: 'status'; payload: ChatMessageStatusEvent }
+  | { type: 'new'; payload: ChatNewMessageEvent }
+  | { type: 'typing'; payload: ChatTypingEvent }
+  | { type: 'reaction'; payload: ChatMessageReactionEvent }
+  | { type: 'edit'; payload: ChatMessageEditEvent }
+  | { type: 'delete'; payload: ChatMessageDeleteEvent }
+  | { type: 'newTicket'; payload: ChatNewTicketEvent };

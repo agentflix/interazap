@@ -1,0 +1,19 @@
+
+    <div class="flex flex-wrap gap-2">
+      @for (color of colors(); track color.value) {
+        <button
+          type="button"
+          class="w-8 h-8 rounded-full border-2 transition-all cursor-pointer
+            hover:scale-110"
+          [style.background-color]="color.value"
+          [class.border-accent-600]="selected() === color.value"
+          [class.border-transparent]="selected() !== color.value"
+          [class.ring-2]="selected() === color.value"
+          [class.ring-accent-600]="selected() === color.value"
+          [class.ring-offset-2]="selected() === color.value"
+          [title]="color.label"
+          (click)="colorSelected.emit(color.value)"
+        ></button>
+      }
+    </div>
+  

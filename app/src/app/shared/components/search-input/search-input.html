@@ -1,0 +1,42 @@
+
+    <div [class]="containerClasses()">
+      @if (label()) {
+        <af-form-label [label]="label()" [for]="inputId" />
+      }
+
+      <div class="relative">
+        <!-- Search icon -->
+        <div
+          class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-500 dark:text-neutral-400"
+        >
+          <lucide-icon name="search" [size]="iconSize()" />
+        </div>
+
+        <input
+          [id]="inputId"
+          type="text"
+          [class]="inputClasses()"
+          [formControl]="control()"
+          [placeholder]="placeholder()"
+          [attr.data-test]="dataTest()"
+          [attr.aria-label]="ariaLabel() || placeholder() || 'Buscar'"
+        />
+
+        <!-- Clear button -->
+        @if (control().value) {
+          <button
+            type="button"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 cursor-pointer"
+            (click)="clear()"
+            aria-label="Limpar busca"
+          >
+            <lucide-icon name="x" [size]="16" />
+          </button>
+        }
+      </div>
+
+      @if (helpText()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+    </div>
+  

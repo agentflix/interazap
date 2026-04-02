@@ -1,0 +1,236 @@
+
+    <af-page-title title="Dashboard" subtitle="Base de Conhecimento" />
+
+    @if (statsLoading()) {
+      <!-- Loading skeleton: stat cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
+        @for (item of [1, 2, 3, 4]; track item) {
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+          >
+            <div class="h-4 w-24 bg-neutral-200 dark:bg-neutral-700 rounded mb-3"></div>
+            <div class="h-8 w-32 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
+          </div>
+        }
+      </div>
+      <!-- Loading skeleton: secondary row -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div
+          class="lg:col-span-2 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+        >
+          <div class="h-5 w-32 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
+          <div class="h-6 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
+          <div class="h-20 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
+        </div>
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+        >
+          <div class="h-5 w-32 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
+          @for (row of [0, 1, 2, 3, 4]; track row) {
+            <div class="h-10 bg-neutral-200 dark:bg-neutral-700 rounded mb-2"></div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (stats(); as kbStats) {
+      <!-- Stat Cards Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
+        <!-- Documents -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-neutral-500">Total de documentos</span>
+            <span
+              class="size-8 p-1.5 rounded-lg bg-accent-50 dark:bg-accent-900/20 text-accent-600 dark:text-accent-400"
+            >
+              <lucide-icon name="file-text" [size]="18" />
+            </span>
+          </div>
+          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            {{ kbStats.document_count }}
+          </span>
+          <p class="text-xs text-neutral-500 mt-1">
+            Prontos: {{ kbStats.documents_ready }} · Processando: {{ kbStats.documents_processing }}
+          </p>
+        </div>
+
+        <!-- Chunks -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-neutral-500">Total de chunks</span>
+            <span
+              class="size-8 p-1.5 rounded-lg bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400"
+            >
+              <lucide-icon name="layers" [size]="18" />
+            </span>
+          </div>
+          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            {{ kbStats.total_chunks }}
+          </span>
+          <p class="text-xs text-neutral-500 mt-1">Média: {{ avgChunksPerDoc() }} chunks/doc</p>
+        </div>
+
+        <!-- Storage -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-neutral-500">Storage usado</span>
+            <span
+              class="size-8 p-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400"
+            >
+              <lucide-icon name="hard-drive" [size]="18" />
+            </span>
+          </div>
+          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            {{ kbStats.storage_formatted }}
+          </span>
+          <p class="text-xs text-neutral-500 mt-1">de {{ kbStats.storage_limit_formatted }}</p>
+          <div
+            class="w-full h-1.5 mt-2 bg-neutral-100 dark:bg-neutral-700 rounded-full overflow-hidden"
+          >
+            <div
+              class="h-1.5 rounded-full transition-colors"
+              [class]="storageBarColor()"
+              [style.width.%]="
+                kbStats.storage_used_percent > 100 ? 100 : kbStats.storage_used_percent
+              "
+            ></div>
+          </div>
+        </div>
+
+        <!-- Failed -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-neutral-500">Documentos com falha</span>
+            <span
+              class="size-8 p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
+            >
+              <lucide-icon name="triangle-alert" [size]="18" />
+            </span>
+          </div>
+          <span
+            class="text-2xl font-semibold"
+            [class]="
+              kbStats.documents_failed > 0
+                ? 'text-danger'
+                : 'text-neutral-900 dark:text-neutral-100'
+            "
+          >
+            {{ kbStats.documents_failed }}
+          </span>
+          <p class="text-xs text-neutral-500 mt-1">Reindexe para tentar novamente</p>
+        </div>
+      </div>
+
+      <!-- Secondary Row: Status Distribution + Recent Docs -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Status Distribution -->
+        <div
+          class="lg:col-span-2 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-base font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+            Distribuição de Status
+          </h3>
+
+          @if (statusDistribution().length > 0) {
+            <!-- Segmented bar -->
+            <div
+              class="w-full h-4 rounded-full overflow-hidden flex bg-neutral-100 dark:bg-neutral-700"
+            >
+              @for (segment of statusDistribution(); track segment.label) {
+                @if (segment.pct > 0) {
+                  <div
+                    class="h-4 transition-all"
+                    [class]="segment.color"
+                    [style.width.%]="segment.pct"
+                  ></div>
+                }
+              }
+            </div>
+
+            <!-- Legend -->
+            <div class="flex flex-wrap gap-x-6 gap-y-2 mt-4">
+              @for (segment of statusDistribution(); track segment.label) {
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="size-2.5 rounded-full" [class]="segment.color"></span>
+                  <span class="text-neutral-600 dark:text-neutral-400">{{ segment.label }}</span>
+                  <span class="font-medium text-neutral-900 dark:text-neutral-100">
+                    {{ segment.count }}
+                  </span>
+                </div>
+              }
+            </div>
+          } @else {
+            <af-empty-state title="Sem documentos" description="Nenhum documento encontrado" />
+          }
+        </div>
+
+        <!-- Recent Documents -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-base font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+            Documentos recentes
+          </h3>
+
+          @if (recentDocsError()) {
+            <div class="text-sm text-neutral-500 text-center py-4">
+              <p class="mb-2">Erro ao carregar documentos recentes.</p>
+              <af-button variant="outline" size="sm" (click)="retryRecentDocs()">
+                <lucide-icon name="refresh-cw" [size]="14" class="block" />
+                Tentar novamente
+              </af-button>
+            </div>
+          } @else if (recentDocs().length > 0) {
+            <div class="space-y-3">
+              @for (doc of recentDocs(); track doc.id) {
+                <div class="flex items-center gap-3">
+                  <span
+                    class="size-8 shrink-0 flex items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500"
+                  >
+                    <lucide-icon [name]="getTypeIcon(doc.content_type)" [size]="16" />
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                      {{ doc.title }}
+                    </p>
+                    <af-status-badge [status]="getStatusBadge(doc.status)">
+                      {{ getStatusLabel(doc.status) }}
+                    </af-status-badge>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <af-empty-state
+              title="Nenhum documento"
+              description="Nenhum documento adicionado ainda."
+            />
+          }
+        </div>
+      </div>
+    }
+
+    @if (statsError()) {
+      <div class="mt-4">
+        <af-alert
+          variant="danger"
+          title="Erro ao carregar estatísticas"
+          message="Não foi possível carregar estatísticas da base de conhecimento."
+        />
+        <div class="mt-2">
+          <af-button variant="outline" size="sm" (click)="reload()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      </div>
+    }
+  

@@ -1,0 +1,78 @@
+
+    <div
+      class="border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-4 py-3"
+    >
+      <div #composerRoot class="relative">
+        <div
+          class="flex items-center gap-2 rounded-xl border border-neutral-300 dark:border-neutral-600
+            bg-neutral-50 dark:bg-neutral-800 px-2 py-2 transition-colors
+            focus-within:ring-2 focus-within:ring-accent-500/30 focus-within:border-accent-500"
+        >
+          <div class="relative">
+            <af-icon-button
+              label="Anexar arquivo"
+              variant="ghost"
+              size="sm"
+              [disabled]="disabled()"
+              (click)="toggleAttachmentMenu()"
+            >
+              <lucide-icon name="paperclip" [size]="18" />
+            </af-icon-button>
+
+            @if (attachmentMenuOpen()) {
+              <div
+                class="absolute left-0 bottom-10 z-20 w-52 rounded-lg border border-neutral-200 dark:border-neutral-700
+                  bg-white dark:bg-neutral-900 shadow-lg p-1"
+              >
+                @for (option of attachmentOptions; track option.type) {
+                  <button
+                    type="button"
+                    class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-left text-sm
+                      text-neutral-700 dark:text-neutral-200
+                      hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                    (click)="selectAttachment(option.type)"
+                  >
+                    <lucide-icon [name]="option.icon" [size]="16" class="text-accent-500" />
+                    <span>{{ option.label }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="flex-1 relative">
+            <textarea
+              #textarea
+              [placeholder]="placeholder()"
+              [disabled]="disabled()"
+              [maxLength]="maxLength() ?? undefined"
+              rows="1"
+              class="w-full resize-none border-0 bg-transparent text-sm text-neutral-900 dark:text-neutral-50
+              placeholder:text-neutral-400 dark:placeholder:text-neutral-500
+              px-2 py-1.5 leading-5 min-h-8
+              focus:outline-none focus:ring-0 focus:border-0
+              disabled:opacity-50 disabled:cursor-not-allowed
+              max-h-32 overflow-y-auto"
+              (input)="onInput()"
+              (keydown)="onKeydown($event)"
+            ></textarea>
+          </div>
+
+          <af-button
+            variant="primary"
+            size="sm"
+            [disabled]="disabled() || !canSend()"
+            (click)="send()"
+          >
+            <lucide-icon name="send" [size]="16" class="block" />
+          </af-button>
+        </div>
+      </div>
+
+      @if (maxLength()) {
+        <p class="text-[10px] text-neutral-400 dark:text-neutral-500 text-right mt-1 tabular-nums">
+          {{ messageLength() }}/{{ maxLength() }}
+        </p>
+      }
+    </div>
+  

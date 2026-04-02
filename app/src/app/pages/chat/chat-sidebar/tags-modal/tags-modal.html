@@ -1,0 +1,67 @@
+<app-modal [isOpen]="isOpenSignal()" title="Gerenciar tags" maxWidth="lg" (closed)="close()">
+  <div modal-body class="space-y-4">
+    <div>
+      <app-text-input
+        [control]="tagInput"
+        label="Digite e pressione Enter para criar"
+        placeholder="Nova tag"
+        dataTest="contact-tag-input"
+        (keydown)="onInputKeydown($event)"
+      />
+    </div>
+
+    <div class="space-y-2">
+      <h6 class="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Tags aplicadas</h6>
+      <div class="flex flex-wrap gap-2">
+        @if (appliedTagsSignal().length === 0) {
+          <span class="text-xs text-neutral-500">Nenhuma tag aplicada.</span>
+        } @else {
+          @for (tag of appliedTagsSignal(); track tag.id) {
+            <span
+              class="flex items-center gap-1 rounded-full bg-neutral-150 dark:bg-neutral-800 px-2 py-1 text-xs"
+            >
+              {{ tag.name }}
+              <button
+                type="button"
+                class="text-neutral-500 hover:text-danger dark:text-neutral-400"
+                (click)="removeTag(tag)"
+                [disabled]="isSaving()"
+              >
+                <ng-icon name="lucideX" class="size-3.5"></ng-icon>
+              </button>
+            </span>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <h6 class="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Tags disponíveis</h6>
+      <div class="flex flex-wrap gap-2">
+        @if (isLoading()) {
+          <span class="text-xs text-neutral-500">Carregando...</span>
+        } @else if (suggestedTags().length === 0) {
+          <span class="text-xs text-neutral-500">Nenhuma tag disponível.</span>
+        } @else {
+          @for (tag of suggestedTags(); track tag.id) {
+            <button
+              type="button"
+              class="rounded-full border border-neutral-200 dark:border-neutral-700 px-3 py-1 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-primary/10"
+              [style.backgroundColor]="tag.color"
+              (click)="addTag(tag)"
+              [disabled]="isSaving()"
+            >
+              + {{ tag.name }}
+            </button>
+          }
+        }
+      </div>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <app-button variant="ghost" size="sm" (clicked)="close()">Fechar</app-button>
+    </div>
+  </div>
+</app-modal>

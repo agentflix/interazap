@@ -1,0 +1,180 @@
+<form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()">
+  <!-- Dados gerais -->
+  <div>
+    <div
+      class="flex items-center gap-2 pb-3 mb-4 border-b border-neutral-100 dark:border-neutral-800"
+    >
+      <lucide-icon name="briefcase" [size]="16" class="text-primary-500 dark:text-primary-400" />
+      <h4 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Dados gerais</h4>
+    </div>
+    <div class="space-y-4">
+      <app-text-input
+        label="Título"
+        [control]="form.controls.title"
+        placeholder="Ex: Proposta para ACME"
+        dataTest="negotiation-form-title"
+        [required]="true"
+      />
+      <app-select-input
+        label="Empresa"
+        [control]="form.controls.crm_company_id"
+        [options]="companyOptions()"
+        placeholder="Selecione uma empresa"
+        [required]="true"
+        errorMessage="Empresa é obrigatória."
+        dataTest="negotiation-form-company"
+      />
+      <div>
+        <app-select-input
+          label="Contato"
+          [control]="form.controls.contact_id"
+          [options]="contactOptions()"
+          placeholder="Selecione um contato"
+          [required]="true"
+          errorMessage="Contato é obrigatório."
+          dataTest="negotiation-form-contact"
+        />
+        @if (!selectedCompanyId()) {
+          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            Selecione a empresa para carregar os contatos vinculados.
+          </p>
+        } @else if (contactOptions().length === 0) {
+          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            Esta empresa ainda não possui contatos vinculados.
+          </p>
+          <div class="mt-2">
+            <af-button variant="outline" size="sm" (clicked)="openCreateContactModal()">
+              Cadastrar contato desta empresa
+            </af-button>
+          </div>
+        }
+      </div>
+      <app-select-input
+        label="Responsável"
+        [control]="form.controls.user_id"
+        [options]="userOptions()"
+        placeholder="Selecione um responsável"
+        [required]="true"
+        errorMessage="Responsável é obrigatório."
+        dataTest="negotiation-form-user"
+      />
+    </div>
+  </div>
+
+  <!-- Pipeline -->
+  <div>
+    <div
+      class="flex items-center gap-2 pb-3 mb-4 border-b border-neutral-100 dark:border-neutral-800"
+    >
+      <lucide-icon name="git-branch" [size]="16" class="text-primary-500 dark:text-primary-400" />
+      <h4 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Pipeline</h4>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <app-select-input
+        label="Funil"
+        [control]="form.controls.funnel_id"
+        [options]="funnelOptions()"
+        placeholder="Selecione um funil"
+        [required]="true"
+        dataTest="negotiation-form-funnel"
+      />
+      <app-select-input
+        label="Etapa"
+        [control]="form.controls.step_id"
+        [options]="stepOptions()"
+        placeholder="Selecione uma etapa"
+        [required]="true"
+        dataTest="negotiation-form-step"
+      />
+      <app-text-input
+        label="Previsão de fechamento"
+        [control]="form.controls.expected_close_date"
+        type="date"
+        dataTest="negotiation-form-close-date"
+      />
+      <app-select-input
+        label="Status"
+        [control]="form.controls.status"
+        [options]="formStatusOptions"
+        dataTest="negotiation-form-status"
+      />
+    </div>
+  </div>
+
+  <!-- Observações -->
+  <div>
+    <div
+      class="flex items-center gap-2 pb-3 mb-4 border-b border-neutral-100 dark:border-neutral-800"
+    >
+      <lucide-icon
+        name="message-square"
+        [size]="16"
+        class="text-primary-500 dark:text-primary-400"
+      />
+      <h4 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Observações</h4>
+    </div>
+    <app-textarea-input
+      label="Observações"
+      [control]="form.controls.notes"
+      placeholder="Detalhes da negociação..."
+      [rows]="3"
+      dataTest="negotiation-form-notes"
+    />
+  </div>
+</form>
+
+<af-modal
+  [isOpen]="isCreateContactModalOpen()"
+  title="Novo contato"
+  maxWidth="md"
+  (closed)="closeCreateContactModal()"
+>
+  <form modal-body class="space-y-4" [formGroup]="createContactForm">
+    <app-text-input
+      label="Nome"
+      [control]="createContactForm.controls.name"
+      placeholder="Ex: Maria Souza"
+      [required]="true"
+      dataTest="negotiation-create-contact-name"
+    />
+
+    <app-text-input
+      label="Telefone"
+      [control]="createContactForm.controls.phone"
+      placeholder="Ex: +55 11 99999-9999"
+      [required]="true"
+      dataTest="negotiation-create-contact-phone"
+    />
+
+    <app-text-input
+      label="E-mail"
+      [control]="createContactForm.controls.email"
+      type="email"
+      placeholder="Ex: contato@empresa.com"
+      dataTest="negotiation-create-contact-email"
+    />
+
+    @if (createContactError()) {
+      <div class="rounded-md border border-danger/20 bg-danger/10 px-3 py-2 text-sm text-danger">
+        {{ createContactError() }}
+      </div>
+    }
+  </form>
+
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <af-button variant="ghost" size="sm" (clicked)="closeCreateContactModal()">
+        Cancelar
+      </af-button>
+      <af-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="isCreatingContact()"
+        loadingText="Salvando..."
+        (clicked)="saveNewContact()"
+      >
+        Salvar contato
+      </af-loading-button>
+    </div>
+  </div>
+</af-modal>

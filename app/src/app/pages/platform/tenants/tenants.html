@@ -1,0 +1,556 @@
+
+    <af-crud-page
+      title="Inquilinos"
+      subtitle="Plataforma"
+      createLabel="Novo Inquilino"
+      searchPlaceholder="Buscar inquilinos..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum inquilino encontrado"
+      emptyDescription="Comece adicionando seu primeiro inquilino ao sistema."
+      [skeletonColumns]="6"
+      [skeletonRows]="6"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      <div filters class="flex items-center gap-2">
+        <div class="min-w-40">
+          <af-select-input
+            [control]="filterStatusControl"
+            [options]="filterStatusOptions"
+            size="sm"
+            classContainer=""
+            dataTest="tenant-filter-status"
+          />
+        </div>
+
+        @if (hasSelection()) {
+          <af-button variant="danger" size="sm" (click)="openBulkDelete()">
+            Excluir selecionados ({{ selectedCount() }})
+          </af-button>
+        }
+
+        <div class="ml-auto">
+          <app-tenant-export
+            [searchTerm]="currentSearchTerm()"
+            [statusFilter]="filterStatusControl.value"
+            (errorOccurred)="handleExportError($event)"
+          />
+        </div>
+      </div>
+
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar inquilinos"
+            message="Não foi possível carregar os inquilinos. Verifique sua conexão e tente novamente."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th class="w-10">
+                <af-checkbox-input
+                  [control]="selectAllControl"
+                  ariaLabel="Selecionar todos os inquilinos"
+                  dataTest="tenants-select-all"
+                />
+              </th>
+              <th
+                afSortableHeader
+                label="Nome"
+                field="name"
+                [currentField]="sortBy()"
+                [currentDir]="sortDir()"
+                (sortChange)="onSort($event)"
+              ></th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tenant of tenants(); track tenant.id) {
+              <tr>
+                <td>
+                  <af-checkbox-input
+                    [control]="getRowSelectionControl(toId(tenant.id))"
+                    [ariaLabel]="'Selecionar inquilino ' + tenant.name"
+                    [dataTest]="'tenant-select-' + tenant.id"
+                  />
+                </td>
+                <td>
+                  <div class="flex flex-col">
+                    <span class="font-medium">{{ tenant.name }}</span>
+                    @if (tenant.document) {
+                      <span class="text-xs text-neutral-500">{{
+                        formatDocument(tenant.document)
+                      }}</span>
+                    }
+                  </div>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ tenant.email || tenant.primary_email || '—' }}
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ formatPhone(tenant.phone) }}
+                </td>
+                <td>
+                  @if (tenant.deleted_at) {
+                    <af-status-badge status="warning">Excluído</af-status-badge>
+                  } @else {
+                    <af-status-badge [status]="tenant.is_active ? 'online' : 'offline'">
+                      {{ tenant.is_active ? 'Ativo' : 'Inativo' }}
+                    </af-status-badge>
+                  }
+                </td>
+                <td>
+                  <div class="flex justify-end items-center gap-1">
+                    @if (tenant.deleted_at) {
+                      <af-icon-button
+                        label="Restaurar inquilino"
+                        variant="ghost"
+                        size="sm"
+                        (click)="handleRestore(tenant)"
+                      >
+                        <lucide-icon name="rotate-ccw" [size]="14" />
+                      </af-icon-button>
+                      <af-icon-button
+                        label="Excluir permanentemente"
+                        variant="danger"
+                        size="sm"
+                        (click)="openForceDelete(tenant)"
+                      >
+                        <lucide-icon name="trash-2" [size]="14" />
+                      </af-icon-button>
+                    } @else {
+                      <af-icon-button
+                        label="Ver detalhes"
+                        variant="ghost"
+                        size="sm"
+                        (click)="openDetails(tenant)"
+                      >
+                        <lucide-icon name="eye" [size]="14" />
+                      </af-icon-button>
+                      <af-table-actions (edit)="openEdit(tenant)" (delete)="openDelete(tenant)" />
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="lg"
+      (closed)="handleFormCancelled()"
+    >
+      <app-tenant-form
+        #tenantForm
+        [tenant]="selectedTenant()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="tenantFormRef()?.cancel()"
+          >Cancelar</af-button
+        >
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isFormSaving()"
+          [disabled]="
+            !(tenantFormRef()?.hasBasicValidData() ?? false) ||
+            (tenantFormRef()?.isSearchingCep() ?? false) ||
+            (tenantFormRef()?.isSearchingCnpj() ?? false)
+          "
+          (click)="tenantFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      [title]="deleteModalTitle()"
+      [message]="deleteMessage()"
+      [confirmLabel]="deleteConfirmLabel()"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+
+    <af-confirm-modal
+      [open]="showForceDeleteModal()"
+      title="Excluir inquilino permanentemente"
+      [message]="forceDeleteMessage()"
+      confirmLabel="Excluir permanentemente"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="alert-triangle"
+      (confirmed)="handleForceDeleteConfirmed()"
+      (cancelled)="showForceDeleteModal.set(false)"
+    />
+
+    @if (isDetailsOpen()) {
+      <div
+        class="fixed inset-0 z-70 bg-black/30 backdrop-blur-sm transition-opacity"
+        (click)="closeDetails()"
+        aria-hidden="true"
+      ></div>
+    }
+
+    <!-- Detail side-panel -->
+    <div
+      class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-neutral-700 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-lg w-full z-80 overflow-hidden"
+      [class.hidden]="!isDetailsOpen()"
+      [class.flex]="isDetailsOpen()"
+      [class.translate-x-full]="!isDetailsOpen()"
+      [class.translate-x-0]="isDetailsOpen()"
+      role="dialog"
+      tabindex="-1"
+      aria-label="Detalhes do inquilino"
+      [attr.aria-hidden]="!isDetailsOpen()"
+    >
+      <div
+        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-dashed border-neutral-200 dark:border-neutral-700 px-6 gap-3"
+      >
+        <h5 class="text-base grow">Detalhes do inquilino</h5>
+        <af-icon-button label="Fechar detalhes" variant="ghost" size="sm" (click)="closeDetails()">
+          <lucide-icon name="x" [size]="16" />
+        </af-icon-button>
+      </div>
+
+      <af-scroll-area class="h-full grow" maxHeight="100%" [scrollable]="false">
+        <div class="p-6 space-y-6">
+          @if (isDetailsLoading()) {
+            <div class="space-y-4 animate-pulse">
+              @for (_ of [1, 2, 3, 4, 5]; track $index) {
+                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4"></div>
+              }
+            </div>
+          } @else if (detailsError()) {
+            <div class="text-center space-y-3 py-6">
+              <p class="text-sm text-danger">Erro ao carregar detalhes.</p>
+              <af-button variant="outline" size="sm" (click)="retryDetails()">
+                <lucide-icon name="refresh-cw" [size]="14" class="block" />
+                Tentar novamente
+              </af-button>
+            </div>
+          } @else if (tenantDetails()) {
+            <!-- Section: Empresa -->
+            <div class="space-y-3">
+              <h6 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                Empresa
+              </h6>
+              <div>
+                <p class="text-xs text-neutral-500">Nome</p>
+                <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                  {{ tenantDetails()!.company.name || '—' }}
+                </p>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Documento</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ tenantDetails()!.company.document || '—' }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Código</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ tenantDetails()!.company.tenant_code || '—' }}
+                  </p>
+                </div>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">E-mail</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ tenantDetails()!.company.primary_email || '—' }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Telefone</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ formatPhone(tenantDetails()!.company.phone ?? undefined) }}
+                  </p>
+                </div>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Status</p>
+                  <af-status-badge
+                    [status]="tenantDetails()!.company.is_active ? 'online' : 'offline'"
+                  >
+                    {{ tenantDetails()!.company.is_active ? 'Ativo' : 'Inativo' }}
+                  </af-status-badge>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">CEP</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ tenantDetails()!.company.zip_code || '—' }}
+                  </p>
+                </div>
+              </div>
+              @if (tenantDetails()!.company.address) {
+                <div>
+                  <p class="text-xs text-neutral-500">Endereço</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ tenantDetails()!.company.address }}
+                  </p>
+                </div>
+              }
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Cidade</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ tenantDetails()!.company.city || '—' }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Estado</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ tenantDetails()!.company.state || '—' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <hr class="border-neutral-200 dark:border-neutral-700" />
+
+            <!-- Section: Plano contratado -->
+            <div class="space-y-3">
+              <h6 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                Plano contratado
+              </h6>
+              @if (tenantDetails()!.contracted_plan) {
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p class="text-xs text-neutral-500">Plano</p>
+                    <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                      {{ tenantDetails()!.contracted_plan!.name }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-neutral-500">Preço mensal</p>
+                    <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                      R$ {{ tenantDetails()!.contracted_plan!.price_monthly }}
+                    </p>
+                  </div>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p class="text-xs text-neutral-500">Slug</p>
+                    <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                      {{ tenantDetails()!.contracted_plan!.slug }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-neutral-500">Status do plano</p>
+                    <af-status-badge
+                      [status]="tenantDetails()!.contracted_plan!.is_active ? 'online' : 'offline'"
+                    >
+                      {{ tenantDetails()!.contracted_plan!.is_active ? 'Ativo' : 'Inativo' }}
+                    </af-status-badge>
+                  </div>
+                </div>
+              } @else {
+                <p class="text-sm text-neutral-500 italic">Plano não definido</p>
+              }
+            </div>
+
+            <!-- Divider -->
+            <hr class="border-neutral-200 dark:border-neutral-700" />
+
+            <!-- Section: Recursos disponíveis -->
+            <div class="space-y-4">
+              <h6 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                Recursos disponíveis
+              </h6>
+
+              <!-- Users -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <p class="text-xs text-neutral-500">Usuários</p>
+                  <p class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                    {{ tenantDetails()!.resources.users.current }}
+                    @if (tenantDetails()!.resources.users.limit !== null) {
+                      / {{ tenantDetails()!.resources.users.limit }}
+                    } @else {
+                      · Ilimitado
+                    }
+                  </p>
+                </div>
+                @if (tenantDetails()!.resources.users.limit !== null) {
+                  <div class="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
+                    <div
+                      class="h-2 rounded-full transition-all"
+                      [class]="
+                        getProgressColor(
+                          tenantDetails()!.resources.users.current,
+                          tenantDetails()!.resources.users.limit!
+                        )
+                      "
+                      [style.width.%]="
+                        getProgressWidth(
+                          tenantDetails()!.resources.users.current,
+                          tenantDetails()!.resources.users.limit!
+                        )
+                      "
+                    ></div>
+                  </div>
+                }
+              </div>
+
+              <!-- Instances -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <p class="text-xs text-neutral-500">Instâncias WhatsApp</p>
+                  <p class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                    {{ tenantDetails()!.resources.instances.current }}
+                    @if (tenantDetails()!.resources.instances.limit !== null) {
+                      / {{ tenantDetails()!.resources.instances.limit }}
+                    } @else {
+                      · Ilimitado
+                    }
+                  </p>
+                </div>
+                @if (tenantDetails()!.resources.instances.limit !== null) {
+                  <div class="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
+                    <div
+                      class="h-2 rounded-full transition-all"
+                      [class]="
+                        getProgressColor(
+                          tenantDetails()!.resources.instances.current,
+                          tenantDetails()!.resources.instances.limit!
+                        )
+                      "
+                      [style.width.%]="
+                        getProgressWidth(
+                          tenantDetails()!.resources.instances.current,
+                          tenantDetails()!.resources.instances.limit!
+                        )
+                      "
+                    ></div>
+                  </div>
+                }
+              </div>
+
+              <!-- Storage -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <p class="text-xs text-neutral-500">Armazenamento</p>
+                  <p class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                    {{ tenantDetails()!.resources.storage.used_gb }} GB
+                    @if (tenantDetails()!.resources.storage.mode === 'LIMITED') {
+                      / {{ tenantDetails()!.resources.storage.limit_gb }} GB
+                    } @else {
+                      · Ilimitado
+                    }
+                  </p>
+                </div>
+                @if (
+                  tenantDetails()!.resources.storage.mode === 'LIMITED' &&
+                  tenantDetails()!.resources.storage.limit_gb !== null
+                ) {
+                  <div class="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
+                    <div
+                      class="h-2 rounded-full transition-all"
+                      [class]="
+                        getProgressColor(
+                          tenantDetails()!.resources.storage.used_gb,
+                          tenantDetails()!.resources.storage.limit_gb!
+                        )
+                      "
+                      [style.width.%]="
+                        getProgressWidth(
+                          tenantDetails()!.resources.storage.used_gb,
+                          tenantDetails()!.resources.storage.limit_gb!
+                        )
+                      "
+                    ></div>
+                  </div>
+                }
+              </div>
+
+              <!-- AI -->
+              <div>
+                <div class="flex items-center justify-between">
+                  <p class="text-xs text-neutral-500">Inteligência Artificial</p>
+                  <af-status-badge
+                    [status]="tenantDetails()!.resources.ai.enabled ? 'online' : 'offline'"
+                  >
+                    {{ tenantDetails()!.resources.ai.enabled ? 'Habilitado' : 'Desabilitado' }}
+                  </af-status-badge>
+                </div>
+              </div>
+
+              <!-- Negotiations -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <p class="text-xs text-neutral-500">Negociações</p>
+                  <p class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                    {{ tenantDetails()!.resources.negotiations.current }}
+                    @if (
+                      tenantDetails()!.resources.negotiations.mode === 'LIMITED' &&
+                      tenantDetails()!.resources.negotiations.limit !== null
+                    ) {
+                      / {{ tenantDetails()!.resources.negotiations.limit }}
+                    } @else {
+                      · Ilimitado
+                    }
+                  </p>
+                </div>
+                @if (
+                  tenantDetails()!.resources.negotiations.mode === 'LIMITED' &&
+                  tenantDetails()!.resources.negotiations.limit !== null
+                ) {
+                  <div class="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
+                    <div
+                      class="h-2 rounded-full transition-all"
+                      [class]="
+                        getProgressColor(
+                          tenantDetails()!.resources.negotiations.current,
+                          tenantDetails()!.resources.negotiations.limit!
+                        )
+                      "
+                      [style.width.%]="
+                        getProgressWidth(
+                          tenantDetails()!.resources.negotiations.current,
+                          tenantDetails()!.resources.negotiations.limit!
+                        )
+                      "
+                    ></div>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="text-sm text-neutral-500">Selecione um inquilino para ver os detalhes.</div>
+          }
+        </div>
+      </af-scroll-area>
+    </div>
+  

@@ -1,0 +1,102 @@
+<div class="flex h-full flex-col">
+  <!-- Header -->
+  <div
+    class="flex min-h-14 items-center gap-2 border-b border-neutral-200 dark:border-neutral-800 px-4 py-3"
+  >
+    <div class="size-5 text-primary">
+      <ng-icon name="lucideHandshake" class="size-5"></ng-icon>
+    </div>
+    <h6 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Negociações</h6>
+    <div class="ml-auto">
+      <app-icon-button
+        icon="lucidePlus"
+        variant="ghost"
+        size="sm"
+        ariaLabel="Nova negociação"
+        (clicked)="openNewDealModal()"
+      />
+    </div>
+  </div>
+
+  <af-scroll-area class="flex-1 min-h-0" maxHeight="100%">
+    <div class="p-4">
+      <!-- Loading Skeleton -->
+      @if (isLoading()) {
+        <div class="space-y-3">
+          @for (_ of [1, 2, 3, 4, 5]; track $index) {
+            <div class="card animate-pulse">
+              <div class="card-body space-y-2">
+                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4"></div>
+                <div class="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2"></div>
+                <div class="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-2/3"></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Empty State -->
+      @if (showEmpty()) {
+        <div class="flex h-full flex-col items-center justify-center text-center">
+          <div class="size-12 text-neutral-400 mb-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <p class="text-sm text-neutral-600 dark:text-neutral-300 mb-1">Nenhuma negociação</p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">
+            Crie a primeira negociação para este contato
+          </p>
+        </div>
+      }
+
+      <!-- List -->
+      @if (!isLoading() && !showEmpty()) {
+        <div class="space-y-3">
+          @for (deal of sortedNegotiations(); track deal.id) {
+            <app-deal-card
+              [deal]="deal"
+              (edit)="openEditModal(deal)"
+              (markLost)="openLossModal(deal)"
+              (markWon)="openWinModal(deal)"
+              (stageChanged)="onStageChanged(deal.id, $event)"
+            />
+          }
+        </div>
+      }
+    </div>
+  </af-scroll-area>
+</div>
+
+<!-- Modals -->
+<app-deal-edit-modal
+  [isOpen]="showEditModal()"
+  [deal]="selectedDeal()"
+  [contactId]="contactId()"
+  (closeModal)="showEditModal.set(false)"
+  (dealSaved)="onDealSaved($event)"
+/>
+
+<app-deal-loss-modal
+  [isOpen]="showLossModal()"
+  [deal]="selectedDeal()!"
+  (closeModal)="showLossModal.set(false)"
+  (confirmed)="onDealLost()"
+/>
+
+<app-deal-win-modal
+  [isOpen]="showWinModal()"
+  [deal]="selectedDeal()!"
+  (closeModal)="showWinModal.set(false)"
+  (confirmed)="onDealWon()"
+/>

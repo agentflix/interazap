@@ -1,0 +1,89 @@
+
+    @if (quoted()) {
+      <div
+        data-testid="quoted-container"
+        class="flex rounded-lg overflow-hidden mb-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+        [class.bg-primary/15]="isParentOutgoing()"
+        [class.bg-neutral-100]="!isParentOutgoing()"
+        [class.dark:bg-neutral-800]="!isParentOutgoing()"
+      >
+        <!-- Barra lateral colorida -->
+        <div
+          data-testid="quoted-sidebar"
+          class="w-1 shrink-0"
+          [class.bg-primary]="isParentOutgoing()"
+          [class.bg-emerald-500]="!isParentOutgoing()"
+        ></div>
+
+        <!-- Conteúdo -->
+        <div class="flex-1 px-2.5 py-1.5 min-w-0">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <!-- Nome do remetente -->
+            <div
+              class="text-xs font-medium truncate"
+              [class.text-primary]="isParentOutgoing()"
+              [class.text-emerald-600]="!isParentOutgoing()"
+              [class.dark:text-emerald-400]="!isParentOutgoing()"
+            >
+              {{ senderName() }}
+            </div>
+
+            @if (quoted()?.is_edited) {
+              <span
+                class="inline-flex shrink-0 items-center gap-1 rounded-full bg-black/5 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-neutral-500 dark:bg-white/10 dark:text-neutral-300"
+              >
+                <ng-icon name="lucidePencil" class="size-3"></ng-icon>
+                Editada
+              </span>
+            }
+          </div>
+
+          <!-- Preview do conteúdo -->
+          <div
+            class="text-xs text-neutral-500 dark:text-neutral-400 truncate flex items-center gap-1.5 mt-0.5"
+          >
+            @switch (quoted()?.type) {
+              @case ('image') {
+                <ng-icon name="lucideImage" class="size-3.5 shrink-0"></ng-icon>
+                <span>{{ quoted()?.content || 'Foto' }}</span>
+              }
+              @case ('video') {
+                <ng-icon name="lucideVideo" class="size-3.5 shrink-0"></ng-icon>
+                <span>{{ quoted()?.content || 'Vídeo' }}</span>
+              }
+              @case ('audio') {
+                <ng-icon name="lucideMic" class="size-3.5 shrink-0"></ng-icon>
+                <span>{{ quoted()?.content || 'Áudio' }}</span>
+              }
+              @case ('ptt') {
+                <ng-icon name="lucideMic" class="size-3.5 shrink-0"></ng-icon>
+                <span>Mensagem de voz</span>
+              }
+              @case ('file') {
+                <ng-icon name="lucideFile" class="size-3.5 shrink-0"></ng-icon>
+                <span>{{ quoted()?.file_name || 'Documento' }}</span>
+              }
+              @case ('document') {
+                <ng-icon name="lucideFile" class="size-3.5 shrink-0"></ng-icon>
+                <span>{{ quoted()?.file_name || 'Documento' }}</span>
+              }
+              @case ('sticker') {
+                <span>🧩 Sticker</span>
+              }
+              @case ('contact') {
+                <ng-icon name="lucideUser" class="size-3.5 shrink-0"></ng-icon>
+                <span>Contato</span>
+              }
+              @case ('location') {
+                <ng-icon name="lucideMapPin" class="size-3.5 shrink-0"></ng-icon>
+                <span>Localização</span>
+              }
+              @default {
+                <span>{{ quoted()?.content || 'Mensagem' }}</span>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    }
+  

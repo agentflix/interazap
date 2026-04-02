@@ -1,0 +1,8 @@
+# =====================================================
+# Handlers: SSL
+# =====================================================
+
+- name: "Reload Nginx after SSL"
+  service:
+    name: nginx
+    state: reloaded

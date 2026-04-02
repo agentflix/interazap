@@ -1,0 +1,17 @@
+
+    <af-button
+      variant="outline"
+      size="sm"
+      ariaLabel="Exportar contatos para CSV"
+      [disabled]="isExporting()"
+      dataTest="contact-export-btn"
+      (click)="exportContacts()"
+    >
+      @if (isExporting()) {
+        <lucide-icon name="loader-circle" [size]="14" class="block animate-spin" />
+      } @else {
+        <lucide-icon name="download" [size]="14" class="block" />
+      }
+      Exportar
+    </af-button>
+  

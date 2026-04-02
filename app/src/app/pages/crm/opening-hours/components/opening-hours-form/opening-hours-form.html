@@ -1,0 +1,40 @@
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="mb-4">
+          <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+        </div>
+      }
+
+      <af-select-input
+        label="Dia da Semana"
+        [control]="form.controls.day_of_week"
+        [options]="dayOfWeekOptions"
+        [required]="true"
+        dataTest="opening-hours-form-day"
+      />
+
+      <div class="grid grid-cols-2 gap-4">
+        <af-text-input
+          label="Abertura"
+          [control]="form.controls.open_time"
+          type="time"
+          [required]="true"
+          dataTest="opening-hours-form-open"
+        />
+        <af-text-input
+          label="Fechamento"
+          [control]="form.controls.close_time"
+          type="time"
+          [required]="true"
+          dataTest="opening-hours-form-close"
+        />
+      </div>
+
+      <af-switch-input
+        label="Ativo"
+        [control]="form.controls.is_active"
+        dataTest="opening-hours-form-active"
+      />
+    </form>
+  

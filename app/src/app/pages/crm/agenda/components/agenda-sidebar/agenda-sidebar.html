@@ -1,0 +1,42 @@
+
+    <div class="flex flex-col gap-5">
+      <!-- Upcoming Events -->
+      <div class="card">
+        <div class="card-body">
+          <app-agenda-upcoming-list
+            [events]="events()"
+            (eventClicked)="eventClicked.emit($event)"
+          />
+        </div>
+      </div>
+
+      <!-- Drag Events (preserved functionality) -->
+      <div class="card">
+        <div class="card-body">
+          <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">
+            Arrastar Eventos
+          </h6>
+          <div id="external-events" class="flex flex-col gap-2">
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">
+              Arraste um evento para o calendário.
+            </p>
+
+            @for (type of typeOptions(); track type.id) {
+              <div
+                class="external-event fc-event cursor-move flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white transition-transform hover:scale-[1.02]"
+                [attr.data-type]="type.id"
+                [class]="getTypeClass(type.id)"
+              >
+                <span class="size-2 rounded-full bg-white/30"></span>
+                {{ type.label }}
+              </div>
+            }
+
+            <div class="flex items-center gap-2 mt-2">
+              <app-checkbox-input [control]="dropRemoveControl()" label="Remover após soltar" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  

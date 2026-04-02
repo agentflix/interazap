@@ -1,0 +1,12 @@
+
+    <div class="inline-flex items-center gap-2">
+      <af-button variant="outline" [disabled]="disabled()" (click)="exportAs('csv')">
+        <lucide-icon name="file-spreadsheet" [size]="16" class="block" />
+        CSV
+      </af-button>
+      <af-button variant="outline" [disabled]="disabled()" (click)="exportAs('xlsx')">
+        <lucide-icon name="file-text" [size]="16" class="block" />
+        XLSX
+      </af-button>
+    </div>
+  

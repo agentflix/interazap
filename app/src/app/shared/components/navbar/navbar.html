@@ -1,0 +1,23 @@
+
+    <div
+      class="flex items-center justify-between px-5 py-3 bg-white dark:bg-neutral-900
+        border-b border-neutral-200 dark:border-neutral-700"
+    >
+      <div class="flex items-center gap-3">
+        @if (showBack()) {
+          <button
+            type="button"
+            class="text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100
+              transition-colors cursor-pointer"
+            (click)="back.emit()"
+          >
+            <lucide-icon name="arrow-left" [size]="20" />
+          </button>
+        }
+        <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">{{ title() }}</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <ng-content />
+      </div>
+    </div>
+  

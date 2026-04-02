@@ -1,0 +1,198 @@
+
+    @if (loading()) {
+      <div
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5 space-y-3"
+      >
+        @for (i of [0, 1, 2]; track i) {
+          <div class="animate-pulse h-16 bg-neutral-100 dark:bg-neutral-800 rounded-lg"></div>
+        }
+      </div>
+    } @else if (error()) {
+      <div
+        class="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-6 text-center"
+      >
+        <lucide-icon
+          name="circle-alert"
+          [size]="28"
+          class="text-red-400 dark:text-red-500 mx-auto mb-3"
+        />
+        <p class="text-sm text-red-600 dark:text-red-400">{{ error() }}</p>
+      </div>
+    } @else {
+      <div class="space-y-5">
+        <!-- Header -->
+        <div
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="size-10 flex items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/20"
+              >
+                <lucide-icon
+                  name="brain"
+                  [size]="18"
+                  class="text-primary-500 dark:text-primary-400"
+                />
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                  Skills do Agente
+                  <span
+                    class="ml-1.5 text-xs px-1.5 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
+                  >
+                    {{ skills().length }}
+                  </span>
+                </h3>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  Capacidades e habilidades especializadas do agente.
+                </p>
+              </div>
+            </div>
+            <af-button variant="primary" size="sm" (click)="openCreateModal()">
+              <lucide-icon name="plus" [size]="14" class="block" />
+              Nova Skill
+            </af-button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        @if (skills().length === 0) {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 py-16 text-center"
+          >
+            <div
+              class="size-14 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-4"
+            >
+              <lucide-icon
+                name="brain"
+                [size]="24"
+                class="text-neutral-300 dark:text-neutral-600"
+              />
+            </div>
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-1">
+              Nenhuma skill configurada
+            </p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">
+              Adicione skills para expandir as capacidades do agente.
+            </p>
+          </div>
+        }
+
+        <!-- Skills List -->
+        @if (skills().length > 0) {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden divide-y divide-neutral-100 dark:divide-neutral-800"
+          >
+            @for (skill of skills(); track skill.id) {
+              <div
+                class="flex items-center justify-between px-5 py-4 hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="size-10 flex items-center justify-center rounded-xl text-sm font-bold"
+                    [class]="skillIconClass(skill.skill_type)"
+                  >
+                    {{ skill.priority }}
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                        {{ skill.name }}
+                      </span>
+                      <af-status-badge [status]="skill.is_active ? 'online' : 'offline'" size="xs">
+                        {{ skill.is_active ? 'Ativa' : 'Inativa' }}
+                      </af-status-badge>
+                    </div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                      <span
+                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-medium"
+                      >
+                        {{ formatSkillType(skill.skill_type) }}
+                      </span>
+                      @if (skill.description) {
+                        <span class="ml-1.5">{{ skill.description }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <af-icon-button
+                    icon="lucidePencil"
+                    label="Editar skill"
+                    variant="ghost"
+                    size="sm"
+                    (click)="openEditModal(skill)"
+                  />
+                  <af-icon-button
+                    icon="lucideTrash2"
+                    label="Excluir skill"
+                    variant="danger"
+                    size="sm"
+                    (click)="deleteSkill(skill)"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Create/Edit Skill Modal -->
+      @if (showModal()) {
+        <af-modal
+          [open]="showModal()"
+          [title]="editingSkill() ? 'Editar Skill' : 'Nova Skill'"
+          (closed)="closeModal()"
+        >
+          <form [formGroup]="skillForm" (ngSubmit)="saveSkill()" class="space-y-4">
+            <af-text-input
+              [control]="skillForm.controls.name"
+              label="Nome"
+              placeholder="Nome da skill"
+              [required]="true"
+            />
+            <af-select-input
+              [control]="skillForm.controls.skill_type"
+              label="Tipo"
+              [options]="skillTypeOptions"
+              [required]="true"
+            />
+            <af-textarea-input
+              [control]="skillForm.controls.description"
+              label="Descrição"
+              placeholder="O que esta skill faz..."
+              [rows]="2"
+            />
+            <af-textarea-input
+              [control]="skillForm.controls.prompt_append"
+              label="Prompt do Especialista"
+              placeholder="Instruções detalhadas que serão injetadas no prompt do agente quando esta skill estiver ativa. Ex: regras de conduta, passos operacionais, restrições..."
+              helpText="Escreva instruções completas como se estivesse treinando um novo funcionário. Quanto mais detalhado, melhor o desempenho."
+              [rows]="10"
+            />
+            <af-text-input
+              [control]="skillForm.controls.priority"
+              label="Prioridade"
+              type="number"
+            />
+            <af-switch-input [control]="skillForm.controls.is_active" label="Ativa" />
+            <div class="flex justify-end gap-2 pt-2">
+              <af-button variant="ghost" size="sm" type="button" (click)="closeModal()">
+                Cancelar
+              </af-button>
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                type="submit"
+                [loading]="saving()"
+                [disabled]="skillForm.invalid"
+              >
+                Salvar
+              </af-loading-button>
+            </div>
+          </form>
+        </af-modal>
+      }
+    }
+  

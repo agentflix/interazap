@@ -1,0 +1,21 @@
+:host {
+      display: block;
+    }
+    /* Thin scrollbar fallback */
+    div.af-scroll-area--scrollable {
+      scrollbar-width: thin;
+      scrollbar-color: rgb(163 163 163) transparent;
+    }
+    :host-context(.dark) div.af-scroll-area--scrollable {
+      scrollbar-color: rgb(82 82 82) transparent;
+    }
+    div.af-scroll-area--scrollable::-webkit-scrollbar {
+      width: 6px;
+    }
+    div.af-scroll-area--scrollable::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    div.af-scroll-area--scrollable::-webkit-scrollbar-thumb {
+      background-color: rgb(163 163 163);
+      border-radius: 3px;
+    }

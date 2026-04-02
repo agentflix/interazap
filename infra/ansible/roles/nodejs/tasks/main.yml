@@ -1,0 +1,167 @@
+# =====================================================
+# Role: Node.js
+# Propósito: Node.js 22 LTS com PM2 e Logrotate para Gateway
+# Autor: DevOps Agentflix
+# =====================================================
+
+- name: 'Instalar dependências para Node.js'
+  apt:
+      name:
+          - curl
+          - ca-certificates
+          - gnupg
+          - apt-transport-https
+      state: present
+
+- name: 'Baixar script de instalação NVM'
+  get_url:
+      url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh
+      dest: /tmp/nvm-install.sh
+      mode: '0755'
+
+- name: 'Garantir diretórios do deploy e NVM'
+  file:
+      path: '{{ item }}'
+      owner: deploy
+      group: deploy
+      mode: '0755'
+      state: directory
+  loop:
+      - /home/deploy
+      - /home/deploy/.nvm
+
+- name: 'Instalar NVM e Node.js 22 LTS'
+  shell: |
+      set -e
+      export NVM_DIR="/home/deploy/.nvm"
+      bash /tmp/nvm-install.sh
+      . "$NVM_DIR/nvm.sh"
+      nvm install 22
+      nvm alias default 22
+      nvm use default
+      # Criar link simbólico para caminho estável
+      NODE_VERSION=$(nvm version)
+      ln -sfn "/home/deploy/.nvm/versions/node/$NODE_VERSION" "/home/deploy/.nvm/versions/node/v22"
+  args:
+      creates: /home/deploy/.nvm/versions/node/v22
+      executable: /bin/bash
+  become: yes
+  become_user: deploy
+
+- name: 'Definir NVM_DIR permanentemente para deploy'
+  lineinfile:
+      path: /home/deploy/.bashrc
+      line: '{{ item }}'
+      create: yes
+  loop:
+      - 'export NVM_DIR="$HOME/.nvm"'
+      - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+      - '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'
+
+- name: 'Verificar instalação do Node.js'
+  shell: |
+      export NVM_DIR="/home/deploy/.nvm"
+      . "$NVM_DIR/nvm.sh"
+      nvm use 22
+      node --version
+      npm --version
+  args:
+      executable: /bin/bash
+  register: node_version
+  changed_when: false
+  become: yes
+  become_user: deploy
+
+- name: 'Exibir versão do Node.js'
+  debug:
+      msg: 'Node.js {{ node_version.stdout }} instalado com sucesso'
+
+- name: 'Instalar PM2 e pnpm globalmente'
+  shell: |
+      export NVM_DIR="/home/deploy/.nvm"
+      . "$NVM_DIR/nvm.sh"
+      nvm use 22
+      npm install -g pm2 pnpm
+  args:
+      executable: /bin/bash
+  become: yes
+  become_user: deploy
+
+- name: 'Instalar e configurar pm2-logrotate'
+  shell: |
+      export PATH="/home/deploy/.nvm/versions/node/v22/bin:$PATH"
+      pm2 install pm2-logrotate
+      pm2 set pm2-logrotate:max_size 10M
+      pm2 set pm2-logrotate:retain 7
+      pm2 set pm2-logrotate:compress true
+  args:
+      executable: /bin/bash
+  become: yes
+  become_user: deploy
+  changed_when: false
+
+- name: 'Criar script de inicialização PM2'
+  template:
+      src: pm2-agentflix.service.j2
+      dest: /etc/systemd/system/pm2-agentflix.service
+      mode: '0644'
+
+- name: 'Recarregar systemd'
+  systemd:
+      daemon_reload: yes
+
+- name: 'Habilitar e iniciar PM2 service'
+  service:
+      name: pm2-agentflix
+      state: started
+      enabled: yes
+  ignore_errors: yes
+
+- name: 'Criar estrutura de diretórios para PM2 logs'
+  file:
+      path: /home/deploy/.pm2/logs
+      owner: deploy
+      group: deploy
+      mode: '0755'
+      state: directory
+  become: yes
+  become_user: deploy
+
+- name: 'Criar ecosystem config para AgentFlix Gateway'
+  copy:
+      dest: /home/deploy/ecosystem.config.js
+      content: |
+          module.exports = {
+            apps: [
+              {
+                name: 'agentflix-gateway-prod',
+                script: 'gateway/dist/main.js',
+                cwd: '/data/production/gateway/current',
+                instances: 1,
+                exec_mode: 'fork',
+                env: {
+                  NODE_ENV: 'production',
+                  PORT: 6002
+                },
+                error_file: '/home/deploy/.pm2/logs/agentflix-gateway-prod-error.log',
+                out_file: '/home/deploy/.pm2/logs/agentflix-gateway-prod-out.log',
+                time: true
+              },
+              {
+                name: 'agentflix-gateway-stage',
+                script: 'gateway/dist/main.js',
+                cwd: '/data/stage/gateway/current',
+                instances: 1,
+                exec_mode: 'fork',
+                env: {
+                  NODE_ENV: 'staging',
+                  PORT: 6001
+                },
+                error_file: '/home/deploy/.pm2/logs/agentflix-gateway-stage-error.log',
+                out_file: '/home/deploy/.pm2/logs/agentflix-gateway-stage-out.log',
+                time: true
+              }
+            ]
+          };
+  become: yes
+  become_user: deploy

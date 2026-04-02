@@ -1,0 +1,18 @@
+
+    <ul class="space-y-1">
+      @for (item of items(); track item.id; let i = $index) {
+        <li
+          class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-neutral-900
+            border border-neutral-200 dark:border-neutral-700 shadow-sm"
+          draggable="true"
+          (dragstart)="onDragStart(i)"
+          (dragover)="onDragOver($event, i)"
+          (drop)="onDrop(i)"
+        >
+          <lucide-icon name="grip-vertical" [size]="16" class="text-neutral-400 cursor-grab" />
+          <span class="flex-1 text-sm text-neutral-900 dark:text-neutral-50">{{ item.label }}</span>
+          <ng-content />
+        </li>
+      }
+    </ul>
+  

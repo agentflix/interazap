@@ -1,0 +1,148 @@
+# =====================================================
+# AgentFlix - Playbook Ansible
+# =====================================================
+# Deploy completo (production e/ou staging)
+#
+# Uso:
+#   Todos os ambientes:   ansible-playbook playbook.yml
+#   Apenas producao:      ansible-playbook playbook.yml --limit production
+#   Apenas staging:       ansible-playbook playbook.yml --limit staging
+#   Apenas deploy:        ansible-playbook playbook.yml --limit production --tags deploy
+#
+# Autor: DevOps Agentflix
+# =====================================================
+
+- name: 'Deploy AgentFlix'
+  hosts: all
+  become: yes
+  gather_facts: yes
+  vars_files:
+      - vars/vault.yml
+
+  pre_tasks:
+      # NOTE: This must run BEFORE any module that uses the module executor.
+      # The sudoers env_keep=HOME preserves HOME=/home/deploy even when
+      # sudo to root, so ~/.ansible/tmp expands to /home/deploy/.ansible/tmp.
+      # Creating it here (as deploy user) with 0777 allows root to write.
+      - name: 'Criar /home/deploy/.ansible/tmp para Ansible module executor (deploy user)'
+        become: no
+        file:
+            path: /home/deploy/.ansible/tmp
+            state: directory
+            mode: '0777'
+            recurse: yes
+        ignore_errors: yes
+
+      - name: 'Criar /tmp/ansible com permissao 0777'
+        file:
+            path: /tmp/ansible
+            state: directory
+            mode: '0777'
+
+      - name: 'Validar variaveis obrigatorias'
+        assert:
+            that:
+                - agentflix_password is defined
+                - postgres_root_password is defined
+                - postgres_app_password is defined
+                - redis_password is defined
+                - agentflix_secret_key_production is defined
+                - agentflix_secret_key_staging is defined
+                - gateway_internal_api_key_production is defined
+                - gateway_internal_api_key_staging is defined
+                - gateway_jwt_secret_production is defined
+                - gateway_jwt_secret_staging is defined
+            fail_msg: 'Variaveis do vault nao configuradas! Execute: ansible-vault create vars/vault.yml'
+
+      - name: 'Exibir informacoes do ambiente'
+        debug:
+            msg:
+                - 'Hostname: {{ inventory_hostname }}'
+                - 'IP: {{ ansible_default_ipv4.address }}'
+                - 'OS: {{ ansible_distribution }} {{ ansible_distribution_version }}'
+                - 'Ambiente: {{ app_environment }}'
+                - 'Pasta: {{ deploy_path }}'
+
+  roles:
+      - role: common
+        tags: ['common', 'base']
+
+      - role: users
+        tags: ['users']
+
+      - role: security
+        tags: ['security', 'firewall', 'fail2ban']
+
+      - role: ssl
+        tags: ['ssl', 'certbot', 'deploy']
+
+      - role: nginx
+        tags: ['nginx', 'web', 'deploy']
+
+      - role: php
+        tags: ['php', 'runtime']
+
+      - role: redis
+        tags: ['redis', 'cache', 'deploy']
+
+      - role: postgres
+        tags: ['postgres', 'database', 'deploy']
+
+      - role: supervisor
+        tags: ['supervisor', 'workers', 'deploy']
+
+      - role: nodejs
+        tags: ['nodejs', 'pm2', 'deploy']
+
+      - role: app-deploy
+        tags: ['deploy', 'app']
+
+      - role: landing-deploy
+        tags: ['landing', 'deploy']
+
+  handlers:
+      - name: 'Atualizar servicos do sistema'
+        systemd:
+            daemon_reload: yes
+
+      - name: 'Reiniciar SSH'
+        service:
+            name: sshd
+            state: restarted
+        when: ansible_os_family == "Debian"
+
+      - name: 'Reiniciar UFW'
+        service:
+            name: ufw
+            state: restarted
+
+      - name: 'Reiniciar Nginx'
+        service:
+            name: nginx
+            state: restarted
+
+      - name: 'Recarregar Nginx'
+        service:
+            name: nginx
+            state: reloaded
+
+      - name: 'Reiniciar PHP-FPM'
+        service:
+            name: php8.4-fpm
+            state: restarted
+        ignore_errors: yes
+
+      - name: 'Reiniciar Redis'
+        service:
+            name: redis-server
+            state: restarted
+
+      - name: 'Reiniciar PostgreSQL'
+        service:
+            name: postgresql
+            state: restarted
+
+      - name: 'Reiniciar Supervisor'
+        service:
+            name: supervisor
+            state: restarted

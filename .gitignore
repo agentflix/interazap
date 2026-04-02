@@ -1,0 +1,18 @@
+.DS_Store
+node_modules/.bin/browserslist
+/node_modules
+/electron/node_modules
+/electron/release
+/code-base
+/gateway/node_modules
+/gateway/dist
+/gateway/.env
+/gateway/logs
+gateway/logs/gateway-events.log
+/testsprite_tests
+/gateway/coverage
+api/coverage.xml
+api/.env
+
+# Docker environment (contains secrets)
+.env.docker

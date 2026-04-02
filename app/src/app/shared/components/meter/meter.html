@@ -1,0 +1,22 @@
+
+    <div>
+      @if (label()) {
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">{{
+            label()
+          }}</span>
+          <span class="text-xs tabular-nums text-neutral-500">{{ value() }}/{{ max() }}</span>
+        </div>
+      }
+      <div class="w-full h-2 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+        <div
+          class="h-full rounded-full transition-all duration-300"
+          [class.bg-accent-500]="variant() === 'accent'"
+          [class.bg-blue-500]="variant() === 'info'"
+          [class.bg-amber-500]="variant() === 'warning'"
+          [class.bg-red-500]="variant() === 'danger'"
+          [style.width.%]="percentage()"
+        ></div>
+      </div>
+    </div>
+  

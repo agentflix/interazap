@@ -1,0 +1,36 @@
+module.exports = {
+  apps: [
+    {
+      name: 'agentflix-gateway-prod',
+      script: 'gateway/dist/main.js',
+      cwd: '/data/production/gateway/current',
+      instances: 1,
+      exec_mode: 'fork',
+      node_args: '--max-old-space-size=4096',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 6002,
+        PATH: '/home/deploy/.nvm/versions/node/v22.22.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      },
+      error_file: '/home/deploy/.pm2/logs/agentflix-gateway-prod-error.log',
+      out_file: '/home/deploy/.pm2/logs/agentflix-gateway-prod-out.log',
+      time: true
+    },
+    {
+      name: 'agentflix-gateway-stage',
+      script: 'gateway/dist/main.js',
+      cwd: '/data/stage/gateway/current',
+      instances: 1,
+      exec_mode: 'fork',
+      node_args: '--max-old-space-size=4096',
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 6001,
+        PATH: '/home/deploy/.nvm/versions/node/v22.22.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      },
+      error_file: '/home/deploy/.pm2/logs/agentflix-gateway-stage-error.log',
+      out_file: '/home/deploy/.pm2/logs/agentflix-gateway-stage-out.log',
+      time: true
+    }
+  ]
+};

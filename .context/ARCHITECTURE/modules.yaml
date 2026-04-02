@@ -1,0 +1,131 @@
+modules:
+  - id: "MOD-001"
+    name: "Ai"
+    description: "Integração AI/ML, autopilot, knowledge base, embeddings com pgvector e OpenAI"
+    dependencies:
+      - "MOD-002"  # Auth
+      - "MOD-004"  # Chat
+      - "MOD-005"  # CRM
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/Ai/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-002"
+    name: "Auth"
+    description: "Autenticação via Sanctum, autorização via Spatie Permissions, gerenciamento de tenant"
+    dependencies:
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/Auth/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-003"
+    name: "Billing"
+    description: "Processamento de pagamentos via Asaas, assinaturas, faturamento e invoices"
+    dependencies:
+      - "MOD-002"  # Auth
+      - "MOD-009"  # Platform
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/Billing/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-004"
+    name: "Chat"
+    description: "Mensagens WhatsApp via Z-API/UazAPI, conversas em tempo real com WebSocket"
+    dependencies:
+      - "MOD-001"  # Ai
+      - "MOD-002"  # Auth
+      - "MOD-005"  # CRM
+      - "MOD-008"  # Gateway
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/Chat/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-005"
+    name: "CRM"
+    description: "Gestão de contatos, empresas, deals, pipelines e campos customizados"
+    dependencies:
+      - "MOD-002"  # Auth
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/CRM/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-006"
+    name: "Configuration"
+    description: "Configurações do sistema, configurações por empresa, integrações"
+    dependencies:
+      - "MOD-002"  # Auth
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/Configuration/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-007"
+    name: "Dashboard"
+    description: "Analytics, métricas, widgets de relatórios e visão geral do tenant"
+    dependencies:
+      - "MOD-002"  # Auth
+      - "MOD-003"  # Billing
+      - "MOD-004"  # Chat
+      - "MOD-005"  # CRM
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/Dashboard/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-008"
+    name: "Gateway"
+    description: "Relay de APIs externas, tratamento de webhooks, circuit breaker, BullMQ jobs"
+    dependencies:
+      - "MOD-002"  # Auth
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/Gateway/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-009"
+    name: "Platform"
+    description: "Funcionalidades multi-tenant da plataforma, onboarding, gestão de planos"
+    dependencies:
+      - "MOD-002"  # Auth
+      - "MOD-006"  # Configuration
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/Platform/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-010"
+    name: "Reports"
+    description: "Geração de relatórios, exportação CSV/PDF, relatórios agendados"
+    dependencies:
+      - "MOD-002"  # Auth
+      - "MOD-004"  # Chat
+      - "MOD-005"  # CRM
+      - "MOD-007"  # Dashboard
+      - "MOD-011"  # Shared
+    entrypoints:
+      - "src/Domain/Reports/Routes/api.php"
+    status: "in_progress"
+    owner: null
+
+  - id: "MOD-011"
+    name: "Shared"
+    description: "Utilitários cross-domain, busca global, traits compartilhados, base classes"
+    dependencies: []
+    entrypoints:
+      - "src/Shared/"
+    status: "in_progress"
+    owner: null

@@ -1,0 +1,26 @@
+
+    <af-card [padded]="false" [fullHeight]="true">
+      <div header class="px-5 pt-4 pb-0">
+        <h6 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+          Receita por Mês
+        </h6>
+      </div>
+      <div class="px-5 py-4">
+        @if (hasData()) {
+          <af-apexchart
+            type="bar"
+            [series]="series()"
+            [categories]="labels()"
+            [colors]="['#2b7fff', '#2dd4bf']"
+            [extraOptions]="chartOptions"
+            height="310"
+          />
+        } @else {
+          <af-empty-state
+            title="Sem dados"
+            description="Nenhum dado encontrado para o período selecionado"
+          />
+        }
+      </div>
+    </af-card>
+  

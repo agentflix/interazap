@@ -1,0 +1,75 @@
+<app-modal [isOpen]="isOpen()" title="Editar negociação" maxWidth="lg" (closed)="close()">
+  <form
+    modal-body
+    class="grid gap-4 md:grid-cols-2"
+    [formGroup]="editForm"
+    (ngSubmit)="submitEdit()"
+  >
+    <div class="md:col-span-2">
+      <app-text-input
+        label="Título"
+        [control]="editForm.controls.title"
+        placeholder="Título da negociação"
+        [required]="true"
+      />
+    </div>
+    <app-select-input
+      label="Contato"
+      [control]="editForm.controls.contact_id"
+      [options]="editContactOptions()"
+      [required]="true"
+      placeholder="Selecione um contato"
+    />
+    <app-select-input
+      label="Empresa"
+      [control]="editForm.controls.crm_company_id"
+      [options]="editCompanyOptions()"
+      [required]="true"
+      placeholder="Selecione uma empresa"
+    />
+    <app-select-input
+      label="Funil"
+      [control]="editForm.controls.funnel_id"
+      [options]="editFunnelOptions()"
+      [required]="true"
+      placeholder="Selecione um funil"
+    />
+    <app-select-input
+      label="Etapa"
+      [control]="editForm.controls.step_id"
+      [options]="editStepOptions()"
+      placeholder="Selecione uma etapa"
+      [required]="true"
+      dataTest="edit-step"
+    />
+    <div class="md:col-span-2">
+      <app-text-input
+        label="Previsão de fechamento"
+        [control]="editForm.controls.expected_close_date"
+        type="date"
+      />
+    </div>
+
+    @if (editModalError()) {
+      <div
+        class="md:col-span-2 rounded-lg border border-danger/20 bg-danger/10 p-3 text-sm text-danger"
+      >
+        {{ editModalError() }}
+      </div>
+    }
+  </form>
+
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <app-button variant="ghost" size="sm" (clicked)="close()">Cancelar</app-button>
+      <app-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="isSavingDetails()"
+        loadingText="Salvando..."
+        (clicked)="submitEdit()"
+        >Salvar alterações</app-loading-button
+      >
+    </div>
+  </div>
+</app-modal>

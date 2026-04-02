@@ -1,0 +1,15 @@
+
+    <div [class]="calloutClasses()" role="note">
+      <div class="flex gap-3">
+        <lucide-icon [name]="iconName()" [size]="18" class="mt-0.5 shrink-0" />
+        <div>
+          @if (title()) {
+            <p class="text-sm font-semibold mb-1">{{ title() }}</p>
+          }
+          <div class="text-sm">
+            <ng-content />
+          </div>
+        </div>
+      </div>
+    </div>
+  

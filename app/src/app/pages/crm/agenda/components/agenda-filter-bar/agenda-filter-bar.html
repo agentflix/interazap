@@ -1,0 +1,66 @@
+<div
+  class="mb-4 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm"
+>
+  <div class="flex items-start justify-between w-full gap-3 flex-wrap">
+    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+      <div class="flex items-center gap-2 flex-wrap">
+        <app-button
+          variant="outline"
+          size="sm"
+          icon="lucideSlidersHorizontal"
+          (clicked)="onToggleAdvanced()"
+        >
+          + Filtros
+          @if (advancedCount() > 0) {
+            ({{ advancedCount() }})
+          }
+        </app-button>
+
+        <div class="flex items-center gap-2">
+          <app-button
+            variant="outline"
+            size="sm"
+            icon="lucideCalendar"
+            (clicked)="onChangeView('calendar')"
+          >
+            Calendário
+          </app-button>
+          <app-button
+            variant="outline"
+            size="sm"
+            icon="lucideList"
+            (clicked)="onChangeView('list')"
+          >
+            Lista
+          </app-button>
+        </div>
+
+        @if (showCreateButton()) {
+          <app-button variant="primary" size="sm" (clicked)="onCreate()">
+            <lucide-icon name="plus" [size]="16" class="block" />
+            Novo Evento
+          </app-button>
+        }
+      </div>
+      <div class="flex items-end gap-3">
+        <af-report-filters
+          [showFields]="['status']"
+          [statusOptions]="statusOptions()"
+          (filtersApplied)="handleFiltersApplied($event)"
+        />
+        <af-report-export (exported)="handleExport($event)" />
+      </div>
+    </div>
+  </div>
+
+  @if (activeChips().length > 0) {
+    <div class="flex items-center gap-2 flex-wrap mt-3">
+      <span class="text-xs text-neutral-500 dark:text-neutral-400">Filtros:</span>
+      @for (chip of activeChips(); track chip.key) {
+        <app-button variant="outline" size="sm" (clicked)="onRemoveChip(chip.key)">
+          {{ chip.label }} ×
+        </app-button>
+      }
+    </div>
+  }
+</div>

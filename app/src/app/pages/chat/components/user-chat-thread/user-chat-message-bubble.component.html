@@ -1,0 +1,324 @@
+
+    <!-- flex-row-reverse on outgoing → actions ficam à esquerda da bolha -->
+    <div
+      class="group flex items-end justify-start gap-1 w-full"
+      [class.flex-row-reverse]="isOutgoing()"
+    >
+      <!-- Bolha -->
+      <app-message-bubble
+        [direction]="isOutgoing() ? 'outgoing' : 'incoming'"
+        [isInternal]="isInternalNote()"
+      >
+        @if (isInternalNote()) {
+          <p class="mb-1 text-xs font-medium text-blue-400">Nota interna · oculta para o cliente</p>
+        }
+        @if (message().is_deleted || message().status === 'deleted') {
+          <p class="text-[13px] italic opacity-80">Mensagem excluída.</p>
+        } @else {
+          @if (isMedia()) {
+            <app-chat-message-media
+              [messageId]="message().id"
+              [calledId]="message().ticket_id || message().called_id || ''"
+              [type]="$any(message().type)"
+              [fileName]="message().file_name || null"
+              [mimeType]="message().mime_type || null"
+              [fallbackUrl]="message().file_url || null"
+            />
+            @if (caption()) {
+              <p
+                class="mt-1 whitespace-pre-wrap wrap-break-word text-[13.5px] font-semibold leading-snug"
+              >
+                {{ caption() }}
+                <span
+                  class="inline-flex items-center gap-0.5 align-bottom ml-1.5 text-[10px] opacity-60 select-none whitespace-nowrap font-normal"
+                >
+                  {{ timeLabel() }}
+                  @if (isOutgoing() && !isInternalNote()) {
+                    @switch (messageStatus()) {
+                      @case ('read') {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 16 16"
+                          class="w-4 h-2.75 inline"
+                          fill="none"
+                          stroke="#53bdeb"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M1.5 8.5 4 11l6-7" />
+                          <path d="M5.5 8.5 8 11l6-7" />
+                        </svg>
+                      }
+                      @case ('delivered') {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 16 16"
+                          class="w-4 h-2.75 inline"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M1.5 8.5 4 11l6-7" />
+                          <path d="M5.5 8.5 8 11l6-7" />
+                        </svg>
+                      }
+                      @case ('sent') {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 16 16"
+                          class="w-3 h-2.75 inline"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M3 8.5 6 11l6-7" />
+                        </svg>
+                      }
+                      @case ('pending') {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          class="w-3 h-3 inline animate-spin opacity-70"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                        </svg>
+                      }
+                    }
+                  }
+                </span>
+              </p>
+            } @else {
+              <div class="flex items-center justify-end gap-1 mt-1">
+                <span class="text-[10px] opacity-60">{{ timeLabel() }}</span>
+                @if (isOutgoing() && !isInternalNote()) {
+                  @switch (messageStatus()) {
+                    @case ('read') {
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        class="w-4 h-2.75 inline"
+                        fill="none"
+                        stroke="#53bdeb"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M1.5 8.5 4 11l6-7" />
+                        <path d="M5.5 8.5 8 11l6-7" />
+                      </svg>
+                    }
+                    @case ('delivered') {
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        class="w-4 h-2.75 inline"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M1.5 8.5 4 11l6-7" />
+                        <path d="M5.5 8.5 8 11l6-7" />
+                      </svg>
+                    }
+                    @case ('sent') {
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        class="w-3 h-2.75 inline"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M3 8.5 6 11l6-7" />
+                      </svg>
+                    }
+                    @case ('pending') {
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        class="w-3 h-3 inline animate-spin opacity-70"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                      </svg>
+                    }
+                  }
+                }
+              </div>
+            }
+          } @else {
+            <p class="whitespace-pre-wrap wrap-break-word text-[13.5px] font-semibold leading-snug">
+              {{ content() }}
+              <span
+                class="inline-flex items-center gap-0.5 align-bottom ml-1.5 text-[10px] opacity-60 select-none whitespace-nowrap font-normal"
+              >
+                {{ timeLabel() }}
+                @if (isOutgoing() && !isInternalNote()) {
+                  @switch (messageStatus()) {
+                    @case ('read') {
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        class="w-4 h-2.75 inline"
+                        fill="none"
+                        stroke="#53bdeb"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M1.5 8.5 4 11l6-7" />
+                        <path d="M5.5 8.5 8 11l6-7" />
+                      </svg>
+                    }
+                    @case ('delivered') {
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        class="w-4 h-2.75 inline"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M1.5 8.5 4 11l6-7" />
+                        <path d="M5.5 8.5 8 11l6-7" />
+                      </svg>
+                    }
+                    @case ('sent') {
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        class="w-3 h-2.75 inline"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M3 8.5 6 11l6-7" />
+                      </svg>
+                    }
+                    @case ('pending') {
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        class="w-3 h-3 inline animate-spin opacity-70"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                      </svg>
+                    }
+                  }
+                }
+              </span>
+            </p>
+          }
+        }
+      </app-message-bubble>
+
+      <!-- Ações: emoji reaction + reply — visíveis só no hover, fora da bolha -->
+      @if (
+        !readOnlyMode() &&
+        !message().is_deleted &&
+        message().status !== 'deleted' &&
+        !isInternalNote()
+      ) {
+        <div class="invisible group-hover:visible flex items-center gap-0.5 mb-0.5 shrink-0">
+          <!-- Botão emoji reaction -->
+          @if (!isOutgoing()) {
+            <div class="relative">
+              <button
+                type="button"
+                class="size-7 rounded-full flex items-center justify-center text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all"
+                aria-label="Reagir"
+                (click)="toggleEmojiPicker()"
+              >
+                <!-- smile icon -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="size-4"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.536-4.464a.75.75 0 1 0-1.061-1.061 3.5 3.5 0 0 1-4.95 0 .75.75 0 0 0-1.06 1.06 5 5 0 0 0 7.07 0ZM9 8.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S7.448 7 8 7s1 .672 1 1.5Zm3 1.5c-.552 0-1-.672-1-1.5S11.448 7 12 7s1 .672 1 1.5-.448 1.5-1 1.5Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+
+              @if (emojiPickerOpen()) {
+                <button
+                  type="button"
+                  class="fixed inset-0 z-20"
+                  (click)="emojiPickerOpen.set(false)"
+                ></button>
+                <div
+                  class="absolute bottom-8 z-30 flex items-center gap-1 bg-white dark:bg-neutral-800 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-lg px-2.5 py-1.5"
+                  [class.left-0]="!isOutgoing()"
+                  [class.right-0]="isOutgoing()"
+                >
+                  @for (emoji of quickReactions; track emoji) {
+                    <button
+                      type="button"
+                      class="text-[18px] leading-none hover:scale-125 transition-transform select-none"
+                      [attr.aria-label]="emoji"
+                      (click)="selectReaction(emoji)"
+                    >
+                      {{ emoji }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Botão reply -->
+          <button
+            type="button"
+            class="size-7 rounded-full flex items-center justify-center text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all"
+            aria-label="Responder"
+            (click)="onReply()"
+          >
+            <!-- reply arrow -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              class="size-4"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.793 2.232a.75.75 0 0 1-.025 1.06L3.622 7.25h10.003a5.375 5.375 0 0 1 0 10.75H10.75a.75.75 0 0 1 0-1.5h2.875a3.875 3.875 0 0 0 0-7.75H3.622l4.146 3.957a.75.75 0 0 1-1.036 1.085l-5.5-5.25a.75.75 0 0 1 0-1.085l5.5-5.25a.75.75 0 0 1 1.06.025Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+      }
+    </div>
+  

@@ -1,0 +1,22 @@
+
+    <div [class]="alertClasses()" role="alert">
+      <div class="flex items-start gap-3">
+        <lucide-icon [name]="iconName()" [size]="18" class="mt-0.5 shrink-0" />
+        <div class="flex-1 min-w-0">
+          @if (title()) {
+            <p class="text-sm font-semibold">{{ title() }}</p>
+          }
+          <p class="text-sm" [class.mt-0.5]="title()">{{ message() }}</p>
+        </div>
+        @if (dismissible()) {
+          <button
+            type="button"
+            class="shrink-0 cursor-pointer opacity-60 hover:opacity-100"
+            (click)="dismissed.emit()"
+          >
+            <lucide-icon name="x" [size]="16" />
+          </button>
+        }
+      </div>
+    </div>
+  

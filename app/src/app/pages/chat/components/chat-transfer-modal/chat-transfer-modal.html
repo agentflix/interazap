@@ -1,0 +1,48 @@
+<app-modal title="Transferir chamado" [isOpen]="isOpen()" (closed)="close()" size="sm">
+  <div modal-body class="space-y-4">
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      Informe para quem o chamado será transferido e registre o motivo para a equipe interna.
+    </p>
+
+    @if (isTransferUsersLoading()) {
+      <div class="text-sm text-neutral-500 dark:text-neutral-400">Carregando atendentes...</div>
+    } @else if (transferUsersLoadError()) {
+      <div class="text-sm text-danger">Não foi possível carregar a lista de atendentes.</div>
+    } @else if (transferUserOptions().length === 0) {
+      <div class="text-sm text-neutral-500 dark:text-neutral-400">
+        Nenhum atendente disponível para transferência.
+      </div>
+    } @else {
+      <app-select-input
+        label="Transferir para"
+        [control]="transferUserControl"
+        [options]="transferUserOptions()"
+        placeholder="Selecione um atendente"
+        [spacing]="false"
+        [classSelect]="isSubmitting() ? 'opacity-60 pointer-events-none' : ''"
+      />
+
+      <app-textarea-input
+        label="Motivo da transferência"
+        [control]="transferReasonControl"
+        placeholder="Descreva o contexto que o próximo atendente precisa saber."
+        [helpText]="'Essa nota aparecerá apenas na timeline interna e não será exibida ao cliente.'"
+        [spacing]="false"
+        [rows]="4"
+      />
+    }
+
+    @if (submitError()) {
+      <p class="text-xs text-red-400">{{ submitError() }}</p>
+    }
+  </div>
+
+  <div modal-footer class="flex w-full items-center justify-end gap-2">
+    <app-button variant="outline" size="sm" [disabled]="isSubmitting()" (clicked)="close()">
+      Cancelar
+    </app-button>
+    <app-button variant="primary" size="sm" [disabled]="!canSubmit()" (clicked)="confirm()">
+      {{ isSubmitting() ? 'Transferindo...' : 'Transferir chamado' }}
+    </app-button>
+  </div>
+</app-modal>

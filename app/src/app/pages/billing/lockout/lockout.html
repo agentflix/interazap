@@ -1,0 +1,49 @@
+<div class="min-h-screen bg-surface-50 dark:bg-neutral-950 p-6">
+  <div class="mx-auto max-w-3xl space-y-4">
+    <af-page-title
+      title="Acesso bloqueado por inadimplência"
+      subtitle="Regularize sua fatura para restabelecer o acesso completo."
+    />
+
+    @if (lockoutData(); as data) {
+      <div
+        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 space-y-3"
+      >
+        <p class="text-neutral-900 dark:text-neutral-50">{{ data.message }}</p>
+
+        @if (firstInvoice(); as invoice) {
+          <div
+            class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-3 space-y-1"
+          >
+            <p class="text-sm text-neutral-700 dark:text-neutral-300">
+              Referência: <strong>{{ invoice.reference_month }}</strong>
+            </p>
+            <p class="text-sm text-neutral-700 dark:text-neutral-300">
+              Valor: <strong>{{ formatCurrency(invoice.amount) }}</strong>
+            </p>
+            <p class="text-sm text-neutral-700 dark:text-neutral-300">
+              Vencimento: <strong>{{ formatDate(invoice.due_date) }}</strong>
+            </p>
+          </div>
+        }
+
+        <p class="text-sm text-neutral-700 dark:text-neutral-300">
+          Prazo para exclusão de dados: <strong>{{ countdownLabel() }}</strong>
+        </p>
+
+        <div class="flex flex-wrap gap-2">
+          <af-button variant="primary" (clicked)="payNow()">Pagar Agora</af-button>
+          <af-button variant="outline" (clicked)="goToMyPlan()">Ver Meu Plano</af-button>
+          <af-button variant="ghost" (clicked)="logout()">Sair</af-button>
+        </div>
+      </div>
+    } @else {
+      <af-empty-state
+        title="Nenhum bloqueio ativo"
+        description="Não existem informações de lockout para sua sessão atual."
+      >
+        <af-button variant="outline" (clicked)="goToMyPlan()">Ir para Meu Plano</af-button>
+      </af-empty-state>
+    }
+  </div>
+</div>

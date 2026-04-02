@@ -1,0 +1,171 @@
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="mb-4">
+          <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+        </div>
+      }
+
+      <af-text-input
+        label="Nome"
+        [control]="form.controls.name"
+        placeholder="Ex: Vendas B2B"
+        [required]="true"
+        dataTest="funnel-form-name"
+      />
+
+      <af-textarea-input
+        label="Descrição"
+        [control]="form.controls.description"
+        placeholder="Descrição do funil..."
+        [rows]="2"
+        dataTest="funnel-form-description"
+      />
+
+      <af-switch-input
+        label="Ativo"
+        [control]="form.controls.is_active"
+        dataTest="funnel-form-active"
+      />
+
+      <!-- Steps section -->
+      <div class="border-t border-neutral-200 dark:border-neutral-700 pt-4 mt-4">
+        <div
+          class="flex items-center justify-between pb-3 mb-3 border-b border-neutral-100 dark:border-neutral-800"
+        >
+          <div class="flex items-center gap-2">
+            <lucide-icon name="layers" [size]="16" class="text-primary-500 dark:text-primary-400" />
+            <h4 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Etapas do Funil
+            </h4>
+          </div>
+          <af-button variant="primary" size="sm" (click)="openCreateStep()">
+            <lucide-icon name="plus" [size]="14" class="block" />
+            Nova etapa
+          </af-button>
+        </div>
+
+        @if (isLoadingSteps()) {
+          <div class="flex justify-center py-4">
+            <span
+              class="size-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent"
+            ></span>
+          </div>
+        } @else if (steps().length === 0) {
+          <div
+            class="text-center py-6 text-neutral-500 text-sm border border-dashed border-neutral-200 dark:border-neutral-700 rounded-lg"
+          >
+            <p>Nenhuma etapa cadastrada.</p>
+            <p class="text-xs mt-1">Adicione etapas para organizar seu funil.</p>
+          </div>
+        } @else {
+          <div class="space-y-2">
+            @for (step of steps(); track step.id; let idx = $index) {
+              <div
+                class="flex items-center gap-3 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 cursor-move hover:border-primary-500/50 transition-colors"
+                draggable="true"
+                (dragstart)="onDragStart(idx)"
+                (dragover)="onDragOver($event, idx)"
+                (drop)="onDrop($event, idx)"
+                (dragend)="onDragEnd()"
+                [class.opacity-50]="dragIndex() === idx"
+              >
+                <span class="text-neutral-400 cursor-grab">
+                  <lucide-icon name="grip-vertical" [size]="16" />
+                </span>
+                <div
+                  class="size-4 rounded"
+                  [style.background-color]="step.color || '#3b82f6'"
+                ></div>
+                <span class="flex-1 text-sm font-medium text-neutral-800 dark:text-neutral-200">{{
+                  step.name
+                }}</span>
+                <span
+                  class="text-xs px-1.5 py-0.5 rounded"
+                  [class]="
+                    step.is_active
+                      ? 'bg-success/10 text-success dark:bg-success/20'
+                      : 'bg-danger/10 text-danger dark:bg-danger/20'
+                  "
+                >
+                  {{ step.is_active ? 'Ativo' : 'Inativo' }}
+                </span>
+                <div class="flex items-center gap-1">
+                  <af-icon-button
+                    label="Editar etapa"
+                    variant="ghost"
+                    size="sm"
+                    (click)="openEditStep(step)"
+                  >
+                    <lucide-icon name="pencil" [size]="14" />
+                  </af-icon-button>
+                  <af-icon-button
+                    label="Excluir etapa"
+                    variant="danger"
+                    size="sm"
+                    (click)="confirmDeleteStep(step)"
+                  >
+                    <lucide-icon name="trash-2" [size]="14" />
+                  </af-icon-button>
+                </div>
+              </div>
+            }
+          </div>
+          <p class="text-xs text-neutral-400 mt-2">Arraste para reordenar as etapas.</p>
+        }
+      </div>
+    </form>
+
+    <!-- Step modal -->
+    <af-modal
+      [open]="isStepModalOpen()"
+      [title]="editingStep() ? 'Editar etapa' : 'Nova etapa'"
+      size="sm"
+      (closed)="closeStepModal()"
+    >
+      <form [formGroup]="stepForm" (ngSubmit)="submitStep()">
+        <af-text-input
+          label="Nome"
+          [control]="stepForm.controls.name"
+          placeholder="Ex: Prospecção"
+          [required]="true"
+          dataTest="step-form-name"
+        />
+        <af-color-input
+          label="Cor"
+          [control]="stepForm.controls.color"
+          dataTest="step-form-color"
+        />
+        <af-switch-input
+          label="Ativo"
+          [control]="stepForm.controls.is_active"
+          dataTest="step-form-active"
+        />
+      </form>
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="closeStepModal()"> Cancelar </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isSavingStep()"
+          (click)="submitStep()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Step delete confirmation -->
+    <af-confirm-modal
+      [open]="isDeleteStepOpen()"
+      title="Remover etapa"
+      [message]="'Tem certeza que deseja remover a etapa ' + (deletingStep()?.name ?? '') + '?'"
+      confirmLabel="Remover"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="deleteStepItem()"
+      (cancelled)="closeDeleteStep()"
+    />
+  

@@ -1,0 +1,60 @@
+
+    <div class="flex gap-2 max-w-[85%]" [class]="isUser() ? 'ml-auto flex-row-reverse' : ''">
+      <!-- Avatar -->
+      <div
+        class="size-7 shrink-0 rounded-full flex items-center justify-center text-xs font-bold"
+        [class]="
+          isUser()
+            ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+            : 'bg-accent-100 text-accent-700 dark:bg-accent-900/30 dark:text-accent-400'
+        "
+      >
+        @if (isUser()) {
+          <lucide-icon name="user" [size]="14" class="block" />
+        } @else {
+          <lucide-icon name="bot" [size]="14" class="block" />
+        }
+      </div>
+
+      <!-- Bubble -->
+      <div
+        class="rounded-xl px-3 py-2 text-sm leading-relaxed"
+        [class]="
+          isUser()
+            ? 'bg-primary-500 text-white dark:bg-primary-600'
+            : 'bg-neutral-100 text-neutral-800 dark:bg-neutral-700/60 dark:text-neutral-100'
+        "
+      >
+        @if (displayText()) {
+          <span class="whitespace-pre-wrap">{{ displayText() }}</span>
+        }
+
+        @if (isStreaming() && !isFinal()) {
+          <span class="inline-flex items-center gap-0.5 ml-1 align-middle">
+            <span
+              class="size-1 rounded-full bg-current animate-bounce [animation-delay:0ms]"
+            ></span>
+            <span
+              class="size-1 rounded-full bg-current animate-bounce [animation-delay:150ms]"
+            ></span>
+            <span
+              class="size-1 rounded-full bg-current animate-bounce [animation-delay:300ms]"
+            ></span>
+          </span>
+        }
+
+        @if (!displayText() && !isStreaming()) {
+          <span class="text-neutral-400 italic">Sem conteúdo</span>
+        }
+      </div>
+    </div>
+
+    <!-- Audio player (for voice responses) -->
+    @if (audioUrl()) {
+      <div class="mt-1 ml-9">
+        <audio controls [src]="audioUrl()!" class="h-8 w-60">
+          Seu navegador não suporta áudio.
+        </audio>
+      </div>
+    }
+  

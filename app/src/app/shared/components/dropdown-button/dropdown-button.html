@@ -1,0 +1,34 @@
+
+    <div class="relative inline-block" #root>
+      <af-button [variant]="variant()" [size]="size()" [disabled]="disabled()" (click)="toggle()">
+        {{ label() }}
+        <lucide-icon name="chevron-down" [size]="14" class="ml-1" />
+      </af-button>
+
+      @if (isOpen()) {
+        <div
+          class="absolute z-30 mt-1 w-48 rounded-lg border border-neutral-200 dark:border-neutral-700
+            bg-white dark:bg-neutral-900 shadow-md p-1"
+          [class.bottom-full.mb-1]="placement() === 'top'"
+          [class.right-0]="placement() === 'bottom-end'"
+        >
+          @for (opt of options(); track opt.value) {
+            <button
+              type="button"
+              [disabled]="opt.disabled ?? false"
+              class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-left text-sm
+                text-neutral-700 dark:text-neutral-200
+                hover:bg-neutral-100 dark:hover:bg-neutral-800
+                disabled:opacity-40 disabled:cursor-not-allowed"
+              (click)="select(opt)"
+            >
+              @if (opt.icon) {
+                <lucide-icon [name]="opt.icon" [size]="15" class="text-neutral-500" />
+              }
+              <span>{{ opt.label }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  

@@ -1,0 +1,204 @@
+
+    <div class="pt-2">
+      <app-page-title title="Transcrição de Mídia" subtitle="Relatórios">
+        <af-button variant="secondary" size="sm" (clicked)="openFilters()">
+          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+          Filtros
+        </af-button>
+      </app-page-title>
+
+      <af-drawer
+        [open]="isFilterOpen()"
+        title="Filtros do relatório"
+        side="right"
+        size="lg"
+        (closed)="closeFilters()"
+      >
+        <af-search-input
+          [control]="searchControl"
+          placeholder="Buscar..."
+          dataTest="media-transcription-search"
+        />
+        <div class="grid grid-cols-1">
+          <af-text-input
+            [control]="startDateControl"
+            label="Data inicial"
+            type="date"
+            dataTest="media-transcription-start-date"
+          />
+          <af-text-input
+            [control]="endDateControl"
+            label="Data final"
+            type="date"
+            dataTest="media-transcription-end-date"
+          />
+          <af-select-input
+            label="Granularidade"
+            [control]="granularityControl"
+            [options]="granularityOptions"
+            dataTest="media-transcription-granularity"
+          />
+        </div>
+        <div class="flex gap-2">
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'csv' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" /> CSV
+          </af-button>
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'xlsx' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" /> XLSX
+          </af-button>
+        </div>
+        <div footer>
+          <div class="flex w-full items-center justify-between gap-2">
+            <af-button variant="danger" size="sm" (clicked)="clearFilters()"
+              >Limpar filtros</af-button
+            >
+            <div class="flex gap-2">
+              <af-button variant="ghost" size="sm" (clicked)="closeFilters()">Cancelar</af-button>
+              <af-button variant="primary" size="sm" (clicked)="applyFilters()">Aplicar</af-button>
+            </div>
+          </div>
+        </div>
+      </af-drawer>
+
+      @if (isLoading()) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          @for (i of [0, 1, 2, 3]; track i) {
+            <af-card><af-skeleton variant="rectangular" width="100%" height="4rem" /></af-card>
+          }
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <af-card><af-skeleton variant="rectangular" width="100%" height="16rem" /></af-card>
+          <af-card><af-skeleton variant="rectangular" width="100%" height="16rem" /></af-card>
+        </div>
+      } @else if (hasError()) {
+        <af-card>
+          <div class="py-12 text-center">
+            <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+              Erro ao carregar dados
+            </h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+              Não foi possível carregar o relatório de transcrição de mídia.
+            </p>
+            <af-button variant="primary" size="sm" (click)="retry()">Tentar novamente</af-button>
+          </div>
+        </af-card>
+      } @else if (!data()) {
+        <af-card>
+          <af-empty-state
+            title="Sem dados disponíveis"
+            description="Não há dados de transcrição de mídia no período selecionado"
+          />
+        </af-card>
+      } @else {
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <af-kpi-card
+            title="Total de Transcrições"
+            [value]="(data()!.summary.total_transcriptions | number: '1.0-0') + ''"
+            [loading]="false"
+          />
+          <af-kpi-card
+            title="Custo Total"
+            [value]="formatCurrency(data()!.summary.total_cost)"
+            [loading]="false"
+          />
+          <af-kpi-card
+            title="Tokens Utilizados"
+            [value]="(data()!.summary.total_tokens | number: '1.0-0') + ''"
+            [loading]="false"
+          />
+          <af-kpi-card
+            title="Latência Média"
+            [value]="(data()!.summary.avg_latency_ms | number: '1.0-0') + ' ms'"
+            [loading]="false"
+          />
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <af-card>
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+              <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Transcrições por Tipo de Mídia
+              </h6>
+            </div>
+            <af-apexchart
+              type="bar"
+              [series]="byTypeSeries()"
+              [categories]="byTypeCategories()"
+              height="280"
+              [colors]="['#2b7fff', '#10b981', '#f59e0b']"
+              [extraOptions]="byTypeExtra()"
+            />
+          </af-card>
+
+          <af-card>
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+              <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Custo Diário
+              </h6>
+            </div>
+            <af-apexchart
+              type="line"
+              [series]="dailySeries()"
+              [categories]="dailyCategories()"
+              height="280"
+              [colors]="['#ef4444']"
+              [extraOptions]="dailyExtra()"
+            />
+          </af-card>
+        </div>
+
+        <!-- By Model Table -->
+        <af-card [padded]="false">
+          <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+            <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Uso por Modelo
+            </h6>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                  <th
+                    class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Modelo
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Transcrições
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Tokens
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Custo
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (model of data()!.by_model; track model.model_name) {
+                  <tr
+                    class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                  >
+                    <td class="py-3 px-4 text-neutral-900 dark:text-neutral-50">
+                      {{ model.model_name }}
+                    </td>
+                    <td class="text-right py-3 px-4">{{ model.count | number: '1.0-0' }}</td>
+                    <td class="text-right py-3 px-4">{{ model.tokens | number: '1.0-0' }}</td>
+                    <td class="text-right py-3 px-4">{{ formatCurrency(model.cost) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </af-card>
+      }
+    </div>
+  

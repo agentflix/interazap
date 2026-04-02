@@ -1,0 +1,61 @@
+
+    @if (errorMessage()) {
+      <div class="mb-4">
+        <af-alert variant="danger" [message]="errorMessage()" />
+      </div>
+    }
+
+    <form [formGroup]="form" class="space-y-4" (submit)="$event.preventDefault()">
+      <af-text-input
+        [control]="form.controls.name"
+        label="Nome"
+        placeholder="Nome completo"
+        [required]="true"
+        dataTest="user-form-name"
+        [errorMessage]="nameError()"
+      />
+
+      <af-text-input
+        [control]="form.controls.email"
+        label="E-mail"
+        type="email"
+        placeholder="email@exemplo.com"
+        [required]="true"
+        [readOnly]="isEditing()"
+        dataTest="user-form-email"
+        [errorMessage]="emailError()"
+      />
+
+      <af-checkbox-group
+        [control]="form.controls.roles"
+        label="Perfis de acesso"
+        [options]="roleOptions()"
+        dataTest="user-form-roles"
+      />
+
+      <af-password-strength
+        [label]="isEditing() ? 'Nova senha (opcional)' : 'Senha'"
+        [control]="form.controls.password"
+        [placeholder]="isEditing() ? 'Deixe em branco para não alterar' : 'Mínimo 8 caracteres'"
+        [minLength]="8"
+        [showChecklist]="true"
+        [required]="!isEditing()"
+        dataTest="user-form-password"
+      />
+
+      <af-password-input
+        label="Confirmar senha"
+        [control]="form.controls.password_confirmation"
+        placeholder="Repita a senha"
+        [required]="isPasswordConfirmationRequired()"
+        [errorMessage]="passwordConfirmationErrorMessage()"
+        dataTest="user-form-password-confirmation"
+      />
+
+      <af-switch-input
+        [control]="form.controls.is_active"
+        label="Usuário ativo"
+        dataTest="user-form-is-active"
+      />
+    </form>
+  

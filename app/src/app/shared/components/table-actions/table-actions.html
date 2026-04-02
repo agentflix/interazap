@@ -1,0 +1,25 @@
+
+    <div class="flex items-center gap-1">
+      @if (showView()) {
+        <af-icon-button label="Visualizar" variant="ghost" size="sm" (click)="view.emit()">
+          <lucide-icon name="eye" [size]="15" />
+        </af-icon-button>
+      }
+      @if (showEdit()) {
+        <af-icon-button label="Editar" variant="ghost" size="sm" (click)="edit.emit()">
+          <lucide-icon name="pencil" [size]="15" />
+        </af-icon-button>
+      }
+      @if (showDelete()) {
+        <af-icon-button
+          [label]="deleteDisabled() ? 'Desconecte primeiro para excluir' : 'Excluir'"
+          variant="danger"
+          size="sm"
+          [disabled]="deleteDisabled()"
+          (click)="delete.emit()"
+        >
+          <lucide-icon name="trash-2" [size]="15" />
+        </af-icon-button>
+      }
+    </div>
+  

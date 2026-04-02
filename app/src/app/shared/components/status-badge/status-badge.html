@@ -1,0 +1,10 @@
+
+    <span [class]="badgeClasses()">
+      <span [class]="dotClasses()">
+        @if (pulse()) {
+          <span [class]="pulseClasses()"></span>
+        }
+      </span>
+      <ng-content />
+    </span>
+  

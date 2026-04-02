@@ -1,0 +1,154 @@
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h4 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">
+      Produtos e Serviços
+    </h4>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      @if (productsSummary().count > 0) {
+        <span>Total: {{ formatCurrency(productsSummary().total) }}</span>
+      } @else {
+        <span>Nenhum item associado.</span>
+      }
+    </p>
+  </div>
+  <app-button variant="primary" size="sm" (clicked)="openProductModal()"
+    ><lucide-icon name="plus" [size]="16" class="block" /> Adicionar item</app-button
+  >
+</div>
+
+<div class="mt-4">
+  @if (isProductsLoading()) {
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">Carregando produtos...</p>
+  } @else if (products().length === 0) {
+    <div
+      class="rounded-lg border border-dashed border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-6 text-center text-sm text-neutral-500 dark:text-neutral-400"
+    >
+      Nenhum produto ou serviço associado a esta negociação.
+    </div>
+  } @else {
+    <div class="space-y-3">
+      @for (item of products(); track item.id) {
+        <div
+          class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4"
+        >
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="font-semibold text-neutral-900 dark:text-neutral-50">
+                {{ item.product?.name || 'Produto' }}
+              </p>
+              <div
+                class="mt-2 grid gap-1 text-sm text-neutral-600 dark:text-neutral-300 sm:grid-cols-2"
+              >
+                <p><span class="font-semibold">Qtd:</span> {{ item.quantity }}</p>
+                <p>
+                  <span class="font-semibold">Preço:</span> {{ formatCurrency(item.price || 0) }}
+                </p>
+                <p>
+                  <span class="font-semibold">Desconto:</span>
+                  @if (item.discount && item.discount > 0) {
+                    <span>{{ formatCurrency(item.discount) }}</span>
+                  } @else {
+                    <span>-</span>
+                  }
+                </p>
+                <p>
+                  <span class="font-semibold">Total:</span> {{ formatCurrency(item.total || 0) }}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <app-icon-button
+                icon="lucidePencil"
+                variant="ghost"
+                size="sm"
+                ariaLabel="Editar item"
+                (clicked)="openProductModal(item)"
+              />
+              <app-icon-button
+                icon="lucideTrash2"
+                variant="danger"
+                size="sm"
+                ariaLabel="Excluir item"
+                (clicked)="confirmDeleteProduct(item)"
+              />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-modal
+  [isOpen]="isProductModalOpen()"
+  [title]="editingProduct() ? 'Editar item' : 'Adicionar item'"
+  maxWidth="md"
+  (closed)="closeProductModal()"
+>
+  <form modal-body class="space-y-4" [formGroup]="productForm">
+    <app-select-input
+      label="Produto ou serviço"
+      [control]="productForm.controls.product_id"
+      [options]="productSelectOptions()"
+      [required]="true"
+      placeholder="Selecione um item"
+    />
+    <div class="grid gap-4 md:grid-cols-3">
+      <app-text-input
+        label="Quantidade"
+        [control]="productForm.controls.quantity"
+        type="number"
+        dataTest="product-quantity"
+      />
+      <app-currency-input
+        label="Preço"
+        [control]="productForm.controls.price"
+        dataTest="product-price"
+      />
+      <app-currency-input
+        label="Desconto"
+        [control]="productForm.controls.discount"
+        dataTest="product-discount"
+      />
+    </div>
+    <div
+      class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-3 text-sm"
+    >
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-neutral-700 dark:text-neutral-300">Total estimado</span>
+        <span class="text-base font-semibold text-success">{{
+          formatCurrency(getProductFormTotal())
+        }}</span>
+      </div>
+    </div>
+    @if (productModalError()) {
+      <div class="rounded-lg border border-danger/20 bg-danger/10 p-3 text-sm text-danger">
+        {{ productModalError() }}
+      </div>
+    }
+  </form>
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <app-button variant="ghost" size="sm" (clicked)="closeProductModal()">Cancelar</app-button>
+      <app-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="isProductSaving()"
+        loadingText="Salvando..."
+        (clicked)="saveProduct()"
+      >
+        {{ editingProduct() ? 'Salvar' : 'Adicionar' }}
+      </app-loading-button>
+    </div>
+  </div>
+</app-modal>
+
+<app-confirm-modal
+  [isOpen]="!!deletingProduct()"
+  title="Remover item"
+  message="Tem certeza que deseja remover este item da negociação?"
+  confirmLabel="Remover"
+  cancelLabel="Cancelar"
+  (confirmed)="deleteProduct()"
+  (cancelled)="cancelDeleteProduct()"
+/>

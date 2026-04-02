@@ -1,0 +1,22 @@
+
+    <div
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-4"
+    >
+      <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
+        {{ label() }}
+      </p>
+      <p class="mt-1 text-2xl font-bold text-neutral-900 dark:text-neutral-50 tabular-nums">
+        {{ value() }}
+      </p>
+      @if (change()) {
+        <p
+          class="mt-1 text-xs font-medium"
+          [class.text-accent-600]="changeType() === 'positive'"
+          [class.text-red-600]="changeType() === 'negative'"
+          [class.text-neutral-500]="changeType() === 'neutral'"
+        >
+          {{ change() }}
+        </p>
+      }
+    </div>
+  

@@ -1,0 +1,128 @@
+
+    <main class="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
+      <div class="flex items-center gap-3">
+        <span
+          class="size-10 rounded-full bg-primary-500/10 text-primary-500 flex items-center justify-center"
+        >
+          <svg class="size-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M4 4h10l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4Z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        <div>
+          <h1 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+            Proposta Comercial
+          </h1>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">
+            Acompanhe os detalhes e aprove a proposta.
+          </p>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+        <div class="space-y-4">
+          @for (row of [0, 1, 2, 3, 4]; track row) {
+            <af-skeleton variant="rectangular" width="100%" height="48px" />
+          }
+        </div>
+      } @else if (errorMessage()) {
+        <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+      } @else if (proposal()) {
+        <section
+          class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+                {{ proposal()?.title }}
+              </h2>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                Proposta #{{ proposal()?.number || '—' }} · Status:
+                {{ proposal()?.status | uppercase }}
+              </p>
+            </div>
+            <div class="text-right text-sm text-neutral-500 dark:text-neutral-400">
+              @if (proposal()?.valid_until) {
+                <p>Válida até {{ proposal()?.valid_until | date: 'dd/MM/yyyy' }}</p>
+              }
+              <p>
+                Total: {{ proposal()?.total || 0 | currency: 'BRL' : 'symbol-narrow' : '1.2-2' }}
+              </p>
+            </div>
+          </div>
+
+          @if (proposal()?.notes) {
+            <div
+              class="mt-4 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-4 text-sm text-neutral-600 dark:text-neutral-300"
+            >
+              {{ proposal()?.notes }}
+            </div>
+          }
+
+          @if (proposalPdfUrl()) {
+            <div class="mt-6">
+              <af-pdf-preview [src]="proposalPdfUrl()" title="Prévia da proposta" />
+            </div>
+          }
+
+          <div class="mt-6 space-y-2">
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Itens</h3>
+            <div class="space-y-2">
+              @for (item of proposal()?.items || []; track trackById($index, item)) {
+                <div
+                  class="flex items-center justify-between rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/70 p-3 text-sm"
+                >
+                  <div>
+                    <p class="font-semibold text-neutral-900 dark:text-neutral-50">
+                      {{ item.name }}
+                    </p>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                      {{ item.quantity }} x
+                      {{ item.unit_price | currency: 'BRL' : 'symbol-narrow' : '1.2-2' }}
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-neutral-900 dark:text-neutral-50">
+                      {{ item.total || 0 | currency: 'BRL' : 'symbol-narrow' : '1.2-2' }}
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-wrap items-center gap-3">
+            <af-button
+              variant="primary"
+              type="button"
+              [disabled]="isProcessing() || proposal()?.status !== 'sent'"
+              (click)="accept()"
+            >
+              Aceitar
+            </af-button>
+            <af-button
+              variant="danger"
+              type="button"
+              [disabled]="isProcessing() || proposal()?.status !== 'sent'"
+              (click)="reject()"
+            >
+              Rejeitar
+            </af-button>
+            @if (successMessage()) {
+              <span class="text-sm text-accent-500">{{ successMessage() }}</span>
+            }
+          </div>
+        </section>
+      } @else {
+        <af-empty-state
+          title="Proposta não encontrada"
+          description="Não encontramos dados para a proposta informada."
+        />
+      }
+    </main>
+  

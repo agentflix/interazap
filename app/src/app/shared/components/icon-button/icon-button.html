@@ -1,0 +1,16 @@
+
+    <button
+      type="button"
+      [attr.aria-label]="resolvedLabel()"
+      [attr.title]="resolvedLabel()"
+      [disabled]="disabled()"
+      [class]="buttonClasses()"
+      (click)="onClick($event)"
+    >
+      @if (icon()) {
+        <ng-icon [name]="icon()!" [size]="iconSize()" />
+      } @else {
+        <ng-content />
+      }
+    </button>
+  

@@ -1,0 +1,56 @@
+
+    <form class="space-y-4" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="mb-4">
+          <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+        </div>
+      }
+      <af-select-input
+        label="Master"
+        [control]="form.controls.master_id"
+        [options]="masterOptions()"
+        [required]="true"
+        dataTest="segment-master-id"
+      />
+
+      <af-text-input
+        label="Código"
+        [control]="form.controls.code"
+        [required]="true"
+        [maxLength]="100"
+        errorMessage="Código é obrigatório."
+        dataTest="segment-code"
+      />
+
+      <af-text-input
+        label="Nome"
+        [control]="form.controls.name"
+        [required]="true"
+        [maxLength]="255"
+        errorMessage="Nome é obrigatório."
+        dataTest="segment-name"
+      />
+
+      <af-textarea-input
+        label="Descrição"
+        [control]="form.controls.description"
+        [rows]="3"
+        dataTest="segment-description"
+      />
+
+      <af-textarea-input
+        label="Conteúdo"
+        [control]="form.controls.content"
+        [required]="true"
+        [rows]="10"
+        errorMessage="Conteúdo é obrigatório."
+        dataTest="segment-content"
+      />
+
+      <af-switch-input
+        [control]="form.controls.is_active"
+        label="Ativo"
+        dataTest="segment-active"
+      />
+    </form>
+  

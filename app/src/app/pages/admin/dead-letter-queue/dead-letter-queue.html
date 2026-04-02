@@ -1,0 +1,317 @@
+
+    <div class="space-y-6">
+      <af-page-title
+        title="Dead Letter Queue"
+        subtitle="Jobs que falharam após todas as tentativas"
+      >
+        <a routerLink="/admin/queues" class="inline-flex">
+          <af-icon-button label="Voltar" variant="ghost" size="sm">
+            <lucide-icon name="arrow-left" [size]="15" />
+          </af-icon-button>
+        </a>
+        <af-button
+          variant="danger"
+          size="sm"
+          [disabled]="loading() || jobs().length === 0"
+          (click)="purgeAll()"
+        >
+          <lucide-icon name="trash-2" [size]="14" class="block" />
+          Limpar tudo
+        </af-button>
+        <af-button
+          variant="primary"
+          size="sm"
+          [disabled]="loading() || jobs().length === 0"
+          (click)="retryAll()"
+        >
+          <lucide-icon name="rotate-ccw" [size]="14" class="block" />
+          Retentar todos
+        </af-button>
+        <af-icon-button label="Atualizar" variant="outline" size="sm" (click)="refresh()">
+          <lucide-icon name="refresh-cw" [size]="14" [class.animate-spin]="loading()" />
+        </af-icon-button>
+      </af-page-title>
+
+      <af-card>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <af-select-input
+            label="Fila"
+            [control]="queueControl"
+            [options]="queueOptions()"
+            [spacing]="false"
+          />
+
+          <af-text-input
+            label="Tipo de Job"
+            [control]="jobNameControl"
+            placeholder="Ex: SendEmailJob"
+            [spacing]="false"
+          />
+
+          <af-text-input
+            label="Data Inicial"
+            type="date"
+            [control]="fromDateControl"
+            [spacing]="false"
+          />
+
+          <af-text-input
+            label="Data Final"
+            type="date"
+            [control]="toDateControl"
+            [spacing]="false"
+          />
+        </div>
+
+        @if (hasActiveFilters()) {
+          <div class="mt-4 flex items-center gap-2">
+            <span class="text-sm text-neutral-500 dark:text-neutral-400">Filtros ativos</span>
+            <af-button variant="outline" size="sm" (click)="clearFilters()">
+              <lucide-icon name="x" [size]="14" class="block" />
+              Limpar filtros
+            </af-button>
+          </div>
+        }
+      </af-card>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <af-card>
+          <div class="flex items-center gap-3">
+            <span
+              class="size-10 rounded-lg bg-danger/15 text-danger flex items-center justify-center"
+            >
+              <lucide-icon name="alert-triangle" [size]="20" />
+            </span>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Total na DLQ</p>
+              <p class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                {{ pagination()?.total ?? 0 }}
+              </p>
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="flex items-center gap-3">
+            <span
+              class="size-10 rounded-lg bg-warning/15 text-warning flex items-center justify-center"
+            >
+              <lucide-icon name="clock" [size]="20" />
+            </span>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Última Falha</p>
+              <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                {{ lastFailedAt() ? (lastFailedAt() | date: 'dd/MM/yyyy HH:mm') : '-' }}
+              </p>
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="flex items-center gap-3">
+            <span class="size-10 rounded-lg bg-info/15 text-info flex items-center justify-center">
+              <lucide-icon name="layers" [size]="20" />
+            </span>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Filas Afetadas</p>
+              <p class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                {{ uniqueQueues().length }}
+              </p>
+            </div>
+          </div>
+        </af-card>
+      </div>
+
+      <af-card>
+        @if (!loading() && jobs().length === 0) {
+          <af-empty-state
+            title="Nenhum job na Dead Letter Queue"
+            description="Todos os jobs estão sendo processados com sucesso"
+          >
+            <div icon>
+              <lucide-icon name="circle-check" [size]="26" class="text-success" />
+            </div>
+          </af-empty-state>
+        } @else {
+          <af-data-table [hoverable]="true">
+            <thead>
+              <tr>
+                <th>Job</th>
+                <th>Fila</th>
+                <th>Erro</th>
+                <th class="text-center">Tentativas</th>
+                <th>Falhou em</th>
+                <th class="text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (job of jobs(); track job.id) {
+                <tr>
+                  <td>
+                    <div class="flex flex-col">
+                      <span class="font-medium text-neutral-900 dark:text-neutral-100">{{
+                        job.name
+                      }}</span>
+                      <span class="text-xs text-neutral-500 font-mono truncate max-w-72">{{
+                        job.id
+                      }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <af-badge variant="default">{{ job.queue }}</af-badge>
+                  </td>
+                  <td>
+                    <div class="flex flex-col max-w-80">
+                      <span class="text-danger truncate" [title]="job.failedReason">{{
+                        job.failedReason
+                      }}</span>
+                      @if (job.stacktrace.length) {
+                        <af-button variant="ghost" size="sm" (click)="showStacktrace(job)">
+                          Ver stacktrace
+                        </af-button>
+                      }
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <af-badge variant="danger"
+                      >{{ job.attemptsMade }}/{{ job.maxAttempts }}</af-badge
+                    >
+                  </td>
+                  <td class="text-neutral-600 dark:text-neutral-300">
+                    {{ job.failedAt | date: 'dd/MM/yyyy HH:mm' }}
+                  </td>
+                  <td>
+                    <div class="flex items-center justify-end gap-1">
+                      <af-icon-button
+                        label="Retentar job"
+                        variant="ghost"
+                        size="sm"
+                        [disabled]="actionLoading() === job.id"
+                        (click)="retryJob(job.id)"
+                      >
+                        @if (actionLoading() === job.id) {
+                          <lucide-icon
+                            name="loader-circle"
+                            [size]="14"
+                            class="animate-spin text-accent-600"
+                          />
+                        } @else {
+                          <lucide-icon name="rotate-ccw" [size]="14" class="text-accent-600" />
+                        }
+                      </af-icon-button>
+
+                      <af-icon-button
+                        label="Ver detalhes"
+                        variant="ghost"
+                        size="sm"
+                        (click)="showDetails(job)"
+                      >
+                        <lucide-icon name="eye" [size]="14" />
+                      </af-icon-button>
+
+                      <af-icon-button
+                        label="Remover job"
+                        variant="danger"
+                        size="sm"
+                        [disabled]="actionLoading() === job.id"
+                        (click)="purgeJob(job.id)"
+                      >
+                        <lucide-icon name="trash-2" [size]="14" />
+                      </af-icon-button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </af-data-table>
+
+          @if (pagination() && pagination()!.totalPages > 1) {
+            <div class="px-5 pb-4">
+              <af-pagination
+                [currentPage]="pagination()!.page"
+                [lastPage]="pagination()!.totalPages"
+                [perPage]="pagination()!.per_page"
+                [total]="pagination()!.total"
+                (pageChange)="goToPage($event)"
+              />
+            </div>
+          }
+        }
+      </af-card>
+    </div>
+
+    <af-modal
+      [open]="selectedJob() !== null"
+      title="Detalhes do job"
+      size="xl"
+      (closed)="closeModal()"
+    >
+      @if (selectedJob()) {
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">ID</p>
+              <p class="font-mono text-sm text-neutral-900 dark:text-neutral-100">
+                {{ selectedJob()!.id }}
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Nome</p>
+              <p class="text-sm text-neutral-900 dark:text-neutral-100">
+                {{ selectedJob()!.name }}
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Fila</p>
+              <p class="text-sm text-neutral-900 dark:text-neutral-100">
+                {{ selectedJob()!.queue }}
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Tentativas</p>
+              <p class="text-sm text-neutral-900 dark:text-neutral-100">
+                {{ selectedJob()!.attemptsMade }} / {{ selectedJob()!.maxAttempts }}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-1">Erro</p>
+            <p class="text-sm text-danger bg-danger/10 p-2 rounded-md">
+              {{ selectedJob()!.failedReason }}
+            </p>
+          </div>
+
+          <div>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-1">Payload</p>
+            <pre
+              class="text-xs bg-neutral-100 dark:bg-neutral-800 p-3 rounded-md overflow-x-auto font-mono"
+              >{{ selectedJob()!.data | json }}</pre
+            >
+          </div>
+
+          @if (selectedJob()!.stacktrace.length) {
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-1">Stacktrace</p>
+              <pre
+                class="text-xs bg-neutral-900 text-neutral-100 p-3 rounded-md overflow-x-auto font-mono max-h-64"
+                >{{
+                  selectedJob()!.stacktrace.join(
+                    '
+'
+                  )
+                }}</pre
+              >
+            </div>
+          }
+        </div>
+      }
+
+      <div
+        footer
+        class="flex justify-end gap-2 px-6 py-4 border-t border-neutral-200 dark:border-neutral-700"
+      >
+        <af-button variant="ghost" size="sm" (click)="closeModal()">Fechar</af-button>
+      </div>
+    </af-modal>
+  

@@ -1,0 +1,318 @@
+
+    <div #mediaContainer class="relative overflow-hidden rounded-lg">
+      <!-- Error state -->
+      @if (hasError()) {
+        <div class="flex items-center gap-3 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-3">
+          <div
+            class="size-10 shrink-0 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center"
+          >
+            <ng-icon name="lucideAlertCircle" class="size-5 text-red-500"></ng-icon>
+          </div>
+          <span class="text-xs text-neutral-500 dark:text-neutral-400">
+            Não foi possível baixar a mídia. Tente novamente.
+          </span>
+        </div>
+      } @else {
+        @defer (when isVisible()) {
+          @switch (type) {
+            <!-- ══════ IMAGE ══════ -->
+            @case ('image') {
+              <div
+                class="relative min-w-48 min-h-32 bg-neutral-200 dark:bg-neutral-700 rounded-lg overflow-hidden"
+              >
+                @if (!isLoaded()) {
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div
+                      class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"
+                    ></div>
+                  </div>
+                }
+                @if (resolvedUrl(); as src) {
+                  <img
+                    [src]="src"
+                    [alt]="'Imagem'"
+                    class="w-full h-auto max-h-80 object-cover rounded-lg transition-opacity duration-300 cursor-zoom-in"
+                    [class.opacity-0]="!isLoaded()"
+                    (load)="onLoad()"
+                    (click)="openImageZoom($event)"
+                    (keydown.enter)="openImageZoom($event)"
+                    (keydown.space)="openImageZoom($event)"
+                    tabindex="0"
+                  />
+                }
+              </div>
+            }
+
+            <!-- ══════ STICKER ══════ -->
+            @case ('sticker') {
+              <div class="relative w-40 h-40">
+                @if (!isLoaded()) {
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div
+                      class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"
+                    ></div>
+                  </div>
+                }
+                @if (resolvedUrl(); as src) {
+                  <img
+                    [src]="src"
+                    alt="Sticker"
+                    class="w-full h-full object-contain transition-opacity duration-300 cursor-zoom-in"
+                    [class.opacity-0]="!isLoaded()"
+                    (load)="onLoad()"
+                    (click)="openImageZoom($event)"
+                    (keydown.enter)="openImageZoom($event)"
+                    (keydown.space)="openImageZoom($event)"
+                    tabindex="0"
+                  />
+                }
+              </div>
+            }
+
+            <!-- ══════ VIDEO ══════ -->
+            @case ('video') {
+              <div
+                class="relative min-w-56 max-w-xs rounded-xl overflow-hidden bg-neutral-200 dark:bg-neutral-700 shadow-sm"
+              >
+                @if (!isLoaded()) {
+                  <div
+                    class="absolute inset-0 z-10 flex items-center justify-center bg-neutral-200/60 dark:bg-neutral-700/60"
+                  >
+                    <div
+                      class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"
+                    ></div>
+                  </div>
+                }
+                @if (resolvedUrl(); as src) {
+                  <video
+                    class="w-full max-h-72 rounded-xl"
+                    controls
+                    preload="metadata"
+                    (loadeddata)="onMediaReady()"
+                  >
+                    <source [src]="src" [type]="mimeType || 'video/mp4'" />
+                  </video>
+                }
+              </div>
+            }
+
+            <!-- ══════ PTV (video message) ══════ -->
+            @case ('ptv') {
+              <div class="relative w-52 bg-black rounded-full overflow-hidden aspect-square">
+                @if (!isLoaded()) {
+                  <div
+                    class="absolute inset-0 z-10 flex items-center justify-center bg-neutral-900/60"
+                  >
+                    <div
+                      class="size-6 border-2 border-white border-t-transparent rounded-full animate-spin"
+                    ></div>
+                  </div>
+                }
+                @if (resolvedUrl(); as src) {
+                  <video
+                    class="w-full h-full object-cover"
+                    controls
+                    preload="metadata"
+                    (loadeddata)="onMediaReady()"
+                  >
+                    <source [src]="src" [type]="mimeType || 'video/mp4'" />
+                  </video>
+                }
+              </div>
+            }
+
+            <!-- ══════ AUDIO ══════ -->
+            @case ('audio') {
+              <div class="flex items-center gap-3 min-w-56 py-1">
+                @if (!isLoaded() && !resolvedUrl()) {
+                  <div
+                    class="size-5 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0"
+                  ></div>
+                  <span class="text-xs text-neutral-400">Carregando áudio...</span>
+                } @else if (resolvedUrl(); as src) {
+                  <audio
+                    #audioPlayer
+                    class="hidden"
+                    [src]="src"
+                    (loadedmetadata)="onMediaReady()"
+                  ></audio>
+                  <button
+                    type="button"
+                    class="size-8 shrink-0 rounded-full bg-neutral-200 dark:bg-neutral-600 flex items-center justify-center text-neutral-600 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-500 transition-colors"
+                    (click)="toggleAudioPlay()"
+                  >
+                    <ng-icon
+                      [name]="isAudioPlaying() ? 'lucidePause' : 'lucidePlay'"
+                      size="16"
+                    ></ng-icon>
+                  </button>
+                  <div class="flex-1 flex flex-col gap-1">
+                    <div
+                      class="relative h-1 bg-neutral-300 dark:bg-neutral-600 rounded-full overflow-hidden cursor-pointer"
+                      tabindex="0"
+                      role="slider"
+                      [attr.aria-valuenow]="audioProgress()"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      (click)="seekAudio($event)"
+                      (keyup)="seekAudio($event)"
+                    >
+                      <div
+                        class="absolute inset-y-0 left-0 bg-neutral-500 dark:bg-neutral-400 rounded-full transition-all"
+                        [style.width.%]="audioProgress()"
+                      ></div>
+                    </div>
+                    <span class="text-[11px] text-neutral-500 dark:text-neutral-400">{{
+                      audioCurrentTime()
+                    }}</span>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- ══════ PTT (voice message) ══════ -->
+            @case ('ptt') {
+              <div class="flex items-center gap-3 min-w-56 py-1">
+                @if (!isLoaded() && !resolvedUrl()) {
+                  <div
+                    class="size-5 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0"
+                  ></div>
+                  <span class="text-xs text-neutral-400">Carregando áudio...</span>
+                } @else if (resolvedUrl(); as src) {
+                  <audio
+                    #audioPlayer
+                    class="hidden"
+                    [src]="src"
+                    (loadedmetadata)="onMediaReady()"
+                  ></audio>
+                  <button
+                    type="button"
+                    class="size-8 shrink-0 rounded-full bg-neutral-200 dark:bg-neutral-600 flex items-center justify-center text-neutral-600 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-500 transition-colors"
+                    (click)="toggleAudioPlay()"
+                  >
+                    <ng-icon
+                      [name]="isAudioPlaying() ? 'lucidePause' : 'lucidePlay'"
+                      size="16"
+                    ></ng-icon>
+                  </button>
+                  <div class="flex-1 flex flex-col gap-1">
+                    <div
+                      class="relative h-1 bg-neutral-300 dark:bg-neutral-600 rounded-full overflow-hidden cursor-pointer"
+                      tabindex="0"
+                      role="slider"
+                      [attr.aria-valuenow]="audioProgress()"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      (click)="seekAudio($event)"
+                      (keyup)="seekAudio($event)"
+                    >
+                      <div
+                        class="absolute inset-y-0 left-0 bg-neutral-500 dark:bg-neutral-400 rounded-full transition-all"
+                        [style.width.%]="audioProgress()"
+                      ></div>
+                    </div>
+                    <span class="text-[11px] text-neutral-500 dark:text-neutral-400">{{
+                      audioCurrentTime()
+                    }}</span>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- ══════ DOCUMENT ══════ -->
+            @case ('document') {
+              <div
+                class="flex items-center gap-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-3 min-w-56 max-w-72"
+              >
+                <div
+                  class="size-11 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-primary"
+                >
+                  <ng-icon name="lucideFile" class="size-6"></ng-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div
+                    class="text-sm font-semibold text-neutral-800 dark:text-neutral-100 break-all leading-snug"
+                    [title]="cleanFileName()"
+                  >
+                    {{ displayFileName() }}
+                  </div>
+                  <div class="text-[11px] text-neutral-400 dark:text-neutral-500 mt-0.5">
+                    Documento
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="size-8 shrink-0 rounded-lg bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
+                  (click)="openDocument()"
+                  (keydown.enter)="openDocument()"
+                  (keydown.space)="openDocument()"
+                  title="Baixar documento"
+                  aria-label="Baixar documento"
+                >
+                  <ng-icon name="lucideDownload" class="size-4"></ng-icon>
+                </button>
+              </div>
+            }
+
+            <!-- ══════ FILE ══════ -->
+            @case ('file') {
+              <div
+                class="flex items-center gap-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-3 min-w-56 max-w-72"
+              >
+                <div
+                  class="size-11 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-primary"
+                >
+                  <ng-icon name="lucideFile" class="size-6"></ng-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div
+                    class="text-sm font-semibold text-neutral-800 dark:text-neutral-100 break-all leading-snug"
+                    [title]="cleanFileName()"
+                  >
+                    {{ displayFileName() }}
+                  </div>
+                  <div class="text-[11px] text-neutral-400 dark:text-neutral-500 mt-0.5">
+                    Arquivo
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="size-8 shrink-0 rounded-lg bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
+                  (click)="openDocument()"
+                  (keydown.enter)="openDocument()"
+                  (keydown.space)="openDocument()"
+                  title="Baixar arquivo"
+                  aria-label="Baixar arquivo"
+                >
+                  <ng-icon name="lucideDownload" class="size-4"></ng-icon>
+                </button>
+              </div>
+            }
+
+            @default {
+              <div
+                class="flex items-center gap-3 rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2.5 min-w-48"
+              >
+                <ng-icon name="lucideFile" class="size-5 text-neutral-400"></ng-icon>
+                <span class="text-xs text-neutral-500">Mídia não suportada</span>
+              </div>
+            }
+          }
+        } @placeholder {
+          <div class="flex items-center gap-3 py-2">
+            <div
+              class="size-5 border-2 border-neutral-300 border-t-transparent rounded-full animate-spin"
+            ></div>
+            <span class="text-xs text-neutral-400">Preparando mídia...</span>
+          </div>
+        } @loading {
+          <div class="flex items-center gap-3 py-2">
+            <div
+              class="size-5 border-2 border-neutral-300 border-t-transparent rounded-full animate-spin"
+            ></div>
+            <span class="text-xs text-neutral-400">Carregando...</span>
+          </div>
+        }
+      }
+    </div>
+  

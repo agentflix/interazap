@@ -1,0 +1,129 @@
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="mb-4">
+          <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+        </div>
+      }
+
+      <af-phone-input
+        label="Telefone (WhatsApp)"
+        [control]="form.controls.phone"
+        [countryControl]="form.controls.phone_country_code"
+        [required]="true"
+        ariaLabel="Telefone do contato"
+        dataTest="contact-form-phone"
+      />
+
+      <af-text-input
+        label="Nome"
+        [control]="form.controls.name"
+        placeholder="Ex: João Silva"
+        [required]="true"
+        ariaLabel="Nome do contato"
+        dataTest="contact-form-name"
+      />
+
+      <af-document-input
+        label="Documento"
+        [control]="form.controls.document"
+        placeholder="Ex: 000.000.000-00"
+        ariaLabel="CPF ou CNPJ do contato"
+        dataTest="contact-form-document"
+      />
+
+      <af-select-input
+        label="Empresa"
+        [control]="form.controls.crm_company_id"
+        [options]="companyOptions()"
+        ariaLabel="Selecionar empresa do contato"
+        dataTest="contact-form-company"
+      />
+
+      <af-text-input
+        label="E-mail"
+        [control]="form.controls.email"
+        type="email"
+        placeholder="Ex: joao&#64;email.com"
+        ariaLabel="E-mail do contato"
+        dataTest="contact-form-email"
+      />
+
+      <!-- Custom Fields -->
+      <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 mt-4">
+        <div
+          class="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-neutral-800 rounded-t-lg"
+        >
+          <span class="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+            >Campos Personalizados</span
+          >
+          <af-button
+            variant="outline"
+            size="sm"
+            ariaLabel="Adicionar campo personalizado"
+            dataTest="contact-add-custom-field"
+            (click)="addCustomField()"
+          >
+            <lucide-icon name="plus" [size]="14" class="block" />
+            Adicionar
+          </af-button>
+        </div>
+        <div class="p-4 space-y-2">
+          @for (control of customFields.controls; track $index) {
+            <div class="flex items-start gap-2 w-full">
+              <div class="flex-1 min-w-0">
+                <af-text-input
+                  [control]="getGroupControl(control, 'key')"
+                  placeholder="Nome"
+                  ariaLabel="Nome do campo personalizado"
+                  [dataTest]="'contact-custom-field-key-' + $index"
+                  [spacing]="false"
+                />
+              </div>
+              <div class="flex-1 min-w-0">
+                <af-text-input
+                  [control]="getGroupControl(control, 'value')"
+                  placeholder="Valor"
+                  ariaLabel="Valor do campo personalizado"
+                  [dataTest]="'contact-custom-field-value-' + $index"
+                  [spacing]="false"
+                />
+              </div>
+              <af-icon-button
+                label="Remover campo"
+                variant="danger"
+                size="sm"
+                ariaLabel="Remover este campo personalizado"
+                class="shrink-0 mt-1"
+                (click)="removeCustomField($index)"
+              >
+                <lucide-icon name="trash-2" [size]="14" />
+              </af-icon-button>
+            </div>
+          }
+          @if (customFields.controls.length === 0) {
+            <p class="text-xs text-neutral-400 dark:text-neutral-500">
+              Nenhum campo personalizado.
+            </p>
+          }
+        </div>
+      </div>
+
+      <af-textarea-input
+        label="Observações"
+        [control]="form.controls.notes"
+        placeholder="Informações adicionais sobre o contato..."
+        [rows]="3"
+        ariaLabel="Observações sobre o contato"
+        classContainer="mt-4"
+        dataTest="contact-form-notes"
+      />
+
+      <af-switch-input
+        label="Ativo"
+        [control]="form.controls.is_active"
+        ariaLabel="Status ativo do contato"
+        dataTest="contact-form-active"
+      />
+    </form>
+  

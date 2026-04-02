@@ -1,0 +1,17 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__);
+$phpstan = $root . '/vendor/bin/phpstan';
+
+$args = array_slice($_SERVER['argv'], 1);
+$escapedArgs = array_map('escapeshellarg', $args);
+
+$command = escapeshellcmd(PHP_BINARY) . ' ' . escapeshellarg($phpstan);
+if ($escapedArgs !== []) {
+    $command .= ' ' . implode(' ', $escapedArgs);
+}
+
+passthru($command, $exitCode);
+exit($exitCode);

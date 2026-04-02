@@ -1,0 +1,34 @@
+# ATENÇÃO: Este arquivo é gerenciado pelo Ansible.
+# O template canônico está em: infra/ansible/roles/nginx/templates/app-production.conf.j2
+
+server {
+    listen 80;
+    server_name app.agentflix.com.br;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name app.agentflix.com.br;
+    root /data/production/app/current/dist/agentflix/browser;
+    index index.html;
+
+    ssl_certificate /etc/letsencrypt/live/app.agentflix.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/app.agentflix.com.br/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}

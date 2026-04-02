@@ -1,0 +1,214 @@
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h4 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">Tarefas</h4>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      Gerencie as tarefas vinculadas à negociação.
+    </p>
+  </div>
+  <div class="flex items-center gap-2">
+    <app-button variant="outline" size="sm" [routerLink]="['/crm/negotiation-tasks']"
+      >Ver quadro</app-button
+    >
+    <app-button variant="primary" size="sm" (clicked)="openTaskModal()"
+      ><lucide-icon name="plus" [size]="16" class="block" /> Nova Tarefa</app-button
+    >
+  </div>
+</div>
+
+<div class="mt-4">
+  @if (isTasksLoading()) {
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">Carregando tarefas...</p>
+  } @else if (taskCount() === 0) {
+    <div
+      class="rounded-lg border border-dashed border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-6 text-center text-sm text-neutral-500 dark:text-neutral-400"
+    >
+      Nenhuma tarefa cadastrada para esta negociação.
+    </div>
+  } @else {
+    <div class="space-y-3">
+      @for (task of tasks(); track task.id) {
+        <div
+          class="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4"
+        >
+          <div class="flex items-start gap-3">
+            <app-button variant="outline" size="sm" (clicked)="toggleTask(task)">
+              {{ task.is_completed ? 'Reabrir' : 'Concluir' }}
+            </app-button>
+            <div>
+              <div class="flex items-center gap-2">
+                <span
+                  class="inline-flex size-6 items-center justify-center rounded-full bg-primary/10 text-primary"
+                >
+                  <lucide-icon
+                    [name]="getTaskActionMeta(task.action_type).icon"
+                    [size]="16"
+                    class="block"
+                  />
+                </span>
+                <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                  {{ task.title }}
+                </p>
+              </div>
+              @if (task.description) {
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ task.description }}</p>
+              }
+              <span
+                class="mt-2 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+                [class]="getTaskStatusMeta(task.status).tone"
+              >
+                {{ getTaskStatusMeta(task.status).label }}
+              </span>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                @if (task.due_date) {
+                  <span>Vence em {{ formatDate(task.due_date) }}</span>
+                } @else {
+                  <span>Sem data de vencimento</span>
+                }
+              </p>
+              @if (task.start_time && task.end_time) {
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                  Horário: {{ formatTimeInput(task.start_time) }} -
+                  {{ formatTimeInput(task.end_time) }}
+                </p>
+              }
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <app-button variant="outline" size="sm" (clicked)="cycleTaskStatus(task)">
+              {{ getTaskStatusMeta(task.status).label }}
+            </app-button>
+            <app-icon-button
+              icon="lucidePencil"
+              variant="ghost"
+              size="sm"
+              ariaLabel="Editar tarefa"
+              (clicked)="openTaskModal(task)"
+            />
+            <app-icon-button
+              icon="lucideTrash2"
+              variant="danger"
+              size="sm"
+              ariaLabel="Excluir tarefa"
+              (clicked)="confirmDeleteTask(task)"
+            />
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-modal
+  [isOpen]="isTaskModalOpen()"
+  [title]="editingTask() ? 'Editar tarefa' : 'Nova Tarefa'"
+  maxWidth="md"
+  (closed)="closeTaskModal()"
+>
+  <form modal-body class="space-y-4" [formGroup]="taskForm">
+    <app-text-input
+      label="Título"
+      [control]="taskForm.controls.title"
+      placeholder="Ex: Ligar para cliente"
+      [required]="true"
+    />
+    <app-select-input
+      label="Ação"
+      [control]="taskForm.controls.action_type"
+      [options]="taskActionSelectOptions"
+      [required]="true"
+    />
+    <app-select-input
+      label="Status"
+      [control]="taskForm.controls.status"
+      [options]="taskStatusSelectOptions"
+      [required]="true"
+    />
+    <app-textarea-input
+      label="Descrição"
+      [control]="taskForm.controls.description"
+      placeholder="Detalhes da tarefa"
+      [rows]="4"
+    />
+    <app-text-input label="Data de vencimento" [control]="taskForm.controls.due_date" type="date" />
+    <div class="grid gap-4 sm:grid-cols-2">
+      <app-text-input
+        label="Horário de início"
+        [control]="taskForm.controls.start_time"
+        type="time"
+      />
+      <app-text-input
+        label="Horário de término"
+        [control]="taskForm.controls.end_time"
+        type="time"
+      />
+    </div>
+    <app-switch-input
+      label="Adicionar à agenda"
+      [control]="taskForm.controls.add_to_agenda"
+      classContainer="pb-4"
+    />
+    <div
+      class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-4"
+    >
+      <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+        Canais de notificação
+      </p>
+      <div class="mt-3 grid gap-y-3 gap-x-4 sm:grid-cols-2">
+        <app-switch-input
+          label="Interface"
+          [control]="taskForm.controls.notify_ui"
+          classContainer="items-center"
+          dataTest="task-notify-ui"
+        />
+        <app-switch-input
+          label="Email"
+          [control]="taskForm.controls.notify_email"
+          classContainer="items-center"
+          dataTest="task-notify-email"
+        />
+        <app-switch-input
+          label="Push"
+          [control]="taskForm.controls.notify_push"
+          classContainer="items-center"
+          dataTest="task-notify-push"
+        />
+        <app-switch-input
+          label="WhatsApp"
+          [control]="taskForm.controls.notify_whatsapp"
+          classContainer="items-center"
+          dataTest="task-notify-whatsapp"
+        />
+      </div>
+    </div>
+    @if (taskModalError()) {
+      <div class="rounded-lg border border-danger/20 bg-danger/10 p-3 text-sm text-danger">
+        {{ taskModalError() }}
+      </div>
+    }
+  </form>
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <app-button variant="ghost" size="sm" (clicked)="closeTaskModal()">Cancelar</app-button>
+      <app-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="isTaskSaving()"
+        loadingText="Salvando..."
+        (clicked)="saveTask()"
+      >
+        {{ editingTask() ? 'Salvar' : 'Criar tarefa' }}
+      </app-loading-button>
+    </div>
+  </div>
+</app-modal>
+
+<app-confirm-modal
+  [isOpen]="!!deletingTask()"
+  title="Excluir tarefa"
+  message="Tem certeza que deseja remover esta tarefa?"
+  confirmLabel="Excluir"
+  cancelLabel="Cancelar"
+  [isLoading]="isDeletingTask()"
+  (confirmed)="deleteTask()"
+  (cancelled)="cancelDeleteTask()"
+/>

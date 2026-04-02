@@ -1,0 +1,21 @@
+
+    <button
+      (click)="theme.toggleTheme()"
+      class="relative size-9 grid place-items-center rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-all duration-150 cursor-pointer"
+      type="button"
+      aria-label="Toggle theme"
+    >
+      <!-- Sun icon (shown in dark mode) -->
+      <lucide-icon
+        name="sun"
+        [size]="18"
+        class="col-start-1 row-start-1 transition-all duration-200 dark:scale-100 dark:rotate-0 scale-0 rotate-90"
+      />
+      <!-- Moon icon (shown in light mode) -->
+      <lucide-icon
+        name="moon"
+        [size]="18"
+        class="col-start-1 row-start-1 transition-all duration-200 dark:scale-0 dark:-rotate-90 scale-100 rotate-0"
+      />
+    </button>
+  

@@ -1,0 +1,22 @@
+
+    <div
+      class="inline-flex items-center rounded-lg bg-neutral-100 dark:bg-neutral-800 p-0.5 gap-0.5"
+    >
+      @for (opt of options; track opt.value) {
+        <button
+          type="button"
+          class="p-1.5 rounded-md transition-colors cursor-pointer"
+          [class.bg-white]="mode() === opt.value"
+          [class.dark:bg-neutral-700]="mode() === opt.value"
+          [class.shadow-sm]="mode() === opt.value"
+          [class.text-neutral-900]="mode() === opt.value"
+          [class.dark:text-neutral-50]="mode() === opt.value"
+          [class.text-neutral-400]="mode() !== opt.value"
+          [title]="opt.label"
+          (click)="modeChange.emit(opt.value)"
+        >
+          <lucide-icon [name]="opt.icon" [size]="16" />
+        </button>
+      }
+    </div>
+  

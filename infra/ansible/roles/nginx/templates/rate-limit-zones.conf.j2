@@ -1,0 +1,7 @@
+# =====================================================
+# Nginx - Rate Limiting Zones (HTTP context)
+# Autor: DevOps Agentflix
+# =====================================================
+
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+limit_conn_zone $binary_remote_addr zone=addr:10m;

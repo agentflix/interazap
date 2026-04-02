@@ -1,0 +1,196 @@
+
+    <div class="pt-2">
+      <app-page-title title="Atividade da Equipe" subtitle="Relatórios">
+        <af-button variant="secondary" size="sm" (clicked)="openFilters()">
+          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+          Filtros
+        </af-button>
+      </app-page-title>
+
+      <af-drawer
+        [open]="isFilterOpen()"
+        title="Filtros do relatório"
+        side="right"
+        size="lg"
+        (closed)="closeFilters()"
+      >
+        <af-search-input
+          [control]="searchControl"
+          placeholder="Buscar..."
+          dataTest="team-activity-search"
+        />
+
+        <div class="grid grid-cols-1">
+          <af-text-input
+            [control]="startDateControl"
+            label="Data inicial"
+            type="date"
+            dataTest="team-activity-start-date"
+          />
+          <af-text-input
+            [control]="endDateControl"
+            label="Data final"
+            type="date"
+            dataTest="team-activity-end-date"
+          />
+          <af-select-input
+            label="Granularidade"
+            [control]="granularityControl"
+            [options]="granularityOptions"
+            dataTest="team-activity-granularity"
+          />
+        </div>
+
+        <div class="flex gap-2">
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'csv' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" />
+            CSV
+          </af-button>
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'xlsx' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" />
+            XLSX
+          </af-button>
+        </div>
+
+        <div footer>
+          <div class="flex w-full items-center justify-between gap-2">
+            <af-button variant="danger" size="sm" (clicked)="clearFilters()">
+              Limpar filtros
+            </af-button>
+            <div class="flex gap-2">
+              <af-button variant="ghost" size="sm" (clicked)="closeFilters()">Cancelar</af-button>
+              <af-button variant="primary" size="sm" (clicked)="applyFilters()">Aplicar</af-button>
+            </div>
+          </div>
+        </div>
+      </af-drawer>
+
+      @if (isLoading()) {
+        <af-card><af-skeleton variant="rectangular" width="100%" height="4rem" /></af-card>
+        <af-card>
+          @for (row of [0, 1, 2, 3, 4, 5]; track row) {
+            <af-skeleton variant="text" width="100%" height="2.5rem" class="mb-2 block" />
+          }
+        </af-card>
+      } @else if (hasError()) {
+        <af-card>
+          <div class="py-12 text-center">
+            <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+              Erro ao carregar dados
+            </h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+              Não foi possível carregar o relatório de atividade da equipe.
+            </p>
+            <af-button variant="primary" size="sm" (click)="retry()">Tentar novamente</af-button>
+          </div>
+        </af-card>
+      } @else if (!data() || !data()!.members || data()!.members.length === 0) {
+        <af-card>
+          <af-empty-state
+            title="Sem dados disponíveis"
+            description="Não há dados de atividade no período selecionado"
+          />
+        </af-card>
+      } @else {
+        <!-- KPI -->
+        <af-kpi-card
+          title="Membros Inativos"
+          [value]="'' + data()!.inactive_count"
+          [loading]="false"
+        />
+
+        <!-- Members Table -->
+        <af-card [padded]="false">
+          <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+            <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Membros da Equipe
+            </h6>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                  <th
+                    class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Membro
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Tickets Criados
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Tickets Resolvidos
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Neg. Criadas
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Neg. Ganhas
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Tarefas
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Notas
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Último Login
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (member of data()!.members; track member.user_id) {
+                  <tr
+                    class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                  >
+                    <td class="py-3 px-4 font-medium">{{ member.user_name }}</td>
+                    <td class="py-3 px-4">
+                      @if (member.is_inactive) {
+                        <span
+                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-300"
+                          >Inativo</span
+                        >
+                      } @else {
+                        <span
+                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
+                          >Ativo</span
+                        >
+                      }
+                    </td>
+                    <td class="text-right py-3 px-4">{{ member.tickets_created }}</td>
+                    <td class="text-right py-3 px-4">{{ member.tickets_resolved }}</td>
+                    <td class="text-right py-3 px-4">{{ member.negotiations_created }}</td>
+                    <td class="text-right py-3 px-4">{{ member.negotiations_won }}</td>
+                    <td class="text-right py-3 px-4">{{ member.tasks_done }}</td>
+                    <td class="text-right py-3 px-4">{{ member.notes_created }}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-neutral-400 dark:text-neutral-500">
+                      {{ member.last_login_at ?? '—' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </af-card>
+      }
+    </div>
+  

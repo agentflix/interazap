@@ -1,0 +1,182 @@
+
+    <div class="pt-2">
+      <app-page-title title="Desempenho de Agentes" subtitle="Relatórios">
+        <af-button variant="secondary" size="sm" (clicked)="openFilters()">
+          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+          Filtros
+        </af-button>
+      </app-page-title>
+
+      <af-drawer
+        [open]="isFilterOpen()"
+        title="Filtros do relatório"
+        side="right"
+        size="lg"
+        (closed)="closeFilters()"
+      >
+        <af-search-input
+          [control]="searchControl"
+          placeholder="Buscar..."
+          dataTest="agent-perf-search"
+        />
+        <div class="grid grid-cols-1">
+          <af-text-input
+            [control]="startDateControl"
+            label="Data inicial"
+            type="date"
+            dataTest="agent-perf-start-date"
+          />
+          <af-text-input
+            [control]="endDateControl"
+            label="Data final"
+            type="date"
+            dataTest="agent-perf-end-date"
+          />
+          <af-select-input
+            label="Granularidade"
+            [control]="granularityControl"
+            [options]="granularityOptions"
+            dataTest="agent-perf-granularity"
+          />
+        </div>
+        <div class="flex gap-2">
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'csv' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" /> CSV
+          </af-button>
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'xlsx' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" /> XLSX
+          </af-button>
+        </div>
+        <div footer>
+          <div class="flex w-full items-center justify-between gap-2">
+            <af-button variant="danger" size="sm" (clicked)="clearFilters()"
+              >Limpar filtros</af-button
+            >
+            <div class="flex gap-2">
+              <af-button variant="ghost" size="sm" (clicked)="closeFilters()">Cancelar</af-button>
+              <af-button variant="primary" size="sm" (clicked)="applyFilters()">Aplicar</af-button>
+            </div>
+          </div>
+        </div>
+      </af-drawer>
+
+      @if (isLoading()) {
+        <af-card>
+          @for (row of [0, 1, 2, 3, 4, 5]; track row) {
+            <af-skeleton variant="text" width="100%" height="2.5rem" class="mb-2 block" />
+          }
+        </af-card>
+      } @else if (hasError()) {
+        <af-card>
+          <div class="py-12 text-center">
+            <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+              Erro ao carregar dados
+            </h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+              Não foi possível carregar o relatório de performance de agentes.
+            </p>
+            <af-button variant="primary" size="sm" (click)="retry()">Tentar novamente</af-button>
+          </div>
+        </af-card>
+      } @else if (!data() || !data()!.agents || data()!.agents.length === 0) {
+        <af-card>
+          <af-empty-state
+            title="Sem dados disponíveis"
+            description="Não há dados de agentes no período selecionado"
+          />
+        </af-card>
+      } @else {
+        <af-card [padded]="false">
+          <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+            <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Agentes</h6>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                  <th
+                    class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Agente
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Atendidos
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Resolvidos
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    1ª Resposta
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Resolução
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    CSAT
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Violações SLA
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Msgs Enviadas
+                  </th>
+                  <th
+                    class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Abertos
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (agent of data()!.agents; track agent.agent_id) {
+                  <tr
+                    class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                  >
+                    <td class="py-3 px-4 font-medium">{{ agent.agent_name }}</td>
+                    <td class="text-right py-3 px-4">{{ agent.tickets_handled }}</td>
+                    <td class="text-right py-3 px-4">{{ agent.tickets_resolved }}</td>
+                    <td class="text-right py-3 px-4">
+                      {{ agent.avg_first_response_min | number: '1.0-0' }} min
+                    </td>
+                    <td class="text-right py-3 px-4">
+                      {{ agent.avg_resolution_hours | number: '1.1-1' }}h
+                    </td>
+                    <td class="text-right py-3 px-4">{{ agent.csat_avg | number: '1.1-1' }}</td>
+                    <td class="text-right py-3 px-4">
+                      <span
+                        [class]="
+                          agent.sla_violations === 0
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : agent.sla_violations <= 3
+                              ? 'text-amber-500 dark:text-amber-400'
+                              : 'text-red-500 dark:text-red-400'
+                        "
+                      >
+                        {{ agent.sla_violations }}
+                      </span>
+                    </td>
+                    <td class="text-right py-3 px-4">{{ agent.messages_sent }}</td>
+                    <td class="text-right py-3 px-4">{{ agent.open_now }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </af-card>
+      }
+    </div>
+  

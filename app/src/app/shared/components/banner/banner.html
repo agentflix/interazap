@@ -1,0 +1,26 @@
+
+    <div [class]="bannerClasses()" role="status">
+      <div class="flex items-center justify-center gap-2 px-4 py-2">
+        <lucide-icon [name]="iconName()" [size]="16" />
+        <span class="text-sm font-medium">{{ message() }}</span>
+        @if (actionLabel()) {
+          <button
+            type="button"
+            class="text-sm font-semibold underline cursor-pointer hover:no-underline ml-1"
+            (click)="actionClicked.emit()"
+          >
+            {{ actionLabel() }}
+          </button>
+        }
+        @if (dismissible()) {
+          <button
+            type="button"
+            class="ml-auto cursor-pointer opacity-70 hover:opacity-100"
+            (click)="dismissed.emit()"
+          >
+            <lucide-icon name="x" [size]="16" />
+          </button>
+        }
+      </div>
+    </div>
+  

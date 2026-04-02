@@ -1,0 +1,193 @@
+
+    @if (loading()) {
+      <div
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5 space-y-3"
+      >
+        @for (i of [0, 1, 2, 3, 4]; track i) {
+          <div class="animate-pulse h-14 bg-neutral-100 dark:bg-neutral-800 rounded-lg"></div>
+        }
+      </div>
+    } @else if (error()) {
+      <div
+        class="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-6 text-center"
+      >
+        <lucide-icon
+          name="circle-alert"
+          [size]="28"
+          class="text-red-400 dark:text-red-500 mx-auto mb-3"
+        />
+        <p class="text-sm text-red-600 dark:text-red-400 mb-2">{{ error() }}</p>
+        <button
+          type="button"
+          class="text-sm text-red-500 underline hover:no-underline"
+          (click)="loadData()"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <div class="space-y-5">
+        <!-- Header Card -->
+        <div
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="size-10 flex items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/20"
+              >
+                <lucide-icon
+                  name="wrench"
+                  [size]="18"
+                  class="text-primary-500 dark:text-primary-400"
+                />
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                  Ferramentas vinculadas
+                  <span
+                    class="ml-1.5 text-xs px-1.5 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
+                  >
+                    {{ linkedToolNames().length }}
+                  </span>
+                </h3>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  Selecione as ferramentas que o agente pode utilizar durante conversas.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preset Loader -->
+          <div
+            class="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-end gap-3"
+          >
+            <div class="flex-1 max-w-xs">
+              <af-select-input
+                [control]="presetControl"
+                label="Carregar Preset de Função"
+                [options]="roleOptions"
+                [spacing]="false"
+              />
+            </div>
+            <af-button
+              variant="outline"
+              size="md"
+              (click)="applyPreset()"
+              [disabled]="loadingPreset()"
+            >
+              <lucide-icon name="download" [size]="14" class="block" />
+              Aplicar Preset
+            </af-button>
+          </div>
+
+          <!-- Linked tools badges -->
+          @if (linkedToolNames().length > 0) {
+            <div
+              class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800"
+            >
+              @for (name of linkedToolNames(); track name) {
+                <span
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-700/50"
+                >
+                  <lucide-icon name="circle-check" [size]="12" class="block" />
+                  {{ name }}
+                  <button
+                    type="button"
+                    class="ml-0.5 text-primary-400 hover:text-primary-600 dark:hover:text-primary-200 transition-colors"
+                    (click)="toggleTool(name); $event.stopPropagation()"
+                  >
+                    <lucide-icon name="x" [size]="11" class="block" />
+                  </button>
+                </span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Catalog by category -->
+        @for (category of categories(); track category) {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+          >
+            <div
+              class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+            >
+              <lucide-icon
+                [name]="getCategoryIcon(category)"
+                [size]="14"
+                class="text-neutral-400 dark:text-neutral-500"
+              />
+              <h4
+                class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400"
+              >
+                {{ formatCategory(category) }}
+              </h4>
+              <span
+                class="text-[10px] px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
+              >
+                {{ toolsByCategory(category).length }}
+              </span>
+            </div>
+            <div class="p-2 space-y-0.5">
+              @for (tool of toolsByCategory(category); track tool.name) {
+                <button
+                  type="button"
+                  class="flex items-center justify-between w-full px-3 py-2.5 rounded-lg transition-all text-left group"
+                  [class]="
+                    isLinked(tool.name)
+                      ? 'bg-primary-50 dark:bg-primary-900/15 border border-primary-200 dark:border-primary-700/50'
+                      : tool.locked
+                        ? 'border border-transparent opacity-40 cursor-not-allowed'
+                        : 'border border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800/50 hover:border-neutral-200 dark:hover:border-neutral-700'
+                  "
+                  [disabled]="tool.locked === true"
+                  (click)="toggleTool(tool.name)"
+                >
+                  <div class="flex items-center gap-3">
+                    <div class="shrink-0">
+                      @if (isLinked(tool.name)) {
+                        <div
+                          class="size-5 rounded-md bg-primary-500 flex items-center justify-center"
+                        >
+                          <lucide-icon name="check" [size]="12" class="block text-white" />
+                        </div>
+                      } @else {
+                        <div
+                          class="size-5 rounded-md border-2 border-neutral-300 dark:border-neutral-600 group-hover:border-neutral-400 dark:group-hover:border-neutral-500 transition-colors"
+                        ></div>
+                      }
+                    </div>
+                    <div>
+                      <span
+                        class="text-sm font-medium"
+                        [class]="
+                          isLinked(tool.name)
+                            ? 'text-primary-700 dark:text-primary-300'
+                            : 'text-neutral-800 dark:text-neutral-100'
+                        "
+                      >
+                        {{ tool.name }}
+                      </span>
+                      @if (tool.locked) {
+                        <lucide-icon
+                          name="lock"
+                          [size]="11"
+                          class="inline-block ml-1 text-neutral-400"
+                        />
+                      }
+                    </div>
+                  </div>
+                  <span
+                    class="text-xs text-neutral-500 dark:text-neutral-400 max-w-52 truncate hidden sm:block"
+                  >
+                    {{ getToolDescription(tool) }}
+                  </span>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  

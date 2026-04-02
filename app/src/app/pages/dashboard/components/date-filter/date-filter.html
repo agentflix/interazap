@@ -1,0 +1,63 @@
+
+    <af-popover align="end">
+      <button
+        trigger
+        type="button"
+        class="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 
+               bg-white dark:bg-neutral-900 text-sm font-medium text-neutral-700 dark:text-neutral-200
+               hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+      >
+        <lucide-icon name="calendar" [size]="16" class="text-neutral-400" />
+        <span>{{ currentLabel() }}</span>
+        <lucide-icon name="chevron-down" [size]="14" class="text-neutral-400 ml-1" />
+      </button>
+
+      <div content class="w-64 flex flex-col gap-1">
+        @for (opt of filterOptions; track opt.value) {
+          <button
+            type="button"
+            class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
+            [class.bg-accent-50]="selectedOption() === opt.value"
+            [class.text-accent-700]="selectedOption() === opt.value"
+            [class.dark:bg-accent-950/30]="selectedOption() === opt.value"
+            [class.dark:text-accent-400]="selectedOption() === opt.value"
+            [class.hover:bg-neutral-100]="selectedOption() !== opt.value"
+            [class.dark:hover:bg-neutral-800]="selectedOption() !== opt.value"
+            (click)="selectOption(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        }
+
+        <div class="my-1 border-t border-neutral-100 dark:border-neutral-800"></div>
+
+        <button
+          type="button"
+          class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
+          [class.bg-accent-50]="selectedOption() === 'custom'"
+          [class.text-accent-700]="selectedOption() === 'custom'"
+          [class.dark:bg-accent-950/30]="selectedOption() === 'custom'"
+          [class.dark:text-accent-400]="selectedOption() === 'custom'"
+          [class.hover:bg-neutral-100]="selectedOption() !== 'custom'"
+          [class.dark:hover:bg-neutral-800]="selectedOption() !== 'custom'"
+          (click)="selectOption('custom')"
+        >
+          Personalizado
+        </button>
+
+        @if (selectedOption() === 'custom') {
+          <div class="mt-3 p-2 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg flex flex-col gap-3">
+            <af-date-range-picker [startControl]="customStart" [endControl]="customEnd" />
+            <af-button
+              variant="primary"
+              size="sm"
+              [disabled]="customStart.invalid || customEnd.invalid"
+              (click)="applyCustomRange()"
+            >
+              Aplicar Intervalo
+            </af-button>
+          </div>
+        }
+      </div>
+    </af-popover>
+  

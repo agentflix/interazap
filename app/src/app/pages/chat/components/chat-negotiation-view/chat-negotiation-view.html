@@ -1,0 +1,98 @@
+<div class="h-full bg-neutral-50 flex flex-col">
+  @if (!currentContact()) {
+    <div class="flex-1 flex items-center justify-center text-center px-8">
+      <div>
+        <h4 class="text-lg font-semibold text-neutral-900">Selecione um contato</h4>
+        <p class="mt-2 text-sm text-neutral-500">
+          Abra um atendimento e escolha a aba “Negociação” para visualizar os negócios vinculados.
+        </p>
+      </div>
+    </div>
+  } @else {
+    <div class="flex-1 h-full xl:grid xl:grid-cols-[320px_1fr]">
+      <app-negotiation-timeline
+        [currentContact]="currentContact()"
+        [isLoadingList]="isLoadingList()"
+        [listError]="listError()"
+        [hasNegotiations]="hasNegotiations()"
+        [negotiations]="negotiations()"
+        [selectedNegotiationId]="selectedNegotiationId()"
+        [createError]="createError()"
+        [createForm]="createForm()"
+        [isCreating]="isCreating()"
+        [canCreateNegotiation]="canCreateNegotiation()"
+        [funnels]="funnels()"
+        [createSteps]="stepsFor(createForm().funnelId)"
+        (selectNegotiation)="selectNegotiation($event)"
+        (createFieldChange)="onCreateFieldChange($event.field, $event.value)"
+        (createNegotiation)="createNegotiation()"
+      />
+
+      <section class="flex flex-col min-h-0">
+        @if (isLoadingDetail()) {
+          <div class="flex-1 flex items-center justify-center text-neutral-500">
+            <ng-icon name="lucideLoader2" class="size-5 animate-spin me-2"></ng-icon>
+            Carregando negociação...
+          </div>
+        } @else if (detailError()) {
+          <div class="flex-1 flex items-center justify-center px-6">
+            <div
+              class="w-full max-w-lg rounded-2xl border border-danger/20 bg-danger/5 p-5 text-center text-sm text-danger"
+            >
+              {{ detailError() }}
+            </div>
+          </div>
+        } @else if (!selectedNegotiation()) {
+          <div class="flex-1 flex items-center justify-center text-neutral-500">
+            Escolha uma negociação para visualizar os detalhes.
+          </div>
+        } @else {
+          <af-scroll-area class="flex-1 min-h-0" maxHeight="100%">
+            <div class="p-6 space-y-6">
+              <app-negotiation-actions
+                [selectedNegotiation]="selectedNegotiation()!"
+                [detailForm]="detailForm()"
+                [funnels]="funnels()"
+                [detailSteps]="
+                  stepsFor(detailForm().funnelId || selectedNegotiation()?.funnel_id || '')
+                "
+                [isSavingDetails]="isSavingDetails()"
+                [canSaveDetails]="canSaveDetails()"
+                [tasks]="tasks()"
+                [isTasksLoading]="isTasksLoading()"
+                [tasksError]="tasksError()"
+                [completingTaskId]="completingTaskId()"
+                [taskForm]="taskForm()"
+                [isSavingTask]="isSavingTask()"
+                [taskFormValid]="taskFormValid()"
+                (detailFieldChange)="onDetailFieldChange($event.field, $event.value)"
+                (saveDetails)="saveDetails()"
+                (taskFieldChange)="onTaskFieldChange($event)"
+                (createTask)="createTask()"
+                (toggleTask)="toggleTask($event)"
+              />
+
+              <app-negotiation-products-tab
+                [productsTotal]="productsTotal()"
+                [productForm]="productForm()"
+                [productOptions]="productOptions()"
+                [productPriceControl]="productPriceControl"
+                [getItemPriceControl]="getItemPriceControlFn"
+                [isSavingProduct]="isSavingProduct()"
+                [productFormValid]="productFormValid()"
+                [isProductsLoading]="isProductsLoading()"
+                [productsError]="productsError()"
+                [products]="products()"
+                [pendingProductId]="pendingProductId()"
+                (productFieldChange)="onProductFieldChange($event.field, $event.value)"
+                (addProduct)="addProduct()"
+                (productQuantityChange)="onProductQuantityChange($event.item, $event.value)"
+                (removeProduct)="removeProduct($event)"
+              />
+            </div>
+          </af-scroll-area>
+        }
+      </section>
+    </div>
+  }
+</div>

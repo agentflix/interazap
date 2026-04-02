@@ -1,0 +1,42 @@
+# =====================================================
+# PHP-FPM Pool Configuration
+# Autor: DevOps Agentflix
+# =====================================================
+
+[www]
+user = www-data
+group = www-data
+
+listen = /run/php/php8.4-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
+
+; Process Management (otimizado para 4GB RAM)
+pm = dynamic
+pm.max_children = 10
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 4
+pm.max_requests = 500
+
+; Timeouts
+request_terminate_timeout = 300
+request_slowlog_timeout = 60s
+slowlog = /var/log/agentflix/php-slow.log
+
+; Logging
+php_admin_value[error_log] = /var/log/agentflix/php_errors.log
+php_admin_flag[log_errors] = on
+catch_workers_output = yes
+decorate_workers_output = no
+
+; Security
+security.limit_extensions = .php .php7 .php8
+
+; Environment
+env[HOSTNAME] = $HOSTNAME
+env[PATH] = /usr/local/bin:/usr/bin:/bin
+env[TMP] = /tmp
+env[TMPDIR] = /tmp
+env[TEMP] = /tmp

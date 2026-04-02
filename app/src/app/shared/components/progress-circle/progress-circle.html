@@ -1,0 +1,37 @@
+
+    <div class="relative inline-flex items-center justify-center" [class]="sizeClass()">
+      <svg class="transform -rotate-90 w-full h-full" viewBox="0 0 36 36">
+        <circle
+          cx="18"
+          cy="18"
+          [attr.r]="radius"
+          fill="none"
+          class="stroke-neutral-200 dark:stroke-neutral-700"
+          [attr.stroke-width]="strokeWidth()"
+        />
+        <circle
+          cx="18"
+          cy="18"
+          [attr.r]="radius"
+          fill="none"
+          class="transition-all duration-500 ease-out"
+          [class.stroke-accent-500]="variant() === 'accent'"
+          [class.stroke-blue-500]="variant() === 'info'"
+          [class.stroke-red-500]="variant() === 'danger'"
+          [class.stroke-amber-500]="variant() === 'warning'"
+          [attr.stroke-width]="strokeWidth()"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="circumference"
+          [attr.stroke-dashoffset]="dashOffset()"
+        />
+      </svg>
+      @if (showValue()) {
+        <span
+          class="absolute text-neutral-900 dark:text-neutral-50 font-semibold"
+          [class]="labelClass()"
+        >
+          {{ clamped() }}%
+        </span>
+      }
+    </div>
+  

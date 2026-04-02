@@ -1,0 +1,185 @@
+
+    @if (!embedded()) {
+      <af-page-title title="Adicionar Documento" subtitle="Base de Conhecimento" />
+    }
+
+    <div class="grid grid-cols-1 gap-5" [class.mb-5]="!embedded()">
+      <div
+        [class]="
+          embedded()
+            ? ''
+            : 'bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6'
+        "
+      >
+        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+          <div
+            class="inline-flex items-center rounded-lg border border-neutral-200 dark:border-neutral-700 p-1"
+          >
+            <button
+              type="button"
+              class="px-3 py-1.5 text-xs font-medium rounded-md transition"
+              [class.bg-accent-500]="uploadMode() === 'file'"
+              [class.text-white]="uploadMode() === 'file'"
+              [class.text-neutral-600]="uploadMode() !== 'file'"
+              [class.dark:text-neutral-300]="uploadMode() !== 'file'"
+              (click)="setUploadMode('file')"
+            >
+              Arquivo
+            </button>
+            <button
+              type="button"
+              class="px-3 py-1.5 text-xs font-medium rounded-md transition"
+              [class.bg-accent-500]="uploadMode() === 'url'"
+              [class.text-white]="uploadMode() === 'url'"
+              [class.text-neutral-600]="uploadMode() !== 'url'"
+              [class.dark:text-neutral-300]="uploadMode() !== 'url'"
+              (click)="setUploadMode('url')"
+            >
+              URL
+            </button>
+          </div>
+
+          <!-- Title -->
+          <af-text-input
+            [control]="form.controls.title"
+            label="Título do Documento"
+            placeholder="Ex: FAQ de Produtos"
+            [required]="true"
+            dataTest="knowledge-title"
+          />
+
+          @if (uploadMode() === 'url') {
+            <af-text-input
+              [control]="form.controls.url"
+              label="URL"
+              placeholder="https://exemplo.com/artigo"
+              [required]="true"
+              type="url"
+              dataTest="knowledge-url"
+            />
+          }
+
+          <!-- File Drop Zone -->
+          <div [class.hidden]="uploadMode() === 'url'">
+            <div class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+              Arquivo <span class="text-red-500 dark:text-red-400">*</span>
+            </div>
+            <button
+              type="button"
+              class="w-full border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer"
+              [class.border-accent-500]="isDragging()"
+              [class.bg-accent-50]="isDragging()"
+              [class.dark:bg-accent-900/10]="isDragging()"
+              [class.border-neutral-300]="!isDragging()"
+              [class.dark:border-neutral-600]="!isDragging()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+              (click)="openFileBrowser()"
+            >
+              @if (selectedFile(); as file) {
+                <div class="w-full max-w-2xl mx-auto text-left">
+                  <div class="flex items-start gap-3">
+                    <lucide-icon name="file" [size]="32" class="text-accent-500 mt-1 shrink-0" />
+                    <div class="min-w-0 flex-1">
+                      <p class="font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                        {{ file.name }}
+                      </p>
+                      <p class="text-xs text-neutral-500">{{ formatFileSize(file.size) }}</p>
+                    </div>
+                    <af-icon-button
+                      label="Remover arquivo"
+                      variant="danger"
+                      size="sm"
+                      icon="lucideX"
+                      class="ms-auto"
+                      (click)="clearFile(); $event.stopPropagation()"
+                    />
+                  </div>
+
+                  <div class="grid grid-cols-1 gap-2 mt-4 md:grid-cols-3">
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wide text-neutral-500">Formato</p>
+                      <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                        {{ getFileExtension(file) }}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wide text-neutral-500">Tipo</p>
+                      <p
+                        class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate"
+                      >
+                        {{ getFileTypeLabel(file) }}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wide text-neutral-500">
+                        Modificado em
+                      </p>
+                      <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                        {{ formatFileDate(file.lastModified) }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              } @else {
+                <lucide-icon
+                  name="upload"
+                  [size]="48"
+                  class="text-neutral-300 dark:text-neutral-600 mx-auto mb-3"
+                />
+                <p class="text-neutral-700 dark:text-neutral-300 font-medium">
+                  Arraste e solte um arquivo aqui
+                </p>
+                <p class="text-sm text-neutral-500 mt-1">ou clique para selecionar</p>
+                <p class="text-xs text-neutral-400 mt-3">
+                  Formatos aceitos: TXT, CSV, MD, JSON, PDF (máx. 10MB)
+                </p>
+              }
+            </button>
+            <input
+              #fileInput
+              type="file"
+              class="hidden"
+              [accept]="allowedTypes.join(',')"
+              (change)="onFileSelected($event)"
+            />
+          </div>
+
+          <!-- Info Box -->
+          <div class="bg-info/10 border border-info/30 rounded-xl p-4">
+            <h4 class="text-sm font-medium text-info mb-2">Como funciona?</h4>
+            <ul class="text-xs text-info space-y-1 list-disc list-inside">
+              <li>O documento será dividido em chunks menores</li>
+              <li>Cada chunk será vetorizado para busca semântica</li>
+              <li>Os agentes usarão o conhecimento ao responder</li>
+              <li>O processamento pode levar alguns minutos</li>
+            </ul>
+          </div>
+
+          @if (!embedded()) {
+            <!-- Actions -->
+            <div
+              class="flex items-center justify-between pt-4 border-t border-neutral-200 dark:border-neutral-700"
+            >
+              <af-button variant="ghost" size="sm" type="button" (click)="cancel()">
+                <lucide-icon name="arrow-left" [size]="16" />
+                Voltar
+              </af-button>
+
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                type="submit"
+                [loading]="isUploading()"
+                [disabled]="isSubmitDisabled()"
+              >
+                <lucide-icon name="upload" [size]="16" />
+                {{ uploadMode() === 'file' ? 'Enviar documento' : 'Ingerir URL' }}
+              </af-loading-button>
+            </div>
+          }
+        </form>
+      </div>
+    </div>
+  

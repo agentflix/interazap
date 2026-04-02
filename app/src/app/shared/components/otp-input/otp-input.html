@@ -1,0 +1,25 @@
+
+    <div>
+      @if (label()) {
+        <af-form-label [label]="label()" />
+      }
+      <div class="flex items-center gap-2">
+        @for (i of slots(); track i) {
+          <input
+            #otpInput
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="size-11 text-center rounded-md border border-neutral-300 dark:border-neutral-600
+              bg-white dark:bg-neutral-800 text-lg font-semibold text-neutral-900 dark:text-neutral-50
+              focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500
+              disabled:opacity-50 tabular-nums"
+            [disabled]="disabled()"
+            (input)="onInput($event, i)"
+            (keydown)="onKeydown($event, i)"
+            (paste)="onPaste($event)"
+          />
+        }
+      </div>
+    </div>
+  

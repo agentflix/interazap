@@ -1,0 +1,96 @@
+# =====================================================
+# Supervisor - AgentFlix Staging Workers
+# Autor: DevOps Agentflix
+# =====================================================
+
+[program:agentflix-staging-octane]
+command=php /data/stage/api/current/api/artisan octane:start --server=swoole --workers=2 --host=127.0.0.1 --port=9502
+directory=/data/stage/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+startsecs=30
+stopwaitsecs=60
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-staging-octane.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-staging-octane-error.log
+stderr_logfile_maxbytes=50MB
+stderr_logfile_backups=3
+environment=APP_ENV="staging",APP_DEBUG="false"
+
+[program:agentflix-staging-streams-chat]
+command=php /data/stage/api/current/api/artisan streams:chat-consume
+directory=/data/stage/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+numprocs=1
+process_name=%(program_name)s_%(process_num)02d
+startsecs=10
+stopwaitsecs=60
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-staging-streams-chat.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-staging-streams-chat-error.log
+stderr_logfile_maxbytes=20MB
+stderr_logfile_backups=3
+environment=APP_ENV="staging",APP_DEBUG="false"
+
+[program:agentflix-staging-ai-run-responses]
+command=php /data/stage/api/current/api/artisan ai:consume-run-responses
+directory=/data/stage/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+numprocs=1
+process_name=%(program_name)s_%(process_num)02d
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-staging-ai-run-responses.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-staging-ai-run-responses-error.log
+stderr_logfile_maxbytes=20MB
+stderr_logfile_backups=3
+environment=APP_ENV="staging",APP_DEBUG="false"
+
+[program:agentflix-staging-ai-tool-requests]
+command=php /data/stage/api/current/api/artisan ai:consume-tool-requests
+directory=/data/stage/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+numprocs=1
+process_name=%(program_name)s_%(process_num)02d
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-staging-ai-tool-requests.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-staging-ai-tool-requests-error.log
+stderr_logfile_maxbytes=20MB
+stderr_logfile_backups=3
+environment=APP_ENV="staging",APP_DEBUG="false"
+
+[program:agentflix-staging-horizon]
+command=php /data/stage/api/current/api/artisan horizon
+directory=/data/stage/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+numprocs=1
+process_name=%(program_name)s
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-staging-horizon.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-staging-horizon-error.log
+stderr_logfile_maxbytes=20MB
+stderr_logfile_backups=3
+environment=APP_ENV="staging",APP_DEBUG="false"

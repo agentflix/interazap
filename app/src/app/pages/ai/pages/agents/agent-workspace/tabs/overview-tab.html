@@ -1,0 +1,162 @@
+
+    <form [formGroup]="form" class="space-y-6">
+      <!-- Identity Section -->
+      <section
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+      >
+        <div
+          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+        >
+          <lucide-icon name="user" [size]="16" class="text-primary-500 dark:text-primary-400" />
+          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Identidade</h3>
+        </div>
+        <div class="p-5 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div class="md:col-span-6">
+              <af-text-input
+                [control]="form.controls.name"
+                label="Nome do Agente"
+                placeholder="Ex: Peggy Sales"
+                helpText="Nome de identificação interno."
+                [required]="true"
+                [spacing]="false"
+              />
+            </div>
+          </div>
+          <af-text-input
+            [control]="form.controls.description"
+            label="Descrição"
+            placeholder="Breve descrição do agente..."
+            helpText="Anotação descrevendo a utilidade do agente."
+            [spacing]="false"
+          />
+        </div>
+      </section>
+
+      <!-- Role & Scope Section -->
+      <section
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+      >
+        <div
+          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+        >
+          <lucide-icon
+            name="briefcase"
+            [size]="16"
+            class="text-primary-500 dark:text-primary-400"
+          />
+          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+            Função & Escopo
+          </h3>
+        </div>
+        <div class="p-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <af-select-input
+              [control]="form.controls.type"
+              label="Tipo"
+              helpText="Determina a natureza do agente."
+              [options]="typeOptions"
+              [spacing]="false"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- AI Model Section -->
+      <section
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+      >
+        <div
+          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+        >
+          <lucide-icon name="cpu" [size]="16" class="text-primary-500 dark:text-primary-400" />
+          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Modelo de IA</h3>
+        </div>
+        <div class="p-5">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <af-select-input
+              [control]="form.controls.model_id"
+              label="Modelo"
+              helpText="Motor de IA a ser consumido."
+              [options]="modelOptions"
+              [spacing]="false"
+            />
+            <af-text-input
+              [control]="form.controls.temperature"
+              label="Temperatura"
+              type="number"
+              helpText="0 = preciso, 2 = criativo."
+              [spacing]="false"
+            />
+            <af-text-input
+              [control]="form.controls.max_tokens"
+              label="Max Tokens"
+              type="number"
+              helpText="Limite de tokens por resposta."
+              [spacing]="false"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- Behavior Section -->
+      <section
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+      >
+        <div
+          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+        >
+          <lucide-icon
+            name="shield-alert"
+            [size]="16"
+            class="text-primary-500 dark:text-primary-400"
+          />
+          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Comportamento</h3>
+        </div>
+        <div class="p-5 space-y-4">
+          <af-textarea-input
+            [control]="form.controls.fallback_message"
+            label="Mensagem de Fallback"
+            placeholder="Desculpe, estou indisponível no momento..."
+            helpText="Mensagem de segurança caso a IA falhe ou fique instável."
+            [rows]="3"
+            [spacing]="false"
+          />
+          <div
+            class="flex items-center justify-between p-4 rounded-lg bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="size-9 flex items-center justify-center rounded-lg"
+                [class]="
+                  form.controls.is_active.value
+                    ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                    : 'bg-neutral-100 dark:bg-neutral-800'
+                "
+              >
+                <lucide-icon
+                  [name]="form.controls.is_active.value ? 'power' : 'power-off'"
+                  [size]="16"
+                  [class]="
+                    form.controls.is_active.value
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-neutral-400 dark:text-neutral-500'
+                  "
+                  class="block"
+                />
+              </div>
+              <div>
+                <div class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  Agente ativo
+                </div>
+                <div class="text-xs text-neutral-500 dark:text-neutral-400">
+                  Liga ou desliga o agente no sistema.
+                </div>
+              </div>
+            </div>
+            <af-switch-input [control]="form.controls.is_active" [spacing]="false" />
+          </div>
+        </div>
+      </section>
+    </form>
+  

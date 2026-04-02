@@ -1,0 +1,169 @@
+
+    <af-crud-page
+      title="Funis"
+      subtitle="Configurações"
+      createLabel="Novo Funil"
+      searchPlaceholder="Buscar funis..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum funil encontrado"
+      emptyDescription="Comece adicionando seu primeiro funil de vendas ao sistema."
+      [skeletonColumns]="5"
+      [skeletonRows]="6"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      <!-- Filter slot -->
+      <div filters class="flex items-center gap-2">
+        <div class="min-w-40">
+          <af-select-input
+            [control]="filterStatusControl"
+            [options]="filterStatusOptions"
+            size="sm"
+            classContainer=""
+            dataTest="funnel-filter-status"
+          />
+        </div>
+        @if (hasSelection()) {
+          <af-button variant="danger" size="sm" (click)="openBulkDelete()">
+            Excluir selecionados ({{ selectedCount() }})
+          </af-button>
+        }
+      </div>
+
+      <!-- Error state -->
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar funis"
+            message="Não foi possível carregar os funis. Verifique sua conexão e tente novamente."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th class="w-10">
+                <af-checkbox-input
+                  [control]="selectAllControl"
+                  ariaLabel="Selecionar todos os funis"
+                  dataTest="funnels-select-all"
+                />
+              </th>
+              <th
+                afSortableHeader
+                label="Nome"
+                field="name"
+                [currentField]="sortBy()"
+                [currentDir]="sortDir()"
+                (sortChange)="onSort($event)"
+              ></th>
+              <th>Etapas</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (funnel of funnels(); track funnel.id) {
+              <tr>
+                <td>
+                  <af-checkbox-input
+                    [control]="getRowSelectionControl(funnel.id)"
+                    [ariaLabel]="'Selecionar funil ' + funnel.name"
+                    [dataTest]="'funnel-select-' + funnel.id"
+                  />
+                </td>
+                <td>
+                  <div>
+                    <span class="font-medium text-neutral-800 dark:text-neutral-200">{{
+                      funnel.name
+                    }}</span>
+                    @if (funnel.description) {
+                      <p class="text-xs text-neutral-500 mt-0.5 line-clamp-1">
+                        {{ funnel.description }}
+                      </p>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span
+                    class="inline-flex items-center gap-1 text-xs font-medium bg-primary-500/10 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded-full"
+                  >
+                    {{ getStepsCount(funnel) }} etapas
+                  </span>
+                </td>
+                <td>
+                  <af-status-badge [status]="funnel.is_active ? 'online' : 'offline'">
+                    {{ funnel.is_active ? 'Ativo' : 'Inativo' }}
+                  </af-status-badge>
+                </td>
+                <td>
+                  <div class="flex justify-end">
+                    <af-table-actions (edit)="openEdit(funnel)" (delete)="openDelete(funnel)" />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <!-- Create / Edit modal -->
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="lg"
+      (closed)="handleFormCancelled()"
+    >
+      <app-funnel-form
+        #funnelForm
+        [funnel]="selectedFunnel()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button
+          variant="ghost"
+          size="sm"
+          dataTest="funnel-form-cancel-btn"
+          (click)="funnelFormRef()?.cancel()"
+        >
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isFormSaving()"
+          dataTest="funnel-form-save-btn"
+          (click)="funnelFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Delete confirmation modal -->
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      [title]="deleteModalTitle()"
+      [message]="deleteMessage()"
+      [confirmLabel]="deleteConfirmLabel()"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+  

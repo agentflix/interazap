@@ -1,0 +1,16 @@
+
+    <af-button
+      variant="outline"
+      size="sm"
+      [disabled]="isExporting()"
+      dataTest="tenant-export-btn"
+      (click)="exportTenants()"
+    >
+      @if (isExporting()) {
+        <lucide-icon name="loader-circle" [size]="14" class="block animate-spin" />
+      } @else {
+        <lucide-icon name="download" [size]="14" class="block" />
+      }
+      Exportar
+    </af-button>
+  

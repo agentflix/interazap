@@ -1,0 +1,38 @@
+
+    <div class="relative pl-6">
+      <!-- Vertical line -->
+      <div class="absolute left-2.5 top-2 bottom-2 w-px bg-neutral-200 dark:bg-neutral-700"></div>
+
+      @for (entry of entries(); track entry.title + entry.timestamp) {
+        <div class="relative flex gap-3 pb-6 last:pb-0">
+          <!-- Dot -->
+          <div
+            class="absolute left-[-14px] top-1 size-5 rounded-full border-2 border-white dark:border-neutral-900 shrink-0"
+            [class.bg-neutral-300]="(entry.variant ?? 'default') === 'default'"
+            [class.dark:bg-neutral-600]="(entry.variant ?? 'default') === 'default'"
+            [class.bg-accent-500]="entry.variant === 'success'"
+            [class.bg-red-500]="entry.variant === 'danger'"
+            [class.bg-amber-500]="entry.variant === 'warning'"
+            [class.bg-blue-500]="entry.variant === 'info'"
+          ></div>
+
+          <!-- Content -->
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                {{ entry.title }}
+              </p>
+              <time class="text-xs text-neutral-400 dark:text-neutral-500 whitespace-nowrap">{{
+                entry.timestamp
+              }}</time>
+            </div>
+            @if (entry.description) {
+              <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+                {{ entry.description }}
+              </p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  

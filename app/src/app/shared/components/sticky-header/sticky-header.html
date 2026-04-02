@@ -1,0 +1,11 @@
+
+    <div
+      class="sticky top-0 z-20 transition-shadow"
+      [class.shadow-md]="isStuck()"
+      [class.bg-white]="isStuck()"
+      [class.dark:bg-neutral-900]="isStuck()"
+    >
+      <ng-content select="[header]" />
+    </div>
+    <ng-content />
+  

@@ -1,0 +1,26 @@
+# =====================================================
+# PostgreSQL - Client Authentication Configuration
+# Autor: DevOps Agentflix
+# =====================================================
+
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# Local connections
+local  all             postgres                              peer
+local  all             all                                  peer
+
+# IPv4 local connections
+host   all             postgres        127.0.0.1/32          scram-sha-256
+host   all             all             127.0.0.1/32          scram-sha-256
+
+# IPv6 local connections
+host   all             postgres        ::1/128               scram-sha-256
+host   all             all             ::1/128               scram-sha-256
+
+# Application connections (Production)
+host   agentflix       agentflix_app   127.0.0.1/32          scram-sha-256
+host   gateway         agentflix_app   127.0.0.1/32          scram-sha-256
+
+# Application connections (Staging)
+host   agentflix_stage agentflix_app   127.0.0.1/32          scram-sha-256
+host   gateway_stage   agentflix_app   127.0.0.1/32          scram-sha-256

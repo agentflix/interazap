@@ -1,0 +1,67 @@
+# =====================================================
+# Role: Supervisor
+# Propósito: Workers PHP para AgentFlix API
+# Autor: DevOps Agentflix
+# =====================================================
+
+- name: "Criar /tmp/ansible para Ansible module executor"
+  file:
+    path: /tmp/ansible
+    state: directory
+    mode: '0777'
+
+- name: "Instalar SupervisorD"
+  apt:
+    name:
+      - supervisor
+      - supervisor-doc
+    state: present
+
+- name: "Criar diretório de logs do Supervisor"
+  file:
+    path: /var/log/supervisor
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: "Criar configuração de programas do AgentFlix - Production"
+  template:
+    src: agentflix-production.conf.j2
+    dest: /etc/supervisor/conf.d/agentflix-production.conf
+    mode: '0644'
+  notify: "Recarregar Supervisor"
+
+- name: "Criar configuração de programas do AgentFlix - Staging"
+  template:
+    src: agentflix-staging.conf.j2
+    dest: /etc/supervisor/conf.d/agentflix-staging.conf
+    mode: '0644'
+  notify: "Recarregar Supervisor"
+
+- name: "Configurar logrotate para Supervisor"
+  copy:
+    dest: /etc/logrotate.d/supervisor
+    content: |
+      /var/log/supervisor/*.log {
+          daily
+          rotate 14
+          compress
+          delaycompress
+          notifempty
+          create 0640 root root
+          sharedscripts
+          postrotate
+              if [ -d /etc/init.d/supervisor ]; then
+                  /usr/bin/supervisorctl reread > /dev/null 2>&1 || true
+                  /usr/bin/supervisorctl reload > /dev/null 2>&1 || true
+              fi
+          endscript
+      }
+    mode: '0644'
+
+- name: "Habilitar e iniciar Supervisor"
+  service:
+    name: supervisor
+    state: started
+    enabled: yes

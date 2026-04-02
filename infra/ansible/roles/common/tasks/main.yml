@@ -1,0 +1,107 @@
+# =====================================================
+# Role: Common
+# Propósito: Configuração base do servidor
+# Autor: DevOps Agentflix
+# =====================================================
+
+- name: 'Atualizar cache do apt'
+  apt:
+      update_cache: yes
+      cache_valid_time: 3600
+  changed_when: false
+
+- name: 'Atualizar pacotes do sistema'
+  apt:
+      upgrade: dist
+      autoremove: yes
+  notify: 'Verificar se reboot é necessário'
+  ignore_errors: yes
+
+- name: 'Instalar pacotes base'
+  apt:
+      name:
+          - curl
+          - wget
+          - git
+          - unzip
+          - zip
+          - htop
+          - tmux
+          - vim
+          - rsync
+          - ca-certificates
+          - gnupg
+          - lsb-release
+          - software-properties-common
+          - apt-transport-https
+          - unattended-upgrades
+          - autofs
+      state: present
+
+- name: 'Configurar timezone para São Paulo'
+  community.general.timezone:
+      name: America/Sao_Paulo
+
+- name: 'Instalar pacote locales'
+  apt:
+      name: locales
+      state: present
+
+- name: 'Adicionar pt_BR.UTF-8 ao locale.gen'
+  lineinfile:
+      path: /etc/locale.gen
+      regexp: '^#?\s*pt_BR.UTF-8'
+      line: 'pt_BR.UTF-8 UTF-8'
+      create: yes
+
+- name: 'Gerar locale pt_BR.UTF-8'
+  command: locale-gen pt_BR.UTF-8
+  args:
+      creates: /usr/lib/locale/pt_BR.UTF-8
+
+- name: 'Definir locale padrão do sistema'
+  lineinfile:
+      path: /etc/environment
+      line: '{{ item }}'
+      create: yes
+  loop:
+      - 'LANG=pt_BR.UTF-8'
+      - 'LC_ALL=pt_BR.UTF-8'
+
+- name: 'Instalar e configurar unattended-upgrades'
+  apt:
+      name: unattended-upgrades
+      state: present
+
+- name: 'Habilitar atualizações automáticas de segurança'
+  lineinfile:
+      path: /etc/apt/apt.conf.d/50unattended-upgrades
+      regexp: '{{ item.regexp }}'
+      line: '{{ item.line }}'
+      create: yes
+  loop:
+      - { regexp: 'Update-Package-Lists', line: 'Unattended-Upgrade::Update-Package-Lists "1";' }
+      - { regexp: 'AutoFixInterruptedDpkg', line: 'Unattended-Upgrade::AutoFixInterruptedDpkg "true";' }
+      - { regexp: 'MinimalSteps', line: 'Unattended-Upgrade::MinimalSteps "true";' }
+      - { regexp: 'Mail', line: 'Unattended-Upgrade::Mail "";' }
+      - { regexp: 'Remove-Unused-Dependencies', line: 'Unattended-Upgrade::Remove-Unused-Dependencies "true";' }
+      - { regexp: 'Automatic-Reboot', line: 'Unattended-Upgrade::Automatic-Reboot "false";' }
+
+- name: 'Criar diretório de dados'
+  file:
+      path: '{{ item }}'
+      owner: www-data
+      group: www-data
+      mode: '0755'
+      state: directory
+  loop:
+      - /data
+      - /data/production
+      - /data/stage
+
+- name: 'Criar alias compatível /data/prod -> /data/production'
+  file:
+      src: /data/production
+      dest: /data/prod
+      state: link
+      force: yes

@@ -1,0 +1,31 @@
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="mb-4">
+          <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+        </div>
+      }
+
+      <af-text-input
+        label="Nome"
+        [control]="form.controls.name"
+        placeholder="Ex: Vendas"
+        [required]="true"
+        dataTest="department-form-name"
+      />
+
+      <af-textarea-input
+        label="Descrição"
+        [control]="form.controls.description"
+        placeholder="Descrição do departamento..."
+        [rows]="3"
+        dataTest="department-form-description"
+      />
+
+      <af-switch-input
+        label="Ativo"
+        [control]="form.controls.is_active"
+        dataTest="department-form-active"
+      />
+    </form>
+  

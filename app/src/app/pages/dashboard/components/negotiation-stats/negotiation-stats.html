@@ -1,0 +1,65 @@
+
+    <af-card [padded]="false" [fullHeight]="true">
+      <div header class="px-5 pt-4 pb-0">
+        <h6 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Negociações</h6>
+      </div>
+      <div class="px-5 py-4">
+        @if (hasData()) {
+          <af-apexchart
+            type="donut"
+            [series]="chartSeries()"
+            [colors]="['#22c55e', '#ef4444', '#f59e0b']"
+            [labels]="['Ganhas', 'Perdidas', 'Abertas']"
+            [extraOptions]="chartOptions"
+            height="220"
+          />
+        } @else {
+          <af-empty-state
+            title="Sem dados"
+            description="Nenhum dado encontrado para o período selecionado"
+          />
+        }
+
+        <div class="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
+          <div>
+            <div class="text-success font-semibold">
+              {{ stats().by_status.won }}
+            </div>
+            <div class="text-neutral-500 dark:text-neutral-400">Ganhas</div>
+          </div>
+          <div>
+            <div class="text-danger font-semibold">
+              {{ stats().by_status.lost }}
+            </div>
+            <div class="text-neutral-500 dark:text-neutral-400">Perdidas</div>
+          </div>
+          <div>
+            <div class="text-warning font-semibold">
+              {{ stats().by_status.open }}
+            </div>
+            <div class="text-neutral-500 dark:text-neutral-400">Abertas</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h6 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+            Motivos de perda
+          </h6>
+          @if (stats().top_loss_reasons.length > 0) {
+            <div class="space-y-2">
+              @for (reason of stats().top_loss_reasons; track reason.name) {
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-neutral-600 dark:text-neutral-400">{{ reason.name }}</span>
+                  <span class="font-semibold text-neutral-900 dark:text-neutral-100">{{
+                    reason.count
+                  }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <af-empty-state title="Sem motivos" description="Nenhum motivo de perda registrado" />
+          }
+        </div>
+      </div>
+    </af-card>
+  

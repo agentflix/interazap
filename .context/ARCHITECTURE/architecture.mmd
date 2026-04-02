@@ -1,0 +1,75 @@
+graph TD
+    subgraph Client["🖥️ Client Layer"]
+        User["👤 User / Browser"]
+    end
+
+    subgraph Frontend["🎨 Frontend — Angular 20"]
+        SPA["SPA Angular"]
+        WS_Client["Socket.io Client"]
+    end
+
+    subgraph Gateway["⚡ Gateway — NestJS 11"]
+        API_GW["REST API Gateway"]
+        WS_Server["WebSocket Server"]
+        BullMQ["BullMQ Workers"]
+        CircuitBreaker["Circuit Breaker"]
+        Throttler["Rate Limiter"]
+    end
+
+    subgraph Backend["🏗️ Backend — Laravel 12"]
+        API["REST API"]
+        Reverb["Laravel Reverb"]
+        Horizon["Horizon Queue Workers"]
+        Actions["Domain Actions"]
+        Policies["Policies + Spatie Permissions"]
+        Sanctum["Sanctum Auth"]
+    end
+
+    subgraph Data["💾 Data Layer"]
+        PG["PostgreSQL 17 + pgvector"]
+        Redis["Redis 7"]
+    end
+
+    subgraph External["🌐 External Services"]
+        WhatsApp["Z-API / UazAPI\n(WhatsApp)"]
+        OpenAI["OpenAI\n(GPT / Embeddings)"]
+        Asaas["Asaas\n(Pagamentos)"]
+        S3["AWS S3\n(Storage)"]
+        Mail["SMTP\n(Email)"]
+    end
+
+    subgraph Monitoring["📊 Observability"]
+        Prometheus["Prometheus"]
+        Grafana["Grafana"]
+        Alertmanager["Alertmanager"]
+        Sentry["Sentry"]
+    end
+
+    User -->|"HTTPS"| SPA
+    User -->|"WSS"| WS_Client
+    SPA -->|"REST"| API_GW
+    WS_Client -->|"Socket.io"| WS_Server
+    API_GW -->|"HTTP"| API
+    WS_Server -->|"Redis PubSub"| Reverb
+    API_GW --> Throttler
+    API_GW --> CircuitBreaker
+    CircuitBreaker -->|"Webhook relay"| BullMQ
+    API -->|"Auth"| Sanctum
+    API -->|"Authorization"| Policies
+    API -->|"Business Logic"| Actions
+    Actions -->|"SQL / pgvector"| PG
+    Actions -->|"Cache / Queue"| Redis
+    Horizon -->|"Jobs"| Redis
+    Reverb -->|"Broadcast"| Redis
+    BullMQ -->|"Jobs"| Redis
+    CircuitBreaker -->|"API"| WhatsApp
+    Actions -->|"AI Requests"| OpenAI
+    Actions -->|"Payments"| Asaas
+    Actions -->|"Files"| S3
+    Actions -->|"Emails"| Mail
+    Backend -->|"Metrics"| Prometheus
+    Gateway -->|"Metrics"| Prometheus
+    Prometheus --> Grafana
+    Prometheus --> Alertmanager
+    Backend -->|"Errors"| Sentry
+    Gateway -->|"Errors"| Sentry

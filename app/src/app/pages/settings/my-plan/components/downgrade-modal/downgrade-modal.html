@@ -1,0 +1,64 @@
+
+    <af-modal
+      [open]="open()"
+      title="Confirmar Downgrade"
+      size="lg"
+      (closed)="closed.emit()"
+      [closeOnBackdrop]="!loading()"
+    >
+      <div modal-body class="space-y-4">
+        <p class="text-sm text-neutral-700 dark:text-neutral-300">
+          Plano: <span class="font-semibold">{{ plan()?.name }}</span>
+        </p>
+
+        <p class="text-sm text-neutral-700 dark:text-neutral-300">
+          Crédito proporcional:
+          <span class="font-semibold">{{
+            formatCurrencyBRL(preview()?.financial?.pro_rata_credit)
+          }}</span>
+        </p>
+
+        <div
+          class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3 text-sm space-y-1"
+        >
+          <p class="font-medium text-neutral-900 dark:text-neutral-50">Recursos afetados:</p>
+          <p class="text-neutral-700 dark:text-neutral-300">
+            • {{ preview()?.affected_resources?.users?.will_deactivate ?? 0 }} usuários serão
+            desativados
+          </p>
+          <p class="text-neutral-700 dark:text-neutral-300">
+            • {{ preview()?.affected_resources?.instances?.will_deactivate ?? 0 }} instâncias serão
+            desativadas
+          </p>
+          @if (preview()?.affected_resources?.storage?.is_over_limit) {
+            <p class="text-neutral-700 dark:text-neutral-300">
+              • {{ preview()?.affected_resources?.storage?.impact }}
+            </p>
+          }
+          <p class="text-neutral-700 dark:text-neutral-300">• Negociações não serão afetadas</p>
+        </div>
+
+        <af-text-input
+          [control]="passwordControl"
+          type="password"
+          label="Confirme sua senha"
+          placeholder="Digite sua senha atual"
+        />
+      </div>
+
+      <div modal-footer class="flex items-center justify-end gap-2">
+        <af-button variant="outline" [disabled]="loading()" (click)="closed.emit()"
+          >Cancelar</af-button
+        >
+        <af-loading-button
+          [loading]="loading()"
+          [disabled]="passwordControl.value.trim().length === 0"
+          variant="danger"
+          (clicked)="submit()"
+          loadingText="Confirmando..."
+        >
+          Confirmar Downgrade
+        </af-loading-button>
+      </div>
+    </af-modal>
+  

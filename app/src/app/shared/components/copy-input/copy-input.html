@@ -1,0 +1,37 @@
+
+    <div [class]="classContainer()">
+      @if (label()) {
+        <af-form-label [label]="label()" [for]="inputId" />
+      }
+
+      <div class="relative flex">
+        <input
+          [id]="inputId"
+          type="text"
+          readonly
+          class="flex-1 h-10 px-3 text-sm rounded-l-md border border-r-0 border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 select-all cursor-text focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500"
+          [formControl]="control()"
+          [attr.data-test]="dataTest()"
+        />
+
+        <button
+          type="button"
+          class="flex items-center justify-center w-10 h-10 rounded-r-md border border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors cursor-pointer"
+          (click)="copyValue()"
+          [attr.aria-label]="copied() ? 'Copiado!' : 'Copiar'"
+        >
+          <lucide-icon
+            [name]="copied() ? 'check' : 'copy'"
+            [size]="16"
+            [class]="copied() ? 'text-green-500' : ''"
+          />
+        </button>
+      </div>
+
+      @if (copied()) {
+        <p class="mt-1 text-xs text-green-600 dark:text-green-400">
+          Copiado para a área de transferência!
+        </p>
+      }
+    </div>
+  

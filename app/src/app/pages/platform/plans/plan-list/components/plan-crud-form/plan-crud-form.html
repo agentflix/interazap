@@ -1,0 +1,93 @@
+
+    <form (submit)="$event.preventDefault()">
+      <div class="space-y-4">
+        <af-card>
+          <div class="p-4 space-y-4">
+            <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+              Informações Gerais
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <af-text-input
+                label="Nome"
+                [control]="form.controls.name"
+                [required]="true"
+                [spacing]="false"
+              />
+              <af-text-input
+                label="Slug"
+                [control]="form.controls.slug"
+                [required]="true"
+                [spacing]="false"
+              />
+              <af-currency-input
+                label="Preço mensal"
+                [control]="form.controls.price_monthly"
+                [spacing]="false"
+              />
+              <af-switch-input
+                label="Plano ativo"
+                [control]="form.controls.is_active"
+                classContainer="pt-6"
+              />
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="p-4 space-y-4">
+            <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Limites</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <af-text-input
+                label="Limite de usuários"
+                type="number"
+                [control]="form.controls.limit_users"
+                [spacing]="false"
+              />
+              <af-text-input
+                label="Integrações WhatsApp"
+                type="number"
+                [control]="form.controls.whatsapp_integrations_limit"
+                [spacing]="false"
+              />
+              <af-select-input
+                label="Storage"
+                [control]="form.controls.storage_mode"
+                [options]="limitModeOptions"
+                [spacing]="false"
+              />
+              <af-text-input
+                label="Storage (GB)"
+                type="number"
+                [control]="form.controls.storage_limit_gb"
+                [spacing]="false"
+              />
+              <af-select-input
+                label="Negociações"
+                [control]="form.controls.negotiations_mode"
+                [options]="limitModeOptions"
+                [spacing]="false"
+              />
+              <af-text-input
+                label="Limite de negociações"
+                type="number"
+                [control]="form.controls.negotiations_limit"
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="p-4 space-y-4">
+            <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Recursos</h3>
+            <af-select-input
+              label="IA Autopilot"
+              [control]="form.controls.ai_enabled"
+              [options]="booleanOptions"
+              [spacing]="false"
+            />
+          </div>
+        </af-card>
+      </div>
+    </form>
+  

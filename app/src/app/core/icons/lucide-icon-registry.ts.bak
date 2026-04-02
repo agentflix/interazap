@@ -1,0 +1,26 @@
+import { icons, type LucideIconData, type LucideIcons } from 'lucide-angular';
+
+function toKebabCase(name: string): string {
+  return name
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+    .toLowerCase();
+}
+
+function asLucideIconData(value: unknown): LucideIconData {
+  return value as LucideIconData;
+}
+
+export function buildLucideIconRegistry(): LucideIcons {
+  const registry: LucideIcons = {};
+
+  for (const [name, iconData] of Object.entries(icons as Record<string, unknown>)) {
+    registry[toKebabCase(name)] = asLucideIconData(iconData);
+  }
+
+  if (registry['cloud-upload']) {
+    registry['upload-cloud'] = registry['cloud-upload'];
+  }
+
+  return registry;
+}

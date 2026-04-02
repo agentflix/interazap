@@ -1,0 +1,54 @@
+
+    <div [class]="classContainer()">
+      @if (label()) {
+        <af-form-label [label]="label()" [for]="inputId" [required]="required()" />
+      }
+
+      <div
+        class="flex flex-wrap items-center gap-1.5 min-h-10 px-2.5 py-1.5 rounded-md border bg-white dark:bg-neutral-900 transition-colors cursor-text"
+        [class]="containerBorderClasses()"
+        (click)="focusInput()"
+        (keydown.enter)="focusInput()"
+        tabindex="0"
+        role="button"
+      >
+        <!-- Tags -->
+        @for (tag of tags(); track tag) {
+          <span
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-accent-100 dark:bg-accent-900/40 text-accent-700 dark:text-accent-300 select-none"
+          >
+            {{ tag }}
+            <button
+              type="button"
+              class="inline-flex items-center justify-center size-3.5 rounded-full hover:bg-accent-200 dark:hover:bg-accent-800 transition-colors cursor-pointer"
+              (click)="removeTag(tag, $event)"
+              [attr.aria-label]="'Remover ' + tag"
+            >
+              <lucide-icon name="x" [size]="10" />
+            </button>
+          </span>
+        }
+
+        <!-- Text input -->
+        @if (!maxReached()) {
+          <input
+            #tagInputRef
+            [id]="inputId"
+            type="text"
+            class="flex-1 min-w-24 h-7 text-sm bg-transparent border-0 outline-none text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+            [placeholder]="tags().length === 0 ? placeholder() : ''"
+            [attr.data-test]="dataTest()"
+            (keydown)="onKeyDown($event)"
+          />
+        }
+      </div>
+
+      @if (maxTags() > 0) {
+        <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+          {{ tags().length }}/{{ maxTags() }} tags
+        </p>
+      }
+
+      <af-form-error [show]="showError()" [message]="errorMessage()" />
+    </div>
+  

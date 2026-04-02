@@ -1,0 +1,174 @@
+<div class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-800">
+  <div class="gap-3 flex justify-between items-center">
+    <div class="flex gap-3 items-center">
+      <button
+        class="lg:hidden size-8 rounded-md flex justify-center items-center bg-neutral-100 dark:bg-neutral-800"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="hs-offcanvas-left"
+        data-hs-overlay="#hs-offcanvas-left"
+      >
+        <div class="size-4 text-neutral-500 hover:text-primary">
+          <ng-icon name="lucideChevronsLeft"></ng-icon>
+        </div>
+      </button>
+
+      <div
+        class="rounded-full size-10 bg-neutral-100 dark:bg-neutral-800 overflow-hidden flex items-center justify-center text-sm font-semibold text-neutral-600 dark:text-neutral-300"
+      >
+        {{ contactInitials }}
+      </div>
+
+      <div>
+        <h6 class="text-neutral-800 dark:text-neutral-100 mb-1 font-bold text-sm">
+          {{ contactName }}
+        </h6>
+        <p class="text-xs text-neutral-500 flex items-center gap-1 flex-wrap">
+          <span>{{ contactPhone }}</span>
+          <span class="text-neutral-400">|</span>
+          <button
+            type="button"
+            (click)="copyProtocol()"
+            [title]="'Copiar protocolo ' + (called?.protocol || '')"
+            class="inline-flex items-center gap-0.5 cursor-pointer hover:text-primary transition-colors font-medium group disabled:cursor-default"
+            [disabled]="!called?.protocol"
+          >
+            <ng-icon
+              name="lucideCopy"
+              class="size-3 opacity-0 group-hover:opacity-60 transition-opacity"
+            />
+            #{{ called?.protocol || '-' }}
+          </button>
+          <span class="text-neutral-400">|</span>
+          <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold" [class]="statusClass">
+            {{ statusLabel }}
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div class="flex gap-1.5 items-center">
+      <app-icon-button
+        icon="lucideLogOut"
+        variant="ghost"
+        size="sm"
+        ariaLabel="Fechar conversa"
+        (clicked)="closeChat()"
+      />
+
+      <app-icon-button icon="lucideVideo" variant="ghost" size="sm" ariaLabel="Iniciar vídeo" />
+
+      <app-icon-button icon="lucideSearch" variant="ghost" size="sm" ariaLabel="Pesquisar" />
+
+      <app-icon-button
+        icon="lucideArrowRightLeft"
+        variant="ghost"
+        size="sm"
+        ariaLabel="Transferir Atendimento"
+        (clicked)="openTransfer()"
+      />
+
+      <app-icon-button
+        icon="lucideX"
+        variant="danger"
+        size="sm"
+        ariaLabel="Fechar Atendimento"
+        (clicked)="openCloseModal()"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- TRANSFER MODAL -->
+<app-modal
+  [isOpen]="isTransferOpen()"
+  [title]="'Transferir Atendimento'"
+  maxWidth="md"
+  [scrollBody]="false"
+  (closed)="closeTransfer()"
+>
+  <div modal-body class="space-y-4">
+    <!-- Department Select -->
+    <div>
+      <app-select-input
+        label="Departamento"
+        [control]="departmentControl"
+        [options]="departmentOptions()"
+        placeholder="Selecione um departamento..."
+        [spacing]="false"
+        [classSelect]="'dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-100'"
+      />
+    </div>
+
+    <!-- User Select -->
+    <div>
+      <app-select-input
+        label="Usuário"
+        [control]="userControl"
+        [options]="userOptions()"
+        placeholder="Selecione um usuário..."
+        [spacing]="false"
+        [classSelect]="'dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-100'"
+      />
+    </div>
+
+    <div>
+      <app-textarea-input
+        label="Motivo da transferência"
+        [control]="transferReasonControl"
+        placeholder="Descreva o contexto que o próximo atendente precisa saber."
+        [helpText]="'Essa nota aparecerá apenas na timeline interna e não será exibida ao cliente.'"
+        [rows]="3"
+        [spacing]="false"
+      />
+    </div>
+  </div>
+
+  <ng-container modal-footer>
+    <div class="flex w-full items-center justify-end gap-2">
+      <app-button variant="outline" size="sm" (clicked)="closeTransfer()">Cancelar</app-button>
+      <app-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="isTransferLoading()"
+        loadingText="Confirmando..."
+        [disabled]="
+          (!selectedDepartmentId() && !selectedUserId()) ||
+          (!!selectedUserId() && transferReasonControl.value.trim().length === 0)
+        "
+        (clicked)="confirmTransfer()"
+      >
+        Confirmar Transferência
+      </app-loading-button>
+    </div>
+  </ng-container>
+</app-modal>
+
+<!-- CLOSE TICKET MODAL -->
+<app-modal
+  [isOpen]="isCloseModalOpen()"
+  [title]="'Fechar atendimento'"
+  maxWidth="md"
+  (closed)="closeCloseModal()"
+>
+  <div modal-body class="space-y-4">
+    <p class="text-sm text-neutral-600 dark:text-neutral-300">
+      Tem certeza que deseja fechar este atendimento? Essa ação não poderá ser desfeita.
+    </p>
+  </div>
+
+  <ng-container modal-footer>
+    <div class="flex w-full items-center justify-end gap-2">
+      <app-button variant="outline" size="sm" (clicked)="closeCloseModal()">Cancelar</app-button>
+      <app-loading-button
+        variant="danger"
+        size="sm"
+        [loading]="isClosing()"
+        loadingText="Fechando..."
+        (clicked)="confirmClose()"
+      >
+        Fechar atendimento
+      </app-loading-button>
+    </div>
+  </ng-container>
+</app-modal>

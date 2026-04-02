@@ -1,0 +1,38 @@
+
+    <div
+      class="w-full"
+      role="progressbar"
+      [attr.aria-valuenow]="value()"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      @if (showLabel()) {
+        <div class="flex justify-between items-center mb-1">
+          @if (label()) {
+            <span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">{{
+              label()
+            }}</span>
+          }
+          <span class="text-xs tabular-nums text-neutral-500">{{ value() }}%</span>
+        </div>
+      }
+      <div
+        class="w-full rounded-full overflow-hidden"
+        [class.h-1]="size() === 'xs'"
+        [class.h-1.5]="size() === 'sm'"
+        [class.h-2]="size() === 'md'"
+        [class.h-3]="size() === 'lg'"
+        [class.bg-neutral-200]="true"
+        [class.dark:bg-neutral-700]="true"
+      >
+        <div
+          class="h-full rounded-full transition-all duration-300 ease-out"
+          [class.bg-accent-500]="variant() === 'accent'"
+          [class.bg-blue-500]="variant() === 'info'"
+          [class.bg-red-500]="variant() === 'danger'"
+          [class.bg-amber-500]="variant() === 'warning'"
+          [style.width.%]="clampedValue()"
+        ></div>
+      </div>
+    </div>
+  

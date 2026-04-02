@@ -1,0 +1,44 @@
+
+    <af-card [padded]="false" [fullHeight]="true">
+      <div header class="px-5 pt-4 pb-0">
+        <div class="flex items-center justify-between w-full">
+          <h6 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+            Satisfação (CSAT)
+          </h6>
+          <span class="text-xs text-neutral-500 dark:text-neutral-400">
+            {{ stats().total_evaluations }} avaliações
+          </span>
+        </div>
+      </div>
+      <div class="px-5 py-4">
+        @if (hasData()) {
+          <af-apexchart
+            type="radialBar"
+            [series]="chartSeries()"
+            [colors]="['#2b7fff']"
+            [extraOptions]="chartOptions()"
+            height="240"
+          />
+        } @else {
+          <af-empty-state
+            title="Sem avaliações"
+            description="Avaliações de satisfação aparecerão aqui"
+          />
+        }
+
+        <div class="mt-4 space-y-2">
+          @for (row of ratingRows(); track row.rating) {
+            <div class="flex items-center gap-2 text-xs">
+              <span class="w-4 text-neutral-500 dark:text-neutral-400">{{ row.rating }}</span>
+              <div class="flex-1 h-2 rounded-full bg-neutral-100 dark:bg-neutral-700">
+                <div class="h-2 rounded-full bg-accent-500" [style.width.%]="row.percent"></div>
+              </div>
+              <span class="w-10 text-right text-neutral-600 dark:text-neutral-300">
+                {{ row.count }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    </af-card>
+  

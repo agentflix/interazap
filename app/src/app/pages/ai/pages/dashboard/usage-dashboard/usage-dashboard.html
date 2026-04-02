@@ -1,0 +1,323 @@
+
+    <af-page-title title="Dashboard" subtitle="Inteligência Artificial" />
+
+    @if (isLoading()) {
+      <!-- Loading State -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
+        @for (skeleton of [0, 1, 2, 3]; track skeleton) {
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+          >
+            <div class="h-4 w-24 bg-neutral-200 dark:bg-neutral-700 rounded mb-3"></div>
+            <div class="h-8 w-32 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
+          </div>
+        }
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div
+          class="lg:col-span-2 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+        >
+          <div class="h-5 w-32 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
+          <div class="h-40 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
+        </div>
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+        >
+          <div class="h-5 w-32 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
+          @for (row of [0, 1, 2, 3, 4]; track row) {
+            <div class="h-10 bg-neutral-200 dark:bg-neutral-700 rounded mb-2"></div>
+          }
+        </div>
+      </div>
+    } @else if (hasError()) {
+      <!-- Error State -->
+      <div class="p-4">
+        <af-alert
+          variant="danger"
+          title="Erro ao carregar dados"
+          message="Não foi possível carregar as métricas de uso."
+        />
+        <div class="mt-2">
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      </div>
+    } @else {
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
+        <!-- Total Cost -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-neutral-500">Custo do Mês</span>
+            <span
+              class="size-8 p-1.5 rounded-lg bg-accent-50 dark:bg-accent-900/20 text-accent-600 dark:text-accent-400"
+            >
+              <lucide-icon name="dollar-sign" [size]="18" />
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+              {{ formatCurrency(summary()?.total_cost ?? 0) }}
+            </span>
+            @if (summary()?.cost_change_percent) {
+              <span class="text-xs flex items-center gap-1" [class]="trendClass()">
+                <lucide-icon [name]="trendIcon()" [size]="12" />
+                {{ summary()?.cost_change_percent | number: '1.1-1' }}%
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Total Tokens -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-neutral-500">Tokens Usados</span>
+            <span
+              class="size-8 p-1.5 rounded-lg bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400"
+            >
+              <lucide-icon name="coins" [size]="18" />
+            </span>
+          </div>
+          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            {{ formatNumber(summary()?.total_tokens ?? 0) }}
+          </span>
+        </div>
+
+        <!-- Total Requests -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-neutral-500">Requisições</span>
+            <span
+              class="size-8 p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+            >
+              <lucide-icon name="activity" [size]="18" />
+            </span>
+          </div>
+          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            {{ formatNumber(summary()?.total_requests ?? 0) }}
+          </span>
+        </div>
+
+        <!-- Avg Latency -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-neutral-500">Latência Média</span>
+            <span
+              class="size-8 p-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400"
+            >
+              <lucide-icon name="bot" [size]="18" />
+            </span>
+          </div>
+          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            {{ summary()?.avg_latency_ms | number: '1.0-0' }}ms
+          </span>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Daily Usage Chart -->
+        <div
+          class="lg:col-span-2 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-base font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+            Uso Diário (30 dias)
+          </h3>
+          @if (chartData().length > 0) {
+            <div class="flex items-end justify-between gap-1 h-32">
+              @for (bar of chartData(); track bar.date) {
+                <div
+                  class="flex-1 bg-accent-200 dark:bg-accent-800/40 hover:bg-accent-400 dark:hover:bg-accent-600/60 rounded-t transition-colors cursor-pointer group relative"
+                  [style.height.px]="bar.height"
+                >
+                  <div
+                    class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap z-10"
+                  >
+                    {{ bar.date }}<br />
+                    {{ formatCurrency(bar.cost) }} | {{ bar.tokens }} tokens
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="flex justify-between mt-2 text-xs text-neutral-400">
+              <span>{{ chartData()[0]?.date }}</span>
+              <span>{{ chartData()[chartData().length - 1]?.date }}</span>
+            </div>
+          } @else {
+            <af-empty-state
+              title="Sem dados"
+              description="Nenhum dado encontrado para o período selecionado"
+            />
+          }
+        </div>
+
+        <!-- Top Agents -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3 class="text-base font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+            Top Agentes
+          </h3>
+          @if (topAgents().length > 0) {
+            <div class="space-y-3">
+              @for (agent of topAgents(); track agent.agent_name; let i = $index) {
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="size-6 flex items-center justify-center rounded-full text-xs font-medium"
+                      [class]="
+                        i === 0
+                          ? 'bg-accent-500 text-white'
+                          : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400'
+                      "
+                    >
+                      {{ i + 1 }}
+                    </span>
+                    <span class="text-sm text-neutral-700 dark:text-neutral-300">
+                      {{ agent.agent_name }}
+                    </span>
+                  </div>
+                  <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                    {{ formatCurrency(agent.total_cost) }}
+                  </span>
+                </div>
+              }
+            </div>
+          } @else {
+            <af-empty-state title="Sem agentes" description="Nenhum agente com uso registrado" />
+          }
+        </div>
+      </div>
+
+      <!-- Budget & Voice Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+        <!-- Budget Status -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3
+            class="text-base font-medium text-neutral-900 dark:text-neutral-100 mb-4 flex items-center gap-2"
+          >
+            <lucide-icon name="gauge" [size]="18" class="text-accent-500" />
+            Budget de Tokens
+          </h3>
+          @if (budgetStatus()) {
+            <div class="space-y-4">
+              <!-- Daily budget progress -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-sm text-neutral-600 dark:text-neutral-400">Diário</span>
+                  <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                    {{ formatNumber(budgetStatus()!.daily_used) }} /
+                    {{
+                      budgetStatus()!.daily_budget
+                        ? formatNumber(budgetStatus()!.daily_budget!)
+                        : '∞'
+                    }}
+                  </span>
+                </div>
+                <div class="h-2 bg-neutral-100 dark:bg-neutral-700 rounded-full overflow-hidden">
+                  <div
+                    class="h-full rounded-full transition-all"
+                    [class]="
+                      budgetStatus()!.daily_percent > 90
+                        ? 'bg-red-500'
+                        : budgetStatus()!.daily_percent > 70
+                          ? 'bg-amber-500'
+                          : 'bg-emerald-500'
+                    "
+                    [style.width.%]="Math.min(budgetStatus()!.daily_percent, 100)"
+                  ></div>
+                </div>
+                <div class="text-xs text-neutral-500 mt-1">
+                  {{ budgetStatus()!.daily_percent | number: '1.0-0' }}% utilizado ·
+                  {{ formatNumber(budgetStatus()!.daily_remaining) }} restante
+                </div>
+              </div>
+
+              <!-- Per run average -->
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-neutral-600 dark:text-neutral-400">Média por run</span>
+                <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  {{ formatNumber(budgetStatus()!.avg_tokens_per_run) }} tokens
+                </span>
+              </div>
+
+              @if (budgetStatus()!.per_run_budget) {
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-neutral-600 dark:text-neutral-400">Limite por run</span>
+                  <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                    {{ formatNumber(budgetStatus()!.per_run_budget!) }} tokens
+                  </span>
+                </div>
+              }
+            </div>
+          } @else {
+            <af-empty-state title="Sem budget" description="Nenhum dado de budget disponível" />
+          }
+        </div>
+
+        <!-- Voice Usage -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          <h3
+            class="text-base font-medium text-neutral-900 dark:text-neutral-100 mb-4 flex items-center gap-2"
+          >
+            <lucide-icon name="mic" [size]="18" class="text-accent-500" />
+            Uso de Voz (30 dias)
+          </h3>
+          @if (voiceUsage()) {
+            <div class="grid grid-cols-2 gap-4">
+              <!-- STT -->
+              <div class="space-y-1">
+                <div class="text-xs text-neutral-500 uppercase tracking-wider">STT</div>
+                <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                  {{ formatCurrency(voiceUsage()!.stt_cost) }}
+                </div>
+                <div class="text-xs text-neutral-500">
+                  {{ voiceUsage()!.stt_requests }} requisições ·
+                  {{ voiceUsage()!.stt_minutes | number: '1.1-1' }} min
+                </div>
+              </div>
+              <!-- TTS -->
+              <div class="space-y-1">
+                <div class="text-xs text-neutral-500 uppercase tracking-wider">TTS</div>
+                <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                  {{ formatCurrency(voiceUsage()!.tts_cost) }}
+                </div>
+                <div class="text-xs text-neutral-500">
+                  {{ voiceUsage()!.tts_requests }} requisições ·
+                  {{ formatNumber(voiceUsage()!.tts_characters) }} chars
+                </div>
+              </div>
+              <!-- Total -->
+              <div class="col-span-2 pt-3 border-t border-neutral-200 dark:border-neutral-700">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-neutral-600 dark:text-neutral-400">Total voz</span>
+                  <span class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                    {{ formatCurrency(voiceUsage()!.total_voice_cost) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <af-empty-state
+              title="Sem dados de voz"
+              description="Nenhum uso de voz registrado no período"
+            />
+          }
+        </div>
+      </div>
+    }
+  

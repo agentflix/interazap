@@ -1,0 +1,108 @@
+
+    <div class="relative">
+      <button
+        (click)="toggle()"
+        class="relative size-9 inline-flex items-center justify-center rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-all duration-150 cursor-pointer"
+        type="button"
+        aria-label="Notifications"
+      >
+        <lucide-icon name="bell" [size]="18" />
+
+        @if (unreadCount() > 0) {
+          <span
+            class="absolute top-1 right-1 size-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-neutral-900"
+          ></span>
+        }
+      </button>
+
+      @if (open()) {
+        <div
+          class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-neutral-800 rounded-xl shadow-xl border border-neutral-200 dark:border-neutral-700 z-50 overflow-hidden"
+        >
+          <div
+            class="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-neutral-700"
+          >
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Notificações
+            </h3>
+            @if (unreadCount() > 0) {
+              <span class="text-xs font-medium text-accent-500">{{ unreadCount() }} novas</span>
+            }
+          </div>
+
+          <af-scroll-area maxHeight="20rem">
+            @if (loading()) {
+              <div class="flex items-center justify-center py-10">
+                <div
+                  class="size-6 rounded-full border-2 border-neutral-200 dark:border-neutral-600 border-t-accent-500 animate-spin"
+                ></div>
+              </div>
+            } @else if (error()) {
+              <div class="flex flex-col items-center justify-center py-10 text-center px-4">
+                <lucide-icon
+                  name="alert-circle"
+                  [size]="32"
+                  class="text-red-400 dark:text-red-500 mb-3"
+                />
+                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-1">
+                  Erro ao carregar notificações
+                </p>
+                <button
+                  (click)="loadNotifications()"
+                  class="text-xs text-accent-500 hover:text-accent-600 dark:hover:text-accent-400 cursor-pointer"
+                  type="button"
+                >
+                  Tentar novamente
+                </button>
+              </div>
+            } @else if (notifications().length === 0) {
+              <div class="flex flex-col items-center justify-center py-10 text-center">
+                <lucide-icon
+                  name="bell-off"
+                  [size]="32"
+                  class="text-neutral-300 dark:text-neutral-600 mb-3"
+                />
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhuma notificação</p>
+              </div>
+            } @else {
+              <div class="flex flex-col">
+                @for (notification of notifications(); track notification.id) {
+                  <button
+                    (click)="handleNotificationClick(notification)"
+                    class="flex items-start gap-3 px-4 py-3 text-left hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors border-b border-neutral-100 dark:border-neutral-700 last:border-b-0 cursor-pointer"
+                    type="button"
+                  >
+                    <div class="mt-0.5 shrink-0">
+                      <lucide-icon
+                        [name]="getIconForType(notification.type)"
+                        [size]="16"
+                        class="text-neutral-400 dark:text-neutral-500"
+                      />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">
+                        {{ notification.title }}
+                      </p>
+                      @if (notification.body) {
+                        <p
+                          class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-2"
+                        >
+                          {{ notification.body }}
+                        </p>
+                      }
+                      <p class="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
+                        {{ formatTime(notification.created_at) }}
+                      </p>
+                    </div>
+                    @if (!notification.read_at) {
+                      <div class="mt-1.5 size-2 rounded-full bg-accent-500 shrink-0"></div>
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </af-scroll-area>
+        </div>
+      }
+    </div>
+  

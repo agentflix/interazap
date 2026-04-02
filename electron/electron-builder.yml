@@ -1,0 +1,39 @@
+appId: com.agentflix.desktop
+productName: AgentFlix Desktop
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**/*
+  - package.json
+asar: true
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  category: public.app-category.business
+  minimumSystemVersion: '10.15'
+linux:
+  target:
+    - AppImage
+    - deb
+    - rpm
+  icon: build/icons
+  category: Office
+publish:
+  provider: github
+  owner: agentflix
+  repo: agentflix-desktop

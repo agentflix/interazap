@@ -1,0 +1,43 @@
+
+    <div class="mb-10 text-center">
+      <p
+        class="mb-3 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-primary-600 dark:text-primary-400 font-bold"
+      >
+        <span class="h-px w-5 bg-primary-400/50 dark:bg-primary-500/40"></span>
+        {{ eyebrow() }}
+        <span class="h-px w-5 bg-primary-400/50 dark:bg-primary-500/40"></span>
+      </p>
+      <h1
+        class="mb-3 text-[1.75rem] sm:text-3xl leading-tight text-neutral-900 dark:text-neutral-50 font-bold tracking-tight"
+      >
+        {{ title() }}
+      </h1>
+      <p
+        class="text-sm sm:text-[15px] text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-sm mx-auto"
+      >
+        {{ subtitle() }}
+      </p>
+
+      @if (highlight() !== '') {
+        <div
+          class="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-primary-200/60 dark:border-primary-800/50 bg-primary-50/60 dark:bg-primary-950/40 px-4 py-1.5 text-[11px] font-semibold text-primary-700 dark:text-primary-300"
+        >
+          <svg
+            class="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          {{ highlight() }}
+        </div>
+      }
+    </div>
+    <div class="text-left w-full">
+      <ng-content></ng-content>
+    </div>
+  

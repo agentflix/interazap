@@ -1,0 +1,65 @@
+# =====================================================
+# Role: Landing Deploy
+# Propósito: Deploy atômico da Landing Page estática
+# Autor: DevOps Agentflix
+# =====================================================
+
+- name: 'Definir timestamp do deploy da landing'
+  command: 'date +%Y%m%d%H%M%S'
+  register: landing_deploy_timestamp
+  changed_when: false
+
+- name: 'Definir variáveis de deploy da landing'
+  set_fact:
+    landing_target_branch: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
+    landing_releases_path: '{{ deploy_path }}/landing/releases'
+    landing_public_path: '{{ deploy_path }}/landing/public'
+    landing_current_release_path: '{{ deploy_path }}/landing/releases/{{ landing_deploy_timestamp.stdout }}'
+
+- name: 'Instalar git e rsync para deploy da landing'
+  apt:
+    name:
+      - git
+      - rsync
+    state: present
+
+- name: 'Garantir estrutura de diretórios da landing'
+  file:
+    path: '{{ item.path }}'
+    owner: '{{ item.owner }}'
+    group: '{{ item.group }}'
+    mode: '0755'
+    state: directory
+  loop:
+    - { path: '{{ landing_releases_path }}', owner: 'deploy', group: 'deploy' }
+    - { path: '{{ landing_public_path }}', owner: 'www-data', group: 'www-data' }
+    - { path: '{{ landing_current_release_path }}', owner: 'deploy', group: 'deploy' }
+
+- name: 'Clonar repositório para release atual da landing'
+  git:
+    repo: '{{ agentflix_git_url }}'
+    dest: '{{ landing_current_release_path }}'
+    version: '{{ landing_target_branch }}'
+    force: yes
+  become: yes
+  become_user: deploy
+
+- name: 'Sincronizar arquivos da landing para pasta pública'
+  command: >-
+    rsync -rlpt --delete
+    {{ landing_current_release_path }}/landing/
+    {{ landing_public_path }}/
+  become: yes
+
+- name: 'Garantir ownership da pasta pública da landing'
+  file:
+    path: '{{ landing_public_path }}'
+    owner: www-data
+    group: www-data
+    recurse: yes
+    state: directory
+
+- name: 'Limpar releases antigas da landing (manter 5 mais recentes)'
+  shell: |
+    ls -1dt {{ landing_releases_path }}/* 2>/dev/null | tail -n +6 | xargs rm -rf
+  ignore_errors: yes

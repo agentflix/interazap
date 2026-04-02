@@ -1,0 +1,129 @@
+
+    <main class="flex flex-col gap-6">
+      <af-page-title title="Dashboard" subtitle="CRM + Chat">
+        <app-dashboard-date-filter (filterChanged)="onFilterChanged($event)" />
+      </af-page-title>
+
+      @if (isLoading()) {
+        <!-- Loading skeleton state -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          @for (skeleton of [0, 1, 2, 3]; track skeleton) {
+            <af-card>
+              <div class="space-y-3">
+                <af-skeleton variant="text" width="60%" height="0.75rem" />
+                <af-skeleton variant="text" width="50%" height="1.5rem" />
+                <af-skeleton variant="text" width="45%" height="0.625rem" />
+              </div>
+            </af-card>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="lg:col-span-2">
+            <af-card>
+              <div class="space-y-4">
+                <af-skeleton variant="text" width="30%" height="1rem" />
+                <af-skeleton variant="rectangular" width="100%" height="12rem" />
+              </div>
+            </af-card>
+          </div>
+          <div>
+            <af-card>
+              <div class="space-y-4">
+                <af-skeleton variant="text" width="40%" height="1rem" />
+                <af-skeleton variant="rectangular" width="100%" height="10rem" />
+              </div>
+            </af-card>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="lg:col-span-2">
+            <af-card>
+              <div class="space-y-4">
+                <af-skeleton variant="text" width="25%" height="1rem" />
+                <af-skeleton variant="rectangular" width="100%" height="12rem" />
+              </div>
+            </af-card>
+          </div>
+          <div>
+            <af-card>
+              <div class="space-y-4">
+                <af-skeleton variant="text" width="35%" height="1rem" />
+                <af-skeleton variant="rectangular" width="100%" height="12rem" />
+              </div>
+            </af-card>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <af-card>
+            <div class="space-y-4">
+              <af-skeleton variant="text" width="30%" height="1rem" />
+              <af-skeleton variant="rectangular" width="100%" height="14rem" />
+            </div>
+          </af-card>
+          <af-card>
+            <div class="space-y-3">
+              <af-skeleton variant="text" width="35%" height="1rem" />
+              @for (row of [0, 1, 2, 3, 4]; track row) {
+                <af-skeleton variant="text" width="100%" height="2.5rem" />
+              }
+            </div>
+          </af-card>
+        </div>
+      } @else if (hasError()) {
+        <!-- Error state -->
+        <af-card>
+          <div class="py-6 space-y-4">
+            <af-alert
+              variant="danger"
+              title="Erro ao carregar dados"
+              message="Não foi possível carregar as métricas."
+            />
+            <af-button variant="primary" size="sm" (clicked)="retry()">
+              Tentar novamente
+            </af-button>
+          </div>
+        </af-card>
+      } @else if (!data()) {
+        <!-- Empty state -->
+        <af-card>
+          <af-empty-state
+            title="Nenhum dado disponível"
+            description="Não há informações para exibir neste momento"
+          />
+        </af-card>
+      } @else {
+        <!-- Success state -->
+        <app-kpi-cards [summary]="data()!.summary" />
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="lg:col-span-2 flex">
+            <app-revenue-chart class="w-full" [data]="data()!.revenue" />
+          </div>
+          <div class="flex">
+            <app-negotiation-stats class="w-full" [stats]="data()!.negotiations" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="lg:col-span-2 flex">
+            <app-ticket-stats class="w-full" [stats]="data()!.tickets" />
+          </div>
+          <div class="flex">
+            <app-csat-chart class="w-full" [stats]="data()!.csat" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div class="flex">
+            <app-sales-funnel-chart class="w-full" [steps]="data()!.funnel" />
+          </div>
+          <div class="flex">
+            <app-recent-activities class="w-full" [activities]="data()!.activities" />
+          </div>
+        </div>
+      }
+    </main>
+  

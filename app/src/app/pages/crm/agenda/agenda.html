@@ -1,0 +1,364 @@
+
+    @if (viewMode() === 'calendar') {
+      <main>
+        <app-page-title title="Agenda" subtitle="CRM">
+          <div class="flex items-center gap-2">
+            <div
+              class="inline-flex rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 p-0.5"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
+                [class]="
+                  viewMode() === 'calendar'
+                    ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-sm'
+                    : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+                "
+                (click)="setView('calendar')"
+              >
+                <lucide-icon name="calendar" [size]="14" class="block" />
+                Calendário
+              </button>
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
+                [class]="
+                  viewMode() === 'list'
+                    ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-sm'
+                    : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+                "
+                (click)="setView('list')"
+              >
+                <lucide-icon name="list" [size]="14" class="block" />
+                Lista
+              </button>
+            </div>
+
+            <div
+              class="inline-flex rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 p-0.5"
+            >
+              <af-button-group spacing="xs">
+                <app-button
+                  size="xs"
+                  [variant]="calendarDisplayMode() === 'month' ? 'secondary' : 'ghost'"
+                  (clicked)="setCalendarDisplayMode('month')"
+                  dataTest="agenda-calendar-mode-month"
+                >
+                  Mês
+                </app-button>
+                <app-button
+                  size="xs"
+                  [variant]="calendarDisplayMode() === 'week' ? 'secondary' : 'ghost'"
+                  (clicked)="setCalendarDisplayMode('week')"
+                  dataTest="agenda-calendar-mode-week"
+                >
+                  Semana
+                </app-button>
+                <app-button
+                  size="xs"
+                  [variant]="calendarDisplayMode() === 'day' ? 'secondary' : 'ghost'"
+                  (clicked)="setCalendarDisplayMode('day')"
+                  dataTest="agenda-calendar-mode-day"
+                >
+                  Dia
+                </app-button>
+              </af-button-group>
+            </div>
+
+            <app-button variant="secondary" size="sm" (clicked)="openCalendarFiltersModal()">
+              <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+              Filtros
+              @if (advancedFilterCount() > 0) {
+                <span
+                  class="ml-1 inline-flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white"
+                >
+                  {{ advancedFilterCount() }}
+                </span>
+              }
+            </app-button>
+
+            <app-button variant="primary" size="sm" (clicked)="openCalendarCreate()">
+              <lucide-icon name="plus" [size]="16" class="block" />
+              Novo Evento
+            </app-button>
+          </div>
+        </app-page-title>
+
+        <app-agenda-kpi-cards [events]="allEvents()" />
+
+        <div class="mt-5">
+          @if (calendarDisplayMode() === 'month') {
+            <app-agenda-month-view
+              #monthView
+              [options]="calendarOptions"
+              [events]="allEvents()"
+              [typeOptions]="typeOptions"
+              [dropRemoveControl]="dropRemoveControl"
+              (eventClicked)="openCalendarEdit($event)"
+            />
+          } @else if (calendarDisplayMode() === 'week') {
+            <app-agenda-week-view
+              #weekView
+              [options]="calendarOptions"
+              [events]="allEvents()"
+              [typeOptions]="typeOptions"
+              [dropRemoveControl]="dropRemoveControl"
+              (eventClicked)="openCalendarEdit($event)"
+            />
+          } @else {
+            <app-agenda-day-view
+              #dayView
+              [options]="calendarOptions"
+              [events]="allEvents()"
+              [typeOptions]="typeOptions"
+              [dropRemoveControl]="dropRemoveControl"
+              (eventClicked)="openCalendarEdit($event)"
+            />
+          }
+        </div>
+
+        <!-- Calendar Filters Drawer -->
+        <af-drawer
+          [open]="isCalendarFiltersModalOpen()"
+          title="Filtros da agenda"
+          side="right"
+          size="lg"
+          (closed)="cancelCalendarFiltersModal()"
+        >
+          <div class="grid grid-cols-1 gap-3">
+            <app-search-input
+              [control]="calendarSearchControl"
+              placeholder="Buscar por título, descrição ou local"
+              dataTest="agenda-search"
+              size="sm"
+            />
+            <app-select-input
+              label="Tipo"
+              [control]="typeFilterControl"
+              [options]="filterTypeOptions"
+              dataTest="agenda-filter-type"
+            />
+            <app-select-input
+              label="Responsável"
+              [control]="userIdFilterControl"
+              [options]="responsibleSelectOptions()"
+              dataTest="agenda-filter-user"
+            />
+            <app-select-input
+              label="Participante"
+              [control]="participantIdFilterControl"
+              [options]="participantSelectOptions()"
+              dataTest="agenda-filter-participant"
+            />
+            <app-select-input
+              label="Tipo de vínculo"
+              [control]="linkableTypeFilterControl"
+              [options]="linkableTypeOptions"
+              dataTest="agenda-filter-linkable-type"
+            />
+            <app-select-input
+              label="Entidade vinculada"
+              [control]="linkableIdFilterControl"
+              [options]="linkableEntitySelectOptions()"
+              dataTest="agenda-filter-linkable-id"
+            />
+            <app-select-input
+              label="Dia inteiro"
+              [control]="isAllDayFilterControl"
+              [options]="isAllDayOptions"
+              dataTest="agenda-filter-is-all-day"
+            />
+            <app-select-input
+              label="Recorrência"
+              [control]="recurrenceFilterControl"
+              [options]="recurrenceOptions"
+              dataTest="agenda-filter-recurrence"
+            />
+            <app-select-input
+              label="Lembretes"
+              [control]="hasRemindersFilterControl"
+              [options]="hasRemindersOptions"
+              dataTest="agenda-filter-has-reminders"
+            />
+            <app-text-input
+              label="Local"
+              [control]="locationFilterControl"
+              placeholder="Digite o local"
+              dataTest="agenda-filter-location"
+            />
+          </div>
+          <div footer>
+            <div class="flex w-full items-center justify-between gap-2">
+              <div class="flex gap-2">
+                <app-button variant="secondary" size="sm" (clicked)="onExport({ format: 'csv' })">
+                  <lucide-icon name="file-spreadsheet" [size]="16" class="block" />
+                  CSV
+                </app-button>
+                <app-button variant="secondary" size="sm" (clicked)="onExport({ format: 'xlsx' })">
+                  <lucide-icon name="file-spreadsheet" [size]="16" class="block" />
+                  XLSX
+                </app-button>
+              </div>
+              <div class="flex gap-2">
+                <app-button variant="danger" size="sm" (clicked)="clearFilters()">
+                  Limpar Filtros
+                </app-button>
+                <app-button variant="outline" size="sm" (clicked)="cancelCalendarFiltersModal()">
+                  Cancelar
+                </app-button>
+                <app-button variant="primary" size="sm" (clicked)="applyCalendarFiltersModal()">
+                  Aplicar
+                </app-button>
+              </div>
+            </div>
+          </div>
+        </af-drawer>
+
+        <app-agenda-event-editor
+          [isOpen]="isCalendarModalOpen()"
+          [event]="calendarEditingItem()"
+          [initialData]="calendarInitialData()"
+          (saved)="handleCalendarSaved($event)"
+          (closed)="closeCalendarModal()"
+        />
+      </main>
+    } @else {
+      <app-crud-page
+        #crudPage
+        title="Agenda"
+        [service]="crudService"
+        [config]="crudConfig"
+        [columns]="columns"
+        [actions]="actions"
+      >
+        <ng-template #headerActionsTemplate>
+          <div class="flex items-center gap-2">
+            <app-button
+              variant="outline"
+              size="sm"
+              icon="lucideCalendar"
+              (clicked)="setView('calendar')"
+            >
+              Calendário
+            </app-button>
+            <app-button variant="outline" size="sm" icon="lucideList" (clicked)="setView('list')">
+              Lista
+            </app-button>
+          </div>
+        </ng-template>
+
+        <ng-template #typeCell let-item>
+          <span class="text-sm text-neutral-700 dark:text-neutral-300">{{
+            typeLabel(item.type)
+          }}</span>
+        </ng-template>
+
+        <ng-template #startsAtCell let-item>
+          <span class="text-sm text-neutral-700 dark:text-neutral-300">
+            {{ item.starts_at | date: 'dd/MM/yyyy HH:mm' }}
+          </span>
+        </ng-template>
+
+        <ng-template #endsAtCell let-item>
+          <span class="text-sm text-neutral-700 dark:text-neutral-300">
+            {{ item.ends_at ? (item.ends_at | date: 'dd/MM/yyyy HH:mm') : '-' }}
+          </span>
+        </ng-template>
+
+        <ng-template #statusCell let-item>
+          <af-status-badge [status]="eventStatusToBadge(item.status)">
+            {{ statusLabel(item.status) }}
+          </af-status-badge>
+        </ng-template>
+
+        <ng-template #formTemplate let-item>
+          <app-agenda-form
+            #agendaForm
+            [event]="item"
+            (saved)="handleFormSaved($event)"
+            (cancelled)="handleFormCancelled()"
+          />
+        </ng-template>
+
+        <ng-template #formFooterTemplate>
+          <div class="flex w-full items-center justify-end gap-2">
+            <app-button
+              variant="ghost"
+              size="sm"
+              dataTest="agenda-form-cancel-btn"
+              (clicked)="agendaForm()?.cancel()"
+            >
+              Cancelar
+            </app-button>
+            <app-loading-button
+              variant="primary"
+              size="sm"
+              [loading]="agendaForm()?.isSaving() ?? false"
+              loadingText="Salvando..."
+              dataTest="agenda-form-save-btn"
+              (clicked)="agendaForm()?.submit()"
+            >
+              Salvar
+            </app-loading-button>
+          </div>
+        </ng-template>
+
+        <ng-template #filtersTemplate>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <app-select-input
+              label="Tipo"
+              [control]="typeFilterControl"
+              [options]="filterTypeOptions"
+            />
+            <app-select-input
+              label="Responsável"
+              [control]="userIdFilterControl"
+              [options]="responsibleSelectOptions()"
+            />
+            <app-select-input
+              label="Participante"
+              [control]="participantIdFilterControl"
+              [options]="participantSelectOptions()"
+              dataTest="agenda-filter-participant"
+            />
+            <app-select-input
+              label="Tipo de vínculo"
+              [control]="linkableTypeFilterControl"
+              [options]="linkableTypeOptions"
+              dataTest="agenda-filter-linkable-type"
+            />
+            <app-select-input
+              label="Entidade vinculada"
+              [control]="linkableIdFilterControl"
+              [options]="linkableEntitySelectOptions()"
+              dataTest="agenda-filter-linkable-id"
+            />
+            <app-select-input
+              label="Dia inteiro"
+              [control]="isAllDayFilterControl"
+              [options]="isAllDayOptions"
+              dataTest="agenda-filter-is-all-day"
+            />
+            <app-select-input
+              label="Recorrência"
+              [control]="recurrenceFilterControl"
+              [options]="recurrenceOptions"
+              dataTest="agenda-filter-recurrence"
+            />
+            <app-select-input
+              label="Lembretes"
+              [control]="hasRemindersFilterControl"
+              [options]="hasRemindersOptions"
+              dataTest="agenda-filter-has-reminders"
+            />
+            <app-text-input
+              label="Local"
+              [control]="locationFilterControl"
+              placeholder="Digite o local"
+              dataTest="agenda-filter-location"
+            />
+          </div>
+        </ng-template>
+      </app-crud-page>
+    }
+  

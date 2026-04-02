@@ -1,0 +1,94 @@
+<button
+  type="button"
+  class="w-full text-left flex items-start gap-3 px-4 py-4 hover:bg-neutral-150 dark:hover:bg-neutral-700 transition-colors border-b border-neutral-100 dark:border-neutral-800 cursor-pointer"
+  [class.bg-neutral-200]="active()"
+  [class.dark:bg-neutral-800]="active()"
+  (click)="onSelect()"
+>
+  <!-- Avatar -->
+  <div
+    class="relative shrink-0 flex items-center justify-center font-semibold rounded-full size-10 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 overflow-hidden"
+  >
+    <span class="text-xs">{{ getInitials(ticket()) }}</span>
+    @if (getProfilePicture(ticket()); as src) {
+      <img
+        [src]="src"
+        [alt]="'Foto de ' + (ticket().contact?.name ?? '')"
+        class="absolute inset-0 size-full object-cover"
+        (error)="handleImageError($event)"
+      />
+    }
+  </div>
+
+  <!-- Conteúdo central -->
+  <div class="grow min-w-0">
+    <div class="flex items-center justify-between gap-2">
+      <h6 class="mb-1 text-neutral-800 dark:text-neutral-100 font-semibold text-sm truncate">
+        {{ ticket().contact?.name || ticket().contact?.phone || 'Desconhecido' }}
+      </h6>
+      @if ((ticket().unread_count ?? 0) > 0) {
+        <span
+          class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary shrink-0"
+        >
+          {{ ticket().unread_count }}
+        </span>
+      }
+    </div>
+
+    <p class="text-xs truncate text-neutral-500">
+      {{ ticket().last_message?.content || ticket().subject || 'Sem mensagens...' }}
+    </p>
+
+    <!-- Badges: IA + Usuário/Departamento (independentes) -->
+    <div class="mt-1 flex items-center flex-wrap gap-1">
+      @if (ticket().is_bot_active && ticket().status !== 'in_progress') {
+        <div
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5"
+        >
+          <ng-icon name="lucideBot" size="10" class="text-neutral-500 shrink-0"></ng-icon>
+          <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium">IA</span>
+        </div>
+      } @else if (ticket().status === 'in_progress') {
+        <div
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5"
+        >
+          <ng-icon name="lucideUser" size="10" class="text-neutral-500 shrink-0"></ng-icon>
+          <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium">Humano</span>
+        </div>
+      }
+
+      @if (ticket().assigned_user) {
+        <div
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 max-w-full"
+        >
+          <ng-icon name="lucideUser" size="10" class="text-neutral-500 shrink-0"></ng-icon>
+          <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium truncate">
+            {{ ticket().assigned_user!.name }}
+          </span>
+        </div>
+      } @else if (ticket().user?.department) {
+        <div
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 max-w-full"
+        >
+          <ng-icon name="lucideUsers" size="10" class="text-neutral-500 shrink-0"></ng-icon>
+          <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium truncate">
+            {{ ticket().user!.department!.name }}
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Coluna direita: status dot + hora -->
+  <div class="flex flex-col items-end justify-between self-stretch py-1 pl-2 shrink-0">
+    <span
+      class="size-2 rounded-full"
+      [class.bg-yellow-400]="ticket().status === 'pending'"
+      [class.bg-green-500]="ticket().status === 'in_progress' || ticket().status === 'open'"
+      [class.bg-neutral-300]="ticket().status === 'closed'"
+    ></span>
+    <small class="text-[10px] text-neutral-400 font-medium whitespace-nowrap">
+      {{ ticket().last_message?.created_at | date: 'shortTime' }}
+    </small>
+  </div>
+</button>

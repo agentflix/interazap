@@ -1,0 +1,26 @@
+
+    <dl
+      class="divide-y divide-neutral-200 dark:divide-neutral-700"
+      [class.grid]="layout() === 'horizontal'"
+      [class.grid-cols-[auto_1fr]]="layout() === 'horizontal'"
+      [class.gap-x-6]="layout() === 'horizontal'"
+    >
+      @for (item of items(); track item.term) {
+        @if (layout() === 'vertical') {
+          <div class="py-2.5">
+            <dt
+              class="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide"
+            >
+              {{ item.term }}
+            </dt>
+            <dd class="mt-0.5 text-sm text-neutral-900 dark:text-neutral-50">{{ item.detail }}</dd>
+          </div>
+        } @else {
+          <dt class="py-2.5 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            {{ item.term }}
+          </dt>
+          <dd class="py-2.5 text-sm text-neutral-900 dark:text-neutral-50">{{ item.detail }}</dd>
+        }
+      }
+    </dl>
+  

@@ -1,0 +1,17 @@
+
+    <button
+      type="button"
+      class="inline-flex items-center gap-1 bg-transparent border-0 p-0
+             font-medium text-sm cursor-pointer select-none
+             text-neutral-600 dark:text-neutral-400
+             hover:text-neutral-900 dark:hover:text-neutral-100
+             transition-colors"
+      (click)="toggleSort()"
+    >
+      {{ label() }}
+      <span class="inline-flex flex-col -space-y-1" aria-hidden="true">
+        <lucide-icon name="chevron-up" [size]="10" [class]="upIconClasses()" />
+        <lucide-icon name="chevron-down" [size]="10" [class]="downIconClasses()" />
+      </span>
+    </button>
+  

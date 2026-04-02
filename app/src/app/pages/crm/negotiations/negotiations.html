@@ -1,0 +1,583 @@
+<main [class]="viewMode() === 'kanban' ? 'h-full flex flex-col' : 'space-y-6'">
+  <!-- Header -->
+  <app-page-title title="Negociações" subtitle="CRM">
+    <div class="flex items-center gap-2">
+      <!-- View mode toggle -->
+      <div
+        class="inline-flex rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 p-0.5"
+      >
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
+          [class]="
+            viewMode() === 'list'
+              ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-sm'
+              : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+          "
+          dataTest="negotiation-toggle-list"
+          (click)="setViewMode('list')"
+        >
+          <lucide-icon name="list" [size]="14" class="block" />
+          Lista
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
+          [class]="
+            viewMode() === 'kanban'
+              ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-sm'
+              : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
+          "
+          dataTest="negotiation-toggle-kanban"
+          (click)="setViewMode('kanban')"
+        >
+          <lucide-icon name="grip-vertical" [size]="14" class="block" />
+          Kanban
+        </button>
+      </div>
+
+      <app-button
+        variant="secondary"
+        size="sm"
+        dataTest="negotiation-filters-btn"
+        (clicked)="openFilter()"
+      >
+        <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+        Filtros
+        @if (advancedFiltersCount() > 0) {
+          <span
+            class="ml-1 inline-flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white"
+          >
+            {{ advancedFiltersCount() }}
+          </span>
+        }
+      </app-button>
+
+      <app-button
+        variant="primary"
+        size="sm"
+        dataTest="negotiation-create-btn"
+        (clicked)="viewMode() === 'list' ? openListCreate() : openKanbanCreate()"
+      >
+        <lucide-icon name="plus" [size]="16" class="block" />
+        Nova Negociação
+      </app-button>
+    </div>
+  </app-page-title>
+
+  <!-- Active filter chips -->
+  @if (activeFilterChips().length > 0) {
+    <div class="flex flex-wrap items-center gap-2">
+      @for (chip of activeFilterChips(); track chip.key) {
+        <span
+          class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 dark:bg-primary/20 px-3 py-1 text-xs font-medium text-primary"
+        >
+          {{ chip.label }}
+          <button
+            type="button"
+            class="ml-0.5 rounded-full hover:bg-primary/20"
+            (click)="removeActiveFilter(chip.key)"
+          >
+            <lucide-icon name="x" [size]="12" class="block" />
+          </button>
+        </span>
+      }
+      @if (advancedFiltersCount() > 0) {
+        <span class="text-xs text-neutral-500 dark:text-neutral-400">
+          +{{ advancedFiltersCount() }} filtro(s) avancado(s)
+        </span>
+      }
+    </div>
+  }
+
+  <!-- ═══════════════ LIST VIEW ═══════════════ -->
+  @if (viewMode() === 'list') {
+    <div
+      class="rounded-xl border border-neutral-200 dark:border-neutral-700/50 bg-white dark:bg-neutral-800/50 overflow-hidden"
+    >
+      @if (isListLoading()) {
+        <af-skeleton-table-row [columns]="6" [rows]="6" />
+      } @else if (isListEmpty()) {
+        <af-empty-state
+          title="Nenhuma negociação encontrada"
+          description="Comece adicionando sua primeira negociação."
+        />
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Contato</th>
+              <th>Empresa</th>
+              <th>Funil / Etapa</th>
+              <th>Valor</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of negotiations(); track item.id) {
+              <tr>
+                <td>
+                  <a
+                    class="font-medium text-neutral-800 dark:text-neutral-200 hover:text-primary hover:underline"
+                    [routerLink]="['/crm/negotiations', item.id]"
+                  >
+                    {{ item.title }}
+                  </a>
+                  <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                    Fechamento: {{ formatDate(item.expected_close_date) }}
+                  </p>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ item.contact?.name || '—' }}
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ item.crm_company?.name || '—' }}
+                </td>
+                <td>
+                  <div class="flex flex-col">
+                    <span class="font-medium text-neutral-800 dark:text-neutral-200">{{
+                      item.funnel?.name || '-'
+                    }}</span>
+                    <span class="text-xs text-neutral-500 dark:text-neutral-400">{{
+                      item.step?.name || '-'
+                    }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="font-medium text-neutral-800 dark:text-neutral-200">{{
+                    item.value | currency: 'BRL'
+                  }}</span>
+                </td>
+                <td>
+                  <span
+                    class="inline-flex items-center gap-x-1.5 py-0.5 px-2.5 rounded text-xs font-medium border"
+                    [class]="getStatusBadgeClass(item.status)"
+                  >
+                    {{ getStatusLabel(item.status) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="flex justify-end">
+                    <af-table-actions (edit)="openListEdit(item)" (delete)="openListDelete(item)" />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </div>
+
+    @if (!isListLoading() && !isListEmpty() && listMeta().last_page > 1) {
+      <af-pagination
+        [currentPage]="listMeta().current_page"
+        [lastPage]="listMeta().last_page"
+        [perPage]="listMeta().per_page"
+        [total]="listMeta().total"
+        (pageChange)="loadListPage($event)"
+      />
+    }
+
+    <!-- List create/edit modal -->
+    <app-modal
+      [class.hidden]="!isListModalOpen()"
+      [isOpen]="isListModalOpen()"
+      [title]="listEditingItem() ? 'Editar negociação' : 'Nova Negociação'"
+      (closed)="closeListModal()"
+    >
+      <div modal-body>
+        <app-negotiation-form
+          #negotiationForm
+          [negotiation]="listEditingItem()"
+          [funnels]="funnels()"
+          [contacts]="contacts()"
+          [companies]="companies()"
+          [users]="users()"
+          [initialFunnelId]="funnelId()"
+          (saved)="handleListFormSaved($event)"
+          (cancelled)="closeListModal()"
+        />
+      </div>
+
+      <div modal-footer>
+        <div class="flex w-full justify-end gap-2">
+          <app-button variant="ghost" size="sm" (clicked)="closeListModal()"> Cancelar </app-button>
+          <app-loading-button
+            variant="primary"
+            size="sm"
+            [loading]="negotiationForm?.isSaving() ?? false"
+            loadingText="Salvando..."
+            dataTest="negotiation-form-save-btn"
+            (clicked)="negotiationForm?.submit()"
+          >
+            Salvar
+          </app-loading-button>
+        </div>
+      </div>
+    </app-modal>
+
+    <!-- Delete confirmation -->
+    <app-modal
+      [class.hidden]="!isListDeleteOpen()"
+      [isOpen]="isListDeleteOpen()"
+      title="Excluir negociação"
+      (closed)="closeListDelete()"
+    >
+      <div modal-body>
+        <p class="text-sm text-neutral-600 dark:text-neutral-400">
+          Tem certeza que deseja excluir a negociação
+          <strong class="text-neutral-900 dark:text-neutral-50">{{
+            listDeletingItem()?.title
+          }}</strong
+          >? Esta ação não pode ser desfeita.
+        </p>
+      </div>
+      <div modal-footer>
+        <div class="flex w-full justify-end gap-2">
+          <app-button variant="ghost" size="sm" (clicked)="closeListDelete()">
+            Cancelar
+          </app-button>
+          <app-loading-button
+            variant="danger"
+            size="sm"
+            [loading]="isListDeleting()"
+            (clicked)="confirmListDelete()"
+          >
+            Excluir
+          </app-loading-button>
+        </div>
+      </div>
+    </app-modal>
+  }
+
+  <!-- ═══════════════ KANBAN VIEW ═══════════════ -->
+  @if (viewMode() === 'kanban') {
+    <section
+      class="flex flex-1 flex-col rounded-xl border border-neutral-200 dark:border-neutral-700/50 bg-white dark:bg-neutral-800/50 overflow-hidden"
+    >
+      @if (isKanbanLoading()) {
+        <div class="flex flex-1 items-center justify-center">
+          <div class="flex flex-col items-center gap-3 text-neutral-500 dark:text-neutral-400">
+            <lucide-icon name="loader-2" [size]="24" class="block animate-spin" />
+            <span class="text-sm">Carregando Kanban...</span>
+          </div>
+        </div>
+      } @else if (kanbanSteps().length === 0) {
+        <div class="flex flex-1 flex-col items-center justify-center gap-4 py-16">
+          <div
+            class="flex size-14 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800"
+          >
+            <lucide-icon
+              name="handshake"
+              [size]="28"
+              class="block text-neutral-400 dark:text-neutral-500"
+            />
+          </div>
+          <div class="flex flex-col gap-1 text-center">
+            <span class="font-medium text-neutral-700 dark:text-neutral-300"
+              >Nenhuma negociação encontrada</span
+            >
+            <span class="text-sm text-neutral-500 dark:text-neutral-400">
+              Ajuste os filtros ou crie uma nova negociação.
+            </span>
+          </div>
+          <app-button variant="primary" size="sm" (clicked)="openKanbanCreate()">
+            <lucide-icon name="plus" [size]="16" class="block" />
+            Nova Negociação
+          </app-button>
+        </div>
+      } @else {
+        <div cdkDropListGroup class="flex flex-1 gap-0 overflow-x-auto">
+          @for (step of kanbanSteps(); track step.id) {
+            <div
+              class="flex min-w-72 max-w-80 flex-1 flex-col border-r border-neutral-200 dark:border-neutral-700/50 last:border-r-0"
+            >
+              <!-- Column header -->
+              <div
+                class="sticky top-0 flex items-center justify-between gap-2 border-b border-neutral-200 dark:border-neutral-700/50 bg-neutral-50 dark:bg-neutral-900/80 px-4 py-3"
+              >
+                <div class="min-w-0">
+                  <p
+                    class="truncate text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400"
+                  >
+                    {{ step.name }}
+                  </p>
+                  <p class="text-xs text-neutral-400 dark:text-neutral-500">
+                    {{ step.total_count ?? (step.negotiations || []).length }} negociações ·
+                    <span class="font-medium text-neutral-600 dark:text-neutral-300">{{
+                      getStepTotal(step) | currency: 'BRL'
+                    }}</span>
+                  </p>
+                </div>
+                <span
+                  class="inline-flex min-w-6 items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 text-xs font-semibold text-neutral-600 dark:text-neutral-300"
+                >
+                  {{ step.total_count ?? (step.negotiations || []).length }}
+                </span>
+              </div>
+
+              <!-- Column body -->
+              <div
+                class="flex flex-1 flex-col gap-2.5 overflow-y-auto p-3 bg-neutral-50/50 dark:bg-neutral-900/30"
+                cdkDropList
+                [id]="getDropListId(step)"
+                [cdkDropListData]="step.negotiations || []"
+                [cdkDropListConnectedTo]="kanbanSteps().map(getDropListId)"
+                (cdkDropListDropped)="onKanbanDrop($event, step)"
+              >
+                @for (negotiation of step.negotiations || []; track negotiation.id) {
+                  <div
+                    class="group rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm transition-shadow hover:shadow-md cursor-grab active:cursor-grabbing"
+                    cdkDrag
+                    [cdkDragData]="negotiation"
+                  >
+                    <!-- Card title -->
+                    <a
+                      class="block truncate text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-tight hover:text-primary"
+                      [routerLink]="['/crm/negotiations', negotiation.id]"
+                      [title]="negotiation.title"
+                    >
+                      {{ negotiation.title }}
+                    </a>
+
+                    <!-- Card value -->
+                    <p class="mt-1 text-xs font-medium text-primary">
+                      {{ negotiation.value | currency: 'BRL' }}
+                    </p>
+
+                    <!-- Card meta -->
+                    <div
+                      class="mt-2 flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400"
+                    >
+                      @if (negotiation.contact?.name) {
+                        <div class="flex items-center gap-2">
+                          <lucide-icon
+                            name="search"
+                            [size]="12"
+                            class="block shrink-0 text-neutral-400 dark:text-neutral-500"
+                          />
+                          <span class="block min-w-0 flex-1 truncate">{{
+                            negotiation.contact?.name
+                          }}</span>
+                        </div>
+                      }
+                      @if (negotiation.crm_company?.name) {
+                        <div class="flex items-center gap-2">
+                          <lucide-icon
+                            name="dollar-sign"
+                            [size]="12"
+                            class="block shrink-0 text-neutral-400 dark:text-neutral-500"
+                          />
+                          <span class="block min-w-0 flex-1 truncate">{{
+                            negotiation.crm_company?.name
+                          }}</span>
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Card status -->
+                    <div class="mt-2.5 flex items-center justify-between">
+                      <span
+                        class="inline-flex items-center gap-x-1 rounded py-0.5 px-2 text-[10px] font-medium border"
+                        [class]="getStatusBadgeClass(negotiation.status)"
+                      >
+                        {{ getStatusLabel(negotiation.status) }}
+                      </span>
+                    </div>
+                  </div>
+                } @empty {
+                  <div
+                    class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-neutral-200 dark:border-neutral-700 p-6 text-center"
+                  >
+                    <lucide-icon
+                      name="handshake"
+                      [size]="20"
+                      class="block text-neutral-300 dark:text-neutral-600"
+                    />
+                    <p class="text-xs text-neutral-400 dark:text-neutral-500">
+                      Nenhuma negociação nesta etapa
+                    </p>
+                  </div>
+                }
+
+                <!-- Botão "Carregar mais" para cursor pagination por etapa -->
+                @if (step.has_more) {
+                  <button
+                    type="button"
+                    class="mt-1 w-full rounded-lg border border-dashed border-neutral-300 dark:border-neutral-600 px-3 py-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                    [disabled]="isStepLoading(step.id)"
+                    (click)="loadMoreStep(step)"
+                  >
+                    @if (isStepLoading(step.id)) {
+                      <span class="flex items-center justify-center gap-1.5">
+                        <lucide-icon name="loader-circle" [size]="12" class="block animate-spin" />
+                        Carregando...
+                      </span>
+                    } @else {
+                      Carregar mais
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Kanban create/edit modal -->
+    <app-modal
+      [class.hidden]="!isKanbanModalOpen()"
+      [isOpen]="isKanbanModalOpen()"
+      [title]="kanbanEditingItem() ? 'Editar negociação' : 'Nova Negociação'"
+      (closed)="closeKanbanModal()"
+    >
+      <div modal-body>
+        <app-negotiation-form
+          #kanbanForm
+          [negotiation]="kanbanEditingItem()"
+          [funnels]="funnels()"
+          [contacts]="contacts()"
+          [companies]="companies()"
+          [users]="users()"
+          [initialFunnelId]="funnelId()"
+          (saved)="handleKanbanFormSaved($event)"
+          (cancelled)="closeKanbanModal()"
+        />
+      </div>
+
+      <div modal-footer>
+        <div class="flex w-full justify-end gap-2">
+          <app-button variant="ghost" size="sm" (clicked)="kanbanForm?.cancel()">
+            Cancelar
+          </app-button>
+          <app-loading-button
+            variant="primary"
+            size="sm"
+            [loading]="kanbanForm?.isSaving() ?? false"
+            loadingText="Salvando..."
+            (clicked)="kanbanForm?.submit()"
+          >
+            Salvar
+          </app-loading-button>
+        </div>
+      </div>
+    </app-modal>
+  }
+
+  <!-- ═══════════════ FILTERS DRAWER ═══════════════ -->
+  <af-drawer
+    [class.hidden]="!isFilterOpen()"
+    [open]="isFilterOpen()"
+    title="Filtros de negociações"
+    side="right"
+    size="lg"
+    (closed)="closeFilter()"
+  >
+    <af-search-input
+      [control]="searchControl"
+      placeholder="Buscar por título..."
+      dataTest="negotiation-search"
+    />
+
+    <div class="grid grid-cols-1">
+      <app-select-input
+        label="Funil"
+        [control]="funnelSelectControl"
+        [options]="funnelOptions()"
+        dataTest="negotiation-filter-funnel"
+      />
+
+      <app-select-input
+        label="Etapa"
+        [control]="stepFilterControl"
+        [options]="stepOptions()"
+        dataTest="negotiation-filter-step"
+      />
+
+      <app-select-input
+        label="Responsável"
+        [control]="userFilterControl"
+        [options]="responsibleOptions()"
+        dataTest="negotiation-filter-user"
+      />
+
+      <app-select-input
+        label="Empresa"
+        [control]="companyFilterControl"
+        [options]="companyOptions()"
+        dataTest="negotiation-filter-company"
+      />
+
+      <app-select-input
+        label="Contato"
+        [control]="contactFilterControl"
+        [options]="contactOptions()"
+        dataTest="negotiation-filter-contact"
+      />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <app-currency-input
+          [control]="amountMinControl"
+          label="Valor mínimo"
+          dataTest="negotiation-filter-amount-min"
+        />
+        <app-currency-input
+          [control]="amountMaxControl"
+          label="Valor máximo"
+          dataTest="negotiation-filter-amount-max"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <app-text-input
+          [control]="expectedCloseFromControl"
+          label="Prev. fechamento de"
+          type="date"
+          [spacing]="false"
+          dataTest="negotiation-filter-expected-from"
+        />
+        <app-text-input
+          [control]="expectedCloseToControl"
+          label="Prev. fechamento até"
+          type="date"
+          [spacing]="false"
+          dataTest="negotiation-filter-expected-to"
+        />
+      </div>
+
+      <app-select-input
+        label="Status"
+        class="mt-3"
+        [control]="negotiationStatusControl"
+        [options]="filterStatusOptions"
+        dataTest="negotiation-filter-status"
+      />
+
+      <div class="flex gap-2">
+        <app-button variant="secondary" size="sm" (clicked)="onExport({ format: 'csv' })">
+          <lucide-icon name="file-spreadsheet" [size]="16" class="block" />
+          CSV
+        </app-button>
+        <app-button variant="secondary" size="sm" (clicked)="onExport({ format: 'xlsx' })">
+          <lucide-icon name="file-spreadsheet" [size]="16" class="block" />
+          XLSX
+        </app-button>
+      </div>
+    </div>
+
+    <div footer>
+      <div class="flex w-full items-center justify-between gap-2">
+        <app-button variant="danger" size="sm" (clicked)="clearFilter()">
+          Limpar filtros
+        </app-button>
+        <div class="flex gap-2">
+          <app-button variant="ghost" size="sm" (clicked)="closeFilter()">Cancelar</app-button>
+          <app-button variant="primary" size="sm" (clicked)="applyFilter()">Aplicar</app-button>
+        </div>
+      </div>
+    </div>
+  </af-drawer>
+</main>

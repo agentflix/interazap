@@ -1,0 +1,120 @@
+
+    <af-crud-page
+      title="Agentes IA"
+      subtitle="Inteligência Artificial"
+      createLabel="Novo Agente"
+      searchPlaceholder="Buscar por nome..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum agente encontrado"
+      emptyDescription="Crie o primeiro agente para automatizar atendimentos."
+      [skeletonColumns]="6"
+      [skeletonRows]="5"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar agentes"
+            message="Não foi possível carregar a listagem de agentes."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Modelo</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (agent of agents(); track agent.id) {
+              <tr>
+                <td class="font-medium text-neutral-800 dark:text-neutral-100">
+                  <div class="flex items-center gap-2">
+                    <div>
+                      <div>{{ agent.name }}</div>
+                      @if (agent.description) {
+                        <div
+                          class="text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-48"
+                        >
+                          {{ agent.description }}
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ agent.model_id ?? 'gpt-4o-mini' }}
+                </td>
+                <td>
+                  <af-status-badge [status]="agent.is_active ? 'online' : 'offline'">
+                    {{ agent.is_active ? 'Ativo' : 'Inativo' }}
+                  </af-status-badge>
+                </td>
+                <td>
+                  <div class="flex items-center justify-end gap-1">
+                    <af-icon-button
+                      label="Editar"
+                      variant="ghost"
+                      size="sm"
+                      icon="lucidePencil"
+                      (click)="openEdit(agent)"
+                    />
+                    <af-icon-button
+                      label="Files"
+                      variant="ghost"
+                      size="sm"
+                      icon="lucideFileText"
+                      (click)="openFiles(agent)"
+                    />
+                    <af-icon-button
+                      label="Testar"
+                      variant="ghost"
+                      size="sm"
+                      icon="lucideFlaskConical"
+                      (click)="openSimulator(agent)"
+                    />
+                    <af-icon-button
+                      label="Excluir"
+                      variant="danger"
+                      size="sm"
+                      icon="lucideTrash2"
+                      (click)="openDelete(agent)"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      title="Excluir agente"
+      [message]="
+        'Tem certeza que deseja excluir o agente &quot;' + (agentToDelete()?.name || '') + '&quot;?'
+      "
+      confirmLabel="Excluir"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+  

@@ -1,0 +1,93 @@
+
+    <div class="space-y-5">
+      <!-- Header Card -->
+      <div
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="size-10 flex items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/20"
+          >
+            <lucide-icon
+              name="message-circle"
+              [size]="18"
+              class="text-primary-500 dark:text-primary-400"
+            />
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Canais de atendimento
+            </h3>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+              Selecione os canais pelos quais este agente pode atender.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Channel Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        @for (channel of channelOptions; track channel.key) {
+          <button
+            type="button"
+            class="relative flex items-center gap-4 px-5 py-4 rounded-xl border text-left transition-all group"
+            [class]="
+              channel.disabled
+                ? 'border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50 opacity-60 cursor-not-allowed'
+                : isEnabled(channel.key)
+                  ? 'border-primary-400 dark:border-primary-600 bg-primary-50/50 dark:bg-primary-900/15 shadow-sm ring-1 ring-primary-200 dark:ring-primary-800'
+                  : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-sm'
+            "
+            [disabled]="channel.disabled"
+            (click)="!channel.disabled && toggleChannel(channel.key)"
+          >
+            <div
+              class="size-12 flex items-center justify-center rounded-xl transition-colors"
+              [class]="
+                isEnabled(channel.key) && !channel.disabled
+                  ? channel.activeIconClass
+                  : channel.iconClass
+              "
+            >
+              <lucide-icon [name]="channel.icon" [size]="22" class="block" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                  {{ channel.label }}
+                </span>
+                @if (channel.disabled) {
+                  <span
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400"
+                  >
+                    <lucide-icon name="lock" [size]="10" class="block" />
+                    Em breve
+                  </span>
+                }
+              </div>
+              <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                {{ channel.description }}
+              </div>
+            </div>
+            <div class="shrink-0">
+              @if (channel.disabled) {
+                <div
+                  class="size-6 rounded-full border-2 border-neutral-200 dark:border-neutral-700"
+                ></div>
+              } @else if (isEnabled(channel.key)) {
+                <div
+                  class="size-6 rounded-full bg-primary-500 flex items-center justify-center shadow-sm"
+                >
+                  <lucide-icon name="check" [size]="14" class="block text-white" />
+                </div>
+              } @else {
+                <div
+                  class="size-6 rounded-full border-2 border-neutral-300 dark:border-neutral-600 group-hover:border-neutral-400 dark:group-hover:border-neutral-500 transition-colors"
+                ></div>
+              }
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+  

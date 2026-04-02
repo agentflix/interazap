@@ -1,0 +1,45 @@
+
+    <div class="relative" #root>
+      <textarea
+        [formControl]="textCtrl"
+        [placeholder]="placeholder()"
+        class="w-full rounded-lg border border-neutral-300 dark:border-neutral-600
+          bg-white dark:bg-neutral-900 px-3 py-2 text-sm text-neutral-900
+          dark:text-neutral-50 placeholder:text-neutral-400 resize-none
+          focus:border-accent-500 focus:ring-1 focus:ring-accent-500 focus:outline-none"
+        [rows]="rows()"
+        (input)="onInput()"
+        (keydown)="onKeydown($event)"
+      ></textarea>
+      @if (showSuggestions() && filteredUsers().length > 0) {
+        <div
+          class="absolute z-30 left-0 right-0 mt-1 bg-white dark:bg-neutral-900
+          border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-md overflow-hidden"
+        >
+          <af-scroll-area maxHeight="10rem">
+            @for (user of filteredUsers(); track user.id) {
+              <button
+                type="button"
+                class="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-neutral-100
+                  dark:hover:bg-neutral-800 transition-colors"
+                (click)="selectUser(user)"
+              >
+                @if (user.avatar) {
+                  <img [src]="user.avatar" class="w-6 h-6 rounded-full" [alt]="user.name" />
+                } @else {
+                  <div
+                    class="w-6 h-6 rounded-full bg-accent-100 dark:bg-accent-900 flex items-center justify-center"
+                  >
+                    <span class="text-[10px] font-semibold text-accent-700 dark:text-accent-300">
+                      {{ user.name.charAt(0) }}
+                    </span>
+                  </div>
+                }
+                <span class="text-sm text-neutral-800 dark:text-neutral-200">{{ user.name }}</span>
+              </button>
+            }
+          </af-scroll-area>
+        </div>
+      }
+    </div>
+  

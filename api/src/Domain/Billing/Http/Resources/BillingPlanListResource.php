@@ -1,0 +1,61 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Domain\Billing\Http\Resources;
+
+use Domain\Platform\Models\PlatformPlan;
+use Domain\Shared\Http\Resources\BaseJsonResource;
+use Illuminate\Http\Request;
+
+/**
+ * Resource for Plan catalog serialization (tenant-facing).
+ */
+final class BillingPlanListResource extends BaseJsonResource
+{
+    /**
+     * @return array<string, mixed>
+     */
+    protected function data(Request $request): array
+    {
+        /** @var PlatformPlan $plan */
+        $plan = $this->resource;
+
+        return [
+            'id' => $plan->id,
+            'name' => $plan->name,
+            'slug' => $plan->slug,
+            'price_monthly' => number_format((float) $plan->price_monthly, 2, '.', ''),
+            'limit_users' => (int) $plan->limit_users,
+            'whatsapp_integrations_limit' => (int) $plan->whatsapp_integrations_limit,
+            'storage_mode' => $plan->storage_mode->value,
+            'storage_limit_bytes' => $plan->storage_limit_bytes,
+            'storage_formatted' => $plan->storage_limit_bytes ? $this->formatBytes((int) $plan->storage_limit_bytes) : 'Ilimitado',
+            'ai_enabled' => (bool) $plan->ai_enabled,
+            'negotiations_mode' => $plan->negotiations_mode->value,
+            'negotiations_limit' => $plan->negotiations_limit,
+            'is_current' => (bool) ($plan->is_current ?? false),
+            'features' => [
+                ['label' => sprintf('%d usuários', (int) $plan->limit_users), 'included' => true],
+                ['label' => sprintf('%d instância WhatsApp', (int) $plan->whatsapp_integrations_limit), 'included' => true],
+                ['label' => $plan->storage_limit_bytes ? $this->formatBytes((int) $plan->storage_limit_bytes).' de storage' : 'Storage ilimitado', 'included' => true],
+                ['label' => 'Inteligência Artificial', 'included' => (bool) $plan->ai_enabled],
+                ['label' => 'Negociações ilimitadas', 'included' => true],
+            ],
+        ];
+    }
+
+    private function formatBytes(int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $size = $bytes;
+        $unit = 0;
+
+        while ($size >= 1024 && $unit < count($units) - 1) {
+            $size /= 1024;
+            $unit++;
+        }
+
+        return number_format($size, 1).' '.$units[$unit];
+    }
+}

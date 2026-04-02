@@ -1,0 +1,60 @@
+# =====================================================
+# Nginx - app.agentflix.com.br (Production)
+# Autor: DevOps Agentflix
+# =====================================================
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name app.agentflix.com.br;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name app.agentflix.com.br;
+
+    root /data/production/app/current/app/dist/app-new/browser;
+    index index.html;
+
+    ssl_certificate /etc/letsencrypt/live/app.agentflix.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/app.agentflix.com.br/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    resolver 8.8.8.8 8.8.4.4 valid=300s;
+    resolver_timeout 5s;
+
+    access_log /var/log/nginx/app_agentflix_access.log;
+    error_log /var/log/nginx/app_agentflix_error.log;
+
+    include snippets/security-headers.conf;
+    include snippets/gzip.conf;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Assets estáticos
+    location ~* \.(jpg|jpeg|gif|png|webp|svg|ico|css|js|woff|woff2|ttf|eot)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    location ~ /\.env {
+        deny all;
+    }
+
+    location /health {
+        access_log off;
+        return 200 "OK";
+        add_header Content-Type text/plain;
+    }
+}

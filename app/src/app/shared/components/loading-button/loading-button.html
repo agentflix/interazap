@@ -1,0 +1,16 @@
+
+    <button
+      [type]="type()"
+      [disabled]="disabled() || loading()"
+      [class]="buttonClasses()"
+      [attr.data-test]="dataTest()"
+      (click)="onClick($event)"
+    >
+      @if (loading()) {
+        <af-spinner [size]="spinnerSize()" color="white" />
+        <span>{{ loadingText() }}</span>
+      } @else {
+        <span><ng-content /></span>
+      }
+    </button>
+  

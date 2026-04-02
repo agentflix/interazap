@@ -1,0 +1,51 @@
+
+    <div class="space-y-6">
+      <!-- Header: Title + Create button -->
+      <af-page-title [title]="title()" [subtitle]="subtitle()">
+        @if (createLabel()) {
+          <af-button variant="primary" size="sm" (click)="create.emit()">
+            <lucide-icon name="plus" [size]="16" class="block" />
+            {{ createLabel() }}
+          </af-button>
+        }
+      </af-page-title>
+
+      <!-- Search bar + optional filter slot -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+        <div class="w-full sm:max-w-xs">
+          <af-search-input
+            [control]="searchControl"
+            [label]="searchLabel()"
+            [placeholder]="searchPlaceholder()"
+            [spacing]="false"
+            size="sm"
+          />
+        </div>
+        <ng-content select="[filters]" />
+      </div>
+
+      <!-- Content area -->
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+      >
+        @if (loading()) {
+          <af-skeleton-table-row [columns]="skeletonColumns()" [rows]="skeletonRows()" />
+        } @else if (empty()) {
+          <af-empty-state [title]="emptyTitle()" [description]="emptyDescription()" />
+        } @else {
+          <ng-content />
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (!loading() && !empty() && lastPage() > 1) {
+        <af-pagination
+          [currentPage]="currentPage()"
+          [lastPage]="lastPage()"
+          [perPage]="perPage()"
+          [total]="total()"
+          (pageChange)="pageChange.emit($event)"
+        />
+      }
+    </div>
+  

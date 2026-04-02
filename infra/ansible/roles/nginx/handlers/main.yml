@@ -1,0 +1,13 @@
+# =====================================================
+# Handlers: Nginx
+# =====================================================
+
+- name: "Recarregar Nginx"
+  service:
+    name: nginx
+    state: reloaded
+
+- name: "Reiniciar Nginx"
+  service:
+    name: nginx
+    state: restarted

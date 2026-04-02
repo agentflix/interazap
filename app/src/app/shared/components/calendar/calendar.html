@@ -1,0 +1,73 @@
+
+    <div
+      class="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+    >
+      <!-- Header -->
+      <div
+        class="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-700"
+      >
+        <button
+          type="button"
+          class="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded cursor-pointer"
+          (click)="prevMonth()"
+        >
+          <lucide-icon name="chevron-left" [size]="18" />
+        </button>
+        <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">{{
+          monthYearLabel()
+        }}</span>
+        <button
+          type="button"
+          class="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded cursor-pointer"
+          (click)="nextMonth()"
+        >
+          <lucide-icon name="chevron-right" [size]="18" />
+        </button>
+      </div>
+      <!-- Weekday headers -->
+      <div class="grid grid-cols-7 border-b border-neutral-200 dark:border-neutral-700">
+        @for (day of weekdays; track day) {
+          <div class="text-center text-xs font-medium text-neutral-500 py-2">{{ day }}</div>
+        }
+      </div>
+      <!-- Days -->
+      <div class="grid grid-cols-7">
+        @for (cell of calendarDays(); track $index) {
+          <div
+            class="min-h-15 p-1 border-r border-b border-neutral-100 dark:border-neutral-800
+              last:border-r-0 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+            [class.opacity-40]="!cell.currentMonth"
+            (click)="dateSelected.emit(cell.dateStr)"
+            (keydown.enter)="dateSelected.emit(cell.dateStr)"
+            tabindex="0"
+            role="button"
+          >
+            <span
+              class="inline-flex items-center justify-center text-xs w-6 h-6 rounded-full"
+              [class.bg-accent-600]="cell.isToday"
+              [class.text-white]="cell.isToday"
+              [class.text-neutral-700]="!cell.isToday"
+              [class.dark:text-neutral-300]="!cell.isToday"
+            >
+              {{ cell.day }}
+            </span>
+            @if (cell.events.length > 0) {
+              <div class="flex gap-0.5 mt-0.5 flex-wrap">
+                @for (ev of cell.events.slice(0, 2); track ev.id) {
+                  <span
+                    class="block w-full truncate text-[10px] px-1 rounded text-white"
+                    [style.background-color]="ev.color ?? '#6366f1'"
+                  >
+                    {{ ev.title }}
+                  </span>
+                }
+                @if (cell.events.length > 2) {
+                  <span class="text-[10px] text-neutral-400">+{{ cell.events.length - 2 }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  

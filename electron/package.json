@@ -1,0 +1,24 @@
+{
+  "name": "agentflix-desktop",
+  "version": "1.0.0",
+  "description": "AgentFlix Desktop - Multi-OS Electron App",
+  "main": "dist/main.js",
+  "author": "AgentFlix",
+  "license": "MIT",
+  "scripts": {
+    "electron:dev": "tsc -p tsconfig.electron.json && electron .",
+    "electron:build": "tsc -p tsconfig.electron.json && electron-builder",
+    "electron:build:win": "tsc -p tsconfig.electron.json && electron-builder --win",
+    "electron:build:mac": "tsc -p tsconfig.electron.json && electron-builder --mac",
+    "electron:build:linux": "tsc -p tsconfig.electron.json && electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "typescript": "^5.6.0"
+  },
+  "dependencies": {
+    "electron-store": "^10.0.0",
+    "electron-updater": "^6.0.0"
+  }
+}

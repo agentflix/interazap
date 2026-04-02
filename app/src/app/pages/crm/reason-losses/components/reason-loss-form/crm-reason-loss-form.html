@@ -1,0 +1,38 @@
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="mb-4">
+          <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+        </div>
+      }
+
+      <af-text-input
+        label="Nome"
+        [control]="form.controls.name"
+        placeholder="Ex: Preço muito alto"
+        [required]="true"
+        dataTest="reason-form-name"
+      />
+
+      <af-textarea-input
+        label="Descrição"
+        [control]="form.controls.description"
+        placeholder="Descrição do motivo..."
+        [rows]="2"
+        dataTest="reason-form-description"
+      />
+
+      <div class="flex items-center gap-4 mt-4 mb-2">
+        <af-checkbox-input
+          [control]="form.controls.requires_comment"
+          label="Requer comentário"
+          dataTest="reason-form-requires-comment"
+        />
+        <af-switch-input
+          label="Ativo"
+          [control]="form.controls.is_active"
+          dataTest="reason-form-active"
+        />
+      </div>
+    </form>
+  

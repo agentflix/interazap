@@ -1,0 +1,67 @@
+
+    <div [class]="containerClasses()">
+      @if (label()) {
+        <af-form-label [label]="label()" [for]="inputId" [required]="required()" />
+      }
+
+      <div class="flex">
+        <!-- Country code selector -->
+        <div class="relative">
+          <button
+            type="button"
+            [class]="buttonClasses()"
+            (click)="toggleDropdown($event)"
+            [attr.aria-expanded]="dropdownOpen()"
+            aria-haspopup="listbox"
+          >
+            <span class="text-base leading-none">{{ currentCountry().flag }}</span>
+            <span class="font-medium">{{ currentCountry().code }}</span>
+            <lucide-icon name="chevron-down" [size]="14" />
+          </button>
+
+          @if (dropdownOpen()) {
+            <div
+              class="absolute z-50 top-full left-0 mt-1 w-56 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg overflow-hidden"
+            >
+              <af-scroll-area maxHeight="13rem">
+                <div class="py-1">
+                  @for (country of countries(); track country.iso) {
+                    <button
+                      type="button"
+                      class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                      [class.bg-accent-50]="country.iso === currentCountry().iso"
+                      [class.dark:bg-accent-950]="country.iso === currentCountry().iso"
+                      (click)="selectCountry(country)"
+                      role="option"
+                      [attr.aria-selected]="country.iso === currentCountry().iso"
+                    >
+                      <span class="text-base leading-none">{{ country.flag }}</span>
+                      <span class="flex-1 text-left">{{ country.name }}</span>
+                      <span class="text-neutral-400 text-xs">{{ country.code }}</span>
+                    </button>
+                  }
+                </div>
+              </af-scroll-area>
+            </div>
+          }
+        </div>
+
+        <!-- Phone input -->
+        <input
+          [id]="inputId"
+          type="tel"
+          [class]="phoneInputClasses()"
+          [formControl]="control()"
+          [placeholder]="placeholder()"
+          [attr.data-test]="dataTest() || testId()"
+          (input)="onPhoneInput($event)"
+        />
+      </div>
+
+      @if (helpText() && !showError()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+
+      <af-form-error [show]="showError()" [message]="errorMessage()" />
+    </div>
+  

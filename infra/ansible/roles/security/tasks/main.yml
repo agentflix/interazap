@@ -1,0 +1,214 @@
+# =====================================================
+# Role: Security
+# Propósito: Firewall (UFW), Fail2Ban, Hardening SSH
+# Autor: DevOps Agentflix
+# =====================================================
+
+- name: "Instalar UFW, Fail2Ban e auditd"
+  apt:
+    name:
+      - ufw
+      - fail2ban
+      - auditd
+      - libpam-cracklib
+    state: present
+
+- name: "Configurar regras UFW padrão"
+  ufw:
+    direction: "{{ item.direction }}"
+    default: "{{ item.default }}"
+  loop:
+    - { direction: 'incoming', default: 'deny' }
+    - { direction: 'outgoing', default: 'allow' }
+    - { direction: 'routed', default: 'deny' }
+
+- name: "Abrir porta SSH"
+  ufw:
+    rule: limit
+    port: "{{ ssh_port | default(22) }}"
+    proto: tcp
+
+- name: "Abrir porta HTTP"
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+
+- name: "Abrir porta HTTPS"
+  ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+
+- name: "Remover porta Stage Landing (8080 - tráfego via 443)"
+  ufw:
+    rule: allow
+    port: '8080'
+    proto: tcp
+    delete: yes
+  when: app_environment == 'staging'
+  ignore_errors: yes
+
+- name: "Abrir porta Stage API (8081)"
+  ufw:
+    rule: allow
+    port: '8081'
+    proto: tcp
+  when: app_environment == 'staging'
+
+- name: "Abrir porta Production API (8082)"
+  ufw:
+    rule: allow
+    port: '8082'
+    proto: tcp
+  when: app_environment == 'production'
+
+- name: "Remover porta Stage App (4200 - tráfego via 443)"
+  ufw:
+    rule: allow
+    port: '4200'
+    proto: tcp
+    delete: yes
+  when: app_environment == 'staging'
+  ignore_errors: yes
+
+- name: "Remover porta Stage Gateway (6001 - tráfego via Nginx 443)"
+  ufw:
+    rule: allow
+    port: '6001'
+    proto: tcp
+    delete: yes
+  when: app_environment == 'staging'
+  ignore_errors: yes
+
+- name: "Remover porta Production Gateway (6002 - tráfego via Nginx 443)"
+  ufw:
+    rule: allow
+    port: '6002'
+    proto: tcp
+    delete: yes
+  when: app_environment == 'production'
+  ignore_errors: yes
+
+- name: "Habilitar UFW com regras padrão"
+  ufw:
+    state: enabled
+    policy: deny
+
+- name: "Configurar SSH - Desabilitar root login"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PermitRootLogin'
+    line: 'PermitRootLogin no'
+  notify: "Reiniciar SSH"
+
+- name: "Configurar SSH - Desabilitar senha autenticação"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+
+- name: "Configurar SSH - Habilitar autenticação por chave"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PubkeyAuthentication'
+    line: 'PubkeyAuthentication yes'
+
+- name: "Configurar SSH - Desabilitar Empty Passwords"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PermitEmptyPasswords'
+    line: 'PermitEmptyPasswords no'
+
+- name: "Configurar SSH - Timeout de inatividade"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*ClientAliveInterval'
+    line: 'ClientAliveInterval 300'
+  notify: "Reiniciar SSH"
+
+- name: "Configurar SSH - Desabilitar X11Forwarding"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*X11Forwarding'
+    line: 'X11Forwarding no'
+
+- name: "Configurar SSH - Desabilitar UseDNS"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*UseDNS'
+    line: 'UseDNS no'
+
+- name: "Configurar SSH - MaxAuthTries"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*MaxAuthTries'
+    line: 'MaxAuthTries 3'
+
+- name: "Configurar SSH - Banner de aviso"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^Banner'
+    line: 'Banner /etc/ssh/banner'
+
+- name: "Criar banner SSH"
+  copy:
+    dest: /etc/ssh/banner
+    content: |
+      ===============================================
+      ACESSO RESTRITO - SISTEMA MONITORADO
+      Todo acesso é logado e auditado.
+      Uso não autorizado é punível por lei.
+      ===============================================
+    mode: '0644'
+
+- name: "Validar configuração SSH"
+  command: "sshd -t"
+  changed_when: false
+  notify: "Reiniciar SSH"
+
+- name: "Configurar Fail2Ban - Criar jail.local"
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    mode: '0644'
+  notify: "Reiniciar Fail2Ban"
+
+- name: "Habilitar e iniciar Fail2Ban"
+  service:
+    name: fail2ban
+    state: started
+    enabled: yes
+
+- name: "Configurar sysctl - Hardening rede"
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/99-security.conf
+    state: present
+    reload: yes
+  loop:
+    - { name: 'net.ipv4.tcp_syncookies', value: '1' }
+    - { name: 'net.ipv4.conf.all.rp_filter', value: '1' }
+    - { name: 'net.ipv4.conf.default.rp_filter', value: '1' }
+    - { name: 'net.ipv4.icmp_echo_ignore_broadcasts', value: '1' }
+    - { name: 'net.ipv4.conf.all.accept_redirects', value: '0' }
+    - { name: 'net.ipv4.conf.default.accept_redirects', value: '0' }
+    - { name: 'net.ipv4.conf.all.send_redirects', value: '0' }
+    - { name: 'net.ipv4.conf.default.send_redirects', value: '0' }
+    - { name: 'net.ipv4.tcp_max_syn_backlog', value: '2048' }
+    - { name: 'kernel.randomize_va_space', value: '2' }
+    - { name: 'vm.overcommit_memory', value: '1' }
+
+- name: "Configurar limites de recursos"
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: "{{ item }}"
+    create: yes
+  loop:
+    - "* soft nofile 65536"
+    - "* hard nofile 65536"
+    - "www-data soft nofile 65536"
+    - "www-data hard nofile 65536"
+    - "deploy soft nofile 65536"
+    - "deploy hard nofile 65536"

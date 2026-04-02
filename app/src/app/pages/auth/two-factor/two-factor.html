@@ -1,0 +1,407 @@
+
+    <div class="flex flex-col gap-4">
+      <af-page-title title="Segurança" subtitle="Configurações" />
+
+      @if (isLoading()) {
+        <div
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-8 flex justify-center"
+        >
+          <lucide-icon name="loader-circle" [size]="28" class="text-neutral-400 animate-spin" />
+        </div>
+      } @else if (loadError()) {
+        <div
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+        >
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar 2FA"
+            message="Não foi possível consultar o status da autenticação em dois fatores."
+          />
+          <af-button variant="outline" size="sm" (click)="loadStatus()">Tentar novamente</af-button>
+        </div>
+      } @else if (!status()) {
+        <div
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <af-empty-state
+            title="Status indisponível"
+            description="Não foi possível carregar dados de autenticação em dois fatores."
+          />
+        </div>
+      } @else {
+        <!-- ── STATUS step ────────────────────────────────────────────────── -->
+        @if (step() === 'status') {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+          >
+            @if (errorMessage()) {
+              <af-alert variant="danger" [message]="errorMessage()" />
+            }
+
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-neutral-800 dark:text-neutral-200">Status do 2FA</p>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  {{
+                    twoFactorEnabled()
+                      ? 'Autenticação em dois fatores ativada.'
+                      : 'Autenticação em dois fatores desativada.'
+                  }}
+                </p>
+              </div>
+              <af-status-badge [status]="twoFactorEnabled() ? 'online' : 'offline'">
+                {{ twoFactorEnabled() ? 'Ativo' : 'Inativo' }}
+              </af-status-badge>
+            </div>
+
+            @if (!twoFactorEnabled()) {
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                [loading]="isProcessing()"
+                (click)="startSetup()"
+                dataTest="2fa-enable-btn"
+              >
+                <lucide-icon name="shield-check" [size]="16" class="inline-block align-middle" />
+                Ativar autenticação em dois fatores
+              </af-loading-button>
+            } @else {
+              <div class="flex flex-col sm:flex-row gap-3">
+                <af-loading-button
+                  variant="secondary"
+                  size="sm"
+                  [loading]="false"
+                  (click)="openRegenerateModal()"
+                  dataTest="2fa-regenerate-btn"
+                >
+                  <lucide-icon name="refresh-cw" [size]="16" class="inline-block align-middle" />
+                  Regenerar códigos de recuperação
+                </af-loading-button>
+                <af-loading-button
+                  variant="danger"
+                  size="sm"
+                  [loading]="false"
+                  (click)="openDisableModal()"
+                  dataTest="2fa-disable-btn"
+                >
+                  <lucide-icon name="shield-off" [size]="16" class="inline-block align-middle" />
+                  Desativar 2FA
+                </af-loading-button>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ── SETUP step ─────────────────────────────────────────────────── -->
+        @if (step() === 'setup') {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+          >
+            <div>
+              <p class="font-medium text-neutral-800 dark:text-neutral-200 mb-1">
+                1. Escaneie o QR Code
+              </p>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                Use um aplicativo autenticador (Google Authenticator, Authy, etc.) para escanear o
+                código abaixo.
+              </p>
+            </div>
+
+            <!-- QR Code -->
+            <div class="flex flex-col items-center gap-3">
+              @if (qrCodeDataUrl()) {
+                <div
+                  class="rounded-md border border-neutral-200 dark:border-neutral-700 bg-white p-3"
+                >
+                  <img
+                    [src]="qrCodeDataUrl()"
+                    alt="QR Code 2FA"
+                    class="size-44 object-contain"
+                    (error)="onQrImageError()"
+                    data-test="2fa-qr-code"
+                  />
+                </div>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                  Escaneie o QR Code para configurar rapidamente.
+                </p>
+              } @else {
+                <div
+                  class="flex h-44 w-44 items-center justify-center rounded-md border border-dashed border-neutral-300 dark:border-neutral-700 text-xs text-neutral-500 dark:text-neutral-400"
+                >
+                  QR Code indisponível
+                </div>
+              }
+            </div>
+
+            <!-- Secret key copy -->
+            @if (setupData()) {
+              <div class="space-y-4">
+                <div>
+                  <p class="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                    2. Ou insira a chave manualmente
+                  </p>
+                  <af-copy-input
+                    [control]="secretControl"
+                    label="Chave secreta"
+                    classContainer="mb-0"
+                    dataTest="2fa-secret-key"
+                  />
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                  <af-button
+                    variant="ghost"
+                    size="sm"
+                    (click)="step.set('status')"
+                    dataTest="2fa-setup-back-btn"
+                  >
+                    Cancelar
+                  </af-button>
+                  <af-button
+                    variant="primary"
+                    size="sm"
+                    (click)="goToVerify()"
+                    dataTest="2fa-setup-next-btn"
+                  >
+                    Continuar
+                    <lucide-icon name="arrow-right" [size]="16" class="block" />
+                  </af-button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ── VERIFY step ────────────────────────────────────────────────── -->
+        @if (step() === 'verify') {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+          >
+            <div>
+              <p class="font-medium text-neutral-800 dark:text-neutral-200 mb-1">
+                3. Verifique o código
+              </p>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                Insira o código de 6 dígitos gerado pelo seu aplicativo autenticador.
+              </p>
+            </div>
+
+            @if (errorMessage()) {
+              <af-alert variant="danger" [message]="errorMessage()" />
+            }
+
+            <form [formGroup]="verifyForm" (submit)="validateCode()">
+              <af-text-input
+                [control]="codeControl"
+                label="Código de verificação"
+                placeholder="000000"
+                type="text"
+                [required]="true"
+                dataTest="2fa-code-input"
+                [errorMessage]="codeError()"
+              />
+            </form>
+
+            <div class="flex justify-between items-center">
+              <af-button
+                variant="ghost"
+                size="sm"
+                (click)="step.set('setup')"
+                dataTest="2fa-verify-back-btn"
+              >
+                Voltar
+              </af-button>
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                [loading]="isProcessing()"
+                (click)="validateCode()"
+                dataTest="2fa-verify-btn"
+              >
+                Verificar e ativar
+              </af-loading-button>
+            </div>
+          </div>
+        }
+
+        <!-- ── RECOVERY step ──────────────────────────────────────────────── -->
+        @if (step() === 'recovery') {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+          >
+            <div>
+              <p class="font-medium text-neutral-800 dark:text-neutral-200 mb-1">
+                Códigos de recuperação
+              </p>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                Guarde estes códigos em um local seguro. Cada código só pode ser usado uma vez.
+              </p>
+            </div>
+
+            <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4">
+              <div class="grid grid-cols-2 gap-2">
+                @for (code of recoveryCodes(); track code) {
+                  <span
+                    class="font-mono text-sm text-neutral-700 dark:text-neutral-300 tracking-widest"
+                  >
+                    {{ code }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <af-button
+                variant="outline"
+                size="sm"
+                (click)="copyCodes()"
+                dataTest="2fa-copy-codes-btn"
+              >
+                <lucide-icon name="copy" [size]="14" class="block" />
+                Copiar códigos
+              </af-button>
+              <af-button
+                variant="outline"
+                size="sm"
+                (click)="downloadCodes()"
+                dataTest="2fa-download-codes-btn"
+              >
+                <lucide-icon name="download" [size]="14" class="block" />
+                Baixar códigos
+              </af-button>
+            </div>
+
+            <div class="flex justify-end">
+              <af-button
+                variant="primary"
+                size="sm"
+                (click)="completeSetup()"
+                dataTest="2fa-complete-btn"
+              >
+                Concluir configuração
+              </af-button>
+            </div>
+          </div>
+        }
+
+        <!-- ── COMPLETE step ──────────────────────────────────────────────── -->
+        @if (step() === 'complete') {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4 text-center"
+          >
+            <div class="flex justify-center">
+              <div class="w-14 h-14 rounded-full bg-success/10 flex items-center justify-center">
+                <lucide-icon name="shield-check" [size]="28" class="text-success" />
+              </div>
+            </div>
+            <p class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              2FA ativado com sucesso!
+            </p>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">
+              Sua conta agora tem uma camada extra de segurança.
+            </p>
+            <af-button
+              variant="primary"
+              size="sm"
+              (click)="step.set('status'); loadStatus()"
+              dataTest="2fa-finish-btn"
+            >
+              Concluir
+            </af-button>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- ── Disable 2FA modal ─────────────────────────────────────────────── -->
+    <af-modal
+      [open]="disableModalOpen()"
+      title="Desativar autenticação em dois fatores"
+      size="sm"
+      (closed)="disableModalOpen.set(false)"
+    >
+      <div class="px-6 py-4 space-y-4">
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">
+          Insira sua senha para confirmar a desativação do 2FA.
+        </p>
+
+        @if (disableError()) {
+          <af-alert variant="danger" [message]="disableError()" />
+        }
+
+        <af-password-input
+          [control]="disablePasswordControl"
+          label="Senha"
+          placeholder="••••••••"
+          [required]="true"
+          dataTest="2fa-disable-password"
+          [errorMessage]="
+            disablePasswordControl.touched && disablePasswordControl.errors?.['required']
+              ? 'Senha é obrigatória.'
+              : ''
+          "
+        />
+      </div>
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="disableModalOpen.set(false)">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="danger"
+          size="sm"
+          [loading]="isProcessing()"
+          (click)="disableTwoFactor()"
+          dataTest="2fa-disable-confirm-btn"
+        >
+          Desativar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- ── Regenerate codes modal ────────────────────────────────────────── -->
+    <af-modal
+      [open]="regenerateModalOpen()"
+      title="Regenerar códigos de recuperação"
+      size="sm"
+      (closed)="regenerateModalOpen.set(false)"
+    >
+      <div class="px-6 py-4 space-y-4">
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">
+          Os códigos anteriores serão invalidados. Insira sua senha para confirmar.
+        </p>
+
+        @if (regenerateError()) {
+          <af-alert variant="danger" [message]="regenerateError()" />
+        }
+
+        <af-password-input
+          [control]="regeneratePasswordControl"
+          label="Senha"
+          placeholder="••••••••"
+          [required]="true"
+          dataTest="2fa-regenerate-password"
+          [errorMessage]="
+            regeneratePasswordControl.touched && regeneratePasswordControl.errors?.['required']
+              ? 'Senha é obrigatória.'
+              : ''
+          "
+        />
+      </div>
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="regenerateModalOpen.set(false)">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isProcessing()"
+          (click)="regenerateCodes()"
+          dataTest="2fa-regenerate-confirm-btn"
+        >
+          Regenerar
+        </af-loading-button>
+      </div>
+    </af-modal>
+  

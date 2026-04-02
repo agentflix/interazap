@@ -1,0 +1,36 @@
+
+    @if (open()) {
+      <div
+        class="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+        (click)="closed.emit()"
+        (keydown.enter)="closed.emit()"
+        tabindex="0"
+        role="button"
+      ></div>
+      <div
+        class="fixed z-50 inset-x-0 bottom-0 bg-white dark:bg-neutral-900
+        border-t border-neutral-200 dark:border-neutral-700 rounded-t-2xl shadow-xl
+        max-h-[85vh] flex flex-col"
+      >
+        <!-- Handle -->
+        <div class="flex justify-center pt-3 pb-1">
+          <div class="w-10 h-1 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
+        </div>
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-2">
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">
+            {{ title() }}
+          </h3>
+          <af-icon-button label="Fechar" variant="ghost" size="sm" (click)="closed.emit()">
+            <lucide-icon name="x" [size]="18" />
+          </af-icon-button>
+        </div>
+        <!-- Body -->
+        <af-scroll-area class="flex-1" maxHeight="100%">
+          <div class="px-5 py-3">
+            <ng-content />
+          </div>
+        </af-scroll-area>
+      </div>
+    }
+  

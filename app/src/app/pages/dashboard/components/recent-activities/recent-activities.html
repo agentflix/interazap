@@ -1,0 +1,60 @@
+
+    <af-card [padded]="false" [fullHeight]="true">
+      <div header class="px-5 pt-4 pb-0">
+        <h6 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+          Atividades Recentes
+        </h6>
+      </div>
+      <div class="px-5 py-4">
+        @if (activities().length === 0) {
+          <af-empty-state
+            title="Sem atividades"
+            description="As atualizações recentes aparecerão aqui"
+          />
+        } @else {
+          <ol class="space-y-4">
+            @for (row of rows(); track row.activity.created_at + row.activity.title) {
+              <li class="flex gap-3">
+                <div
+                  class="mt-1 size-8 shrink-0 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center"
+                >
+                  <lucide-icon
+                    [name]="resolveIcon(row.activity.icon)"
+                    [size]="14"
+                    class="text-neutral-600 dark:text-neutral-400"
+                  />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-3">
+                    <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                      {{ row.activity.title }}
+                    </h4>
+                    <span class="text-xs text-neutral-400 dark:text-neutral-500 shrink-0">
+                      {{ formatRelativeTime(row.activity.created_at) }}
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-1">
+                    @if (row.value !== null) {
+                      <span class="text-xs text-neutral-600 dark:text-neutral-400 font-medium">
+                        {{ row.value | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+                      </span>
+                    }
+                    @if (row.status) {
+                      <af-status-badge [status]="row.statusVariant">
+                        {{ row.statusLabel }}
+                      </af-status-badge>
+                    }
+                    @if (row.value === null && !row.status) {
+                      <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                        {{ row.activity.description }}
+                      </p>
+                    }
+                  </div>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+    </af-card>
+  

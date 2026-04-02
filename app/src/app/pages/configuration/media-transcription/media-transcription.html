@@ -1,0 +1,169 @@
+<div class="space-y-6">
+  <af-page-title
+    title="Transcrição de Mídia"
+    subtitle="Configure a transcrição automática de áudio, imagem e vídeo recebidos nas conversas."
+  />
+
+  @if (loading()) {
+    <div
+      class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 space-y-6"
+    >
+      <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+      <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+      <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+      <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+      <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+    </div>
+  } @else if (error()) {
+    <af-empty-state title="Erro ao carregar configurações" [description]="error()!">
+      <af-button variant="outline" size="sm" (click)="load()">Tentar novamente</af-button>
+    </af-empty-state>
+  } @else {
+    <!-- Cost estimate callout -->
+    <div
+      class="flex items-start gap-3 rounded-xl border border-accent-200 dark:border-accent-800 bg-accent-50 dark:bg-accent-950/30 p-4 overflow-hidden"
+    >
+      <lucide-icon name="info" [size]="18" class="shrink-0 text-accent-500 mt-0.5" />
+      <div class="text-sm text-neutral-700 dark:text-neutral-300">
+        <p class="font-semibold text-neutral-900 dark:text-neutral-50 mb-1">
+          Estimativa de custos por transcrição
+        </p>
+        <ul class="list-disc list-inside space-y-0.5">
+          <li>Áudio (Whisper): ~US$ 0,006/min</li>
+          <li>Imagem (Vision): ~US$ 0,01/imagem</li>
+          <li>Vídeo (Whisper + Vision): ~US$ 0,03/vídeo de 30s</li>
+        </ul>
+      </div>
+    </div>
+
+    <form (ngSubmit)="save()" class="space-y-6">
+      <!-- Audio -->
+      <section
+        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+      >
+        <div
+          class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+        >
+          <div class="flex items-center gap-2">
+            <lucide-icon
+              name="audio-lines"
+              [size]="16"
+              class="text-primary-500 dark:text-primary-400"
+            />
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Transcrição de Áudio
+            </h3>
+          </div>
+          <af-switch-input
+            [control]="form.controls.audioEnabled"
+            dataTest="transcription-audio-toggle"
+          />
+        </div>
+        <div class="p-5 space-y-4">
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">
+            Transcreve áudios recebidos usando o modelo Whisper da OpenAI.
+          </p>
+
+          @if (form.controls.audioEnabled.value) {
+            <af-text-input
+              type="number"
+              [control]="form.controls.audioMaxMinutes"
+              label="Duração máxima (minutos)"
+              placeholder="5"
+              errorMessage="Insira um valor entre 1 e 25."
+              dataTest="transcription-audio-max-minutes"
+              classContainer="max-w-xs"
+            />
+          }
+        </div>
+      </section>
+
+      <!-- Image -->
+      <section
+        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+      >
+        <div
+          class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+        >
+          <div class="flex items-center gap-2">
+            <lucide-icon name="image" [size]="16" class="text-primary-500 dark:text-primary-400" />
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Descrição de Imagens
+            </h3>
+          </div>
+          <af-switch-input
+            [control]="form.controls.imageEnabled"
+            dataTest="transcription-image-toggle"
+          />
+        </div>
+        <div class="p-5 space-y-4">
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">
+            Gera descrição textual de imagens usando o modelo GPT-4o Vision da OpenAI.
+          </p>
+
+          @if (form.controls.imageEnabled.value) {
+            <af-text-input
+              type="number"
+              [control]="form.controls.imageMaxPerMessage"
+              label="Máximo de imagens por mensagem"
+              placeholder="3"
+              errorMessage="Insira um valor entre 1 e 10."
+              dataTest="transcription-image-max-per-message"
+              classContainer="max-w-xs"
+            />
+          }
+        </div>
+      </section>
+
+      <!-- Video -->
+      <section
+        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+      >
+        <div
+          class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+        >
+          <div class="flex items-center gap-2">
+            <lucide-icon name="video" [size]="16" class="text-primary-500 dark:text-primary-400" />
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Transcrição de Vídeos
+            </h3>
+          </div>
+          <af-switch-input
+            [control]="form.controls.videoEnabled"
+            dataTest="transcription-video-toggle"
+          />
+        </div>
+        <div class="p-5 space-y-4">
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">
+            Extrai áudio e frames de vídeos para transcrição combinada (Whisper + Vision).
+          </p>
+
+          @if (form.controls.videoEnabled.value) {
+            <af-text-input
+              type="number"
+              [control]="form.controls.videoMaxSeconds"
+              label="Duração máxima (segundos)"
+              placeholder="30"
+              errorMessage="Insira um valor entre 5 e 120."
+              dataTest="transcription-video-max-seconds"
+              classContainer="max-w-xs"
+            />
+          }
+        </div>
+      </section>
+
+      <!-- Save button -->
+      <div class="flex justify-end">
+        <af-loading-button
+          [loading]="saving()"
+          [disabled]="form.invalid"
+          type="submit"
+          variant="primary"
+          dataTest="transcription-save"
+        >
+          Salvar Configurações
+        </af-loading-button>
+      </div>
+    </form>
+  }
+</div>

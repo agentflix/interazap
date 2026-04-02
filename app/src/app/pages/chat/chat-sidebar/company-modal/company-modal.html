@@ -1,0 +1,121 @@
+<app-modal [isOpen]="isOpenSignal()" title="Selecionar empresa" maxWidth="lg" (closed)="close()">
+  <div modal-body class="space-y-4">
+    <div class="flex items-center gap-2">
+      <div class="relative flex-1">
+        <app-search-input
+          placeholder="Buscar empresa"
+          size="sm"
+          [control]="searchControl"
+          dataTest="company-search"
+        />
+      </div>
+      <app-icon-button
+        icon="lucidePlus"
+        variant="primary"
+        size="sm"
+        ariaLabel="Criar empresa"
+        (clicked)="openCreateModal()"
+      />
+    </div>
+
+    <div class="space-y-2">
+      @if (isLoading()) {
+        <div class="space-y-2">
+          @for (row of [1, 2, 3]; track row) {
+            <div
+              class="h-12 rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 animate-pulse"
+            ></div>
+          }
+        </div>
+      } @else if (showPlaceholder()) {
+        <div
+          class="rounded border border-dashed border-neutral-200 dark:border-neutral-700 p-6 text-center"
+        >
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">
+            Digite o nome ou CNPJ para buscar uma empresa.
+          </p>
+        </div>
+      } @else if (showEmpty()) {
+        <div
+          class="rounded border border-dashed border-neutral-200 dark:border-neutral-700 p-4 text-center"
+        >
+          <p class="text-sm text-neutral-600 dark:text-neutral-300">Nenhuma empresa encontrada.</p>
+        </div>
+      } @else {
+        <af-scroll-area maxHeight="20rem">
+          <div class="space-y-2">
+            @for (company of companies(); track company.id) {
+              <button
+                type="button"
+                class="flex w-full items-start justify-between rounded border border-neutral-200 dark:border-neutral-700 px-3 py-2 text-left hover:bg-primary/5"
+                (click)="selectCompany(company)"
+                [disabled]="isSaving()"
+              >
+                <div>
+                  <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                    {{ company.name }}
+                  </p>
+                  <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                    CNPJ: {{ company.document || 'Não informado' }}
+                  </p>
+                </div>
+                @if (selectedCompanyIdSignal() === company.id) {
+                  <ng-icon name="lucideCheck" class="size-4 text-success"></ng-icon>
+                }
+              </button>
+            }
+          </div>
+        </af-scroll-area>
+      }
+    </div>
+  </div>
+
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <app-button variant="ghost" size="sm" (clicked)="close()">Cancelar</app-button>
+    </div>
+  </div>
+</app-modal>
+
+<!-- Modal para criar nova empresa -->
+<app-modal
+  [isOpen]="isCreateModalOpen()"
+  title="Nova empresa"
+  maxWidth="sm"
+  (closed)="closeCreateModal()"
+>
+  <div modal-body>
+    <form [formGroup]="createForm" class="space-y-4">
+      <app-text-input
+        [control]="createForm.controls.name"
+        label="Nome da empresa"
+        [required]="true"
+        placeholder="Ex: Empresa LTDA"
+        dataTest="company-create-name"
+        errorMessage="Nome obrigatório (min 3 caracteres)."
+      />
+      <app-masked-input
+        [control]="createForm.controls.document"
+        label="CNPJ"
+        mask="00.000.000/0000-00"
+        placeholder="00.000.000/0000-00"
+        dataTest="company-create-document"
+      />
+    </form>
+  </div>
+
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <app-button variant="ghost" size="sm" (clicked)="closeCreateModal()">Cancelar</app-button>
+      <app-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="isSaving()"
+        loadingText="Criando..."
+        (clicked)="createCompany()"
+      >
+        Criar e selecionar
+      </app-loading-button>
+    </div>
+  </div>
+</app-modal>

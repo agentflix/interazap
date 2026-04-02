@@ -1,0 +1,22 @@
+
+    <div
+      class="inline-flex items-center gap-2 bg-neutral-100 dark:bg-neutral-800
+      rounded-lg px-3 py-2 border border-neutral-200 dark:border-neutral-700"
+    >
+      <code class="text-sm text-neutral-800 dark:text-neutral-200 font-mono truncate">{{
+        text()
+      }}</code>
+      <button
+        type="button"
+        class="shrink-0 p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
+        (click)="copy()"
+      >
+        <lucide-icon
+          [name]="copied() ? 'check' : 'copy'"
+          [size]="14"
+          [class.text-green-500]="copied()"
+          [class.text-neutral-500]="!copied()"
+        />
+      </button>
+    </div>
+  

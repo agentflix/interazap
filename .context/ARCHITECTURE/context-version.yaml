@@ -1,0 +1,5 @@
+context_schema_version: "1.0"
+generated_by: "ai-bootstrap"
+last_bootstrap_run: "2026-03-25T00:00:00Z"
+bootstrap_mode: "existing_code"
+changelog_entries: 1

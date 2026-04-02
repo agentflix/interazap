@@ -1,0 +1,21 @@
+
+    <div class="card">
+      <div class="card-header border-b border-neutral-200 dark:border-neutral-700 px-5 py-4">
+        <ng-content select="[header]" />
+      </div>
+
+      <div
+        class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50"
+      >
+        <ng-content select="[filters]" />
+      </div>
+
+      <div class="overflow-x-auto">
+        <ng-content select="[table]" />
+      </div>
+
+      <div class="px-5 py-3 border-t border-neutral-200 dark:border-neutral-700">
+        <ng-content select="[pagination]" />
+      </div>
+    </div>
+  

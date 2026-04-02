@@ -1,0 +1,136 @@
+
+    <af-crud-page
+      title="Master Prompts"
+      subtitle="Governança IA"
+      createLabel="Novo Master"
+      searchPlaceholder="Buscar masters..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum master prompt encontrado"
+      emptyDescription="Crie o primeiro master prompt para iniciar a governança global."
+      [skeletonColumns]="4"
+      [skeletonRows]="5"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar master prompts"
+            message="Não foi possível carregar os master prompts. Verifique sua conexão e tente novamente."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Versão</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (master of masters(); track master.id) {
+              <tr>
+                <td>
+                  <span class="font-medium">{{ master.name }}</span>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ master.version }}
+                </td>
+                <td>
+                  <af-status-badge [status]="master.is_active ? 'online' : 'offline'">
+                    {{ master.is_active ? 'Ativo' : 'Inativo' }}
+                  </af-status-badge>
+                </td>
+                <td>
+                  <div class="flex justify-end items-center gap-1">
+                    <af-icon-button
+                      label="Editar"
+                      variant="ghost"
+                      size="sm"
+                      (click)="openEdit(master)"
+                    >
+                      <lucide-icon name="pencil" [size]="14" />
+                    </af-icon-button>
+                    @if (master.is_active) {
+                      <af-icon-button
+                        label="Desativar"
+                        variant="danger"
+                        size="sm"
+                        (click)="openDelete(master)"
+                      >
+                        <lucide-icon name="trash-2" [size]="14" />
+                      </af-icon-button>
+                    } @else {
+                      <af-icon-button
+                        label="Ativar"
+                        variant="ghost"
+                        size="sm"
+                        (click)="handleToggle(master)"
+                      >
+                        <lucide-icon name="power" [size]="14" />
+                      </af-icon-button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <!-- Create / Edit Modal -->
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="lg"
+      (closed)="handleFormCancelled()"
+    >
+      <app-prompt-master-form
+        #masterForm
+        [master]="selectedMaster()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="masterFormRef()?.cancel()">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="masterFormRef()?.isSaving() ?? false"
+          (click)="masterFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Delete Confirmation -->
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      title="Desativar master prompt"
+      [message]="deleteMessage()"
+      confirmLabel="Desativar"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+  

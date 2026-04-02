@@ -1,0 +1,11 @@
+
+    <div class="flex flex-col gap-2">
+      @for (message of messages(); track message.id) {
+        <app-user-chat-message-bubble
+          [message]="message"
+          [readOnlyMode]="readOnlyMode()"
+          (reply)="reply.emit($event)"
+        />
+      }
+    </div>
+  

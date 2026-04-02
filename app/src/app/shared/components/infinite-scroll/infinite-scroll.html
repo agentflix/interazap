@@ -1,0 +1,13 @@
+
+    <div>
+      <ng-content />
+      <div #sentinel class="h-1"></div>
+      @if (loading()) {
+        <div class="flex justify-center py-4">
+          <div
+            class="w-6 h-6 border-2 border-accent-600 border-t-transparent rounded-full animate-spin"
+          ></div>
+        </div>
+      }
+    </div>
+  

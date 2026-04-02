@@ -1,0 +1,18 @@
+
+    <div
+      class="overflow-y-auto relative"
+      [style.height.px]="containerHeight()"
+      (scroll)="onScroll($event)"
+      #scrollContainer
+    >
+      <div [style.height.px]="totalHeight()">
+        <div [style.transform]="'translateY(' + offsetY() + 'px)'">
+          @for (index of visibleIndices(); track index) {
+            <div [style.height.px]="itemHeight()">
+              <ng-content />
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  

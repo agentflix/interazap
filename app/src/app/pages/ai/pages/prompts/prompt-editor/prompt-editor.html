@@ -1,0 +1,208 @@
+
+    <af-page-title title="Editor de Prompts" subtitle="Inteligência Artificial" />
+
+    @if (isLoading()) {
+      <!-- Loading State -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+        >
+          <div class="h-5 w-24 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
+          @for (row of [0, 1, 2, 3, 4]; track row) {
+            <div class="h-10 bg-neutral-200 dark:bg-neutral-700 rounded mb-2"></div>
+          }
+        </div>
+        <div
+          class="lg:col-span-3 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+        >
+          <div class="h-5 w-32 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
+          <div class="h-64 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
+        </div>
+      </div>
+    } @else if (hasError()) {
+      <!-- Error State -->
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-12 text-center"
+      >
+        <lucide-icon
+          name="alert-circle"
+          [size]="48"
+          class="text-red-500 dark:text-red-400 mx-auto mb-3"
+        />
+        <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+          Erro ao carregar prompts
+        </h3>
+        <p class="text-sm text-neutral-500 mb-4">
+          Não foi possível carregar os templates de prompt.
+        </p>
+        <af-button variant="primary" size="sm" (click)="retry()">Tentar novamente</af-button>
+      </div>
+    } @else if (prompts().length === 0) {
+      <!-- Empty State -->
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-12 text-center"
+      >
+        <lucide-icon
+          name="message-square"
+          [size]="48"
+          class="text-neutral-300 dark:text-neutral-600 mx-auto mb-3"
+        />
+        <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+          Nenhum prompt encontrado
+        </h3>
+        <p class="text-sm text-neutral-500 mb-4">
+          Crie um agente primeiro para configurar seus prompts.
+        </p>
+        <af-button variant="primary" size="sm" [routerLink]="['/ai/agents/new']">
+          Criar agente
+        </af-button>
+      </div>
+    } @else {
+      <!-- Editor Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
+        <!-- Prompt List Sidebar -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-4"
+        >
+          <h3 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-3">Prompts</h3>
+          <div class="space-y-1">
+            @for (prompt of prompts(); track prompt.id) {
+              <button
+                type="button"
+                class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors"
+                [class.bg-accent-50]="selectedPrompt()?.id === prompt.id"
+                [class.dark:bg-accent-900/20]="selectedPrompt()?.id === prompt.id"
+                [class.text-accent-700]="selectedPrompt()?.id === prompt.id"
+                [class.dark:text-accent-400]="selectedPrompt()?.id === prompt.id"
+                [class.text-neutral-700]="selectedPrompt()?.id !== prompt.id"
+                [class.dark:text-neutral-300]="selectedPrompt()?.id !== prompt.id"
+                [class.hover:bg-neutral-100]="selectedPrompt()?.id !== prompt.id"
+                [class.dark:hover:bg-neutral-700]="selectedPrompt()?.id !== prompt.id"
+                (click)="selectPrompt(prompt)"
+              >
+                {{ prompt.name }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Editor Panel -->
+        <div
+          class="lg:col-span-3 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        >
+          @if (selectedPrompt(); as prompt) {
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-medium text-neutral-900 dark:text-neutral-100">
+                  {{ prompt.name }}
+                </h3>
+                @if (prompt.category) {
+                  <span class="text-xs text-neutral-500">Categoria: {{ prompt.category }}</span>
+                }
+              </div>
+              <af-button variant="ghost" size="sm" (click)="toggleVersions()">
+                <lucide-icon name="history" [size]="14" class="block" />
+                Versões
+              </af-button>
+            </div>
+
+            <!-- Version History Panel -->
+            @if (showVersions() && versions().length > 0) {
+              <div class="mb-4 p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl">
+                <h4 class="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                  Histórico de Versões
+                </h4>
+                <af-scroll-area maxHeight="10rem">
+                  <div class="space-y-2">
+                    @for (version of versions(); track version.id) {
+                      <div
+                        class="flex items-center justify-between p-2 bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700"
+                      >
+                        <span class="text-xs text-neutral-600 dark:text-neutral-400">
+                          {{ version.updated_at }}
+                        </span>
+                        @if (!version.is_current) {
+                          <af-button variant="ghost" size="sm" (click)="rollback(version)">
+                            Restaurar
+                          </af-button>
+                        } @else {
+                          <span class="text-xs text-emerald-600 dark:text-emerald-400">Atual</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </af-scroll-area>
+              </div>
+            }
+
+            <!-- Template Editor -->
+            <form [formGroup]="form" (ngSubmit)="save()">
+              <af-textarea-input
+                [control]="form.controls.template"
+                label="Template"
+                placeholder="Escreva o template do prompt aqui..."
+                [rows]="12"
+                dataTest="prompt-template"
+              />
+
+              <!-- Variables Preview -->
+              @if (variablesList().length > 0) {
+                <div class="mb-4 p-3 bg-sky-50 dark:bg-sky-900/20 rounded-xl">
+                  <span class="text-xs font-medium text-sky-700 dark:text-sky-400">
+                    Variáveis detectadas:
+                  </span>
+                  <span class="text-xs text-sky-600 dark:text-sky-500">
+                    @for (v of variablesList(); track v; let last = $last) {
+                      <code class="bg-sky-100 dark:bg-sky-800 px-1 rounded font-mono">
+                        {{ '{{' + v + '}}' }} </code
+                      >{{ last ? '' : ', ' }}
+                    }
+                  </span>
+                </div>
+              }
+
+              <!-- Actions -->
+              <div
+                class="flex items-center justify-between pt-4 border-t border-neutral-200 dark:border-neutral-700"
+              >
+                <af-button variant="ghost" size="sm" type="button" (click)="goBack()">
+                  <lucide-icon name="arrow-left" [size]="16" class="block" />
+                  Voltar
+                </af-button>
+
+                <div class="flex items-center gap-2">
+                  <af-button variant="danger" size="sm" type="button" (click)="openDeleteConfirm()">
+                    <lucide-icon name="trash-2" [size]="16" class="block" />
+                    Excluir prompt
+                  </af-button>
+
+                  <af-loading-button
+                    variant="primary"
+                    size="sm"
+                    type="submit"
+                    [loading]="isSaving()"
+                    [disabled]="form.invalid || !hasChanges()"
+                  >
+                    <lucide-icon name="save" [size]="16" class="block" />
+                    Salvar alterações
+                  </af-loading-button>
+                </div>
+              </div>
+            </form>
+          }
+        </div>
+      </div>
+    }
+
+    <af-confirm-modal
+      [open]="showDeleteConfirm()"
+      title="Excluir prompt customizado"
+      message="Isso removerá o prompt customizado do tenant e voltará para os padrões de segmento/plano. Deseja continuar?"
+      confirmLabel="Excluir"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="deletePrompt()"
+      (cancelled)="showDeleteConfirm.set(false)"
+    />
+  

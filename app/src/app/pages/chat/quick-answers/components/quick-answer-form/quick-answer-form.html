@@ -1,0 +1,50 @@
+
+    <form class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <af-text-input
+            label="Nome"
+            [control]="form.controls.name"
+            placeholder="Ex: Saudação Inicial"
+            dataTest="quick-answer-form-name"
+            [required]="true"
+          />
+        </div>
+        <div>
+          <span
+            class="mb-2 inline-block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          >
+            Atalho (opcional)
+          </span>
+          <div class="relative">
+            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
+              <span class="text-neutral-500 font-semibold">/</span>
+            </div>
+            <af-text-input
+              [control]="form.controls.shortcut"
+              placeholder="Ex: oi"
+              [spacing]="false"
+              dataTest="quick-answer-form-shortcut"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <af-textarea-input
+          label="Conteúdo da Mensagem"
+          [control]="form.controls.content"
+          placeholder="Digite o texto da mensagem..."
+          [rows]="5"
+          dataTest="quick-answer-form-content"
+          [required]="true"
+        />
+      </div>
+
+      <af-switch-input
+        label="Ativo"
+        [control]="form.controls.is_active"
+        dataTest="quick-answer-form-active"
+      />
+    </form>
+  

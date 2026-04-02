@@ -1,0 +1,16 @@
+
+    @if (label()) {
+      <div
+        class="relative flex items-center"
+        [class]="orientation() === 'vertical' ? 'flex-col h-full' : 'w-full'"
+      >
+        <div [class]="lineClasses()"></div>
+        <span class="px-3 text-xs font-medium text-neutral-400 dark:text-neutral-500 shrink-0">{{
+          label()
+        }}</span>
+        <div [class]="lineClasses()"></div>
+      </div>
+    } @else {
+      <div [class]="simpleLineClasses()" role="separator"></div>
+    }
+  

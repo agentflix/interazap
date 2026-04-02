@@ -1,0 +1,13 @@
+# =====================================================
+# Handlers: Security
+# =====================================================
+
+- name: "Reiniciar SSH"
+  service:
+    name: sshd
+    state: restarted
+
+- name: "Reiniciar Fail2Ban"
+  service:
+    name: fail2ban
+    state: restarted

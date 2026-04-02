@@ -1,0 +1,40 @@
+
+    <app-modal
+      [isOpen]="isOpen()"
+      [title]="event() ? 'Editar evento' : 'Novo evento'"
+      (closed)="closed.emit()"
+    >
+      <div modal-body>
+        <app-agenda-form
+          #editorForm
+          [event]="event()"
+          [initialData]="initialData()"
+          (saved)="saved.emit($event)"
+          (cancelled)="closed.emit()"
+        />
+      </div>
+      <ng-container modal-footer>
+        <div class="flex w-full items-center justify-end gap-2">
+          <app-button
+            variant="ghost"
+            size="sm"
+            (clicked)="editorFormRef()?.cancel()"
+            dataTest="agenda-form-cancel-btn"
+          >
+            Cancelar
+          </app-button>
+          <app-loading-button
+            variant="primary"
+            size="sm"
+            type="button"
+            [loading]="editorFormRef()?.isSaving() ?? false"
+            loadingText="Salvando..."
+            (clicked)="editorFormRef()?.submit()"
+            dataTest="agenda-form-save-btn"
+          >
+            Salvar
+          </app-loading-button>
+        </div>
+      </ng-container>
+    </app-modal>
+  

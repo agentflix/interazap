@@ -1,0 +1,262 @@
+
+    <af-crud-page
+      title="Empresas"
+      subtitle="CRM"
+      createLabel="Nova Empresa"
+      searchPlaceholder="Buscar empresas..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhuma empresa encontrada"
+      emptyDescription="Comece adicionando sua primeira empresa ao sistema."
+      [skeletonColumns]="4"
+      [skeletonRows]="6"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      <div filters class="flex items-center gap-2">
+        <div class="min-w-40">
+          <af-select-input
+            [control]="filterStatusControl"
+            [options]="filterStatusOptions"
+            size="sm"
+            classContainer=""
+            dataTest="company-filter-status"
+          />
+        </div>
+        @if (hasSelection()) {
+          <af-button variant="danger" size="sm" class="mb-3" (click)="openBulkDelete()">
+            Excluir selecionadas ({{ selectedCount() }})
+          </af-button>
+        }
+      </div>
+
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar empresas"
+            message="Não foi possível carregar as empresas. Verifique sua conexão e tente novamente."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th class="w-10">
+                <af-checkbox-input
+                  [control]="selectAllControl"
+                  ariaLabel="Selecionar todas as empresas"
+                  dataTest="companies-select-all"
+                />
+              </th>
+              <th
+                afSortableHeader
+                label="Nome"
+                field="name"
+                [currentField]="sortBy()"
+                [currentDir]="sortDir()"
+                (sortChange)="onSort($event)"
+              ></th>
+              <th>Telefone</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (company of companies(); track company.id) {
+              <tr>
+                <td>
+                  <af-checkbox-input
+                    [control]="getRowSelectionControl(company.id)"
+                    [ariaLabel]="'Selecionar empresa ' + company.name"
+                    [dataTest]="'company-select-' + company.id"
+                  />
+                </td>
+                <td>
+                  <div class="flex flex-col">
+                    <span class="font-medium">{{ company.name }}</span>
+                    @if (company.document) {
+                      <span class="text-xs text-neutral-500">{{
+                        formatDocument(company.document)
+                      }}</span>
+                    }
+                  </div>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ formatPhone(company.phone) }}
+                </td>
+                <td>
+                  <af-status-badge [status]="company.is_active ? 'online' : 'offline'">
+                    {{ company.is_active ? 'Ativo' : 'Inativo' }}
+                  </af-status-badge>
+                </td>
+                <td>
+                  <div class="flex justify-end gap-1">
+                    <af-icon-button
+                      label="Ver detalhes"
+                      variant="ghost"
+                      size="sm"
+                      (click)="openDetails(company)"
+                    >
+                      <lucide-icon name="eye" [size]="14" />
+                    </af-icon-button>
+                    <af-table-actions (edit)="openEdit(company)" (delete)="openDelete(company)" />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <!-- Create / Edit modal -->
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="lg"
+      (closed)="handleFormCancelled()"
+    >
+      <app-company-form
+        #companyForm
+        [company]="selectedCompany()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button
+          variant="ghost"
+          size="sm"
+          dataTest="company-form-cancel-btn"
+          (click)="companyFormRef()?.cancel()"
+        >
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isFormSaving()"
+          dataTest="company-form-save-btn"
+          (click)="companyFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Delete confirmation -->
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      [title]="deleteModalTitle()"
+      [message]="deleteMessage()"
+      [confirmLabel]="deleteConfirmLabel()"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+
+    @if (isDetailsOpen()) {
+      <div
+        class="fixed inset-0 z-70 bg-black/30 backdrop-blur-sm transition-opacity"
+        (click)="closeDetails()"
+        aria-hidden="true"
+      ></div>
+    }
+
+    <!-- Detail side-panel -->
+    <div
+      class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-neutral-700 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-md w-full z-80 overflow-hidden"
+      [class.hidden]="!isDetailsOpen()"
+      [class.flex]="isDetailsOpen()"
+      [class.translate-x-full]="!isDetailsOpen()"
+      [class.translate-x-0]="isDetailsOpen()"
+      role="dialog"
+      tabindex="-1"
+      aria-label="Detalhes da empresa"
+      [attr.aria-hidden]="!isDetailsOpen()"
+    >
+      <div
+        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-dashed border-neutral-200 dark:border-neutral-700 px-6 gap-3"
+      >
+        <h5 class="text-base grow">Detalhes da empresa</h5>
+        <af-icon-button label="Fechar detalhes" variant="ghost" size="sm" (click)="closeDetails()">
+          <lucide-icon name="x" [size]="16" />
+        </af-icon-button>
+      </div>
+
+      <af-scroll-area class="h-full grow" maxHeight="100%">
+        <div class="p-6 space-y-4">
+          @if (detailCompany()) {
+            <div>
+              <p class="text-xs text-neutral-500">Nome</p>
+              <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                {{ detailCompany()!.name || '—' }}
+              </p>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p class="text-xs text-neutral-500">Documento</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailCompany()!.document || '—' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-neutral-500">Telefone</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailCompany()!.phone || '—' }}
+                </p>
+              </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p class="text-xs text-neutral-500">Status</p>
+                <af-status-badge [status]="detailCompany()!.is_active ? 'online' : 'offline'">
+                  {{ detailCompany()!.is_active ? 'Ativo' : 'Inativo' }}
+                </af-status-badge>
+              </div>
+              <div>
+                <p class="text-xs text-neutral-500">CEP</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailCompany()!.zip_code || '—' }}
+                </p>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-neutral-500">Endereço</p>
+              <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                {{ detailCompany()!.address || '—' }}
+              </p>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p class="text-xs text-neutral-500">Cidade</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailCompany()!.city || '—' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-neutral-500">Estado</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailCompany()!.state || '—' }}
+                </p>
+              </div>
+            </div>
+          } @else {
+            <div class="text-sm text-neutral-500">Selecione uma empresa para ver os detalhes.</div>
+          }
+        </div>
+      </af-scroll-area>
+    </div>
+  

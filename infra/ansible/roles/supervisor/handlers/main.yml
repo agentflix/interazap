@@ -1,0 +1,16 @@
+# =====================================================
+# Handlers: Supervisor
+# =====================================================
+
+- name: "Recarregar Supervisor"
+  shell: "/usr/bin/supervisorctl reread && /usr/bin/supervisorctl update"
+  changed_when: true
+
+- name: "Atualizar Supervisor"
+  command: "/usr/bin/supervisorctl update"
+  changed_when: true
+
+- name: "Reiniciar Supervisor"
+  service:
+    name: supervisor
+    state: restarted

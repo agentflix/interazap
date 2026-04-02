@@ -1,0 +1,140 @@
+<main class="space-y-6">
+  <app-page-title title="Tarefas" subtitle="CRM" />
+
+  <div
+    class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm"
+  >
+    <div class="p-5 sm:p-6 flex flex-col gap-5 h-[calc(100vh-210px)] min-h-96">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+            Quadro de tarefas
+          </h2>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">
+            Arraste para atualizar o status das suas tarefas.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <app-button variant="outline" size="sm" [routerLink]="['/crm/negotiations']">
+            Voltar para negociações
+          </app-button>
+          <app-button variant="primary" size="sm" icon="lucideRefreshCw" (clicked)="loadTasks()">
+            Atualizar
+          </app-button>
+        </div>
+      </div>
+
+      <!-- Board content -->
+      <div class="flex-1 overflow-y-auto overflow-x-auto -mx-5 px-5">
+        @if (isLoading()) {
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            @for (i of [0, 1, 2]; track i) {
+              <div
+                class="animate-pulse rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 p-4"
+              >
+                <div class="h-4 w-24 rounded bg-neutral-200 dark:bg-neutral-700 mb-3"></div>
+                <div class="space-y-3">
+                  <div class="h-20 rounded-lg bg-neutral-200 dark:bg-neutral-700"></div>
+                  <div class="h-20 rounded-lg bg-neutral-200 dark:bg-neutral-700"></div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (errorMessage()) {
+          <div class="rounded-lg border border-danger/20 bg-danger/10 p-4 text-sm text-danger">
+            {{ errorMessage() }}
+            <button
+              type="button"
+              class="ml-2 font-medium underline hover:no-underline"
+              (click)="loadTasks()"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        } @else {
+          <div class="min-w-180 h-full">
+            <div cdkDropListGroup class="grid h-full grid-cols-3 gap-4">
+              @for (column of columns; track column.id) {
+                <div
+                  class="flex h-full flex-col rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 p-3"
+                  [ngClass]="column.tone"
+                >
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="inline-block size-2 rounded-full" [ngClass]="column.dot"></span>
+                    <p
+                      class="text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
+                    >
+                      {{ column.label }}
+                    </p>
+                    <span
+                      class="ml-auto inline-flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 px-1.5 text-[10px] font-medium text-neutral-600 dark:text-neutral-300 min-w-5 h-5"
+                    >
+                      {{ getColumnTasks(column.id).length }}
+                    </span>
+                  </div>
+
+                  <div
+                    class="flex-1 space-y-2.5 overflow-y-auto min-h-32"
+                    cdkDropList
+                    [id]="'status-' + column.id"
+                    [cdkDropListData]="getColumnTasks(column.id)"
+                    [cdkDropListConnectedTo]="dropListIds"
+                    [cdkDropListSortingDisabled]="true"
+                    (cdkDropListDropped)="onDrop($event, column.id)"
+                  >
+                    @for (task of getColumnTasks(column.id); track task.id) {
+                      <div
+                        class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md"
+                        cdkDrag
+                        [cdkDragData]="task"
+                      >
+                        <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                          {{ task.title }}
+                        </p>
+                        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                          {{ getNegotiationLabel(task) }}
+                        </p>
+
+                        <div
+                          class="mt-2 flex flex-wrap items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400"
+                        >
+                          <span class="inline-flex items-center gap-1">
+                            <lucide-icon name="calendar" [size]="14" class="block" />
+                            {{ formatDate(task.due_date) }}
+                          </span>
+                          @if (task.start_time && task.end_time) {
+                            <span>
+                              {{ formatTime(task.start_time) }} – {{ formatTime(task.end_time) }}
+                            </span>
+                          }
+                        </div>
+
+                        @if (task.negotiation_id) {
+                          <a
+                            class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                            [routerLink]="['/crm/negotiations', task.negotiation_id]"
+                          >
+                            Ver negociação
+                            <lucide-icon name="arrow-up-right" [size]="14" class="inline-block" />
+                          </a>
+                        }
+                      </div>
+                    } @empty {
+                      <div
+                        class="flex flex-col items-center justify-center py-8 text-center text-neutral-400 dark:text-neutral-500"
+                      >
+                        <lucide-icon name="clipboard-list" [size]="32" class="block mb-2" />
+                        <p class="text-xs">Nenhuma tarefa</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</main>

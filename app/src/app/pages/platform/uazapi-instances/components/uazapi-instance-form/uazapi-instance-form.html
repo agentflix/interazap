@@ -1,0 +1,33 @@
+
+    <form class="space-y-4" (submit)="$event.preventDefault()">
+      <af-text-input
+        label="Nome"
+        [control]="form.controls.name"
+        placeholder="Ex: Instância Comercial"
+        [required]="true"
+        dataTest="uazapi-form-name"
+      />
+
+      <af-text-input
+        label="System name"
+        [control]="form.controls.system_name"
+        placeholder="Ex: comercial-main"
+        [required]="true"
+        dataTest="uazapi-form-system-name"
+      />
+
+      <af-text-input
+        label="Campo administrativo 1"
+        [control]="form.controls.config_field_01"
+        placeholder="Opcional"
+        dataTest="uazapi-form-admin-1"
+      />
+
+      <af-text-input
+        label="Campo administrativo 2"
+        [control]="form.controls.config_field_02"
+        placeholder="Opcional"
+        dataTest="uazapi-form-admin-2"
+      />
+    </form>
+  

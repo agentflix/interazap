@@ -1,0 +1,23 @@
+
+    <div>
+      <button
+        type="button"
+        class="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-300
+          hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors cursor-pointer"
+        (click)="toggle()"
+      >
+        <lucide-icon
+          name="chevron-right"
+          [size]="14"
+          class="transition-transform"
+          [class.rotate-90]="isOpen()"
+        />
+        {{ title() }}
+      </button>
+      @if (isOpen()) {
+        <div class="mt-2 pl-5">
+          <ng-content />
+        </div>
+      }
+    </div>
+  

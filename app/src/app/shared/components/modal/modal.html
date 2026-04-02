@@ -1,0 +1,59 @@
+
+    @if (resolvedOpen()) {
+      <!-- Backdrop -->
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        role="dialog"
+        [attr.aria-modal]="true"
+        [attr.aria-label]="title()"
+      >
+        <!-- Overlay -->
+        <div
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200"
+          (click)="onBackdropClick()"
+          (keydown.enter)="onBackdropClick()"
+          tabindex="0"
+          role="button"
+        ></div>
+
+        <!-- Panel -->
+        <div [class]="panelClasses()" cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
+          <!-- Header -->
+          @if (title()) {
+            <div
+              class="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-700"
+            >
+              <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+                {{ title() }}
+              </h2>
+              @if (showClose()) {
+                <button
+                  type="button"
+                  class="size-8 inline-flex items-center justify-center rounded-md text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                  (click)="close()"
+                  aria-label="Fechar"
+                >
+                  <span class="text-lg leading-none">×</span>
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Body -->
+          <af-scroll-area [maxHeight]="'70vh'" [scrollable]="scrollBody()">
+            <div class="px-6 py-4">
+              <ng-content select="[modal-body]" />
+              <ng-content />
+            </div>
+          </af-scroll-area>
+
+          <!-- Footer (projected) -->
+          <div
+            class="af-modal-footer px-6 py-4 border-t border-neutral-200 dark:border-neutral-700"
+          >
+            <ng-content select="[modal-footer], [footer]" />
+          </div>
+        </div>
+      </div>
+    }
+  

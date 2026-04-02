@@ -1,0 +1,24 @@
+
+    <div [class]="containerClasses()">
+      @if (label()) {
+        <af-form-label [label]="label()" [for]="inputId" [required]="required()" />
+      }
+
+      <input
+        [id]="inputId"
+        type="text"
+        [class]="inputClasses()"
+        [formControl]="control()"
+        [placeholder]="placeholderText()"
+        [attr.data-test]="dataTest()"
+        [afMask]="mask()"
+        inputmode="numeric"
+      />
+
+      @if (helpText() && !showError()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+
+      <af-form-error [show]="showError()" [message]="errorMessage()" />
+    </div>
+  

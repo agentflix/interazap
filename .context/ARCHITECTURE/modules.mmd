@@ -1,0 +1,45 @@
+graph LR
+    Shared["🔧 Shared"]
+    Auth["🔐 Auth"]
+    Platform["🏢 Platform"]
+    Configuration["⚙️ Configuration"]
+    CRM["👥 CRM"]
+    Chat["💬 Chat"]
+    Ai["🤖 Ai"]
+    Billing["💳 Billing"]
+    Dashboard["📊 Dashboard"]
+    Reports["📈 Reports"]
+    GW["⚡ Gateway"]
+
+    Auth --> Shared
+    Platform --> Auth
+    Platform --> Configuration
+    Platform --> Shared
+    Configuration --> Auth
+    Configuration --> Shared
+    CRM --> Auth
+    CRM --> Shared
+    Chat --> Auth
+    Chat --> CRM
+    Chat --> Ai
+    Chat --> GW
+    Chat --> Shared
+    Ai --> Auth
+    Ai --> Chat
+    Ai --> CRM
+    Ai --> Shared
+    Billing --> Auth
+    Billing --> Platform
+    Billing --> Shared
+    GW --> Auth
+    GW --> Shared
+    Dashboard --> Auth
+    Dashboard --> Billing
+    Dashboard --> Chat
+    Dashboard --> CRM
+    Dashboard --> Shared
+    Reports --> Auth
+    Reports --> Chat
+    Reports --> CRM
+    Reports --> Dashboard
+    Reports --> Shared

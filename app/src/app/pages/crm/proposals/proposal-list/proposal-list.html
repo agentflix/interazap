@@ -1,0 +1,133 @@
+<section
+  class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6"
+>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Propostas</h3>
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">
+        Crie, envie e acompanhe propostas da negociação.
+      </p>
+    </div>
+    <app-button variant="primary" size="sm" [disabled]="isPreparingForm()" (clicked)="openCreate()">
+      <lucide-icon name="plus" [size]="16" class="block" />
+      Nova Proposta
+    </app-button>
+  </div>
+
+  <div class="mt-4">
+    @if (isLoading()) {
+      <div class="space-y-3">
+        @for (row of [0, 1, 2, 3, 4]; track row) {
+          <div class="h-12 rounded-lg bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+        }
+      </div>
+    } @else if (errorMessage()) {
+      <div class="rounded-lg border border-danger/20 bg-danger/10 p-4 text-sm text-danger">
+        {{ errorMessage() }}
+      </div>
+    } @else if (proposals().length === 0) {
+      <div
+        class="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/40 p-6 text-sm text-neutral-500 dark:text-neutral-400"
+      >
+        <lucide-icon
+          name="clipboard-list"
+          [size]="28"
+          class="block text-neutral-400 dark:text-neutral-500"
+        />
+        Nenhuma proposta cadastrada ainda.
+      </div>
+    } @else {
+      <div class="space-y-3">
+        @for (proposal of proposals(); track trackById($index, proposal)) {
+          <div
+            class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/50 p-4"
+          >
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">{{
+                  proposal.title
+                }}</span>
+                <span
+                  class="rounded-full px-2 py-0.5 text-xs font-semibold"
+                  [class]="statusClass(proposal.status)"
+                >
+                  {{ proposal.status | uppercase }}
+                </span>
+              </div>
+              <div class="text-xs text-neutral-500 dark:text-neutral-400">
+                <span>#{{ proposal.number || '—' }}</span>
+                ·
+                <span
+                  >Total:
+                  {{ proposal.total || 0 | currency: 'BRL' : 'symbol-narrow' : '1.2-2' }}</span
+                >
+                @if (proposal.valid_until) {
+                  ·
+                  <span>Válida até {{ proposal.valid_until | date: 'dd/MM/yyyy' }}</span>
+                }
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <app-icon-button
+                icon="lucideFileText"
+                variant="ghost"
+                size="sm"
+                ariaLabel="Editar proposta"
+                (clicked)="openEdit(proposal)"
+              />
+              <app-icon-button
+                icon="lucideSend"
+                variant="primary"
+                size="sm"
+                ariaLabel="Enviar proposta"
+                (clicked)="sendProposal(proposal)"
+              />
+              <app-icon-button
+                icon="lucideCopy"
+                variant="ghost"
+                size="sm"
+                ariaLabel="Duplicar proposta"
+                (clicked)="duplicateProposal(proposal)"
+              />
+              <app-icon-button
+                icon="lucideEye"
+                variant="ghost"
+                size="sm"
+                ariaLabel="Abrir proposta"
+                [disabled]="!proposal.public_token"
+                (clicked)="openPublic(proposal)"
+              />
+              <app-icon-button
+                icon="lucideTrash2"
+                variant="danger"
+                size="sm"
+                ariaLabel="Excluir proposta"
+                (clicked)="confirmDelete(proposal)"
+              />
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<app-modal [isOpen]="isFormOpen()" title="Proposta" maxWidth="xl" (closed)="closeForm()">
+  <app-proposal-form
+    [negotiationId]="negotiationId()"
+    [proposal]="selectedProposal()"
+    [prefillItems]="prefillItems()"
+    (saved)="onSaved()"
+    (cancelled)="closeForm()"
+  />
+</app-modal>
+
+<app-confirm-modal
+  [isOpen]="isDeleteOpen()"
+  title="Excluir proposta"
+  message="Tem certeza que deseja excluir esta proposta?"
+  confirmLabel="Excluir"
+  [isLoading]="isDeleting()"
+  (confirmed)="deleteConfirmed()"
+  (cancelled)="cancelDelete()"
+/>

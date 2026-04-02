@@ -1,0 +1,8 @@
+# =====================================================
+# Handlers: Redis
+# =====================================================
+
+- name: "Reiniciar Redis"
+  service:
+    name: redis-server
+    state: restarted

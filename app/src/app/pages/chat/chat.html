@@ -1,0 +1,150 @@
+<main class="h-[calc(100dvh-var(--spacing-topbar-height))] w-full relative min-h-0">
+  <section class="h-full w-full min-h-0 grid grid-cols-[320px_minmax(0,1fr)_56px] grid-rows-1">
+    <app-chat-page-list
+      [isSoundMuted]="isSoundMuted()"
+      [isRefreshing]="isRefreshing()"
+      [searchTerm]="searchTerm()"
+      [isEmergencyMenuOpen]="isEmergencyMenuOpen()"
+      [emergencyFilter]="emergencyFilter()"
+      [ticketTabs]="ticketTabs()"
+      [ticketFilter]="ticketFilter()"
+      [loadingTickets]="loadingTickets()"
+      [visibleTickets]="visibleTickets()"
+      [selectedTicketId]="selectedTicketId()"
+      (toggleSound)="toggleSound()"
+      (refreshList)="refreshList()"
+      (clearSearch)="clearSearch()"
+      (openSearchModal)="openSearchModal()"
+      (toggleEmergencyMenu)="isEmergencyMenuOpen.set(!isEmergencyMenuOpen())"
+      (closeEmergencyMenu)="isEmergencyMenuOpen.set(false)"
+      (setEmergencyFilter)="setEmergencyFilter($event)"
+      (openNewConversationModal)="openNewConversationModal()"
+      (setTicketFilter)="setTicketFilter($event)"
+      (selectTicket)="selectTicket($event)"
+    ></app-chat-page-list>
+
+    <app-chat-conversation
+      [activeTab]="activeTab()"
+      [selectedTicketId]="selectedTicketId()"
+      [selectedTicket]="selectedTicket()"
+      [selectedContactId]="selectedContactId()"
+      [selectedTicketInitials]="getSelectedTicketInitials()"
+      [selectedTicketProfilePicture]="getSelectedTicketProfilePicture()"
+      [isSelectedTicketStarted]="isSelectedTicketStarted()"
+      [isStartingTicket]="isStartingTicket()"
+      [isTransferLoading]="isTransferLoading()"
+      [isClosingTicket]="isClosingTicket()"
+      [isRecording]="recordingState() === 'recording'"
+      [isRecordingPaused]="recordingState() === 'paused'"
+      [recordingDuration]="recordingDurationSeconds()"
+      [isSendingAudio]="isSendingAudio()"
+      [isAttachmentMenuOpen]="isAttachmentMenuOpen()"
+      [messageControl]="messageControl"
+      [isSendingMessage]="isSendingMessage()"
+      (openNewConversationModal)="openNewConversationModal()"
+      (closeSelectedTicket)="closeSelectedTicket()"
+      (openTransferModal)="openTransferModal()"
+      (openCloseTicketConfirm)="openCloseTicketConfirm()"
+      (startSelectedTicket)="startSelectedTicket()"
+      (cancelRecording)="cancelRecording()"
+      (pauseRecording)="pauseRecording()"
+      (resumeRecording)="resumeRecording()"
+      (sendRecording)="sendRecording()"
+      (toggleAttachmentMenu)="toggleAttachmentMenu()"
+      (closeAttachmentMenu)="closeAttachmentMenu()"
+      (selectAttachmentType)="selectAttachmentType($event)"
+      (messageKeydown)="onMessageKeydown($event)"
+      (messageInput)="autoResizeTextarea($event)"
+      (startRecording)="startRecording()"
+      (sendMessage)="sendMessage()"
+      (profilePictureError)="handleProfilePictureError($event)"
+      (contactUpdated)="onContactUpdated($event)"
+    ></app-chat-conversation>
+
+    <app-chat-page-sidebar
+      [activeTab]="activeTab()"
+      (setTab)="setTab($event)"
+    ></app-chat-page-sidebar>
+  </section>
+
+  <!-- Drag & Drop Overlay -->
+  @if (isDragOver()) {
+    <div
+      class="absolute inset-0 z-50 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center pointer-events-none"
+    >
+      <div class="flex flex-col items-center gap-3 text-primary">
+        <div class="size-16 rounded-full bg-primary/20 flex items-center justify-center">
+          <ng-icon name="lucideUploadCloud" size="32"></ng-icon>
+        </div>
+        <span class="text-lg font-semibold">Solte os arquivos aqui</span>
+        <span class="text-sm text-neutral-500 dark:text-neutral-400">para enviar no chat</span>
+      </div>
+    </div>
+  }
+
+  <!-- Hidden file input -->
+  <input #fileInput type="file" multiple class="hidden" (change)="onFileInputChange($event)" />
+</main>
+
+<!-- Media Preview Modal -->
+<app-media-preview
+  [open]="isMediaPreviewOpen()"
+  [items]="mediaPreviewItems()"
+  [selectedId]="mediaPreviewSelectedId()"
+  [progress]="mediaUploadProgress()"
+  [isSending]="isMediaSending()"
+  (closed)="closeMediaPreview()"
+  (itemSelected)="onMediaPreviewSelect($event)"
+  (remove)="onMediaPreviewRemove($event)"
+  (addFiles)="onMediaPreviewAddFiles($event)"
+  (updateCaption)="onMediaPreviewUpdateCaption($event)"
+  (send)="sendMediaFiles()"
+/>
+
+<app-modal
+  title="Pesquisar chamados"
+  [isOpen]="isSearchModalOpen()"
+  (closed)="closeSearchModal()"
+  size="sm"
+>
+  <div modal-body class="space-y-3">
+    <app-text-input
+      label="Pesquisa"
+      [control]="searchQueryControl"
+      placeholder="Digite para pesquisar..."
+      [spacing]="false"
+      [classInput]="'w-full'"
+    />
+    <p class="text-xs text-neutral-500 dark:text-neutral-400">
+      A lista é atualizada automaticamente enquanto você digita.
+    </p>
+  </div>
+
+  <div modal-footer class="flex w-full items-center justify-end gap-2">
+    <app-button variant="outline" size="sm" (clicked)="closeSearchModal()">Fechar</app-button>
+  </div>
+</app-modal>
+
+<app-new-conversation-modal />
+
+<app-chat-transfer-modal
+  [ticket]="selectedTicket()"
+  [isOpen]="isTransferModalOpen()"
+  [isSubmitting]="isTransferLoading()"
+  [submitError]="transferError()"
+  (closed)="closeTransferModal()"
+  (confirmed)="onTransferConfirmed($event)"
+/>
+
+<app-confirm-modal
+  [isOpen]="isCloseTicketConfirmOpen()"
+  title="Encerrar atendimento"
+  message="Tem certeza que deseja encerrar este atendimento? Esta ação não pode ser desfeita."
+  confirmLabel="Encerrar"
+  cancelLabel="Cancelar"
+  variant="danger"
+  iconName="x"
+  [isLoading]="isClosingTicket()"
+  (confirmed)="confirmCloseSelectedTicket()"
+  (cancelled)="closeCloseTicketConfirm()"
+/>

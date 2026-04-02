@@ -1,0 +1,70 @@
+# =====================================================
+# Role: Redis
+# Propósito: Servidor Redis com autenticação e hardening
+# Autor: DevOps Agentflix
+# =====================================================
+
+- name: "Criar /tmp/ansible para Ansible module executor"
+  file:
+    path: /tmp/ansible
+    state: directory
+    mode: '0777'
+
+- name: "Instalar Redis Server"
+  apt:
+    name:
+      - redis-server
+      - redis-tools
+    state: present
+
+- name: "Criar configuração customizada Redis"
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis/redis.conf
+    mode: '0640'
+    owner: root
+    group: redis
+  notify: "Reiniciar Redis"
+
+- name: "Configurar limits do Redis"
+  pam_limits:
+    domain: redis
+    limit_type: soft
+    limit_item: nofile
+    value: '65536'
+  notify: "Reiniciar Redis"
+
+- name: "Criar diretório de persistência"
+  file:
+    path: /var/lib/redis
+    owner: redis
+    group: redis
+    mode: '0750'
+    state: directory
+
+- name: "Configurar logrotate para Redis"
+  copy:
+    dest: /etc/logrotate.d/redis-server
+    content: |
+      /var/log/redis/redis-server.log {
+          daily
+          rotate 14
+          compress
+          delaycompress
+          notifempty
+          create 0640 redis redis
+          sharedscripts
+          postrotate
+              if [ -f /var/run/redis/redis-server.pid ]; then
+                  kill -USR1 $(cat /var/run/redis/redis-server.pid) > /dev/null 2>&1 || true
+              fi
+          endscript
+      }
+    mode: '0644'
+  ignore_errors: yes
+
+- name: "Habilitar e iniciar Redis"
+  service:
+    name: redis-server
+    state: started
+    enabled: yes

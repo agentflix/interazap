@@ -1,0 +1,7 @@
+# =====================================================
+# Handlers: Common
+# =====================================================
+
+- name: "Verificar se reboot é necessário"
+  debug:
+    msg: "ATENÇÃO: Reboot recomendado após updates de kernel"

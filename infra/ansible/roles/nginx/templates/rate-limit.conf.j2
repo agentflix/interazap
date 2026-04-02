@@ -1,0 +1,7 @@
+# =====================================================
+# Nginx - Rate Limiting
+# Autor: DevOps Agentflix
+# =====================================================
+
+limit_req zone=api burst=20 nodelay;
+limit_conn addr 50;

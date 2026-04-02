@@ -1,0 +1,110 @@
+<app-modal
+  [isOpen]="isOpen()"
+  [title]="deal() ? 'Editar Negociação' : 'Nova Negociação'"
+  (closed)="onClose()"
+>
+  <form modal-body class="space-y-4" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Título -->
+    <div>
+      <app-text-input
+        [control]="$any(form.get('title'))"
+        label="Título"
+        [required]="true"
+        placeholder="Ex: Proposta de Marketing Digital"
+        size="sm"
+        dataTest="deal-title"
+      />
+      @if (hasError('title')) {
+        <p class="text-xs text-red-600 mt-1">{{ getErrorMessage('title') }}</p>
+      }
+    </div>
+
+    <!-- Funil -->
+    <div>
+      <app-select-input
+        [control]="$any(form.get('funnel_id'))"
+        label="Funil"
+        [required]="true"
+        [options]="funnelOptions()"
+        emptyLabel="Selecione um funil"
+        size="sm"
+        dataTest="deal-funnel"
+      />
+      @if (hasError('funnel_id')) {
+        <p class="text-xs text-red-600 mt-1">{{ getErrorMessage('funnel_id') }}</p>
+      }
+    </div>
+
+    <!-- Etapa -->
+    <div>
+      <app-select-input
+        [control]="$any(form.get('step_id'))"
+        label="Etapa"
+        [required]="true"
+        [options]="stepOptions()"
+        emptyLabel="Selecione uma etapa"
+        size="sm"
+        dataTest="deal-step"
+      />
+      @if (hasError('step_id')) {
+        <p class="text-xs text-red-600 mt-1">{{ getErrorMessage('step_id') }}</p>
+      }
+    </div>
+
+    <!-- Responsável -->
+    <div>
+      <app-select-input
+        [control]="$any(form.get('responsible_id'))"
+        label="Responsável"
+        [options]="userOptions()"
+        emptyLabel="Sem responsável"
+        size="sm"
+        dataTest="deal-responsible"
+      />
+    </div>
+
+    <!-- Data Esperada de Fechamento -->
+    <div>
+      <app-text-input
+        [control]="$any(form.get('expected_close'))"
+        label="Previsão de Fechamento"
+        type="date"
+        size="sm"
+        dataTest="deal-expected-close"
+      />
+    </div>
+
+    <!-- Observações -->
+    <div>
+      <app-textarea-input
+        [control]="$any(form.get('notes'))"
+        label="Observações"
+        placeholder="Notas adicionais..."
+        [rows]="3"
+        size="sm"
+        dataTest="deal-notes"
+      />
+      @if (hasError('notes')) {
+        <p class="text-xs text-red-600 mt-1">{{ getErrorMessage('notes') }}</p>
+      }
+    </div>
+  </form>
+
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <app-button variant="ghost" size="sm" (clicked)="onClose()" [disabled]="isSaving()">
+        Cancelar
+      </app-button>
+      <app-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="isSaving()"
+        loadingText="Salvando..."
+        [disabled]="form.invalid"
+        (clicked)="onSubmit()"
+      >
+        {{ deal() ? 'Atualizar' : 'Criar' }}
+      </app-loading-button>
+    </div>
+  </div>
+</app-modal>

@@ -1,0 +1,56 @@
+
+    <div [class]="containerClasses()">
+      <div class="flex items-start gap-2.5">
+        <!-- Hidden native input keeps reactive-forms integration intact -->
+        <input
+          [id]="checkboxId"
+          type="checkbox"
+          class="sr-only"
+          [formControl]="control()"
+          [attr.data-test]="dataTest()"
+          [attr.aria-label]="ariaLabel() || label() || null"
+          (change)="onNativeChange($event)"
+        />
+        <!-- Custom visual checkbox — reacts to the signal, no OnPush issues -->
+        <button
+          type="button"
+          role="checkbox"
+          [attr.aria-checked]="isChecked()"
+          [attr.aria-label]="ariaLabel() || label() || 'checkbox'"
+          [class]="boxClasses()"
+          (click)="toggle()"
+        >
+          @if (isChecked()) {
+            <svg
+              viewBox="0 0 12 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="size-3 stroke-white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="1.5,6 4.5,9 10.5,3" />
+            </svg>
+          }
+        </button>
+        @if (label()) {
+          <label
+            [for]="checkboxId"
+            class="text-sm text-neutral-700 dark:text-neutral-300 cursor-pointer select-none leading-5"
+            (click)="toggle()"
+            (keydown.enter)="toggle()"
+            tabindex="0"
+          >
+            {{ label() }}
+          </label>
+        }
+      </div>
+
+      @if (helpText() && !showError()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+
+      <af-form-error [show]="showError()" [message]="errorMessage()" />
+    </div>
+  

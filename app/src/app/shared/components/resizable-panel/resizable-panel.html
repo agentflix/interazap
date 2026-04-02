@@ -1,0 +1,14 @@
+
+    <div class="flex h-full">
+      <div class="overflow-auto bg-white dark:bg-neutral-900" [style.width.px]="currentWidth()">
+        <ng-content />
+      </div>
+      <div
+        class="w-1.5 flex-shrink-0 bg-neutral-200 dark:bg-neutral-700 cursor-col-resize
+          hover:bg-accent-500 active:bg-accent-600 transition-colors flex items-center justify-center"
+        (mousedown)="startResize($event)"
+      >
+        <lucide-icon name="grip-vertical" [size]="12" class="text-neutral-400" />
+      </div>
+    </div>
+  

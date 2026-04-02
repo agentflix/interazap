@@ -1,0 +1,15 @@
+
+    <div class="grid lg:grid-cols-4 gap-5">
+      <div class="lg:col-span-3">
+        <app-agenda-calendar-view #calendarView [options]="monthOptions()" />
+      </div>
+      <div class="col-span-1">
+        <app-agenda-sidebar
+          [events]="events()"
+          [typeOptions]="typeOptions()"
+          [dropRemoveControl]="dropRemoveControl()"
+          (eventClicked)="eventClicked.emit($event)"
+        />
+      </div>
+    </div>
+  

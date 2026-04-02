@@ -1,0 +1,215 @@
+
+    @if (loading() && files().length === 0) {
+      <div
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-0" style="min-height: 540px">
+          <div class="p-4 space-y-3 border-r border-neutral-200 dark:border-neutral-700">
+            @for (i of [0, 1, 2, 3, 4, 5]; track i) {
+              <div class="animate-pulse h-14 bg-neutral-100 dark:bg-neutral-800 rounded-lg"></div>
+            }
+          </div>
+          <div class="md:col-span-2 p-4">
+            <div class="animate-pulse h-full bg-neutral-100 dark:bg-neutral-800 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+    } @else if (error()) {
+      <div
+        class="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-6 text-center"
+      >
+        <lucide-icon
+          name="circle-alert"
+          [size]="28"
+          class="text-red-400 dark:text-red-500 mx-auto mb-3"
+        />
+        <p class="text-sm text-red-600 dark:text-red-400 mb-2">{{ error() }}</p>
+        <af-button variant="secondary" size="sm" (click)="loadFiles()">Tentar novamente</af-button>
+      </div>
+    } @else {
+      <div
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-0" style="min-height: 540px">
+          <!-- Left: File List -->
+          <div class="flex flex-col border-r border-neutral-200 dark:border-neutral-700">
+            <div
+              class="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-neutral-800"
+            >
+              <div class="flex items-center gap-2">
+                <lucide-icon
+                  name="folder"
+                  [size]="16"
+                  class="text-primary-500 dark:text-primary-400"
+                />
+                <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                  Arquivos
+                </h3>
+                <span
+                  class="text-xs px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
+                >
+                  {{ files().length }}
+                </span>
+              </div>
+              <div>
+                <input
+                  #fileUploader
+                  type="file"
+                  class="hidden"
+                  accept=".md,.txt,text/markdown,text/plain"
+                  multiple
+                  (change)="onFilesSelected($event)"
+                />
+                <af-loading-button
+                  variant="secondary"
+                  size="sm"
+                  [loading]="uploading()"
+                  (click)="fileUploader.click()"
+                >
+                  <lucide-icon name="upload" [size]="14" class="block" />
+                </af-loading-button>
+              </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-2 space-y-0.5">
+              @if (files().length === 0) {
+                <div
+                  class="flex flex-col items-center justify-center h-full text-center py-12 px-4"
+                >
+                  <lucide-icon
+                    name="file-plus"
+                    [size]="32"
+                    class="text-neutral-300 dark:text-neutral-600 mb-2"
+                  />
+                  <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                    Nenhum arquivo ainda.
+                  </p>
+                  <p class="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
+                    Suba arquivos .md ou .txt
+                  </p>
+                </div>
+              }
+
+              @for (file of files(); track file.slug) {
+                <button
+                  type="button"
+                  class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all"
+                  [class]="
+                    selectedFile()?.slug === file.slug
+                      ? 'bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700/50 shadow-sm'
+                      : 'border border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+                  "
+                  (click)="selectFile(file)"
+                >
+                  <div
+                    class="size-8 shrink-0 flex items-center justify-center rounded-lg"
+                    [class]="
+                      selectedFile()?.slug === file.slug
+                        ? 'bg-primary-100 dark:bg-primary-900/40'
+                        : 'bg-neutral-100 dark:bg-neutral-800'
+                    "
+                  >
+                    <lucide-icon
+                      name="file-text"
+                      [size]="14"
+                      [class]="
+                        selectedFile()?.slug === file.slug
+                          ? 'text-primary-500 dark:text-primary-400'
+                          : 'text-neutral-400 dark:text-neutral-500'
+                      "
+                    />
+                  </div>
+                  <div class="min-w-0">
+                    <div
+                      class="text-sm font-medium truncate"
+                      [class]="
+                        selectedFile()?.slug === file.slug
+                          ? 'text-primary-700 dark:text-primary-300'
+                          : 'text-neutral-800 dark:text-neutral-100'
+                      "
+                    >
+                      {{ file.slug }}
+                    </div>
+                    <div class="text-xs text-neutral-400 dark:text-neutral-500">
+                      {{ file.size_formatted }}
+                      @if (file.updated_at) {
+                        · {{ formatRelativeTime(file.updated_at) }}
+                      }
+                    </div>
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Right: Editor -->
+          <div class="md:col-span-2 flex flex-col">
+            @if (selectedFile()) {
+              <!-- Editor Header -->
+              <div
+                class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+              >
+                <div class="flex items-center gap-2">
+                  <lucide-icon
+                    name="code"
+                    [size]="14"
+                    class="text-neutral-400 dark:text-neutral-500"
+                  />
+                  <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                    {{ selectedFile()!.slug }}
+                  </span>
+                  @if (selectedFile()!.updated_at) {
+                    <span class="text-xs text-neutral-400 dark:text-neutral-500">
+                      · {{ formatRelativeTime(selectedFile()!.updated_at!) }}
+                    </span>
+                  }
+                </div>
+                <div class="flex items-center gap-2">
+                  <af-button variant="ghost" size="sm" (click)="resetContent()">
+                    <lucide-icon name="rotate-ccw" [size]="14" class="block" />
+                    Reset
+                  </af-button>
+                  <af-loading-button
+                    variant="primary"
+                    size="sm"
+                    [loading]="saving()"
+                    (click)="saveFile()"
+                  >
+                    <lucide-icon name="save" [size]="14" class="block" />
+                    Salvar
+                  </af-loading-button>
+                </div>
+              </div>
+
+              <!-- Textarea Editor -->
+              <div class="flex-1 p-4">
+                <textarea
+                  [formControl]="editorControl"
+                  class="w-full h-full min-h-96 px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 text-sm text-neutral-800 dark:text-neutral-100 font-mono resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="Conteúdo do arquivo..."
+                ></textarea>
+              </div>
+            } @else {
+              <div class="flex flex-col items-center justify-center h-full text-center py-16">
+                <div
+                  class="size-16 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4"
+                >
+                  <lucide-icon
+                    name="file-text"
+                    [size]="28"
+                    class="text-neutral-300 dark:text-neutral-600"
+                  />
+                </div>
+                <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-1">
+                  Nenhum arquivo selecionado
+                </p>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                  Selecione um arquivo à esquerda para editar.
+                </p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  

@@ -1,0 +1,20 @@
+
+    @if (updateService.available()) {
+      <div class="update-banner">
+        <div class="update-content">
+          <span class="update-icon">⬆️</span>
+          <span class="update-text">
+            Nova versão {{ updateService.updateInfo()?.version }} disponível!
+          </span>
+        </div>
+        <div class="update-actions">
+          @if (updateService.downloading()) {
+            <span class="downloading">Baixando...</span>
+          } @else {
+            <af-button variant="secondary" size="sm" (clicked)="download()"> Baixar </af-button>
+          }
+          <af-button variant="ghost" size="sm" (clicked)="dismiss()"> Depois </af-button>
+        </div>
+      </div>
+    }
+  

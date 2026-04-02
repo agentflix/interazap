@@ -1,0 +1,49 @@
+
+    <div class="space-y-3">
+      <div
+        class="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700
+        bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center"
+        [style.aspect-ratio]="aspectRatio()"
+      >
+        @if (src()) {
+          <img
+            [src]="src()"
+            alt="Preview"
+            class="w-full h-full object-cover"
+            [style.transform]="'scale(' + zoom() + ')'"
+          />
+        } @else {
+          <div class="text-center text-neutral-400">
+            <lucide-icon name="image" [size]="48" class="mx-auto mb-2" />
+            <p class="text-sm">Nenhuma imagem</p>
+          </div>
+        }
+      </div>
+      <!-- Zoom control -->
+      @if (src()) {
+        <div class="flex items-center gap-3">
+          <lucide-icon name="zoom-out" [size]="16" class="text-neutral-500" />
+          <input
+            type="range"
+            min="1"
+            max="3"
+            step="0.1"
+            [value]="zoom()"
+            (input)="onZoom($event)"
+            class="flex-1 accent-accent-600"
+          />
+          <lucide-icon name="zoom-in" [size]="16" class="text-neutral-500" />
+        </div>
+        <div class="flex justify-end">
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-medium rounded-lg bg-accent-600 text-white
+              hover:bg-accent-700 transition-colors cursor-pointer"
+            (click)="cropped.emit({ src: src(), zoom: zoom() })"
+          >
+            Aplicar
+          </button>
+        </div>
+      }
+    </div>
+  

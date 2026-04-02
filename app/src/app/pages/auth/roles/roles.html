@@ -1,0 +1,132 @@
+
+    <af-crud-page
+      title="Perfis de Acesso"
+      subtitle="Configurações"
+      createLabel="Novo Perfil"
+      searchPlaceholder="Buscar perfis..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum perfil encontrado"
+      emptyDescription="Crie perfis de acesso para definir as permissões dos usuários."
+      [skeletonColumns]="4"
+      [skeletonRows]="6"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      <!-- Error state -->
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar perfis"
+            message="Não foi possível carregar os perfis de acesso. Tente novamente."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Permissões</th>
+              <th>Usuários</th>
+              <th>Criado em</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (role of roles(); track role.id) {
+              <tr>
+                <td class="font-medium">{{ role.name }}</td>
+                <td>
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                  >
+                    <lucide-icon name="shield" [size]="12" class="block" />
+                    {{ role.permissions_count }}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                  >
+                    <lucide-icon name="users" [size]="12" class="block" />
+                    {{ role.users_count }}
+                  </span>
+                </td>
+                <td class="text-neutral-500 dark:text-neutral-400 tabular-nums">
+                  {{ formatDate(role.created_at) }}
+                </td>
+                <td>
+                  <div class="flex justify-end">
+                    <af-table-actions
+                      [showDelete]="role.name !== 'super-admin'"
+                      (edit)="openEdit(role)"
+                      (delete)="openDelete(role)"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <!-- Create / Edit modal (large — permissions list) -->
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="lg"
+      (closed)="handleFormCancelled()"
+    >
+      <app-role-form
+        #roleForm
+        [role]="selectedRole()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button
+          variant="ghost"
+          size="sm"
+          dataTest="role-form-cancel-btn"
+          (click)="roleFormRef()?.cancel()"
+        >
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isFormSaving()"
+          [disabled]="(roleFormRef()?.form?.invalid ?? true) || isFormSaving()"
+          dataTest="role-form-save-btn"
+          (click)="roleFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Delete confirmation -->
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      title="Excluir perfil"
+      [message]="deleteMessage()"
+      confirmLabel="Excluir"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+  

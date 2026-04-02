@@ -1,0 +1,96 @@
+
+    <af-page-title [title]="pageTitle()" subtitle="Inteligência Artificial" />
+
+    <div class="grid grid-cols-1 gap-5 mb-5">
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+      >
+        @if (isLoading()) {
+          <div class="flex items-center justify-center py-10">
+            <lucide-icon name="loader" [size]="32" class="text-accent-500 animate-spin" />
+          </div>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+            <!-- Basic Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <af-text-input
+                [control]="form.controls.name"
+                label="Nome do Agente"
+                placeholder="Ex: Vendedor Principal"
+                [required]="true"
+                dataTest="agent-name"
+              />
+              <af-select-input
+                [control]="form.controls.type"
+                label="Tipo"
+                [options]="agentTypes"
+                [required]="true"
+                dataTest="agent-type"
+              />
+            </div>
+
+            <!-- Model Settings -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <af-select-input
+                [control]="form.controls.model_id"
+                label="Modelo"
+                [options]="modelOptions"
+                dataTest="agent-model"
+              />
+              <div>
+                <af-text-input
+                  [control]="form.controls.temperature"
+                  label="Temperatura"
+                  type="number"
+                  dataTest="agent-temperature"
+                />
+                <p class="text-xs text-neutral-500 mt-1">0 = preciso, 2 = criativo</p>
+              </div>
+              <af-text-input
+                [control]="form.controls.max_tokens"
+                label="Max Tokens"
+                type="number"
+                dataTest="agent-max-tokens"
+              />
+            </div>
+
+            <!-- System Prompt -->
+            <af-textarea-input
+              [control]="form.controls.system_prompt"
+              label="System Prompt"
+              placeholder="Instruções gerais para o agente..."
+              [rows]="6"
+              dataTest="agent-system-prompt"
+            />
+            <p class="text-xs text-neutral-500 -mt-4">
+              Defina o comportamento padrão do agente. Deixe em branco para usar o prompt global.
+            </p>
+
+            <!-- Active Toggle -->
+            <af-switch-input [control]="form.controls.is_active" label="Agente ativo" />
+
+            <!-- Actions -->
+            <div
+              class="flex items-center justify-between pt-4 border-t border-neutral-200 dark:border-neutral-700"
+            >
+              <af-button variant="ghost" size="sm" type="button" (click)="goBack()">
+                <lucide-icon name="arrow-left" [size]="16" class="block" />
+                Voltar
+              </af-button>
+
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                type="submit"
+                [loading]="isSaving()"
+                [disabled]="form.invalid"
+              >
+                <lucide-icon name="save" [size]="16" class="block" />
+                {{ isEditMode() ? 'Atualizar' : 'Criar' }}
+              </af-loading-button>
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  

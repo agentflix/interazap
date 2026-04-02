@@ -1,0 +1,26 @@
+
+    <div class="flex -space-x-2">
+      @for (item of visibleItems(); track item.name) {
+        <div [class]="avatarClasses()">
+          @if (item.src) {
+            <img
+              [src]="item.src"
+              [alt]="item.name"
+              class="w-full h-full object-cover rounded-full"
+            />
+          } @else {
+            <span class="text-xs font-medium text-neutral-700 dark:text-neutral-200">{{
+              initials(item.name)
+            }}</span>
+          }
+        </div>
+      }
+      @if (overflowCount() > 0) {
+        <div [class]="avatarClasses() + ' bg-neutral-200 dark:bg-neutral-700'">
+          <span class="text-xs font-medium text-neutral-600 dark:text-neutral-300"
+            >+{{ overflowCount() }}</span
+          >
+        </div>
+      }
+    </div>
+  

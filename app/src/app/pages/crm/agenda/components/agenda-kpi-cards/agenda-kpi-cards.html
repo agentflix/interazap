@@ -1,0 +1,23 @@
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      @for (card of cards(); track card.label) {
+        <af-card>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-neutral-500 dark:text-neutral-400">{{ card.label }}</span>
+            <span
+              class="size-9 rounded-lg flex items-center justify-center"
+              [class]="card.iconClass"
+            >
+              <lucide-icon [name]="card.icon" [size]="16" class="block" />
+            </span>
+          </div>
+          <div>
+            <div class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
+              {{ card.value | number: '1.0-0' }}
+            </div>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{{ card.subtitle }}</p>
+          </div>
+        </af-card>
+      }
+    </div>
+  

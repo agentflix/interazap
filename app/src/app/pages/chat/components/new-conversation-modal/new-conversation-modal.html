@@ -1,0 +1,112 @@
+<app-modal title="Iniciar atendimento" [isOpen]="isOpen()" (closed)="close()" size="md">
+  <div modal-body class="space-y-4">
+    <!-- Instâncias: erro ou vazio -->
+    @if (instancesError()) {
+      <p class="text-sm text-danger">{{ instancesError() }}</p>
+    } @else if (showInstanceEmptyState()) {
+      <div
+        class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-400"
+      >
+        <span class="font-bold">Atenção:</span> Nenhuma conexão de WhatsApp está conectada no
+        momento.
+      </div>
+    }
+
+    <!-- Busca de contato -->
+    <div>
+      <app-text-input
+        label="Contato"
+        [control]="contactSearchControl"
+        placeholder="Buscar contato por nome ou telefone"
+        [spacing]="false"
+        [classInput]="'mt-2 w-full'"
+      />
+
+      <af-scroll-area
+        class="mt-2 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-700"
+        maxHeight="12rem"
+      >
+        @if (!isContactSearchReady()) {
+          <div class="py-4 text-center text-sm text-neutral-500">
+            Digite pelo menos 3 caracteres para buscar contatos.
+          </div>
+        } @else if (isLoadingContacts()) {
+          <div class="py-4 text-center text-sm text-neutral-500">Carregando contatos...</div>
+        } @else if (contacts().length === 0) {
+          <div class="py-4 text-center text-sm text-neutral-500">Nenhum contato encontrado.</div>
+        } @else {
+          @for (contact of contacts(); track contact.id) {
+            <button
+              type="button"
+              class="w-full px-3 py-2 text-left transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              [class.bg-neutral-100]="selectedContactId() === contact.id + ''"
+              [class.dark:bg-neutral-800]="selectedContactId() === contact.id + ''"
+              (click)="selectContact(contact.id)"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+                    {{ contact.name || 'Sem nome' }}
+                  </p>
+                  <p class="truncate text-xs text-neutral-500">
+                    {{ contact.phone || contact.whatsapp || contact.email || 'Sem telefone' }}
+                  </p>
+                </div>
+                @if (selectedContactId() === contact.id + '') {
+                  <span class="shrink-0 text-xs font-semibold text-success">Selecionado</span>
+                }
+              </div>
+            </button>
+          }
+        }
+      </af-scroll-area>
+    </div>
+
+    <!-- Seleção de instância (somente quando há mais de uma) -->
+    @if (shouldDisplayInstanceSelect()) {
+      <div>
+        <app-select-input
+          label="Conexão (WhatsApp)"
+          [control]="instanceControl"
+          [options]="instanceOptions()"
+          placeholder="Selecione a conexão"
+          [spacing]="false"
+          [classSelect]="'mt-2'"
+        />
+        @if (requiresInstanceSelection()) {
+          <p class="mt-2 text-xs text-warning">Selecione uma instância conectada para continuar.</p>
+        }
+      </div>
+    }
+
+    <!-- Mensagem inicial -->
+    <div>
+      <app-textarea-input
+        label="Mensagem inicial"
+        [control]="startMessageControl"
+        placeholder="Digite a mensagem inicial..."
+        [rows]="4"
+        [spacing]="false"
+        [classTextarea]="'mt-2 min-h-28'"
+      />
+    </div>
+
+    <!-- Erro de envio -->
+    @if (startError()) {
+      <p class="text-sm text-danger">{{ startError() }}</p>
+    }
+  </div>
+
+  <div modal-footer class="flex w-full items-center justify-end gap-2">
+    <app-button variant="outline" size="sm" (clicked)="close()">Cancelar</app-button>
+    <app-loading-button
+      variant="primary"
+      size="sm"
+      [loading]="isStarting()"
+      loadingText="Enviando..."
+      (clicked)="startChat()"
+    >
+      Enviar e abrir
+    </app-loading-button>
+  </div>
+</app-modal>

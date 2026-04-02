@@ -1,0 +1,158 @@
+
+    <af-crud-page
+      title="Segmentos"
+      subtitle="Governança IA"
+      createLabel="Novo Segmento"
+      searchPlaceholder="Buscar segmentos..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum segmento encontrado"
+      emptyDescription="Crie segmentos por vertical para personalizar o comportamento da IA."
+      [skeletonColumns]="5"
+      [skeletonRows]="5"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar segmentos"
+            message="Não foi possível carregar os segmentos. Verifique sua conexão e tente novamente."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <div class="flex items-center gap-4 px-4 py-2">
+          <label class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+            <input
+              type="checkbox"
+              [checked]="showDeleted()"
+              (change)="toggleShowDeleted()"
+              class="h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+            />
+            Mostrar inativos
+          </label>
+        </div>
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nome</th>
+              <th>Master</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (segment of segments(); track segment.id) {
+              <tr>
+                <td>
+                  <span class="font-medium text-sm">{{ segment.code }}</span>
+                </td>
+                <td>
+                  <div class="flex flex-col">
+                    <span class="font-medium">{{ segment.name }}</span>
+                    @if (segment.description) {
+                      <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                        {{ segment.description }}
+                      </span>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span
+                    class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-accent-500/10 text-accent-600 dark:text-accent-400"
+                  >
+                    {{ segment.master?.name || 'Sem master' }}
+                  </span>
+                </td>
+                <td>
+                  <af-status-badge [status]="segment.is_active ? 'online' : 'offline'">
+                    {{ segment.is_active ? 'Ativo' : 'Inativo' }}
+                  </af-status-badge>
+                </td>
+                <td>
+                  <div class="flex justify-end items-center gap-1">
+                    @if (segment.deleted_at) {
+                      <af-icon-button
+                        label="Restaurar segmento"
+                        variant="ghost"
+                        size="sm"
+                        (click)="handleRestore(segment)"
+                      >
+                        <lucide-icon name="power" [size]="14" />
+                      </af-icon-button>
+                    } @else if (!segment.is_general) {
+                      <af-table-actions (edit)="openEdit(segment)" (delete)="openDelete(segment)" />
+                    } @else {
+                      <af-icon-button
+                        label="Editar segmento"
+                        variant="ghost"
+                        size="sm"
+                        (click)="openEdit(segment)"
+                      >
+                        <lucide-icon name="pencil" [size]="14" />
+                      </af-icon-button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <!-- Create / Edit Modal -->
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="lg"
+      (closed)="handleFormCancelled()"
+    >
+      <app-prompt-segment-form
+        #segmentForm
+        [segment]="selectedSegment()"
+        [masterOptions]="masterOptions()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="segmentFormRef()?.cancel()">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="segmentFormRef()?.isSaving() ?? false"
+          [disabled]="(segmentFormRef()?.hasValidData() ?? false) === false"
+          (click)="segmentFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Delete Confirmation -->
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      title="Desativar segmento"
+      [message]="deleteMessage()"
+      confirmLabel="Desativar"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+  

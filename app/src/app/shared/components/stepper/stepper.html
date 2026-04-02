@@ -1,0 +1,51 @@
+
+    <div class="flex items-center gap-2">
+      @for (step of steps(); track step.label; let i = $index; let last = $last) {
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2">
+            <div
+              class="flex items-center justify-center size-8 rounded-full text-xs font-bold shrink-0 transition-colors"
+              [class.bg-accent-500]="i < currentStep()"
+              [class.text-white]="i < currentStep()"
+              [class.bg-accent-100]="i === currentStep()"
+              [class.dark:bg-accent-900]="i === currentStep()"
+              [class.text-accent-600]="i === currentStep()"
+              [class.dark:text-accent-400]="i === currentStep()"
+              [class.border-2]="i === currentStep()"
+              [class.border-accent-500]="i === currentStep()"
+              [class.bg-neutral-200]="i > currentStep()"
+              [class.dark:bg-neutral-700]="i > currentStep()"
+              [class.text-neutral-500]="i > currentStep()"
+            >
+              @if (i < currentStep()) {
+                <lucide-icon name="check" [size]="14" />
+              } @else {
+                {{ i + 1 }}
+              }
+            </div>
+            <div class="hidden sm:block">
+              <p
+                class="text-sm font-medium"
+                [class.text-neutral-900]="i <= currentStep()"
+                [class.dark:text-neutral-50]="i <= currentStep()"
+                [class.text-neutral-400]="i > currentStep()"
+              >
+                {{ step.label }}
+              </p>
+              @if (step.description) {
+                <p class="text-xs text-neutral-400 dark:text-neutral-500">{{ step.description }}</p>
+              }
+            </div>
+          </div>
+          @if (!last) {
+            <div
+              class="w-8 sm:w-16 h-0.5 mx-1"
+              [class.bg-accent-500]="i < currentStep()"
+              [class.bg-neutral-200]="i >= currentStep()"
+              [class.dark:bg-neutral-700]="i >= currentStep()"
+            ></div>
+          }
+        </div>
+      }
+    </div>
+  

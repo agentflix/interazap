@@ -1,0 +1,113 @@
+
+    <app-auth-page-wrapper
+      title="Bem-vindo de volta"
+      subtitle="Faça login para continuar gerenciando automações, dados e times com segurança."
+      eyebrow="Entrar"
+      highlight="Autenticação segura e controle por organização"
+    >
+      @if (message()) {
+        <div class="mb-6">
+          <af-alert variant="danger" [message]="message() ?? ''" />
+        </div>
+      }
+
+      @if (hasTwoFactorChallenge()) {
+        <div class="mb-6">
+          <af-alert
+            variant="warning"
+            [message]="
+              'Digite o código do autenticador para continuar com ' +
+              (twoFactorPendingEmail() ?? '')
+            "
+          />
+        </div>
+      }
+
+      <form class="w-full" [formGroup]="form" (ngSubmit)="submit()">
+        <!-- Honeypot fields — browsers autofill these hidden fields instead of the real ones -->
+        <input
+          type="email"
+          name="email"
+          tabindex="-1"
+          autocomplete="off"
+          class="absolute opacity-0 pointer-events-none"
+          style="position:absolute;left:-9999px"
+        />
+        <input
+          type="password"
+          name="password"
+          tabindex="-1"
+          autocomplete="off"
+          class="absolute opacity-0 pointer-events-none"
+          style="position:absolute;left:-9999px"
+        />
+
+        @if (!hasTwoFactorChallenge()) {
+          <af-text-input
+            [control]="form.controls.email"
+            label="E-mail"
+            type="email"
+            placeholder="seu@email.com"
+            [required]="true"
+            [errorMessage]="emailErrorMessage()"
+            dataTest="login-email"
+            autocomplete="off"
+          />
+
+          <div class="mb-2 flex justify-end">
+            <a routerLink="/auth/reset-password" class="text-primary-500 font-medium text-sm">
+              Esqueceu a senha?
+            </a>
+          </div>
+          <af-password-input
+            [control]="form.controls.password"
+            label="Senha"
+            placeholder="********"
+            [required]="true"
+            [errorMessage]="passwordErrorMessage()"
+            dataTest="login-password"
+            autocomplete="off"
+          />
+
+          <div class="mb-4">
+            <af-checkbox-input [control]="form.controls.remember" label="Lembrar de mim" />
+          </div>
+        } @else {
+          <af-otp-input
+            [length]="6"
+            label="Código de verificação"
+            [disabled]="isLoading()"
+            (completed)="onTwoFactorCodeCompleted($event)"
+          />
+          <p class="mt-3 text-sm text-neutral-500 dark:text-neutral-300">
+            Digite os 6 números do app autenticador.
+          </p>
+          <div class="mt-4">
+            <af-button
+              variant="outline"
+              size="md"
+              type="button"
+              [disabled]="isLoading()"
+              [block]="true"
+              (clicked)="cancelTwoFactorChallenge()"
+            >
+              Voltar ao login
+            </af-button>
+          </div>
+        }
+
+        <div class="mt-9 text-center">
+          <af-loading-button
+            variant="primary"
+            size="md"
+            type="submit"
+            [loading]="isLoading()"
+            [disabled]="isSubmitDisabled()"
+            [block]="true"
+          >
+            {{ hasTwoFactorChallenge() ? 'Validar código' : 'Entrar' }}
+          </af-loading-button>
+        </div>
+      </form>
+    </app-auth-page-wrapper>
+  

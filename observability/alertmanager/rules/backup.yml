@@ -1,0 +1,10 @@
+groups:
+  - name: backup
+    rules:
+      - alert: BackupMissing
+        expr: time() - backup_last_success_timestamp > 86400
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database backup not completed in 24 hours"

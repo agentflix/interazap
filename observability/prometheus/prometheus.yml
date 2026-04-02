@@ -1,0 +1,35 @@
+global:
+    scrape_interval: 15s
+    evaluation_interval: 15s
+
+alerting:
+    alertmanagers:
+        - static_configs:
+              - targets:
+                    - alertmanager:9093
+
+rule_files:
+    - /etc/prometheus/alert_rules.yml
+
+scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+          - targets: ['localhost:9090']
+
+    - job_name: 'api'
+      metrics_path: '/api/metrics'
+      static_configs:
+          - targets: ['127.0.0.1:9501']
+      relabel_configs:
+          - source_labels: [__address__]
+            target_label: instance
+            replacement: 'agentflix-api'
+
+    - job_name: 'gateway'
+      metrics_path: '/metrics'
+      static_configs:
+          - targets: ['127.0.0.1:6002']
+      relabel_configs:
+          - source_labels: [__address__]
+            target_label: instance
+            replacement: 'agentflix-gateway'

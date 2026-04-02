@@ -1,0 +1,13 @@
+
+    <section
+      class="w-full h-full border-e border-neutral-200 dark:border-neutral-800 rounded flex flex-col min-h-0 self-stretch"
+    >
+      <ng-content select="[conversation-header]"></ng-content>
+
+      <div class="flex-1 min-h-0 overflow-hidden">
+        <ng-content select="[conversation-messages]"></ng-content>
+      </div>
+
+      <ng-content select="[conversation-composer]"></ng-content>
+    </section>
+  

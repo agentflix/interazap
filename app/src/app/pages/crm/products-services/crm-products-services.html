@@ -1,0 +1,298 @@
+
+    <af-crud-page
+      title="Produtos e Serviços"
+      subtitle="CRM"
+      createLabel="Novo Produto ou Serviço"
+      searchPlaceholder="Buscar por..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum produto/serviço encontrado"
+      emptyDescription="Comece adicionando seu primeiro item ao catálogo."
+      [skeletonColumns]="6"
+      [skeletonRows]="6"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      <div filters class="flex items-center gap-2">
+        <div class="min-w-40">
+          <af-select-input
+            [control]="filterStatusControl"
+            [options]="filterStatusOptions"
+            size="sm"
+            classContainer=""
+            dataTest="product-filter-status"
+          />
+        </div>
+        <div class="min-w-40">
+          <af-select-input
+            [control]="filterTypeControl"
+            [options]="filterTypeOptions"
+            size="sm"
+            classContainer=""
+            dataTest="product-filter-type"
+          />
+        </div>
+        @if (hasSelection()) {
+          <af-button variant="danger" size="sm" (click)="openBulkDelete()">
+            Excluir selecionados ({{ selectedCount() }})
+          </af-button>
+        }
+      </div>
+
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar produtos"
+            message="Não foi possível carregar os produtos. Verifique sua conexão e tente novamente."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th class="w-10">
+                <af-checkbox-input
+                  [control]="selectAllControl"
+                  ariaLabel="Selecionar todos os itens"
+                  dataTest="products-select-all"
+                />
+              </th>
+              <th
+                afSortableHeader
+                label="Nome"
+                field="name"
+                [currentField]="sortBy()"
+                [currentDir]="sortDir()"
+                (sortChange)="onSort($event)"
+              ></th>
+              <th>Código</th>
+              <th>Tipo</th>
+              <th>Preço</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>
+                  <af-checkbox-input
+                    [control]="getRowSelectionControl(item.id)"
+                    [ariaLabel]="'Selecionar ' + item.name"
+                    [dataTest]="'product-select-' + item.id"
+                  />
+                </td>
+                <td>
+                  <div class="flex flex-col">
+                    <span class="font-medium">{{ item.name }}</span>
+                    @if (item.description) {
+                      <span class="text-xs text-neutral-500 line-clamp-1">{{
+                        item.description
+                      }}</span>
+                    }
+                  </div>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ item.code || '—' }}
+                </td>
+                <td>
+                  <span
+                    class="inline-flex items-center gap-x-1.5 py-0.5 px-2.5 rounded text-xs font-medium border"
+                    [class]="
+                      item.type === 'product'
+                        ? 'bg-blue-500/10 text-blue-600 border-blue-500/30'
+                        : 'bg-purple-500/10 text-purple-600 border-purple-500/30'
+                    "
+                  >
+                    {{ item.type === 'product' ? 'Produto' : 'Serviço' }}
+                  </span>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{
+                    item.price !== null && item.price !== undefined
+                      ? formatCurrency(item.price)
+                      : '—'
+                  }}
+                </td>
+                <td>
+                  <af-status-badge [status]="item.is_active ? 'online' : 'offline'">
+                    {{ item.is_active ? 'Ativo' : 'Inativo' }}
+                  </af-status-badge>
+                </td>
+                <td>
+                  <div class="flex justify-end gap-1">
+                    <af-icon-button
+                      label="Ver detalhes"
+                      variant="ghost"
+                      size="sm"
+                      (click)="openDetails(item)"
+                    >
+                      <lucide-icon name="eye" [size]="14" />
+                    </af-icon-button>
+                    <af-table-actions (edit)="openEdit(item)" (delete)="openDelete(item)" />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <!-- Create / Edit modal -->
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="lg"
+      (closed)="handleFormCancelled()"
+    >
+      <app-product-service-form
+        #productForm
+        [item]="selectedItem()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="productFormRef()?.cancel()">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isFormSaving()"
+          (click)="productFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Delete confirmation -->
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      [title]="deleteModalTitle()"
+      [message]="deleteMessage()"
+      [confirmLabel]="deleteConfirmLabel()"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+
+    <!-- Detail side-panel -->
+    <div
+      class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-neutral-700 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-md w-full z-80 overflow-hidden"
+      [class.hidden]="!isDetailsOpen()"
+      [class.flex]="isDetailsOpen()"
+      [class.translate-x-full]="!isDetailsOpen()"
+      [class.translate-x-0]="isDetailsOpen()"
+      role="dialog"
+      tabindex="-1"
+      aria-label="Detalhes do produto/serviço"
+      [attr.aria-hidden]="!isDetailsOpen()"
+    >
+      <div
+        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-dashed border-neutral-200 dark:border-neutral-700 px-6 gap-3"
+      >
+        <h5 class="text-base grow">Detalhes do produto/serviço</h5>
+        <af-button variant="ghost" size="sm" (click)="closeDetails()">Fechar</af-button>
+      </div>
+      <af-scroll-area class="h-full grow" maxHeight="100%">
+        <div class="p-6 space-y-4">
+          @if (detailItem()) {
+            <div>
+              <p class="text-xs text-neutral-500">Nome</p>
+              <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                {{ detailItem()!.name || '—' }}
+              </p>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p class="text-xs text-neutral-500">Código</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailItem()!.code || '—' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-neutral-500">Tipo</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailItem()!.type === 'product' ? 'Produto' : 'Serviço' }}
+                </p>
+              </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p class="text-xs text-neutral-500">Preço</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{
+                    detailItem()!.price !== null && detailItem()!.price !== undefined
+                      ? formatCurrency(detailItem()!.price!)
+                      : '—'
+                  }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-neutral-500">Custo</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{
+                    detailItem()!.cost !== null && detailItem()!.cost !== undefined
+                      ? formatCurrency(detailItem()!.cost!)
+                      : '—'
+                  }}
+                </p>
+              </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p class="text-xs text-neutral-500">Unidade</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailItem()!.unit || '—' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-neutral-500">Status</p>
+                <af-status-badge [status]="detailItem()!.is_active ? 'online' : 'offline'">
+                  {{ detailItem()!.is_active ? 'Ativo' : 'Inativo' }}
+                </af-status-badge>
+              </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p class="text-xs text-neutral-500">Estoque</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailItem()!.stock_quantity ?? '—' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-neutral-500">Estoque mínimo</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {{ detailItem()!.min_stock ?? '—' }}
+                </p>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-neutral-500">Descrição</p>
+              <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                {{ detailItem()!.description || '—' }}
+              </p>
+            </div>
+          } @else {
+            <div class="text-sm text-neutral-500">
+              Selecione um produto/serviço para ver os detalhes.
+            </div>
+          }
+        </div>
+      </af-scroll-area>
+    </div>
+  

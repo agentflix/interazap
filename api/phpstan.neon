@@ -1,0 +1,118 @@
+includes:
+  - vendor/larastan/larastan/extension.neon
+  - vendor/phpstan/phpstan-mockery/extension.neon
+
+parameters:
+  level: 6
+  treatPhpDocTypesAsCertain: false
+  paths:
+    - app
+    - config
+    - database
+    - routes
+    - src
+  bootstrapFiles:
+    - vendor/autoload.php
+  excludePaths:
+    - bootstrap/cache
+    - storage
+    - vendor
+  universalObjectCratesClasses:
+    - Illuminate\Database\Eloquent\Model
+    - Illuminate\Database\Eloquent\Collection
+    - Illuminate\Http\Resources\Json\JsonResource
+  reportUnmatchedIgnoredErrors: false
+  checkMissingTypehints: false
+  parallel:
+    maximumNumberOfProcesses: 0
+  ignoreErrors:
+    - message: '#Class App\\Http\\Middleware\\EncryptCookies not found#'
+      paths:
+        - config/sanctum.php
+    - message: '#Class App\\Http\\Middleware\\VerifyCsrfToken not found#'
+      paths:
+        - config/sanctum.php
+    - message: '#return type has no value type specified in iterable type array#'
+      paths:
+        - src/Domain/*/Http/Requests/*
+    - message: '#return type with generic class .*LengthAwarePaginator does not specify its types#'
+      paths:
+        - src/Domain/*/Actions/*
+        - src/Domain/*/Repositories/*
+    - message: '#return type with generic class .*BelongsTo does not specify its types#'
+      paths:
+        - src/Domain/*/Models/*
+    - message: '#return type with generic class .*Collection does not specify its types#'
+      paths:
+        - src/Domain/*/Actions/*
+        - src/Domain/*/Models/*
+    - message: '#return type with generic class .*BelongsToMany does not specify its types#'
+      paths:
+        - src/Domain/*/Models/*
+    - message: '#return type with generic class .*HasMany does not specify its types#'
+      paths:
+        - src/Domain/*/Models/*
+    - message: '#return type with generic class .*HasOne does not specify its types#'
+      paths:
+        - src/Domain/*/Models/*
+    - message: '#return type with generic class .*MorphMany does not specify its types#'
+      paths:
+        - src/Domain/*/Models/*
+    - message: '#return type with generic class .*MorphTo does not specify its types#'
+      paths:
+        - src/Domain/*/Models/*
+    - message: '#has no value type specified in iterable type array#'
+      paths:
+        - src/Domain/*/DTOs/*
+        - src/Domain/*/Actions/*
+        - src/Domain/*/Services/*
+        - app/Console/Commands/*
+    - message: '#missingType\\.parameter#'
+      paths:
+        - src/Domain/*/Models/*
+    - message: '#missingType\\.return#'
+      paths:
+        - src/Domain/*/Models/*
+    # Ignore placeholder dependencies in AiPostSaleFollowUpJob (implementation in progress)
+    - message: '#invalid type.*WhatsAppAdapterInterface#'
+      paths:
+        - src/Domain/Ai/Jobs/AiPostSaleFollowUpJob.php
+    - message: '#unknown class.*WhatsAppAdapterInterface#'
+      paths:
+        - src/Domain/Ai/Jobs/AiPostSaleFollowUpJob.php
+    - message: '#unknown class.*NegotiationStatus#'
+      paths:
+        - src/Domain/Ai/Jobs/AiPostSaleFollowUpJob.php
+    - message: '#Call to an undefined method.*chatInstances#'
+      paths:
+        - src/Domain/Ai/Jobs/AiPostSaleFollowUpJob.php
+    - message: '#Using nullsafe property access.*on left side of \?\? is unnecessary#'
+      paths:
+        - src/Domain/Ai/Jobs/AiPostSaleFollowUpJob.php
+    # PHPStan false positives with Sanctum token checks (runtime types differ from static analysis)
+    - message: '#Strict comparison using === between Laravel\\Sanctum\\PersonalAccessToken and null will always evaluate to false#'
+      paths:
+        - src/Domain/*/Http/Controllers/*
+        - src/Domain/*/Http/Requests/*
+        - src/Domain/*/Models/*
+        - src/Domain/*/Policies/*
+    - message: '#Call to function method_exists\(\) with .* and .currentAccessToken. will always evaluate to true#'
+      paths:
+        - src/Domain/*/Http/Requests/*
+        - src/Domain/*/Policies/*
+    - message: '#Instanceof between Laravel\\Sanctum\\PersonalAccessToken and Laravel\\Sanctum\\TransientToken will always evaluate to false#'
+      paths:
+        - src/Domain/*/Http/Requests/*
+        - src/Domain/*/Policies/*
+    - message: '#Result of \|\| is always false#'
+      paths:
+        - src/Domain/*/Http/Requests/*
+        - src/Domain/*/Policies/*
+    # Generics in DTOs - known limitation
+    - message: '#has parameter .* with generic class .* but does not specify its types#'
+      paths:
+        - src/Domain/*/DTOs/*
+    # Collection loadMissing - dynamic method resolution
+    - message: '#Call to an undefined method Illuminate\\Support\\Collection.*::loadMissing#'
+      paths:
+        - src/Domain/*/Http/Controllers/*

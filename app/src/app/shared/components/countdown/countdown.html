@@ -1,0 +1,20 @@
+
+    <div class="inline-flex items-center gap-1.5">
+      @for (unit of displayUnits(); track unit.label) {
+        <div class="flex flex-col items-center">
+          <span
+            class="text-2xl font-bold tabular-nums text-neutral-900 dark:text-neutral-50
+            bg-neutral-100 dark:bg-neutral-800 rounded-lg px-3 py-2 min-w-[3rem] text-center"
+          >
+            {{ unit.value | number: '2.0-0' }}
+          </span>
+          <span class="text-[10px] uppercase tracking-wider text-neutral-400 mt-1">{{
+            unit.label
+          }}</span>
+        </div>
+        @if (!$last) {
+          <span class="text-xl font-bold text-neutral-400 mt-[-1rem]">:</span>
+        }
+      }
+    </div>
+  

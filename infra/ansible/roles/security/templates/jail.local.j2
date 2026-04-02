@@ -1,0 +1,49 @@
+# =====================================================
+# Fail2Ban - jail.local
+# Autor: DevOps Agentflix
+# =====================================================
+
+[DEFAULT]
+
+# Tempo de banimento em segundos (1 hora)
+bantime = 3600
+
+# Janela de busca em segundos (10 minutos)
+findtime = 600
+
+# Máximo de tentativas
+maxretry = 5
+
+# Não banir IPs especificados
+ignoreip = 127.0.0.1/8 10.0.0.0/8 192.168.0.0/16
+
+[sshd]
+enabled = true
+port = {{ ssh_port | default(22) }}
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+bantime = 86400
+findtime = 3600
+
+[sshd-ddos]
+enabled = true
+port = {{ ssh_port | default(22) }}
+filter = sshd-ddos
+logpath = /var/log/auth.log
+maxretry = 10
+bantime = 7200
+
+[nginx-http-auth]
+enabled = true
+port = 80,443
+filter = nginx-http-auth
+logpath = /var/log/nginx/error.log
+maxretry = 5
+
+[nginx-noscript]
+enabled = true
+port = 80,443
+filter = nginx-noscript
+logpath = /var/log/nginx/error.log
+maxretry = 3

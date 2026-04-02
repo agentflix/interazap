@@ -1,0 +1,39 @@
+
+    <af-modal
+      [open]="resolvedOpen()"
+      [title]="title()"
+      size="sm"
+      [showClose]="false"
+      (closed)="onCancel()"
+    >
+      <div>
+        <!-- Icon -->
+        <div
+          class="mx-auto flex items-center justify-center size-12 rounded-full mb-4"
+          [class]="iconBgClass"
+        >
+          <span aria-hidden="true" class="text-xl font-semibold" [class]="iconColorClass">!</span>
+        </div>
+
+        <!-- Message -->
+        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+          {{ message() }}
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div footer class="flex justify-end gap-3">
+        <af-button variant="ghost" size="sm" (click)="onCancel()">
+          {{ cancelLabel() }}
+        </af-button>
+        <af-button
+          [variant]="variant() === 'danger' ? 'danger' : 'primary'"
+          size="sm"
+          [disabled]="isLoading()"
+          (click)="onConfirm()"
+        >
+          {{ confirmLabel() }}
+        </af-button>
+      </div>
+    </af-modal>
+  

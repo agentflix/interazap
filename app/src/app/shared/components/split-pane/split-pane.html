@@ -1,0 +1,11 @@
+
+    <div [class]="wrapperClasses()">
+      <div [style.flex]="'0 0 ' + splitRatio() + '%'" class="overflow-auto">
+        <ng-content select="[left]" />
+      </div>
+      <div class="shrink-0" [class]="dividerClasses()"></div>
+      <div class="flex-1 overflow-auto">
+        <ng-content select="[right]" />
+      </div>
+    </div>
+  

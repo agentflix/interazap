@@ -1,0 +1,57 @@
+
+    <af-card [padded]="false" [fullHeight]="true">
+      <div header class="px-5 pt-4 pb-0">
+        <div class="flex items-center justify-between w-full">
+          <h6 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Tickets</h6>
+          <div class="text-xs text-neutral-500 dark:text-neutral-400">
+            SLA {{ stats().sla_compliance_rate | number: '1.0-0' }}% · 1ª resposta
+            {{ stats().avg_first_response_minutes | number: '1.0-0' }}min
+          </div>
+        </div>
+      </div>
+      <div class="px-5 py-4">
+        @if (hasData()) {
+          <af-apexchart
+            type="line"
+            [series]="series()"
+            [categories]="categories()"
+            [colors]="['#2b7fff']"
+            [extraOptions]="chartOptions"
+            height="260"
+          />
+        } @else {
+          <af-empty-state
+            title="Sem dados"
+            description="Nenhum dado encontrado para o período selecionado"
+          />
+        }
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+          <div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2">
+            <div class="text-xs text-neutral-500 dark:text-neutral-400">Baixa</div>
+            <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              {{ stats().by_priority.low }}
+            </div>
+          </div>
+          <div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2">
+            <div class="text-xs text-neutral-500 dark:text-neutral-400">Normal</div>
+            <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              {{ stats().by_priority.normal }}
+            </div>
+          </div>
+          <div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2">
+            <div class="text-xs text-neutral-500 dark:text-neutral-400">Alta</div>
+            <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              {{ stats().by_priority.high }}
+            </div>
+          </div>
+          <div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2">
+            <div class="text-xs text-neutral-500 dark:text-neutral-400">Urgente</div>
+            <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              {{ stats().by_priority.urgent }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </af-card>
+  

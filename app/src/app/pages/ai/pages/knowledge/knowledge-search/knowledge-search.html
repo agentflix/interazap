@@ -1,0 +1,80 @@
+
+    <af-page-title title="Pesquisa" subtitle="Inteligência Artificial" />
+
+    <div
+      class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 mb-4"
+    >
+      <div class="flex flex-col gap-2 md:flex-row md:items-center">
+        <div class="flex-1">
+          <af-search-input
+            [control]="semanticQuery"
+            [spacing]="false"
+            placeholder="Busca semântica na base de conhecimento"
+            dataTest="knowledge-semantic-search"
+          />
+        </div>
+        <div
+          class="inline-flex items-center rounded-lg border border-neutral-200 dark:border-neutral-700 p-1"
+        >
+          <button
+            type="button"
+            class="px-3 py-1.5 text-xs font-medium rounded-md transition"
+            [class.bg-accent-500]="searchMode() === 'vector'"
+            [class.text-white]="searchMode() === 'vector'"
+            [class.text-neutral-600]="searchMode() !== 'vector'"
+            [class.dark:text-neutral-300]="searchMode() !== 'vector'"
+            (click)="searchMode.set('vector')"
+          >
+            Vector
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 text-xs font-medium rounded-md transition"
+            [class.bg-accent-500]="searchMode() === 'hybrid'"
+            [class.text-white]="searchMode() === 'hybrid'"
+            [class.text-neutral-600]="searchMode() !== 'hybrid'"
+            [class.dark:text-neutral-300]="searchMode() !== 'hybrid'"
+            (click)="searchMode.set('hybrid')"
+          >
+            Hybrid
+          </button>
+        </div>
+        <af-button
+          variant="primary"
+          size="md"
+          [disabled]="semanticLoading()"
+          (click)="runSemanticSearch()"
+        >
+          <lucide-icon name="search" [size]="16" class="block" />
+          Buscar
+        </af-button>
+      </div>
+
+      @if (semanticLoading()) {
+        <p class="text-sm text-neutral-500 mt-4">Buscando...</p>
+      } @else if (semanticResults().length > 0) {
+        <div class="space-y-2 mt-4">
+          @for (result of semanticResults(); track result.chunk_id) {
+            <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  {{ result.document_name }}
+                </p>
+                <span class="text-xs text-neutral-500 font-medium">
+                  {{ result.relevance_percent }}%
+                </span>
+              </div>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">
+                {{ result.content }}
+              </p>
+            </div>
+          }
+        </div>
+      } @else if (semanticSearched()) {
+        <af-empty-state
+          title="Sem resultados"
+          description="Nenhum resultado encontrado para sua busca"
+        />
+      }
+    </div>
+  

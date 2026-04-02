@@ -1,0 +1,65 @@
+
+    <div
+      class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4"
+    >
+      <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">
+        Estatísticas de uso
+      </h3>
+
+      <div class="space-y-3 text-sm">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-neutral-700 dark:text-neutral-300">Usuários</span>
+            <span class="text-neutral-500 dark:text-neutral-400">
+              {{ usage().users.current }}/{{ usage().users.limit ?? '∞' }}
+            </span>
+          </div>
+          <div class="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-primary-500"
+              [style.width.%]="usage().users.percentage ?? 0"
+            ></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-neutral-700 dark:text-neutral-300">Instâncias</span>
+            <span class="text-neutral-500 dark:text-neutral-400">
+              {{ usage().instances.current }}/{{ usage().instances.limit ?? '∞' }}
+            </span>
+          </div>
+          <div class="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-accent-500"
+              [style.width.%]="usage().instances.percentage ?? 0"
+            ></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-neutral-700 dark:text-neutral-300">Storage</span>
+            <span class="text-neutral-500 dark:text-neutral-400">
+              {{ usage().storage.used_formatted }}/{{ usage().storage.limit_formatted }}
+            </span>
+          </div>
+          <div class="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+            <div class="h-full bg-warning" [style.width.%]="usage().storage.percentage ?? 0"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-neutral-700 dark:text-neutral-300">
+          <span>Negociações</span>
+          <span>
+            {{ usage().negotiations.current }}
+            @if (usage().negotiations.limit !== null) {
+              /{{ usage().negotiations.limit }}
+            } @else {
+              /∞
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+  

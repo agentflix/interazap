@@ -1,0 +1,24 @@
+
+    <div class="inline-flex items-center gap-1">
+      @for (locale of locales(); track locale.code) {
+        <button
+          type="button"
+          class="px-2 py-1 text-xs font-medium rounded transition-colors cursor-pointer"
+          [class.bg-accent-100]="current() === locale.code"
+          [class.dark:bg-accent-900]="current() === locale.code"
+          [class.text-accent-700]="current() === locale.code"
+          [class.dark:text-accent-300]="current() === locale.code"
+          [class.text-neutral-500]="current() !== locale.code"
+          [class.hover:bg-neutral-100]="current() !== locale.code"
+          [class.dark:hover:bg-neutral-800]="current() !== locale.code"
+          [title]="locale.label"
+          (click)="localeChange.emit(locale.code)"
+        >
+          @if (locale.flag) {
+            <span class="mr-1">{{ locale.flag }}</span>
+          }
+          {{ locale.code.toUpperCase() }}
+        </button>
+      }
+    </div>
+  

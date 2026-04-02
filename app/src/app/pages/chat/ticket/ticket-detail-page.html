@@ -1,0 +1,90 @@
+
+    <div class="space-y-6">
+      <!-- Header -->
+      <af-page-title [title]="pageTitle()" subtitle="Tickets">
+        <div class="flex items-center gap-2">
+          <af-button variant="outline" size="sm" (click)="goBack()">
+            <lucide-icon name="arrow-left" [size]="14" class="block" />
+            Voltar
+          </af-button>
+          @if (ticket()?.status !== 'closed') {
+            <af-button variant="danger" size="sm" (click)="openForceClose()">
+              <lucide-icon name="x-circle" [size]="14" class="block" />
+              Encerrar forçado
+            </af-button>
+          }
+        </div>
+      </af-page-title>
+
+      @if (isLoading()) {
+        <div class="flex items-center justify-center p-12">
+          <lucide-icon name="loader-2" [size]="24" class="animate-spin text-neutral-400" />
+        </div>
+      } @else if (hasError()) {
+        <af-alert
+          variant="danger"
+          title="Erro ao carregar atendimento"
+          message="Não foi possível carregar os detalhes do atendimento."
+        />
+      } @else if (ticket()) {
+        <div class="grid grid-cols-1 lg:grid-cols-[30%_70%] gap-6">
+          <div class="space-y-6">
+            <!-- Ticket info -->
+            <div
+              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-5 space-y-4"
+            >
+              <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Informações do Atendimento
+              </h3>
+              <af-description-list [items]="ticketInfoItems()" />
+            </div>
+
+            <!-- Metrics + Evaluation -->
+            <div
+              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-5 space-y-4"
+            >
+              <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Métricas e Avaliação
+              </h3>
+              <af-description-list [items]="metricsItems()" />
+            </div>
+          </div>
+
+          <!-- Message history (chat-like, read-only) -->
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+          >
+            <div class="px-5 py-4 border-b border-neutral-200 dark:border-neutral-700/50">
+              <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Histórico de Mensagens
+              </h3>
+            </div>
+
+            <div class="h-[65vh] bg-neutral-50 dark:bg-neutral-950">
+              <app-user-chat
+                class="block h-full"
+                [ticketId]="currentTicketId()"
+                [allowStartConversation]="false"
+                [canLoadMessages]="true"
+                [readOnlyMode]="true"
+              />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Force close confirmation modal -->
+    <af-confirm-modal
+      [open]="showForceCloseModal()"
+      title="Encerrar atendimento forçado"
+      [message]="forceCloseMsg()"
+      confirmLabel="Encerrar"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="x-circle"
+      [isLoading]="isForceClosing()"
+      (confirmed)="handleForceCloseConfirmed()"
+      (cancelled)="showForceCloseModal.set(false)"
+    />
+  

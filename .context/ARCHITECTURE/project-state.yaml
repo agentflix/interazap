@@ -1,0 +1,34 @@
+version: "1.0.0"
+last_updated: "2026-03-25T12:00:00Z"
+bootstrap_mode: "existing_code"
+overall_status: "in_progress"
+
+completion:
+  docs: 25
+  prds: 9
+  tasks: 9
+
+metrics:
+  prds_count: 1
+  tasks_total: 1
+  tasks_done: 1
+  modules_total: 11
+  modules_done: 0
+
+ai_usage:
+  agents_active: 12
+  skills_available: 31
+
+open_issues:
+  - id: "ISSUE-001"
+    description: "PRDs pendentes para 10 módulos restantes (ver PLAN-001)"
+    priority: "high"
+  - id: "ISSUE-002"
+    description: "Cobertura de testes precisa ser mapeada"
+    priority: "medium"
+  - id: "ISSUE-003"
+    description: "ADRs formais pendentes para decisões arquiteturais existentes"
+    priority: "medium"
+  - id: "ISSUE-004"
+    description: "Documentação de APIs (OpenAPI/Swagger) não gerada"
+    priority: "low"

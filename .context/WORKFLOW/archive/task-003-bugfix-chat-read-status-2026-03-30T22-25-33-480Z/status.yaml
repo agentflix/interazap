@@ -1,0 +1,31 @@
+project:
+  name: "task-003-bugfix-chat-read-status"
+  scale: MEDIUM
+  started: "2026-03-30T22:25:18.765Z"
+  current_phase: P
+
+phases:
+  P:
+    status: in_progress
+    started_at: "2026-03-30T22:25:18.765Z"
+  R:
+    status: pending
+  E:
+    status: pending
+  V:
+    status: pending
+  C:
+    status: skipped
+    reason: "Not required for scale MEDIUM"
+
+execution:
+  history:
+    - timestamp: "2026-03-30T22:25:18.765Z"
+      phase: P
+      action: started
+    - timestamp: "2026-03-30T22:25:18.820Z"
+      phase: C
+      action: phase_skipped
+  last_activity: "2026-03-30T22:25:18.820Z"
+  resume_context: "Fase P (Planejamento) em progresso"
+

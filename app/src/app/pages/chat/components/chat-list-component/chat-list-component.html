@@ -1,0 +1,175 @@
+
+    <aside class="flex flex-col h-full min-h-0 overflow-hidden bg-white dark:bg-neutral-900">
+      <div class="flex items-center justify-between px-4 py-3">
+        <h2 class="text-base font-semibold text-neutral-800 dark:text-neutral-100">Chat</h2>
+
+        <div class="flex items-center gap-1 shrink-0">
+          <app-icon-button
+            [icon]="isSoundMuted() ? 'lucideVolumeX' : 'lucideVolume2'"
+            [variant]="isSoundMuted() ? 'outline' : 'ghost'"
+            size="sm"
+            [ariaLabel]="isSoundMuted() ? 'Ativar som das mensagens' : 'Silenciar mensagens'"
+            (clicked)="toggleSound.emit()"
+          />
+
+          <button
+            type="button"
+            class="size-8 inline-flex items-center justify-center rounded-md transition-colors text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            aria-label="Recarregar atendimentos"
+            (click)="refreshList.emit()"
+          >
+            <ng-icon
+              name="lucideRefreshCw"
+              size="14"
+              [class.animate-spin]="isRefreshing()"
+            ></ng-icon>
+          </button>
+
+          <app-icon-button
+            [icon]="searchTerm() ? 'lucideX' : 'lucideSearch'"
+            [variant]="searchTerm() ? 'outline' : 'ghost'"
+            size="sm"
+            [ariaLabel]="searchTerm() ? 'Limpar pesquisa' : 'Pesquisar atendimentos'"
+            (clicked)="searchTerm() ? clearSearch.emit() : openSearchModal.emit()"
+          />
+
+          <div class="relative shrink-0">
+            <button
+              type="button"
+              class="inline-flex size-8 items-center justify-center rounded-md transition-colors"
+              [class]="
+                isEmergencyMenuOpen()
+                  ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+              "
+              (click)="toggleEmergencyMenu.emit()"
+            >
+              <ng-icon name="lucideFilter" size="14"></ng-icon>
+              @if (emergencyFilter() !== null) {
+                <span class="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-red-500"></span>
+              }
+            </button>
+
+            @if (isEmergencyMenuOpen()) {
+              <button
+                type="button"
+                class="fixed inset-0 z-40"
+                aria-label="Fechar filtro de emergência"
+                (click)="closeEmergencyMenu.emit()"
+              ></button>
+
+              <div
+                class="absolute top-full right-0 mt-1 w-52 z-50 rounded-lg bg-white dark:bg-neutral-900 shadow-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+              >
+                <div class="px-3 pt-3 pb-1">
+                  <div
+                    class="text-[10px] uppercase tracking-wider text-neutral-400 dark:text-neutral-500 font-semibold mb-2"
+                  >
+                    Sentimento
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <button
+                      type="button"
+                      class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded transition-colors"
+                      [class]="
+                        emergencyFilter() === null
+                          ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 font-medium'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                      "
+                      (click)="setEmergencyFilter.emit(null)"
+                    >
+                      <span>Todos</span>
+                      @if (emergencyFilter() === null) {
+                        <ng-icon name="lucideCheck" size="14" class="text-primary"></ng-icon>
+                      }
+                    </button>
+
+                    <button
+                      type="button"
+                      class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded transition-colors"
+                      [class]="
+                        emergencyFilter() === 'critical'
+                          ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 font-medium'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                      "
+                      (click)="setEmergencyFilter.emit('critical')"
+                    >
+                      <span class="flex items-center gap-1.5">
+                        <span class="size-1.5 rounded-full bg-red-500"></span>
+                        Emergência
+                      </span>
+                      @if (emergencyFilter() === 'critical') {
+                        <ng-icon name="lucideCheck" size="14" class="text-red-500"></ng-icon>
+                      }
+                    </button>
+
+                    <button
+                      type="button"
+                      class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded transition-colors"
+                      [class]="
+                        emergencyFilter() === 'negative'
+                          ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-medium'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                      "
+                      (click)="setEmergencyFilter.emit('negative')"
+                    >
+                      <span class="flex items-center gap-1.5">
+                        <span class="size-1.5 rounded-full bg-amber-500"></span>
+                        Atenção
+                      </span>
+                      @if (emergencyFilter() === 'negative') {
+                        <ng-icon name="lucideCheck" size="14" class="text-amber-500"></ng-icon>
+                      }
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <app-icon-button
+            icon="lucidePlus"
+            variant="ghost"
+            size="sm"
+            ariaLabel="Iniciar novo atendimento"
+            (clicked)="openNewConversationModal.emit()"
+          />
+        </div>
+      </div>
+
+      <div class="px-4 pb-3">
+        <af-tabs
+          [tabs]="ticketTabs()"
+          [activeTab]="ticketFilter()"
+          [fullWidth]="true"
+          (tabChange)="setTicketFilter.emit($event)"
+        ></af-tabs>
+      </div>
+
+      <af-scroll-area class="flex-1 min-h-0 w-full" maxHeight="100%">
+        @if (loadingTickets()) {
+          <div class="px-4 py-8 flex justify-center">
+            <div
+              class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"
+            ></div>
+          </div>
+        } @else if (visibleTickets().length === 0) {
+          <p class="px-2 py-12 text-center text-sm text-neutral-500 dark:text-neutral-400">
+            Nenhum chamado encontrado
+          </p>
+        } @else {
+          <ul class="flex flex-col">
+            @for (ticket of visibleTickets(); track ticket.id) {
+              <li>
+                <app-chat-ticket-item
+                  [ticket]="ticket"
+                  [active]="isTicketSelected(ticket.id)"
+                  (selected)="selectTicket.emit(ticket.id)"
+                />
+              </li>
+            }
+          </ul>
+        }
+      </af-scroll-area>
+    </aside>
+  

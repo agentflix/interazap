@@ -1,0 +1,27 @@
+
+    <div class="w-full animate-pulse" role="status" aria-label="Carregando dados...">
+      <!-- Header row -->
+      <div
+        class="flex items-center gap-4 px-4 py-3 border-b border-neutral-200 dark:border-neutral-700"
+      >
+        @for (col of columnsArray(); track col) {
+          <div [class]="columnWidthClass(col)">
+            <af-skeleton variant="text" height="0.75rem" />
+          </div>
+        }
+      </div>
+
+      <!-- Data rows -->
+      @for (row of rowsArray(); track row) {
+        <div
+          class="flex items-center gap-4 px-4 py-3.5 border-b border-neutral-100 dark:border-neutral-800"
+        >
+          @for (col of columnsArray(); track col) {
+            <div [class]="columnWidthClass(col)">
+              <af-skeleton variant="text" [height]="row % 2 === 0 ? '0.875rem' : '0.75rem'" />
+            </div>
+          }
+        </div>
+      }
+    </div>
+  

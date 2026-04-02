@@ -1,0 +1,1635 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>promptgen — gerador de prompts</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            *,
+            *::before,
+            *::after {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            :root {
+                --bg: #0d0d0d;
+                --surface: #161616;
+                --surface2: #1f1f1f;
+                --border: #2a2a2a;
+                --accent: #c8f04a;
+                --accent2: #4af0c8;
+                --text: #f0f0e8;
+                --muted: #666666;
+                --mono: 'DM Mono', monospace;
+                --sans: 'Syne', sans-serif;
+            }
+            html,
+            body {
+                height: 100%;
+                overflow: hidden;
+                background: var(--bg);
+                color: var(--text);
+                font-family: var(--sans);
+                font-size: 14px;
+            }
+            ::-webkit-scrollbar {
+                width: 4px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #2a2a2a;
+                border-radius: 2px;
+            }
+            header {
+                height: 53px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 1.25rem;
+                border-bottom: 1px solid var(--border);
+            }
+            .logo {
+                font-size: 18px;
+                font-weight: 800;
+                letter-spacing: -0.02em;
+            }
+            .logo span:first-child {
+                color: var(--accent);
+            }
+            .logo span:last-child {
+                color: var(--text);
+            }
+            .version-badge {
+                font-family: var(--mono);
+                font-size: 10px;
+                background: var(--surface2);
+                color: var(--muted);
+                padding: 4px 10px;
+                border-radius: 4px;
+            }
+            main {
+                display: grid;
+                grid-template-columns: 340px 1fr;
+                height: calc(100vh - 53px);
+            }
+            .panel-left {
+                border-right: 1px solid var(--border);
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+            }
+            .panel-tabs {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+                padding: 1rem 1.25rem;
+                border-bottom: 1px solid var(--border);
+            }
+            .panel-tab-btn {
+                font-family: var(--mono);
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                padding: 8px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: var(--surface2);
+                color: var(--muted);
+                cursor: pointer;
+                transition:
+                    background 0.15s,
+                    color 0.15s;
+            }
+            .panel-tab-btn.active {
+                background: var(--accent);
+                color: #0d0d0d;
+                border-color: var(--accent);
+            }
+            .panel-tab-btn:hover:not(.active) {
+                border-color: var(--muted);
+            }
+            .panel-tab-panel {
+                display: none;
+            }
+            .panel-tab-panel.active {
+                display: block;
+            }
+            .section {
+                padding: 1rem 1.25rem;
+                border-bottom: 1px solid var(--border);
+            }
+            .section-label {
+                font-family: var(--mono);
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--muted);
+                margin-bottom: 8px;
+            }
+            .model-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px;
+            }
+            .model-tabs {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .model-tab {
+                font-family: var(--mono);
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                padding: 8px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: var(--surface2);
+                color: var(--muted);
+                cursor: pointer;
+                transition:
+                    background 0.15s,
+                    color 0.15s;
+            }
+            .model-tab.active {
+                background: var(--accent);
+                color: #0d0d0d;
+                border-color: var(--accent);
+            }
+            .model-tab:hover:not(.active) {
+                border-color: var(--muted);
+            }
+            .model-tab-panels {
+                margin-top: 8px;
+            }
+            .model-tab-panel {
+                display: none;
+            }
+            .model-tab-panel.active {
+                display: block;
+            }
+            .model-btn {
+                font-family: var(--mono);
+                font-size: 11px;
+                padding: 10px 8px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: var(--surface2);
+                color: var(--muted);
+                cursor: pointer;
+                text-align: center;
+                line-height: 1.4;
+                transition:
+                    background 0.15s,
+                    color 0.15s;
+            }
+            .model-btn.active {
+                background: var(--accent);
+                color: #0d0d0d;
+                border-color: var(--accent);
+            }
+            .model-btn:hover:not(.active) {
+                border-color: var(--muted);
+            }
+            .key-section {
+                margin-top: 0;
+                display: block;
+            }
+            .key-hint {
+                font-family: var(--mono);
+                font-size: 10px;
+                color: var(--muted);
+                margin-top: 6px;
+            }
+            .key-input {
+                width: 100%;
+                font-family: var(--mono);
+                font-size: 12px;
+                padding: 8px 10px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                color: var(--text);
+                outline: none;
+            }
+            .key-input:focus {
+                border-color: var(--accent2);
+            }
+            .key-link {
+                font-family: var(--mono);
+                font-size: 10px;
+                color: var(--accent2);
+                text-decoration: none;
+                margin-top: 4px;
+                display: inline-block;
+            }
+            .key-link:hover {
+                text-decoration: underline;
+            }
+            .key-status {
+                font-family: var(--mono);
+                font-size: 10px;
+                margin-top: 4px;
+            }
+            select {
+                width: 100%;
+                font-family: var(--sans);
+                font-size: 13px;
+                padding: 8px 10px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                color: var(--text);
+                outline: none;
+                cursor: pointer;
+                -webkit-appearance: none;
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+            }
+            select:focus {
+                border-color: var(--accent);
+            }
+            select option {
+                background: var(--surface);
+                color: var(--text);
+            }
+            .chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .chips-grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .chip {
+                font-family: var(--mono);
+                font-size: 11px;
+                padding: 6px 12px;
+                background: var(--surface2);
+                color: var(--muted);
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                cursor: pointer;
+                transition:
+                    background 0.15s,
+                    color 0.15s;
+                user-select: none;
+            }
+            .chip.active {
+                background: var(--accent);
+                color: #0d0d0d;
+                border-color: var(--accent);
+            }
+            .chip:hover:not(.active) {
+                border-color: var(--muted);
+            }
+            .chip[data-tip] {
+                position: relative;
+            }
+            .chip[data-tip]::after {
+                content: attr(data-tip);
+                position: absolute;
+                bottom: calc(100% + 8px);
+                left: 50%;
+                transform: translateX(-50%);
+                background: #1a1a1a;
+                color: #d0d0c0;
+                font-family: var(--mono);
+                font-size: 10px;
+                line-height: 1.5;
+                padding: 8px 12px;
+                border-radius: 6px;
+                border: 1px solid var(--border);
+                white-space: normal;
+                width: max-content;
+                max-width: 240px;
+                pointer-events: none;
+                opacity: 0;
+                visibility: hidden;
+                transition:
+                    opacity 0.2s,
+                    visibility 0.2s;
+                z-index: 100;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            }
+            .chip[data-tip]:hover::after {
+                opacity: 1;
+                visibility: visible;
+            }
+            textarea {
+                width: 100%;
+                font-family: var(--sans);
+                font-size: 13px;
+                padding: 8px 10px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                color: var(--text);
+                outline: none;
+                resize: vertical;
+                line-height: 1.5;
+            }
+            textarea:focus {
+                border-color: var(--accent);
+            }
+            .textarea-task {
+                min-height: 70px;
+            }
+            .textarea-constraints {
+                min-height: 55px;
+            }
+            .generate-wrap {
+                padding: 1rem 1.25rem;
+            }
+            .generate-btn {
+                width: 100%;
+                padding: 11px;
+                font-family: var(--sans);
+                font-size: 14px;
+                font-weight: 700;
+                background: var(--accent);
+                color: #0d0d0d;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition:
+                    background 0.15s,
+                    transform 0.1s;
+            }
+            .generate-btn:hover:not(:disabled) {
+                background: #d8ff5a;
+                transform: translateY(-1px);
+            }
+            .generate-btn:disabled {
+                background: var(--surface2);
+                color: var(--muted);
+                cursor: not-allowed;
+                transform: none;
+            }
+            .panel-right {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                position: relative;
+                min-width: 0;
+            }
+            .loading-bar {
+                height: 2px;
+                width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                opacity: 0;
+                background: linear-gradient(90deg, var(--accent), var(--accent2));
+            }
+            .loading-bar.animating {
+                opacity: 1;
+                animation: loadingAnim 1.5s ease-in-out infinite;
+            }
+            @keyframes loadingAnim {
+                0% {
+                    transform: translateX(-100%);
+                }
+                50% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(100%);
+                }
+            }
+            .output-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 1.25rem;
+                height: 42px;
+                border-bottom: 1px solid var(--border);
+            }
+            .output-header-left {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .output-label {
+                font-family: var(--mono);
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--muted);
+            }
+            .model-indicator {
+                font-family: var(--mono);
+                font-size: 10px;
+                padding: 3px 8px;
+                background: var(--surface2);
+                border-radius: 4px;
+                color: var(--muted);
+            }
+            .copy-btn {
+                font-family: var(--mono);
+                font-size: 11px;
+                padding: 5px 12px;
+                background: var(--surface2);
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                color: var(--muted);
+                cursor: pointer;
+                transition:
+                    background 0.15s,
+                    color 0.15s;
+            }
+            .copy-btn:hover {
+                border-color: var(--muted);
+                color: var(--text);
+            }
+            .output-body {
+                flex: 1;
+                overflow-y: auto;
+                padding: 1.5rem;
+                overflow-x: hidden;
+                min-width: 0;
+            }
+            .empty-state {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                gap: 12px;
+            }
+            .empty-icon {
+                font-size: 64px;
+                opacity: 0.2;
+                font-family: var(--mono);
+            }
+            .empty-text {
+                font-family: var(--mono);
+                font-size: 12px;
+                color: var(--muted);
+            }
+            .prompt-block {
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                margin-bottom: 1rem;
+                overflow: hidden;
+            }
+            .prompt-block-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 7px 14px;
+                background: var(--surface2);
+                border-bottom: 1px solid var(--border);
+            }
+            .block-tag {
+                font-family: var(--mono);
+                font-size: 10px;
+                font-weight: 500;
+                padding: 3px 8px;
+                border-radius: 4px;
+            }
+            .tag-system {
+                background: #1a2a0a;
+                color: var(--accent);
+            }
+            .tag-user {
+                background: #0a1a2a;
+                color: var(--accent2);
+            }
+            .tag-tips {
+                background: #2a1a0a;
+                color: #f0a44a;
+            }
+            .block-subtitle {
+                font-family: var(--mono);
+                font-size: 10px;
+                color: var(--muted);
+            }
+            .prompt-block-content {
+                padding: 1rem 1.25rem;
+                font-family: var(--mono);
+                font-size: 12px;
+                line-height: 1.7;
+                color: #d0d0c0;
+                white-space: pre-wrap;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                min-height: 40px;
+            }
+            .separator {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 1rem 0;
+                font-family: var(--mono);
+                font-size: 10px;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+            .separator::before,
+            .separator::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+            .streaming-cursor {
+                display: inline-block;
+                width: 8px;
+                height: 13px;
+                background: var(--accent);
+                animation: blink 0.8s step-end infinite;
+                vertical-align: text-bottom;
+                margin-left: 1px;
+            }
+            @keyframes blink {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0;
+                }
+            }
+            .hidden {
+                display: none;
+            }
+            @media (max-width: 768px) {
+                main {
+                    grid-template-columns: 1fr;
+                }
+                .panel-left {
+                    border-right: none;
+                    border-bottom: 1px solid var(--border);
+                    max-height: 55vh;
+                    overflow-y: auto;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="logo"><span>prompt</span><span>gen</span></div>
+            <span class="version-badge">v2 · multi-model</span>
+        </header>
+        <main>
+            <div class="panel-left">
+                <div class="panel-tabs" id="panelTabs">
+                    <button class="panel-tab-btn" data-panel-tab="model">Modelo</button>
+                    <button class="panel-tab-btn active" data-panel-tab="prompt">Prompt</button>
+                </div>
+                <div class="panel-tab-panel" data-panel-content="model">
+                    <div class="section">
+                        <div class="section-label">modelo de ia</div>
+                        <div class="model-grid">
+                            <button class="model-btn active" data-model="claude">
+                                Claude<br />Sonnet 4.6 · sua key
+                            </button>
+                            <button class="model-btn" data-model="minimax">MiniMax<br />M2.7 · sua key</button>
+                            <button class="model-btn" data-model="gemini">Gemini<br />2.5 Pro · sua key</button>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="section-label">nível do prompt</div>
+                        <div class="chips-grid-2" id="promptLevelChips">
+                            <span class="chip active" data-level="rapido">Rápido</span>
+                            <span class="chip" data-level="enterprise">Enterprise</span>
+                        </div>
+                        <p class="key-hint hidden" id="enterpriseHint">
+                            gera estrutura com 8 seções: contexto · objetivo · ação · mockup · critérios · contratos ·
+                            formato · todo list
+                        </p>
+                    </div>
+                    <div class="section">
+                        <div class="section-label">stack</div>
+                        <div class="chips" id="stackChips">
+                            <span class="chip active">Angular 19</span>
+                            <span class="chip active">NestJS</span>
+                            <span class="chip active">Laravel 12</span>
+                            <span class="chip">TypeScript</span>
+                            <span class="chip">PostgreSQL</span>
+                            <span class="chip">Docker</span>
+                            <span class="chip">Redis</span>
+                            <span class="chip">Prisma</span>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="section-label">restrições (opcional)</div>
+                        <textarea
+                            class="textarea-constraints"
+                            id="constraintsInput"
+                            placeholder="Ex: Não instalar novas libs..."
+                        ></textarea>
+                    </div>
+                    <div class="section">
+                        <div class="section-label">api key</div>
+                        <div class="key-section" id="claudeKeySection">
+                            <input
+                                type="password"
+                                class="key-input"
+                                id="claude-key"
+                                placeholder="Cole sua API key da Anthropic..."
+                            />
+                            <a class="key-link" href="https://console.anthropic.com" target="_blank" rel="noopener"
+                                >obter key ↗</a
+                            >
+                            <div class="key-status hidden" id="claudeKeyStatus"></div>
+                        </div>
+                        <div class="key-section hidden" id="keySection">
+                            <input type="password" class="key-input" id="apiKey" placeholder="API key MiniMax" />
+                            <a class="key-link" href="https://platform.minimax.io" target="_blank" rel="noopener"
+                                >obter key ↗</a
+                            >
+                        </div>
+                        <div class="key-section hidden" id="geminiKeySection">
+                            <input
+                                type="password"
+                                class="key-input"
+                                id="gemini-key"
+                                placeholder="Cole sua API key do Gemini..."
+                            />
+                            <a class="key-link" href="https://aistudio.google.com" target="_blank" rel="noopener"
+                                >obter key ↗</a
+                            >
+                            <div class="key-status hidden" id="geminiKeyStatus"></div>
+                        </div>
+                        <div class="key-hint" id="keyHint">Claude usa integração sem key.</div>
+                    </div>
+                </div>
+                <div class="panel-tab-panel active" data-panel-content="prompt">
+                    <div class="section">
+                        <div class="section-label">objetivo</div>
+                        <select id="objective">
+                            <option>Nova feature</option>
+                            <option>Debugging</option>
+                            <option>Code review</option>
+                            <option>Decisão de arquitetura</option>
+                            <option>Refatoração</option>
+                            <option>Explicar código</option>
+                            <option>Gerar testes</option>
+                            <option>Personalizado</option>
+                        </select>
+                    </div>
+                    <div class="section">
+                        <div class="section-label">idioma de saída</div>
+                        <div class="chips-grid-2" id="languageChips">
+                            <span class="chip active" data-language="pt-BR">Português</span>
+                            <span class="chip" data-language="en">English</span>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="section-label">métodos de prompt</div>
+                        <div class="chips" id="methodChips">
+                            <span
+                                class="chip active"
+                                data-tip="Força o modelo a raciocinar passo a passo antes de responder. Use para problemas complexos, debug e análise."
+                                >Chain of Thought</span
+                            >
+                            <span
+                                class="chip"
+                                data-tip="Inclui exemplos de entrada/saída no prompt. Use quando precisa de formato específico ou padrão repetível."
+                                >Few-shot</span
+                            >
+                            <span
+                                class="chip active"
+                                data-tip="Define limites explícitos (não faça X, use somente Y). Use para evitar respostas genéricas ou fora do escopo."
+                                >Constraints</span
+                            >
+                            <span
+                                class="chip"
+                                data-tip='Atribui uma persona ao modelo (ex: "você é um DBA sênior"). Use para respostas mais especializadas.'
+                                >Role prompting</span
+                            >
+                            <span
+                                class="chip"
+                                data-tip="Ciclo Pensamento → Ação → Observação. Use para tarefas que exigem investigação iterativa e tomada de decisão."
+                                >React</span
+                            >
+                            <span
+                                class="chip"
+                                data-tip="Especifica o formato exato da saída (JSON, tabela, lista). Use quando precisa de saída estruturada e previsível."
+                                >Output format</span
+                            >
+                            <span
+                                class="chip"
+                                data-tip="Quebra tarefas grandes em subtarefas menores e ordenadas. Use para features complexas ou multi-etapa."
+                                >Decomposição</span
+                            >
+                            <span
+                                class="chip"
+                                data-tip="Pede que o modelo revise e critique a própria resposta. Use para aumentar precisão e reduzir erros."
+                                >Self-critique</span
+                            >
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="section-label">intensidade de raciocínio</div>
+                        <div class="chips" id="intensityChips">
+                            <span class="chip" data-intensity="padrao">Padrão</span>
+                            <span class="chip" data-intensity="think">think</span>
+                            <span class="chip active" data-intensity="think-hard">think hard</span>
+                            <span class="chip" data-intensity="ultrathink">ultrathink</span>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="section-label">contexto / tarefa</div>
+                        <textarea
+                            class="textarea-task"
+                            id="taskInput"
+                            placeholder="Descreva o que você quer fazer..."
+                        ></textarea>
+                    </div>
+                    <div class="generate-wrap">
+                        <button class="generate-btn" id="generateBtn">⚡ Gerar prompt</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-right">
+                <div class="loading-bar" id="loadingBar"></div>
+                <div class="output-header">
+                    <div class="output-header-left">
+                        <span class="output-label">prompt gerado</span>
+                        <span class="model-indicator" id="modelIndicator">claude · sonnet 4.6</span>
+                    </div>
+                    <button class="copy-btn" id="copyBtn">copiar tudo</button>
+                </div>
+                <div class="output-body" id="outputBody">
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">⌥</div>
+                        <div class="empty-text">configure e clique em gerar prompt</div>
+                        <div class="empty-text hidden" id="fileProtocolHint">
+                            se abrir localmente, use http://localhost para evitar bloqueios de origem
+                        </div>
+                    </div>
+                    <div class="hidden" id="resultArea">
+                        <div class="prompt-block">
+                            <div class="prompt-block-header">
+                                <span class="block-tag tag-system">PROMPT</span>
+                                <span class="block-subtitle">copie e cole direto na conversa</span>
+                            </div>
+                            <div class="prompt-block-content" id="promptContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script>
+            (function () {
+                var selectedModel = 'claude';
+                var selectedPromptLevel = 'rapido';
+                var selectedOutputLanguage = 'pt-BR';
+                var isGenerating = false;
+                var generatedData = null;
+
+                var modelBtns = document.querySelectorAll('.model-btn');
+                var panelTabs = document.querySelectorAll('.panel-tab-btn');
+                var panelContents = document.querySelectorAll('.panel-tab-panel');
+                var claudeKeySection = document.getElementById('claudeKeySection');
+                var claudeApiKeyInput = document.getElementById('claude-key');
+                var claudeKeyStatus = document.getElementById('claudeKeyStatus');
+                var claudeKeyStorageKey = 'promptgen_claude_key';
+                var keySection = document.getElementById('keySection');
+                var keyHint = document.getElementById('keyHint');
+                var apiKeyInput = document.getElementById('apiKey');
+                var apiKeyStorageKey = 'promptgen_minimax_key';
+                var geminiKeySection = document.getElementById('geminiKeySection');
+                var geminiApiKeyInput = document.getElementById('gemini-key');
+                var geminiKeyStatus = document.getElementById('geminiKeyStatus');
+                var geminiKeyStorageKey = 'promptgen_gemini_key';
+                var promptLevelChips = document.getElementById('promptLevelChips');
+                var enterpriseHint = document.getElementById('enterpriseHint');
+                var objectiveSelect = document.getElementById('objective');
+                var languageChips = document.getElementById('languageChips');
+                var stackChips = document.getElementById('stackChips');
+                var methodChips = document.getElementById('methodChips');
+                var intensityChips = document.getElementById('intensityChips');
+                var taskInput = document.getElementById('taskInput');
+                var constraintsInput = document.getElementById('constraintsInput');
+                var generateBtn = document.getElementById('generateBtn');
+                var loadingBar = document.getElementById('loadingBar');
+                var modelIndicator = document.getElementById('modelIndicator');
+                var copyBtn = document.getElementById('copyBtn');
+                var outputBody = document.getElementById('outputBody');
+                var emptyState = document.getElementById('emptyState');
+                var fileProtocolHint = document.getElementById('fileProtocolHint');
+                var resultArea = document.getElementById('resultArea');
+                var promptContent = document.getElementById('promptContent');
+                var uiStateStorageKey = 'promptgen_ui_state_v1';
+
+                function safeParseState(text) {
+                    if (!text) return null;
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        return null;
+                    }
+                }
+
+                function readPersistedState() {
+                    return safeParseState(localStorage.getItem(uiStateStorageKey));
+                }
+
+                function getActivePanelTab() {
+                    var active = document.querySelector('.panel-tab-btn.active');
+                    return active ? active.dataset.panelTab : 'prompt';
+                }
+
+                function getActiveChipLabels(container) {
+                    var labels = [];
+                    container.querySelectorAll('.chip.active').forEach(function (c) {
+                        labels.push(c.textContent.trim());
+                    });
+                    return labels;
+                }
+
+                function saveUiState(options) {
+                    var state = {
+                        selectedModel: selectedModel,
+                        selectedPromptLevel: selectedPromptLevel,
+                        selectedOutputLanguage: selectedOutputLanguage,
+                        objective: objectiveSelect.value,
+                        stackActive: getActiveChipLabels(stackChips),
+                        methodsActive: getActiveChipLabels(methodChips),
+                        intensity: getActiveIntensity(),
+                        taskInput: taskInput.value,
+                        constraintsInput: constraintsInput.value,
+                        activePanelTab: getActivePanelTab(),
+                        generatedData: generatedData,
+                    };
+
+                    if (options && options.keepPreviousGenerated && !state.generatedData) {
+                        var previous = readPersistedState();
+                        if (previous && previous.generatedData) {
+                            state.generatedData = previous.generatedData;
+                        }
+                    }
+
+                    localStorage.setItem(uiStateStorageKey, JSON.stringify(state));
+                }
+
+                function setChipActiveByLabel(container, labels, allowMultiple) {
+                    var wanted = Array.isArray(labels) ? labels : [];
+                    var foundSingle = false;
+                    container.querySelectorAll('.chip').forEach(function (chip) {
+                        var shouldActivate = wanted.indexOf(chip.textContent.trim()) !== -1;
+                        if (allowMultiple) {
+                            chip.classList.toggle('active', shouldActivate);
+                        } else {
+                            if (!foundSingle && shouldActivate) {
+                                chip.classList.add('active');
+                                foundSingle = true;
+                            } else {
+                                chip.classList.remove('active');
+                            }
+                        }
+                    });
+                }
+
+                function restorePanelTab(tabName) {
+                    var target = tabName === 'model' ? 'model' : 'prompt';
+                    panelTabs.forEach(function (t) {
+                        t.classList.toggle('active', t.dataset.panelTab === target);
+                    });
+                    panelContents.forEach(function (panel) {
+                        panel.classList.toggle('active', panel.dataset.panelContent === target);
+                    });
+                }
+
+                function getPromptLevelLabel() {
+                    return selectedPromptLevel === 'enterprise' ? 'enterprise' : 'rápido';
+                }
+
+                function updateModelIndicator() {
+                    claudeKeySection.classList.add('hidden');
+                    keySection.classList.add('hidden');
+                    geminiKeySection.classList.add('hidden');
+                    if (selectedModel === 'minimax') {
+                        modelIndicator.textContent = 'minimax · m2.7 · ' + getPromptLevelLabel();
+                        keyHint.textContent = 'MiniMax exige API key para gerar.';
+                        keySection.classList.remove('hidden');
+                    } else if (selectedModel === 'gemini') {
+                        modelIndicator.textContent = 'gemini · 2.5 pro · ' + getPromptLevelLabel();
+                        keyHint.textContent = 'Gemini exige API key para gerar.';
+                        geminiKeySection.classList.remove('hidden');
+                    } else {
+                        modelIndicator.textContent = 'claude · sonnet 4.6 · ' + getPromptLevelLabel();
+                        keyHint.textContent = 'Claude exige API key da Anthropic.';
+                        claudeKeySection.classList.remove('hidden');
+                    }
+                }
+
+                function updateEnterpriseHint() {
+                    if (selectedPromptLevel === 'enterprise') {
+                        enterpriseHint.classList.remove('hidden');
+                    } else {
+                        enterpriseHint.classList.add('hidden');
+                    }
+                }
+
+                var storedClaudeKey = localStorage.getItem(claudeKeyStorageKey);
+                if (storedClaudeKey) {
+                    claudeApiKeyInput.value = storedClaudeKey;
+                }
+                var storedApiKey = sessionStorage.getItem(apiKeyStorageKey);
+                if (storedApiKey) {
+                    apiKeyInput.value = storedApiKey;
+                }
+                var storedGeminiKey = localStorage.getItem(geminiKeyStorageKey);
+                if (storedGeminiKey) {
+                    geminiApiKeyInput.value = storedGeminiKey;
+                }
+
+                (function restoreUiState() {
+                    var state = readPersistedState();
+                    if (!state) return;
+
+                    if (state.selectedModel) {
+                        var hasModel = false;
+                        modelBtns.forEach(function (btn) {
+                            var isActive = btn.dataset.model === state.selectedModel;
+                            btn.classList.toggle('active', isActive);
+                            if (isActive) hasModel = true;
+                        });
+                        if (hasModel) selectedModel = state.selectedModel;
+                    }
+
+                    if (state.selectedPromptLevel === 'enterprise' || state.selectedPromptLevel === 'rapido') {
+                        selectedPromptLevel = state.selectedPromptLevel;
+                        promptLevelChips.querySelectorAll('.chip').forEach(function (chip) {
+                            var isEnterprise = chip.dataset.level === 'enterprise';
+                            chip.classList.toggle(
+                                'active',
+                                (selectedPromptLevel === 'enterprise' && isEnterprise) ||
+                                    (selectedPromptLevel === 'rapido' && !isEnterprise),
+                            );
+                        });
+                    }
+
+                    if (typeof state.objective === 'string') {
+                        var foundObjective = false;
+                        objectiveSelect.querySelectorAll('option').forEach(function (opt) {
+                            if (opt.value === state.objective) foundObjective = true;
+                        });
+                        if (foundObjective) objectiveSelect.value = state.objective;
+                    }
+
+                    if (state.selectedOutputLanguage === 'pt-BR' || state.selectedOutputLanguage === 'en') {
+                        selectedOutputLanguage = state.selectedOutputLanguage;
+                        languageChips.querySelectorAll('.chip').forEach(function (chip) {
+                            chip.classList.toggle('active', chip.dataset.language === selectedOutputLanguage);
+                        });
+                    }
+
+                    if (Array.isArray(state.stackActive)) {
+                        setChipActiveByLabel(stackChips, state.stackActive, true);
+                    }
+
+                    if (Array.isArray(state.methodsActive)) {
+                        setChipActiveByLabel(methodChips, state.methodsActive, true);
+                    }
+
+                    if (typeof state.intensity === 'string') {
+                        intensityChips.querySelectorAll('.chip').forEach(function (chip) {
+                            chip.classList.toggle('active', chip.dataset.intensity === state.intensity);
+                        });
+                    }
+
+                    if (typeof state.taskInput === 'string') {
+                        taskInput.value = state.taskInput;
+                    }
+
+                    if (typeof state.constraintsInput === 'string') {
+                        constraintsInput.value = state.constraintsInput;
+                    }
+
+                    if (typeof state.activePanelTab === 'string') {
+                        restorePanelTab(state.activePanelTab);
+                    }
+
+                    if (state.generatedData) {
+                        showResult(state.generatedData, false);
+                    }
+                })();
+
+                apiKeyInput.addEventListener('input', function () {
+                    sessionStorage.setItem(apiKeyStorageKey, apiKeyInput.value);
+                });
+
+                objectiveSelect.addEventListener('change', saveUiState);
+                taskInput.addEventListener('input', saveUiState);
+                constraintsInput.addEventListener('input', saveUiState);
+
+                languageChips.addEventListener('click', function (e) {
+                    if (!e.target.classList.contains('chip')) return;
+                    languageChips.querySelectorAll('.chip').forEach(function (c) {
+                        c.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    selectedOutputLanguage = e.target.dataset.language === 'en' ? 'en' : 'pt-BR';
+                    saveUiState();
+                });
+
+                panelTabs.forEach(function (tab) {
+                    tab.addEventListener('click', function () {
+                        panelTabs.forEach(function (t) {
+                            t.classList.remove('active');
+                        });
+                        panelContents.forEach(function (panel) {
+                            panel.classList.remove('active');
+                        });
+                        tab.classList.add('active');
+                        var panel = document.querySelector('[data-panel-content="' + tab.dataset.panelTab + '"]');
+                        if (panel) panel.classList.add('active');
+                        saveUiState();
+                    });
+                });
+
+                modelBtns.forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        modelBtns.forEach(function (b) {
+                            b.classList.remove('active');
+                        });
+                        btn.classList.add('active');
+                        selectedModel = btn.dataset.model;
+                        updateModelIndicator();
+                        saveUiState();
+                    });
+                });
+
+                promptLevelChips.addEventListener('click', function (e) {
+                    if (!e.target.classList.contains('chip')) return;
+                    promptLevelChips.querySelectorAll('.chip').forEach(function (c) {
+                        c.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    selectedPromptLevel = e.target.dataset.level === 'enterprise' ? 'enterprise' : 'rapido';
+                    updateEnterpriseHint();
+                    updateModelIndicator();
+                    saveUiState();
+                });
+
+                updateModelIndicator();
+                updateEnterpriseHint();
+
+                if (window.location.protocol === 'file:') {
+                    fileProtocolHint.classList.remove('hidden');
+                }
+
+                stackChips.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('chip')) {
+                        e.target.classList.toggle('active');
+                        saveUiState();
+                    }
+                });
+
+                methodChips.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('chip')) {
+                        e.target.classList.toggle('active');
+                        saveUiState();
+                    }
+                });
+
+                intensityChips.addEventListener('click', function (e) {
+                    if (!e.target.classList.contains('chip')) return;
+                    intensityChips.querySelectorAll('.chip').forEach(function (c) {
+                        c.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    saveUiState();
+                });
+
+                function getActiveChips(container) {
+                    var result = [];
+                    container.querySelectorAll('.chip.active').forEach(function (c) {
+                        result.push(c.textContent.trim());
+                    });
+                    return result;
+                }
+
+                function getActiveIntensity() {
+                    var active = intensityChips.querySelector('.chip.active');
+                    return active ? active.dataset.intensity : 'padrao';
+                }
+
+                function getOutputLanguageLabel() {
+                    return selectedOutputLanguage === 'en' ? 'English (en)' : 'Brazilian Portuguese (pt-BR)';
+                }
+
+                function buildUserMessage() {
+                    var parts = [];
+                    parts.push('Objetivo: ' + objectiveSelect.value);
+                    parts.push('Output language: ' + getOutputLanguageLabel());
+                    if (selectedPromptLevel === 'enterprise') {
+                        parts.push(
+                            'Available orchestration resources: @PM, @DOC, @QA, @REVIEWER, PREVC flow, controlled parallelism.',
+                        );
+                    }
+                    var stack = getActiveChips(stackChips);
+                    if (stack.length) parts.push('Stack: ' + stack.join(', '));
+                    var methods = getActiveChips(methodChips);
+                    if (methods.length) parts.push('Técnicas de prompt: ' + methods.join(', '));
+                    if (methods.indexOf('React') !== -1) {
+                        parts.push(
+                            'Aplicar padrão ReAct (Reasoning + Acting): ciclo pensar -> agir -> observar -> pensar.',
+                        );
+                    }
+                    var intensity = getActiveIntensity();
+                    if (intensity !== 'padrao') parts.push('Intensidade de raciocínio: ' + intensity);
+                    if (taskInput.value.trim()) parts.push('Tarefa: ' + taskInput.value.trim());
+                    if (constraintsInput.value.trim()) parts.push('Restrições: ' + constraintsInput.value.trim());
+                    return parts.join('\n');
+                }
+
+                var systemInstructionQuick =
+                    'You are an expert in LLM prompt engineering.\nYour task is to generate optimized prompts based on the parameters provided.\n\nReply with a SINGLE prompt in Markdown format, ready to be pasted directly\ninto a chat conversation.\n\nStructure the prompt with clear markdown headings and sections:\n- Start with the role and permanent context (## Contexto)\n- Then the task instructions (## Tarefa)\n- Then constraints and rules (## Regras)\n- End with 3-4 tips as a bullet list (## Dicas)\n\nDo NOT wrap in JSON. Do NOT use code fences around the entire output.\nUse markdown formatting: headings (##), bullet lists (-), bold (**), etc.\n\nRules:\n- Integrate the selected prompt techniques naturally and invisibly\n- Be specific to the informed stack — never use generic patterns\n- Use PREVC (Plan, Review, Execute, Verify, Confirm) as execution flow when relevant\n- Use specialized agents when needed:\n  - @PM for decomposition and scope\n  - @DOC for documentation and handoff\n  - @QA for test strategy and quality gates\n  - @REVIEWER for code review and risk findings\n- Parallelize only independent tasks; keep dependent tasks sequential\n- If task is simple, avoid over-orchestration\n- If ultrathink or think hard is requested, prepend it at the top of the prompt\n- If ReAct method is selected, structure with:\nThought -> Action -> Observation -> Thought cycles\n- If few-shot is selected and an example is provided, embed it in the prompt\n- All generated content must be written in the output language requested in the user message\n- Never output assumptions not explicitly provided by the user';
+
+                var systemInstructionEnterprise =
+                    'You are a senior specialist in SaaS Software Architecture, Product Management\nand Software Engineering. You think as a Product Owner, Tech Lead, UX Designer,\nSenior Engineer and critical PRD reviewer simultaneously.\n\nWhen receiving a request, generate a COMPLETE PROFESSIONAL PROMPT in Markdown\nformat, ready to be pasted directly into a chat conversation.\n\nStructure with these 8 sections using markdown headings:\n## 1. Contexto\nSystem scenario, AI role, involved modules, users, business goals\n## 2. Objetivo\nWhat must be built, expected result, product value\n## 3. Ação\nNumbered subtopics (3.1, 3.2…) covering layout, flows, rules,\nbehaviors and all states: error, loading, empty, success, validation and UX.\nWhen needed, orchestrate execution with PREVC (Plan, Review, Execute, Verify,\nConfirm) and explicit roles: @PM for decomposition/scope, @DOC for\ndocumentation/handoff, @QA for test strategy/quality gates, @REVIEWER for\ncode review/risk findings. Parallelize only independent tasks; keep dependent\ntasks sequential.\n## 4. Mockup Textual\nText wireframe of the screen or step-by-step user flow\n## 5. Critérios de Aceitação\nObjective and verifiable conditions that define done.\nNothing subjective. Each item must be independently testable.\n## 6. Contratos e Regras\nMandatory language selected by the user (Portuguese or English), what must NOT be done,\nvisual and technical standards, prohibition of undocumented assumptions\n## 7. Formato de Saída\nExactly how the final response must be delivered\n## 8. Lista de Tarefas\nNumbered list, tasks in logical execution order, never generic\n\nDo NOT wrap in JSON. Do NOT use code fences around the entire output.\nUse markdown formatting: headings (##), bullet lists (-), bold (**),\nnumbered lists, etc.\n\nRules:\n- If ReAct method is selected, embed Thought/Action/Observation cycles in\nsection 3 (Ação)\n- If few-shot is selected and an example is provided, include it in section 3\n- Keep mandatory output language aligned with the user-selected output language\n- All generated content must be in Brazilian Portuguese (pt-BR)\n- Never simplify a vague input — always expand, structure and make it explicit';
+
+                function getSystemInstructionByLevel() {
+                    return selectedPromptLevel === 'enterprise' ? systemInstructionEnterprise : systemInstructionQuick;
+                }
+
+                function typeText(el, text, speed, cb) {
+                    var i = 0;
+                    var cursor = document.createElement('span');
+                    cursor.className = 'streaming-cursor';
+                    el.textContent = '';
+                    el.appendChild(cursor);
+                    function tick() {
+                        if (i < text.length) {
+                            cursor.remove();
+                            el.textContent = text.substring(0, i + 1);
+                            el.appendChild(cursor);
+                            i++;
+                            setTimeout(tick, speed);
+                        } else {
+                            cursor.remove();
+                            if (cb) cb();
+                        }
+                    }
+                    tick();
+                }
+
+                function unescapeJsonEscapes(str) {
+                    if (typeof str !== 'string') return str;
+                    return str.replace(/\\(n|t|r|\\"|\\)/g, function (_, ch) {
+                        switch (ch) {
+                            case 'n':
+                                return '\n';
+                            case 't':
+                                return '\t';
+                            case 'r':
+                                return '\r';
+                            case '\\':
+                                return '\\';
+                            case '"':
+                                return '"';
+                            default:
+                                return ch;
+                        }
+                    });
+                }
+
+                function normalizeGeneratedData(data) {
+                    if (typeof data === 'string') {
+                        return { prompt: unescapeJsonEscapes(data) };
+                    }
+                    if (!data || typeof data !== 'object') {
+                        return { prompt: '' };
+                    }
+                    if (data.prompt) {
+                        return { prompt: unescapeJsonEscapes(stringifyField(data.prompt)) };
+                    }
+                    // Legacy 3-field format fallback
+                    var parts = [];
+                    if (data.system_prompt) parts.push(stringifyField(data.system_prompt));
+                    if (data.user_prompt) parts.push(stringifyField(data.user_prompt));
+                    if (data.tips) parts.push(stringifyField(data.tips));
+                    return { prompt: unescapeJsonEscapes(parts.join('\n\n')) };
+                }
+
+                function showResult(data, useTyping) {
+                    emptyState.classList.add('hidden');
+                    resultArea.classList.remove('hidden');
+                    generatedData = normalizeGeneratedData(data);
+                    saveUiState();
+
+                    var text = generatedData.prompt || '';
+
+                    if (useTyping === false) {
+                        promptContent.textContent = text;
+                        return;
+                    }
+
+                    var speed = Math.max(4, Math.min(12, 2000 / text.length));
+                    typeText(promptContent, text, speed);
+                }
+
+                function resetResultForGeneration() {
+                    generatedData = null;
+                    promptContent.textContent = '';
+                    emptyState.classList.add('hidden');
+                    resultArea.classList.remove('hidden');
+                }
+
+                function setLoading(on) {
+                    isGenerating = on;
+                    generateBtn.disabled = on;
+                    if (on) {
+                        generateBtn.textContent = '⏳ Gerando...';
+                        loadingBar.classList.add('animating');
+                    } else {
+                        generateBtn.textContent = '⚡ Gerar prompt';
+                        loadingBar.classList.remove('animating');
+                    }
+                }
+
+                async function callClaude(userMsg, key) {
+                    var systemInstruction = getSystemInstructionByLevel();
+                    var res = await fetch('https://api.anthropic.com/v1/messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': key,
+                            'anthropic-version': '2023-06-01',
+                            'anthropic-dangerous-direct-browser-access': 'true',
+                        },
+                        body: JSON.stringify({
+                            model: 'claude-sonnet-4-20250514',
+                            max_tokens: 4096,
+                            system: systemInstruction,
+                            messages: [{ role: 'user', content: userMsg }],
+                        }),
+                    });
+                    var data = await res.json();
+                    if (!res.ok) {
+                        var authErr = res.status === 400 || res.status === 401 || res.status === 403;
+                        var apiErr = new Error(data.error?.message || 'HTTP ' + res.status);
+                        apiErr.authFailed = authErr;
+                        throw apiErr;
+                    }
+                    var chunks = [];
+                    if (Array.isArray(data.content)) {
+                        data.content.forEach(function (block) {
+                            if (!block || typeof block.text !== 'string') return;
+                            if (!block.text.trim()) return;
+                            chunks.push(block.text);
+                        });
+                    }
+                    var text = chunks.join('\n');
+                    var isTruncated = data.stop_reason === 'max_tokens';
+                    if (isTruncated) {
+                        return (
+                            text +
+                            '\n\n---\n⚠️ Resposta truncada por limite de tokens (Claude). Gere novamente com tarefa mais objetiva.'
+                        );
+                    }
+                    return text;
+                }
+
+                function showClaudeStatus(msg, color) {
+                    claudeKeyStatus.textContent = msg;
+                    claudeKeyStatus.style.color = color;
+                    claudeKeyStatus.classList.remove('hidden');
+                }
+
+                function clearClaudeStatus() {
+                    claudeKeyStatus.textContent = '';
+                    claudeKeyStatus.classList.add('hidden');
+                }
+
+                async function callMinimax(userMsg, key) {
+                    var systemInstruction = getSystemInstructionByLevel();
+                    var res = await fetch('https://api.minimax.io/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: 'Bearer ' + key,
+                        },
+                        body: JSON.stringify({
+                            model: 'minimax-m2.7',
+                            messages: [
+                                { role: 'system', content: systemInstruction },
+                                { role: 'user', content: userMsg },
+                            ],
+                        }),
+                    });
+                    var data = await res.json();
+                    if (!res.ok) {
+                        var errorMsg = data.error?.message || data.error?.error || data.error || JSON.stringify(data);
+                        throw new Error(errorMsg || 'Erro na API MiniMax (HTTP ' + res.status + ')');
+                    }
+                    var finishReason = data.choices && data.choices[0] && data.choices[0].finish_reason;
+                    var text = data.choices[0].message.content;
+                    var finishReasonText = (finishReason || '').toString().toLowerCase();
+                    if (finishReasonText.indexOf('length') !== -1 || finishReasonText.indexOf('max_tokens') !== -1) {
+                        return (
+                            text +
+                            '\n\n---\n⚠️ Resposta truncada por limite de tokens (MiniMax). Gere novamente com tarefa mais objetiva.'
+                        );
+                    }
+                    return text;
+                }
+
+                async function callGemini(userMsg, key) {
+                    var systemInstruction = getSystemInstructionByLevel();
+                    var res = await fetch(
+                        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=' +
+                            encodeURIComponent(key),
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                system_instruction: { parts: [{ text: systemInstruction }] },
+                                contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+                                generationConfig: { maxOutputTokens: 4096, temperature: 0.7 },
+                            }),
+                        },
+                    );
+                    var data = await res.json();
+                    if (!res.ok) {
+                        if (res.status === 429) {
+                            var rateLimitErr = new Error('rate_limit_429');
+                            rateLimitErr.isRateLimit = true;
+                            throw rateLimitErr;
+                        }
+                        var authErr = res.status === 400 || res.status === 401 || res.status === 403;
+                        var apiErr = new Error(data.error?.message || 'HTTP ' + res.status);
+                        apiErr.authFailed = authErr;
+                        throw apiErr;
+                    }
+                    var text = data.candidates[0].content.parts[0].text;
+                    var finishReason = data.candidates[0].finishReason;
+                    if ((finishReason || '').toString().toUpperCase() === 'MAX_TOKENS') {
+                        return (
+                            text +
+                            '\n\n---\n⚠️ Resposta truncada por limite de tokens (Gemini). Gere novamente com tarefa mais objetiva.'
+                        );
+                    }
+                    return text;
+                }
+
+                var geminiRateLimitTimer = null;
+
+                function startGeminiRateLimitCountdown() {
+                    var seconds = 60;
+                    if (geminiRateLimitTimer) clearInterval(geminiRateLimitTimer);
+                    geminiRateLimitTimer = setInterval(function () {
+                        seconds--;
+                        if (seconds <= 0) {
+                            clearInterval(geminiRateLimitTimer);
+                            geminiRateLimitTimer = null;
+                            clearGeminiStatus();
+                            generateBtn.disabled = false;
+                            generateBtn.textContent = '⚡ Gerar prompt';
+                        } else {
+                            showGeminiStatus('limite atingido — aguarde ' + seconds + 's', '#f04a4a');
+                        }
+                    }, 1000);
+                    showGeminiStatus('limite atingido — aguarde 60s (Gemini 2.5 Pro: 2 req/min grátis)', '#f04a4a');
+                    generateBtn.disabled = true;
+                    generateBtn.textContent = '⏳ Aguarde...';
+                }
+
+                function showGeminiStatus(msg, color) {
+                    geminiKeyStatus.textContent = msg;
+                    geminiKeyStatus.style.color = color;
+                    geminiKeyStatus.classList.remove('hidden');
+                }
+
+                function clearGeminiStatus() {
+                    geminiKeyStatus.textContent = '';
+                    geminiKeyStatus.classList.add('hidden');
+                }
+
+                function sanitizeResponse(raw) {
+                    return raw
+                        .replace(/<think>[\s\S]*?<\/think>/gi, '')
+                        .replace(/<think>[\s\S]*$/gi, '')
+                        .replace(/```json\s*/gi, '')
+                        .replace(/```/g, '')
+                        .trim();
+                }
+
+                function extractFirstJsonObject(text) {
+                    var start = -1;
+                    var depth = 0;
+                    var inString = false;
+                    var escaped = false;
+
+                    for (var i = 0; i < text.length; i++) {
+                        var ch = text[i];
+
+                        if (inString) {
+                            if (escaped) {
+                                escaped = false;
+                            } else if (ch === '\\') {
+                                escaped = true;
+                            } else if (ch === '"') {
+                                inString = false;
+                            }
+                            continue;
+                        }
+
+                        if (ch === '"') {
+                            inString = true;
+                            continue;
+                        }
+
+                        if (ch === '{') {
+                            if (depth === 0) start = i;
+                            depth++;
+                            continue;
+                        }
+
+                        if (ch === '}' && depth > 0) {
+                            depth--;
+                            if (depth === 0 && start !== -1) {
+                                return text.slice(start, i + 1);
+                            }
+                        }
+                    }
+
+                    return null;
+                }
+
+                function decodeJsonLikeString(value) {
+                    try {
+                        return JSON.parse('"' + value.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"');
+                    } catch (e) {
+                        return value;
+                    }
+                }
+
+                function objectToReadableText(obj) {
+                    var lines = [];
+                    var keys = Object.keys(obj);
+                    for (var i = 0; i < keys.length; i++) {
+                        var key = keys[i];
+                        var value = obj[key];
+                        var label = key
+                            .replace(/^\d+[._\-]\s*/, '')
+                            .replace(/_/g, ' ')
+                            .toUpperCase();
+                        if (value && typeof value === 'object' && !Array.isArray(value)) {
+                            lines.push(label + ':');
+                            var subKeys = Object.keys(value);
+                            for (var j = 0; j < subKeys.length; j++) {
+                                var subLabel = subKeys[j].replace(/_/g, ' ');
+                                var subVal =
+                                    typeof value[subKeys[j]] === 'string'
+                                        ? value[subKeys[j]]
+                                        : JSON.stringify(value[subKeys[j]]);
+                                lines.push('  ' + subLabel + ': ' + subVal);
+                            }
+                        } else if (Array.isArray(value)) {
+                            lines.push(label + ':');
+                            for (var k = 0; k < value.length; k++) {
+                                lines.push(
+                                    '  - ' + (typeof value[k] === 'string' ? value[k] : JSON.stringify(value[k])),
+                                );
+                            }
+                        } else {
+                            lines.push(label + ': ' + String(value));
+                        }
+                        if (i < keys.length - 1) lines.push('');
+                    }
+                    return lines.join('\n');
+                }
+
+                function stringifyField(val) {
+                    if (typeof val === 'string') return val;
+                    if (val && typeof val === 'object') return objectToReadableText(val);
+                    return String(val);
+                }
+
+                function parseResponse(raw) {
+                    var cleaned = sanitizeResponse(raw);
+
+                    // Se vier JSON com campo "prompt", extrair
+                    var jsonText = extractFirstJsonObject(cleaned);
+                    if (jsonText) {
+                        try {
+                            var parsed = JSON.parse(jsonText);
+                            if (parsed.prompt) return { prompt: parsed.prompt };
+                            // Legacy 3-field fallback
+                            if (parsed.system_prompt || parsed.user_prompt || parsed.tips) {
+                                var parts = [];
+                                if (parsed.system_prompt) parts.push(stringifyField(parsed.system_prompt));
+                                if (parsed.user_prompt) parts.push(stringifyField(parsed.user_prompt));
+                                if (parsed.tips) parts.push(stringifyField(parsed.tips));
+                                return { prompt: parts.join('\n\n') };
+                            }
+                        } catch (e) {
+                            // Fall through to raw text
+                        }
+                    }
+
+                    // Markdown direto — usar o texto limpo como-is
+                    return { prompt: cleaned };
+                }
+
+                function showKeyError(input, statusFn, msg) {
+                    input.style.borderColor = '#f04a4a';
+                    input.focus();
+                    statusFn(msg, '#f04a4a');
+                    setTimeout(function () {
+                        input.style.borderColor = '';
+                        statusFn('', null);
+                    }, 3000);
+                }
+
+                async function generate() {
+                    if (isGenerating) return;
+                    if (!taskInput.value.trim()) {
+                        taskInput.focus();
+                        return;
+                    }
+                    if (selectedModel === 'claude' && !claudeApiKeyInput.value.trim()) {
+                        showKeyError(claudeApiKeyInput, showClaudeStatus, 'cole sua API key para continuar');
+                        return;
+                    }
+                    if (selectedModel === 'minimax' && !apiKeyInput.value.trim()) {
+                        apiKeyInput.focus();
+                        return;
+                    }
+                    if (selectedModel === 'gemini' && !geminiApiKeyInput.value.trim()) {
+                        showKeyError(geminiApiKeyInput, showGeminiStatus, 'cole sua API key para continuar');
+                        return;
+                    }
+                    resetResultForGeneration();
+                    saveUiState({ keepPreviousGenerated: true });
+                    setLoading(true);
+                    var userMsg = buildUserMessage();
+                    try {
+                        var raw;
+                        if (selectedModel === 'claude') {
+                            var claudeKey = claudeApiKeyInput.value.trim();
+                            raw = await callClaude(userMsg, claudeKey);
+                            localStorage.setItem(claudeKeyStorageKey, claudeKey);
+                            showClaudeStatus('✓ Claude respondeu com sucesso', 'var(--accent)');
+                            setTimeout(clearClaudeStatus, 3000);
+                        } else if (selectedModel === 'minimax') {
+                            raw = await callMinimax(userMsg, apiKeyInput.value.trim());
+                        } else if (selectedModel === 'gemini') {
+                            var geminiKey = geminiApiKeyInput.value.trim();
+                            raw = await callGemini(userMsg, geminiKey);
+                            localStorage.setItem(geminiKeyStorageKey, geminiKey);
+                            showGeminiStatus('✓ Gemini respondeu com sucesso', 'var(--accent)');
+                            setTimeout(clearGeminiStatus, 3000);
+                        }
+                        var parsed = parseResponse(raw);
+                        showResult(parsed);
+                    } catch (err) {
+                        if (selectedModel === 'claude') {
+                            if (err.authFailed) localStorage.removeItem(claudeKeyStorageKey);
+                            showClaudeStatus('✗ ' + err.message, '#f04a4a');
+                        } else if (selectedModel === 'gemini') {
+                            if (err.isRateLimit) {
+                                startGeminiRateLimitCountdown();
+                                return;
+                            }
+                            if (err.authFailed) localStorage.removeItem(geminiKeyStorageKey);
+                            showGeminiStatus('✗ ' + err.message, '#f04a4a');
+                        }
+                        showResult({ prompt: 'Erro: ' + err.message });
+                    } finally {
+                        setLoading(false);
+                    }
+                }
+
+                generateBtn.addEventListener('click', generate);
+
+                document.addEventListener('keydown', function (e) {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') generate();
+                });
+
+                copyBtn.addEventListener('click', function () {
+                    if (!generatedData) return;
+                    var text = generatedData.prompt || '';
+                    navigator.clipboard.writeText(text).then(function () {
+                        copyBtn.textContent = '✓ copiado';
+                        setTimeout(function () {
+                            copyBtn.textContent = 'copiar tudo';
+                        }, 2000);
+                    });
+                });
+            })();
+        </script>
+    </body>
+</html>

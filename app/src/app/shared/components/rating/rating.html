@@ -1,0 +1,23 @@
+
+    <div class="flex items-center gap-0.5" role="radiogroup" aria-label="Rating">
+      @for (star of stars(); track star) {
+        <button
+          type="button"
+          class="transition-colors cursor-pointer disabled:cursor-default"
+          [disabled]="readonly()"
+          (click)="select(star)"
+          (mouseenter)="hovered.set(star)"
+          (mouseleave)="hovered.set(0)"
+        >
+          <lucide-icon
+            [name]="star <= (hovered() || value()) ? 'star' : 'star'"
+            [size]="size() === 'sm' ? 16 : size() === 'md' ? 20 : 24"
+            [class.text-amber-400]="star <= (hovered() || value())"
+            [class.fill-amber-400]="star <= (hovered() || value())"
+            [class.text-neutral-300]="star > (hovered() || value())"
+            [class.dark:text-neutral-600]="star > (hovered() || value())"
+          />
+        </button>
+      }
+    </div>
+  

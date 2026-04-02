@@ -1,0 +1,38 @@
+
+    <ul [class]="level() === 0 ? '' : 'ml-4'" class="space-y-0.5">
+      @for (node of nodes(); track node.id) {
+        <li>
+          <div
+            class="flex items-center gap-1.5 px-2 py-1 rounded text-sm cursor-pointer
+              hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            [class.font-medium]="isExpanded(node.id)"
+            (click)="toggleOrSelect(node)"
+            (keydown.enter)="toggleOrSelect(node)"
+            tabindex="0"
+            role="button"
+          >
+            @if (node.children && node.children.length > 0) {
+              <lucide-icon
+                [name]="isExpanded(node.id) ? 'chevron-down' : 'chevron-right'"
+                [size]="14"
+                class="text-neutral-400 shrink-0"
+              />
+            } @else {
+              <span class="w-3.5"></span>
+            }
+            @if (node.icon) {
+              <lucide-icon [name]="node.icon" [size]="14" class="text-neutral-500 shrink-0" />
+            }
+            <span class="text-neutral-800 dark:text-neutral-200 truncate">{{ node.label }}</span>
+          </div>
+          @if (node.children && isExpanded(node.id)) {
+            <af-tree-view
+              [nodes]="node.children"
+              [level]="level() + 1"
+              (nodeSelected)="nodeSelected.emit($event)"
+            />
+          }
+        </li>
+      }
+    </ul>
+  

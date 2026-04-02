@@ -1,0 +1,42 @@
+
+    <div [class]="containerClasses()">
+      @if (label()) {
+        <af-form-label [label]="label()" [required]="required()" />
+      }
+      <div class="flex items-center gap-1">
+        <af-icon-button
+          label="Diminuir"
+          variant="outline"
+          size="sm"
+          [disabled]="isAtMin()"
+          (click)="decrement()"
+        >
+          <lucide-icon name="minus" [size]="14" />
+        </af-icon-button>
+        <input
+          type="number"
+          [formControl]="control()"
+          [min]="min()"
+          [max]="max()"
+          [step]="step()"
+          class="w-20 text-center rounded-md border border-neutral-300 dark:border-neutral-600
+            bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-neutral-50
+            py-1.5 tabular-nums focus:outline-none focus:ring-2 focus:ring-accent-500/30
+            focus:border-accent-500 disabled:opacity-50"
+        />
+        <af-icon-button
+          label="Aumentar"
+          variant="outline"
+          size="sm"
+          [disabled]="isAtMax()"
+          (click)="increment()"
+        >
+          <lucide-icon name="plus" [size]="14" />
+        </af-icon-button>
+      </div>
+      @if (helpText() && !errorMessage()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+      <af-form-error [show]="!!errorMessage()" [message]="errorMessage()" />
+    </div>
+  

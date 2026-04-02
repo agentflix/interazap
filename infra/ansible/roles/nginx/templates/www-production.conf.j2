@@ -1,0 +1,59 @@
+# =====================================================
+# Nginx - www.agentflix.com.br (Production)
+# Autor: DevOps Agentflix
+# =====================================================
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name www.agentflix.com.br;
+
+    # Redirect para HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name www.agentflix.com.br;
+
+    root /data/production/landing/public;
+    index index.html;
+
+    # SSL (configurar com Let's Encrypt)
+    ssl_certificate /etc/letsencrypt/live/www.agentflix.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.agentflix.com.br/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    # Logs
+    access_log /var/log/nginx/www_agentflix_access.log;
+    error_log /var/log/nginx/www_agentflix_error.log;
+
+    # Includes
+    include snippets/security-headers.conf;
+    include snippets/gzip.conf;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Bloquear arquivos sensíveis
+    location ~ /\.(?!well-known) {
+        deny all;
+    }
+
+    location ~ /\.env {
+        deny all;
+    }
+
+    # Health check
+    location /health {
+        access_log off;
+        return 200 "OK";
+        add_header Content-Type text/plain;
+    }
+}

@@ -1,0 +1,45 @@
+<div class="flex flex-col h-full min-h-0">
+  <app-chat-list-filters></app-chat-list-filters>
+
+  <af-scroll-area #scrollContainer class="flex-1 min-h-0 w-full" maxHeight="100%">
+    @if (isLoading() && !hasCalleds()) {
+      <div class="px-5 py-4 space-y-4">
+        @for (placeholder of loadingPlaceholders; track placeholder) {
+          <div class="flex items-center gap-3">
+            <div class="size-9 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3 w-3/4 rounded bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+              <div class="h-3 w-1/2 rounded bg-neutral-150 dark:bg-neutral-700 animate-pulse"></div>
+            </div>
+            <div class="h-3 w-8 rounded bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+          </div>
+        }
+      </div>
+    } @else {
+      @if (!hasCalleds()) {
+        <div class="px-5 py-6 text-sm text-neutral-500 text-center">
+          Nenhum atendimento encontrado.
+        </div>
+      } @else {
+        @for (called of filteredCalleds(); track called.id) {
+          <app-chat-list-item [called]="called" [active]="isActive(called)"></app-chat-list-item>
+        }
+      }
+    }
+
+    @if (isLoading() && hasCalleds()) {
+      <div class="px-5 py-4 space-y-4">
+        @for (placeholder of [1, 2, 3]; track placeholder) {
+          <div class="flex items-center gap-3">
+            <div class="size-9 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3 w-3/4 rounded bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+              <div class="h-3 w-1/2 rounded bg-neutral-150 dark:bg-neutral-700 animate-pulse"></div>
+            </div>
+            <div class="h-3 w-8 rounded bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+          </div>
+        }
+      </div>
+    }
+  </af-scroll-area>
+</div>

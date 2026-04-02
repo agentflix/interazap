@@ -1,0 +1,6 @@
+:host {
+        display: block;
+      }
+      :host-context(.dark) audio {
+        color-scheme: dark;
+      }

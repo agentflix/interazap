@@ -1,0 +1,24 @@
+
+    <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+      <div
+        class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4"
+      >
+        <lucide-icon name="alert-circle" [size]="32" class="text-red-500" />
+      </div>
+      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-50 mb-1">
+        {{ title() }}
+      </h3>
+      <p class="text-sm text-neutral-500 mb-6 max-w-md">{{ message() }}</p>
+      @if (showRetry()) {
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg
+            bg-accent-600 text-white hover:bg-accent-700 transition-colors cursor-pointer"
+          (click)="retryClicked.emit()"
+        >
+          <lucide-icon name="refresh-cw" [size]="14" />
+          Tentar novamente
+        </button>
+      }
+    </div>
+  

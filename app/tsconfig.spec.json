@@ -1,0 +1,39 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./out-tsc/spec",
+    "target": "es2022",
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@core/*": ["src/app/core/*"],
+      "@env/*": ["src/environments/*"],
+      "@shared/*": ["src/app/shared/*"],
+      "@layout/*": ["src/app/layout/*"],
+      "@pages/*": ["src/app/pages/*"],
+      "@ai/*": ["src/app/pages/ai/*"],
+      "@auth/*": ["src/app/pages/auth/*"],
+      "@billing/*": ["src/app/pages/billing/*"],
+      "@chat/*": ["src/app/pages/chat/*"],
+      "@crm/*": ["src/app/pages/crm/*"],
+      "@dashboard/*": ["src/app/pages/dashboard/*"],
+      "@platform/*": ["src/app/pages/platform/*"],
+      "@reports/*": ["src/app/pages/reports/*"],
+      "@admin/*": ["src/app/pages/admin/*"],
+      "@public/*": ["src/app/pages/public/*"],
+      "@settings/*": ["src/app/pages/settings/*"],
+      "lucide-angular": ["src/test-helpers/lucide-angular.stub.ts"]
+    }
+  },
+  "files": ["src/test-setup.ts"],
+  "include": [
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts",
+    "src/app/pages/crm/contacts/**/*.ts",
+    "src/app/pages/crm/negotiations/**/*.ts",
+    "src/app/pages/crm/negotiation-show/**/*.ts"
+  ]
+}

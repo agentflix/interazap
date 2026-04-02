@@ -1,0 +1,96 @@
+
+    @if (errorMessage()) {
+      <div class="mb-4">
+        <af-alert variant="danger" [message]="errorMessage()" />
+      </div>
+    }
+
+    <form [formGroup]="form" (submit)="$event.preventDefault()">
+      <!-- Role name -->
+      <af-text-input
+        [control]="form.controls.name"
+        label="Nome do perfil"
+        placeholder="Ex: Atendente, Supervisor, Gerente"
+        [required]="true"
+        dataTest="role-form-name"
+        [errorMessage]="nameError()"
+      />
+
+      <!-- Permissions accordion -->
+      <div>
+        <div class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+          Permissões
+        </div>
+
+        @if (isLoadingPermissions()) {
+          <div class="space-y-2">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="h-10 rounded-md bg-neutral-100 dark:bg-neutral-800 animate-pulse"></div>
+            }
+          </div>
+        } @else if (permissionModules().length === 0) {
+          <p class="text-sm text-neutral-400 italic">Nenhuma permissão disponível.</p>
+        } @else {
+          <af-scroll-area maxHeight="18rem">
+            <div class="space-y-2 pr-1">
+              @for (module of permissionModules(); track module) {
+                <div
+                  class="border border-neutral-200 dark:border-neutral-700 rounded-md overflow-hidden"
+                >
+                  <!-- Module header -->
+                  <af-button
+                    variant="ghost"
+                    size="sm"
+                    [block]="true"
+                    (click)="toggleModuleExpanded(module)"
+                  >
+                    <div class="flex items-center gap-3">
+                      <af-checkbox-input
+                        [control]="getModuleCheckboxControl(module)"
+                        [ariaLabel]="
+                          'Selecionar todas as permissões de ' + formatModuleLabel(module)
+                        "
+                        [dataTest]="'role-module-' + module"
+                      />
+                      <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                        {{ formatModuleLabel(module) }}
+                      </span>
+                      <span class="text-xs text-neutral-400 dark:text-neutral-500">
+                        ({{ selectedCountForModule(module) }}/{{
+                          groupedPermissions()[module]?.length ?? 0
+                        }})
+                      </span>
+                    </div>
+                    <lucide-icon
+                      name="chevron-down"
+                      [size]="16"
+                      class="text-neutral-400 transition-transform shrink-0"
+                      [class.rotate-180]="isModuleExpanded(module)"
+                    />
+                  </af-button>
+
+                  <!-- Module permissions grid -->
+                  @if (isModuleExpanded(module)) {
+                    <div class="grid grid-cols-2 gap-2 px-4 py-3">
+                      @for (permission of groupedPermissions()[module]; track permission) {
+                        <div class="flex items-center gap-2">
+                          <af-checkbox-input
+                            [control]="getPermissionCheckboxControl(permission)"
+                            [ariaLabel]="formatPermissionLabel(permission)"
+                            [dataTest]="'role-permission-' + permission"
+                          />
+                          <span class="text-sm text-neutral-600 dark:text-neutral-400">
+                            {{ formatPermissionLabel(permission) }}
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </af-scroll-area>
+        }
+      </div>
+    </form>
+  

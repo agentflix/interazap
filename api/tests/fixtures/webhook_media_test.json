@@ -1,0 +1,30 @@
+{
+    "BaseUrl": "https://free.uazapi.com",
+    "EventType": "messages",
+    "chat": {
+        "name": "Rosa Lopes",
+        "owner": "5514996448268",
+        "phone": "+55 14 99701-4244",
+        "wa_chatid": "5514997014244@s.whatsapp.net"
+    },
+    "instanceName": "teste",
+    "message": {
+        "chatid": "5514997014244@s.whatsapp.net",
+        "content": {
+            "URL": "https://mmg.whatsapp.net/o1/v/t24/f2/m235/AQOs1saw6OY9iphkDeyz73-CRfrEUjuPqY_nJEPBj8t9iuCxc_v2a1DOpLmv_zWVblOwFZNhtrRBzv6w2Grv-DIt21_PvxL1AQ9dR-Lzcg?ccb=9-4&oh=01_Q5Aa3gF5qMhSzGv5Uh-CmcL-_xYmRqZMidJwjlMPxYjxAZF_xw&oe=6994DBE5&_nc_sid=e6ed6c&mms3=true",
+            "mimetype": "image/jpeg",
+            "fileLength": 61669
+        },
+        "fromMe": false,
+        "id": "5514996448268:TEST_MEDIA_DOWNLOAD_001",
+        "mediaType": "image",
+        "messageTimestamp": 1768800000000,
+        "messageType": "ImageMessage",
+        "messageid": "TEST_MEDIA_DOWNLOAD_001",
+        "sender": "5514997014244@s.whatsapp.net",
+        "senderName": "Rosa lopes",
+        "type": "media"
+    },
+    "owner": "5514996448268",
+    "token": "00e01532-d35f-4102-88dc-784d9f4c26be"
+}

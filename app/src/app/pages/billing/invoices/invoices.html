@@ -1,0 +1,170 @@
+
+    <div class="pt-2">
+      <app-page-title title="Faturas" subtitle="Faturas">
+        <af-button variant="secondary" size="sm" (clicked)="openFilters()">
+          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+          Filtros
+        </af-button>
+      </app-page-title>
+
+      <!-- Filter Drawer -->
+      <af-drawer
+        [open]="isFilterOpen()"
+        title="Filtros"
+        side="right"
+        size="lg"
+        (closed)="closeFilters()"
+      >
+        <af-search-input
+          [control]="searchControl"
+          placeholder="Buscar por mês..."
+          dataTest="billing-search"
+        />
+
+        <div class="grid grid-cols-1">
+          <div class="grid grid-cols-2 gap-4">
+            <af-text-input
+              label="Vencimento de"
+              type="date"
+              [control]="dueDateFromControl"
+              dataTest="billing-due-date-from"
+            />
+            <af-text-input
+              label="Vencimento até"
+              type="date"
+              [control]="dueDateToControl"
+              dataTest="billing-due-date-to"
+            />
+          </div>
+          <af-select-input
+            label="Método de Pagamento"
+            [control]="paymentMethodFilterControl"
+            [options]="paymentMethodOptions"
+            placeholder="Todos"
+            dataTest="billing-payment-method"
+          />
+          <af-select-input
+            label="Status"
+            [control]="invoiceStatusControl"
+            [options]="statusOptions"
+            placeholder="Todos"
+            dataTest="billing-status"
+          />
+        </div>
+
+        <div footer>
+          <div class="flex w-full items-center justify-between gap-2">
+            <af-button variant="danger" size="sm" (clicked)="clearFilters()">
+              Limpar filtros
+            </af-button>
+            <div class="flex gap-2">
+              <af-button variant="ghost" size="sm" (clicked)="closeFilters()">Cancelar</af-button>
+              <af-button variant="primary" size="sm" (clicked)="applyFilters()">Aplicar</af-button>
+            </div>
+          </div>
+        </div>
+      </af-drawer>
+
+      <!-- Table -->
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+      >
+        @if (isLoading()) {
+          <af-skeleton-table-row [columns]="7" [rows]="6" />
+        } @else if (hasError()) {
+          <div class="p-6 space-y-3">
+            <af-alert
+              variant="danger"
+              title="Erro ao carregar faturas"
+              message="Não foi possível carregar a listagem de faturas."
+            />
+            <af-button variant="outline" size="sm" (clicked)="retry()">
+              <lucide-icon name="refresh-cw" [size]="14" class="block" />
+              Tentar novamente
+            </af-button>
+          </div>
+        } @else if (isEmpty()) {
+          <af-empty-state
+            title="Nenhuma fatura encontrada"
+            description="Assim que houver cobranças, elas aparecerão aqui."
+          />
+        } @else {
+          <af-data-table [hoverable]="true">
+            <thead>
+              <tr>
+                <th>Referência</th>
+                <th>Plano</th>
+                <th class="text-right">Valor</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+                <th class="text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invoice of invoices(); track invoice.id) {
+                <tr>
+                  <td>
+                    <div class="font-medium text-neutral-800 dark:text-neutral-100">
+                      {{ invoice.reference_month.split('-').reverse().join('-') }}
+                    </div>
+                    <p class="text-xs text-neutral-500">ID: {{ invoice.id }}</p>
+                  </td>
+                  <td>{{ invoice.plan?.name || '-' }}</td>
+                  <td class="text-right font-medium">{{ formatCurrency(invoice.amount) }}</td>
+                  <td>{{ invoice.due_date | date: 'dd/MM/yyyy' }}</td>
+                  <td>
+                    <af-badge [variant]="statusVariant(invoice.status_color)">
+                      {{ invoice.status_label || invoice.status }}
+                    </af-badge>
+                  </td>
+                  <td>
+                    <div class="flex items-center justify-end gap-1">
+                      @if (invoice.payment_url) {
+                        <af-icon-button
+                          label="Ver pagamento"
+                          variant="ghost"
+                          size="sm"
+                          (click)="openPaymentUrl(invoice)"
+                        >
+                          <lucide-icon name="eye" [size]="15" class="block" />
+                        </af-icon-button>
+                      }
+
+                      @if (canPay(invoice)) {
+                        <af-icon-button
+                          label="Pagar"
+                          variant="outline"
+                          size="sm"
+                          (click)="openPay(invoice)"
+                        >
+                          <lucide-icon name="credit-card" [size]="15" class="block" />
+                        </af-icon-button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </af-data-table>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (!isLoading() && !isEmpty() && meta().last_page > 1) {
+        <af-pagination
+          [currentPage]="meta().current_page"
+          [lastPage]="meta().last_page"
+          [perPage]="meta().per_page"
+          [total]="meta().total"
+          (pageChange)="loadPage($event)"
+        />
+      }
+    </div>
+
+    <app-invoice-payment-modal
+      [invoice]="selectedInvoice()"
+      [isOpen]="isPayModalOpen()"
+      (closed)="closePay()"
+      (paymentSuccess)="onPaymentSuccess()"
+    />
+  

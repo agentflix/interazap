@@ -1,0 +1,10 @@
+
+    @if (!isOnline()) {
+      <af-banner
+        variant="warning"
+        message="You are offline. Some features may be unavailable."
+        actionLabel="Retry"
+        (actionClicked)="retry()"
+      />
+    }
+  

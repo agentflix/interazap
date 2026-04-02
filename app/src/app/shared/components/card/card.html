@@ -1,0 +1,14 @@
+
+    <div
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700
+        shadow-sm overflow-hidden"
+      [class.p-0]="!padded()"
+      [class.h-full]="fullHeight()"
+    >
+      <ng-content select="[header]" />
+      <div [class.px-5]="padded()" [class.py-4]="padded()">
+        <ng-content />
+      </div>
+      <ng-content select="[footer]" />
+    </div>
+  

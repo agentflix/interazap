@@ -1,0 +1,35 @@
+
+    <nav aria-label="Breadcrumb">
+      <ol class="flex items-center gap-1.5 text-sm">
+        @for (item of items(); track item.label; let last = $last) {
+          <li class="flex items-center gap-1.5">
+            @if (item.href && !last) {
+              <a
+                [href]="item.href"
+                class="text-neutral-500 dark:text-neutral-400 hover:text-accent-500 transition-colors"
+              >
+                {{ item.label }}
+              </a>
+            } @else {
+              <span
+                class="font-medium"
+                [class.text-neutral-900]="last"
+                [class.dark:text-neutral-50]="last"
+                [class.text-neutral-500]="!last"
+                [class.dark:text-neutral-400]="!last"
+              >
+                {{ item.label }}
+              </span>
+            }
+            @if (!last) {
+              <lucide-icon
+                name="chevron-right"
+                [size]="14"
+                class="text-neutral-300 dark:text-neutral-600"
+              />
+            }
+          </li>
+        }
+      </ol>
+    </nav>
+  

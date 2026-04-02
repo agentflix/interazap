@@ -1,0 +1,80 @@
+<a
+  [routerLink]="['/chat', called().id]"
+  class="flex w-full gap-3 py-4 px-4 hover:bg-neutral-150 dark:hover:bg-neutral-700 border-b border-neutral-100 dark:border-neutral-800 transition-colors cursor-pointer"
+  [class.bg-neutral-200]="active()"
+  [class.dark:bg-neutral-800]="active()"
+  [style.view-transition-name]="'chat-ticket-' + called().id"
+>
+  <div
+    class="relative shrink-0 flex items-center justify-center font-semibold rounded-full size-10 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 overflow-hidden"
+  >
+    @if (called().profile_picture_url) {
+      <img
+        [src]="called().profile_picture_url"
+        [alt]="'Foto de ' + state.getDisplayName(called())"
+        class="size-full object-cover"
+      />
+    } @else {
+      <span class="text-xs">
+        {{ state.getDisplayName(called()).slice(0, 2).toUpperCase() }}
+      </span>
+    }
+  </div>
+
+  <div class="grow min-w-0">
+    <div class="flex items-center justify-between gap-2">
+      <h6 class="mb-1 text-neutral-800 dark:text-neutral-100 font-semibold text-sm truncate">
+        {{ state.getDisplayName(called()) }}
+      </h6>
+      @if ((called().unread_count ?? 0) > 0) {
+        <span class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+          {{ called().unread_count ?? 0 }}
+        </span>
+      }
+    </div>
+
+    @if ((called().sentiment_score ?? 0) > 60) {
+      <span
+        class="inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium"
+        [class]="state.getSentimentBadgeClass(called())"
+      >
+        {{ state.getSentimentLabel(called()) }}
+      </span>
+    }
+
+    <p class="text-xs truncate text-neutral-500">{{ state.getSubtitle(called()) }}</p>
+
+    @if (called().assigned_user) {
+      <div
+        class="mt-1 inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 max-w-full"
+      >
+        <ng-icon name="lucideUser" size="10" class="text-neutral-500"></ng-icon>
+        <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium truncate">
+          {{ called().assigned_user?.name }}
+        </span>
+      </div>
+    } @else if (called().user?.department) {
+      <div
+        class="mt-1 inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 max-w-full"
+      >
+        <ng-icon name="lucideUsers" size="10" class="text-neutral-500"></ng-icon>
+        <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium truncate">
+          {{ called().user?.department?.name }}
+        </span>
+      </div>
+    }
+  </div>
+
+  <div class="flex flex-col items-end justify-between self-stretch py-1 pl-2">
+    <span
+      class="size-2 rounded-full"
+      [class.bg-yellow-400]="called().status === 'pending'"
+      [class.bg-green-500]="called().status === 'in_progress' || called().status === 'open'"
+      [class.bg-neutral-300]="called().status === 'closed'"
+    ></span>
+
+    <small class="text-[10px] text-neutral-400 font-medium whitespace-nowrap">
+      {{ state.formatTime(state.getLastTimestamp(called())) }}
+    </small>
+  </div>
+</a>

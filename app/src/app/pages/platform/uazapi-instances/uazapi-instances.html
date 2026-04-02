@@ -1,0 +1,449 @@
+
+    <af-crud-page
+      title="Instâncias UaZapi"
+      subtitle="Plataforma"
+      createLabel="Nova Instância"
+      searchPlaceholder="Buscar por nome, campo administrativo ou ID"
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhuma instância cadastrada"
+      emptyDescription="Crie sua primeira instância UaZapi para iniciar conexões."
+      [skeletonColumns]="6"
+      [skeletonRows]="6"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      <div filters class="w-full flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div class="w-full sm:w-44">
+          <af-select-input
+            [control]="statusFilterControl"
+            [options]="statusOptions"
+            size="sm"
+            [spacing]="false"
+          />
+        </div>
+      </div>
+
+      @if (hasSelection()) {
+        <div filters class="flex items-center gap-2">
+          <af-button variant="danger" size="sm" (click)="bulkDisconnect()">
+            Desconectar selecionadas ({{ selectedCount() }})
+          </af-button>
+        </div>
+      }
+
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar instâncias"
+            message="Não foi possível carregar as instâncias UaZapi."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th class="w-10">
+                <af-checkbox-input
+                  [control]="selectAllControl"
+                  ariaLabel="Selecionar todas as instâncias conectadas"
+                />
+              </th>
+              <th>Instância</th>
+              <th>Administrativo</th>
+              <th>Status</th>
+              <th>Último sinal</th>
+              <th>Token</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (instance of instances(); track instance.id) {
+              <tr>
+                <td>
+                  @if (isSelectable(instance)) {
+                    <af-checkbox-input
+                      [control]="getRowSelectionControl(instance.id)"
+                      [ariaLabel]="'Selecionar instância ' + displayName(instance)"
+                    />
+                  }
+                </td>
+                <td>
+                  <div class="flex items-center gap-3">
+                    @if (profilePicUrl(instance); as picUrl) {
+                      <img
+                        [src]="picUrl"
+                        [alt]="'Foto de ' + displayName(instance)"
+                        class="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                      />
+                    } @else {
+                      <div
+                        class="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center flex-shrink-0"
+                      >
+                        <span class="text-xs font-medium text-neutral-500">{{
+                          displayName(instance).charAt(0).toUpperCase()
+                        }}</span>
+                      </div>
+                    }
+                    <div class="flex flex-col">
+                      <span class="font-medium">{{ displayName(instance) }}</span>
+                      <span class="text-xs text-neutral-500">{{
+                        instance.system_name || instance.id
+                      }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="text-xs text-neutral-500 space-y-0.5">
+                    <div>{{ instance.config?.['admin_field_01'] || '—' }}</div>
+                    <div>{{ instance.config?.['admin_field_02'] || '—' }}</div>
+                  </div>
+                </td>
+                <td>
+                  <div class="flex flex-col items-start gap-1">
+                    <af-status-badge [status]="statusBadge(instance.status)">
+                      {{ statusLabel(instance.status) }}
+                    </af-status-badge>
+                    @if (instance.status === 'connected') {
+                      <button
+                        type="button"
+                        class="text-xs flex items-center gap-1"
+                        [class]="
+                          currentPresence(instance) === 'available'
+                            ? 'text-green-600 dark:text-green-400'
+                            : 'text-neutral-400 dark:text-neutral-500'
+                        "
+                        [disabled]="isUpdatingPresence()"
+                        (click)="togglePresence(instance)"
+                      >
+                        <span
+                          class="w-1.5 h-1.5 rounded-full"
+                          [class]="
+                            currentPresence(instance) === 'available'
+                              ? 'bg-green-500'
+                              : 'bg-neutral-400 dark:bg-neutral-600'
+                          "
+                        ></span>
+                        {{ currentPresence(instance) === 'available' ? 'Online' : 'Offline' }}
+                      </button>
+                    }
+                  </div>
+                </td>
+                <td class="text-xs text-neutral-500">{{ instance.last_seen_at || '—' }}</td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono text-neutral-500">{{
+                      tokenDisplay(instance)
+                    }}</span>
+                    @if (copyableToken(instance); as instanceToken) {
+                      <af-icon-button
+                        label="Copiar token"
+                        variant="ghost"
+                        size="xs"
+                        (click)="copy(instanceToken)"
+                      >
+                        <lucide-icon name="copy" [size]="14" />
+                      </af-icon-button>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <div class="flex justify-end items-center gap-1">
+                    <af-icon-button
+                      label="Conectar"
+                      variant="outline"
+                      size="sm"
+                      (click)="openConnectModal(instance)"
+                    >
+                      <lucide-icon name="plug" [size]="15" />
+                    </af-icon-button>
+                    <af-icon-button
+                      label="Status"
+                      variant="ghost"
+                      size="sm"
+                      (click)="openStatusModal(instance)"
+                    >
+                      <lucide-icon name="activity" [size]="15" />
+                    </af-icon-button>
+                    @if (instance.status === 'connected') {
+                      <af-icon-button
+                        label="Alterar imagem"
+                        variant="ghost"
+                        size="sm"
+                        (click)="openProfileImageModal(instance)"
+                      >
+                        <lucide-icon name="image" [size]="15" />
+                      </af-icon-button>
+                    }
+                    <af-table-actions (edit)="openEdit(instance)" (delete)="openDelete(instance)" />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="md"
+      (closed)="handleFormCancelled()"
+    >
+      <app-uazapi-instance-form
+        #instanceForm
+        [instance]="selectedInstance()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="instanceFormRef()?.cancel()"
+          >Cancelar</af-button
+        >
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isFormSaving()"
+          [disabled]="(instanceFormRef()?.form?.invalid ?? true) || isFormSaving()"
+          (click)="instanceFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <af-modal
+      [open]="isConnectModalOpen()"
+      title="Conectar instância"
+      size="sm"
+      (closed)="closeConnectModal()"
+    >
+      <form class="space-y-4" (submit)="$event.preventDefault()">
+        <af-select-input
+          label="Modo"
+          [control]="connectForm.controls.mode"
+          [options]="connectModeOptions"
+          [spacing]="false"
+        />
+
+        @if (connectForm.controls.mode.value === 'pair') {
+          <af-text-input
+            label="Telefone"
+            [control]="connectForm.controls.phone"
+            placeholder="5511999999999"
+            [spacing]="false"
+          />
+        }
+
+        @if (connectionResult()) {
+          <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3 space-y-2">
+            @if (connectionResult()?.pairCode) {
+              <div class="text-sm">
+                Pair code: <strong>{{ connectionResult()?.pairCode }}</strong>
+              </div>
+            }
+            @if (connectionResult()?.qrImage) {
+              <img
+                [src]="connectionResult()?.qrImage || ''"
+                alt="QR Code"
+                class="max-w-full h-auto rounded"
+              />
+            }
+            @if (connectionResult()?.expiresAt) {
+              <div class="text-xs text-neutral-500">
+                Expira em: {{ connectionResult()?.expiresAt }}
+              </div>
+            }
+          </div>
+        }
+      </form>
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="closeConnectModal()">Fechar</af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isConnectingInstance()"
+          (click)="submitConnect()"
+        >
+          {{ connectActionLabel() }}
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <af-modal
+      [open]="isStatusModalOpen()"
+      title="Status da conexão"
+      size="sm"
+      (closed)="closeStatusModal()"
+    >
+      @if (isStatusLoading()) {
+        <div class="py-6 text-sm text-neutral-500">Carregando status...</div>
+      } @else {
+        <div class="space-y-2 text-sm">
+          @if (statusResultEntries().length === 0) {
+            <p class="text-neutral-500">Nenhuma informação de status disponível.</p>
+          } @else {
+            @for (item of statusResultEntries(); track item.key) {
+              <div
+                class="flex items-start justify-between gap-3 border-b border-neutral-200 dark:border-neutral-700 pb-2"
+              >
+                <span class="text-neutral-500">{{ item.key }}</span>
+                <span class="text-right break-all">{{ item.value }}</span>
+              </div>
+            }
+          }
+        </div>
+      }
+    </af-modal>
+
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      [title]="deleteTitle()"
+      [message]="deleteMessage()"
+      [confirmLabel]="deleteConfirmLabel()"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="confirmDelete()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+
+    <af-confirm-modal
+      [open]="showDisconnectModal()"
+      [title]="disconnectTitle()"
+      [message]="disconnectMessage()"
+      [confirmLabel]="disconnectConfirmLabel()"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="power"
+      (confirmed)="confirmDisconnect()"
+      (cancelled)="showDisconnectModal.set(false)"
+    />
+
+    <af-modal
+      [open]="showProfileImageModal()"
+      title="Alterar imagem do perfil"
+      size="sm"
+      (closed)="closeProfileImageModal()"
+    >
+      @if (profileImageTarget(); as target) {
+        <div class="space-y-4">
+          <div class="flex items-center gap-3">
+            @if (profilePicUrl(target); as picUrl) {
+              <img [src]="picUrl" alt="Avatar atual" class="w-16 h-16 rounded-full object-cover" />
+            } @else {
+              <div
+                class="w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+              >
+                <span class="text-lg font-medium text-neutral-500">{{
+                  displayName(target).charAt(0).toUpperCase()
+                }}</span>
+              </div>
+            }
+            <div>
+              <p class="text-sm font-medium">{{ displayName(target) }}</p>
+              <p class="text-xs text-neutral-500">Imagem atual do perfil WhatsApp</p>
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="flex-1 py-1.5 text-xs rounded border"
+              [class]="
+                profileImageMode() === 'url'
+                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
+                  : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
+              "
+              (click)="setProfileImageMode('url')"
+            >
+              URL
+            </button>
+            <button
+              type="button"
+              class="flex-1 py-1.5 text-xs rounded border"
+              [class]="
+                profileImageMode() === 'base64'
+                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
+                  : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
+              "
+              (click)="setProfileImageMode('base64')"
+            >
+              Base64
+            </button>
+            <button
+              type="button"
+              class="flex-1 py-1.5 text-xs rounded border"
+              [class]="
+                profileImageMode() === 'remove'
+                  ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
+                  : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
+              "
+              (click)="setProfileImageMode('remove')"
+            >
+              Remover
+            </button>
+          </div>
+
+          @if (profileImageMode() === 'url') {
+            <af-text-input
+              label="URL da imagem"
+              [control]="profileImageUrlControl"
+              placeholder="https://exemplo.com/avatar.jpg"
+              [spacing]="false"
+            />
+            @if (profileImagePreview()) {
+              <img
+                [src]="profileImagePreview()!"
+                alt="Preview"
+                class="w-20 h-20 rounded-full object-cover mx-auto"
+              />
+            }
+          }
+
+          @if (profileImageMode() === 'base64') {
+            <af-textarea-input
+              label="Base64 da imagem"
+              [control]="profileImageBase64Control"
+              placeholder="data:image/jpeg;base64,..."
+              [maxLength]="500000"
+              [spacing]="false"
+            />
+          }
+
+          @if (profileImageMode() === 'remove') {
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">
+              A imagem do perfil será removida. Esta ação não pode ser desfeita.
+            </p>
+          }
+        </div>
+      }
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="closeProfileImageModal()">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isUpdatingProfileImage()"
+          (click)="submitProfileImage()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+  

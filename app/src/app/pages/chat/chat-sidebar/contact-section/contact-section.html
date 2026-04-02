@@ -1,0 +1,147 @@
+<div class="flex h-full flex-col">
+  <div
+    class="flex min-h-14 items-center gap-2 border-b border-neutral-200 dark:border-neutral-800 px-4 py-3"
+  >
+    <div class="size-5 text-primary"><ng-icon name="lucideUser" class="size-5"></ng-icon></div>
+    <h6 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Contato</h6>
+  </div>
+
+  <af-scroll-area class="flex-1 min-h-0" maxHeight="100%">
+    <div class="p-4">
+      @if (isLoading()) {
+        <div class="space-y-2">
+          @for (row of skeletonRows; track row) {
+            <div class="h-8 rounded bg-neutral-150 dark:bg-neutral-800 animate-pulse"></div>
+          }
+        </div>
+      } @else if (showEmpty()) {
+        <div
+          class="rounded border border-dashed border-neutral-200 dark:border-neutral-700 p-6 text-center"
+        >
+          <div
+            class="mx-auto mb-2 flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary"
+          >
+            <ng-icon name="lucideUserX" class="size-4"></ng-icon>
+          </div>
+          <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            Nenhum contato selecionado
+          </p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">
+            Escolha um atendimento para ver os dados do contato.
+          </p>
+        </div>
+      } @else {
+        <form class="space-y-3" [formGroup]="form">
+          <app-text-input
+            [control]="form.controls.name"
+            label="Nome"
+            [required]="true"
+            placeholder="Nome do contato"
+            errorMessage="Nome obrigatório (min 3 caracteres)."
+          />
+
+          <af-phone-input
+            [control]="form.controls.phone"
+            [countryControl]="form.controls.phone_country_code"
+            label="Telefone"
+          />
+
+          <app-text-input
+            [control]="form.controls.email"
+            type="email"
+            label="Email"
+            placeholder="email@exemplo.com"
+            errorMessage="Email inválido."
+          />
+
+          <af-document-input
+            [control]="form.controls.document"
+            label="Documento"
+            placeholder="000.000.000-00"
+          />
+
+          <!-- Tags -->
+          <div class="space-y-2 rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+            <div class="flex items-center justify-between">
+              <span
+                class="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+                >Tags</span
+              >
+              <app-icon-button
+                icon="lucideTag"
+                variant="ghost"
+                size="sm"
+                ariaLabel="Gerenciar tags"
+                (clicked)="openTagsModal()"
+              />
+            </div>
+            <div class="flex flex-wrap gap-2">
+              @if (contactTags().length === 0) {
+                <span class="text-xs text-neutral-500 dark:text-neutral-400">Sem tags</span>
+              } @else {
+                @for (tag of contactTags(); track tag.id) {
+                  <span
+                    class="rounded-full bg-neutral-150 dark:bg-neutral-800 px-2 py-1 text-xs text-neutral-600 dark:text-neutral-300"
+                  >
+                    {{ tag.name }}
+                  </span>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- Empresa -->
+          <div class="space-y-2 rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+            <div class="flex items-center justify-between">
+              <span
+                class="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+                >Empresa</span
+              >
+              <app-icon-button
+                icon="lucideBuilding2"
+                variant="ghost"
+                size="sm"
+                ariaLabel="Selecionar empresa"
+                (clicked)="openCompanyModal()"
+              />
+            </div>
+            <div
+              class="rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-3 py-2 text-xs text-neutral-600 dark:text-neutral-300"
+            >
+              {{ companyName() }}
+            </div>
+          </div>
+
+          <!-- Botão Salvar -->
+          <div class="flex justify-end mt-4!">
+            <app-loading-button
+              [loading]="isSaving()"
+              variant="primary"
+              size="sm"
+              (clicked)="save()"
+            >
+              Salvar contato
+            </app-loading-button>
+          </div>
+        </form>
+      }
+    </div>
+  </af-scroll-area>
+</div>
+
+<app-tags-modal
+  [isOpen]="isTagsModalOpen()"
+  [contactId]="contactSignal()?.id ?? null"
+  [appliedTags]="contactTags()"
+  (closed)="closeTagsModal()"
+  (tagsUpdated)="onTagsUpdated($event)"
+></app-tags-modal>
+
+<app-company-modal
+  [isOpen]="isCompanyModalOpen()"
+  [contactId]="contactSignal()?.id ?? null"
+  [selectedCompanyId]="contactSignal()?.crm_company_id ?? null"
+  [ticketId]="ticketId"
+  (closed)="closeCompanyModal()"
+  (companyUpdated)="onCompanyUpdated($event)"
+></app-company-modal>

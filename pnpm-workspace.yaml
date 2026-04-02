@@ -1,0 +1,9 @@
+packages:
+  - "app"
+  - "gateway"
+
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - esbuild
+  - lmdb
+  - msgpackr-extract

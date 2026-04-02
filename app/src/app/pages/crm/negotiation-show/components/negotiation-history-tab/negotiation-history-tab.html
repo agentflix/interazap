@@ -1,0 +1,110 @@
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h4 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">Histórico</h4>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">Registros e notas da negociação.</p>
+  </div>
+  <app-button variant="primary" size="sm" icon="lucidePin" (clicked)="openAnnotationModal()">
+    Nova anotação
+  </app-button>
+</div>
+
+<div class="mt-4">
+  @if (isAnnotationsLoading()) {
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">Carregando histórico...</p>
+  } @else if (annotationCount() === 0) {
+    <div
+      class="rounded-lg border border-dashed border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-6 text-center text-sm text-neutral-500 dark:text-neutral-400"
+    >
+      Nenhuma anotação registrada ainda.
+    </div>
+  } @else {
+    <div class="space-y-3">
+      @for (annotation of annotations(); track annotation.id) {
+        <div
+          class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4"
+        >
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <span
+                class="inline-flex size-9 items-center justify-center rounded-full"
+                [class]="getAnnotationTypeMeta(annotation.type).tone"
+              >
+                <lucide-icon
+                  [name]="getAnnotationTypeMeta(annotation.type).icon"
+                  [size]="16"
+                  class="block"
+                />
+              </span>
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                    {{ annotation.user?.name || 'Sistema' }}
+                  </p>
+                  @if (annotation.type && annotation.type !== 'manual') {
+                    <span
+                      class="rounded-full border border-neutral-200 dark:border-neutral-700 px-2 py-0.5 text-[11px] font-semibold text-neutral-500 dark:text-neutral-400"
+                    >
+                      {{ getAnnotationTypeMeta(annotation.type).label }}
+                    </span>
+                  }
+                  @if (annotation.is_pinned) {
+                    <span class="inline-flex items-center gap-1 text-xs text-primary">
+                      <lucide-icon name="pin" [size]="16" class="block" />
+                      Fixada
+                    </span>
+                  }
+                  <span class="text-xs text-neutral-500 dark:text-neutral-400">{{
+                    formatDateTime(annotation.created_at)
+                  }}</span>
+                </div>
+                <p class="mt-2 text-sm text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap">
+                  {{ annotation.content }}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2"></div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-modal
+  [isOpen]="isAnnotationModalOpen()"
+  [title]="editingAnnotation() ? 'Editar anotação' : 'Nova anotação'"
+  maxWidth="md"
+  (closed)="closeAnnotationModal()"
+>
+  <div modal-body class="space-y-4">
+    <app-textarea-input
+      label="Conteúdo"
+      [control]="annotationControl"
+      placeholder="Escreva uma anotação..."
+      [rows]="6"
+      dataTest="annotation-content"
+      [required]="true"
+    />
+    @if (annotationModalError()) {
+      <div class="rounded-lg border border-danger/20 bg-danger/10 p-3 text-sm text-danger">
+        {{ annotationModalError() }}
+      </div>
+    }
+  </div>
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <app-button variant="ghost" size="sm" (clicked)="closeAnnotationModal()">
+        Cancelar
+      </app-button>
+      <app-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="isAnnotationSaving()"
+        loadingText="Salvando..."
+        (clicked)="saveAnnotation()"
+      >
+        {{ editingAnnotation() ? 'Salvar' : 'Adicionar' }}
+      </app-loading-button>
+    </div>
+  </div>
+</app-modal>

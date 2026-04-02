@@ -1,0 +1,130 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { type Observable } from 'rxjs';
+import { environment } from '@env/environment';
+import { type Company } from './company.service';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  avatar_url?: string;
+  tenant_id?: string;
+  department_id?: string | number;
+  company_id?: string | number;
+  company?: Company;
+  is_active: boolean;
+  is_primary_tenant_user?: boolean;
+}
+
+interface UserUpsertPayload extends Partial<User> {
+  password?: string;
+  password_confirmation?: string;
+}
+
+export interface UserListResponse {
+  data: User[];
+  meta?: {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+  };
+}
+
+export interface UserFilters {
+  search?: string | undefined;
+  is_active?: boolean;
+  page?: number;
+  per_page?: number;
+  sort_by?: string;
+  sort_dir?: string;
+}
+
+/**
+ * Servico responsavel pelo CRUD de usuarios da plataforma.
+ * Gerencia usuarios dentro de um tenant (usuarios da aplicacao).
+ *
+ * @class UserService
+ * @example
+ * ```ts
+ * const userService = inject(UserService);
+ * userService.list({ search: 'John', is_active: true }).subscribe();
+ * ```
+ */
+@Injectable({
+  providedIn: 'root',
+})
+export class UserService {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/auth/users`;
+
+  /**
+   * Lista usuarios com suporte a filtros e paginacao.
+   *
+   * @param params - Filtros de busca: search, is_active, page, per_page, sort_by, sort_dir
+   * @returns Observable com lista paginada de usuarios
+   */
+  list(params: UserFilters = {}): Observable<UserListResponse> {
+    let httpParams = new HttpParams();
+    Object.keys(params).forEach((key) => {
+      const value = (params as Record<string, string | number | boolean | undefined>)[key];
+      if (value !== undefined && value !== null) {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+    return this.http.get<UserListResponse>(this.apiUrl, { params: httpParams });
+  }
+
+  /**
+   * Obtem detalhes de um usuario especifico.
+   *
+   * @param id - Identificador unico do usuario
+   * @returns Observable com dados do usuario
+   */
+  show(id: string): Observable<{ data: User }> {
+    return this.http.get<{ data: User }>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Cria um novo usuario.
+   *
+   * @param data - Dados do usuario (name, email, password, role, etc)
+   * @returns Observable com o usuario criado
+   */
+  create(data: UserUpsertPayload): Observable<{ data: User }> {
+    return this.http.post<{ data: User }>(this.apiUrl, data);
+  }
+
+  /**
+   * Atualiza um usuario existente.
+   *
+   * @param id - Identificador do usuario
+   * @param data - Dados a serem atualizados
+   * @returns Observable com o usuario atualizado
+   */
+  update(id: string, data: UserUpsertPayload): Observable<{ data: User }> {
+    return this.http.put<{ data: User }>(`${this.apiUrl}/${id}`, data);
+  }
+
+  /**
+   * Remove um usuario do sistema.
+   *
+   * @param id - Identificador do usuario
+   * @returns Observable vazio indicando sucesso
+   */
+  delete(id: string): Observable<null> {
+    return this.http.delete<null>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Alterna o status ativo/inativo de um usuario.
+   *
+   * @param id - Identificador do usuario
+   * @returns Observable com o usuario com status alterado
+   */
+  toggleActive(id: string): Observable<{ data: User }> {
+    return this.http.patch<{ data: User }>(`${this.apiUrl}/${id}/toggle-active`, {});
+  }
+}

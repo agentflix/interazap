@@ -1,0 +1,84 @@
+# =====================================================
+# AgentFlix - Template de Variáveis Seguras (Vault)
+# =====================================================
+# COPIAR PARA vault.yml E PREENCHER VALORES REAIS
+# Autor: DevOps Agentflix
+# =====================================================
+#
+# Criptografar após preencher:
+# ansible-vault encrypt vars/vault.yml
+#
+# Editar:
+# ansible-vault edit vars/vault.yml
+#
+
+# =====================================================
+# USUÁRIOS
+# =====================================================
+
+# Senha do usuário agentflix (hash SHA512)
+agentflix_password: "SENHA_STRONG_AQUI"
+
+# =====================================================
+# POSTGRESQL
+# =====================================================
+
+# Senha do superusuário postgres
+postgres_root_password: "POSTGRES_ROOT_SENHA_STRONG"
+
+# Senha do usuário da aplicação
+postgres_app_password: "POSTGRES_APP_SENHA_STRONG"
+
+# =====================================================
+# REDIS
+# =====================================================
+
+# Senha do Redis (obrigatória)
+redis_password: "REDIS_SENHA_STRONG"
+
+# =====================================================
+# LARAVEL API
+# =====================================================
+
+# APP_KEY do Laravel - PRODUÇÃO (gerar com: php artisan key:generate --show)
+# Ou: base64:$(openssl rand -base64 32)
+agentflix_secret_key_production: "LARAVEL_APP_KEY_BASE64_PROD"
+
+# APP_KEY do Laravel - STAGING (chave separada da produção)
+agentflix_secret_key_staging: "LARAVEL_APP_KEY_BASE64_STAGING"
+
+# =====================================================
+# GATEWAY
+# =====================================================
+
+# Chave API interna - PRODUÇÃO (gerar com: uuidgen)
+gateway_internal_api_key_production: "UUID-PRODUCAO-AQUI"
+
+# Chave API interna - STAGING (gerar com: uuidgen)
+gateway_internal_api_key_staging: "UUID-STAGING-AQUI"
+
+# JWT Secret - PRODUÇÃO (gerar com: openssl rand -hex 32)
+gateway_jwt_secret_production: "JWT_SECRET_PRODUCAO_32_CHARS"
+
+# JWT Secret - STAGING (gerar com: openssl rand -hex 32)
+gateway_jwt_secret_staging: "JWT_SECRET_STAGING_32_CHARS"
+
+# =====================================================
+# OPENAI
+# =====================================================
+
+# Chave API OpenAI
+openai_api_key: "sk-..."
+
+# =====================================================
+# SSH
+# =====================================================
+
+# Porta SSH (padrão 22 ou customizada)
+ssh_port: 22
+
+# =====================================================
+# ASAAS (Billing)
+# =====================================================
+
+asaas_api_key: ""

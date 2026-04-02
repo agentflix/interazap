@@ -1,0 +1,18 @@
+[Unit]
+Description=PM2 process manager for AgentFlix
+Documentation=https://pm2.keymetrics.io/
+After=network.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+User=deploy
+LimitNOFILE=65536
+Environment=PATH=/home/deploy/.nvm/versions/node/v22/bin:/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+ExecStart=/home/deploy/.nvm/versions/node/v22/bin/pm2 resurrect
+ExecReload=/home/deploy/.nvm/versions/node/v22/bin/pm2 reload all
+ExecStop=/home/deploy/.nvm/versions/node/v22/bin/pm2 kill
+
+[Install]
+WantedBy=multi-user.target

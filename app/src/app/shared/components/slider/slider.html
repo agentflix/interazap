@@ -1,0 +1,27 @@
+
+    <div>
+      @if (label()) {
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">{{
+            label()
+          }}</span>
+          @if (showValue()) {
+            <span class="text-xs tabular-nums text-neutral-500">{{ value() }}</span>
+          }
+        </div>
+      }
+      <input
+        type="range"
+        [min]="min()"
+        [max]="max()"
+        [step]="step()"
+        [value]="value()"
+        [disabled]="disabled()"
+        class="w-full h-2 rounded-full appearance-none cursor-pointer
+          bg-neutral-200 dark:bg-neutral-700
+          accent-accent-500
+          disabled:opacity-50 disabled:cursor-not-allowed"
+        (input)="onInput($event)"
+      />
+    </div>
+  

@@ -1,0 +1,37 @@
+
+    <div>
+      @if (label()) {
+        <af-form-label [label]="label()" />
+      }
+      <div class="flex items-center gap-3">
+        <span class="text-xs tabular-nums text-neutral-500 w-10 text-right">{{
+          minControl().value
+        }}</span>
+        <div class="flex-1 relative h-2">
+          <input
+            type="range"
+            [formControl]="minControl()"
+            [min]="min()"
+            [max]="max()"
+            [step]="step()"
+            class="absolute inset-0 w-full h-2 rounded-full appearance-none cursor-pointer
+              bg-neutral-200 dark:bg-neutral-700 accent-accent-500 pointer-events-none
+              [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:relative [&::-webkit-slider-thumb]:z-10
+              [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:relative [&::-moz-range-thumb]:z-10"
+          />
+          <input
+            type="range"
+            [formControl]="maxControl()"
+            [min]="min()"
+            [max]="max()"
+            [step]="step()"
+            class="absolute inset-0 w-full h-2 rounded-full appearance-none cursor-pointer
+              bg-transparent accent-accent-500 pointer-events-none
+              [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:relative [&::-webkit-slider-thumb]:z-20
+              [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:relative [&::-moz-range-thumb]:z-20"
+          />
+        </div>
+        <span class="text-xs tabular-nums text-neutral-500 w-10">{{ maxControl().value }}</span>
+      </div>
+    </div>
+  

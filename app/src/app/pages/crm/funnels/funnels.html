@@ -1,0 +1,57 @@
+<app-crud-page
+  #crudPage
+  title="Funis"
+  [service]="crudService"
+  [config]="crudConfig"
+  [columns]="columns()"
+  [actions]="actions"
+>
+  <ng-template #stepsCountCell let-item>
+    <span
+      class="inline-flex items-center gap-1 py-0.5 px-2 rounded-full bg-primary/10 text-primary text-xs font-medium"
+    >
+      {{ item.steps_count || item.steps?.length || 0 }} etapas
+    </span>
+  </ng-template>
+
+  <ng-template #formTemplate let-item>
+    <app-funnel-form
+      #funnelForm
+      [funnel]="item"
+      (saved)="handleFormSaved($event)"
+      (cancelled)="handleFormCancelled()"
+    />
+  </ng-template>
+
+  <ng-template #formFooterTemplate>
+    <div class="flex w-full items-center justify-end gap-2">
+      <app-button
+        variant="default"
+        size="sm"
+        dataTest="funnel-form-cancel-btn"
+        (clicked)="funnelForm()?.cancel()"
+      >
+        Cancelar
+      </app-button>
+      <app-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="funnelForm()?.isSaving() ?? false"
+        loadingText="Salvando..."
+        dataTest="funnel-form-save-btn"
+        (clicked)="funnelForm()?.submit()"
+      >
+        Salvar
+      </app-loading-button>
+    </div>
+  </ng-template>
+
+  <ng-template #filtersTemplate>
+    <app-select-input
+      label="Status"
+      [control]="$any(crudPage).tempStatusControl"
+      [options]="filterStatusOptions"
+      dataTest="funnel-filter-status"
+    />
+  </ng-template>
+</app-crud-page>

@@ -1,0 +1,41 @@
+
+    <div [class]="wrapperClasses()">
+      <div [class]="containerClasses()">
+        @if (label() && labelPosition() === 'left') {
+          <label
+            [for]="switchId"
+            class="text-sm text-neutral-700 dark:text-neutral-300 cursor-pointer select-none"
+          >
+            {{ label() }}
+          </label>
+        }
+
+        <button
+          [id]="switchId"
+          type="button"
+          role="switch"
+          [attr.aria-checked]="isChecked()"
+          [attr.aria-label]="ariaLabel() || label() || null"
+          [attr.data-test]="dataTest()"
+          [disabled]="disabled()"
+          [class]="trackClasses()"
+          (click)="toggle()"
+        >
+          <span [class]="thumbClasses()" aria-hidden="true"></span>
+        </button>
+
+        @if (label() && labelPosition() === 'right') {
+          <label
+            [for]="switchId"
+            class="text-sm text-neutral-700 dark:text-neutral-300 cursor-pointer select-none"
+          >
+            {{ label() }}
+          </label>
+        }
+      </div>
+
+      @if (helpText()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+    </div>
+  

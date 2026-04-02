@@ -1,0 +1,37 @@
+
+    <div>
+      <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">
+        Próximos Eventos
+      </h6>
+
+      @if (upcomingEvents().length === 0) {
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">Nenhum evento próximo.</p>
+      } @else {
+        <div class="flex flex-col gap-1">
+          @for (event of upcomingEvents(); track event.id) {
+            <button
+              type="button"
+              class="flex items-start gap-2.5 p-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-left w-full cursor-pointer"
+              (click)="eventClicked.emit(event)"
+            >
+              <span
+                class="size-2.5 rounded-full mt-1.5 shrink-0"
+                [class]="getTypeDotClass(event.type)"
+              ></span>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">
+                  {{ event.title }}
+                </p>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                  {{ event.starts_at | date: 'dd/MM HH:mm' }}
+                  @if (event.location) {
+                    · {{ event.location }}
+                  }
+                </p>
+              </div>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  

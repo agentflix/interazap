@@ -1,0 +1,143 @@
+
+    <div class="space-y-4">
+      @switch (step()) {
+        @case ('upload') {
+          <div class="space-y-3">
+            <p class="text-sm text-neutral-600 dark:text-neutral-400">
+              Envie um arquivo CSV para iniciar a importação.
+            </p>
+            <af-file-input
+              label="Arquivo CSV"
+              [control]="fileControl"
+              accept=".csv"
+              [required]="true"
+              ariaLabel="Selecionar arquivo CSV para importação"
+              dataTest="contact-import-file"
+            />
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">
+              Suporte a delimitadores vírgula e ponto e vírgula.
+            </p>
+            <af-button
+              variant="outline"
+              size="sm"
+              ariaLabel="Baixar modelo de CSV para importação"
+              (click)="downloadTemplate()"
+            >
+              <lucide-icon name="download" [size]="14" class="block" />
+              Baixar modelo CSV
+            </af-button>
+          </div>
+        }
+        @case ('mapping') {
+          <div class="space-y-4">
+            <af-select-input
+              label="Nome"
+              [control]="mappingControls.name"
+              [options]="headerOptions()"
+              [required]="true"
+              ariaLabel="Mapear coluna de nome"
+              dataTest="contact-import-name"
+            />
+
+            <div>
+              <af-select-input
+                label="Número"
+                [control]="mappingControls.number"
+                [options]="headerOptions()"
+                [required]="true"
+                ariaLabel="Mapear coluna de número de telefone"
+                dataTest="contact-import-number"
+              />
+              @if (invalidSampleCount() > 0) {
+                <p class="text-xs text-red-500 dark:text-red-400 mt-1">
+                  {{ invalidSampleCount() }} número(s) inválido(s) no preview.
+                </p>
+              }
+            </div>
+
+            <af-select-input
+              label="E-mail (opcional)"
+              [control]="mappingControls.email"
+              [options]="headerOptions()"
+              ariaLabel="Mapear coluna de e-mail"
+              dataTest="contact-import-email"
+            />
+
+            <af-select-input
+              label="Empresa (opcional)"
+              [control]="mappingControls.company"
+              [options]="headerOptions()"
+              ariaLabel="Mapear coluna de empresa"
+              dataTest="contact-import-company"
+            />
+
+            <!-- Preview table -->
+            <div class="border border-neutral-200 dark:border-neutral-700 rounded-md p-3">
+              <p class="text-xs text-neutral-500 mb-2">Pré-visualização (até 5 linhas)</p>
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-xs" role="grid">
+                  <thead>
+                    <tr class="text-neutral-500">
+                      @for (header of headers(); track header) {
+                        <th class="text-left px-2 py-1" role="columnheader">{{ header }}</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of sample(); track $index) {
+                      <tr role="row">
+                        @for (cell of row; track $index) {
+                          <td class="px-2 py-1" role="gridcell">{{ cell }}</td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="flex w-full items-center justify-end gap-2">
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                ariaLabel="Iniciar processamento da importação"
+                [loading]="isLoading()"
+                dataTest="contact-import-start-btn"
+                (click)="startImport()"
+              >
+                Processar via Uazapi
+              </af-loading-button>
+            </div>
+          </div>
+        }
+        @case ('summary') {
+          <div class="space-y-3">
+            <p class="text-sm text-neutral-700 dark:text-neutral-300">Resumo da importação</p>
+            <div class="grid grid-cols-2 gap-3 text-sm" role="status" aria-live="polite">
+              <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
+                <div class="text-neutral-500">Processados</div>
+                <div class="text-lg font-semibold">{{ summary()?.processed ?? 0 }}</div>
+              </div>
+              <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
+                <div class="text-neutral-500">Importados</div>
+                <div class="text-lg font-semibold">{{ summary()?.imported ?? 0 }}</div>
+              </div>
+              <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
+                <div class="text-neutral-500">Duplicados</div>
+                <div class="text-lg font-semibold">{{ summary()?.skipped ?? 0 }}</div>
+              </div>
+              <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
+                <div class="text-neutral-500">Falhas</div>
+                <div class="text-lg font-semibold">{{ summary()?.failed ?? 0 }}</div>
+              </div>
+            </div>
+            @if (summary()?.queued) {
+              <p class="text-xs text-neutral-500">
+                Importação enfileirada. O processamento ocorrerá em background.
+              </p>
+            }
+          </div>
+        }
+      }
+    </div>
+  

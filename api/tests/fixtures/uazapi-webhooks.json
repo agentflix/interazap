@@ -1,0 +1,286 @@
+{
+    "webhooks": [
+        {
+            "description": "Text message incoming",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "messages",
+            "chat": {
+                "owner": "5514996448268",
+                "phone": "5514996448268",
+                "wa_chatid": "5514996448268@s.whatsapp.net"
+            },
+            "message": {
+                "chatid": "5514996448268@s.whatsapp.net",
+                "fromMe": false,
+                "sender": "5514996448268@s.whatsapp.net",
+                "senderName": "Rafael Silva",
+                "id": "5514996448268:3EB025BDFD3DAD2D6AE930",
+                "messageid": "3EB025BDFD3DAD2D6AE930",
+                "text": "Deu bom?",
+                "type": "text",
+                "messageType": "ExtendedTextMessage",
+                "messageTimestamp": 1767792702000
+            },
+            "owner": "5514996448268",
+            "token": "c56b59d2-fa76-41a3-8667-2289faef3275"
+        },
+        {
+            "description": "Text message outgoing",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "messages",
+            "chat": {
+                "owner": "5514996448268",
+                "phone": "5514996448268",
+                "wa_chatid": "5514996448268@s.whatsapp.net"
+            },
+            "message": {
+                "chatid": "5514996448268@s.whatsapp.net",
+                "fromMe": true,
+                "sender": "5514996448268@s.whatsapp.net",
+                "senderName": "Rafael Silva",
+                "id": "5514996448268:3B50879ADE161979CEB8",
+                "messageid": "3B50879ADE161979CEB8",
+                "text": "Oi isso é um teste de webhook",
+                "type": "text",
+                "messageType": "ExtendedTextMessage",
+                "messageTimestamp": 1767792629000
+            },
+            "owner": "5514996448268",
+            "token": "c56b59d2-fa76-41a3-8667-2289faef3275"
+        },
+        {
+            "description": "Reaction message",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "messages",
+            "chat": {
+                "owner": "5514996448268",
+                "phone": "5514997014244",
+                "wa_chatid": "5514997014244@s.whatsapp.net"
+            },
+            "message": {
+                "chatid": "5514997014244@s.whatsapp.net",
+                "fromMe": true,
+                "sender": "5514996448268@s.whatsapp.net",
+                "senderName": "Rafael Silva",
+                "id": "5514996448268:3B61F6BCC3DD5D8FE0D8",
+                "messageid": "3B61F6BCC3DD5D8FE0D8",
+                "text": "😂",
+                "type": "reaction",
+                "messageType": "ReactionMessage",
+                "messageTimestamp": 1767793197000,
+                "reaction": "3B8BA74D0EEF57D42A91",
+                "content": {
+                    "key": {
+                        "remoteJID": "5514997014244@s.whatsapp.net",
+                        "fromMe": true,
+                        "ID": "3B8BA74D0EEF57D42A91"
+                    },
+                    "text": "😂",
+                    "senderTimestampMS": 1767793197290
+                }
+            },
+            "owner": "5514996448268",
+            "token": "c56b59d2-fa76-41a3-8667-2289faef3275"
+        },
+        {
+            "description": "Message with quote (reply)",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "messages",
+            "chat": {
+                "owner": "5514996448268",
+                "phone": "5514997014244",
+                "wa_chatid": "5514997014244@s.whatsapp.net"
+            },
+            "message": {
+                "chatid": "5514997014244@s.whatsapp.net",
+                "fromMe": true,
+                "sender": "5514996448268@s.whatsapp.net",
+                "senderName": "Rafael Silva",
+                "id": "5514996448268:3B8BA74D0EEF57D42A91",
+                "messageid": "3B8BA74D0EEF57D42A91",
+                "text": "Respondendo sua mensagm",
+                "type": "text",
+                "messageType": "ExtendedTextMessage",
+                "messageTimestamp": 1767793191000,
+                "quoted": "AC52BAAFF49B632EB132DB1CB8AC21C4",
+                "content": {
+                    "text": "Respondendo sua mensagm",
+                    "contextInfo": {
+                        "stanzaID": "AC52BAAFF49B632EB132DB1CB8AC21C4",
+                        "participant": "5514997014244@s.whatsapp.net",
+                        "quotedMessage": {
+                            "conversation": "Mensagem de texto"
+                        }
+                    }
+                }
+            },
+            "owner": "5514996448268",
+            "token": "c56b59d2-fa76-41a3-8667-2289faef3275"
+        },
+        {
+            "description": "Edited message",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "messages",
+            "chat": {
+                "owner": "5514996448268",
+                "phone": "5514996448268",
+                "wa_chatid": "5514996448268@s.whatsapp.net"
+            },
+            "message": {
+                "chatid": "5514996448268@s.whatsapp.net",
+                "fromMe": true,
+                "sender": "153047300833521@lid",
+                "senderName": "Rafael Silva",
+                "id": "5514996448268:ACD954B52B2D283B9A252A3415090E1D",
+                "messageid": "ACD954B52B2D283B9A252A3415090E1D",
+                "text": "Mensagem editada",
+                "type": "text",
+                "messageType": "ExtendedTextMessage",
+                "messageTimestamp": 1767814245000,
+                "edited": "ACFC4E4FFDA28DDFD5C1732B2D3CE911"
+            },
+            "owner": "5514996448268",
+            "token": "c56b59d2-fa76-41a3-8667-2289faef3275"
+        },
+        {
+            "description": "Connection connected",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "connection",
+            "instance": {
+                "name": "Nova instancia",
+                "status": "connected",
+                "qrcode": null,
+                "paircode": null
+            },
+            "status": {
+                "connected": true,
+                "loggedIn": true,
+                "status": "connected"
+            },
+            "owner": "5514996448268",
+            "token": "11111111-2222-3333-4444-555555555555"
+        },
+        {
+            "description": "Connection disconnected",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "connection",
+            "instance": {
+                "lastDisconnect": "2026-01-07 13:22:28.591Z",
+                "lastDisconnectReason": "401: logged out from another device",
+                "name": "Teste",
+                "status": "disconnected"
+            },
+            "instanceName": "Teste",
+            "owner": "",
+            "token": "22222222-3333-4444-5555-666666666666",
+            "type": "LoggedOut"
+        },
+        {
+            "description": "Connection QR code (connecting)",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "connection",
+            "instance": {
+                "name": "Nova instancia",
+                "qrcode": "data:image/png;base64,iVBORw0KGgoAAAANS...",
+                "status": "connecting"
+            },
+            "instanceName": "Nova instancia",
+            "owner": "",
+            "token": "33333333-4444-5555-6666-777777777777"
+        },
+        {
+            "description": "Messages update - Delivered",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "messages_update",
+            "event": {
+                "BroadcastListOwner": "",
+                "Chat": "5514996448268@s.whatsapp.net",
+                "IsFromMe": false,
+                "IsGroup": false,
+                "MessageIDs": ["3B50879ADE161979CEB8"],
+                "Sender": "5514996448268:79@s.whatsapp.net",
+                "Timestamp": 1767792630,
+                "Type": "Delivered"
+            },
+            "instanceName": "Nova instancia",
+            "owner": "5514996448268",
+            "state": "Delivered",
+            "token": "c56b59d2-fa76-41a3-8667-2289faef3275",
+            "type": "ReadReceipt"
+        },
+        {
+            "description": "Messages update - Read",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "messages_update",
+            "event": {
+                "BroadcastListOwner": "",
+                "Chat": "5514997014244@s.whatsapp.net",
+                "IsFromMe": true,
+                "IsGroup": false,
+                "MessageIDs": [
+                    "AC52BAAFF49B632EB132DB1CB8AC21C4",
+                    "AC545D97954A4B69C857A96DAAC0D352"
+                ],
+                "Sender": "153047300833521:12@lid",
+                "Timestamp": 1767793174,
+                "Type": "Read"
+            },
+            "instanceName": "Nova instancia",
+            "owner": "5514996448268",
+            "state": "Read",
+            "token": "c56b59d2-fa76-41a3-8667-2289faef3275",
+            "type": "ReadReceipt"
+        },
+        {
+            "description": "Messages update - Deleted",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "messages_update",
+            "event": {
+                "Chat": "5514996448268@s.whatsapp.net",
+                "IsFromMe": true,
+                "IsGroup": false,
+                "MessageIDs": ["ACB7E65B9808294AF736E6941836CABE"],
+                "Sender": "153047300833521@lid",
+                "Timestamp": "2026-01-07T19:23:33Z",
+                "Type": "Deleted"
+            },
+            "instanceName": "Nova instancia",
+            "owner": "5514996448268",
+            "state": "Deleted",
+            "token": "c56b59d2-fa76-41a3-8667-2289faef3275",
+            "type": "DeletedMessage"
+        },
+        {
+            "description": "Audio message (PTT)",
+            "BaseUrl": "https://free.uazapi.com",
+            "EventType": "messages",
+            "chat": {
+                "owner": "5514996448268",
+                "phone": "5514997014244",
+                "wa_chatid": "5514997014244@s.whatsapp.net"
+            },
+            "message": {
+                "chatid": "5514997014244@s.whatsapp.net",
+                "fromMe": false,
+                "sender": "211007515443307@lid",
+                "senderName": "Rosa lopes",
+                "id": "5514996448268:AC1CE41C1BE0AD268707D0D496C04CEE",
+                "messageid": "AC1CE41C1BE0AD268707D0D496C04CEE",
+                "text": "",
+                "type": "media",
+                "mediaType": "ptt",
+                "messageType": "AudioMessage",
+                "messageTimestamp": 1767793109000,
+                "content": {
+                    "URL": "https://mmg.whatsapp.net/audio.enc",
+                    "mimetype": "audio/ogg; codecs=opus",
+                    "fileLength": 6072,
+                    "seconds": 3,
+                    "PTT": true
+                }
+            },
+            "owner": "5514996448268",
+            "token": "c56b59d2-fa76-41a3-8667-2289faef3275"
+        }
+    ]
+}

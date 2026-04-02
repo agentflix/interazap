@@ -1,0 +1,40 @@
+
+    <div class="relative inline-block" #root>
+      <div (click)="toggle()" (keydown.enter)="toggle()" tabindex="0" role="button">
+        <ng-content />
+      </div>
+      @if (isOpen()) {
+        <div
+          class="absolute z-30 mt-1 w-48 rounded-lg border border-neutral-200 dark:border-neutral-700
+            bg-white dark:bg-neutral-900 shadow-md py-1"
+          [class.right-0]="align() === 'end'"
+          [class.left-0]="align() === 'start'"
+        >
+          @for (item of items(); track item.value) {
+            @if (item.divider) {
+              <div class="my-1 border-t border-neutral-200 dark:border-neutral-700"></div>
+            } @else {
+              <button
+                type="button"
+                [disabled]="item.disabled ?? false"
+                class="w-full flex items-center gap-2 px-3 py-2 text-left text-sm transition-colors
+                  disabled:opacity-40 disabled:cursor-not-allowed"
+                [class.text-red-600]="item.destructive"
+                [class.dark:text-red-400]="item.destructive"
+                [class.text-neutral-700]="!item.destructive"
+                [class.dark:text-neutral-200]="!item.destructive"
+                [class.hover:bg-neutral-100]="true"
+                [class.dark:hover:bg-neutral-800]="true"
+                (click)="select(item)"
+              >
+                @if (item.icon) {
+                  <lucide-icon [name]="item.icon" [size]="15" />
+                }
+                {{ item.label }}
+              </button>
+            }
+          }
+        </div>
+      }
+    </div>
+  

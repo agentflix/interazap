@@ -1,0 +1,87 @@
+sequenceDiagram
+    actor User as Usuário
+    participant SPA as Angular SPA
+    participant GW as NestJS Gateway
+    participant API as Laravel API
+    participant Auth as Sanctum Auth
+    participant Redis as Redis
+    participant DB as PostgreSQL
+    participant WS as WebSocket (Reverb)
+    participant WhatsApp as Z-API / UazAPI
+    participant AI as OpenAI
+
+    Note over User, AI: 1. Login e Autenticação
+
+    User->>SPA: Acessa a aplicação
+    SPA->>GW: POST /auth/login
+    GW->>API: Proxy login request
+    API->>Auth: Validar credenciais
+    Auth->>DB: Verificar usuário + tenant
+    DB-->>Auth: Usuário válido
+    Auth-->>API: Token Sanctum gerado
+    API-->>GW: Token + user data
+    GW-->>SPA: Token + user data
+    SPA->>SPA: Armazena token, conecta WebSocket
+
+    Note over User, AI: 2. Dashboard
+
+    User->>SPA: Navega para Dashboard
+    SPA->>GW: GET /dashboard/metrics
+    GW->>API: Proxy com auth token
+    API->>DB: Query métricas do tenant
+    DB-->>API: Dados agregados
+    API-->>GW: Dashboard data
+    GW-->>SPA: Renderiza métricas e gráficos
+
+    Note over User, AI: 3. Conversa WhatsApp
+
+    User->>SPA: Abre conversa de um contato
+    SPA->>GW: GET /chat/conversations/:id
+    GW->>API: Buscar mensagens
+    API->>DB: Query mensagens do contato
+    DB-->>API: Histórico de mensagens
+    API-->>GW: Lista de mensagens
+    GW-->>SPA: Renderiza chat
+
+    User->>SPA: Digita e envia mensagem
+    SPA->>GW: POST /chat/messages
+    GW->>API: Criar mensagem
+    API->>DB: Salvar mensagem (status: sending)
+    API->>Redis: Dispatch job SendWhatsAppMessage
+    API-->>GW: Mensagem criada (202 Accepted)
+    GW-->>SPA: Confirma envio
+
+    Redis-->>GW: BullMQ processa job
+    GW->>WhatsApp: Enviar mensagem via API
+
+    WhatsApp-->>GW: Webhook - mensagem entregue
+    GW->>API: Atualizar status mensagem
+    API->>DB: Update status: delivered
+    API->>Redis: Broadcast event
+    Redis-->>WS: Publish MessageDelivered
+    WS-->>SPA: Real-time update ✓✓
+
+    Note over User, AI: 4. Resposta do contato com AI Autopilot
+
+    WhatsApp->>GW: Webhook - mensagem recebida
+    GW->>API: POST /chat/incoming
+    API->>DB: Salvar mensagem recebida
+    API->>Redis: Broadcast nova mensagem
+    Redis-->>WS: Publish NewMessage
+    WS-->>SPA: Exibe mensagem no chat
+
+    API->>DB: Verificar se autopilot está ativo
+    DB-->>API: Autopilot habilitado
+    API->>DB: Buscar embeddings (pgvector)
+    DB-->>API: Contexto relevante
+    API->>AI: Gerar resposta com contexto RAG
+    AI-->>API: Resposta gerada
+    API->>DB: Salvar resposta AI
+    API->>Redis: Dispatch job SendWhatsAppMessage
+    Redis-->>GW: BullMQ processa job
+    GW->>WhatsApp: Enviar resposta AI
+    WhatsApp-->>GW: Mensagem entregue
+    GW->>API: Atualizar status
+    API->>Redis: Broadcast event
+    Redis-->>WS: Publish AI response sent
+    WS-->>SPA: Exibe resposta AI no chat ✓✓

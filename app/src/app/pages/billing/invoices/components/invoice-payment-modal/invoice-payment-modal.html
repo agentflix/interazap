@@ -1,0 +1,199 @@
+
+    <af-modal [open]="isOpen()" title="Pagamento" size="lg" (closed)="close()">
+      <div class="space-y-4">
+        @if (paymentStage() === 'select') {
+          <div class="space-y-4">
+            <p class="text-sm text-neutral-600 dark:text-neutral-400">
+              Escolha o método de pagamento para a fatura selecionada.
+            </p>
+
+            <af-radio-input
+              [control]="paymentMethodControl"
+              [options]="paymentMethodOptions"
+              name="payment_method"
+              orientation="vertical"
+              [spacing]="false"
+            />
+
+            @if (paymentMethod() === 'CREDIT_CARD') {
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                  <af-text-input
+                    label="Nome no cartão"
+                    [control]="cardForm.controls.holder_name"
+                    placeholder="Ex: João Silva"
+                    [required]="true"
+                    [spacing]="false"
+                  />
+                </div>
+
+                <div class="md:col-span-2">
+                  <af-text-input
+                    label="Número do cartão"
+                    [control]="cardForm.controls.number"
+                    placeholder="4111 1111 1111 1111"
+                    [required]="true"
+                    [maxLength]="23"
+                    [errorMessage]="getCardFieldErrorMessage('number')"
+                    [spacing]="false"
+                  />
+                </div>
+
+                <af-text-input
+                  label="Mês"
+                  [control]="cardForm.controls.expiry_month"
+                  placeholder="12"
+                  [required]="true"
+                  [maxLength]="2"
+                  [errorMessage]="getCardFieldErrorMessage('expiry_month')"
+                  [spacing]="false"
+                />
+
+                <af-text-input
+                  label="Ano"
+                  [control]="cardForm.controls.expiry_year"
+                  placeholder="2028"
+                  [required]="true"
+                  [maxLength]="4"
+                  [errorMessage]="getCardFieldErrorMessage('expiry_year')"
+                  [spacing]="false"
+                />
+
+                <af-text-input
+                  label="CVV"
+                  [control]="cardForm.controls.cvv"
+                  placeholder="123"
+                  [required]="true"
+                  [maxLength]="4"
+                  [errorMessage]="getCardFieldErrorMessage('cvv')"
+                  [spacing]="false"
+                />
+
+                <af-text-input
+                  label="CPF/CNPJ"
+                  [control]="holderForm.controls.cpf_cnpj"
+                  placeholder="123.456.789-00"
+                  [required]="true"
+                  [spacing]="false"
+                />
+
+                <af-text-input
+                  label="Email"
+                  [control]="holderForm.controls.email"
+                  type="email"
+                  placeholder="joao@empresa.com"
+                  [required]="true"
+                  [spacing]="false"
+                />
+
+                <af-text-input
+                  label="CEP"
+                  [control]="holderForm.controls.postal_code"
+                  placeholder="01310100"
+                  [required]="true"
+                  [spacing]="false"
+                />
+
+                <af-text-input
+                  label="Número"
+                  [control]="holderForm.controls.address_number"
+                  placeholder="123"
+                  [required]="true"
+                  [spacing]="false"
+                />
+
+                <div class="md:col-span-2">
+                  <af-text-input
+                    label="Nome do titular"
+                    [control]="holderForm.controls.name"
+                    placeholder="João Silva"
+                    [required]="true"
+                    [spacing]="false"
+                  />
+                </div>
+
+                <div class="md:col-span-2">
+                  <af-text-input
+                    label="Telefone"
+                    [control]="holderForm.controls.phone"
+                    placeholder="11999999999"
+                    [required]="true"
+                    [spacing]="false"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (paymentStage() === 'pix') {
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <span class="size-10 text-accent-600 dark:text-accent-400">
+                <lucide-icon name="qr-code" [size]="36" class="block" />
+              </span>
+              <div>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                  PIX disponível
+                </p>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                  Escaneie o QR Code ou copie o código abaixo.
+                </p>
+              </div>
+            </div>
+
+            @if (pixQrCodeDataUrl()) {
+              <div class="flex justify-center">
+                <img
+                  [src]="pixQrCodeDataUrl()"
+                  alt="QR Code PIX"
+                  class="h-40 w-40 rounded border border-neutral-200 dark:border-neutral-700"
+                />
+              </div>
+            }
+
+            <div
+              class="bg-neutral-100 dark:bg-neutral-800 rounded p-3 text-xs text-neutral-600 dark:text-neutral-300 break-all"
+            >
+              {{ pixPayload() || '-' }}
+            </div>
+
+            @if (pixExpiresAt()) {
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                Expira em: {{ pixExpiresAt() }}
+              </p>
+            }
+          </div>
+        }
+      </div>
+
+      <div
+        footer
+        class="flex justify-end gap-2 px-6 py-4 border-t border-neutral-200 dark:border-neutral-700"
+      >
+        @if (paymentStage() === 'select') {
+          <af-button variant="ghost" size="sm" (click)="close()">Cancelar</af-button>
+          <af-loading-button
+            variant="primary"
+            size="sm"
+            [loading]="isPaying()"
+            (click)="submitPayment()"
+          >
+            Confirmar pagamento
+          </af-loading-button>
+        }
+
+        @if (paymentStage() === 'pix') {
+          <af-button variant="ghost" size="sm" (click)="close()">Fechar</af-button>
+          <af-button
+            variant="primary"
+            size="sm"
+            [disabled]="!pixPayload()"
+            (click)="copyPixPayload()"
+          >
+            Copiar PIX
+          </af-button>
+        }
+      </div>
+    </af-modal>
+  

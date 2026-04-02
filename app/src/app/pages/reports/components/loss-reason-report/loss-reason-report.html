@@ -1,0 +1,162 @@
+
+    <div class="pt-2">
+      <app-page-title title="Motivos de Perda" subtitle="Relatórios">
+        <af-button variant="secondary" size="sm" (clicked)="openFilters()">
+          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+          Filtros
+        </af-button>
+      </app-page-title>
+
+      <af-drawer
+        [open]="isFilterOpen()"
+        title="Filtros do relatório"
+        side="right"
+        size="lg"
+        (closed)="closeFilters()"
+      >
+        <af-search-input
+          [control]="searchControl"
+          placeholder="Buscar..."
+          dataTest="loss-reason-search"
+        />
+        <div class="grid grid-cols-1">
+          <af-text-input
+            [control]="startDateControl"
+            label="Data inicial"
+            type="date"
+            dataTest="loss-reason-start-date"
+          />
+          <af-text-input
+            [control]="endDateControl"
+            label="Data final"
+            type="date"
+            dataTest="loss-reason-end-date"
+          />
+          <af-select-input
+            label="Granularidade"
+            [control]="granularityControl"
+            [options]="granularityOptions"
+            dataTest="loss-reason-granularity"
+          />
+        </div>
+        <div class="flex gap-2">
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'csv' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" /> CSV
+          </af-button>
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'xlsx' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" /> XLSX
+          </af-button>
+        </div>
+        <div footer>
+          <div class="flex w-full items-center justify-between gap-2">
+            <af-button variant="danger" size="sm" (clicked)="clearFilters()"
+              >Limpar filtros</af-button
+            >
+            <div class="flex gap-2">
+              <af-button variant="ghost" size="sm" (clicked)="closeFilters()">Cancelar</af-button>
+              <af-button variant="primary" size="sm" (clicked)="applyFilters()">Aplicar</af-button>
+            </div>
+          </div>
+        </div>
+      </af-drawer>
+
+      @if (isLoading()) {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <af-card><af-skeleton variant="rectangular" width="100%" height="16rem" /></af-card>
+          <af-card>
+            @for (row of [0, 1, 2, 3, 4]; track row) {
+              <af-skeleton variant="text" width="100%" height="2.5rem" class="mb-2 block" />
+            }
+          </af-card>
+        </div>
+      } @else if (hasError()) {
+        <af-card>
+          <div class="py-12 text-center">
+            <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+              Erro ao carregar dados
+            </h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+              Não foi possível carregar o relatório de motivos de perda.
+            </p>
+            <af-button variant="primary" size="sm" (click)="retry()">Tentar novamente</af-button>
+          </div>
+        </af-card>
+      } @else if (!data() || !data()!.reasons || data()!.reasons.length === 0) {
+        <af-card>
+          <af-empty-state
+            title="Sem dados disponíveis"
+            description="Não há motivos de perda no período selecionado"
+          />
+        </af-card>
+      } @else {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <af-card>
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+              <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Distribuição por Motivo
+              </h6>
+            </div>
+            <af-apexchart
+              type="donut"
+              [series]="chartSeriesNonAxis()"
+              height="360"
+              [labels]="chartLabels()"
+              [extraOptions]="chartExtra()"
+            />
+          </af-card>
+
+          <af-card [padded]="false">
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+              <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Detalhamento
+              </h6>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                    <th
+                      class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Motivo
+                    </th>
+                    <th
+                      class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Qtd
+                    </th>
+                    <th
+                      class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Valor Perdido
+                    </th>
+                    <th
+                      class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      %
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (reason of data()!.reasons; track reason.reason_name) {
+                    <tr
+                      class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                    >
+                      <td class="py-3 px-4">{{ reason.reason_name }}</td>
+                      <td class="text-right py-3 px-4">{{ reason.count }}</td>
+                      <td class="text-right py-3 px-4">
+                        {{ formatCurrency(reason.total_amount) }}
+                      </td>
+                      <td class="text-right py-3 px-4">
+                        {{ reason.percentage | number: '1.1-1' }}%
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </af-card>
+        </div>
+      }
+    </div>
+  

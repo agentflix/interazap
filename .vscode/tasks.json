@@ -1,0 +1,35 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "api: migrate",
+			"type": "shell",
+			"command": "cd api && php artisan migrate",
+			"problemMatcher": []
+		},
+		{
+			"label": "api: gates (composer gate:all)",
+			"type": "shell",
+			"command": "cd api && composer gate:all",
+			"problemMatcher": []
+		},
+		{
+			"label": "app: gates (npm run gate:all)",
+			"type": "shell",
+			"command": "cd app && npm run gate:all",
+			"problemMatcher": []
+		},
+		{
+			"label": "strict: migrations gate (staged)",
+			"type": "shell",
+			"command": "./scripts/strict-migrations-gate.sh",
+			"problemMatcher": []
+		},
+		{
+			"label": "app-new: lint",
+			"type": "shell",
+			"command": "cd app-new && npm run lint",
+			"isBackground": false
+		}
+	]
+}

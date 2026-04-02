@@ -1,0 +1,26 @@
+
+    <div class="title-bar">
+      <div class="title-bar-drag">
+        <span class="title">AgentFlix</span>
+      </div>
+      <div class="window-controls">
+        <button class="control-btn minimize" (click)="minimize()" title="Minimize">
+          <lucide-icon name="minus" [size]="12" />
+        </button>
+        <button
+          class="control-btn maximize"
+          (click)="toggleMaximize()"
+          [title]="isMaximized() ? 'Restore' : 'Maximize'"
+        >
+          @if (isMaximized()) {
+            <lucide-icon name="minimize-2" [size]="12" />
+          } @else {
+            <lucide-icon name="maximize-2" [size]="12" />
+          }
+        </button>
+        <button class="control-btn close" (click)="close()" title="Close">
+          <lucide-icon name="x" [size]="12" />
+        </button>
+      </div>
+    </div>
+  

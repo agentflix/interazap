@@ -1,0 +1,10 @@
+
+    <span class="inline-flex items-center gap-1">
+      @for (key of keys(); track $index) {
+        <af-kbd>{{ key }}</af-kbd>
+        @if (!$last) {
+          <span class="text-xs text-neutral-400">+</span>
+        }
+      }
+    </span>
+  

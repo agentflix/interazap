@@ -1,0 +1,36 @@
+
+    <div [class]="classContainer()">
+      @if (label()) {
+        <af-form-label [label]="label()" [for]="inputId" [required]="required()" />
+      }
+
+      <div class="flex">
+        <!-- Left addon button -->
+        <button
+          type="button"
+          [class]="addonClasses()"
+          (click)="addonClick.emit()"
+          [attr.aria-label]="addonLabel() || 'Action'"
+        >
+          @if (addonIcon()) {
+            <lucide-icon [name]="addonIcon()!" [size]="16" />
+          }
+          @if (addonLabel()) {
+            <span>{{ addonLabel() }}</span>
+          }
+        </button>
+
+        <!-- Input -->
+        <input
+          [id]="inputId"
+          [type]="type()"
+          [class]="inputClasses()"
+          [formControl]="control()"
+          [placeholder]="placeholder()"
+          [attr.data-test]="dataTest()"
+        />
+      </div>
+
+      <af-form-error [show]="showError()" [message]="errorMessage()" />
+    </div>
+  

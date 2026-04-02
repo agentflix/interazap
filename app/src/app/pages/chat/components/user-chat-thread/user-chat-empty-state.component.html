@@ -1,0 +1,21 @@
+
+    <div
+      class="flex h-full flex-col items-center justify-center gap-4 bg-white px-4 text-center text-neutral-500 dark:bg-neutral-950"
+    >
+      <div
+        class="inline-flex size-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-500 dark:bg-neutral-800"
+      >
+        <ng-icon name="lucideMessagesSquare"></ng-icon>
+      </div>
+
+      <p class="text-sm text-neutral-600 dark:text-neutral-300">
+        {{ description() }}
+      </p>
+
+      @if (showAction()) {
+        <app-button variant="primary" size="sm" (clicked)="startConversation.emit()">
+          Iniciar conversa
+        </app-button>
+      }
+    </div>
+  

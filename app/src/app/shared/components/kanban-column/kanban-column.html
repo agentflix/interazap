@@ -1,0 +1,59 @@
+
+    <div
+      class="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-3 min-w-[280px] max-w-[320px] flex flex-col h-full"
+    >
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full" [style.background-color]="color()"></div>
+          <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">{{
+            title()
+          }}</span>
+          <span
+            class="text-xs text-neutral-400 bg-neutral-200 dark:bg-neutral-700 rounded-full px-2 py-0.5"
+          >
+            {{ cards().length }}
+          </span>
+        </div>
+        <button
+          type="button"
+          class="p-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded cursor-pointer"
+          (click)="addClicked.emit()"
+        >
+          <lucide-icon name="plus" [size]="16" class="text-neutral-500" />
+        </button>
+      </div>
+      <!-- Cards -->
+      <div class="flex-1 space-y-2 overflow-y-auto">
+        @for (card of cards(); track card.id) {
+          <div
+            class="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200
+              dark:border-neutral-700 p-3 cursor-pointer hover:shadow-md transition-shadow"
+            (click)="cardClicked.emit(card.id)"
+            (keydown.enter)="cardClicked.emit(card.id)"
+            tabindex="0"
+            role="button"
+          >
+            @if (card.tag) {
+              <span
+                class="inline-block text-[10px] font-medium px-2 py-0.5 rounded-full mb-2"
+                [style.background-color]="(card.tagColor ?? '#6366f1') + '20'"
+                [style.color]="card.tagColor ?? '#6366f1'"
+              >
+                {{ card.tag }}
+              </span>
+            }
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+              {{ card.title }}
+            </p>
+            @if (card.description) {
+              <p class="text-xs text-neutral-500 mt-1 line-clamp-2">{{ card.description }}</p>
+            }
+          </div>
+        }
+        @if (cards().length === 0) {
+          <af-empty-state title="Nenhum card" description="Nenhum card nesta coluna" />
+        }
+      </div>
+    </div>
+  

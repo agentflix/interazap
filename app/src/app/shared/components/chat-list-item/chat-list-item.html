@@ -1,0 +1,33 @@
+
+    <button type="button" [class]="itemClasses()" (click)="selected.emit()">
+      <!-- Avatar with online indicator -->
+      <div class="relative shrink-0">
+        <af-avatar size="md" [initials]="initials()" [src]="avatarUrl()" />
+        @if (online()) {
+          <span
+            class="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-accent-500 border-2 border-white dark:border-neutral-900"
+          ></span>
+        }
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 truncate">
+            {{ name() }}
+          </span>
+          <span class="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums">
+            {{ timestamp() }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between gap-2 mt-0.5">
+          <p class="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+            {{ lastMessage() }}
+          </p>
+          @if (unreadCount() > 0) {
+            <af-badge variant="info" size="sm">{{ unreadCount() }}</af-badge>
+          }
+        </div>
+      </div>
+    </button>
+  

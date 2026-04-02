@@ -1,0 +1,45 @@
+
+    <div [class]="containerClasses()">
+      @if (label()) {
+        <af-form-label [label]="label()" [for]="inputId" [required]="required()" />
+      }
+
+      <div class="flex items-center gap-2">
+        <!-- Color swatch (clickable) -->
+        <button
+          type="button"
+          [class]="swatchClasses()"
+          [style.background-color]="currentColor()"
+          (click)="openPicker()"
+          [attr.aria-label]="'Selecionar cor'"
+        ></button>
+
+        <!-- Hidden native color input -->
+        <input
+          #colorPicker
+          type="color"
+          class="sr-only"
+          [value]="currentColor()"
+          (input)="onNativeColorChange($event)"
+        />
+
+        <!-- Hex text input -->
+        <input
+          [id]="inputId"
+          type="text"
+          [class]="inputClasses()"
+          [formControl]="control()"
+          [placeholder]="placeholder()"
+          [attr.data-test]="dataTest()"
+          maxlength="7"
+          (input)="onTextInput()"
+        />
+      </div>
+
+      @if (helpText() && !showError()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+
+      <af-form-error [show]="showError()" [message]="errorMessage()" />
+    </div>
+  

@@ -1,0 +1,41 @@
+<app-modal [isOpen]="isOpen()" title="Motivo da perda" maxWidth="md" (closed)="close()">
+  <div modal-body class="space-y-4">
+    <app-select-input
+      label="Motivo"
+      [control]="reasonControl"
+      [options]="reasonOptions()"
+      [required]="true"
+      placeholder="Selecione um motivo"
+    />
+
+    <app-textarea-input
+      label="Descrição"
+      [control]="commentControl"
+      [rows]="6"
+      [placeholder]="
+        requiresLossComment() ? 'Descreva o motivo da perda' : 'Observações adicionais (opcional)'
+      "
+      [required]="requiresLossComment()"
+    />
+
+    @if (lossModalError()) {
+      <div class="rounded-lg border border-danger/20 bg-danger/10 p-3 text-sm text-danger">
+        {{ lossModalError() }}
+      </div>
+    }
+  </div>
+
+  <div modal-footer>
+    <div class="flex w-full justify-end gap-2">
+      <app-button variant="ghost" size="sm" (clicked)="close()">Cancelar</app-button>
+      <app-loading-button
+        variant="danger"
+        size="sm"
+        [loading]="isUpdatingStatus()"
+        loadingText="Confirmando..."
+        (clicked)="confirm()"
+        >Confirmar perda</app-loading-button
+      >
+    </div>
+  </div>
+</app-modal>

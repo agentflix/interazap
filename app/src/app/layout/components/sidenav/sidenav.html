@@ -1,0 +1,261 @@
+
+    <!-- Desktop Sidebar -->
+    <aside
+      [class]="sidebarClasses()"
+      class="hidden lg:flex flex-col h-screen sticky top-0 z-40 transition-all duration-300 ease-in-out"
+    >
+      <!-- Logo -->
+      <div class="flex items-center h-17.5 px-4 shrink-0">
+        @if (!theme.sidebarCollapsed()) {
+          <div class="flex items-center gap-2.5">
+            <div class="size-8 rounded-lg bg-primary-600 flex items-center justify-center">
+              <span class="text-white font-bold text-sm">A</span>
+            </div>
+            <span class="text-neutral-900 dark:text-white font-bold text-lg tracking-tight"
+              >AgentFlix</span
+            >
+          </div>
+        } @else {
+          <div class="size-8 rounded-lg bg-primary-600 flex items-center justify-center mx-auto">
+            <span class="text-white font-bold text-sm">A</span>
+          </div>
+        }
+      </div>
+
+      <!-- Navigation -->
+      <af-scroll-area class="flex-1" maxHeight="calc(100vh - 4.375rem)">
+        <nav class="py-3 px-3">
+          @for (item of menuItems(); track item.label + item.type) {
+            @if (item.type === 'title') {
+              @if (!theme.sidebarCollapsed()) {
+                <div
+                  class="px-3 pt-5 pb-2 text-[11px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500"
+                >
+                  {{ item.label }}
+                </div>
+              } @else {
+                <div class="my-3 mx-2 h-px bg-neutral-200 dark:bg-neutral-800"></div>
+              }
+            }
+
+            @if (item.type === 'item') {
+              <a
+                [routerLink]="item.link"
+                routerLinkActive="bg-neutral-100 text-primary-700 dark:bg-neutral-800 dark:text-neutral-50 font-medium"
+                [routerLinkActiveOptions]="{ exact: item.link === '/dashboard' }"
+                [class]="menuItemClasses()"
+                [title]="theme.sidebarCollapsed() ? item.label : ''"
+              >
+                @if (item.iconName) {
+                  <lucide-icon [name]="item.iconName" [size]="16" class="shrink-0" />
+                }
+                @if (!theme.sidebarCollapsed()) {
+                  <span class="truncate">{{ item.label }}</span>
+                }
+              </a>
+            }
+
+            @if (item.type === 'accordion') {
+              <div>
+                <button
+                  (click)="toggleAccordion(item.label)"
+                  [class]="menuItemClasses()"
+                  class="w-full"
+                  type="button"
+                >
+                  @if (item.iconName) {
+                    <lucide-icon [name]="item.iconName" [size]="16" class="shrink-0" />
+                  }
+                  @if (!theme.sidebarCollapsed()) {
+                    <span class="flex-1 text-left truncate">{{ item.label }}</span>
+                    <lucide-icon
+                      [name]="isAccordionOpen(item.label) ? 'chevron-down' : 'chevron-right'"
+                      [size]="12"
+                      class="shrink-0 text-neutral-400 dark:text-neutral-500"
+                    />
+                  }
+                </button>
+
+                @if (isAccordionOpen(item.label) && !theme.sidebarCollapsed() && item.children) {
+                  <div
+                    class="ml-5 pl-3 border-l border-neutral-200 dark:border-neutral-700 mt-1 space-y-0.5"
+                  >
+                    @for (child of item.children; track child.label) {
+                      @if (child.type === 'accordion' && child.children) {
+                        <button
+                          (click)="toggleAccordion(child.label)"
+                          class="w-full flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150 cursor-pointer"
+                          type="button"
+                        >
+                          <span class="flex-1 text-left truncate">{{ child.label }}</span>
+                          <lucide-icon
+                            [name]="isAccordionOpen(child.label) ? 'chevron-down' : 'chevron-right'"
+                            [size]="11"
+                            class="shrink-0 text-neutral-400 dark:text-neutral-500"
+                          />
+                        </button>
+                        @if (isAccordionOpen(child.label)) {
+                          <div
+                            class="ml-4 pl-3 border-l border-neutral-200 dark:border-neutral-700 mt-0.5 space-y-0.5"
+                          >
+                            @for (grandchild of child.children; track grandchild.label) {
+                              <a
+                                [routerLink]="grandchild.link"
+                                routerLinkActive="text-primary-700 dark:text-accent-400 font-medium"
+                                class="flex items-center gap-2.5 px-3 py-1.5 text-[12px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150"
+                              >
+                                <span class="truncate">{{ grandchild.label }}</span>
+                              </a>
+                            }
+                          </div>
+                        }
+                      } @else {
+                        <a
+                          [routerLink]="child.link"
+                          routerLinkActive="text-primary-700 dark:text-accent-400 font-medium"
+                          class="flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150"
+                        >
+                          <span class="truncate">{{ child.label }}</span>
+                        </a>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+        </nav>
+      </af-scroll-area>
+    </aside>
+
+    <!-- Mobile Overlay -->
+    @if (theme.mobileSidebarOpen()) {
+      <div class="fixed inset-0 z-50 lg:hidden">
+        <div
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          (click)="theme.closeMobileSidebar()"
+          (keydown.enter)="theme.closeMobileSidebar()"
+          tabindex="0"
+          role="button"
+        ></div>
+        <aside
+          class="absolute left-0 top-0 h-full w-72 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col shadow-xl animate-in slide-in-from-left duration-200"
+        >
+          <!-- Same content as desktop but always expanded -->
+          <div class="flex items-center justify-between h-17.5 px-4">
+            <div class="flex items-center gap-2.5">
+              <div class="size-8 rounded-lg bg-primary-600 flex items-center justify-center">
+                <span class="text-white font-bold text-sm">A</span>
+              </div>
+              <span class="text-neutral-900 dark:text-white font-bold text-lg tracking-tight"
+                >AgentFlix</span
+              >
+            </div>
+            <button
+              (click)="theme.closeMobileSidebar()"
+              class="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 p-1 rounded cursor-pointer"
+              type="button"
+            >
+              <lucide-icon name="x" [size]="20" />
+            </button>
+          </div>
+
+          <af-scroll-area class="flex-1" maxHeight="calc(100vh - 4.375rem)">
+            <nav class="py-3 px-3">
+              @for (item of menuItems(); track item.label + item.type) {
+                @if (item.type === 'title') {
+                  <div
+                    class="px-3 pt-5 pb-2 text-[11px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500"
+                  >
+                    {{ item.label }}
+                  </div>
+                }
+
+                @if (item.type === 'item') {
+                  <a
+                    [routerLink]="item.link"
+                    routerLinkActive="bg-neutral-100 text-primary-700 dark:bg-neutral-800 dark:text-neutral-50 font-medium"
+                    (click)="theme.closeMobileSidebar()"
+                    class="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-50 dark:hover:bg-neutral-800 rounded-md transition-colors duration-150"
+                  >
+                    @if (item.iconName) {
+                      <lucide-icon [name]="item.iconName" [size]="16" class="shrink-0" />
+                    }
+                    <span class="truncate">{{ item.label }}</span>
+                  </a>
+                }
+
+                @if (item.type === 'accordion' && item.children) {
+                  <button
+                    (click)="toggleAccordion(item.label)"
+                    class="w-full flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-50 dark:hover:bg-neutral-800 rounded-md transition-colors duration-150 cursor-pointer"
+                    type="button"
+                  >
+                    @if (item.iconName) {
+                      <lucide-icon [name]="item.iconName" [size]="16" class="shrink-0" />
+                    }
+                    <span class="flex-1 text-left truncate">{{ item.label }}</span>
+                    <lucide-icon
+                      [name]="isAccordionOpen(item.label) ? 'chevron-down' : 'chevron-right'"
+                      [size]="12"
+                      class="shrink-0 text-neutral-400 dark:text-neutral-500"
+                    />
+                  </button>
+
+                  @if (isAccordionOpen(item.label)) {
+                    <div
+                      class="ml-5 pl-3 border-l border-neutral-200 dark:border-neutral-700 mt-1 space-y-0.5"
+                    >
+                      @for (child of item.children; track child.label) {
+                        @if (child.type === 'accordion' && child.children) {
+                          <button
+                            (click)="toggleAccordion(child.label)"
+                            class="w-full flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150 cursor-pointer"
+                            type="button"
+                          >
+                            <span class="flex-1 text-left truncate">{{ child.label }}</span>
+                            <lucide-icon
+                              [name]="
+                                isAccordionOpen(child.label) ? 'chevron-down' : 'chevron-right'
+                              "
+                              [size]="11"
+                              class="shrink-0 text-neutral-400 dark:text-neutral-500"
+                            />
+                          </button>
+                          @if (isAccordionOpen(child.label)) {
+                            <div
+                              class="ml-4 pl-3 border-l border-neutral-200 dark:border-neutral-700 mt-0.5 space-y-0.5"
+                            >
+                              @for (grandchild of child.children; track grandchild.label) {
+                                <a
+                                  [routerLink]="grandchild.link"
+                                  routerLinkActive="text-primary-700 dark:text-accent-400 font-medium"
+                                  (click)="theme.closeMobileSidebar()"
+                                  class="flex items-center gap-2.5 px-3 py-1.5 text-[12px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150"
+                                >
+                                  <span class="truncate">{{ grandchild.label }}</span>
+                                </a>
+                              }
+                            </div>
+                          }
+                        } @else {
+                          <a
+                            [routerLink]="child.link"
+                            routerLinkActive="text-primary-700 dark:text-accent-400 font-medium"
+                            (click)="theme.closeMobileSidebar()"
+                            class="flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150"
+                          >
+                            <span class="truncate">{{ child.label }}</span>
+                          </a>
+                        }
+                      }
+                    </div>
+                  }
+                }
+              }
+            </nav>
+          </af-scroll-area>
+        </aside>
+      </div>
+    }
+  

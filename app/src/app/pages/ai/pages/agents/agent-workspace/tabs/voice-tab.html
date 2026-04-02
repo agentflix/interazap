@@ -1,0 +1,170 @@
+
+    @if (loading()) {
+      <div class="space-y-5">
+        @for (i of [0, 1, 2]; track i) {
+          <div class="animate-pulse h-24 bg-neutral-100 dark:bg-neutral-800 rounded-xl"></div>
+        }
+      </div>
+    } @else if (error()) {
+      <div
+        class="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-6 text-center"
+      >
+        <lucide-icon
+          name="circle-alert"
+          [size]="28"
+          class="text-red-400 dark:text-red-500 mx-auto mb-3"
+        />
+        <p class="text-sm text-red-600 dark:text-red-400">{{ error() }}</p>
+      </div>
+    } @else {
+      <form [formGroup]="voiceForm" class="space-y-6">
+        <!-- Response Mode -->
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        >
+          <div
+            class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          >
+            <lucide-icon
+              name="audio-lines"
+              [size]="16"
+              class="text-primary-500 dark:text-primary-400"
+            />
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Modo de resposta
+            </h3>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              @for (mode of responseModes; track mode.value) {
+                <button
+                  type="button"
+                  class="flex flex-col items-center gap-3 px-4 py-5 rounded-xl border transition-all group"
+                  [class]="
+                    voiceForm.controls.voice_response_mode.value === mode.value
+                      ? 'border-primary-400 dark:border-primary-600 bg-primary-50/50 dark:bg-primary-900/15 shadow-sm ring-1 ring-primary-200 dark:ring-primary-800'
+                      : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-sm'
+                  "
+                  (click)="voiceForm.controls.voice_response_mode.setValue(mode.value)"
+                >
+                  <div
+                    class="size-11 flex items-center justify-center rounded-xl transition-colors"
+                    [class]="
+                      voiceForm.controls.voice_response_mode.value === mode.value
+                        ? 'bg-primary-100 dark:bg-primary-900/30'
+                        : 'bg-neutral-100 dark:bg-neutral-800 group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700'
+                    "
+                  >
+                    <lucide-icon
+                      [name]="mode.icon"
+                      [size]="20"
+                      class="block"
+                      [class]="
+                        voiceForm.controls.voice_response_mode.value === mode.value
+                          ? 'text-primary-500 dark:text-primary-400'
+                          : 'text-neutral-500 dark:text-neutral-400'
+                      "
+                    />
+                  </div>
+                  <div class="text-center">
+                    <div
+                      class="text-sm font-medium"
+                      [class]="
+                        voiceForm.controls.voice_response_mode.value === mode.value
+                          ? 'text-primary-700 dark:text-primary-300'
+                          : 'text-neutral-800 dark:text-neutral-100'
+                      "
+                    >
+                      {{ mode.label }}
+                    </div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                      {{ mode.description }}
+                    </div>
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- STT Settings -->
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        >
+          <div
+            class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          >
+            <lucide-icon name="mic" [size]="16" class="text-primary-500 dark:text-primary-400" />
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Speech-to-Text (STT)
+            </h3>
+            <span class="text-xs text-neutral-400 dark:text-neutral-500">
+              Transcrição de áudio
+            </span>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <af-select-input
+                [control]="voiceForm.controls.stt_model"
+                label="Modelo STT"
+                helpText="Motor de transcrição de áudio."
+                [options]="sttModelOptions"
+                [spacing]="false"
+              />
+              <af-select-input
+                [control]="voiceForm.controls.stt_language"
+                label="Idioma"
+                helpText="Idioma esperado do usuário."
+                [options]="sttLanguageOptions"
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- TTS Settings -->
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        >
+          <div
+            class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          >
+            <lucide-icon
+              name="volume-2"
+              [size]="16"
+              class="text-primary-500 dark:text-primary-400"
+            />
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Text-to-Speech (TTS)
+            </h3>
+            <span class="text-xs text-neutral-400 dark:text-neutral-500"> Geração de áudio </span>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <af-select-input
+                [control]="voiceForm.controls.tts_model"
+                label="Modelo TTS"
+                helpText="Serviço de geração de áudio."
+                [options]="ttsModelOptions"
+                [spacing]="false"
+              />
+              <af-select-input
+                [control]="voiceForm.controls.tts_voice"
+                label="Voz"
+                helpText="Timbre para respostas em áudio."
+                [options]="ttsVoiceOptions"
+                [spacing]="false"
+              />
+              <af-text-input
+                [control]="voiceForm.controls.tts_speed"
+                label="Velocidade"
+                type="number"
+                helpText="Velocidade da fala (ex: 1.0)."
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </section>
+      </form>
+    }
+  

@@ -1,0 +1,66 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@core/*": ["src/app/core/*"],
+      "@env/*": ["src/environments/*"],
+      "@shared/*": ["src/app/shared/*"],
+      "@layout/*": ["src/app/layout/*"],
+      "@pages/*": ["src/app/pages/*"],
+      "@ai/*": ["src/app/pages/ai/*"],
+      "@auth/*": ["src/app/pages/auth/*"],
+      "@billing/*": ["src/app/pages/billing/*"],
+      "@chat/*": ["src/app/pages/chat/*"],
+      "@crm/*": ["src/app/pages/crm/*"],
+      "@dashboard/*": ["src/app/pages/dashboard/*"],
+      "@platform/*": ["src/app/pages/platform/*"],
+      "@reports/*": ["src/app/pages/reports/*"],
+      "@admin/*": ["src/app/pages/admin/*"],
+      "@public/*": ["src/app/pages/public/*"],
+      "@settings/*": ["src/app/pages/settings/*"]
+    },
+
+    "outDir": "./dist/out-tsc",
+
+    /* STRICT MODE COMPLETO */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": false,
+    "useUnknownInCatchVariables": true,
+
+    /* Qualidade */
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Build & Performance */
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "importHelpers": true,
+
+    /* Angular */
+    "experimentalDecorators": true,
+
+    /* Modern */
+    "target": "ES2022",
+    "module": "preserve"
+  },
+
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "typeCheckHostBindings": true,
+    "enableI18nLegacyMessageIdFormat": false
+  },
+
+  "include": ["src/**/*.ts"],
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.spec.json" }]
+}

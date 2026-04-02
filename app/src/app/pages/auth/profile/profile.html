@@ -1,0 +1,199 @@
+
+    <div class="flex flex-col gap-6">
+      <af-page-title title="Meu Perfil" subtitle="Configurações" />
+
+      @if (isLoading()) {
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <div class="space-y-4">
+            <af-skeleton variant="text" width="30%" height="1rem" />
+            <af-skeleton variant="rectangular" width="100%" height="8rem" />
+            <af-skeleton variant="rectangular" width="100%" height="10rem" />
+          </div>
+        </section>
+      } @else if (hasLoadError()) {
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+        >
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar perfil"
+            message="Não foi possível carregar os dados do perfil."
+          />
+          <af-button variant="outline" size="sm" (click)="loadProfile()"
+            >Tentar novamente</af-button
+          >
+        </section>
+      } @else if (isEmpty()) {
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <af-empty-state
+            title="Perfil indisponível"
+            description="Não há dados de perfil para exibir no momento."
+          />
+        </section>
+      } @else {
+        <!-- ── Avatar card ───────────────────────────────────────────────────── -->
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">
+            Foto de perfil
+          </h2>
+          <div class="flex items-start gap-5">
+            <af-avatar
+              [src]="avatarUrl()"
+              [initials]="initials()"
+              [alt]="displayName()"
+              size="xl"
+            />
+            <div class="space-y-3 flex-1 min-w-0">
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                Formatos suportados: JPEG, PNG, WebP, GIF. Tamanho máximo: 2 MB.
+              </p>
+
+              @if (avatarError()) {
+                <af-alert variant="danger" [message]="avatarError()" />
+              }
+
+              <af-file-input
+                [control]="avatarFileControl"
+                label="Selecionar imagem"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                dataTest="profile-avatar-file-input"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Personal info card ────────────────────────────────────────────── -->
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">
+            Informações pessoais
+          </h2>
+
+          @if (profileErrorMessage()) {
+            <div class="mb-4">
+              <af-alert variant="danger" [message]="profileErrorMessage()" />
+            </div>
+          }
+
+          <form [formGroup]="profileForm" (submit)="updateProfile()">
+            <af-text-input
+              [control]="profileForm.controls.name"
+              label="Nome"
+              placeholder="Seu nome completo"
+              [required]="true"
+              dataTest="profile-name"
+              [errorMessage]="profileError('name')"
+            />
+            <af-text-input
+              [control]="profileForm.controls.email"
+              label="E-mail"
+              [readOnly]="true"
+              dataTest="profile-email"
+            />
+            <div class="flex justify-end">
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                type="submit"
+                [loading]="isUpdatingProfile()"
+                dataTest="profile-save-btn"
+              >
+                Salvar alterações
+              </af-loading-button>
+            </div>
+          </form>
+        </section>
+
+        <!-- ── Change password card ──────────────────────────────────────────── -->
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">
+            Alterar senha
+          </h2>
+
+          @if (passwordErrorMessage()) {
+            <div class="mb-4">
+              <af-alert variant="danger" [message]="passwordErrorMessage()" />
+            </div>
+          }
+
+          <form [formGroup]="passwordForm" (submit)="updatePassword()">
+            <af-password-input
+              [control]="passwordForm.controls.current_password"
+              label="Senha atual"
+              placeholder="••••••••"
+              [required]="true"
+              dataTest="profile-current-password"
+              [errorMessage]="passwordError('current_password')"
+            />
+            <af-password-strength
+              [control]="passwordForm.controls.password"
+              label="Nova senha"
+              [required]="true"
+              [minLength]="8"
+              [showChecklist]="true"
+              dataTest="profile-new-password"
+              [errorMessage]="passwordError('password')"
+            />
+            <af-password-input
+              [control]="passwordForm.controls.password_confirmation"
+              label="Confirmar nova senha"
+              placeholder="••••••••"
+              [required]="true"
+              dataTest="profile-confirm-password"
+              [errorMessage]="passwordMismatch() ? 'As senhas não coincidem.' : ''"
+            />
+            <div class="flex justify-end">
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                type="submit"
+                [loading]="isUpdatingPassword()"
+                dataTest="profile-password-save-btn"
+              >
+                Alterar senha
+              </af-loading-button>
+            </div>
+          </form>
+        </section>
+
+        <!-- ── Two-factor card ───────────────────────────────────────────────── -->
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200">
+                Autenticação em dois fatores
+              </h2>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                Adicione uma camada extra de segurança à sua conta.
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+              @if (twoFactorEnabled()) {
+                <af-status-badge status="online">Ativo</af-status-badge>
+              } @else {
+                <af-status-badge status="offline">Inativo</af-status-badge>
+              }
+              <a
+                routerLink="/settings/two-factor"
+                class="text-sm font-medium text-accent-600 dark:text-accent-400 hover:underline whitespace-nowrap"
+                data-test="profile-2fa-link"
+              >
+                {{ twoFactorEnabled() ? 'Gerenciar' : 'Configurar' }}
+              </a>
+            </div>
+          </div>
+        </section>
+      }
+    </div>
+  

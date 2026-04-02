@@ -1,0 +1,143 @@
+
+    <af-crud-page
+      title="Usuários"
+      subtitle="Plataforma"
+      createLabel="Novo Usuário"
+      searchPlaceholder="Buscar por nome ou e-mail"
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum usuário encontrado"
+      emptyDescription="Comece adicionando seu primeiro usuário de plataforma."
+      [skeletonColumns]="4"
+      [skeletonRows]="6"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      @if (hasSelection()) {
+        <div filters class="flex items-center gap-2">
+          <af-button variant="danger" size="sm" (click)="openBulkDelete()">
+            Excluir selecionados ({{ selectedCount() }})
+          </af-button>
+        </div>
+      }
+
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar usuários"
+            message="Não foi possível carregar os usuários de plataforma."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th class="w-10">
+                <af-checkbox-input
+                  [control]="selectAllControl"
+                  ariaLabel="Selecionar todos os usuários"
+                />
+              </th>
+              <th>Usuário</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr>
+                <td>
+                  @if (!user.is_primary_tenant_user) {
+                    <af-checkbox-input
+                      [control]="getRowSelectionControl(user.id)"
+                      [ariaLabel]="'Selecionar usuário ' + user.name"
+                    />
+                  }
+                </td>
+                <td>
+                  <div class="flex items-center gap-3">
+                    <af-avatar [initials]="getInitials(user.name)" size="sm" />
+                    <div class="flex flex-col">
+                      <span class="font-medium">{{ user.name }}</span>
+                      <span class="text-xs text-neutral-500 dark:text-neutral-400">{{
+                        user.email
+                      }}</span>
+                    </div>
+                    @if (user.is_primary_tenant_user) {
+                      <span
+                        class="ml-auto text-xs px-2 py-0.5 rounded-full bg-primary-500/10 text-primary-600"
+                        >Principal</span
+                      >
+                    }
+                  </div>
+                </td>
+                <td>
+                  <af-status-badge [status]="user.is_active ? 'online' : 'offline'">
+                    {{ user.is_active ? 'Ativo' : 'Inativo' }}
+                  </af-status-badge>
+                </td>
+                <td>
+                  <af-table-actions
+                    [showDelete]="!user.is_primary_tenant_user"
+                    (edit)="openEdit(user)"
+                    (delete)="openDelete(user)"
+                  />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="md"
+      (closed)="handleFormCancelled()"
+    >
+      <app-platform-user-form
+        #userForm
+        [user]="selectedUser()"
+        [companyOptions]="companyOptions()"
+        [roleOptions]="roleOptions()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="userFormRef()?.cancel()">Cancelar</af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isFormSaving()"
+          [disabled]="(userFormRef()?.form?.invalid ?? true) || isFormSaving()"
+          (click)="userFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      [title]="deleteModalTitle()"
+      [message]="deleteMessage()"
+      [confirmLabel]="deleteConfirmLabel()"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+  

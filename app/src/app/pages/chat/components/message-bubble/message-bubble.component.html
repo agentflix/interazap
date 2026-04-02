@@ -1,0 +1,20 @@
+
+    <article
+      class="rounded-xl px-3 py-1.5 text-sm shadow-sm"
+      [class.border]="isInternal()"
+      [class.border-neutral-700]="isInternal()"
+      [class.bg-neutral-800]="isInternal()"
+      [class.text-neutral-50]="isInternal()"
+      [class.rounded-br-sm]="direction() === 'outgoing'"
+      [class.bg-accent-600]="direction() === 'outgoing' && !isInternal()"
+      [class.dark:bg-accent-700]="direction() === 'outgoing' && !isInternal()"
+      [class.text-white]="direction() === 'outgoing' && !isInternal()"
+      [class.rounded-bl-sm]="direction() === 'incoming'"
+      [class.bg-neutral-100]="direction() === 'incoming' && !isInternal()"
+      [class.dark:bg-neutral-800]="direction() === 'incoming' && !isInternal()"
+      [class.text-neutral-900]="direction() === 'incoming' && !isInternal()"
+      [class.dark:text-neutral-50]="direction() === 'incoming' && !isInternal()"
+    >
+      <ng-content></ng-content>
+    </article>
+  

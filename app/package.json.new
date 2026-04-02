@@ -1,0 +1,7 @@
+{
+  "overrides": {
+    "@angular-devkit/build-angular": {
+      "tailwindcss": "4.2.0"
+    }
+  }
+}

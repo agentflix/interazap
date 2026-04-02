@@ -1,0 +1,59 @@
+
+    @if (open()) {
+      <div class="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
+        <div
+          class="fixed inset-0 bg-black/40 backdrop-blur-sm"
+          (click)="closed.emit()"
+          (keydown.enter)="closed.emit()"
+          tabindex="0"
+          role="button"
+        ></div>
+        <div
+          class="relative z-10 w-full max-w-lg bg-white dark:bg-neutral-900 rounded-xl
+          border border-neutral-200 dark:border-neutral-700 shadow-2xl overflow-hidden"
+        >
+          <!-- Search -->
+          <div
+            class="flex items-center gap-3 px-4 py-3 border-b border-neutral-200 dark:border-neutral-700"
+          >
+            <lucide-icon name="search" [size]="18" class="text-neutral-400" />
+            <input
+              type="text"
+              [formControl]="searchCtrl"
+              placeholder="Buscar comandos..."
+              class="flex-1 bg-transparent border-0 text-sm text-neutral-900 dark:text-neutral-50
+                placeholder:text-neutral-400 focus:outline-none focus:ring-0"
+            />
+          </div>
+          <!-- Results -->
+          <af-scroll-area maxHeight="18rem">
+            <div class="py-1">
+              @for (item of filteredItems(); track item.id) {
+                <button
+                  type="button"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-left
+                    hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                  (click)="selectItem(item)"
+                >
+                  @if (item.icon) {
+                    <lucide-icon [name]="item.icon" [size]="16" class="text-neutral-500" />
+                  }
+                  <div>
+                    <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                      {{ item.label }}
+                    </p>
+                    @if (item.description) {
+                      <p class="text-xs text-neutral-400">{{ item.description }}</p>
+                    }
+                  </div>
+                </button>
+              }
+              @if (filteredItems().length === 0) {
+                <p class="px-4 py-6 text-center text-sm text-neutral-400">Nenhum resultado.</p>
+              }
+            </div>
+          </af-scroll-area>
+        </div>
+      </div>
+    }
+  

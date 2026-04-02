@@ -1,0 +1,300 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature;
+
+use Domain\Auth\Models\AuthPermission;
+use Domain\Auth\Models\AuthUser;
+use Domain\Chat\Models\ChatInstance;
+use Domain\Chat\Services\ChatIntegrationConnector;
+use Domain\Platform\Models\PlatformTenant;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Str;
+use Mockery;
+use Tests\TestCase;
+
+class ChatInstanceControllerTest extends TestCase
+{
+    use LazilyRefreshDatabase;
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
+    }
+
+    public function test_chat_instance_endpoints(): void
+    {
+        $user = AuthUser::factory()->create();
+        $viewPermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.view', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $managePermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $user->givePermissionTo([$viewPermission, $managePermission]);
+
+        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector->shouldReceive('configureWebhook')->andReturn(['ok' => true]);
+        $connector->shouldReceive('connect')->andReturn([
+            'mode' => 'qr',
+            'qr_code' => 'data:image/png;base64,abc',
+            'pair_code' => null,
+            'expires_at' => now()->addMinutes(5)->toIso8601String(),
+            'provider' => 'uazapi',
+        ]);
+        $this->app->instance(ChatIntegrationConnector::class, $connector);
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/integrations')
+            ->assertOk();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/integrations', [
+                'name' => 'Instancia',
+                'provider' => 'uazapi',
+                'token' => 'tok-123',
+                'settings' => [
+                    'cellphone' => '5511999999999',
+                    'send_attendant_name' => true,
+                    'integration_fallback_message' => '  Mensagem de fallback da integracao  ',
+                ],
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.settings.send_attendant_name', true)
+            ->assertJsonPath('data.settings.integration_fallback_message', 'Mensagem de fallback da integracao')
+            ->json('data');
+
+        $instanceId = $response['id'];
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson("/api/integrations/{$instanceId}")
+            ->assertOk();
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson("/api/integrations/{$instanceId}", [
+                'name' => 'Instancia 2',
+                'provider' => 'uazapi',
+                'token' => 'tok-123',
+                'settings' => [
+                    'integration_fallback_message' => 'Fallback atualizado',
+                ],
+            ])
+            ->assertOk()
+            ->assertJsonFragment(['name' => 'Instancia 2'])
+            ->assertJsonPath('data.settings.integration_fallback_message', 'Fallback atualizado');
+
+        $this->actingAs($user, 'sanctum')
+            ->patchJson("/api/integrations/{$instanceId}/toggle-active")
+            ->assertNoContent();
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson("/api/integrations/{$instanceId}/connect", [
+                'mode' => 'qr',
+            ])
+            ->assertOk()
+            ->assertJsonFragment(['mode' => 'qr']);
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson("/api/integrations/{$instanceId}/status")
+            ->assertOk()
+            ->assertJsonFragment(['mode' => 'qr']);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson("/api/integrations/{$instanceId}/disconnect")
+            ->assertOk();
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson("/api/integrations/{$instanceId}")
+            ->assertNoContent();
+
+        $this->assertDatabaseMissing('chat_instances', ['id' => $instanceId]);
+    }
+
+    public function test_store_rejects_token_longer_than_255_characters(): void
+    {
+        $user = AuthUser::factory()->create();
+        $managePermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $user->givePermissionTo($managePermission);
+
+        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector->shouldReceive('configureWebhook')->never();
+        $this->app->instance(ChatIntegrationConnector::class, $connector);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson('/api/integrations', [
+                'name' => 'Instancia inválida',
+                'provider' => 'uazapi',
+                'token' => str_repeat('a', 256),
+            ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['token']);
+    }
+
+    public function test_store_rejects_integration_fallback_message_longer_than_2000_characters(): void
+    {
+        $user = AuthUser::factory()->create();
+        $managePermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $user->givePermissionTo($managePermission);
+
+        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $this->app->instance(ChatIntegrationConnector::class, $connector);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson('/api/integrations', [
+                'name' => 'Instancia inválida',
+                'provider' => 'uazapi',
+                'token' => 'tok-123',
+                'settings' => [
+                    'integration_fallback_message' => str_repeat('a', 2001),
+                ],
+            ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['settings.integration_fallback_message']);
+    }
+
+    public function test_legacy_instance_without_integration_fallback_message_keeps_settings_shape(): void
+    {
+        $user = AuthUser::factory()->create();
+        $managePermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $viewPermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.view', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $user->givePermissionTo([$viewPermission, $managePermission]);
+
+        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector->shouldReceive('configureWebhook')->andReturn(['ok' => true]);
+        $this->app->instance(ChatIntegrationConnector::class, $connector);
+
+        $created = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/integrations', [
+                'name' => 'Instancia Legada',
+                'provider' => 'uazapi',
+                'token' => 'tok-legacy',
+                'settings' => [
+                    'send_attendant_name' => true,
+                ],
+            ])
+            ->assertCreated()
+            ->json('data');
+
+        $this->assertArrayNotHasKey('integration_fallback_message', $created['settings']);
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/integrations/'.$created['id'])
+            ->assertOk()
+            ->assertJsonMissingPath('data.settings.integration_fallback_message');
+    }
+
+    public function test_cannot_delete_connected_integration(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $user = AuthUser::factory()->create([
+            'tenant_id' => $tenant->id,
+        ]);
+        $managePermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $user->givePermissionTo($managePermission);
+
+        $instance = ChatInstance::factory()->create([
+            'tenant_id' => $tenant->id,
+            'status' => 'connected',
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson("/api/integrations/{$instance->id}")
+            ->assertStatus(409)
+            ->assertJsonPath('message', 'Não é possível excluir uma integração conectada. Desconecte primeiro.');
+
+        $this->assertDatabaseHas('chat_instances', ['id' => $instance->id]);
+    }
+
+    public function test_cannot_delete_connected_integration_cross_tenant(): void
+    {
+        $tenantA = PlatformTenant::factory()->create();
+        $tenantB = PlatformTenant::factory()->create();
+
+        $userA = AuthUser::factory()->create([
+            'tenant_id' => $tenantA->id,
+        ]);
+        $managePermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $userA->givePermissionTo($managePermission);
+
+        $instanceB = ChatInstance::factory()->create([
+            'tenant_id' => $tenantB->id,
+            'status' => 'connected',
+        ]);
+
+        $this->actingAs($userA, 'sanctum')
+            ->deleteJson("/api/integrations/{$instanceB->id}")
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('chat_instances', ['id' => $instanceB->id]);
+    }
+
+    public function test_can_delete_disconnected_integration(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $user = AuthUser::factory()->create([
+            'tenant_id' => $tenant->id,
+        ]);
+        $managePermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $user->givePermissionTo($managePermission);
+
+        $instance = ChatInstance::factory()->create([
+            'tenant_id' => $tenant->id,
+            'status' => 'disconnected',
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson("/api/integrations/{$instance->id}")
+            ->assertNoContent();
+
+        $this->assertDatabaseMissing('chat_instances', ['id' => $instance->id]);
+    }
+
+    public function test_can_delete_integration_with_qr_status(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $user = AuthUser::factory()->create([
+            'tenant_id' => $tenant->id,
+        ]);
+        $managePermission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        $user->givePermissionTo($managePermission);
+
+        $instance = ChatInstance::factory()->create([
+            'tenant_id' => $tenant->id,
+            'status' => 'qr',
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->deleteJson("/api/integrations/{$instance->id}")
+            ->assertNoContent();
+
+        $this->assertDatabaseMissing('chat_instances', ['id' => $instance->id]);
+    }
+}

@@ -1,0 +1,29 @@
+
+    <div [class]="containerClasses()">
+      @if (label()) {
+        <af-form-label [label]="label()" [required]="required()" />
+      }
+      <div [class]="wrapperClasses()">
+        <span [class]="prefixClasses()">
+          {{ prefix() }}
+        </span>
+        <input
+          #inputEl
+          type="text"
+          inputmode="decimal"
+          [attr.data-test]="dataTest()"
+          [placeholder]="placeholder()"
+          [formControl]="innerControl"
+          [class]="inputClasses()"
+          (input)="onInput($event)"
+          (blur)="onTouched()"
+        />
+      </div>
+      @if (helpText() && !showError()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+      @if (control()) {
+        <af-form-error [show]="showError()" [message]="errorMessage()" />
+      }
+    </div>
+  

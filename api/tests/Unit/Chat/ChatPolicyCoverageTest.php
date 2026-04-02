@@ -1,0 +1,170 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\Chat;
+
+use Domain\Auth\Models\AuthPermission;
+use Domain\Auth\Models\AuthUser;
+use Domain\Chat\Models\ChatCampaign;
+use Domain\Chat\Models\ChatChatbotRule;
+use Domain\Chat\Models\ChatQuickAnswer;
+use Domain\Chat\Models\ChatTicket;
+use Domain\Chat\Policies\ChatCampaignPolicy;
+use Domain\Chat\Policies\ChatChatbotRulePolicy;
+use Domain\Chat\Policies\ChatMessagePolicy;
+use Domain\Chat\Policies\ChatQuickAnswerPolicy;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Str;
+use Tests\TestCase;
+
+class ChatPolicyCoverageTest extends TestCase
+{
+    use LazilyRefreshDatabase;
+
+    private function grantPermissions(AuthUser $user, array $permissions): void
+    {
+        foreach ($permissions as $permission) {
+            $perm = AuthPermission::query()->firstOrCreate(
+                ['name' => $permission, 'guard_name' => 'sanctum'],
+                ['id' => Str::orderedUuid()]
+            );
+            $user->givePermissionTo($perm);
+        }
+    }
+
+    public function test_campaign_policy_permissions_and_tenant_scope(): void
+    {
+        $user = AuthUser::factory()->create();
+        $otherUser = AuthUser::factory()->create();
+
+        $this->grantPermissions($user, [
+            'chat.campaigns.view',
+            'chat.campaigns.create',
+            'chat.campaigns.update',
+            'chat.campaigns.delete',
+        ]);
+
+        $campaign = ChatCampaign::factory()->create(['tenant_id' => $user->tenant_id]);
+        $foreignCampaign = ChatCampaign::factory()->create(['tenant_id' => $otherUser->tenant_id]);
+
+        $policy = new ChatCampaignPolicy;
+
+        $this->assertTrue($policy->viewAny($user));
+        $this->assertTrue($policy->view($user, $campaign));
+        $this->assertTrue($policy->create($user));
+        $this->assertTrue($policy->update($user, $campaign));
+        $this->assertTrue($policy->delete($user, $campaign));
+
+        $this->assertFalse($policy->view($user, $foreignCampaign));
+        $this->assertFalse($policy->update($user, $foreignCampaign));
+        $this->assertFalse($policy->delete($user, $foreignCampaign));
+    }
+
+    public function test_quick_answer_policy_permissions_and_tenant_scope(): void
+    {
+        $user = AuthUser::factory()->create();
+        $otherUser = AuthUser::factory()->create();
+
+        $this->grantPermissions($user, [
+            'chat.quick_answers.view',
+            'chat.quick_answers.create',
+            'chat.quick_answers.update',
+            'chat.quick_answers.delete',
+        ]);
+
+        $qa = ChatQuickAnswer::query()->create([
+            'tenant_id' => $user->tenant_id,
+            'name' => 'Resposta rápida',
+            'shortcut' => '/ola',
+            'content' => 'Olá! Como posso ajudar?',
+            'category' => 'saudacao',
+            'is_active' => true,
+        ]);
+        $foreignQa = ChatQuickAnswer::query()->create([
+            'tenant_id' => $otherUser->tenant_id,
+            'name' => 'Resposta externa',
+            'shortcut' => '/externa',
+            'content' => 'Olá de outro tenant',
+            'category' => 'saudacao',
+            'is_active' => true,
+        ]);
+
+        $policy = new ChatQuickAnswerPolicy;
+
+        $this->assertTrue($policy->viewAny($user));
+        $this->assertTrue($policy->view($user, $qa));
+        $this->assertTrue($policy->create($user));
+        $this->assertTrue($policy->update($user, $qa));
+        $this->assertTrue($policy->delete($user, $qa));
+
+        $this->assertFalse($policy->view($user, $foreignQa));
+        $this->assertFalse($policy->update($user, $foreignQa));
+        $this->assertFalse($policy->delete($user, $foreignQa));
+    }
+
+    public function test_chatbot_rule_policy_permissions_and_tenant_scope(): void
+    {
+        $user = AuthUser::factory()->create();
+        $otherUser = AuthUser::factory()->create();
+
+        $this->grantPermissions($user, [
+            'chat.chatbot_rules.view',
+            'chat.chatbot_rules.create',
+            'chat.chatbot_rules.update',
+            'chat.chatbot_rules.delete',
+        ]);
+
+        $rule = ChatChatbotRule::query()->create([
+            'tenant_id' => $user->tenant_id,
+            'name' => 'Boas-vindas',
+            'trigger_text' => 'oi',
+            'response_text' => 'Olá! Sou o bot.',
+            'is_active' => true,
+            'is_welcome' => true,
+            'cooldown_seconds' => 60,
+        ]);
+        $foreignRule = ChatChatbotRule::query()->create([
+            'tenant_id' => $otherUser->tenant_id,
+            'name' => 'Outro bot',
+            'trigger_text' => 'oi',
+            'response_text' => 'Olá de outro tenant.',
+            'is_active' => true,
+            'is_welcome' => false,
+            'cooldown_seconds' => 60,
+        ]);
+
+        $policy = new ChatChatbotRulePolicy;
+
+        $this->assertTrue($policy->viewAny($user));
+        $this->assertTrue($policy->view($user, $rule));
+        $this->assertTrue($policy->create($user));
+        $this->assertTrue($policy->update($user, $rule));
+        $this->assertTrue($policy->delete($user, $rule));
+
+        $this->assertFalse($policy->view($user, $foreignRule));
+        $this->assertFalse($policy->update($user, $foreignRule));
+        $this->assertFalse($policy->delete($user, $foreignRule));
+    }
+
+    public function test_message_policy_permissions_and_tenant_scope(): void
+    {
+        $user = AuthUser::factory()->create();
+        $otherUser = AuthUser::factory()->create();
+
+        $this->grantPermissions($user, [
+            'chat.messages.view',
+            'chat.messages.create',
+        ]);
+
+        $ticket = ChatTicket::factory()->forTenant($user->tenant_id)->create();
+        $foreignTicket = ChatTicket::factory()->forTenant($otherUser->tenant_id)->create();
+
+        $policy = new ChatMessagePolicy;
+
+        $this->assertTrue($policy->viewAny($user, $ticket));
+        $this->assertTrue($policy->create($user, $ticket));
+        $this->assertFalse($policy->viewAny($user, $foreignTicket));
+        $this->assertFalse($policy->create($user, $foreignTicket));
+    }
+}

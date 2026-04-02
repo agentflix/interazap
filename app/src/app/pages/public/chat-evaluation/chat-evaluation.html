@@ -1,0 +1,141 @@
+
+    <main
+      class="flex min-h-screen items-center justify-center bg-surface-50 dark:bg-neutral-950 p-6"
+    >
+      @if (isLoading()) {
+        <section
+          class="w-full max-w-lg rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-lg"
+        >
+          <af-skeleton variant="text" width="60%" height="28px" />
+          <af-skeleton variant="text" width="90%" height="16px" class="mt-2" />
+          <div class="mt-6 flex gap-2">
+            @for (i of starIndexes; track i) {
+              <af-skeleton variant="circular" width="40px" height="40px" />
+            }
+          </div>
+          <af-skeleton variant="rectangular" width="100%" height="100px" class="mt-4" />
+          <af-skeleton variant="rectangular" width="100%" height="44px" class="mt-4" />
+        </section>
+      } @else if (notFound()) {
+        <af-empty-state
+          title="Avaliação não encontrada"
+          description="O link de avaliação é inválido ou já expirou."
+        />
+      } @else if (alreadySubmitted()) {
+        <section
+          class="w-full max-w-lg rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-lg text-center"
+        >
+          <div
+            class="mx-auto flex size-16 items-center justify-center rounded-full bg-accent-500/10 text-accent-500"
+          >
+            <svg
+              class="size-8"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 class="mt-4 text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+            Avaliação já enviada
+          </h2>
+          <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+            Esta avaliação já foi registrada anteriormente. Obrigado!
+          </p>
+        </section>
+      } @else if (submitted()) {
+        <section
+          class="w-full max-w-lg rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-lg text-center"
+        >
+          <div
+            class="mx-auto flex size-16 items-center justify-center rounded-full bg-accent-500/10 text-accent-500"
+          >
+            <svg
+              class="size-8"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 class="mt-4 text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+            Obrigado pelo seu feedback!
+          </h2>
+          <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+            Sua avaliação foi registrada com sucesso.
+          </p>
+        </section>
+      } @else {
+        <section
+          class="w-full max-w-lg rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-lg"
+        >
+          <h1 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+            Como foi seu atendimento?
+          </h1>
+          <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            Selecione uma nota de 1 a 5 estrelas e, se quiser, deixe um comentário.
+          </p>
+
+          <div class="mt-6 flex gap-2" role="radiogroup" aria-label="Nota de 1 a 5 estrelas">
+            @for (i of starIndexes; track i) {
+              <button
+                type="button"
+                class="text-4xl leading-none transition-transform hover:scale-110 focus:outline-none"
+                [class]="
+                  i <= selectedRating()
+                    ? 'text-amber-400'
+                    : 'text-neutral-300 dark:text-neutral-600'
+                "
+                [attr.aria-label]="i + (i === 1 ? ' estrela' : ' estrelas')"
+                [attr.aria-checked]="i === selectedRating()"
+                role="radio"
+                (click)="selectRating(i)"
+              >
+                ★
+              </button>
+            }
+          </div>
+
+          @if (ratingError()) {
+            <p class="mt-2 text-sm text-danger-500">{{ ratingError() }}</p>
+          }
+
+          <div class="mt-4">
+            <label
+              for="comment"
+              class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+            >
+              Comentário (opcional)
+            </label>
+            <textarea
+              id="comment"
+              class="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+              rows="4"
+              placeholder="Conte mais sobre sua experiência"
+              maxlength="1000"
+              [ngModel]="comment()"
+              (ngModelChange)="comment.set($event)"
+            ></textarea>
+          </div>
+
+          @if (errorMessage()) {
+            <af-alert variant="danger" [message]="errorMessage()!" class="mt-3" />
+          }
+
+          <af-loading-button
+            class="mt-4 block w-full"
+            variant="primary"
+            [loading]="isSubmitting()"
+            [disabled]="isSubmitting()"
+            (click)="submitEvaluation()"
+          >
+            Enviar avaliação
+          </af-loading-button>
+        </section>
+      }
+    </main>
+  

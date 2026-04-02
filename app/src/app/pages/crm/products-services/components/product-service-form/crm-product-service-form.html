@@ -1,0 +1,82 @@
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="mb-4">
+          <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+        </div>
+      }
+
+      <af-text-input
+        label="Nome"
+        [control]="form.controls.name"
+        placeholder="Ex: Consultoria Empresarial"
+        [required]="true"
+        dataTest="product-form-name"
+      />
+
+      <div class="grid grid-cols-2 gap-4">
+        <af-text-input
+          label="Código"
+          [control]="form.controls.code"
+          placeholder="Ex: PROD001"
+          dataTest="product-form-code"
+        />
+        <af-select-input
+          label="Tipo"
+          [control]="form.controls.type"
+          [options]="typeOptions"
+          [required]="true"
+          dataTest="product-form-type"
+        />
+      </div>
+
+      <af-textarea-input
+        label="Descrição"
+        [control]="form.controls.description"
+        placeholder="Descrição do produto ou serviço..."
+        [rows]="2"
+        dataTest="product-form-description"
+      />
+
+      <div class="grid grid-cols-2 gap-4">
+        <af-currency-input label="Preço" [control]="form.controls.price" placeholder="0,00" />
+        <af-currency-input label="Custo" [control]="form.controls.cost" placeholder="0,00" />
+      </div>
+
+      @if (isProduct()) {
+        <div class="grid grid-cols-3 gap-4">
+          <af-text-input
+            label="Unidade"
+            [control]="form.controls.unit"
+            placeholder="Ex: un, kg"
+            dataTest="product-form-unit"
+          />
+          <af-text-input
+            label="Estoque"
+            [control]="form.controls.stock_quantity"
+            placeholder="0"
+            dataTest="product-form-stock"
+          />
+          <af-text-input
+            label="Estoque Mín."
+            [control]="form.controls.min_stock"
+            placeholder="0"
+            dataTest="product-form-min-stock"
+          />
+        </div>
+      }
+
+      <div class="flex items-center gap-4 mt-4 mb-2">
+        <af-switch-input
+          label="Ativo"
+          [control]="form.controls.is_active"
+          dataTest="product-form-active"
+        />
+        <af-checkbox-input
+          [control]="form.controls.is_featured"
+          label="Destaque"
+          dataTest="product-form-featured"
+        />
+      </div>
+    </form>
+  

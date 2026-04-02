@@ -1,0 +1,167 @@
+<main class="space-y-6">
+  <app-page-title title="Negociação" subtitle="CRM" />
+
+  @if (isLoading()) {
+    <section
+      class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-sm"
+    >
+      <div class="text-sm text-neutral-500 dark:text-neutral-400">Carregando negociação...</div>
+    </section>
+  } @else if (errorMessage()) {
+    <section
+      class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-sm"
+    >
+      <div class="rounded-lg border border-danger/20 bg-danger/10 p-4 text-sm text-danger">
+        {{ errorMessage() }}
+      </div>
+    </section>
+  } @else {
+    <app-negotiation-header
+      [negotiation]="negotiation()"
+      [isUpdatingStatus]="isUpdatingStatus()"
+      [badges]="badges()"
+      [metrics]="metrics()"
+      (markAsWon)="markAsWon()"
+      (markAsLost)="openLossModal()"
+      (reopen)="reopen()"
+    />
+
+    <section class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <app-negotiation-summary-card
+        class="lg:col-start-1 lg:row-start-1"
+        [negotiation]="negotiation()"
+        [funnels]="funnels()"
+        [steps]="steps()"
+        [isUpdatingDetails]="isUpdatingDetails()"
+        (funnelChanged)="onFunnelChange($event)"
+        (stepChanged)="onStepChange($event)"
+        (expectedCloseDateChanged)="onExpectedCloseChange($event)"
+        (editRequested)="openEditModal()"
+      />
+
+      <app-negotiation-upcoming-tasks
+        class="lg:col-start-1 lg:row-start-2"
+        [tasks]="tasks()"
+        (createTaskRequested)="onCreateTaskFromSummary()"
+      />
+
+      <app-negotiation-contact-card
+        class="lg:col-start-2 lg:row-start-1"
+        [contact]="resolvedContact()"
+        [contactId]="negotiation()?.contact_id || null"
+      />
+
+      <app-negotiation-company-card
+        class="lg:col-start-2 lg:row-start-2"
+        [company]="resolvedCompany()"
+        [companyId]="negotiation()?.crm_company_id || null"
+      />
+    </section>
+
+    <section
+      class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900"
+    >
+      <div class="border-b border-neutral-200 dark:border-neutral-700 px-6 pt-5">
+        <nav class="flex flex-wrap gap-2" aria-label="Tabs">
+          @for (tab of tabs; track tab.id) {
+            <app-button
+              [variant]="tab.id === activeTab() ? 'secondary' : 'ghost'"
+              size="sm"
+              [ariaLabel]="tab.label"
+              (clicked)="setActiveTab(tab.id)"
+            >
+              {{ tab.label }}
+            </app-button>
+          }
+        </nav>
+      </div>
+
+      <div class="p-6">
+        @if (negotiation(); as currentNegotiation) {
+          @if (activeTab() === 'history') {
+            <app-negotiation-history-tab
+              [negotiationId]="currentNegotiation.id"
+              [currentUserId]="currentUserId()"
+              (failed)="onChildError($event)"
+            />
+          }
+          @if (activeTab() === 'tasks') {
+            <app-negotiation-tasks-tab
+              [negotiationId]="currentNegotiation.id"
+              [tasks]="tasks()"
+              [isTasksLoading]="isTasksLoading()"
+              [openCreateRequestToken]="openTaskModalToken()"
+              (tasksChanged)="loadTasks(currentNegotiation.id)"
+              (failed)="onChildError($event)"
+            />
+          }
+          @if (activeTab() === 'contacts') {
+            <app-negotiation-contacts-tab
+              [negotiationId]="currentNegotiation.id"
+              [availableContacts]="contacts()"
+              (contactsChanged)="refreshNegotiation()"
+              (failed)="onChildError($event)"
+            />
+          }
+          @if (activeTab() === 'products') {
+            <app-negotiation-products-tab
+              [negotiationId]="currentNegotiation.id"
+              (productsChanged)="refreshNegotiation()"
+              (failed)="onChildError($event)"
+            />
+          }
+          @if (activeTab() === 'proposals') {
+            <app-proposal-list [negotiationId]="currentNegotiation.id" />
+          }
+          @if (activeTab() === 'files') {
+            <app-negotiation-files-tab
+              [negotiationId]="currentNegotiation.id"
+              (failed)="onChildError($event)"
+            />
+          }
+        }
+      </div>
+    </section>
+
+    <app-negotiation-loss-modal
+      [isOpen]="isLossModalOpen()"
+      [reasonLosses]="reasonLosses()"
+      [isUpdatingStatus]="isUpdatingStatus()"
+      (confirmed)="confirmLoss($event)"
+      (closed)="closeLossModal()"
+    />
+
+    <app-negotiation-edit-modal
+      [isOpen]="isEditModalOpen()"
+      [negotiation]="negotiation()"
+      [funnels]="funnels()"
+      [contacts]="contacts()"
+      [companies]="companies()"
+      (saved)="onNegotiationSaved($event)"
+      (closed)="closeEditModal()"
+    />
+
+    @if (showWinCelebration()) {
+      <div class="pointer-events-none fixed inset-0 z-120 overflow-hidden">
+        @for (piece of confettiPieces; track piece.id) {
+          <span
+            class="absolute text-2xl animate-bounce"
+            [style.left.%]="piece.left"
+            [style.top.px]="piece.id * 6"
+            [style.animationDelay.ms]="piece.delay"
+          >
+            {{ piece.icon }}
+          </span>
+        }
+
+        <div class="absolute inset-x-0 top-20 flex justify-center">
+          <div
+            class="rounded-full border border-success/30 bg-success/15 px-5 py-2 text-sm font-semibold text-success shadow-lg"
+          >
+            Negociação ganha! 🎊
+          </div>
+        </div>
+      </div>
+    }
+  }
+</main>

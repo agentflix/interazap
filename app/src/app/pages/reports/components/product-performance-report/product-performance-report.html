@@ -1,0 +1,182 @@
+
+    <div class="pt-2">
+      <app-page-title title="Desempenho de Produtos" subtitle="Relatórios">
+        <af-button variant="secondary" size="sm" (clicked)="openFilters()">
+          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+          Filtros
+        </af-button>
+      </app-page-title>
+
+      <af-drawer
+        [open]="isFilterOpen()"
+        title="Filtros do relatório"
+        side="right"
+        size="lg"
+        (closed)="closeFilters()"
+      >
+        <af-search-input
+          [control]="searchControl"
+          placeholder="Buscar..."
+          dataTest="product-perf-search"
+        />
+        <div class="grid grid-cols-1">
+          <af-text-input
+            [control]="startDateControl"
+            label="Data inicial"
+            type="date"
+            dataTest="product-perf-start-date"
+          />
+          <af-text-input
+            [control]="endDateControl"
+            label="Data final"
+            type="date"
+            dataTest="product-perf-end-date"
+          />
+          <af-select-input
+            label="Granularidade"
+            [control]="granularityControl"
+            [options]="granularityOptions"
+            dataTest="product-perf-granularity"
+          />
+        </div>
+        <div class="flex gap-2">
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'csv' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" /> CSV
+          </af-button>
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'xlsx' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" /> XLSX
+          </af-button>
+        </div>
+        <div footer>
+          <div class="flex w-full items-center justify-between gap-2">
+            <af-button variant="danger" size="sm" (clicked)="clearFilters()"
+              >Limpar filtros</af-button
+            >
+            <div class="flex gap-2">
+              <af-button variant="ghost" size="sm" (clicked)="closeFilters()">Cancelar</af-button>
+              <af-button variant="primary" size="sm" (clicked)="applyFilters()">Aplicar</af-button>
+            </div>
+          </div>
+        </div>
+      </af-drawer>
+
+      @if (isLoading()) {
+        <af-card>
+          @for (row of [0, 1, 2, 3, 4, 5]; track row) {
+            <af-skeleton variant="text" width="100%" height="2.5rem" class="mb-2 block" />
+          }
+        </af-card>
+      } @else if (hasError()) {
+        <af-card>
+          <div class="py-12 text-center">
+            <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+              Erro ao carregar dados
+            </h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+              Não foi possível carregar o relatório de produtos.
+            </p>
+            <af-button variant="primary" size="sm" (click)="retry()">Tentar novamente</af-button>
+          </div>
+        </af-card>
+      } @else if (!data() || !data()!.products || data()!.products.length === 0) {
+        <af-card>
+          <af-empty-state
+            title="Sem dados disponíveis"
+            description="Não há dados de produtos no período selecionado"
+          />
+        </af-card>
+      } @else {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <af-card>
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+              <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Top 10 Produtos por Receita
+              </h6>
+            </div>
+            <af-apexchart
+              type="bar"
+              [series]="chartSeries()"
+              [categories]="chartCategories()"
+              height="320"
+              [colors]="['#2b7fff']"
+              [extraOptions]="chartExtra()"
+            />
+          </af-card>
+
+          <af-card [padded]="false">
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+              <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Todos os Produtos
+              </h6>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                    <th
+                      class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      #
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Produto
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Tipo
+                    </th>
+                    <th
+                      class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Qtd Vendida
+                    </th>
+                    <th
+                      class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Receita
+                    </th>
+                    <th
+                      class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Preço Médio
+                    </th>
+                    <th
+                      class="text-right py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Aceitação
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (product of data()!.products; track product.product_id; let idx = $index) {
+                    <tr
+                      class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                    >
+                      <td class="py-3 px-4 text-neutral-400 dark:text-neutral-500">
+                        {{ idx + 1 }}
+                      </td>
+                      <td class="py-3 px-4 font-medium">{{ product.product_name }}</td>
+                      <td class="py-3 px-4">{{ product.type }}</td>
+                      <td class="text-right py-3 px-4">{{ product.sold_qty }}</td>
+                      <td class="text-right py-3 px-4">
+                        {{ formatCurrency(product.total_revenue) }}
+                      </td>
+                      <td class="text-right py-3 px-4">
+                        {{ formatCurrency(product.avg_unit_price) }}
+                      </td>
+                      <td class="text-right py-3 px-4">
+                        {{ product.acceptance_rate | number: '1.1-1' }}%
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </af-card>
+        </div>
+      }
+    </div>
+  

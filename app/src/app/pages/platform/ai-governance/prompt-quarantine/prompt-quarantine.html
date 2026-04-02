@@ -1,0 +1,122 @@
+
+    <af-crud-page
+      title="Quarentena"
+      subtitle="Governança IA"
+      searchPlaceholder="Buscar prompts em quarentena..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum prompt aguardando revisão"
+      emptyDescription="Não há prompts em quarentena no momento."
+      [skeletonColumns]="5"
+      [skeletonRows]="5"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar quarentena"
+            message="Não foi possível carregar prompts em quarentena. Verifique sua conexão e tente novamente."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th>Inquilino</th>
+              <th>Content</th>
+              <th>Motivo</th>
+              <th>Data</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of quarantineItems(); track item.id) {
+              <tr>
+                <td>
+                  <span class="font-medium">{{ item.tenant?.name || '—' }}</span>
+                </td>
+                <td>
+                  <span class="text-xs text-neutral-600 dark:text-neutral-400">
+                    {{ (item.content || '').slice(0, 120) }}...
+                  </span>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ item.validation_status_label || item.validation_status }}
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ item.created_at }}
+                </td>
+                <td>
+                  <div class="flex justify-end items-center gap-1">
+                    <af-icon-button
+                      label="Aprovar prompt"
+                      variant="ghost"
+                      size="sm"
+                      (click)="openApprove(item)"
+                    >
+                      <lucide-icon name="check" [size]="14" class="text-success" />
+                    </af-icon-button>
+                    <af-icon-button
+                      label="Rejeitar prompt"
+                      variant="danger"
+                      size="sm"
+                      (click)="openReject(item)"
+                    >
+                      <lucide-icon name="x" [size]="14" />
+                    </af-icon-button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <!-- Approve Confirmation -->
+    <af-confirm-modal
+      [open]="approveModalOpen()"
+      title="Aprovar prompt"
+      message="Tem certeza que deseja aprovar este prompt em quarentena?"
+      confirmLabel="Aprovar"
+      cancelLabel="Cancelar"
+      variant="default"
+      iconName="check"
+      (confirmed)="confirmApprove()"
+      (cancelled)="closeApprove()"
+    />
+
+    <!-- Reject Modal -->
+    <af-modal [open]="rejectModalOpen()" title="Rejeitar prompt" size="md" (closed)="closeReject()">
+      <af-textarea-input
+        label="Motivo"
+        [control]="rejectForm.controls.reason"
+        [rows]="5"
+        [required]="true"
+        errorMessage="Informe o motivo da rejeição"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="closeReject()">Cancelar</af-button>
+        <af-loading-button
+          variant="danger"
+          size="sm"
+          [loading]="isSaving()"
+          [disabled]="rejectForm.invalid"
+          (click)="confirmReject()"
+        >
+          Rejeitar
+        </af-loading-button>
+      </div>
+    </af-modal>
+  

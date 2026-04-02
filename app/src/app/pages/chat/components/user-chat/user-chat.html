@@ -1,0 +1,7 @@
+<app-user-chat-thread
+  [allowStartConversation]="allowStartConversation()"
+  [ticketId]="ticketId()"
+  [canLoadMessages]="canLoadMessages()"
+  [readOnlyMode]="readOnlyMode()"
+  (reply)="onReply($event)"
+/>

@@ -1,0 +1,241 @@
+
+    <af-crud-page
+      title="Contatos"
+      subtitle="CRM"
+      createLabel="Novo Contato"
+      searchPlaceholder="Buscar contatos..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Nenhum contato encontrado"
+      emptyDescription="Comece adicionando seu primeiro contato ao sistema."
+      [skeletonColumns]="5"
+      [skeletonRows]="6"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (create)="openCreate()"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      <!-- Filter + header actions slot -->
+      <div filters class="flex items-center gap-2">
+        <div class="min-w-40">
+          <af-select-input
+            [control]="filterStatusControl"
+            [options]="filterStatusOptions"
+            size="sm"
+            classContainer=""
+            ariaLabel="Filtrar por status"
+            dataTest="contact-filter-status"
+          />
+        </div>
+        @if (hasSelection()) {
+          <af-button
+            variant="danger"
+            size="sm"
+            ariaLabel="Excluir selecionados"
+            (click)="openBulkDelete()"
+          >
+            Excluir selecionados ({{ selectedCount() }})
+          </af-button>
+        }
+        <div class="ml-auto flex items-center gap-2">
+          <af-button
+            variant="outline"
+            size="sm"
+            ariaLabel="Importar contatos"
+            dataTest="contact-import-btn"
+            (click)="openImport()"
+          >
+            <lucide-icon name="upload" [size]="14" class="block" />
+            Importar
+          </af-button>
+          <app-contact-export
+            [searchTerm]="searchTerm()"
+            [statusFilter]="filterStatusControl.value"
+          />
+        </div>
+      </div>
+
+      <!-- Table -->
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar contatos"
+            message="Não foi possível carregar os contatos. Verifique sua conexão e tente novamente."
+          />
+          <af-button variant="outline" size="sm" ariaLabel="Tentar novamente" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th class="w-10">
+                <af-checkbox-input
+                  [control]="selectAllControl"
+                  ariaLabel="Selecionar todos os contatos"
+                  dataTest="contacts-select-all"
+                />
+              </th>
+              <th
+                afSortableHeader
+                label="Nome"
+                field="name"
+                [currentField]="sortBy()"
+                [currentDir]="sortDir()"
+                (sortChange)="onSort($event)"
+              ></th>
+              <th
+                afSortableHeader
+                label="Empresa"
+                field="company"
+                [currentField]="sortBy()"
+                [currentDir]="sortDir()"
+                (sortChange)="onSort($event)"
+              ></th>
+              <th>Telefone</th>
+              <th
+                afSortableHeader
+                label="Status"
+                field="is_active"
+                [currentField]="sortBy()"
+                [currentDir]="sortDir()"
+                (sortChange)="onSort($event)"
+              ></th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (contact of contacts(); track contact.id) {
+              <tr>
+                <td>
+                  <af-checkbox-input
+                    [control]="getRowSelectionControl(contact.id)"
+                    [ariaLabel]="'Selecionar contato ' + contact.name"
+                    [dataTest]="'contact-select-' + contact.id"
+                  />
+                </td>
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="relative shrink-0 w-8 h-8 rounded-full overflow-hidden
+                        bg-accent-100 dark:bg-accent-900
+                        flex items-center justify-center
+                        text-xs font-semibold text-accent-700 dark:text-accent-300"
+                    >
+                      {{ getInitials(contact.name) }}
+                      @if (contact.avatar_url) {
+                        <img
+                          [src]="contact.avatar_url"
+                          [alt]="contact.name"
+                          class="absolute inset-0 w-full h-full object-cover"
+                          (error)="handleImageError($event)"
+                        />
+                      }
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="font-medium">{{ contact.name }}</span>
+                      @if (contact.document) {
+                        <span class="text-xs text-neutral-500">{{
+                          utils.formatDocument(contact.document)
+                        }}</span>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="flex flex-col">
+                    <span class="font-medium text-neutral-800 dark:text-neutral-200">{{
+                      contact.company?.name || '—'
+                    }}</span>
+                    @if (contact.company?.document) {
+                      <span class="text-xs text-neutral-500">{{
+                        utils.formatDocument(contact.company!.document)
+                      }}</span>
+                    }
+                  </div>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ utils.formatPhone(contact?.phone) }}
+                </td>
+                <td>
+                  <af-status-badge [status]="contact.is_active ? 'online' : 'offline'">
+                    {{ contact.is_active ? 'Ativo' : 'Inativo' }}
+                  </af-status-badge>
+                </td>
+                <td>
+                  <div class="flex justify-end">
+                    <af-table-actions (edit)="openEdit(contact)" (delete)="openDelete(contact)" />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <!-- Create / Edit modal -->
+    <af-modal
+      [open]="showFormModal()"
+      [title]="formModalTitle()"
+      size="lg"
+      (closed)="handleFormCancelled()"
+    >
+      <app-contact-form
+        #contactForm
+        [contact]="selectedContact()"
+        (saved)="handleFormSaved($event)"
+        (cancelled)="handleFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button
+          variant="ghost"
+          size="sm"
+          ariaLabel="Cancelar"
+          dataTest="contact-form-cancel-btn"
+          (click)="contactFormRef()?.cancel()"
+        >
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          ariaLabel="Salvar"
+          [loading]="isFormSaving()"
+          dataTest="contact-form-save-btn"
+          (click)="contactFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Delete confirmation modal -->
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      [title]="deleteModalTitle()"
+      [message]="deleteMessage()"
+      [confirmLabel]="deleteConfirmLabel()"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+
+    <!-- Import modal -->
+    <af-modal [open]="isImportOpen()" title="Importar contatos" size="lg" (closed)="closeImport()">
+      <app-contact-import
+        #contactImportComponent
+        (imported)="handleImported()"
+        (errorOccurred)="handleImportError($event)"
+      />
+    </af-modal>
+  

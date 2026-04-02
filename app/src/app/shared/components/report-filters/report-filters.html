@@ -1,0 +1,61 @@
+
+    <div class="flex flex-col sm:flex-row items-end gap-3 w-full">
+      <div class="w-full sm:w-auto sm:min-w-40">
+        <af-text-input
+          [control]="startDateControl"
+          label="Data inicial"
+          type="date"
+          classContainer="mb-0"
+          class="block w-full"
+        />
+      </div>
+      <div class="w-full sm:w-auto sm:min-w-40">
+        <af-text-input
+          [control]="endDateControl"
+          label="Data final"
+          type="date"
+          classContainer="mb-0"
+          class="block w-full"
+        />
+      </div>
+      @if (shouldShow('granularity')) {
+        <div class="w-full sm:w-auto sm:min-w-40">
+          <af-select-input
+            [control]="granularityControl"
+            [options]="granularityOptions"
+            label="Granularidade"
+            classContainer="mb-0"
+            class="block w-full"
+          />
+        </div>
+      }
+      @if (shouldShow('channel')) {
+        <div class="w-full sm:w-auto sm:min-w-45">
+          <af-select-input
+            [control]="channelControl"
+            [options]="channelOptions"
+            label="Canal"
+            placeholder="Todos"
+            classContainer="mb-0"
+            class="block w-full"
+          />
+        </div>
+      }
+      @if (statusOptions().length > 0) {
+        <div class="w-full sm:w-auto sm:min-w-45">
+          <af-select-input
+            [control]="statusControl"
+            [options]="statusOptions()"
+            label="Status"
+            placeholder="Todos"
+            classContainer="mb-0"
+            class="block w-full"
+          />
+        </div>
+      }
+      <af-button variant="primary" (click)="applyFilters()">
+        <lucide-icon name="search" [size]="16" class="block" />
+        Filtrar
+      </af-button>
+    </div>
+  

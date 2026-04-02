@@ -1,0 +1,187 @@
+groups:
+    - name: agentflix_critical
+      rules:
+          - alert: HighErrorRate
+            expr: |
+                (
+                  sum(rate(http_requests_total{status=~"5.."}[5m]))
+                  /
+                  sum(rate(http_requests_total[5m]))
+                ) > 0.01
+            for: 5m
+            labels:
+                severity: critical
+            annotations:
+                summary: 'High error rate detected'
+                description: 'Error rate is {{ $value | humanizePercentage }} over the last 5 minutes'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/high-error-rate.md'
+
+          - alert: ServiceDown
+            expr: up == 0
+            for: 1m
+            labels:
+                severity: critical
+            annotations:
+                summary: 'Service {{ $labels.job }} is down'
+                description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/service-down.md'
+
+    - name: agentflix_warning
+      rules:
+          - alert: SlowResponses
+            expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 0.5
+            for: 5m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'Slow response times detected'
+                description: 'P95 latency is {{ $value | humanizeDuration }}'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/slow-responses.md'
+
+          - alert: HighLatencyP99
+            expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1
+            for: 5m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'Very high P99 latency'
+                description: 'P99 latency is {{ $value | humanizeDuration }}'
+
+          - alert: QueueBacklog
+            expr: queue_jobs_pending > 100
+            for: 10m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'Queue backlog growing'
+                description: '{{ $value }} jobs pending in queue for more than 10 minutes'
+
+          - alert: HighFailedJobs
+            expr: increase(queue_jobs_failed_total[1h]) > 10
+            for: 5m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'High number of failed jobs'
+                description: '{{ $value }} jobs failed in the last hour'
+
+          - alert: DatabaseConnectionsHigh
+            expr: database_connections_active > 80
+            for: 5m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'High database connection count'
+                description: '{{ $value }} active database connections'
+
+          - alert: RedisDown
+            expr: redis_connected == 0
+            for: 1m
+            labels:
+                severity: critical
+            annotations:
+                summary: 'Redis is disconnected'
+                description: 'Redis connection has been lost'
+
+          - alert: HighMemoryUsage
+            expr: php_memory_usage_bytes / php_memory_peak_bytes > 0.9
+            for: 5m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'High PHP memory usage'
+                description: 'Memory usage is at {{ $value | humanizePercentage }} of peak'
+
+          - alert: BackupMissing
+            expr: time() - backup_last_success_timestamp > 86400
+            for: 1h
+            labels:
+                severity: warning
+            annotations:
+                summary: 'Database backup not completed in 24 hours'
+                description: 'The last successful backup was more than 24 hours ago'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/database-backup.md'
+
+    - name: autopilot_critical
+      rules:
+          - alert: AutopilotHighCostRate
+            expr: rate(autopilot_cost_dollars[1h]) * 24 > 500
+            for: 15m
+            labels:
+                severity: critical
+            annotations:
+                summary: 'Autopilot cost rate exceeds $500/day'
+                description: 'Current cost rate is ${{ $value | humanize }}/day (projected)'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/autopilot-high-cost.md'
+
+          - alert: AutopilotBudgetExceeded
+            expr: autopilot_budget_usage_ratio > 1.0
+            for: 5m
+            labels:
+                severity: critical
+            annotations:
+                summary: 'Autopilot budget exceeded'
+                description: 'Budget usage is at {{ $value | humanizePercentage }}'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/autopilot-budget.md'
+
+          - alert: AutopilotHighGuardrailBlocks
+            expr: rate(autopilot_guardrail_blocks_total[5m]) > 0.5
+            for: 10m
+            labels:
+                severity: critical
+            annotations:
+                summary: 'High rate of guardrail blocks'
+                description: '{{ $value | humanize }} blocks per second - possible attack'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/autopilot-guardrail.md'
+
+    - name: autopilot_warning
+      rules:
+          - alert: AutopilotSlowRuns
+            expr: histogram_quantile(0.95, sum(rate(autopilot_run_duration_seconds_bucket[5m])) by (le)) > 10
+            for: 10m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'Autopilot runs are slow'
+                description: 'P95 run duration is {{ $value | humanizeDuration }}'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/autopilot-slow.md'
+
+          - alert: AutopilotBudgetWarning
+            expr: autopilot_budget_usage_ratio > 0.8
+            for: 5m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'Autopilot budget warning (>80%)'
+                description: 'Budget usage is at {{ $value | humanizePercentage }}'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/autopilot-budget.md'
+
+          - alert: AutopilotHighToolFailureRate
+            expr: |
+                (
+                  sum(rate(autopilot_tool_calls_total{status="error"}[5m]))
+                  /
+                  sum(rate(autopilot_tool_calls_total[5m]))
+                ) > 0.1
+            for: 10m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'High tool failure rate (>10%)'
+                description: 'Tool failure rate is {{ $value | humanizePercentage }}'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/autopilot-tools.md'
+
+          - alert: AutopilotLowCacheHitRate
+            expr: |
+                (
+                  sum(rate(autopilot_cache_hits_total{hit="true"}[5m]))
+                  /
+                  sum(rate(autopilot_cache_hits_total[5m]))
+                ) < 0.5
+            for: 15m
+            labels:
+                severity: warning
+            annotations:
+                summary: 'Low cache hit rate (<50%)'
+                description: 'Cache hit rate is {{ $value | humanizePercentage }}'
+                runbook_url: 'https://github.com/agentflix/agentflix/blob/main/docs/runbooks/autopilot-cache.md'

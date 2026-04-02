@@ -1,0 +1,96 @@
+# =====================================================
+# Supervisor - AgentFlix Production Workers
+# Autor: DevOps Agentflix
+# =====================================================
+
+[program:agentflix-octane]
+command=php /data/production/api/current/api/artisan octane:start --server=swoole --workers=4 --host=127.0.0.1 --port=9501
+directory=/data/production/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+startsecs=30
+stopwaitsecs=60
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-octane.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-octane-error.log
+stderr_logfile_maxbytes=50MB
+stderr_logfile_backups=3
+environment=APP_ENV="production",APP_DEBUG="false"
+
+[program:agentflix-streams-chat]
+command=php /data/production/api/current/api/artisan streams:chat-consume
+directory=/data/production/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+startsecs=10
+numprocs=2
+process_name=%(program_name)s_%(process_num)02d
+stopwaitsecs=60
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-streams-chat.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-streams-chat-error.log
+stderr_logfile_maxbytes=20MB
+stderr_logfile_backups=3
+environment=APP_ENV="production",APP_DEBUG="false"
+
+[program:agentflix-ai-run-responses]
+command=php /data/production/api/current/api/artisan ai:consume-run-responses
+directory=/data/production/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+numprocs=1
+process_name=%(program_name)s_%(process_num)02d
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-ai-run-responses.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-ai-run-responses-error.log
+stderr_logfile_maxbytes=20MB
+stderr_logfile_backups=3
+environment=APP_ENV="production",APP_DEBUG="false"
+
+[program:agentflix-ai-tool-requests]
+command=php /data/production/api/current/api/artisan ai:consume-tool-requests
+directory=/data/production/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+numprocs=1
+process_name=%(program_name)s_%(process_num)02d
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-ai-tool-requests.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-ai-tool-requests-error.log
+stderr_logfile_maxbytes=20MB
+stderr_logfile_backups=3
+environment=APP_ENV="production",APP_DEBUG="false"
+
+[program:agentflix-horizon]
+command=php /data/production/api/current/api/artisan horizon
+directory=/data/production/api/current/api
+user=www-data
+autostart=true
+autorestart=true
+startretries=3
+numprocs=1
+process_name=%(program_name)s
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/agentflix-horizon.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=3
+stderr_logfile=/var/log/supervisor/agentflix-horizon-error.log
+stderr_logfile_maxbytes=20MB
+stderr_logfile_backups=3
+environment=APP_ENV="production",APP_DEBUG="false"

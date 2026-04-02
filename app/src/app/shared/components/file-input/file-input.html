@@ -1,0 +1,31 @@
+
+    <div [class]="containerClasses()">
+      @if (label()) {
+        <af-form-label [label]="label()" [required]="required()" />
+      }
+      <div
+        [class]="dropzoneClasses()"
+        (click)="openFileDialog()"
+        (keydown.enter)="openFileDialog()"
+        tabindex="0"
+        role="button"
+      >
+        <lucide-icon name="upload" [size]="16" class="text-neutral-400 shrink-0" />
+        <span class="text-sm text-neutral-500 dark:text-neutral-400 truncate flex-1">
+          {{ fileName() || 'Selecionar arquivo...' }}
+        </span>
+        <input
+          #fileRef
+          type="file"
+          class="hidden"
+          [accept]="accept()"
+          [multiple]="multiple()"
+          (change)="onFileChange($event)"
+        />
+      </div>
+      @if (helpText() && !showError()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+      <af-form-error [show]="showError()" [message]="errorMessage()" />
+    </div>
+  

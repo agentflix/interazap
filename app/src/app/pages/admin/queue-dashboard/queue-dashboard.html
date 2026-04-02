@@ -1,0 +1,220 @@
+
+    <div class="space-y-6">
+      <af-page-title
+        title="Dashboard de Filas"
+        subtitle="Monitoramento em tempo real das filas de processamento"
+      >
+        <af-badge [variant]="isConnected() ? 'success' : 'danger'" [dot]="true">
+          {{ isConnected() ? 'Conectado' : 'Desconectado' }}
+        </af-badge>
+        <af-icon-button label="Atualizar" variant="outline" size="sm" (click)="refresh()">
+          <lucide-icon name="refresh-cw" [size]="14" [class.animate-spin]="loading()" />
+        </af-icon-button>
+      </af-page-title>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <af-card>
+          <div class="flex items-center gap-3">
+            <div class="size-10 rounded-lg bg-info/15 text-info flex items-center justify-center">
+              <lucide-icon name="layers" [size]="20" class="block" />
+            </div>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Total de Jobs</p>
+              <p class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                {{ overview()?.totalJobs ?? 0 | number }}
+              </p>
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="flex items-center gap-3">
+            <div
+              class="size-10 rounded-lg bg-success/15 text-success flex items-center justify-center"
+            >
+              <lucide-icon name="circle-check" [size]="20" class="block" />
+            </div>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Concluídos</p>
+              <p class="text-xl font-semibold text-success">
+                {{ overview()?.totalCompleted ?? 0 | number }}
+              </p>
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="flex items-center gap-3">
+            <div
+              class="size-10 rounded-lg bg-danger/15 text-danger flex items-center justify-center"
+            >
+              <lucide-icon name="circle-x" [size]="20" class="block" />
+            </div>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Falhos</p>
+              <p class="text-xl font-semibold text-danger">
+                {{ overview()?.totalFailed ?? 0 | number }}
+              </p>
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="flex items-center gap-3">
+            <div
+              class="size-10 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 flex items-center justify-center"
+            >
+              <lucide-icon name="database" [size]="20" class="block" />
+            </div>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Redis</p>
+              <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                {{ overview()?.redis?.connected ? 'Conectado' : 'Desconectado' }}
+                @if (overview()?.redis?.memory) {
+                  <span class="text-neutral-500 dark:text-neutral-400"
+                    >({{ overview()?.redis?.memory }})</span
+                  >
+                }
+              </p>
+            </div>
+          </div>
+        </af-card>
+      </div>
+
+      <af-card>
+        <div header class="px-5 py-4 border-b border-neutral-200 dark:border-neutral-700">
+          <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Filas</h2>
+        </div>
+
+        @if (!loading() && queues().length === 0) {
+          <af-empty-state
+            title="Nenhuma fila encontrada"
+            description="As filas aparecerão aqui quando estiverem configuradas"
+          >
+            <div icon>
+              <lucide-icon name="layers" [size]="26" class="text-neutral-400" />
+            </div>
+          </af-empty-state>
+        } @else {
+          <af-data-table [hoverable]="true">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th class="text-center">Aguardando</th>
+                <th class="text-center">Ativos</th>
+                <th class="text-center">Concluídos</th>
+                <th class="text-center">Falhos</th>
+                <th class="text-center">Atrasados</th>
+                <th class="text-center">Status</th>
+                <th class="text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (queue of queues(); track queue.name) {
+                <tr>
+                  <td class="font-medium">{{ queue.name }}</td>
+                  <td class="text-center">
+                    <af-badge variant="warning">{{ queue.waiting }}</af-badge>
+                  </td>
+                  <td class="text-center">
+                    <af-badge variant="info">{{ queue.active }}</af-badge>
+                  </td>
+                  <td class="text-center">
+                    <af-badge variant="success">{{ queue.completed | number }}</af-badge>
+                  </td>
+                  <td class="text-center">
+                    <af-badge [variant]="queue.failed > 0 ? 'danger' : 'default'">{{
+                      queue.failed
+                    }}</af-badge>
+                  </td>
+                  <td class="text-center">
+                    <af-badge variant="default">{{ queue.delayed }}</af-badge>
+                  </td>
+                  <td class="text-center">
+                    <af-status-badge [status]="queue.paused ? 'warning' : 'online'">
+                      {{ queue.paused ? 'Pausada' : 'Ativa' }}
+                    </af-status-badge>
+                  </td>
+                  <td>
+                    <div class="flex items-center justify-end gap-1">
+                      @if (queue.paused) {
+                        <af-icon-button
+                          label="Resumir fila"
+                          variant="ghost"
+                          size="sm"
+                          [disabled]="actionLoading() === queue.name"
+                          (click)="resumeQueue(queue.name)"
+                        >
+                          <lucide-icon name="play" [size]="14" class="text-success" />
+                        </af-icon-button>
+                      } @else {
+                        <af-icon-button
+                          label="Pausar fila"
+                          variant="ghost"
+                          size="sm"
+                          [disabled]="actionLoading() === queue.name"
+                          (click)="pauseQueue(queue.name)"
+                        >
+                          <lucide-icon name="pause" [size]="14" class="text-warning" />
+                        </af-icon-button>
+                      }
+
+                      <af-icon-button
+                        label="Limpar jobs falhos"
+                        variant="danger"
+                        size="sm"
+                        [disabled]="actionLoading() === queue.name || queue.failed === 0"
+                        (click)="cleanQueue(queue.name, 'failed')"
+                      >
+                        <lucide-icon name="trash-2" [size]="14" />
+                      </af-icon-button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </af-data-table>
+        }
+      </af-card>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a
+          routerLink="/admin/queues/dlq"
+          class="block rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 hover:border-accent-300 transition-colors"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="size-10 rounded-lg bg-danger/15 text-danger flex items-center justify-center"
+            >
+              <lucide-icon name="alert-triangle" [size]="20" />
+            </span>
+            <div>
+              <h3 class="font-medium text-neutral-900 dark:text-neutral-100">Dead Letter Queue</h3>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                Gerenciar jobs que falharam permanentemente
+              </p>
+            </div>
+          </div>
+        </a>
+
+        <a
+          routerLink="/admin/queues/circuits"
+          class="block rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 hover:border-accent-300 transition-colors"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="size-10 rounded-lg bg-warning/15 text-warning flex items-center justify-center"
+            >
+              <lucide-icon name="zap" [size]="20" />
+            </span>
+            <div>
+              <h3 class="font-medium text-neutral-900 dark:text-neutral-100">Circuit Breakers</h3>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                Monitorar status dos circuit breakers
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  

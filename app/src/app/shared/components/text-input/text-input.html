@@ -1,0 +1,31 @@
+
+    <div [class]="containerClasses()">
+      @if (label()) {
+        <af-form-label [label]="label()" [for]="inputId" [required]="required()" />
+      }
+
+      <input
+        [id]="inputId"
+        [type]="type()"
+        [class]="inputClasses()"
+        [formControl]="control()"
+        [placeholder]="placeholder()"
+        [readonly]="disableAutofill()"
+        [attr.maxlength]="maxLength() ?? null"
+        [attr.data-test]="dataTest()"
+        [attr.role]="role() || null"
+        [attr.aria-label]="ariaLabel() || label() || null"
+        [attr.aria-invalid]="showError()"
+        [attr.aria-describedby]="showError() ? inputId + '-error' : null"
+        [attr.autocomplete]="autocomplete()"
+        (focus)="focusEmitter.emit()"
+        (blur)="blurEmitter.emit()"
+      />
+
+      @if (helpText() && !showError()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+
+      <af-form-error [show]="showError()" [message]="errorMessage()" />
+    </div>
+  

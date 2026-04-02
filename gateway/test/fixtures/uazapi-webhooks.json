@@ -1,0 +1,21 @@
+{
+  "webhooks": [
+    {
+      "BaseUrl": "https://free.uazapi.com",
+      "EventType": "messages",
+      "message": {
+        "chatid": "5514996448268@s.whatsapp.net",
+        "fromMe": false,
+        "sender": "5514996448268@s.whatsapp.net",
+        "id": "5514996448268:3EB025BDFD3DAD2D6AE930",
+        "messageid": "3EB025BDFD3DAD2D6AE930",
+        "text": "Deu bom?",
+        "type": "text",
+        "messageType": "ExtendedTextMessage",
+        "messageTimestamp": 1767792702000
+      },
+      "owner": "5514996448268",
+      "token": "c56b59d2-fa76-41a3-8667-2289faef3275"
+    }
+  ]
+}

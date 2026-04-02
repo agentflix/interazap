@@ -1,0 +1,48 @@
+
+    <div
+      class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-5 transition-shadow hover:shadow-md"
+    >
+      @if (loading()) {
+        <!-- Loading state -->
+        <div class="space-y-3">
+          <af-skeleton variant="text" width="60%" height="0.75rem" />
+          <af-skeleton variant="text" width="40%" height="1.5rem" />
+          <af-skeleton variant="text" width="50%" height="0.625rem" />
+        </div>
+      } @else {
+        <!-- Header with icon -->
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            {{ title() }}
+          </span>
+          @if (icon()) {
+            <div
+              class="size-9 rounded-lg bg-accent-50 dark:bg-accent-950 flex items-center justify-center"
+            >
+              <lucide-icon [name]="icon()!" [size]="18" class="block text-accent-500" />
+            </div>
+          }
+        </div>
+
+        <!-- Value -->
+        <p class="text-2xl font-bold text-neutral-900 dark:text-neutral-50 tabular-nums">
+          {{ value() }}
+        </p>
+
+        <!-- Change indicator -->
+        @if (change() !== null) {
+          <div class="flex items-center gap-1.5 mt-2">
+            <span [class]="changeClasses()">
+              <lucide-icon [name]="changeIcon()" [size]="14" class="block" />
+              {{ formattedChange() }}%
+            </span>
+            @if (changeLabel()) {
+              <span class="text-xs text-neutral-400 dark:text-neutral-500">
+                {{ changeLabel() }}
+              </span>
+            }
+          </div>
+        }
+      }
+    </div>
+  

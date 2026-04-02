@@ -1,0 +1,215 @@
+
+    <div class="space-y-6">
+      <af-page-title
+        title="Circuit Breakers"
+        subtitle="Monitoramento e controle de circuit breakers"
+      >
+        <a routerLink="/admin/queues" class="inline-flex">
+          <af-icon-button label="Voltar" variant="ghost" size="sm">
+            <lucide-icon name="arrow-left" [size]="15" />
+          </af-icon-button>
+        </a>
+
+        <af-icon-button label="Atualizar" variant="outline" size="sm" (click)="refresh()">
+          <lucide-icon name="refresh-cw" [size]="14" [class.animate-spin]="loading()" />
+        </af-icon-button>
+      </af-page-title>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <af-card>
+          <div class="flex items-center gap-3">
+            <span
+              class="size-10 rounded-lg bg-success/15 text-success flex items-center justify-center"
+            >
+              <lucide-icon name="circle-check" [size]="20" />
+            </span>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Fechados</p>
+              <p class="text-xl font-semibold text-success">
+                {{ circuitData()?.totalClosed ?? 0 }}
+              </p>
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="flex items-center gap-3">
+            <span
+              class="size-10 rounded-lg bg-warning/15 text-warning flex items-center justify-center"
+            >
+              <lucide-icon name="alert-triangle" [size]="20" />
+            </span>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Semi-Abertos</p>
+              <p class="text-xl font-semibold text-warning">
+                {{ circuitData()?.totalHalfOpen ?? 0 }}
+              </p>
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="flex items-center gap-3">
+            <span
+              class="size-10 rounded-lg bg-danger/15 text-danger flex items-center justify-center"
+            >
+              <lucide-icon name="circle-x" [size]="20" />
+            </span>
+            <div>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Abertos</p>
+              <p class="text-xl font-semibold text-danger">{{ circuitData()?.totalOpen ?? 0 }}</p>
+            </div>
+          </div>
+        </af-card>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        @if (!loading() && circuits().length === 0) {
+          <div class="lg:col-span-2">
+            <af-empty-state
+              title="Nenhum circuit breaker configurado"
+              description="Os circuit breakers aparecerão aqui quando forem configurados"
+            >
+              <div icon>
+                <lucide-icon name="zap" [size]="26" class="text-neutral-400" />
+              </div>
+            </af-empty-state>
+          </div>
+        } @else {
+          @for (circuit of circuits(); track circuit.name) {
+            <af-card>
+              <div class="space-y-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="size-10 rounded-lg flex items-center justify-center"
+                      [class]="stateIconWrapper(circuit.state)"
+                    >
+                      @switch (circuit.state) {
+                        @case ('CLOSED') {
+                          <lucide-icon name="circle-check" [size]="20" class="text-success" />
+                        }
+                        @case ('HALF_OPEN') {
+                          <lucide-icon name="alert-triangle" [size]="20" class="text-warning" />
+                        }
+                        @case ('OPEN') {
+                          <lucide-icon name="circle-x" [size]="20" class="text-danger" />
+                        }
+                      }
+                    </span>
+                    <div>
+                      <h3 class="font-medium text-neutral-900 dark:text-neutral-100">
+                        {{ circuit.name }}
+                      </h3>
+                      <af-badge [variant]="stateVariant(circuit.state)">{{
+                        getStateLabel(circuit.state)
+                      }}</af-badge>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    @if (circuit.state !== 'CLOSED') {
+                      <af-button
+                        variant="outline"
+                        size="sm"
+                        [disabled]="actionLoading() === circuit.name"
+                        (click)="resetCircuit(circuit.name)"
+                      >
+                        @if (actionLoading() === circuit.name) {
+                          <lucide-icon name="loader-circle" [size]="14" class="animate-spin" />
+                        } @else {
+                          <lucide-icon name="rotate-ccw" [size]="14" class="block" />
+                        }
+                        Reset
+                      </af-button>
+                    }
+
+                    @if (circuit.state === 'CLOSED') {
+                      <af-button
+                        variant="danger"
+                        size="sm"
+                        [disabled]="actionLoading() === circuit.name"
+                        (click)="openCircuit(circuit.name)"
+                      >
+                        <lucide-icon name="power" [size]="14" class="block" />
+                        Abrir
+                      </af-button>
+                    }
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Falhas</p>
+                    <p class="text-lg font-semibold text-danger">{{ circuit.failures }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Sucessos</p>
+                    <p class="text-lg font-semibold text-success">{{ circuit.successes }}</p>
+                  </div>
+                  @if (circuit.lastFailure) {
+                    <div>
+                      <p class="text-xs text-neutral-500 dark:text-neutral-400">Última Falha</p>
+                      <p class="text-sm text-neutral-700 dark:text-neutral-300">
+                        {{ circuit.lastFailure | date: 'dd/MM HH:mm' }}
+                      </p>
+                    </div>
+                  }
+                  @if (circuit.nextRetryAt) {
+                    <div>
+                      <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                        Próxima Tentativa
+                      </p>
+                      <p class="text-sm text-neutral-700 dark:text-neutral-300">
+                        {{ circuit.nextRetryAt | date: 'dd/MM HH:mm' }}
+                      </p>
+                    </div>
+                  }
+                </div>
+
+                @if (circuit.history.length) {
+                  <div>
+                    <af-button variant="ghost" size="sm" (click)="toggleHistory(circuit.name)">
+                      {{ expandedCircuits().has(circuit.name) ? 'Ocultar' : 'Ver' }} histórico ({{
+                        circuit.history.length
+                      }})
+                    </af-button>
+
+                    @if (expandedCircuits().has(circuit.name)) {
+                      <div class="mt-3 space-y-2">
+                        @for (event of circuit.history.slice(0, 5); track $index) {
+                          <div class="flex items-center gap-2 text-sm">
+                            <span class="text-neutral-400">{{
+                              event.timestamp | date: 'dd/MM HH:mm:ss'
+                            }}</span>
+                            <span class="text-neutral-400">→</span>
+                            <af-badge [variant]="stateVariant(event.to)">{{
+                              getStateLabel(event.to)
+                            }}</af-badge>
+                            @if (event.reason) {
+                              <span
+                                class="text-neutral-500 text-xs truncate max-w-80"
+                                [title]="event.reason"
+                              >
+                                ({{ event.reason }})
+                              </span>
+                            }
+                          </div>
+                        }
+
+                        @if (circuit.history.length > 5) {
+                          <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                            + {{ circuit.history.length - 5 }} eventos anteriores
+                          </p>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </af-card>
+          }
+        }
+      </div>
+    </div>
+  

@@ -1,0 +1,11 @@
+
+    <button
+      type="button"
+      [attr.aria-label]="ariaLabel()"
+      [disabled]="disabled()"
+      [class]="buttonClasses()"
+      (click)="clicked.emit()"
+    >
+      <lucide-icon [name]="icon()" [size]="iconSize()" />
+    </button>
+  

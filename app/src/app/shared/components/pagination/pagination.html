@@ -1,0 +1,58 @@
+
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 py-3">
+      <!-- Summary -->
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">
+        Mostrando
+        <span class="font-semibold text-neutral-700 dark:text-neutral-200"
+          >{{ rangeStart() }}–{{ rangeEnd() }}</span
+        >
+        de
+        <span class="font-semibold text-neutral-700 dark:text-neutral-200">{{ total() }}</span>
+        resultados
+      </p>
+
+      <!-- Page controls -->
+      <nav class="flex items-center gap-1" aria-label="Paginação">
+        <!-- Prev -->
+        <button
+          type="button"
+          [disabled]="currentPage() <= 1"
+          (click)="goTo(currentPage() - 1)"
+          class="inline-flex items-center justify-center size-9 rounded-md border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          aria-label="Página anterior"
+        >
+          <lucide-icon name="chevron-left" [size]="16" />
+        </button>
+
+        <!-- Page numbers -->
+        @for (page of visiblePages(); track page) {
+          @if (page === -1) {
+            <span
+              class="inline-flex items-center justify-center size-9 text-sm text-neutral-400 dark:text-neutral-500 select-none"
+              >…</span
+            >
+          } @else {
+            <button
+              type="button"
+              (click)="goTo(page)"
+              [class]="page === currentPage() ? activePageClass : inactivePageClass"
+              [attr.aria-current]="page === currentPage() ? 'page' : null"
+            >
+              {{ page }}
+            </button>
+          }
+        }
+
+        <!-- Next -->
+        <button
+          type="button"
+          [disabled]="currentPage() >= lastPage()"
+          (click)="goTo(currentPage() + 1)"
+          class="inline-flex items-center justify-center size-9 rounded-md border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          aria-label="Próxima página"
+        >
+          <lucide-icon name="chevron-right" [size]="16" />
+        </button>
+      </nav>
+    </div>
+  

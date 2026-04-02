@@ -1,0 +1,216 @@
+
+    <div class="pt-2">
+      <app-page-title title="CSAT e NPS" subtitle="Relatórios">
+        <af-button variant="secondary" size="sm" (clicked)="openFilters()">
+          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+          Filtros
+        </af-button>
+      </app-page-title>
+
+      <!-- Filter Drawer -->
+      <af-drawer
+        [open]="isFilterOpen()"
+        title="Filtros do relatório"
+        side="right"
+        size="lg"
+        (closed)="closeFilters()"
+      >
+        <af-search-input
+          [control]="searchControl"
+          placeholder="Buscar..."
+          dataTest="csat-nps-search"
+        />
+
+        <div class="grid grid-cols-1">
+          <af-text-input
+            [control]="startDateControl"
+            label="Data inicial"
+            type="date"
+            dataTest="csat-nps-start-date"
+          />
+          <af-text-input
+            [control]="endDateControl"
+            label="Data final"
+            type="date"
+            dataTest="csat-nps-end-date"
+          />
+          <af-select-input
+            label="Granularidade"
+            [control]="granularityControl"
+            [options]="granularityOptions"
+            dataTest="csat-nps-granularity"
+          />
+        </div>
+
+        <div class="flex gap-2">
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'csv' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" />
+            CSV
+          </af-button>
+          <af-button variant="secondary" size="sm" (clicked)="onExport({ format: 'xlsx' })">
+            <lucide-icon name="file-spreadsheet" [size]="16" class="block" />
+            XLSX
+          </af-button>
+        </div>
+
+        <div footer>
+          <div class="flex w-full items-center justify-between gap-2">
+            <af-button variant="danger" size="sm" (clicked)="clearFilters()">
+              Limpar filtros
+            </af-button>
+            <div class="flex gap-2">
+              <af-button variant="ghost" size="sm" (clicked)="closeFilters()">Cancelar</af-button>
+              <af-button variant="primary" size="sm" (clicked)="applyFilters()">Aplicar</af-button>
+            </div>
+          </div>
+        </div>
+      </af-drawer>
+
+      @if (isLoading()) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          @for (i of [0, 1, 2, 3]; track i) {
+            <af-card><af-skeleton variant="rectangular" width="100%" height="4rem" /></af-card>
+          }
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <af-card><af-skeleton variant="rectangular" width="100%" height="16rem" /></af-card>
+          <af-card><af-skeleton variant="rectangular" width="100%" height="16rem" /></af-card>
+        </div>
+      } @else if (hasError()) {
+        <af-card>
+          <div class="py-12 text-center">
+            <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+              Erro ao carregar dados
+            </h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+              Não foi possível carregar o relatório de CSAT / NPS.
+            </p>
+            <af-button variant="primary" size="sm" (click)="retry()">Tentar novamente</af-button>
+          </div>
+        </af-card>
+      } @else if (!data()) {
+        <af-card>
+          <af-empty-state
+            title="Sem dados disponíveis"
+            description="Não há avaliações no período selecionado"
+          />
+        </af-card>
+      } @else {
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <af-kpi-card
+            title="NPS Score"
+            [value]="'' + (data()?.nps_score ?? 0)"
+            [loading]="false"
+          />
+          <af-kpi-card
+            title="CSAT Médio"
+            [value]="(data()?.csat_average ?? 0 | number: '1.1-1') + ''"
+            [loading]="false"
+          />
+          <af-kpi-card
+            title="Total de Avaliações"
+            [value]="'' + (data()?.total_evaluations ?? 0)"
+            [loading]="false"
+          />
+          <af-kpi-card
+            title="Taxa de Resposta"
+            [value]="(data()?.response_rate ?? 0 | number: '1.1-1') + '%'"
+            [loading]="false"
+          />
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <af-card>
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+              <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Distribuição de Notas
+              </h6>
+            </div>
+            <af-apexchart
+              type="bar"
+              [series]="distSeries()"
+              [categories]="distCategories()"
+              height="280"
+              [colors]="['#f59e0b']"
+              [extraOptions]="distExtra()"
+            />
+          </af-card>
+
+          <af-card>
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+              <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                CSAT ao Longo do Tempo
+              </h6>
+            </div>
+            <af-apexchart
+              type="line"
+              [series]="tsSeries()"
+              [categories]="tsCategories()"
+              height="280"
+              [colors]="['#2b7fff']"
+              [extraOptions]="tsExtra()"
+            />
+          </af-card>
+        </div>
+
+        <!-- Negative Comments -->
+        @if (data()!.negative_comments && data()!.negative_comments.length > 0) {
+          <af-card [padded]="false">
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+              <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+                Comentários Negativos
+              </h6>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                    <th
+                      class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Nota
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Comentário
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Agente
+                    </th>
+                    <th
+                      class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
+                    >
+                      Data
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (comment of data()?.negative_comments ?? []; track comment.created_at) {
+                    <tr
+                      class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                    >
+                      <td class="py-3 px-4">
+                        <span
+                          class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-300 text-xs font-bold"
+                        >
+                          {{ comment.rating }}
+                        </span>
+                      </td>
+                      <td class="py-3 px-4 max-w-xs truncate">{{ comment.comment }}</td>
+                      <td class="py-3 px-4">{{ comment.agent_name }}</td>
+                      <td class="py-3 px-4 whitespace-nowrap">{{ comment.created_at }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </af-card>
+        }
+      }
+    </div>
+  

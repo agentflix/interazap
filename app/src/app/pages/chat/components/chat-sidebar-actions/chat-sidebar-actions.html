@@ -1,0 +1,19 @@
+<div class="hidden lg:flex h-full border-s border-neutral-200 dark:border-neutral-800">
+  <div class="px-2 py-4 flex flex-col justify-between">
+    <div class="flex flex-col items-center gap-4">
+      @for (tab of tabs; track tab.id) {
+        <app-icon-button
+          [icon]="tab.icon"
+          [variant]="activeTab === tab.id ? 'primary' : 'ghost'"
+          size="md"
+          ariaLabel="{{ tab.id }}"
+          (clicked)="tabChange.emit(tab.id)"
+        />
+      }
+    </div>
+
+    <div class="flex flex-col items-center gap-4">
+      <app-icon-button icon="lucideSettings" variant="ghost" size="md" ariaLabel="Configurações" />
+    </div>
+  </div>
+</div>

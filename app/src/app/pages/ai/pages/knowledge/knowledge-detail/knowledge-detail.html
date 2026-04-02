@@ -1,0 +1,157 @@
+
+    <af-page-title
+      [title]="document()?.title || 'Detalhe do Documento'"
+      subtitle="Base de Conhecimento"
+    />
+
+    @if (loading()) {
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+      >
+        <p class="text-sm text-neutral-500">Carregando documento...</p>
+      </div>
+    } @else if (error()) {
+      <div class="p-4">
+        <af-alert
+          variant="danger"
+          title="Erro ao carregar documento"
+          message="Não foi possível carregar este documento."
+        />
+      </div>
+    } @else if (document(); as doc) {
+      <!-- Document Info Card -->
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 mb-4"
+      >
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              {{ doc.title }}
+            </h2>
+            <p class="text-sm text-neutral-500">{{ doc.original_filename }}</p>
+          </div>
+
+          <span
+            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium border"
+            [class]="statusClass(doc.status)"
+          >
+            {{ formatStatus(doc.status) }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 mt-4 md:grid-cols-2 xl:grid-cols-4">
+          <div>
+            <p class="text-xs text-neutral-500">Tipo</p>
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 uppercase">
+              {{ doc.file_type }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-neutral-500">Tamanho</p>
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              {{ doc.file_size_formatted }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-neutral-500">Versão</p>
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              v{{ doc.version }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-neutral-500">Chunks</p>
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              {{ doc.chunk_count }}
+            </p>
+          </div>
+        </div>
+
+        @if (doc.status === 'failed' && doc.error_message) {
+          <div
+            class="mt-4 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-3 py-2 text-sm text-red-700 dark:text-red-400"
+          >
+            {{ doc.error_message }}
+          </div>
+        }
+
+        <div class="flex flex-wrap gap-2 mt-4">
+          <af-button variant="ghost" size="sm" (click)="goBack()">Voltar</af-button>
+          <af-button variant="secondary" size="sm" (click)="reindex()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Reindexar
+          </af-button>
+          <af-button variant="danger" size="sm" (click)="removeDocument()">
+            <lucide-icon name="trash-2" [size]="14" class="block" />
+            Excluir
+          </af-button>
+        </div>
+      </div>
+
+      <!-- Chunks Card -->
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Chunks</h3>
+          <span class="text-xs text-neutral-500">Total: {{ totalChunks() }}</span>
+        </div>
+
+        @if (chunksLoading()) {
+          <p class="text-sm text-neutral-500">Carregando chunks...</p>
+        } @else if (chunks().length === 0) {
+          <af-empty-state
+            title="Sem chunks"
+            description="Nenhum chunk encontrado para este documento"
+          />
+        } @else {
+          <div class="space-y-2">
+            @for (chunk of chunks(); track chunk.id) {
+              <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                  <p class="text-xs text-neutral-500">Chunk #{{ chunk.chunk_index }}</p>
+                  <p class="text-xs text-neutral-500">Tokens: {{ chunk.token_count }}</p>
+                </div>
+
+                @if (expandedChunkId() === chunk.id) {
+                  <p class="text-sm text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap">
+                    {{ chunk.content }}
+                  </p>
+                } @else {
+                  <p class="text-sm text-neutral-700 dark:text-neutral-300 line-clamp-3">
+                    {{ chunk.content }}
+                  </p>
+                }
+
+                <div class="mt-2">
+                  <af-button variant="ghost" size="sm" (click)="toggleChunk(chunk.id)">
+                    {{
+                      expandedChunkId() === chunk.id ? 'Ocultar conteúdo' : 'Ver conteúdo completo'
+                    }}
+                  </af-button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div
+            class="flex items-center justify-end gap-2 pt-4 mt-2 border-t border-neutral-200 dark:border-neutral-700"
+          >
+            <af-button
+              variant="ghost"
+              size="sm"
+              [disabled]="!hasPreviousPage()"
+              (click)="previousPage()"
+            >
+              Anterior
+            </af-button>
+            <span class="text-xs text-neutral-500">
+              Página {{ currentPage() }} de {{ lastPage() }}
+            </span>
+            <af-button variant="ghost" size="sm" [disabled]="!hasNextPage()" (click)="nextPage()">
+              Próxima
+            </af-button>
+          </div>
+        }
+      </div>
+    }
+  

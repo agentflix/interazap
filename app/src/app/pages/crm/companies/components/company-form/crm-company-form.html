@@ -1,0 +1,92 @@
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="mb-4">
+          <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+        </div>
+      }
+
+      <af-text-input
+        label="Nome"
+        [control]="form.controls.name"
+        placeholder="Ex: Minha Empresa LTDA"
+        [required]="true"
+        dataTest="company-form-name"
+      />
+
+      <div class="flex items-end gap-2">
+        <div class="flex-1 min-w-0">
+          <af-document-input
+            [control]="form.controls.document"
+            label="Documento (CNPJ)"
+            placeholder="Ex: 00.000.000/0001-91"
+            dataTest="company-form-document"
+          />
+        </div>
+        <af-button
+          variant="outline"
+          size="md"
+          class="shrink-0"
+          [disabled]="isSearchingCnpj() || !form.controls.document.value"
+          dataTest="company-form-search-cnpj-btn"
+          (click)="searchCnpj()"
+        >
+          @if (isSearchingCnpj()) {
+            <span
+              class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+            ></span>
+          } @else {
+            <lucide-icon name="search" [size]="16" class="block" />
+          }
+          Pesquisar CNPJ
+        </af-button>
+      </div>
+
+      <af-phone-input
+        [control]="form.controls.phone"
+        [countryControl]="form.controls.phone_country_code"
+        label="Telefone"
+        dataTest="company-form-phone"
+      />
+
+      <af-text-input
+        label="Endereço"
+        [control]="form.controls.address"
+        placeholder="Ex: Rua das Flores, 123"
+        dataTest="company-form-address"
+      />
+
+      <div class="grid gap-4 md:grid-cols-3">
+        <af-text-input
+          label="Cidade"
+          [control]="form.controls.city"
+          placeholder="Ex: São Paulo"
+          dataTest="company-form-city"
+        />
+        <af-text-input
+          label="Estado"
+          [control]="form.controls.state"
+          placeholder="Ex: SP"
+          dataTest="company-form-state"
+        />
+        <div>
+          <af-masked-input
+            label="CEP"
+            mask="cep"
+            [control]="form.controls.zip_code"
+            placeholder="Ex: 00000-000"
+            dataTest="company-form-zip"
+          />
+          @if (isSearchingCep()) {
+            <span class="text-xs text-primary-500">Buscando endereço...</span>
+          }
+        </div>
+      </div>
+
+      <af-switch-input
+        label="Ativo"
+        [control]="form.controls.is_active"
+        dataTest="company-form-active"
+      />
+    </form>
+  

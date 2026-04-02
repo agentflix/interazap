@@ -1,0 +1,54 @@
+
+    <af-modal
+      [open]="open()"
+      title="Confirmar Upgrade"
+      size="md"
+      (closed)="closed.emit()"
+      [closeOnBackdrop]="!loading()"
+    >
+      <div modal-body class="space-y-4">
+        <p class="text-sm text-neutral-700 dark:text-neutral-300">
+          Plano: <span class="font-semibold">{{ plan()?.name }}</span>
+        </p>
+
+        <p class="text-sm text-neutral-700 dark:text-neutral-300">
+          Novo preço:
+          <span class="font-semibold">{{ formatCurrencyBRL(plan()?.price_monthly) }}/mês</span>
+        </p>
+
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3 text-sm">
+          <p class="text-neutral-700 dark:text-neutral-300 mb-1">Valor pro-rata:</p>
+          <p class="font-medium text-neutral-900 dark:text-neutral-50">
+            {{ preview()?.financial?.formula ?? '-' }}
+          </p>
+          <p class="mt-1 text-neutral-700 dark:text-neutral-300">
+            Cobrança agora:
+            <span class="font-semibold">{{
+              formatCurrencyBRL(preview()?.financial?.pro_rata_charge)
+            }}</span>
+          </p>
+        </div>
+
+        <af-text-input
+          [control]="passwordControl"
+          type="password"
+          label="Confirme sua senha"
+          placeholder="Digite sua senha atual"
+        />
+      </div>
+
+      <div modal-footer class="flex items-center justify-end gap-2">
+        <af-button variant="outline" [disabled]="loading()" (click)="closed.emit()"
+          >Cancelar</af-button
+        >
+        <af-loading-button
+          [loading]="loading()"
+          [disabled]="passwordControl.value.trim().length === 0"
+          (clicked)="submit()"
+          loadingText="Confirmando..."
+        >
+          Confirmar Upgrade
+        </af-loading-button>
+      </div>
+    </af-modal>
+  

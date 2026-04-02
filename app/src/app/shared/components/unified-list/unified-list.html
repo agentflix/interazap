@@ -1,0 +1,104 @@
+
+    <div class="card">
+      <!-- Header bar -->
+      <div
+        class="flex items-center gap-3 px-5 py-3 border-b border-neutral-200 dark:border-neutral-700"
+      >
+        <div class="relative flex-1 max-w-xs">
+          <lucide-icon
+            name="search"
+            [size]="15"
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+          />
+          <input
+            type="text"
+            [formControl]="searchControl"
+            [placeholder]="searchPlaceholder()"
+            class="w-full pl-9 pr-3 py-1.5 rounded-md border border-neutral-300 dark:border-neutral-600
+              bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-neutral-50
+              placeholder:text-neutral-400 focus:outline-none focus:ring-2
+              focus:ring-accent-500/30 focus:border-accent-500"
+          />
+        </div>
+        <af-icon-button label="Filtros" variant="ghost" size="sm" (click)="filterClick.emit()">
+          <lucide-icon name="sliders-horizontal" [size]="16" />
+        </af-icon-button>
+
+        @if (hasSelection()) {
+          <af-button variant="danger" size="sm" (click)="deleteSelectedClick.emit()">
+            <lucide-icon name="trash-2" [size]="14" class="mr-1" />
+            {{ selectedCount() }} selecionados
+          </af-button>
+        }
+        <af-button variant="primary" size="sm" (click)="createClick.emit()">
+          <lucide-icon name="plus" [size]="14" class="mr-1" /> {{ createLabel() }}
+        </af-button>
+      </div>
+
+      <!-- Table area -->
+      <div class="relative overflow-x-auto min-h-[200px]">
+        @if (isLoading()) {
+          <div
+            class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-neutral-900/60 z-10"
+          >
+            <af-spinner size="md" />
+          </div>
+        }
+
+        @if (isEmpty() && !isLoading()) {
+          <af-empty-state [title]="emptyTitle()" [description]="emptyDescription()" [icon]="true" />
+        } @else {
+          <table class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+            <thead class="bg-neutral-50 dark:bg-neutral-800/50">
+              <ng-container *ngTemplateOutlet="headerTpl()" />
+            </thead>
+            <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
+              <ng-container *ngTemplateOutlet="bodyTpl()" />
+            </tbody>
+          </table>
+        }
+      </div>
+
+      <!-- Footer pagination -->
+      <div
+        class="flex items-center justify-between px-5 py-3 border-t border-neutral-200 dark:border-neutral-700 text-sm text-neutral-500"
+      >
+        <span>{{ showingFrom() }}–{{ showingTo() }} de {{ total() }}</span>
+        <div class="flex items-center gap-1">
+          <af-icon-button
+            label="Anterior"
+            variant="ghost"
+            size="xs"
+            [disabled]="currentPage() <= 1"
+            (click)="pageChange.emit(currentPage() - 1)"
+          >
+            <lucide-icon name="chevron-left" [size]="16" />
+          </af-icon-button>
+          @for (p of pages(); track p) {
+            <button
+              type="button"
+              class="size-7 rounded text-xs font-medium transition-colors"
+              [class.bg-accent-500]="p === currentPage()"
+              [class.text-white]="p === currentPage()"
+              [class.text-neutral-600]="p !== currentPage()"
+              [class.hover:bg-neutral-100]="p !== currentPage()"
+              [class.dark:text-neutral-300]="p !== currentPage()"
+              [class.dark:hover:bg-neutral-800]="p !== currentPage()"
+              (click)="pageChange.emit(p)"
+            >
+              {{ p }}
+            </button>
+          }
+          <af-icon-button
+            label="Próxima"
+            variant="ghost"
+            size="xs"
+            [disabled]="currentPage() >= lastPage()"
+            (click)="pageChange.emit(currentPage() + 1)"
+          >
+            <lucide-icon name="chevron-right" [size]="16" />
+          </af-icon-button>
+        </div>
+      </div>
+    </div>
+  

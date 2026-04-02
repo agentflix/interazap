@@ -1,0 +1,49 @@
+
+    @if (open()) {
+      <!-- Backdrop -->
+      <div
+        class="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity"
+        (click)="closed.emit()"
+        (keydown.enter)="closed.emit()"
+        tabindex="0"
+        role="button"
+      ></div>
+
+      <!-- Panel -->
+      <div
+        class="fixed z-50 flex flex-col bg-white dark:bg-neutral-900
+          border-l border-neutral-200 dark:border-neutral-700 shadow-xl
+          transition-transform duration-300"
+        [class.inset-y-0]="true"
+        [class.right-0]="side() === 'right'"
+        [class.left-0]="side() === 'left'"
+        [class.w-80]="size() === 'sm'"
+        [class.w-96]="size() === 'md'"
+        [class.w-[480px]]="size() === 'lg'"
+      >
+        <!-- Header -->
+        <div
+          class="flex items-center justify-between px-5 py-4 border-b border-dashed border-neutral-200 dark:border-neutral-700"
+        >
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">
+            {{ title() }}
+          </h3>
+          <af-icon-button label="Fechar" variant="ghost" size="sm" (click)="closed.emit()">
+            <lucide-icon name="x" [size]="18" />
+          </af-icon-button>
+        </div>
+
+        <!-- Body -->
+        <af-scroll-area class="flex-1" maxHeight="100%">
+          <div class="px-5 py-4">
+            <ng-content />
+          </div>
+        </af-scroll-area>
+
+        <!-- Footer -->
+        <div class="border-t border-neutral-200 dark:border-neutral-700 px-5 py-3">
+          <ng-content select="[footer]" />
+        </div>
+      </div>
+    }
+  

@@ -1,0 +1,255 @@
+
+    <af-page-title title="Simulador" subtitle="IA" />
+
+    @if (isLoadingData()) {
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+      >
+        <p class="text-sm text-neutral-500">Carregando dados do simulador...</p>
+      </div>
+    } @else if (loadError()) {
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-red-200 dark:border-red-800 p-6"
+      >
+        <p class="text-sm text-red-600 dark:text-red-400">{{ loadError() }}</p>
+      </div>
+    } @else {
+      <!-- Agent Selector -->
+      <div
+        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-4 mb-5"
+      >
+        <div class="flex items-end gap-4 flex-wrap">
+          <div class="flex-1 min-w-50">
+            <af-select-input
+              label="Agente"
+              [control]="form.controls.agent_id"
+              [options]="agentOptions()"
+              placeholder="Selecione um agente"
+              [required]="true"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Split Panel: Chat + Debug Timeline -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        <!-- Chat Panel -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 flex flex-col min-h-140"
+        >
+          <!-- Header -->
+          <div
+            class="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 flex items-center gap-2"
+          >
+            <lucide-icon name="message-circle" [size]="16" class="text-primary-500" />
+            <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Chat</span>
+          </div>
+
+          <!-- Messages -->
+          <af-scroll-area class="flex-1 p-4" maxHeight="100%">
+            <div #chatContainer class="space-y-3">
+              @if (chatMessages().length === 0) {
+                <div class="text-center py-8 text-sm text-neutral-400">
+                  Envie uma mensagem para iniciar a simulação.
+                </div>
+              }
+              @for (msg of chatMessages(); track msg.id) {
+                <app-streaming-message-bubble
+                  [text]="msg.text"
+                  [isUser]="msg.role === 'user'"
+                  [isStreaming]="msg.isStreaming"
+                  [isFinal]="msg.isFinal"
+                  [audioUrl]="msg.audioUrl ?? null"
+                />
+              }
+            </div>
+          </af-scroll-area>
+
+          <!-- Input bar -->
+          <div class="px-4 py-3 border-t border-neutral-200 dark:border-neutral-700">
+            @if (streamReconnectNeeded()) {
+              <div class="mb-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                <lucide-icon name="wifi-off" [size]="12" class="block" />
+                Conexão instável. Exibindo parcial e tentando reconectar...
+              </div>
+            }
+            @if (slowNetworkWarning()) {
+              <div class="mb-2 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                <lucide-icon name="alert-circle" [size]="12" class="block" />
+                Rede lenta. Aguardando resposta do servidor...
+              </div>
+            }
+            <form
+              [formGroup]="form"
+              (ngSubmit)="sendChatMessage()"
+              class="flex items-center gap-2"
+              novalidate
+            >
+              <input
+                type="text"
+                class="flex-1 px-3 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50 text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                placeholder="Digite uma mensagem..."
+                formControlName="message"
+                [disabled]="isExecuting()"
+              />
+              <af-loading-button
+                variant="primary"
+                size="sm"
+                type="submit"
+                [loading]="isExecuting()"
+                [disabled]="!form.controls.message.value.trim() || !form.controls.agent_id.value"
+              >
+                <lucide-icon name="send" [size]="14" class="block" />
+              </af-loading-button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Debug Timeline Panel -->
+        <div
+          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 flex flex-col min-h-140"
+        >
+          <div
+            class="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between"
+          >
+            <div class="flex items-center gap-2">
+              <lucide-icon name="bug" [size]="16" class="text-amber-500" />
+              <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+                >Debug Timeline</span
+              >
+            </div>
+            <div class="flex items-center gap-2">
+              <af-button
+                [variant]="debugView() === 'timeline' ? 'primary' : 'ghost'"
+                size="sm"
+                (click)="debugView.set('timeline')"
+              >
+                Timeline
+              </af-button>
+              <af-button
+                [variant]="debugView() === 'history' ? 'primary' : 'ghost'"
+                size="sm"
+                (click)="switchToHistory()"
+              >
+                Histórico
+              </af-button>
+            </div>
+          </div>
+
+          @if (debugView() === 'timeline') {
+            <af-scroll-area class="flex-1 p-4" maxHeight="100%">
+              <div #timelineContainer class="space-y-3">
+                @if (timeline().length === 0) {
+                  <p class="text-sm text-neutral-500">Nenhum evento.</p>
+                }
+                @for (event of timeline(); track trackTimeline($index, event)) {
+                  <div
+                    class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3 bg-neutral-50 dark:bg-neutral-900/30"
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        {{ labelFor(event.type) }}
+                      </div>
+                      <div class="text-xs text-neutral-500">
+                        {{ event.createdAt | date: 'HH:mm:ss' }}
+                      </div>
+                    </div>
+                    <pre
+                      class="mt-2 text-xs text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap font-mono"
+                      >{{ event.payload | json }}</pre
+                    >
+                  </div>
+                }
+              </div>
+            </af-scroll-area>
+
+            @if (isExecuting()) {
+              <div class="px-4 py-3 border-t border-neutral-200 dark:border-neutral-700">
+                <af-loading-button
+                  variant="danger"
+                  size="sm"
+                  [loading]="isCancelling()"
+                  [disabled]="!activeRunId()"
+                  (click)="cancel()"
+                >
+                  Cancelar Execução
+                </af-loading-button>
+              </div>
+            }
+          } @else {
+            <af-scroll-area class="flex-1 p-4" maxHeight="100%">
+              <div class="space-y-3">
+                @if (historyLoading()) {
+                  <p class="text-sm text-neutral-500">Carregando histórico...</p>
+                } @else if (historyRuns().length === 0) {
+                  <p class="text-sm text-neutral-500">Nenhuma execução encontrada.</p>
+                } @else {
+                  @for (run of historyRuns(); track run.id) {
+                    <div
+                      class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3 bg-neutral-50 dark:bg-neutral-900/30"
+                    >
+                      <div class="flex items-center justify-between gap-2">
+                        <div>
+                          <div class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                            Run {{ run.id }}
+                          </div>
+                          <div class="text-xs text-neutral-500">
+                            Status: {{ run.status }} ·
+                            {{
+                              run.created_at || run.started_at || run.completed_at
+                                | date: 'dd/MM/yyyy HH:mm'
+                            }}
+                          </div>
+                        </div>
+                        <af-button variant="ghost" size="sm" (click)="viewHistoryRun(run.id)">
+                          Detalhes
+                        </af-button>
+                      </div>
+                    </div>
+                  }
+
+                  <div
+                    class="flex items-center justify-between gap-2 border-t border-neutral-200 dark:border-neutral-700 pt-3"
+                  >
+                    <af-button
+                      variant="ghost"
+                      size="sm"
+                      [disabled]="historyPage() <= 1"
+                      (click)="goToHistoryPage(historyPage() - 1)"
+                    >
+                      Anterior
+                    </af-button>
+                    <div class="text-xs text-neutral-500">
+                      Página {{ historyPage() }} de {{ historyLastPage() }}
+                    </div>
+                    <af-button
+                      variant="ghost"
+                      size="sm"
+                      [disabled]="historyPage() >= historyLastPage()"
+                      (click)="goToHistoryPage(historyPage() + 1)"
+                    >
+                      Próxima
+                    </af-button>
+                  </div>
+
+                  @if (selectedHistoryRun()) {
+                    <div
+                      class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3 bg-neutral-50 dark:bg-neutral-900/30"
+                    >
+                      <div class="text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
+                        Detalhes da execução
+                      </div>
+                      <pre
+                        class="text-xs text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap font-mono"
+                        >{{ selectedHistoryRun() | json }}</pre
+                      >
+                    </div>
+                  }
+                }
+              </div>
+            </af-scroll-area>
+          }
+        </div>
+      </div>
+    }
+  

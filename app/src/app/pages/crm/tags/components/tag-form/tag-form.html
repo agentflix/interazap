@@ -1,0 +1,38 @@
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="mb-4">
+          <af-alert variant="danger" [message]="errorMessage() ?? ''" />
+        </div>
+      }
+
+      <div class="grid grid-cols-[1fr_auto] gap-4 items-start">
+        <af-text-input
+          label="Nome"
+          [control]="form.controls.name"
+          placeholder="Ex: Urgente"
+          [required]="true"
+          dataTest="tag-form-name"
+        />
+        <af-color-input
+          label="Cor"
+          [control]="form.controls.color"
+          [required]="true"
+          dataTest="tag-form-color"
+        />
+      </div>
+
+      <af-text-input
+        label="Categoria"
+        [control]="form.controls.category"
+        placeholder="Ex: Financeiro"
+        dataTest="tag-form-category"
+      />
+
+      <af-switch-input
+        label="Ativo"
+        [control]="form.controls.is_active"
+        dataTest="tag-form-active"
+      />
+    </form>
+  

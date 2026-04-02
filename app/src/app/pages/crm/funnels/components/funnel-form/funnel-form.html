@@ -1,0 +1,144 @@
+<form class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+  <div>
+    <app-text-input
+      label="Nome"
+      [control]="form.controls.name"
+      placeholder="Ex: Vendas B2B"
+      dataTest="funnel-form-name"
+      [required]="true"
+    />
+  </div>
+  <div>
+    <app-textarea-input
+      label="Descrição"
+      [control]="form.controls.description"
+      placeholder="Descrição do funil..."
+      [rows]="2"
+      dataTest="funnel-form-description"
+    />
+  </div>
+  <app-switch-input
+    label="Ativo"
+    [control]="form.controls.is_active"
+    dataTest="funnel-form-active"
+  />
+
+  <div class="border-t border-default-200 pt-4 mt-4">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="text-sm font-medium text-default-800">Etapas do Funil</h4>
+      <app-button variant="primary" size="sm" (clicked)="openCreateStep()">
+        <lucide-icon name="plus" [size]="16" class="block" />
+        Nova Etapa
+      </app-button>
+    </div>
+
+    @if (isLoadingSteps()) {
+      <div class="flex justify-center py-4">
+        <span
+          class="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent"
+        ></span>
+      </div>
+    } @else if (steps().length === 0) {
+      <div
+        class="text-center py-6 text-default-500 text-sm border border-dashed border-default-200 rounded-lg"
+      >
+        <p>Nenhuma etapa cadastrada.</p>
+        <p class="text-xs mt-1">Adicione etapas para organizar seu funil.</p>
+      </div>
+    } @else {
+      <div class="space-y-2" cdkDropList (cdkDropListDropped)="onStepDrop($event)">
+        @for (step of steps(); track step.id) {
+          <div
+            class="flex items-center gap-3 p-3 bg-default-50 rounded-lg border border-default-200 cursor-move hover:border-primary/50 transition-colors"
+            cdkDrag
+          >
+            <span class="size-4 text-default-400 cursor-grab" cdkDragHandle>
+              <ng-icon name="lucideGripVertical"></ng-icon>
+            </span>
+            <div class="size-4 rounded" [style.background-color]="step.color || '#3b82f6'"></div>
+            <span class="flex-1 text-sm font-medium text-default-800">{{ step.name }}</span>
+            <span
+              class="text-xs px-1.5 py-0.5 rounded"
+              [class]="step.is_active ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'"
+            >
+              {{ step.is_active ? 'Ativo' : 'Inativo' }}
+            </span>
+            <div class="flex items-center gap-1">
+              <app-icon-button
+                icon="lucidePencil"
+                variant="ghost"
+                size="sm"
+                ariaLabel="Editar etapa"
+                (clicked)="openEditStep(step)"
+              />
+              <app-icon-button
+                icon="lucideTrash2"
+                variant="danger"
+                size="sm"
+                ariaLabel="Excluir etapa"
+                (clicked)="confirmDeleteStep(step)"
+              />
+            </div>
+          </div>
+        }
+      </div>
+      <p class="text-xs text-default-400 mt-2">Arraste para reordenar as etapas.</p>
+    }
+  </div>
+</form>
+
+<app-modal
+  [isOpen]="isStepModalOpen()"
+  [title]="editingStep() ? 'Editar etapa' : 'Nova etapa'"
+  maxWidth="sm"
+  (closed)="closeStepModal()"
+>
+  <form modal-body class="space-y-4" [formGroup]="stepForm" (ngSubmit)="submitStep()" id="stepForm">
+    <div>
+      <app-text-input
+        label="Nome"
+        [control]="stepForm.controls.name"
+        placeholder="Ex: Prospecção"
+        dataTest="step-form-name"
+        [required]="true"
+      />
+    </div>
+    <app-color-input
+      label="Cor"
+      [control]="stepForm.controls.color"
+      [hint]="'Cor para identificar a etapa no Kanban'"
+      [spacing]="false"
+      dataTest="step-form-color"
+    />
+    <app-switch-input
+      label="Ativo"
+      [control]="stepForm.controls.is_active"
+      dataTest="step-form-active"
+    />
+  </form>
+  <ng-container modal-footer>
+    <div class="flex w-full items-center justify-end gap-2">
+      <app-button variant="outline" size="sm" (clicked)="closeStepModal()"> Cancelar </app-button>
+      <app-loading-button
+        variant="primary"
+        size="sm"
+        type="button"
+        [loading]="isSavingStep()"
+        loadingText="Salvando..."
+        (clicked)="submitStep()"
+      >
+        Salvar
+      </app-loading-button>
+    </div>
+  </ng-container>
+</app-modal>
+
+<app-confirm-modal
+  [isOpen]="isDeleteStepOpen()"
+  title="Remover etapa"
+  [message]="'Tem certeza que deseja remover a etapa ' + (deletingStep()?.name ?? '') + '?'"
+  [isLoading]="isDeletingStep()"
+  confirmLabel="Remover"
+  (confirmed)="deleteStepItem()"
+  (cancelled)="closeDeleteStep()"
+/>

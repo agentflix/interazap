@@ -1,0 +1,331 @@
+
+    <af-crud-page
+      title="Base de Conhecimento"
+      subtitle="Inteligência Artificial"
+      searchPlaceholder="Buscar por título..."
+      [loading]="isLoading()"
+      [empty]="isEmpty()"
+      emptyTitle="Base de conhecimento vazia"
+      emptyDescription="Adicione documentos para treinar seus agentes de IA."
+      [skeletonColumns]="5"
+      [skeletonRows]="5"
+      [currentPage]="meta().current_page"
+      [lastPage]="meta().last_page"
+      [perPage]="meta().per_page"
+      [total]="meta().total"
+      (search)="onSearch($event)"
+      (pageChange)="loadPage($event)"
+    >
+      <!-- Header actions slot -->
+      <div filters class="flex items-center justify-end w-full gap-3">
+        @if (pollingActive()) {
+          <div class="inline-flex items-center gap-1.5 text-xs text-info">
+            <lucide-icon name="loader-circle" [size]="14" class="block animate-spin" />
+            Atualizando...
+          </div>
+        }
+        @if (hasSelection()) {
+          <af-button variant="danger" size="sm" (click)="openBulkDelete()">
+            <lucide-icon name="trash-2" [size]="16" class="block" />
+            Excluir ({{ selectedCount() }})
+          </af-button>
+          <af-button variant="secondary" size="sm" (click)="bulkReindexSelected()">
+            <lucide-icon name="refresh-cw" [size]="16" class="block" />
+            Reindexar ({{ selectedCount() }})
+          </af-button>
+        }
+        <af-button variant="primary" size="sm" (click)="openUpload()">
+          <lucide-icon name="plus" [size]="16" class="block" />
+          Adicionar documento
+        </af-button>
+      </div>
+
+      @if (hasError()) {
+        <div class="p-6 space-y-3">
+          <af-alert
+            variant="danger"
+            title="Erro ao carregar documentos"
+            message="Não foi possível carregar a base de conhecimento."
+          />
+          <af-button variant="outline" size="sm" (click)="retry()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <af-data-table [hoverable]="true">
+          <thead>
+            <tr>
+              <th class="w-10">
+                <af-checkbox-input
+                  [control]="selectAllControl"
+                  ariaLabel="Selecionar todos os documentos"
+                  dataTest="knowledge-select-all"
+                />
+              </th>
+              <th>Documento</th>
+              <th>Tipo</th>
+              <th>Chunks</th>
+              <th>Tokens</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of documents(); track item.id) {
+              <tr>
+                <td>
+                  <af-checkbox-input
+                    [control]="getRowSelectionControl(item.id)"
+                    [ariaLabel]="'Selecionar documento ' + item.title"
+                    [dataTest]="'knowledge-select-' + item.id"
+                  />
+                </td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <lucide-icon
+                      [name]="getTypeIcon(item.content_type)"
+                      [size]="16"
+                      class="text-neutral-400 shrink-0"
+                    />
+                    <button
+                      type="button"
+                      class="text-sm font-medium text-accent-600 hover:underline dark:text-accent-400 cursor-pointer"
+                      (click)="openDetails(item)"
+                    >
+                      {{ item.title }}
+                    </button>
+                  </div>
+                </td>
+                <td class="uppercase text-xs font-medium text-neutral-500">
+                  {{ item.content_type }}
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ item.chunk_count }}
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ formatTokens(item.token_count) }}
+                </td>
+                <td>
+                  <af-status-badge [status]="mapStatusToBadge(item.status)">
+                    {{ formatStatus(item.status) }}
+                  </af-status-badge>
+                </td>
+                <td>
+                  <div class="flex justify-end">
+                    <af-icon-button
+                      label="Reindexar"
+                      variant="ghost"
+                      size="sm"
+                      (click)="reindex(item)"
+                    >
+                      <lucide-icon name="refresh-cw" [size]="15" class="block" />
+                    </af-icon-button>
+                    <af-table-actions
+                      [showView]="true"
+                      (view)="openDetails(item)"
+                      [showEdit]="false"
+                      (delete)="openDelete(item)"
+                    />
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </af-data-table>
+      }
+    </af-crud-page>
+
+    <af-modal
+      [open]="showUploadModal()"
+      title="Adicionar documento"
+      size="lg"
+      (closed)="closeUploadModal()"
+    >
+      <app-ai-knowledge-upload
+        #knowledgeUploadForm
+        [embedded]="true"
+        (saved)="handleUploadSaved()"
+        (cancelled)="closeUploadModal()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button
+          variant="ghost"
+          size="sm"
+          dataTest="knowledge-form-cancel-btn"
+          (click)="knowledgeUploadFormRef()?.cancel()"
+        >
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isUploadSaving()"
+          dataTest="knowledge-form-save-btn"
+          (click)="knowledgeUploadFormRef()?.submit()"
+        >
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Delete confirmation modal -->
+    <af-confirm-modal
+      [open]="showDeleteModal()"
+      [title]="deleteModalTitle()"
+      [message]="deleteMessage()"
+      [confirmLabel]="deleteConfirmLabel()"
+      cancelLabel="Cancelar"
+      variant="danger"
+      iconName="trash-2"
+      [isLoading]="isDeleting()"
+      (confirmed)="handleDeleteConfirmed()"
+      (cancelled)="showDeleteModal.set(false)"
+    />
+
+    <div
+      class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-neutral-700 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-lg w-full z-80 overflow-hidden"
+      [class.hidden]="!isDetailsOpen()"
+      [class.flex]="isDetailsOpen()"
+      [class.translate-x-full]="!isDetailsOpen()"
+      [class.translate-x-0]="isDetailsOpen()"
+      role="dialog"
+      tabindex="-1"
+      aria-label="Detalhes do arquivo"
+      [attr.aria-hidden]="!isDetailsOpen()"
+    >
+      <div
+        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-dashed border-neutral-200 dark:border-neutral-700 px-6 gap-3"
+      >
+        <h5 class="text-base grow">Detalhes do arquivo</h5>
+        <af-icon-button label="Fechar detalhes" variant="ghost" size="sm" (click)="closeDetails()">
+          <lucide-icon name="x" [size]="16" />
+        </af-icon-button>
+      </div>
+
+      <af-scroll-area class="h-full grow" maxHeight="100%">
+        <div class="p-6 space-y-6">
+          @if (isDetailsLoading()) {
+            <div class="space-y-4 animate-pulse">
+              @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4"></div>
+              }
+            </div>
+          } @else if (detailsError()) {
+            <div class="text-center space-y-3 py-6">
+              <p class="text-sm text-danger">Erro ao carregar detalhes do arquivo.</p>
+              <af-button variant="outline" size="sm" (click)="retryDetails()">
+                <lucide-icon name="refresh-cw" [size]="14" class="block" />
+                Tentar novamente
+              </af-button>
+            </div>
+          } @else if (selectedDocument(); as doc) {
+            <div class="space-y-3">
+              <h6 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Geral</h6>
+              <div>
+                <p class="text-xs text-neutral-500">Título</p>
+                <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                  {{ doc.title }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-neutral-500">Arquivo original</p>
+                <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 break-all">
+                  {{ doc.original_filename }}
+                </p>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Tipo</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 uppercase">
+                    {{ doc.file_type }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Tamanho</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ doc.file_size_formatted }}
+                  </p>
+                </div>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Versão</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    v{{ doc.version }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Status</p>
+                  <af-status-badge [status]="mapStatusToBadge(doc.status)">
+                    {{ formatStatus(doc.status) }}
+                  </af-status-badge>
+                </div>
+              </div>
+            </div>
+
+            <hr class="border-neutral-200 dark:border-neutral-700" />
+
+            <div class="space-y-3">
+              <h6 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                Processamento
+              </h6>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Chunks</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ doc.chunk_count }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Tokens</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ formatTokens(doc.token_count) }}
+                  </p>
+                </div>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Criado em</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ formatDate(doc.created_at) }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Atualizado em</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ formatDate(doc.updated_at) }}
+                  </p>
+                </div>
+              </div>
+              @if (doc.error_message) {
+                <div
+                  class="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-3 py-2 text-sm text-red-700 dark:text-red-400"
+                >
+                  {{ doc.error_message }}
+                </div>
+              }
+            </div>
+
+            <hr class="border-neutral-200 dark:border-neutral-700" />
+
+            <div class="flex flex-wrap gap-2">
+              <af-button variant="outline" size="sm" (click)="goToDetailPage(doc.id)">
+                <lucide-icon name="external-link" [size]="14" class="block" />
+                Abrir página completa
+              </af-button>
+              <af-button variant="secondary" size="sm" (click)="reindex(doc)">
+                <lucide-icon name="refresh-cw" [size]="14" class="block" />
+                Reindexar
+              </af-button>
+              <af-button variant="danger" size="sm" (click)="openDelete(doc)">
+                <lucide-icon name="trash-2" [size]="14" class="block" />
+                Excluir
+              </af-button>
+            </div>
+          }
+        </div>
+      </af-scroll-area>
+    </div>
+  

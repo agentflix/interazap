@@ -1,0 +1,48 @@
+<div
+  class="flex flex-1 flex-col rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6"
+>
+  <div class="flex flex-wrap items-center justify-between gap-5">
+    <div>
+      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+        Resumo da negociação
+      </h3>
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">
+        Atualize funil, etapa e previsão com agilidade.
+      </p>
+    </div>
+    <app-button variant="primary" size="sm" icon="lucidePencil" (clicked)="editRequested.emit()"
+      >Editar detalhes</app-button
+    >
+  </div>
+
+  <div class="mt-6 grid gap-4 text-sm md:grid-cols-2">
+    <div class="space-y-1">
+      <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Funil</p>
+      <app-select-input
+        [control]="funnelControl"
+        [options]="funnelOptions()"
+        placeholder="Selecione um funil"
+      />
+    </div>
+    <div class="space-y-1">
+      <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Etapa</p>
+      <app-select-input
+        [control]="stepControl"
+        [options]="stepOptions()"
+        placeholder="Selecione uma etapa"
+      />
+    </div>
+    <div class="space-y-1">
+      <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+        Previsão de fechamento
+      </p>
+      <app-text-input [control]="expectedCloseControl" type="date" />
+    </div>
+    <div class="space-y-1">
+      <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Valor total</p>
+      <p class="text-neutral-800 dark:text-neutral-200">
+        {{ formatCurrency(negotiation()?.value ?? 0) }}
+      </p>
+    </div>
+  </div>
+</div>

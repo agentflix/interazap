@@ -1,0 +1,1 @@
+import{a as i}from"./chunk-HKDU6GOV.js";import{L as r,xc as e}from"./chunk-OWT6VCYY.js";var c=n=>{let o=r(i),s=r(e),t=n.data?.permission;return!t||o.hasPermission(t)?!0:s.createUrlTree(["/"])};export{c as a};

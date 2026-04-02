@@ -1,0 +1,104 @@
+<form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()">
+  <!-- Evento -->
+  <div>
+    <div
+      class="flex items-center gap-2 pb-3 mb-4 border-b border-neutral-100 dark:border-neutral-800"
+    >
+      <lucide-icon name="calendar" [size]="16" class="text-primary-500 dark:text-primary-400" />
+      <h4 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Evento</h4>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <app-text-input
+          label="Título"
+          [control]="form.controls.title"
+          placeholder="Ex: Reunião com cliente"
+          dataTest="agenda-form-title"
+          [required]="true"
+        />
+      </div>
+      <div>
+        <app-select-input
+          label="Tipo"
+          [control]="form.controls.type"
+          [options]="typeSelectOptions"
+          dataTest="agenda-form-type"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Agenda -->
+  <div>
+    <div
+      class="flex items-center gap-2 pb-3 mb-4 border-b border-neutral-100 dark:border-neutral-800"
+    >
+      <lucide-icon name="clock" [size]="16" class="text-primary-500 dark:text-primary-400" />
+      <h4 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Agenda</h4>
+    </div>
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <app-text-input
+            label="Início"
+            [control]="form.controls.starts_at"
+            type="datetime-local"
+            dataTest="agenda-form-starts"
+            [required]="true"
+            errorMessage="Data de início é obrigatória."
+          />
+        </div>
+        <div>
+          <app-text-input
+            label="Término"
+            [control]="form.controls.ends_at"
+            type="datetime-local"
+            dataTest="agenda-form-ends"
+          />
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <app-text-input
+            label="Local"
+            [control]="form.controls.location"
+            placeholder="Ex: Sala 3"
+            dataTest="agenda-form-location"
+          />
+        </div>
+        <div class="flex items-end pb-1">
+          <app-checkbox-input
+            label="Dia inteiro"
+            [control]="form.controls.is_all_day"
+            dataTest="agenda-form-all-day"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detalhes -->
+  <div>
+    <div
+      class="flex items-center gap-2 pb-3 mb-4 border-b border-neutral-100 dark:border-neutral-800"
+    >
+      <lucide-icon name="file-text" [size]="16" class="text-primary-500 dark:text-primary-400" />
+      <h4 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Detalhes</h4>
+    </div>
+    <div class="space-y-4">
+      <app-select-input
+        label="Status"
+        [control]="form.controls.status"
+        [options]="statusSelectOptions"
+        dataTest="agenda-form-status"
+      />
+      <app-textarea-input
+        label="Descrição"
+        [control]="form.controls.description"
+        placeholder="Observações sobre o evento..."
+        [rows]="4"
+        dataTest="agenda-form-description"
+      />
+    </div>
+  </div>
+</form>

@@ -1,0 +1,103 @@
+
+    <div [class]="containerClasses()">
+      @if (label()) {
+        <af-form-label [label]="label()" [for]="inputId" [required]="required()" />
+      }
+
+      <div class="relative">
+        <!-- Trigger -->
+        <button
+          [id]="inputId"
+          type="button"
+          [class]="triggerClasses()"
+          (click)="toggle($event)"
+          [attr.aria-expanded]="isOpen()"
+          [attr.aria-label]="ariaLabel() || label() || null"
+          [attr.role]="role()"
+          [attr.data-test]="dataTest()"
+          aria-haspopup="listbox"
+        >
+          <span
+            [class]="
+              selectedLabel()
+                ? 'text-neutral-900 dark:text-neutral-50'
+                : 'text-neutral-400 dark:text-neutral-500'
+            "
+          >
+            {{ selectedLabel() || emptyLabel() || placeholder() }}
+          </span>
+          <lucide-icon
+            name="chevron-down"
+            [size]="16"
+            class="text-neutral-400 shrink-0 transition-transform"
+            [class.rotate-180]="isOpen()"
+          />
+        </button>
+
+        <!-- Dropdown -->
+        @if (isOpen()) {
+          <div
+            class="fixed z-9999 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg overflow-hidden"
+            [style.top.px]="dropdownPos().top"
+            [style.left.px]="dropdownPos().left"
+            [style.width.px]="dropdownPos().width"
+          >
+            <!-- Search filter -->
+            @if (searchable()) {
+              <div class="p-2 border-b border-neutral-200 dark:border-neutral-700">
+                <div class="relative">
+                  <div
+                    class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-neutral-500 dark:text-neutral-400"
+                  >
+                    <lucide-icon name="search" [size]="14" />
+                  </div>
+                  <input
+                    type="text"
+                    class="w-full h-8 pl-8 pr-3 text-xs rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                    placeholder="Pesquisar..."
+                    [value]="searchQuery()"
+                    (input)="onSearch($event)"
+                    (click)="$event.stopPropagation()"
+                  />
+                </div>
+              </div>
+            }
+
+            <!-- Options -->
+            <af-scroll-area maxHeight="12rem">
+              <div class="py-1" role="listbox">
+                @if (filteredOptions().length === 0) {
+                  <p class="px-3 py-2 text-xs text-neutral-400 dark:text-neutral-500 text-center">
+                    Nenhum resultado encontrado
+                  </p>
+                }
+                @for (opt of filteredOptions(); track opt.value) {
+                  <button
+                    type="button"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
+                    [class.bg-accent-50]="isSelected(opt.value)"
+                    [class.dark:bg-accent-950]="isSelected(opt.value)"
+                    [class.font-medium]="isSelected(opt.value)"
+                    (click)="selectOption(opt, $event)"
+                    role="option"
+                    [attr.aria-selected]="isSelected(opt.value)"
+                  >
+                    <span>{{ opt.label }}</span>
+                    @if (isSelected(opt.value)) {
+                      <lucide-icon name="check" [size]="14" class="text-accent-500" />
+                    }
+                  </button>
+                }
+              </div>
+            </af-scroll-area>
+          </div>
+        }
+      </div>
+
+      @if (helpText() && !showError()) {
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+      }
+
+      <af-form-error [show]="showError()" [message]="errorMessage()" />
+    </div>
+  
