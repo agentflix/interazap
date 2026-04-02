@@ -1,1 +1,1 @@
-export * from './integration-form/integration-form';
+export * from './channel-form/channel-form';

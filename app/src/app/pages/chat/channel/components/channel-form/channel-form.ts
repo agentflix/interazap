@@ -207,7 +207,7 @@ export class ChannelFormComponent {
           start_service_message: integration.settings?.start_service_message ?? '',
           send_end_service_message: integration.settings?.send_end_service_message ?? false,
           end_service_message: integration.settings?.end_service_message ?? '',
-          integration_fallback_message: integration.settings?.channel_fallback_message ?? '',
+          channel_fallback_message: integration.settings?.channel_fallback_message ?? '',
           evaluation_enabled: integration.evaluation_enabled ?? false,
           evaluation_cutoff_score: integration.evaluation_cutoff_score ?? 3,
         });
@@ -274,7 +274,7 @@ export class ChannelFormComponent {
         start_service_message: formValue.start_service_message || undefined,
         send_end_service_message: formValue.send_end_service_message ?? false,
         end_service_message: formValue.end_service_message || undefined,
-        integration_fallback_message: formValue.channel_fallback_message || undefined,
+        channel_fallback_message: formValue.channel_fallback_message || undefined,
       },
     };
 
@@ -329,7 +329,7 @@ export class ChannelFormComponent {
       start_service_message: '',
       send_end_service_message: false,
       end_service_message: '',
-      integration_fallback_message: '',
+      channel_fallback_message: '',
       evaluation_enabled: false,
       evaluation_cutoff_score: 3,
     });
