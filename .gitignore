@@ -16,3 +16,4 @@ api/.env
 
 # Docker environment (contains secrets)
 .env.docker
+/.opencode
