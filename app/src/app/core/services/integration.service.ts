@@ -195,7 +195,7 @@ export interface IntegrationStatusResponse {
 @Injectable({ providedIn: 'root' })
 export class IntegrationService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/integrations`;
+  private readonly baseUrl = `${environment.apiUrl}/channels`;
 
   /** Lists integrations with optional filters. */
   list(filters: IntegrationFilters = {}): Observable<PaginatedResponse<Integration>> {
