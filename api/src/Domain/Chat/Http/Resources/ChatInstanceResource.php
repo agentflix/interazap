@@ -90,9 +90,9 @@ final class ChatInstanceResource extends JsonResource
      */
     private function sanitizeSettings(array $settings): array
     {
-        if (array_key_exists('integration_fallback_message', $settings)) {
-            $settings['integration_fallback_message'] = $this->normalizeIntegrationFallbackMessage(
-                $settings['integration_fallback_message']
+        if (array_key_exists('channel_fallback_message', $settings)) {
+            $settings['channel_fallback_message'] = $this->normalizeChannelFallbackMessage(
+                $settings['channel_fallback_message']
             );
         }
 
@@ -105,7 +105,7 @@ final class ChatInstanceResource extends JsonResource
         return $settings;
     }
 
-    private function normalizeIntegrationFallbackMessage(mixed $value): ?string
+    private function normalizeChannelFallbackMessage(mixed $value): ?string
     {
         if (! is_string($value)) {
             return null;

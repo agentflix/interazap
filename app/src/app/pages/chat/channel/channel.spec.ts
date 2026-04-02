@@ -5,27 +5,27 @@ import { provideRouter } from '@angular/router';
 import { throwError } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import { vi } from 'vitest';
-import { IntegrationPage } from './integration';
+import { ChannelPage } from './channel';
 import { type Integration } from 'src/app/core/services/integration.service';
 import { type IntegrationConnectionEvent } from 'src/app/core/services/chat-realtime.service';
 import { IntegrationService } from '@core/services/integration.service';
 
-interface IntegrationPageRealtimeHarness {
+interface ChannelPageRealtimeHarness {
   applyRealtimeConnectionUpdate(event: IntegrationConnectionEvent): void;
 }
 
 describe('Integrations', () => {
-  let component: IntegrationPage;
-  let fixture: ComponentFixture<IntegrationPage>;
+  let component: ChannelPage;
+  let fixture: ComponentFixture<ChannelPage>;
   let integrationService: IntegrationService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IntegrationPage],
+      imports: [ChannelPage],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(IntegrationPage);
+    fixture = TestBed.createComponent(ChannelPage);
     component = fixture.componentInstance;
     integrationService = TestBed.inject(IntegrationService);
     fixture.detectChanges();
@@ -141,7 +141,7 @@ describe('Integrations', () => {
       connection_status: 'connecting',
       has_token: true,
       settings: {
-        integration_id: 5,
+        channel_provider_id: 5,
         cellphone: '+5511987654321',
         token: 'instance-token',
       },
@@ -149,7 +149,7 @@ describe('Integrations', () => {
 
     component.integrations.set([existingIntegration]);
 
-    (component as unknown as IntegrationPageRealtimeHarness).applyRealtimeConnectionUpdate({
+    (component as unknown as ChannelPageRealtimeHarness).applyRealtimeConnectionUpdate({
       instance_id: 'int-7',
       status: 'authorized',
       connected: false,

@@ -84,7 +84,7 @@ export class GatewayConfig {
     MESSAGE_EDIT: 'chat.message.edit',
     CONNECTION: 'chat.connection',
     CONTACT: 'chat.contact',
-    INTEGRATION_CONNECTION: 'integration.connection',
+    CHANNEL_CONNECTION: 'channel.connection',
     TYPING: 'chat.typing',
   } as const;
 }
@@ -111,6 +111,6 @@ export const CHAT_EVENTS = {
   MESSAGE_EDIT: 'chat.message.edit',
   CONNECTION: 'chat.connection',
   CONTACT: 'chat.contact',
-  INTEGRATION_CONNECTION: 'integration.connection',
+  CHANNEL_CONNECTION: 'channel.connection',
   TYPING: 'chat.typing',
 } as const;

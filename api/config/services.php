@@ -45,8 +45,8 @@ return [
         'realtime_http_fallback_enabled' => (bool) env('REALTIME_HTTP_FALLBACK_ENABLED', true),
     ],
 
-    'integrations' => [
-        'webhook_base_url' => env('INTEGRATIONS_WEBHOOK_BASE_URL', env('APP_URL', 'http://localhost:3000')),
+    'channels' => [
+        'webhook_base_url' => env('CHANNELS_WEBHOOK_BASE_URL', env('APP_URL', 'http://localhost:3000')),
     ],
 
     'openai' => [

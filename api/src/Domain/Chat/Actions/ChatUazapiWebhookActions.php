@@ -331,7 +331,7 @@ final class ChatUazapiWebhookActions
 
         // Detectar eventos de conexão (connection, connection.update, etc.)
         if (str_starts_with($eventType, 'connection')) {
-            $broadcast->emit('integration.connection', [
+            $broadcast->emit('chat.channel.connection', [
                 'tenant_id' => $payload['tenant_id'] ?? null,
                 'instance_id' => $payload['instance_id'] ?? null,
                 'token' => $payload['instance_webhook_token'] ?? null,

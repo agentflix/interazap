@@ -307,9 +307,9 @@ final class AuthLoginActions
                         permission: 'chat.called.view',
                     ),
                     new AuthMenuItemDTO(
-                        label: 'Integrações',
-                        route: '/chat/integrations',
-                        permission: 'integrations.whatsapp.view',
+                        label: 'Canais',
+                        route: '/chat/channels',
+                        permission: 'chat.channel.view',
                     ),
                 ],
             ),

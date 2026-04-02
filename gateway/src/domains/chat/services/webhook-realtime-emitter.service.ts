@@ -43,20 +43,20 @@ export class WebhookRealtimeEmitter {
   }
 
   /**
-   * Emits an integration connection event.
+   * Emits a channel connection event.
    *
    * @param tenantId - Tenant identifier or null for global
    * @param payload - Connection event payload
    */
-  emitIntegrationConnection(
+  emitChannelConnection(
     tenantId: string | null,
     payload: Record<string, unknown>,
   ): void {
     if (tenantId) {
-      this.emitToTenant(tenantId, CHAT_EVENTS.INTEGRATION_CONNECTION, payload);
+      this.emitToTenant(tenantId, CHAT_EVENTS.CHANNEL_CONNECTION, payload);
       return;
     }
 
-    this.eventsGateway.emit(CHAT_EVENTS.INTEGRATION_CONNECTION, payload);
+    this.eventsGateway.emit(CHAT_EVENTS.CHANNEL_CONNECTION, payload);
   }
 }

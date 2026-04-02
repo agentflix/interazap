@@ -64,7 +64,7 @@ class ChatInstanceRequest extends FormRequest
                 Rule::requiredIf(fn () => $this->isMethod('post') && $this->input('provider') === 'uazapi'),
             ],
             'settings' => ['nullable', 'array'],
-            'settings.integration_id' => ['nullable', 'integer'],
+            'settings.channel_provider_id' => ['nullable', 'integer'],
             'settings.cellphone' => ['nullable', 'string'],
             'settings.instance' => ['nullable', 'string'],
             'settings.client_token' => ['nullable', 'string'],
@@ -80,7 +80,7 @@ class ChatInstanceRequest extends FormRequest
             'settings.start_service_message' => ['nullable', 'string', 'max:2000'],
             'settings.send_end_service_message' => ['nullable', 'boolean'],
             'settings.end_service_message' => ['nullable', 'string', 'max:2000'],
-            'settings.integration_fallback_message' => ['nullable', 'string', 'max:2000'],
+            'settings.channel_fallback_message' => ['nullable', 'string', 'max:2000'],
         ];
     }
 }

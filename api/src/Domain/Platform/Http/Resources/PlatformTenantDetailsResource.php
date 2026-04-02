@@ -90,7 +90,7 @@ final class PlatformTenantDetailsResource extends JsonResource
         $storageUsedBytes = $this->calculateStorageUsedBytes($tenantId);
 
         $usersLimit = ($plan && $plan->limit_users > 0) ? $plan->limit_users : null;
-        $instancesLimit = ($plan && $plan->whatsapp_integrations_limit > 0) ? $plan->whatsapp_integrations_limit : null;
+        $instancesLimit = ($plan && $plan->chat_channels_limit > 0) ? $plan->chat_channels_limit : null;
 
         $storageLimitBytes = null;
         $storageMode = 'UNLIMITED';

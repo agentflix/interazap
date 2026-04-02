@@ -27,7 +27,7 @@ class BillingSubscriptionTest extends TestCase
             'slug' => 'pro-'.Str::lower(Str::random(6)),
             'price_monthly' => 199,
             'limit_users' => 5,
-            'whatsapp_integrations_limit' => 2,
+            'chat_channels_limit' => 2,
         ]);
 
         $tenant->plan_id = $plan->id;

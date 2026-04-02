@@ -15,13 +15,13 @@ import { BufferedRealtimeAdapter } from '../../../core/realtime/buffered-realtim
  *
  * @example
  * ```typescript
- * const adapter = new IntegrationRealtimeAdapter();
+ * const adapter = new ChannelRealtimeAdapter();
  * ```
  */
 @Injectable({
   providedIn: 'root',
 })
-export class IntegrationRealtimeAdapter implements OnDestroy {
+export class ChannelRealtimeAdapter implements OnDestroy {
   private readonly realtimeService = inject(ChatRealtimeService);
   private lastProcessedVersion = 0;
 

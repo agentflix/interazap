@@ -5,9 +5,9 @@ import {
   ChatRealtimeService,
   type IntegrationConnectionEvent,
 } from '@core/services/chat-realtime.service';
-import { IntegrationRealtimeAdapter } from './integration-realtime.adapter';
+import { ChannelRealtimeAdapter } from './channel-realtime.adapter';
 
-describe('IntegrationRealtimeAdapter', () => {
+describe('ChannelRealtimeAdapter', () => {
   let incomingSignal: WritableSignal<{
     event: IntegrationConnectionEvent | null;
     version: number;
@@ -21,7 +21,7 @@ describe('IntegrationRealtimeAdapter', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        IntegrationRealtimeAdapter,
+        ChannelRealtimeAdapter,
         {
           provide: ChatRealtimeService,
           useValue: {
@@ -38,7 +38,7 @@ describe('IntegrationRealtimeAdapter', () => {
   });
 
   it('buffers transitional integration events and flushes the latest after 120ms', () => {
-    TestBed.inject(IntegrationRealtimeAdapter);
+    TestBed.inject(ChannelRealtimeAdapter);
 
     incomingSignal.set({
       event: { status: 'connecting', token: 'instance-1' },
@@ -66,7 +66,7 @@ describe('IntegrationRealtimeAdapter', () => {
   });
 
   it('flushes terminal statuses immediately', () => {
-    TestBed.inject(IntegrationRealtimeAdapter);
+    TestBed.inject(ChannelRealtimeAdapter);
 
     incomingSignal.set({
       event: { status: 'connected', token: 'instance-2' },
@@ -83,7 +83,7 @@ describe('IntegrationRealtimeAdapter', () => {
   it.each(['authorized', 'ready', 'open'] as const)(
     'flushes connected alias %s immediately through the adapter path',
     (status) => {
-      TestBed.inject(IntegrationRealtimeAdapter);
+      TestBed.inject(ChannelRealtimeAdapter);
 
       incomingSignal.set({
         event: { status, token: 'instance-3', connected: false },

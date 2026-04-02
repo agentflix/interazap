@@ -38,7 +38,7 @@ class ChatInstancePolicyTest extends TestCase
         $user = AuthUser::factory()->make(['tenant_id' => $tenantId]);
 
         $plan = PlatformPlan::factory()->create([
-            'whatsapp_integrations_limit' => 1,
+            'chat_channels_limit' => 1,
         ]);
 
         BillingInvoice::factory()->create([
@@ -62,7 +62,7 @@ class ChatInstancePolicyTest extends TestCase
     public function test_create_allows_when_plan_has_capacity(): void
     {
         $plan = PlatformPlan::factory()->create([
-            'whatsapp_integrations_limit' => 2,
+            'chat_channels_limit' => 2,
         ]);
 
         $tenant = PlatformTenant::factory()->create([

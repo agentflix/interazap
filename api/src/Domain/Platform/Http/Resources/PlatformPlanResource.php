@@ -38,7 +38,7 @@ final class PlatformPlanResource extends BaseJsonResource
             'storage_limit_bytes' => $storageLimitBytes,
             'storage_limit_gb' => $storageLimitGb,
             'ai_enabled' => (bool) $this->ai_enabled,
-            'whatsapp_integrations_limit' => (int) $this->whatsapp_integrations_limit,
+            'chat_channels_limit' => (int) $this->chat_channels_limit,
             'negotiations_mode' => $negotiationsMode,
             'negotiations_limit' => $this->negotiations_limit ? (int) $this->negotiations_limit : null,
             'price_monthly' => (string) $this->price_monthly,

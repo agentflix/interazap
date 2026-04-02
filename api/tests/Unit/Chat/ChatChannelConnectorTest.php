@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Tests\Unit\Chat;
 
 use Domain\Chat\Models\ChatInstance;
-use Domain\Chat\Services\ChatIntegrationConnector;
+use Domain\Chat\Services\ChatChannelConnector;
 use Domain\Platform\Services\UazapiGatewayService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Mockery;
 use RuntimeException;
 use Tests\TestCase;
 
-class ChatIntegrationConnectorTest extends TestCase
+class ChatChannelConnectorTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
@@ -40,7 +40,7 @@ class ChatIntegrationConnectorTest extends TestCase
                 'expires_at' => now()->addMinutes(5)->toIso8601String(),
             ]);
 
-        $connector = new ChatIntegrationConnector($gateway);
+        $connector = new ChatChannelConnector($gateway);
         $result = $connector->connect($instance, 'qr');
 
         $this->assertSame('qr', $result['mode']);
@@ -66,7 +66,7 @@ class ChatIntegrationConnectorTest extends TestCase
                 'expires_at' => now()->addMinutes(5)->toIso8601String(),
             ]);
 
-        $connector = new ChatIntegrationConnector($gateway);
+        $connector = new ChatChannelConnector($gateway);
         $result = $connector->connect($instance, 'pair', '5511999999999');
 
         $this->assertSame('pair', $result['mode']);
@@ -83,7 +83,7 @@ class ChatIntegrationConnectorTest extends TestCase
             'settings_json' => [],
         ]);
 
-        $connector = new ChatIntegrationConnector(Mockery::mock(UazapiGatewayService::class));
+        $connector = new ChatChannelConnector(Mockery::mock(UazapiGatewayService::class));
 
         $this->expectException(RuntimeException::class);
         $connector->connect($instance, 'qr');
@@ -98,7 +98,7 @@ class ChatIntegrationConnectorTest extends TestCase
             'settings_json' => [],
         ]);
 
-        $connector = new ChatIntegrationConnector(Mockery::mock(UazapiGatewayService::class));
+        $connector = new ChatChannelConnector(Mockery::mock(UazapiGatewayService::class));
         $response = $connector->configureWebhook($instance, 'https://app.test/webhook');
 
         $this->assertNull($response);
@@ -119,7 +119,7 @@ class ChatIntegrationConnectorTest extends TestCase
             ->with('tok-3', Mockery::type('array'))
             ->andReturn(['ok' => true]);
 
-        $connector = new ChatIntegrationConnector($gateway);
+        $connector = new ChatChannelConnector($gateway);
         $response = $connector->configureWebhook($instance, 'https://app.test/webhook');
 
         $this->assertSame(['ok' => true], $response);

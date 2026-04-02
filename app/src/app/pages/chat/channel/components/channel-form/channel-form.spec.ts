@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { IntegrationFormComponent } from './integration-form';
+import { ChannelFormComponent } from './channel-form';
 import { IntegrationService, type Integration } from 'src/app/core/services/integration.service';
 
-describe('IntegrationFormComponent', () => {
-  let component: IntegrationFormComponent;
-  let fixture: ComponentFixture<IntegrationFormComponent>;
+describe('ChannelFormComponent', () => {
+  let component: ChannelFormComponent;
+  let fixture: ComponentFixture<ChannelFormComponent>;
 
   const integrationServiceMock = {
     create: vi.fn().mockReturnValue(
@@ -17,7 +17,7 @@ describe('IntegrationFormComponent', () => {
           provider: 'uazapi',
           is_active: true,
           settings: {
-            integration_id: 5,
+            channel_provider_id: 5,
             cellphone: '+5511987654321',
           },
         } satisfies Integration,
@@ -31,7 +31,7 @@ describe('IntegrationFormComponent', () => {
           provider: 'uazapi',
           is_active: true,
           settings: {
-            integration_id: 5,
+            channel_provider_id: 5,
             cellphone: '+5511987654321',
           },
         } satisfies Integration,
@@ -44,11 +44,11 @@ describe('IntegrationFormComponent', () => {
     integrationServiceMock.update.mockClear();
 
     await TestBed.configureTestingModule({
-      imports: [IntegrationFormComponent],
+      imports: [ChannelFormComponent],
       providers: [{ provide: IntegrationService, useValue: integrationServiceMock }],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(IntegrationFormComponent);
+    fixture = TestBed.createComponent(ChannelFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -67,7 +67,7 @@ describe('IntegrationFormComponent', () => {
       is_connected: true,
       has_token: true,
       settings: {
-        integration_id: 5,
+        channel_provider_id: 5,
         cellphone: '+5511987654321',
       },
     } satisfies Integration);
@@ -89,7 +89,7 @@ describe('IntegrationFormComponent', () => {
       connection_status: 'open',
       has_token: true,
       settings: {
-        integration_id: 5,
+        channel_provider_id: 5,
         cellphone: '+5511987654321',
       },
     } satisfies Integration);
@@ -119,7 +119,7 @@ describe('IntegrationFormComponent', () => {
       token: 'secure-token',
       cellphone: '(11) 98765-4321',
       country_code: '+55',
-      integration_fallback_message: 'Mensagem fallback integração',
+      channel_fallback_message: 'Mensagem fallback integração',
     });
 
     component.submit();
@@ -130,7 +130,7 @@ describe('IntegrationFormComponent', () => {
         token: 'secure-token',
         settings: expect.objectContaining({
           cellphone: '+5511987654321',
-          integration_fallback_message: 'Mensagem fallback integração',
+          channel_fallback_message: 'Mensagem fallback integração',
         }),
       }),
     );
@@ -144,22 +144,22 @@ describe('IntegrationFormComponent', () => {
       is_active: true,
       has_token: true,
       settings: {
-        integration_id: 5,
+        channel_provider_id: 5,
         cellphone: '+5511987654321',
-        integration_fallback_message: 'Fallback carregado do backend',
+        channel_fallback_message: 'Fallback carregado do backend',
       },
     } satisfies Integration);
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.form.controls.integration_fallback_message.value).toBe(
+    expect(component.form.controls.channel_fallback_message.value).toBe(
       'Fallback carregado do backend',
     );
 
     component.form.patchValue({
       token: 'update-token',
       name: 'Integração com fallback editada',
-      integration_fallback_message: 'Fallback editado',
+      channel_fallback_message: 'Fallback editado',
     });
 
     component.submit();
@@ -168,7 +168,7 @@ describe('IntegrationFormComponent', () => {
       'integration-4',
       expect.objectContaining({
         settings: expect.objectContaining({
-          integration_fallback_message: 'Fallback editado',
+          channel_fallback_message: 'Fallback editado',
         }),
       }),
     );
@@ -181,7 +181,7 @@ describe('IntegrationFormComponent', () => {
       token: 'secure-token',
       cellphone: '(11) 98765-4321',
       country_code: '+55',
-      integration_fallback_message: '',
+      channel_fallback_message: '',
     });
 
     component.submit();
@@ -189,7 +189,7 @@ describe('IntegrationFormComponent', () => {
     expect(integrationServiceMock.create).toHaveBeenCalledWith(
       expect.objectContaining({
         settings: expect.objectContaining({
-          integration_fallback_message: undefined,
+          channel_fallback_message: undefined,
         }),
       }),
     );
@@ -205,7 +205,7 @@ describe('IntegrationFormComponent', () => {
       is_active: true,
       has_token: true,
       settings: {
-        integration_id: 5,
+        channel_provider_id: 5,
         cellphone: unknownDialCellphone,
       },
     } satisfies Integration);

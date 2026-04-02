@@ -403,7 +403,7 @@ final class AutopilotRunDispatcherListenerTest extends TestCase
         $instance = ChatInstance::factory()->create([
             'tenant_id' => (string) $tenant->id,
             'settings_json' => [
-                'integration_fallback_message' => 'Mensagem da integracao deve vencer',
+                'channel_fallback_message' => 'Mensagem do canal deve vencer',
             ],
         ]);
         $ticket = ChatTicket::factory()->forTenant((string) $tenant->id)->create();
@@ -437,7 +437,7 @@ final class AutopilotRunDispatcherListenerTest extends TestCase
                     && data_get($decoded, 'data.ticketId') === (string) $ticket->id
                     && data_get($decoded, 'data.subevents.0.type') === 'ai.processing.rejected'
                     && data_get($decoded, 'data.subevents.0.data.message_id') === $messageId
-                    && data_get($decoded, 'data.subevents.0.data.reason') === 'Mensagem da integracao deve vencer';
+                    && data_get($decoded, 'data.subevents.0.data.reason') === 'Mensagem do canal deve vencer';
             }))
             ->andReturn(1);
 

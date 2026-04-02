@@ -11,14 +11,14 @@ use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 /**
- * Conector de integração de chat multi-provedor.
+ * Conector de canal de chat multi-provedor.
  *
  * Gerencia o ciclo de vida da conexão com provedores externos (ex: Uazapi),
  * incluindo geração de QR Codes, pareamento por código e configuração de Webhooks.
  *
  * @category Services
  */
-class ChatIntegrationConnector
+class ChatChannelConnector
 {
     /**
      * Inicializa o conector com o serviço de gateway.
@@ -92,7 +92,7 @@ class ChatIntegrationConnector
 
             return $connection;
         } catch (\Throwable $e) {
-            Log::warning('integration.uazapi.connect_failed', [
+            Log::warning('channel.uazapi.connect_failed', [
                 'instance_id' => $instance->id,
                 'error' => $e->getMessage(),
             ]);
@@ -129,11 +129,11 @@ class ChatIntegrationConnector
                 'enabled' => true,
                 'url' => $webhookUrl,
                 'events' => ['connection', 'messages', 'messages_update'],
-                'action' => 'add', // força criação simples
+                'action' => 'add',
                 'excludeMessages' => ['wasSentByApi'],
             ]);
         } catch (\Throwable $e) {
-            Log::warning('integration.uazapi.webhook_failed', [
+            Log::warning('channel.uazapi.webhook_failed', [
                 'instance_id' => $instance->id,
                 'error' => $e->getMessage(),
             ]);

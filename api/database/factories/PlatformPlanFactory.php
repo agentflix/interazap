@@ -30,7 +30,7 @@ class PlatformPlanFactory extends Factory
             'storage_mode' => PlatformStorageMode::LIMITED,
             'storage_limit_bytes' => 1024 * 1024 * 1024,
             'ai_enabled' => false,
-            'whatsapp_integrations_limit' => 1,
+            'chat_channels_limit' => 1,
             'negotiations_mode' => PlatformNegotiationsMode::LIMITED,
             'negotiations_limit' => 50,
             'reports_mode' => PlatformReportsMode::BASIC,

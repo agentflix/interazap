@@ -30,7 +30,7 @@ import {
 } from '@shared/components/inputs';
 
 /**
- * Formulario para criacao e edicao de integracoes de chat.
+ * Formulario para criacao e edicao de canais de chat.
  *
  * @remarks
  * Suporta multiplos provedores (UaZapi, Evolution API, Z-API, CodeChat)
@@ -38,14 +38,14 @@ import {
  *
  * @example
  * ```html
- * <app-integration-form
- *   [integration]="integration"
+ * <app-channel-form
+ *   [channel]="channel"
  *   (saved)="onSaved($event)"
  *   (cancelled)="onCancelled()" />
  * ```
  */
 @Component({
-  selector: 'app-integration-form',
+  selector: 'app-channel-form',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -55,10 +55,10 @@ import {
     SelectInputComponent,
     SwitchInputComponent,
   ],
-  templateUrl: './integration-form.html',
+  templateUrl: './channel-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class IntegrationFormComponent {
+export class ChannelFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly integrationService = inject(IntegrationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -106,7 +106,7 @@ export class IntegrationFormComponent {
     start_service_message: this.fb.control(''),
     send_end_service_message: this.fb.control(false),
     end_service_message: this.fb.control(''),
-    integration_fallback_message: this.fb.control(''),
+    channel_fallback_message: this.fb.control(''),
     evaluation_enabled: this.fb.control(false),
     evaluation_cutoff_score: this.fb.control(3, [
       Validators.required,
@@ -207,7 +207,7 @@ export class IntegrationFormComponent {
           start_service_message: integration.settings?.start_service_message ?? '',
           send_end_service_message: integration.settings?.send_end_service_message ?? false,
           end_service_message: integration.settings?.end_service_message ?? '',
-          integration_fallback_message: integration.settings?.integration_fallback_message ?? '',
+          integration_fallback_message: integration.settings?.channel_fallback_message ?? '',
           evaluation_enabled: integration.evaluation_enabled ?? false,
           evaluation_cutoff_score: integration.evaluation_cutoff_score ?? 3,
         });
@@ -256,7 +256,7 @@ export class IntegrationFormComponent {
       evaluation_enabled: formValue.evaluation_enabled ?? false,
       evaluation_cutoff_score: formValue.evaluation_cutoff_score ?? 3,
       settings: {
-        integration_id: integrationId,
+        channel_provider_id: integrationId,
         cellphone: this.buildInternationalCellphone(
           formValue.cellphone || '',
           formValue.country_code || '+55',
@@ -274,7 +274,7 @@ export class IntegrationFormComponent {
         start_service_message: formValue.start_service_message || undefined,
         send_end_service_message: formValue.send_end_service_message ?? false,
         end_service_message: formValue.end_service_message || undefined,
-        integration_fallback_message: formValue.integration_fallback_message || undefined,
+        integration_fallback_message: formValue.channel_fallback_message || undefined,
       },
     };
 
@@ -296,7 +296,7 @@ export class IntegrationFormComponent {
       },
       error: (error) => {
         this.isSaving.set(false);
-        toast.error(error.error?.message || 'Não foi possível salvar a integração.');
+        toast.error(error.error?.message || 'Não foi possível salvar o canal.');
       },
     });
   }

@@ -65,7 +65,7 @@ final class PlatformPlanUpdateRequest extends FormRequest
                 Rule::requiredIf(fn () => $this->input('storage_mode') === PlatformStorageMode::LIMITED->value),
             ],
             'ai_enabled' => ['required', 'boolean'],
-            'whatsapp_integrations_limit' => ['required', 'integer', 'min:0'],
+            'chat_channels_limit' => ['required', 'integer', 'min:0'],
             'negotiations_mode' => ['required', 'string', Rule::in(array_map(fn ($c) => $c->value, PlatformNegotiationsMode::cases()))],
             'negotiations_limit' => [
                 'nullable',

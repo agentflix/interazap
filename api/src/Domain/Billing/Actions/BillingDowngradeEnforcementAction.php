@@ -23,7 +23,7 @@ final class BillingDowngradeEnforcementAction
         $tenant = PlatformTenant::query()->withoutGlobalScopes()->findOrFail($tenantId);
 
         $usersDeactivated = $this->deactivateUsersOverLimit($tenant, (int) $newPlan->limit_users);
-        $instancesDeactivated = $this->deactivateInstancesOverLimit($tenantId, (int) $newPlan->whatsapp_integrations_limit);
+        $instancesDeactivated = $this->deactivateInstancesOverLimit($tenantId, (int) $newPlan->chat_channels_limit);
 
         return [
             'users_deactivated' => $usersDeactivated,

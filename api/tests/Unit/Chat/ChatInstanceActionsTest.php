@@ -6,7 +6,7 @@ namespace Tests\Unit\Chat;
 
 use Domain\Chat\Actions\ChatInstanceActions;
 use Domain\Chat\Models\ChatInstance;
-use Domain\Chat\Services\ChatIntegrationConnector;
+use Domain\Chat\Services\ChatChannelConnector;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
@@ -26,7 +26,7 @@ class ChatInstanceActionsTest extends TestCase
 
     public function test_create_requires_token_for_uazapi(): void
     {
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $actions = new ChatInstanceActions($connector);
 
         $this->expectException(ValidationException::class);
@@ -39,7 +39,7 @@ class ChatInstanceActionsTest extends TestCase
 
     public function test_create_rejects_token_larger_than_column_limit(): void
     {
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $actions = new ChatInstanceActions($connector);
         $tenant = PlatformTenant::factory()->create();
 
@@ -54,7 +54,7 @@ class ChatInstanceActionsTest extends TestCase
 
     public function test_create_rejects_build_log_payload_as_token(): void
     {
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $actions = new ChatInstanceActions($connector);
         $tenant = PlatformTenant::factory()->create();
 
@@ -69,9 +69,9 @@ class ChatInstanceActionsTest extends TestCase
 
     public function test_create_configures_webhook_and_persists_settings(): void
     {
-        config()->set('services.integrations.webhook_base_url', 'http://webhook.test');
+        config()->set('services.channels.webhook_base_url', 'http://webhook.test');
 
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $connector->shouldReceive('configureWebhook')
             ->once()
             ->andReturn(['status' => 'ok']);
@@ -99,7 +99,7 @@ class ChatInstanceActionsTest extends TestCase
 
     public function test_connect_updates_status_and_settings(): void
     {
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $connector->shouldReceive('connect')
             ->once()
             ->andReturn([
@@ -133,7 +133,7 @@ class ChatInstanceActionsTest extends TestCase
 
     public function test_status_returns_fallback_payload(): void
     {
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $actions = new ChatInstanceActions($connector);
 
         $tenant = PlatformTenant::factory()->create();
@@ -152,7 +152,7 @@ class ChatInstanceActionsTest extends TestCase
 
     public function test_toggle_active_flips_flag(): void
     {
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $actions = new ChatInstanceActions($connector);
 
         $tenant = PlatformTenant::factory()->create();
@@ -169,7 +169,7 @@ class ChatInstanceActionsTest extends TestCase
 
     public function test_update_merges_settings_and_refreshes_token(): void
     {
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $actions = new ChatInstanceActions($connector);
 
         $tenant = PlatformTenant::factory()->create();

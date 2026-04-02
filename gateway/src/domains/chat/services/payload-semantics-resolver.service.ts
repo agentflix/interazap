@@ -41,7 +41,7 @@ export class PayloadSemanticsResolver {
         changeKind: 'connection',
         messageReferenceId: null,
         editEventId: null,
-        eventName: CHAT_EVENTS.INTEGRATION_CONNECTION,
+        eventName: CHAT_EVENTS.CHANNEL_CONNECTION,
       };
     }
 

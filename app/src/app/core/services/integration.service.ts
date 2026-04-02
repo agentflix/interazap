@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
 
-/** Integration entity used by chat campaigns form. */
+/** Integration entity used by transmission list form. */
 export interface Integration {
   id: string;
   name: string;
@@ -15,12 +15,12 @@ export interface Integration {
   evaluation_cutoff_score?: number;
   status?: string;
   settings: {
-    integration_id: number;
+    channel_provider_id: number;
     cellphone: string;
     instance?: string;
     client_token?: string;
     token?: string;
-    integration_fallback_message?: string;
+    channel_fallback_message?: string;
     send_attendant_name?: boolean;
     send_outside_business_hours_message?: boolean;
     outside_business_hours_message?: string;

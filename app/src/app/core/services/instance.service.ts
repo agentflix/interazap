@@ -59,7 +59,7 @@ export interface InstanceListResponse {
 @Injectable({ providedIn: 'root' })
 export class InstanceService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/integrations`;
+  private readonly baseUrl = `${environment.apiUrl}/channels`;
 
   /**
    * Obtém a lista paginada de instâncias cadastradas.

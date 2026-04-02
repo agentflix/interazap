@@ -7,7 +7,7 @@ namespace Tests\Feature;
 use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthUser;
 use Domain\Chat\Models\ChatInstance;
-use Domain\Chat\Services\ChatIntegrationConnector;
+use Domain\Chat\Services\ChatChannelConnector;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
@@ -28,16 +28,16 @@ class ChatInstanceControllerTest extends TestCase
     {
         $user = AuthUser::factory()->create();
         $viewPermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.view', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.view', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $managePermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.manage', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $user->givePermissionTo([$viewPermission, $managePermission]);
 
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $connector->shouldReceive('configureWebhook')->andReturn(['ok' => true]);
         $connector->shouldReceive('connect')->andReturn([
             'mode' => 'qr',
@@ -46,46 +46,46 @@ class ChatInstanceControllerTest extends TestCase
             'expires_at' => now()->addMinutes(5)->toIso8601String(),
             'provider' => 'uazapi',
         ]);
-        $this->app->instance(ChatIntegrationConnector::class, $connector);
+        $this->app->instance(ChatChannelConnector::class, $connector);
 
         $this->actingAs($user, 'sanctum')
-            ->getJson('/api/integrations')
+            ->getJson('/api/channels')
             ->assertOk();
 
         $response = $this->actingAs($user, 'sanctum')
-            ->postJson('/api/integrations', [
+            ->postJson('/api/channels', [
                 'name' => 'Instancia',
                 'provider' => 'uazapi',
                 'token' => 'tok-123',
                 'settings' => [
                     'cellphone' => '5511999999999',
                     'send_attendant_name' => true,
-                    'integration_fallback_message' => '  Mensagem de fallback da integracao  ',
+                    'channel_fallback_message' => '  Mensagem de fallback da integracao  ',
                 ],
             ])
             ->assertCreated()
             ->assertJsonPath('data.settings.send_attendant_name', true)
-            ->assertJsonPath('data.settings.integration_fallback_message', 'Mensagem de fallback da integracao')
+            ->assertJsonPath('data.settings.channel_fallback_message', 'Mensagem de fallback da integracao')
             ->json('data');
 
         $instanceId = $response['id'];
 
         $this->actingAs($user, 'sanctum')
-            ->getJson("/api/integrations/{$instanceId}")
+            ->getJson("/api/channels/{$instanceId}")
             ->assertOk();
 
         $this->actingAs($user, 'sanctum')
-            ->putJson("/api/integrations/{$instanceId}", [
+            ->putJson("/api/channels/{$instanceId}", [
                 'name' => 'Instancia 2',
                 'provider' => 'uazapi',
                 'token' => 'tok-123',
                 'settings' => [
-                    'integration_fallback_message' => 'Fallback atualizado',
+                    'channel_fallback_message' => 'Fallback atualizado',
                 ],
             ])
             ->assertOk()
             ->assertJsonFragment(['name' => 'Instancia 2'])
-            ->assertJsonPath('data.settings.integration_fallback_message', 'Fallback atualizado');
+            ->assertJsonPath('data.settings.channel_fallback_message', 'Fallback atualizado');
 
         $this->actingAs($user, 'sanctum')
             ->patchJson("/api/integrations/{$instanceId}/toggle-active")
@@ -108,7 +108,7 @@ class ChatInstanceControllerTest extends TestCase
             ->assertOk();
 
         $this->actingAs($user, 'sanctum')
-            ->deleteJson("/api/integrations/{$instanceId}")
+            ->deleteJson("/api/channels/{$instanceId}")
             ->assertNoContent();
 
         $this->assertDatabaseMissing('chat_instances', ['id' => $instanceId]);
@@ -118,17 +118,17 @@ class ChatInstanceControllerTest extends TestCase
     {
         $user = AuthUser::factory()->create();
         $managePermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.manage', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $user->givePermissionTo($managePermission);
 
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $connector->shouldReceive('configureWebhook')->never();
-        $this->app->instance(ChatIntegrationConnector::class, $connector);
+        $this->app->instance(ChatChannelConnector::class, $connector);
 
         $this->actingAs($user, 'sanctum')
-            ->postJson('/api/integrations', [
+            ->postJson('/api/channels', [
                 'name' => 'Instancia inválida',
                 'provider' => 'uazapi',
                 'token' => str_repeat('a', 256),
@@ -137,50 +137,50 @@ class ChatInstanceControllerTest extends TestCase
             ->assertJsonValidationErrors(['token']);
     }
 
-    public function test_store_rejects_integration_fallback_message_longer_than_2000_characters(): void
+    public function test_store_rejects_channel_fallback_message_longer_than_2000_characters(): void
     {
         $user = AuthUser::factory()->create();
         $managePermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.manage', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $user->givePermissionTo($managePermission);
 
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
-        $this->app->instance(ChatIntegrationConnector::class, $connector);
+        $connector = Mockery::mock(ChatChannelConnector::class);
+        $this->app->instance(ChatChannelConnector::class, $connector);
 
         $this->actingAs($user, 'sanctum')
-            ->postJson('/api/integrations', [
+            ->postJson('/api/channels', [
                 'name' => 'Instancia inválida',
                 'provider' => 'uazapi',
                 'token' => 'tok-123',
                 'settings' => [
-                    'integration_fallback_message' => str_repeat('a', 2001),
+                    'channel_fallback_message' => str_repeat('a', 2001),
                 ],
             ])
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['settings.integration_fallback_message']);
+            ->assertJsonValidationErrors(['settings.channel_fallback_message']);
     }
 
-    public function test_legacy_instance_without_integration_fallback_message_keeps_settings_shape(): void
+    public function test_legacy_instance_without_channel_fallback_message_keeps_settings_shape(): void
     {
         $user = AuthUser::factory()->create();
         $managePermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.manage', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $viewPermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.view', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.view', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $user->givePermissionTo([$viewPermission, $managePermission]);
 
-        $connector = Mockery::mock(ChatIntegrationConnector::class);
+        $connector = Mockery::mock(ChatChannelConnector::class);
         $connector->shouldReceive('configureWebhook')->andReturn(['ok' => true]);
-        $this->app->instance(ChatIntegrationConnector::class, $connector);
+        $this->app->instance(ChatChannelConnector::class, $connector);
 
         $created = $this->actingAs($user, 'sanctum')
-            ->postJson('/api/integrations', [
+            ->postJson('/api/channels', [
                 'name' => 'Instancia Legada',
                 'provider' => 'uazapi',
                 'token' => 'tok-legacy',
@@ -191,22 +191,22 @@ class ChatInstanceControllerTest extends TestCase
             ->assertCreated()
             ->json('data');
 
-        $this->assertArrayNotHasKey('integration_fallback_message', $created['settings']);
+        $this->assertArrayNotHasKey('channel_fallback_message', $created['settings']);
 
         $this->actingAs($user, 'sanctum')
-            ->getJson('/api/integrations/'.$created['id'])
+            ->getJson('/api/channels/'.$created['id'])
             ->assertOk()
-            ->assertJsonMissingPath('data.settings.integration_fallback_message');
+            ->assertJsonMissingPath('data.settings.channel_fallback_message');
     }
 
-    public function test_cannot_delete_connected_integration(): void
+    public function test_cannot_delete_connected_channel(): void
     {
         $tenant = PlatformTenant::factory()->create();
         $user = AuthUser::factory()->create([
             'tenant_id' => $tenant->id,
         ]);
         $managePermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.manage', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $user->givePermissionTo($managePermission);
@@ -217,14 +217,14 @@ class ChatInstanceControllerTest extends TestCase
         ]);
 
         $this->actingAs($user, 'sanctum')
-            ->deleteJson("/api/integrations/{$instance->id}")
+            ->deleteJson("/api/channels/{$instance->id}")
             ->assertStatus(409)
-            ->assertJsonPath('message', 'Não é possível excluir uma integração conectada. Desconecte primeiro.');
+            ->assertJsonPath('message', 'Não é possível excluir um canal conectado. Desconecte primeiro.');
 
         $this->assertDatabaseHas('chat_instances', ['id' => $instance->id]);
     }
 
-    public function test_cannot_delete_connected_integration_cross_tenant(): void
+    public function test_cannot_delete_connected_channel_cross_tenant(): void
     {
         $tenantA = PlatformTenant::factory()->create();
         $tenantB = PlatformTenant::factory()->create();
@@ -233,7 +233,7 @@ class ChatInstanceControllerTest extends TestCase
             'tenant_id' => $tenantA->id,
         ]);
         $managePermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.manage', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $userA->givePermissionTo($managePermission);
@@ -244,20 +244,20 @@ class ChatInstanceControllerTest extends TestCase
         ]);
 
         $this->actingAs($userA, 'sanctum')
-            ->deleteJson("/api/integrations/{$instanceB->id}")
+            ->deleteJson("/api/channels/{$instanceB->id}")
             ->assertNotFound();
 
         $this->assertDatabaseHas('chat_instances', ['id' => $instanceB->id]);
     }
 
-    public function test_can_delete_disconnected_integration(): void
+    public function test_can_delete_disconnected_channel(): void
     {
         $tenant = PlatformTenant::factory()->create();
         $user = AuthUser::factory()->create([
             'tenant_id' => $tenant->id,
         ]);
         $managePermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.manage', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $user->givePermissionTo($managePermission);
@@ -268,20 +268,20 @@ class ChatInstanceControllerTest extends TestCase
         ]);
 
         $this->actingAs($user, 'sanctum')
-            ->deleteJson("/api/integrations/{$instance->id}")
+            ->deleteJson("/api/channels/{$instance->id}")
             ->assertNoContent();
 
         $this->assertDatabaseMissing('chat_instances', ['id' => $instance->id]);
     }
 
-    public function test_can_delete_integration_with_qr_status(): void
+    public function test_can_delete_channel_with_qr_status(): void
     {
         $tenant = PlatformTenant::factory()->create();
         $user = AuthUser::factory()->create([
             'tenant_id' => $tenant->id,
         ]);
         $managePermission = AuthPermission::query()->firstOrCreate(
-            ['name' => 'integrations.whatsapp.manage', 'guard_name' => 'sanctum'],
+            ['name' => 'channels.whatsapp.manage', 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
         $user->givePermissionTo($managePermission);
@@ -292,7 +292,7 @@ class ChatInstanceControllerTest extends TestCase
         ]);
 
         $this->actingAs($user, 'sanctum')
-            ->deleteJson("/api/integrations/{$instance->id}")
+            ->deleteJson("/api/channels/{$instance->id}")
             ->assertNoContent();
 
         $this->assertDatabaseMissing('chat_instances', ['id' => $instance->id]);

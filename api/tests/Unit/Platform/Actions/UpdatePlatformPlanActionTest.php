@@ -41,7 +41,7 @@ class UpdatePlatformPlanActionTest extends TestCase
             storageMode: PlatformStorageMode::LIMITED,
             storageLimitBytes: 1024,
             aiEnabled: true,
-            whatsappIntegrationsLimit: 2,
+            whatsappChannelsLimit: 2,
             negotiationsMode: PlatformNegotiationsMode::LIMITED,
             negotiationsLimit: 5,
             priceMonthly: 19.9,

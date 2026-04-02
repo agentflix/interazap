@@ -42,7 +42,7 @@ final class ChatInstancePolicy
             return true;
         }
 
-        return $user->can('integrations.whatsapp.view');
+        return $user->can('chat.channel.view');
     }
 
     public function view(AuthUser $user, ChatInstance $instance): bool
@@ -52,7 +52,7 @@ final class ChatInstancePolicy
         }
 
         return $instance->tenant_id === $user->tenant_id
-            && $user->can('integrations.whatsapp.view');
+            && $user->can('chat.channel.view');
     }
 
     public function update(AuthUser $user, ChatInstance $instance): bool
@@ -62,7 +62,7 @@ final class ChatInstancePolicy
         }
 
         return $instance->tenant_id === $user->tenant_id
-            && $user->can('integrations.whatsapp.manage');
+            && $user->can('chat.channel.manage');
     }
 
     public function delete(AuthUser $user, ChatInstance $instance): bool
@@ -72,6 +72,6 @@ final class ChatInstancePolicy
         }
 
         return $instance->tenant_id === $user->tenant_id
-            && $user->can('integrations.whatsapp.manage');
+            && $user->can('chat.channel.manage');
     }
 }

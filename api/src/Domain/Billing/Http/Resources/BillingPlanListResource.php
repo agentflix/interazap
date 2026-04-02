@@ -27,7 +27,7 @@ final class BillingPlanListResource extends BaseJsonResource
             'slug' => $plan->slug,
             'price_monthly' => number_format((float) $plan->price_monthly, 2, '.', ''),
             'limit_users' => (int) $plan->limit_users,
-            'whatsapp_integrations_limit' => (int) $plan->whatsapp_integrations_limit,
+            'chat_channels_limit' => (int) $plan->chat_channels_limit,
             'storage_mode' => $plan->storage_mode->value,
             'storage_limit_bytes' => $plan->storage_limit_bytes,
             'storage_formatted' => $plan->storage_limit_bytes ? $this->formatBytes((int) $plan->storage_limit_bytes) : 'Ilimitado',
@@ -37,7 +37,7 @@ final class BillingPlanListResource extends BaseJsonResource
             'is_current' => (bool) ($plan->is_current ?? false),
             'features' => [
                 ['label' => sprintf('%d usuários', (int) $plan->limit_users), 'included' => true],
-                ['label' => sprintf('%d instância WhatsApp', (int) $plan->whatsapp_integrations_limit), 'included' => true],
+                ['label' => sprintf('%d canal WhatsApp', (int) $plan->chat_channels_limit), 'included' => true],
                 ['label' => $plan->storage_limit_bytes ? $this->formatBytes((int) $plan->storage_limit_bytes).' de storage' : 'Storage ilimitado', 'included' => true],
                 ['label' => 'Inteligência Artificial', 'included' => (bool) $plan->ai_enabled],
                 ['label' => 'Negociações ilimitadas', 'included' => true],

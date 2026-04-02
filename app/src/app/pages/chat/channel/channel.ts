@@ -39,15 +39,15 @@ import {
   ChatRealtimeService,
   type IntegrationConnectionEvent,
 } from '@core/services/chat-realtime.service';
-import { IntegrationFormComponent } from './components/integration-form/integration-form';
-import { IntegrationRealtimeAdapter } from './integration-realtime.adapter';
+import { ChannelFormComponent } from './components/channel-form/channel-form';
+import { ChannelRealtimeAdapter } from './channel-realtime.adapter';
 
 const PHONE_COUNTRIES: Country[] = [...COUNTRIES].sort(
   (left, right) => right.code.length - left.code.length,
 );
 
 @Component({
-  selector: 'app-integration-page',
+  selector: 'app-channel-page',
   standalone: true,
   imports: [
     CommonModule,
@@ -62,22 +62,22 @@ const PHONE_COUNTRIES: Country[] = [...COUNTRIES].sort(
     AfModalComponent,
     AfConfirmModalComponent,
     AfAlertComponent,
-    IntegrationFormComponent,
+    ChannelFormComponent,
 /**
- * Integration page page component for the Chat module.
- * @selector app-integration-page
+ * Channel page component for the Chat module.
+ * @selector app-channel-page
  */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './integration.html',
+  templateUrl: './channel.html',
 })
-export class IntegrationPage implements OnInit {
+export class ChannelPage implements OnInit {
   private readonly integrationService = inject(IntegrationService);
   private readonly realtime = inject(ChatRealtimeService);
-  private readonly _integrationRealtimeAdapter = inject(IntegrationRealtimeAdapter);
+  private readonly _integrationRealtimeAdapter = inject(ChannelRealtimeAdapter);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly integrationFormRef = viewChild<IntegrationFormComponent>('integrationForm');
+  readonly integrationFormRef = viewChild<ChannelFormComponent>('integrationForm');
 
   // State
   readonly integrations = signal<Integration[]>([]);
@@ -172,7 +172,7 @@ export class IntegrationPage implements OnInit {
 
   openDelete(item: Integration): void {
     if (this.isConnected(item)) {
-      toast.error('Não é possível excluir uma integração conectada. Desconecte primeiro.');
+      toast.error('Não é possível excluir um canal conectado. Desconecte primeiro.');
       return;
     }
 
@@ -183,7 +183,7 @@ export class IntegrationPage implements OnInit {
   handleFormSaved(item: Integration): void {
     void item; // suppress unused
     this.showFormModal.set(false);
-    toast.success('Integração salva com sucesso');
+    toast.success('Canal salvo com sucesso');
     this.loadIntegrations(this.meta().current_page);
   }
 
@@ -200,19 +200,19 @@ export class IntegrationPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          toast.success('Integração removida');
+          toast.success('Canal removido');
           this.showDeleteModal.set(false);
           this.loadIntegrations(this.meta().current_page);
         },
         error: (err: HttpErrorResponse) => {
           if (err.status === 409) {
-            toast.error('Não é possível excluir uma integração conectada. Desconecte primeiro.');
+            toast.error('Não é possível excluir um canal conectado. Desconecte primeiro.');
             this.showDeleteModal.set(false);
             this.loadIntegrations(this.meta().current_page);
             return;
           }
 
-          toast.error('Erro ao remover integração');
+          toast.error('Erro ao remover canal');
         },
       });
   }
@@ -221,7 +221,7 @@ export class IntegrationPage implements OnInit {
   connect(item: Integration): void {
     if (!this.canConnect(item)) {
       toast.error(
-        'Fluxo de conexão disponível apenas para integrações UaZapi com token configurado.',
+        'Fluxo de conexão disponível apenas para canais UaZapi com token configurado.',
       );
       return;
     }
