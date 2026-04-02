@@ -326,7 +326,7 @@ export const routes: Routes = [
         path: 'chat/channel',
         canActivate: [permissionGuard],
         loadComponent: () => import('./pages/chat/channel').then((m) => m.ChannelPage),
-        data: { title: 'Canais', permission: 'channels.whatsapp.view' },
+        data: { title: 'Canais', permission: 'chat.channel.view' },
       },
       {
         path: 'chat',

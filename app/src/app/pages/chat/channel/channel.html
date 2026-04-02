@@ -1,12 +1,12 @@
 
     <af-crud-page
-      title="Integrações"
+      title="Canais"
       subtitle="Chat"
-      createLabel="Nova Integração"
-      searchPlaceholder="Buscar integrações..."
+      createLabel="Novo Canal"
+      searchPlaceholder="Buscar canais..."
       [loading]="isLoading()"
       [empty]="isEmpty()"
-      emptyTitle="Nenhuma integração encontrada"
+      emptyTitle="Nenhum canal encontrado"
       emptyDescription="Conecte seus canais de comunicação (WhatsApp, Instagram, etc)."
       [skeletonColumns]="5"
       [skeletonRows]="5"
@@ -24,7 +24,7 @@
           <af-alert
             variant="danger"
             title="Erro ao carregar"
-            message="Não foi possível carregar as integrações."
+            message="Não foi possível carregar os canais."
           />
           <div class="mt-4">
             <af-button variant="outline" size="sm" (click)="loadIntegrations()">
@@ -128,7 +128,7 @@
       [open]="showDeleteModal()"
       title="Excluir Integração"
       [message]="
-        'Tem certeza que deseja excluir a integração ' + (integrationToDelete()?.name || '') + '?'
+        'Tem certeza que deseja excluir o canal ' + (integrationToDelete()?.name || '') + '?'
       "
       variant="danger"
       (confirmed)="handleDeleteConfirmed()"
