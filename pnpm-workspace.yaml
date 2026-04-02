@@ -1,9 +1,13 @@
 packages:
-  - "app"
-  - "gateway"
+  - app
+  - gateway
+
+ignoredBuiltDependencies:
+  - '@nestjs/core'
+  - unrs-resolver
 
 onlyBuiltDependencies:
-  - "@parcel/watcher"
+  - '@parcel/watcher'
   - esbuild
   - lmdb
   - msgpackr-extract
