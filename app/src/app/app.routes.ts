@@ -5,7 +5,7 @@ import { adminGuard } from './core/guards/admin.guard';
 import { authChildGuard, authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { aiFeatureGuard } from './core/guards/ai-feature.guard';
-import { chatbotAvailabilityGuard } from './core/guards/chatbot-availability.guard';
+import { autoReplyAvailabilityGuard } from './core/guards/auto-reply-availability.guard';
 import { Starter } from './pages/platform/starter/starter';
 
 export const routes: Routes = [
@@ -292,10 +292,10 @@ export const routes: Routes = [
         data: { title: 'Gestão de Atendimentos', permission: 'chat.called.view' },
       },
       {
-        path: 'chat/chatbot',
-        canActivate: [permissionGuard, chatbotAvailabilityGuard],
-        loadComponent: () => import('./pages/chat/chatbot/chatbot').then((m) => m.Chatbot),
-        data: { title: 'Chatbot', permission: 'chat.called.view' },
+        path: 'chat/auto-reply',
+        canActivate: [permissionGuard, autoReplyAvailabilityGuard],
+        loadComponent: () => import('./pages/chat/auto-reply/auto-reply').then((m) => m.AutoReply),
+        data: { title: 'Resposta Automática', permission: 'chat.called.view' },
       },
       {
         path: 'chat/quick-answers',

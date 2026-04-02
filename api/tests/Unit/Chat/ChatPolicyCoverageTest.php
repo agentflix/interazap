@@ -6,12 +6,12 @@ namespace Tests\Unit\Chat;
 
 use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthUser;
+use Domain\Chat\Models\ChatAutoReplyRule;
 use Domain\Chat\Models\ChatCampaign;
-use Domain\Chat\Models\ChatChatbotRule;
 use Domain\Chat\Models\ChatQuickAnswer;
 use Domain\Chat\Models\ChatTicket;
+use Domain\Chat\Policies\ChatAutoReplyRulePolicy;
 use Domain\Chat\Policies\ChatCampaignPolicy;
-use Domain\Chat\Policies\ChatChatbotRulePolicy;
 use Domain\Chat\Policies\ChatMessagePolicy;
 use Domain\Chat\Policies\ChatQuickAnswerPolicy;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -103,19 +103,19 @@ class ChatPolicyCoverageTest extends TestCase
         $this->assertFalse($policy->delete($user, $foreignQa));
     }
 
-    public function test_chatbot_rule_policy_permissions_and_tenant_scope(): void
+    public function test_auto_reply_rule_policy_permissions_and_tenant_scope(): void
     {
         $user = AuthUser::factory()->create();
         $otherUser = AuthUser::factory()->create();
 
         $this->grantPermissions($user, [
-            'chat.chatbot_rules.view',
-            'chat.chatbot_rules.create',
-            'chat.chatbot_rules.update',
-            'chat.chatbot_rules.delete',
+            'chat.auto_reply_rules.view',
+            'chat.auto_reply_rules.create',
+            'chat.auto_reply_rules.update',
+            'chat.auto_reply_rules.delete',
         ]);
 
-        $rule = ChatChatbotRule::query()->create([
+        $rule = ChatAutoReplyRule::query()->create([
             'tenant_id' => $user->tenant_id,
             'name' => 'Boas-vindas',
             'trigger_text' => 'oi',
@@ -124,7 +124,7 @@ class ChatPolicyCoverageTest extends TestCase
             'is_welcome' => true,
             'cooldown_seconds' => 60,
         ]);
-        $foreignRule = ChatChatbotRule::query()->create([
+        $foreignRule = ChatAutoReplyRule::query()->create([
             'tenant_id' => $otherUser->tenant_id,
             'name' => 'Outro bot',
             'trigger_text' => 'oi',
@@ -134,7 +134,7 @@ class ChatPolicyCoverageTest extends TestCase
             'cooldown_seconds' => 60,
         ]);
 
-        $policy = new ChatChatbotRulePolicy;
+        $policy = new ChatAutoReplyRulePolicy;
 
         $this->assertTrue($policy->viewAny($user));
         $this->assertTrue($policy->view($user, $rule));

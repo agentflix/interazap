@@ -5,11 +5,11 @@ declare(strict_types=1);
 /**
  * Rotas do Módulo de Chat.
  *
- * Define os endpoints para gestão de tickets, mensagens, automações (chatbot),
+ * Define os endpoints para gestão de tickets, mensagens, automações (auto-reply),
  * campanhas e integrações de instâncias WhatsApp.
  */
-use Domain\Chat\Http\Controllers\ChatCampaignController;
-use Domain\Chat\Http\Controllers\ChatChatbotRuleController;
+use Domain\Chat\Http\Controllers\ChatAutoReplyRuleController;
+use Domain\Chat\Http\Controllers\ChatTransmissionListController;
 use Domain\Chat\Http\Controllers\ChatInstanceController;
 use Domain\Chat\Http\Controllers\ChatMediaController;
 use Domain\Chat\Http\Controllers\ChatMessageController;
@@ -73,21 +73,21 @@ Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttl
         Route::put('quick-answers/{id}', [ChatQuickAnswerController::class, 'update']);
         Route::delete('quick-answers/{id}', [ChatQuickAnswerController::class, 'destroy']);
 
-        Route::get('chatbot/rules', [ChatChatbotRuleController::class, 'index']);
-        Route::get('chatbot/rules/validate-keyword', [ChatChatbotRuleController::class, 'validateKeyword']);
-        Route::post('chatbot/rules', [ChatChatbotRuleController::class, 'store']);
-        Route::get('chatbot/rules/{id}', [ChatChatbotRuleController::class, 'show']);
-        Route::put('chatbot/rules/{id}', [ChatChatbotRuleController::class, 'update']);
-        Route::delete('chatbot/rules/{id}', [ChatChatbotRuleController::class, 'destroy']);
+        Route::get('auto-reply/rules', [ChatAutoReplyRuleController::class, 'index']);
+        Route::get('auto-reply/rules/validate-keyword', [ChatAutoReplyRuleController::class, 'validateKeyword']);
+        Route::post('auto-reply/rules', [ChatAutoReplyRuleController::class, 'store']);
+        Route::get('auto-reply/rules/{id}', [ChatAutoReplyRuleController::class, 'show']);
+        Route::put('auto-reply/rules/{id}', [ChatAutoReplyRuleController::class, 'update']);
+        Route::delete('auto-reply/rules/{id}', [ChatAutoReplyRuleController::class, 'destroy']);
 
-        Route::get('campaigns', [ChatCampaignController::class, 'index']);
-        Route::post('campaigns', [ChatCampaignController::class, 'store']);
-        Route::post('campaigns/preview', [ChatCampaignController::class, 'preview']);
-        Route::post('campaigns/audience', [ChatCampaignController::class, 'audience']);
-        Route::get('campaigns/{id}', [ChatCampaignController::class, 'show']);
-        Route::put('campaigns/{id}', [ChatCampaignController::class, 'update']);
-        Route::post('campaigns/{id}/send', [ChatCampaignController::class, 'send']);
-        Route::delete('campaigns/{id}', [ChatCampaignController::class, 'destroy']);
+        Route::get('transmission-list', [ChatTransmissionListController::class, 'index']);
+        Route::post('transmission-list', [ChatTransmissionListController::class, 'store']);
+        Route::post('transmission-list/preview', [ChatTransmissionListController::class, 'preview']);
+        Route::post('transmission-list/audience', [ChatTransmissionListController::class, 'audience']);
+        Route::get('transmission-list/{id}', [ChatTransmissionListController::class, 'show']);
+        Route::put('transmission-list/{id}', [ChatTransmissionListController::class, 'update']);
+        Route::post('transmission-list/{id}/send', [ChatTransmissionListController::class, 'send']);
+        Route::delete('transmission-list/{id}', [ChatTransmissionListController::class, 'destroy']);
         Route::post('media', [ChatMediaController::class, 'store']);
     });
 

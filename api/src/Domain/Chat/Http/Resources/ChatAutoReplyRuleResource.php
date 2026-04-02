@@ -8,9 +8,9 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Chatbot Rule serialization.
+ * Resource for Auto Reply Rule serialization.
  */
-final class ChatChatbotRuleResource extends BaseJsonResource
+final class ChatAutoReplyRuleResource extends BaseJsonResource
 {
     /**
      * Transform the resource into an array.

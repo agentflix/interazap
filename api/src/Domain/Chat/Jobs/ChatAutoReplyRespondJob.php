@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Jobs;
 
-use Domain\Chat\Services\ChatChatbotResponder;
+use Domain\Chat\Services\ChatAutoReplyResponder;
 use Domain\Shared\Concerns\HasJobDefaults;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -14,9 +14,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Executes Chatbot response asynchronously.
+ * Executes Auto Reply response asynchronously.
  */
-final class ChatChatbotRespondJob implements ShouldBeUnique, ShouldQueue
+final class ChatAutoReplyRespondJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable;
     use HasJobDefaults;
@@ -41,7 +41,7 @@ final class ChatChatbotRespondJob implements ShouldBeUnique, ShouldQueue
         private readonly string $body,
         private readonly bool $isFirstInteraction = false,
     ) {
-        $this->onQueue('chatbot');
+        $this->onQueue('auto-reply');
     }
 
     /**
@@ -53,9 +53,9 @@ final class ChatChatbotRespondJob implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Handle chatbot response generation.
+     * Handle auto reply response generation.
      */
-    public function handle(ChatChatbotResponder $responder): void
+    public function handle(ChatAutoReplyResponder $responder): void
     {
         $responder->respond(
             $this->tenantId,

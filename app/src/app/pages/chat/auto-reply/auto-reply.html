@@ -1,6 +1,6 @@
 
     <main>
-      <af-page-title title="Chatbot" subtitle="Chat" />
+      <af-page-title title="Resposta Automática" subtitle="Chat" />
 
       @if (isLoading()) {
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 auto-rows-fr">
@@ -193,7 +193,7 @@
     </main>
 
     <!-- Create / Edit modal -->
-    <af-modal [open]="isEditOpen()" title="Chatbot" size="xl" (closed)="closeEdit()">
+    <af-modal [open]="isEditOpen()" title="Resposta Automática" size="xl" (closed)="closeEdit()">
       <div class="space-y-4">
         <div>
           <af-select-input
@@ -286,4 +286,3 @@
       (confirmed)="confirmDelete()"
       (cancelled)="closeDelete()"
     />
-  

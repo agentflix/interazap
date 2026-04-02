@@ -7,11 +7,11 @@ namespace Domain\Chat\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Chatbot Rule.
+ * DTO for Auto Reply Rule.
  *
  * @readonly
  */
-final readonly class ChatChatbotRuleDTO
+final readonly class ChatAutoReplyRuleDTO
 {
     /**
      * @param  string  $name  Rule identifier name.

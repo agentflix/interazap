@@ -13,14 +13,14 @@ use Domain\Platform\Services\PlatformPlanEnforcementService;
  *
  * Routing is determined by the tenant's contracted plan:
  * - Plan with ai_enabled=true → AI Autopilot flow
- * - Plan without AI or no plan → Chatbot flow (rule-based)
+ * - Plan without AI or no plan → Auto Reply flow (rule-based)
  *
  * The instance mode field is NOT used for routing decisions.
  */
 final class ChatWebhookRouter
 {
     public function __construct(
-        private readonly ChatChatbotResponder $chatbotResponder,
+        private readonly ChatAutoReplyResponder $autoReplyResponder,
         private readonly PlatformPlanEnforcementService $planEnforcement,
     ) {}
 
@@ -65,7 +65,7 @@ final class ChatWebhookRouter
             return;
         }
 
-        $this->chatbotResponder->dispatch($tenantId, (string) $ticket->id, $body, $isFirstInteraction);
+        $this->autoReplyResponder->dispatch($tenantId, (string) $ticket->id, $body, $isFirstInteraction);
     }
 
     /**

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Domain\Auth\Models\AuthUser;
-use Domain\Chat\Models\ChatChatbotCooldown;
-use Domain\Chat\Models\ChatChatbotRule;
+use Domain\Chat\Models\ChatAutoReplyCooldown;
+use Domain\Chat\Models\ChatAutoReplyRule;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatMessageTemplate;
@@ -16,7 +16,7 @@ use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class ChatChatbotSeeder extends Seeder
+class ChatAutoReplySeeder extends Seeder
 {
     use WithoutModelEvents;
 
@@ -31,11 +31,11 @@ class ChatChatbotSeeder extends Seeder
         }
 
         foreach ($tenants as $tenant) {
-            $this->seedTenantChatbot($tenant);
+            $this->seedTenantAutoReply($tenant);
         }
     }
 
-    private function seedTenantChatbot(PlatformTenant $tenant): void
+    private function seedTenantAutoReply(PlatformTenant $tenant): void
     {
         $contacts = CRMContact::query()->where('tenant_id', $tenant->id)->get();
 
@@ -105,7 +105,7 @@ class ChatChatbotSeeder extends Seeder
 
         $rules = collect();
         foreach ($rulesData as $ruleData) {
-            $rules->push(ChatChatbotRule::factory()->create([
+            $rules->push(ChatAutoReplyRule::factory()->create([
                 'tenant_id' => $tenant->id,
                 'name' => $ruleData['name'],
                 'trigger_text' => $ruleData['trigger_text'],
@@ -134,7 +134,6 @@ class ChatChatbotSeeder extends Seeder
                     $phoneE164 = '+55'.fake()->numerify('###########');
                 }
 
-                // Use sequence index and tenant ID to ensure unique remote_jid across tenants
                 $remoteJid = ltrim($phoneE164, '+').'-'.substr($instance->tenant_id, 0, 4).'-'.$sequence->index.'@wa';
 
                 return [
@@ -183,7 +182,7 @@ class ChatChatbotSeeder extends Seeder
         foreach ($cooldownTargets as $ticket) {
             $rule = $rules->random();
 
-            ChatChatbotCooldown::factory()
+            ChatAutoReplyCooldown::factory()
                 ->state(fn (): array => [
                     'tenant_id' => $tenant->id,
                     'ticket_id' => $ticket->id,
@@ -193,6 +192,6 @@ class ChatChatbotSeeder extends Seeder
                 ->create();
         }
 
-        $this->command->info(sprintf('Tenant %s: Chatbot rules and %d tickets created.', $tenant->tenant_code, $tickets->count()));
+        $this->command->info(sprintf('Tenant %s: Auto Reply rules and %d tickets created.', $tenant->tenant_code, $tickets->count()));
     }
 }

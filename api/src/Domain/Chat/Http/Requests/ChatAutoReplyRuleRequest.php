@@ -7,14 +7,14 @@ namespace Domain\Chat\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Validação para Regras de Chatbot.
+ * Validação para Regras de Auto Reply.
  *
  * Define as regras de integridade para criação e atualização de regras
  * de automação, incluindo gatilhos, respostas e configurações de cooldown.
  *
  * @category Requests
  */
-class ChatChatbotRuleRequest extends FormRequest
+class ChatAutoReplyRuleRequest extends FormRequest
 {
     /**
      * Determina se o usuário está autorizado a fazer esta requisição.
@@ -29,15 +29,15 @@ class ChatChatbotRuleRequest extends FormRequest
             return false;
         }
 
-        if ($user->can('chat.chatbots.manage')) {
+        if ($user->can('chat.auto_reply_rules.manage')) {
             return true;
         }
 
         if ($this->isMethod('POST')) {
-            return $user->can('chat.chatbot_rules.create');
+            return $user->can('chat.auto_reply_rules.create');
         }
 
-        return $user->can('chat.chatbot_rules.update');
+        return $user->can('chat.auto_reply_rules.update');
     }
 
     /**

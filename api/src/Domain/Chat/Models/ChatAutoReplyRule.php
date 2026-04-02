@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
- * Modelo de Regra de Chatbot.
+ * Modelo de Regra de Auto Reply.
  *
  * Define gatilhos (triggers) baseados em texto para respostas automáticas simples.
  * Permite configurar o tempo de "cooldown" para evitar repetições excessivas.
@@ -28,12 +28,12 @@ use Illuminate\Support\Str;
  *
  * @category Models
  */
-class ChatChatbotRule extends Model
+class ChatAutoReplyRule extends Model
 {
     use BelongsToTenant;
     use HasFactory;
 
-    protected $table = 'chat_chatbot_rules';
+    protected $table = 'chat_auto_reply_rules';
 
     public $incrementing = false;
 
@@ -68,8 +68,8 @@ class ChatChatbotRule extends Model
         });
     }
 
-    protected static function newFactory(): \Database\Factories\ChatChatbotRuleFactory
+    protected static function newFactory(): \Database\Factories\ChatAutoReplyRuleFactory
     {
-        return \Database\Factories\ChatChatbotRuleFactory::new();
+        return \Database\Factories\ChatAutoReplyRuleFactory::new();
     }
 }

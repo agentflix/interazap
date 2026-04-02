@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use Domain\Chat\Models\ChatChatbotRule;
+use Domain\Chat\Models\ChatAutoReplyRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends Factory<ChatChatbotRule>
+ * @extends Factory<ChatAutoReplyRule>
  */
-class ChatChatbotRuleFactory extends Factory
+class ChatAutoReplyRuleFactory extends Factory
 {
-    protected $model = ChatChatbotRule::class;
+    protected $model = ChatAutoReplyRule::class;
 
     public function definition(): array
     {

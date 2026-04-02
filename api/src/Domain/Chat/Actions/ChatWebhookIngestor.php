@@ -22,7 +22,7 @@ use Domain\Platform\Models\PlatformUazapiInstance;
  *
  * Responsável por interpretar payloads normalizados vindos dos gateways,
  * gerenciar o ciclo de vida de tickets (criação/atualização), salvar novas mensagens,
- * atualizar status de mensagens existentes e executar automações (chatbot).
+ * atualizar status de mensagens existentes e executar automações (auto reply).
  *
  * @category Actions
  */

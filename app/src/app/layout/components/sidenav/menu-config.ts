@@ -90,8 +90,8 @@ export const SIDEBAR_MENU: SidebarMenuItem[] = [
       },
       {
         type: 'item',
-        label: 'Chatbot',
-        link: '/chat/chatbot',
+        label: 'Resposta Automática',
+        link: '/chat/auto-reply',
         iconName: 'bot',
         requiresAiDisabled: true,
       },

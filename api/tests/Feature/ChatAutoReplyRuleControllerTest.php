@@ -10,18 +10,18 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-class ChatChatbotRuleControllerTest extends TestCase
+class ChatAutoReplyRuleControllerTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    public function test_chatbot_rule_crud_and_keyword_validation(): void
+    public function test_auto_reply_rule_crud_and_keyword_validation(): void
     {
         $user = AuthUser::factory()->create();
         $permissions = [
-            'chat.chatbot_rules.view',
-            'chat.chatbot_rules.create',
-            'chat.chatbot_rules.update',
-            'chat.chatbot_rules.delete',
+            'chat.auto_reply_rules.view',
+            'chat.auto_reply_rules.create',
+            'chat.auto_reply_rules.update',
+            'chat.auto_reply_rules.delete',
         ];
 
         foreach ($permissions as $permission) {
@@ -42,21 +42,21 @@ class ChatChatbotRuleControllerTest extends TestCase
             'cooldown_seconds' => 30,
         ];
 
-        $created = $this->postJson('/api/chat/chatbot/rules', $payload)
+        $created = $this->postJson('/api/chat/auto-reply/rules', $payload)
             ->assertCreated()
             ->json('data');
 
         $ruleId = $created['id'];
 
-        $this->getJson('/api/chat/chatbot/rules')
+        $this->getJson('/api/chat/auto-reply/rules')
             ->assertOk()
             ->assertJsonFragment(['id' => $ruleId]);
 
-        $this->getJson('/api/chat/chatbot/rules/'.$ruleId)
+        $this->getJson('/api/chat/auto-reply/rules/'.$ruleId)
             ->assertOk()
             ->assertJsonPath('data.id', $ruleId);
 
-        $this->putJson('/api/chat/chatbot/rules/'.$ruleId, [
+        $this->putJson('/api/chat/auto-reply/rules/'.$ruleId, [
             'name' => 'Auto Reply Updated',
             'trigger_text' => 'hi',
             'response_text' => 'Hello again',
@@ -64,7 +64,7 @@ class ChatChatbotRuleControllerTest extends TestCase
             'cooldown_seconds' => 10,
         ])->assertOk();
 
-        $this->assertDatabaseHas('chat_chatbot_rules', [
+        $this->assertDatabaseHas('chat_auto_reply_rules', [
             'id' => $ruleId,
             'name' => 'Auto Reply Updated',
             'trigger_text' => 'hi',
@@ -72,15 +72,15 @@ class ChatChatbotRuleControllerTest extends TestCase
             'cooldown_seconds' => 10,
         ]);
 
-        $this->getJson('/api/chat/chatbot/rules/validate-keyword?keyword=hi')
+        $this->getJson('/api/chat/auto-reply/rules/validate-keyword?keyword=hi')
             ->assertOk()
             ->assertJsonPath('data.available', false);
 
-        $this->getJson('/api/chat/chatbot/rules/validate-keyword?keyword=hi&rule_id='.$ruleId)
+        $this->getJson('/api/chat/auto-reply/rules/validate-keyword?keyword=hi&rule_id='.$ruleId)
             ->assertOk()
             ->assertJsonPath('data.available', true);
 
-        $this->deleteJson('/api/chat/chatbot/rules/'.$ruleId)
+        $this->deleteJson('/api/chat/auto-reply/rules/'.$ruleId)
             ->assertNoContent();
     }
 }

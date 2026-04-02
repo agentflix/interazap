@@ -3,9 +3,9 @@ import { Injectable, inject } from '@angular/core';
 import { type Observable, map } from 'rxjs';
 import { environment } from '@env/environment';
 
-export type ChatbotMatchType = 'exact' | 'contains' | 'starts_with' | 'ends_with' | 'regex';
+export type AutoReplyMatchType = 'exact' | 'contains' | 'starts_with' | 'ends_with' | 'regex';
 
-export type ChatbotActionType =
+export type AutoReplyActionType =
   | 'send_message'
   | 'transfer_department'
   | 'transfer_agent'
@@ -13,14 +13,14 @@ export type ChatbotActionType =
   | 'add_tag'
   | 'create_task';
 
-export interface ChatbotAction extends Record<string, unknown> {
-  type: ChatbotActionType;
+export interface AutoReplyAction extends Record<string, unknown> {
+  type: AutoReplyActionType;
   message?: string;
   message_type?: string;
   department_id?: string;
 }
 
-export interface ChatbotRule {
+export interface AutoReplyRule {
   id: string;
   company_id: string;
   instance_id?: string | null;
@@ -28,9 +28,9 @@ export interface ChatbotRule {
   name: string;
   description?: string | null;
   is_welcome?: boolean;
-  match_type: ChatbotMatchType;
+  match_type: AutoReplyMatchType;
   patterns: string[];
-  actions: ChatbotAction[];
+  actions: AutoReplyAction[];
   cooldown_seconds: number;
   priority: number;
   is_active: boolean;
@@ -48,25 +48,25 @@ export interface ChatbotRule {
   updated_at: string;
 }
 
-export interface ChatbotRulePayload {
+export interface AutoReplyRulePayload {
   name: string;
   description?: string | null;
   instance_id?: string | null;
   department_id?: string | null;
   is_welcome?: boolean;
-  match_type: ChatbotMatchType;
+  match_type: AutoReplyMatchType;
   patterns: string[];
-  actions: ChatbotAction[];
+  actions: AutoReplyAction[];
   cooldown_seconds?: number;
   priority?: number;
   is_active?: boolean;
   respect_business_hours?: boolean;
 }
 
-export interface ChatbotRuleListResponse {
+export interface AutoReplyRuleListResponse {
   success: boolean;
   data: {
-    data: ChatbotRule[];
+    data: AutoReplyRule[];
     current_page?: number;
     last_page?: number;
     per_page?: number;
@@ -74,12 +74,12 @@ export interface ChatbotRuleListResponse {
   };
 }
 
-export interface ChatbotRuleResponse {
+export interface AutoReplyRuleResponse {
   success: boolean;
-  data: ChatbotRule;
+  data: AutoReplyRule;
 }
 
-export interface ChatbotKeywordValidationResponse {
+export interface AutoReplyKeywordValidationResponse {
   success: boolean;
   data: {
     available: boolean;
@@ -87,32 +87,32 @@ export interface ChatbotKeywordValidationResponse {
 }
 
 /**
- * Serviço para gestão de regras do Chatbot.
+ * Service for Auto Reply rule management.
  *
- * Responsável por configurar gatilhos baseados em palavras-chave e ações automatizadas,
- * como envio de mensagens ou transferência de departamento.
+ * Responsible for configuring triggers based on keywords and automated actions,
+ * such as sending messages or transferring to specific departments.
  *
- * @class ChatbotRuleService
- * @description Service para controle de fluxos de automação de entrada.
+ * @class AutoReplyService
+ * @description Service for controlling input automation flows.
  */
 @Injectable({ providedIn: 'root' })
-export class ChatbotRuleService {
+export class AutoReplyService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/chat/chatbot/rules`;
+  private readonly apiUrl = `${environment.apiUrl}/chat/auto-reply/rules`;
 
   /**
-   * Obtém a lista de regras de chatbot configuradas com suporte a paginação.
-   * @param params Parâmetros de paginação.
-   * @returns {Observable<ChatbotRuleListResponse>} Stream finito com dados encapsulados.
+   * Gets the list of configured auto reply rules with pagination support.
+   * @param params Pagination parameters.
+   * @returns {Observable<AutoReplyRuleListResponse>} Stream with encapsulated data.
    */
-  list(params: { per_page?: number; page?: number } = {}): Observable<ChatbotRuleListResponse> {
+  list(params: { per_page?: number; page?: number } = {}): Observable<AutoReplyRuleListResponse> {
     let httpParams = new HttpParams();
     if (params.per_page) httpParams = httpParams.set('per_page', String(params.per_page));
     if (params.page) httpParams = httpParams.set('page', String(params.page));
 
     return this.http
       .get<{
-        data: ChatbotRule[];
+        data: AutoReplyRule[];
         meta?: { current_page?: number; last_page?: number; per_page?: number; total?: number };
       }>(this.apiUrl, { params: httpParams })
       .pipe(
@@ -134,69 +134,69 @@ export class ChatbotRuleService {
   }
 
   /**
-   * Recupera detalhes de uma regra específica.
-   * @param id Identificador da regra.
-   * @returns {Observable<ChatbotRuleResponse>} Stream finito com a regra.
+   * Retrieves details of a specific rule.
+   * @param id Rule identifier.
+   * @returns {Observable<AutoReplyRuleResponse>} Stream with the rule.
    */
-  show(id: string): Observable<ChatbotRuleResponse> {
+  show(id: string): Observable<AutoReplyRuleResponse> {
     return this.http
-      .get<{ data: ChatbotRule }>(`${this.apiUrl}/${id}`)
+      .get<{ data: AutoReplyRule }>(`${this.apiUrl}/${id}`)
       .pipe(map((resp) => ({ success: true, data: resp.data })));
   }
 
   /**
-   * Cria uma nova regra de chatbot.
-   * @param payload Dados da regra.
-   * @returns {Observable<ChatbotRuleResponse>} Stream finito com a regra criada.
+   * Creates a new auto reply rule.
+   * @param payload Rule data.
+   * @returns {Observable<AutoReplyRuleResponse>} Stream with the created rule.
    */
-  create(payload: ChatbotRulePayload): Observable<ChatbotRuleResponse> {
+  create(payload: AutoReplyRulePayload): Observable<AutoReplyRuleResponse> {
     return this.http
-      .post<{ data: ChatbotRule }>(this.apiUrl, payload)
+      .post<{ data: AutoReplyRule }>(this.apiUrl, payload)
       .pipe(map((resp) => ({ success: true, data: resp.data })));
   }
 
   /**
-   * Atualiza uma regra de chatbot existente.
-   * @param id Identificador da regra.
-   * @param payload Atributos a serem alterados.
-   * @returns {Observable<ChatbotRuleResponse>} Stream finito com a regra atualizada.
+   * Updates an existing auto reply rule.
+   * @param id Rule identifier.
+   * @param payload Attributes to be changed.
+   * @returns {Observable<AutoReplyRuleResponse>} Stream with the updated rule.
    */
-  update(id: string, payload: Partial<ChatbotRulePayload>): Observable<ChatbotRuleResponse> {
+  update(id: string, payload: Partial<AutoReplyRulePayload>): Observable<AutoReplyRuleResponse> {
     return this.http
-      .put<{ data: ChatbotRule }>(`${this.apiUrl}/${id}`, payload)
+      .put<{ data: AutoReplyRule }>(`${this.apiUrl}/${id}`, payload)
       .pipe(map((resp) => ({ success: true, data: resp.data })));
   }
 
   /**
-   * Remove uma regra do sistema.
-   * @param id Identificador da regra.
-   * @returns {Observable<void>} Stream finito.
+   * Removes a rule from the system.
+   * @param id Rule identifier.
+   * @returns {Observable<void>} Stream.
    */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.apiUrl}/${id}`);
   }
 
   /**
-   * Alterna o status (ativo/inativo) de uma regra.
-   * @param id Identificador da regra.
-   * @returns {Observable<ChatbotRuleResponse>} Stream finito com o novo status.
+   * Toggles the status (active/inactive) of a rule.
+   * @param id Rule identifier.
+   * @returns {Observable<AutoReplyRuleResponse>} Stream with the new status.
    */
-  toggle(id: string): Observable<ChatbotRuleResponse> {
-    return this.http.patch<ChatbotRuleResponse>(`${this.apiUrl}/${id}/toggle`, {});
+  toggle(id: string): Observable<AutoReplyRuleResponse> {
+    return this.http.patch<AutoReplyRuleResponse>(`${this.apiUrl}/${id}/toggle`, {});
   }
 
   /**
-   * Valida se uma palavra-chave está disponível para uso no contexto atual.
-   * @param params Critérios de validação (palavra, instância, etc).
-   * @returns {Observable<ChatbotKeywordValidationResponse>} Stream finito com resultado da disponibilidade.
+   * Validates if a keyword is available for use in the current context.
+   * @param params Validation criteria (keyword, instance, etc).
+   * @returns {Observable<AutoReplyKeywordValidationResponse>} Stream with availability result.
    */
   validateKeyword(params: {
     keyword: string;
-    match_type?: ChatbotMatchType;
+    match_type?: AutoReplyMatchType;
     instance_id?: string | null;
     department_id?: string | null;
     rule_id?: string | null;
-  }): Observable<ChatbotKeywordValidationResponse> {
+  }): Observable<AutoReplyKeywordValidationResponse> {
     let httpParams = new HttpParams();
     httpParams = httpParams.set('keyword', params.keyword);
     if (params.match_type) httpParams = httpParams.set('match_type', params.match_type);
@@ -204,7 +204,7 @@ export class ChatbotRuleService {
     if (params.department_id) httpParams = httpParams.set('department_id', params.department_id);
     if (params.rule_id) httpParams = httpParams.set('rule_id', params.rule_id);
 
-    return this.http.get<ChatbotKeywordValidationResponse>(`${this.apiUrl}/validate-keyword`, {
+    return this.http.get<AutoReplyKeywordValidationResponse>(`${this.apiUrl}/validate-keyword`, {
       params: httpParams,
     });
   }

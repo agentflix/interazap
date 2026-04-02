@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Tests\Unit\Chat;
 
 use Domain\Auth\Models\AuthUser;
-use Domain\Chat\Actions\ChatChatbotRuleActions;
-use Domain\Chat\DTOs\ChatChatbotRuleDTO;
-use Domain\Chat\Models\ChatChatbotRule;
+use Domain\Chat\Actions\ChatAutoReplyRuleActions;
+use Domain\Chat\DTOs\ChatAutoReplyRuleDTO;
+use Domain\Chat\Models\ChatAutoReplyRule;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
-class ChatChatbotRuleActionsTest extends TestCase
+class ChatAutoReplyRuleActionsTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
@@ -22,9 +22,9 @@ class ChatChatbotRuleActionsTest extends TestCase
         $tenantId = (string) $user->tenant_id;
         $otherTenantId = (string) AuthUser::factory()->create()->tenant_id;
 
-        $actions = app(ChatChatbotRuleActions::class);
+        $actions = app(ChatAutoReplyRuleActions::class);
 
-        $created = $actions->create($tenantId, new ChatChatbotRuleDTO(
+        $created = $actions->create($tenantId, new ChatAutoReplyRuleDTO(
             name: 'Greeting',
             triggerText: 'hello',
             responseText: 'Hello there!',
@@ -32,7 +32,7 @@ class ChatChatbotRuleActionsTest extends TestCase
             cooldownSeconds: 10,
         ));
 
-        ChatChatbotRule::query()->create([
+        ChatAutoReplyRule::query()->create([
             'tenant_id' => $otherTenantId,
             'name' => 'Other',
             'trigger_text' => 'other',
@@ -41,7 +41,7 @@ class ChatChatbotRuleActionsTest extends TestCase
             'cooldown_seconds' => 0,
         ]);
 
-        $this->assertDatabaseHas('chat_chatbot_rules', [
+        $this->assertDatabaseHas('chat_auto_reply_rules', [
             'id' => $created->id,
             'tenant_id' => $tenantId,
             'trigger_text' => 'hello',
@@ -53,7 +53,7 @@ class ChatChatbotRuleActionsTest extends TestCase
         $found = $actions->find($tenantId, $created->id);
         $this->assertSame($created->id, $found->id);
 
-        $updated = $actions->update($tenantId, $created->id, new ChatChatbotRuleDTO(
+        $updated = $actions->update($tenantId, $created->id, new ChatAutoReplyRuleDTO(
             name: 'Greeting Updated',
             triggerText: 'hi',
             responseText: 'Hi there!',
@@ -62,7 +62,7 @@ class ChatChatbotRuleActionsTest extends TestCase
         ));
 
         $this->assertSame('Greeting Updated', $updated->name);
-        $this->assertDatabaseHas('chat_chatbot_rules', [
+        $this->assertDatabaseHas('chat_auto_reply_rules', [
             'id' => $created->id,
             'trigger_text' => 'hi',
             'response_text' => 'Hi there!',
@@ -71,7 +71,7 @@ class ChatChatbotRuleActionsTest extends TestCase
         ]);
 
         $actions->delete($tenantId, $created->id);
-        $this->assertDatabaseMissing('chat_chatbot_rules', [
+        $this->assertDatabaseMissing('chat_auto_reply_rules', [
             'id' => $created->id,
         ]);
 
@@ -84,7 +84,7 @@ class ChatChatbotRuleActionsTest extends TestCase
         $user = AuthUser::factory()->create();
         $tenantId = (string) $user->tenant_id;
 
-        $rule = ChatChatbotRule::query()->create([
+        $rule = ChatAutoReplyRule::query()->create([
             'tenant_id' => $tenantId,
             'name' => 'Saudacao',
             'trigger_text' => 'Ola Mundo',
@@ -93,7 +93,7 @@ class ChatChatbotRuleActionsTest extends TestCase
             'cooldown_seconds' => 0,
         ]);
 
-        $actions = app(ChatChatbotRuleActions::class);
+        $actions = app(ChatAutoReplyRuleActions::class);
 
         $this->assertFalse($actions->isKeywordAvailable($tenantId, 'Ola    Mundo'));
         $this->assertTrue($actions->isKeywordAvailable($tenantId, 'Ola    Mundo', ignoreRuleId: $rule->id));

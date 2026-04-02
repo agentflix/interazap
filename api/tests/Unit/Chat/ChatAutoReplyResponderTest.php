@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Chat;
 
+use Domain\Chat\Actions\ChatTicketActions;
 use Domain\Chat\Actions\ProcessChatMessageAction;
 use Domain\Chat\Actions\SendChatMessageAction;
-use Domain\Chat\Actions\ChatTicketActions;
-use Domain\Chat\Models\ChatChatbotCooldown;
-use Domain\Chat\Models\ChatChatbotRule;
+use Domain\Chat\Models\ChatAutoReplyCooldown;
+use Domain\Chat\Models\ChatAutoReplyRule;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatActivityBroadcastService;
+use Domain\Chat\Services\ChatAutoReplyResponder;
 use Domain\Chat\Services\ChatBroadcastService;
-use Domain\Chat\Services\ChatChatbotResponder;
 use Domain\Chat\Services\ChatGatewayService;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Platform\Services\UazapiGatewayService;
@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Http;
 use Mockery;
 use Tests\TestCase;
 
-class ChatChatbotResponderTest extends TestCase
+class ChatAutoReplyResponderTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
@@ -80,11 +80,11 @@ class ChatChatbotResponderTest extends TestCase
         $ticketActions = $this->makeTicketActions($gateway, $activityBroadcast);
         $messageActions = $this->makeMessageActions($gateway, $ticketActions, $activityBroadcast);
 
-        $service = new ChatChatbotResponder($messageActions);
+        $service = new ChatAutoReplyResponder($messageActions);
         $service->respond($tenant->id, $ticket->id, '');
 
         $this->assertDatabaseCount('chat_messages', 0);
-        $this->assertDatabaseCount('chat_chatbot_cooldowns', 0);
+        $this->assertDatabaseCount('chat_auto_reply_cooldowns', 0);
     }
 
     public function test_respond_creates_message_and_cooldown_when_rule_matches(): void
@@ -99,7 +99,7 @@ class ChatChatbotResponderTest extends TestCase
             'phone_e164' => '5511999999999',
         ]);
 
-        $rule = ChatChatbotRule::query()->create([
+        $rule = ChatAutoReplyRule::query()->create([
             'tenant_id' => $tenant->id,
             'name' => 'Support',
             'trigger_text' => 'ajuda',
@@ -108,7 +108,7 @@ class ChatChatbotResponderTest extends TestCase
             'cooldown_seconds' => 60,
         ]);
 
-        ChatChatbotCooldown::query()->create([
+        ChatAutoReplyCooldown::query()->create([
             'tenant_id' => $tenant->id,
             'ticket_id' => $ticket->id,
             'rule_id' => $rule->id,
@@ -132,10 +132,10 @@ class ChatChatbotResponderTest extends TestCase
         $ticketActions = $this->makeTicketActions($gateway, $activityBroadcast);
         $messageActions = $this->makeMessageActions($gateway, $ticketActions, $activityBroadcast);
 
-        $service = new ChatChatbotResponder($messageActions);
+        $service = new ChatAutoReplyResponder($messageActions);
         $service->respond($tenant->id, $ticket->id, 'Preciso de ajuda');
 
-        $this->assertDatabaseHas('chat_chatbot_cooldowns', [
+        $this->assertDatabaseHas('chat_auto_reply_cooldowns', [
             'tenant_id' => $tenant->id,
             'ticket_id' => $ticket->id,
             'rule_id' => $rule->id,
@@ -156,7 +156,7 @@ class ChatChatbotResponderTest extends TestCase
             'phone_e164' => '5511999999999',
         ]);
 
-        $rule = ChatChatbotRule::query()->create([
+        $rule = ChatAutoReplyRule::query()->create([
             'tenant_id' => $tenant->id,
             'name' => 'Support',
             'trigger_text' => 'ajuda',
@@ -165,7 +165,7 @@ class ChatChatbotResponderTest extends TestCase
             'cooldown_seconds' => 60,
         ]);
 
-        ChatChatbotCooldown::query()->create([
+        ChatAutoReplyCooldown::query()->create([
             'tenant_id' => $tenant->id,
             'ticket_id' => $ticket->id,
             'rule_id' => $rule->id,
@@ -185,7 +185,7 @@ class ChatChatbotResponderTest extends TestCase
         $ticketActions = $this->makeTicketActions($gateway, $activityBroadcast);
         $messageActions = $this->makeMessageActions($gateway, $ticketActions, $activityBroadcast);
 
-        $service = new ChatChatbotResponder($messageActions);
+        $service = new ChatAutoReplyResponder($messageActions);
         $service->respond($tenant->id, $ticket->id, 'Preciso de ajuda');
 
         $this->assertDatabaseCount('chat_messages', 0);
@@ -203,8 +203,7 @@ class ChatChatbotResponderTest extends TestCase
             'phone_e164' => '5511999999999',
         ]);
 
-        // Criar regra de boas-vindas
-        ChatChatbotRule::query()->create([
+        ChatAutoReplyRule::query()->create([
             'tenant_id' => $tenant->id,
             'name' => 'Menu de Boas-Vindas',
             'trigger_text' => 'menu',
@@ -231,19 +230,16 @@ class ChatChatbotResponderTest extends TestCase
         $ticketActions = $this->makeTicketActions($gateway, $activityBroadcast);
         $messageActions = $this->makeMessageActions($gateway, $ticketActions, $activityBroadcast);
 
-        $service = new ChatChatbotResponder($messageActions);
-        // Primeira interação com qualquer mensagem deve enviar boas-vindas
+        $service = new ChatAutoReplyResponder($messageActions);
         $service->respond($tenant->id, $ticket->id, 'oi', isFirstInteraction: true);
 
-        // Verificar que a mensagem de boas-vindas foi enviada
         $this->assertDatabaseHas('chat_messages', [
             'ticket_id' => $ticket->id,
             'content' => 'Olá! Bem-vindo ao nosso atendimento. Digite 1 para vendas, 2 para suporte.',
             'direction' => 'outgoing',
         ]);
 
-        // Verificar cooldown foi configurado
-        $this->assertDatabaseHas('chat_chatbot_cooldowns', [
+        $this->assertDatabaseHas('chat_auto_reply_cooldowns', [
             'tenant_id' => $tenant->id,
             'ticket_id' => $ticket->id,
         ]);
@@ -261,8 +257,7 @@ class ChatChatbotResponderTest extends TestCase
             'phone_e164' => '5511999999999',
         ]);
 
-        // Criar regra de boas-vindas
-        ChatChatbotRule::query()->create([
+        ChatAutoReplyRule::query()->create([
             'tenant_id' => $tenant->id,
             'name' => 'Menu de Boas-Vindas',
             'trigger_text' => 'menu',
@@ -285,11 +280,9 @@ class ChatChatbotResponderTest extends TestCase
         $ticketActions = $this->makeTicketActions($gateway, $activityBroadcast);
         $messageActions = $this->makeMessageActions($gateway, $ticketActions, $activityBroadcast);
 
-        $service = new ChatChatbotResponder($messageActions);
-        // Interação subsequente (isFirstInteraction = false) não deve enviar boas-vindas automaticamente
+        $service = new ChatAutoReplyResponder($messageActions);
         $service->respond($tenant->id, $ticket->id, 'oi', isFirstInteraction: false);
 
-        // Não deve ter criado mensagem (pois "oi" não é palavra-chave e não é primeira interação)
         $this->assertDatabaseCount('chat_messages', 0);
     }
 }

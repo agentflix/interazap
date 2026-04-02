@@ -28,12 +28,12 @@ import {
   type AfSelectOption,
 } from '@shared/components';
 import {
-  type ChatbotAction,
-  type ChatbotActionType,
-  type ChatbotMatchType,
-  type ChatbotRule,
-  ChatbotRuleService,
-} from '@core/services/chatbot-rule.service';
+  type AutoReplyAction,
+  type AutoReplyActionType,
+  type AutoReplyMatchType,
+  type AutoReplyRule,
+  AutoReplyService,
+} from '@core/services/auto-reply.service';
 import { type Department, DepartmentService } from '@core/services/department.service';
 
 interface MessageTypeOption {
@@ -47,12 +47,12 @@ interface ActionTypeOption {
 }
 
 interface SaveActionBuildResult {
-  actions: ChatbotAction[];
+  actions: AutoReplyAction[];
   errorMessage: string | null;
 }
 
 /**
- * Componente principal para gestão das regras do Chatbot/Autopilot.
+ * Componente principal para gestão das regras de Auto Reply.
  *
  * Permite configurar regras de resposta automática baseadas em palavras-chave (patterns),
  * com ações de envio de mensagens multimídia ou transferência para departamentos específicos.
@@ -60,7 +60,7 @@ interface SaveActionBuildResult {
  * Lógica TS preservada verbatim do legado; apenas camada visual migrada para UI Kit (af-*).
  */
 @Component({
-  selector: 'app-chatbot',
+  selector: 'app-auto-reply',
   standalone: true,
   imports: [
     LucideAngularModule,
@@ -80,10 +80,10 @@ interface SaveActionBuildResult {
     AfScrollAreaComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './chatbot.html',
+  templateUrl: './auto-reply.html',
 })
-export class Chatbot implements OnInit {
-  private readonly chatbotRules = inject(ChatbotRuleService);
+export class AutoReply implements OnInit {
+  private readonly autoReplyRules = inject(AutoReplyService);
   private readonly departmentService = inject(DepartmentService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
@@ -116,7 +116,7 @@ export class Chatbot implements OnInit {
   );
 
   /**
-   * Opções de tipos de mensagens disponíveis para o chatbot.
+   * Opções de tipos de mensagens disponíveis para o auto reply.
    */
   readonly messageTypes: MessageTypeOption[] = [
     { id: '1', label: '1 - Texto' },
@@ -127,23 +127,23 @@ export class Chatbot implements OnInit {
   ];
 
   /**
-   * Opções de ações que o chatbot pode executar ao identificar um padrão.
+   * Opções de ações que o auto reply pode executar ao identificar um padrão.
    */
   readonly actionTypes: ActionTypeOption[] = [
     { id: 'message', label: 'Enviar mensagem' },
     { id: 'transfer', label: 'Transferir para departamento' },
   ];
 
-  readonly rules = signal<ChatbotRule[]>([]);
+  readonly rules = signal<AutoReplyRule[]>([]);
   readonly departments = signal<Department[]>([]);
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly isEditOpen = signal(false);
   readonly isDeleteOpen = signal(false);
   readonly isCreating = signal(false);
-  readonly editingRule = signal<ChatbotRule | null>(null);
+  readonly editingRule = signal<AutoReplyRule | null>(null);
   readonly editingRuleId = signal<string | null>(null);
-  readonly deletingRule = signal<ChatbotRule | null>(null);
+  readonly deletingRule = signal<AutoReplyRule | null>(null);
   readonly selectedMessageType = signal(this.messageTypes[0].id);
   readonly selectedActionType = signal<ActionTypeOption['id']>('message');
   readonly keyword = signal('');
@@ -176,12 +176,12 @@ export class Chatbot implements OnInit {
   loadRules(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    this.chatbotRules
+    this.autoReplyRules
       .list({ per_page: 100 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const payload = response.data as { data?: ChatbotRule[] } | ChatbotRule[];
+          const payload = response.data as { data?: AutoReplyRule[] } | AutoReplyRule[];
           const items = Array.isArray(payload) ? payload : (payload.data ?? []);
           this.rules.set(items);
           this.isLoading.set(false);
@@ -203,23 +203,23 @@ export class Chatbot implements OnInit {
       });
   }
 
-  getOption(rule: ChatbotRule): string {
+  getOption(rule: AutoReplyRule): string {
     return rule.patterns?.[0] || rule.name;
   }
 
-  getRuleName(rule: ChatbotRule): string {
+  getRuleName(rule: AutoReplyRule): string {
     return rule.name?.trim() || '';
   }
 
-  getDepartmentName(rule: ChatbotRule): string {
+  getDepartmentName(rule: AutoReplyRule): string {
     return rule.department?.name || 'Sem departamento';
   }
 
-  getInstanceName(rule: ChatbotRule): string {
+  getInstanceName(rule: AutoReplyRule): string {
     return rule.instance?.name || rule.instance?.phone || 'Global';
   }
 
-  getMatchTypeLabel(rule: ChatbotRule): string {
+  getMatchTypeLabel(rule: AutoReplyRule): string {
     switch (rule.match_type) {
       case 'exact':
         return 'Exato';
@@ -236,7 +236,7 @@ export class Chatbot implements OnInit {
     }
   }
 
-  getBodyLines(rule: ChatbotRule): string[] {
+  getBodyLines(rule: AutoReplyRule): string[] {
     const action = rule.actions?.[0];
     const message = typeof action?.message === 'string' ? action.message : '';
     if (!message) {
@@ -245,13 +245,13 @@ export class Chatbot implements OnInit {
     return message.split('\n').filter((line) => line.trim().length > 0);
   }
 
-  getActionLabel(rule: ChatbotRule): string {
+  getActionLabel(rule: AutoReplyRule): string {
     const action = rule.actions?.[0];
     if (!action) return 'Ação não definida';
     return this.getActionTypeLabel(action.type);
   }
 
-  getActionTypeLabel(type?: ChatbotActionType): string {
+  getActionTypeLabel(type?: AutoReplyActionType): string {
     switch (type) {
       case 'send_message':
         return 'Enviar mensagem';
@@ -270,7 +270,7 @@ export class Chatbot implements OnInit {
     }
   }
 
-  getActionTypeBadge(rule: ChatbotRule): string {
+  getActionTypeBadge(rule: AutoReplyRule): string {
     const action = rule.actions?.[0];
     if (!action) return '-';
     if (action.type === 'send_message') {
@@ -293,7 +293,7 @@ export class Chatbot implements OnInit {
       .replace(/[\u0300-\u036f]/g, '');
   }
 
-  openEdit(rule: ChatbotRule): void {
+  openEdit(rule: AutoReplyRule): void {
     this.isCreating.set(false);
     this.editingRule.set(rule);
     this.editingRuleId.set(rule.id);
@@ -361,10 +361,10 @@ export class Chatbot implements OnInit {
       this.keywordStatus.set('checking');
       const rule = this.editingRule();
       const departmentId = this.form.get('department')?.value;
-      this.chatbotRules
+      this.autoReplyRules
         .validateKeyword({
           keyword: trimmed,
-          match_type: (rule?.match_type || 'contains') as ChatbotMatchType,
+          match_type: (rule?.match_type || 'contains') as AutoReplyMatchType,
           instance_id: rule?.instance_id ?? null,
           department_id: departmentId || null,
           rule_id: this.editingRuleId(),
@@ -447,8 +447,8 @@ export class Chatbot implements OnInit {
     }
 
     const request$ = isEdit
-      ? this.chatbotRules.update(ruleId as string, payload)
-      : this.chatbotRules.create(payload);
+      ? this.autoReplyRules.update(ruleId as string, payload)
+      : this.autoReplyRules.create(payload);
 
     this.isSaving.set(true);
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -467,7 +467,7 @@ export class Chatbot implements OnInit {
     });
   }
 
-  openDelete(rule: ChatbotRule): void {
+  openDelete(rule: AutoReplyRule): void {
     this.deletingRule.set(rule);
     this.isDeleteOpen.set(true);
   }
@@ -482,7 +482,7 @@ export class Chatbot implements OnInit {
     if (!rule) return;
 
     this.isDeleting.set(true);
-    this.chatbotRules
+    this.autoReplyRules
       .delete(rule.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -500,8 +500,8 @@ export class Chatbot implements OnInit {
       });
   }
 
-  toggleRule(rule: ChatbotRule): void {
-    this.chatbotRules
+  toggleRule(rule: AutoReplyRule): void {
+    this.autoReplyRules
       .toggle(rule.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -573,20 +573,20 @@ export class Chatbot implements OnInit {
   }
 
   private buildRulePayload(
-    rule: ChatbotRule | null,
+    rule: AutoReplyRule | null,
     keyword: string,
     isWelcome: boolean,
     departmentId: string | null,
-    actions: ChatbotAction[],
+    actions: AutoReplyAction[],
   ): {
     name: string;
     description?: string;
     instance_id?: string;
     department_id?: string;
     is_welcome: boolean;
-    match_type: ChatbotMatchType;
+    match_type: AutoReplyMatchType;
     patterns: string[];
-    actions: ChatbotAction[];
+    actions: AutoReplyAction[];
     cooldown_seconds: number;
     priority: number;
     is_active: boolean;
@@ -598,7 +598,7 @@ export class Chatbot implements OnInit {
       instance_id: rule?.instance_id ?? undefined,
       department_id: departmentId || undefined,
       is_welcome: Boolean(isWelcome),
-      match_type: (rule?.match_type || 'contains') as ChatbotMatchType,
+      match_type: (rule?.match_type || 'contains') as AutoReplyMatchType,
       patterns: [keyword],
       actions,
       cooldown_seconds: rule?.cooldown_seconds ?? 60,

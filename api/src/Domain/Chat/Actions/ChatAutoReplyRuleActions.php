@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Actions;
 
-use Domain\Chat\DTOs\ChatChatbotRuleDTO;
-use Domain\Chat\Models\ChatChatbotRule;
+use Domain\Chat\DTOs\ChatAutoReplyRuleDTO;
+use Domain\Chat\Models\ChatAutoReplyRule;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
- * Casos de Uso para Regras de Chatbot.
+ * Casos de Uso para Regras de Auto Reply.
  *
- * Centraliza a lógica de gestão de regras de automação (chatbot) para o chat,
+ * Centraliza a lógica de gestão de regras de automação (auto reply) para o chat,
  * incluindo triagem, auto-resposta e atribuição automática.
  *
  * @category Actions
  */
-final class ChatChatbotRuleActions
+final class ChatAutoReplyRuleActions
 {
     /**
      * Listar todas as regras do tenant com paginação.
@@ -26,10 +26,10 @@ final class ChatChatbotRuleActions
      */
     public function list(string $tenantId): LengthAwarePaginator
     {
-        $query = ChatChatbotRule::query()
+        $query = ChatAutoReplyRule::query()
             ->where('tenant_id', $tenantId);
 
-        if (request()->routeIs('api.chat.chatbot-rules.*')) {
+        if (request()->routeIs('api.chat.auto-reply-rules.*')) {
             $query->where('is_welcome', false);
         }
 
@@ -42,12 +42,12 @@ final class ChatChatbotRuleActions
      * Criar uma nova regra de automação.
      *
      * @param  string  $tenantId  Identificador do tenant.
-     * @param  ChatChatbotRuleDTO  $dto  Dados estruturados da regra.
-     * @return ChatChatbotRule Modelo criado.
+     * @param  ChatAutoReplyRuleDTO  $dto  Dados estruturados da regra.
+     * @return ChatAutoReplyRule Modelo criado.
      */
-    public function create(string $tenantId, ChatChatbotRuleDTO $dto): ChatChatbotRule
+    public function create(string $tenantId, ChatAutoReplyRuleDTO $dto): ChatAutoReplyRule
     {
-        return ChatChatbotRule::query()->create([
+        return ChatAutoReplyRule::query()->create([
             'tenant_id' => $tenantId,
             ...$dto->toArray(),
         ]);
@@ -58,10 +58,10 @@ final class ChatChatbotRuleActions
      *
      * @param  string  $tenantId  Identificador do tenant.
      * @param  string  $id  UUID da regra.
-     * @param  ChatChatbotRuleDTO  $dto  Novos dados da regra.
-     * @return ChatChatbotRule Modelo atualizado.
+     * @param  ChatAutoReplyRuleDTO  $dto  Novos dados da regra.
+     * @return ChatAutoReplyRule Modelo atualizado.
      */
-    public function update(string $tenantId, string $id, ChatChatbotRuleDTO $dto): ChatChatbotRule
+    public function update(string $tenantId, string $id, ChatAutoReplyRuleDTO $dto): ChatAutoReplyRule
     {
         $rule = $this->find($tenantId, $id);
         $rule->fill($dto->toArray());
@@ -87,11 +87,11 @@ final class ChatChatbotRuleActions
      *
      * @param  string  $tenantId  Identificador do tenant.
      * @param  string  $id  UUID da regra.
-     * @return ChatChatbotRule Modelo encontrado ou erro 404.
+     * @return ChatAutoReplyRule Modelo encontrado ou erro 404.
      */
-    public function find(string $tenantId, string $id): ChatChatbotRule
+    public function find(string $tenantId, string $id): ChatAutoReplyRule
     {
-        return ChatChatbotRule::query()
+        return ChatAutoReplyRule::query()
             ->where('tenant_id', $tenantId)
             ->findOrFail($id);
     }
@@ -117,21 +117,18 @@ final class ChatChatbotRuleActions
         ?string $departmentId = null,
         ?string $ignoreRuleId = null,
     ): bool {
-        // Normaliza a keyword (lowercase, sem acentos, espaços colapsados)
         $normalized = $this->normalizeKeyword($keyword);
         if ($normalized === '') {
             return false;
         }
 
-        $query = ChatChatbotRule::query()
+        $query = ChatAutoReplyRule::query()
             ->where('tenant_id', $tenantId);
 
-        // Ignorar regra específica (para edição)
         if ($ignoreRuleId !== null) {
             $query->where('id', '!=', $ignoreRuleId);
         }
 
-        // Verificar se existe conflito no trigger_text (comparação case-insensitive)
         $exists = $query
             ->whereRaw('LOWER(trigger_text) = ?', [$normalized])
             ->exists();
@@ -147,13 +144,8 @@ final class ChatChatbotRuleActions
      */
     private function normalizeKeyword(string $keyword): string
     {
-        // Converter para minúsculas
         $normalized = mb_strtolower(trim($keyword));
-
-        // Remover acentos
         $normalized = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $normalized) ?: $normalized;
-
-        // Colapsar espaços múltiplos
         $normalized = (string) preg_replace('/\s+/', ' ', $normalized);
 
         return $normalized;

@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { Chatbot } from './chatbot';
-import { ChatbotRuleService } from '@core/services/chatbot-rule.service';
+import { AutoReply } from './auto-reply';
+import { AutoReplyService } from '@core/services/auto-reply.service';
 import { DepartmentService } from '@core/services/department.service';
 
-class ChatbotRuleServiceStub {
+class AutoReplyServiceStub {
   list = vi.fn().mockReturnValue(of({ success: true, data: { data: [] } }));
 
   create = vi.fn().mockReturnValue(
@@ -38,27 +38,27 @@ class DepartmentServiceStub {
   list = vi.fn().mockReturnValue(of({ data: [] }));
 }
 
-describe('Chatbot', () => {
-  let component: Chatbot;
-  let chatbotRules: ChatbotRuleServiceStub;
+describe('AutoReply', () => {
+  let component: AutoReply;
+  let autoReplyRules: AutoReplyServiceStub;
   let departments: DepartmentServiceStub;
 
   beforeEach((): void => {
     TestBed.configureTestingModule({
       providers: [
-        { provide: ChatbotRuleService, useClass: ChatbotRuleServiceStub },
+        { provide: AutoReplyService, useClass: AutoReplyServiceStub },
         { provide: DepartmentService, useClass: DepartmentServiceStub },
       ],
     });
 
-    chatbotRules = TestBed.inject(ChatbotRuleService) as unknown as ChatbotRuleServiceStub;
+    autoReplyRules = TestBed.inject(AutoReplyService) as unknown as AutoReplyServiceStub;
     departments = TestBed.inject(DepartmentService) as unknown as DepartmentServiceStub;
-    component = TestBed.runInInjectionContext(() => new Chatbot());
+    component = TestBed.runInInjectionContext(() => new AutoReply());
     component.ngOnInit();
   });
 
-  it('should list chatbot rules and departments on init', () => {
-    expect(chatbotRules.list).toHaveBeenCalled();
+  it('should list auto reply rules and departments on init', () => {
+    expect(autoReplyRules.list).toHaveBeenCalled();
     expect(departments.list).toHaveBeenCalled();
   });
 
@@ -82,8 +82,8 @@ describe('Chatbot', () => {
 
     component.saveEdit();
 
-    expect(chatbotRules.create).toHaveBeenCalled();
-    const payload = chatbotRules.create.mock.calls.at(-1)?.[0] as { is_welcome?: boolean };
+    expect(autoReplyRules.create).toHaveBeenCalled();
+    const payload = autoReplyRules.create.mock.calls.at(-1)?.[0] as { is_welcome?: boolean };
     expect(payload.is_welcome).toBe(true);
   });
 
@@ -93,7 +93,7 @@ describe('Chatbot', () => {
     component.form.controls.keyword.setValue('menu');
     vi.advanceTimersByTime(450);
 
-    expect(chatbotRules.validateKeyword).toHaveBeenCalledWith({
+    expect(autoReplyRules.validateKeyword).toHaveBeenCalledWith({
       keyword: 'menu',
       match_type: 'contains',
       instance_id: null,
@@ -125,7 +125,7 @@ describe('Chatbot', () => {
     component.openDelete(rule);
     component.confirmDelete();
 
-    expect(chatbotRules.delete).toHaveBeenCalledWith('rule-9');
+    expect(autoReplyRules.delete).toHaveBeenCalledWith('rule-9');
     expect(component.rules()).toEqual([]);
   });
 
@@ -148,6 +148,6 @@ describe('Chatbot', () => {
 
     component.toggleRule(rule);
 
-    expect(chatbotRules.toggle).toHaveBeenCalledWith('rule-1');
+    expect(autoReplyRules.toggle).toHaveBeenCalledWith('rule-1');
   });
 });
