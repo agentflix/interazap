@@ -12,7 +12,10 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { toast } from 'ngx-sonner';
 import {
-  AfPageTitleComponent,
+  AfCrudPageComponent,
+  AfDataTableComponent,
+  AfTableActionsComponent,
+  AfStatusBadgeComponent,
   AfModalComponent,
   AfConfirmModalComponent,
   AfTextInputComponent,
@@ -24,7 +27,6 @@ import {
   AfButtonComponent,
   AfLoadingButtonComponent,
   AfAlertComponent,
-  AfScrollAreaComponent,
   type AfSelectOption,
 } from '@shared/components';
 import {
@@ -64,7 +66,10 @@ interface SaveActionBuildResult {
   standalone: true,
   imports: [
     LucideAngularModule,
-    AfPageTitleComponent,
+    AfCrudPageComponent,
+    AfDataTableComponent,
+    AfTableActionsComponent,
+    AfStatusBadgeComponent,
     AfModalComponent,
     AfConfirmModalComponent,
     ReactiveFormsModule,
@@ -77,7 +82,6 @@ interface SaveActionBuildResult {
     AfButtonComponent,
     AfLoadingButtonComponent,
     AfAlertComponent,
-    AfScrollAreaComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './auto-reply.html',
