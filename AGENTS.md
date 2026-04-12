@@ -28,6 +28,7 @@
 11. **Toda task concluída gera entrada em `.context/DOCS/CHANGELOG/`**
 12. **Toda decisão relevante gera entrada em `.context/DOCS/MEMORY/`**
 13. **`.context/ARCHITECTURE/project-state.yaml` é atualizado a cada feature concluída**
+14. **MANDATÓRIO:** A leitura e obediência à skill `senior-cognition` (`.claude/skills/senior-cognition/SKILL.md`) é OBRIGATÓRIA para **todos os agents** antes de qualquer resposta.
 
 ---
 

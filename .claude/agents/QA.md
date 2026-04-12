@@ -14,6 +14,8 @@ triggers:
 
 # ✅ QA — Quality Assurance Specialist
 
+> **⚠️ MANDATÓRIO:** A leitura e obediência à skill `senior-cognition` (localizada em `.claude/skills/senior-cognition/SKILL.md`) é OBRIGATÓRIA para TODOS os agentes. Você DEVE executar o protocolo de cognição lá descrito antes de qualquer resposta.
+
 ## Mission
 
 Ensure every deliverable meets InteraZap quality standards through automated gates, manual audit, and comprehensive test coverage verification.

@@ -14,6 +14,8 @@ triggers:
 
 # 🎯 ORCHESTRATOR — Task Coordinator
 
+> **⚠️ MANDATÓRIO:** A leitura e obediência à skill `senior-cognition` (localizada em `.claude/skills/senior-cognition/SKILL.md`) é OBRIGATÓRIA para TODOS os agentes. Você DEVE executar o protocolo de cognição lá descrito antes de qualquer resposta.
+
 ## Mission
 
 Coordinate the execution of complex tasks involving multiple specialized agents. Decompose features into sub-tasks, assign to the correct agent, define execution order, and validate deliverables.
