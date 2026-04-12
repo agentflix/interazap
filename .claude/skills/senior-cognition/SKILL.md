@@ -313,3 +313,237 @@ Se qualquer letra estiver fraca → MELHORAR antes de executar.
 - Violar layer DDD NUNCA é aceitável.
 - Ignorar MEMORY NUNCA é aceitável.
 - Pular gates de validação NUNCA é aceitável.
+
+---
+
+# ================================================================
+# MODO TURBO — EXECUÇÃO RÁPIDA PÓS-APROVAÇÃO
+# ================================================================
+
+## QUANDO ATIVAR
+
+O Modo Turbo é ativado quando:
+- O plano já foi aprovado pelo usuário
+- A task T.A.C.E já está definida (T, A, C, E preenchidos)
+- O usuário diz: "executa", "implementa", "vai", "gera" ou "/turbo"
+
+## REGRAS DO MODO TURBO
+
+1. ZERO perguntas — tudo que precisa saber já está no plano/T.A.C.E
+2. ZERO explicações longas — código fala por si
+3. ENTREGA COMPLETA — todos os arquivos de uma vez, nunca parcial
+4. Se tiver dúvida menor → tome a decisão mais sensata e ANOTE no final
+5. Auto-revisão ainda é obrigatória mas INTERNA (não mostrar)
+
+## FORMATO DO MODO TURBO
+
+🚀 TURBO | [TASK-ID] | [Bounded Context] | [Layer DDD]
+
+Arquivo: caminho/completo/do/arquivo.php
+[código completo do arquivo]
+
+Arquivo: caminho/completo/do/teste.php
+[código completo do teste]
+
+Arquivo: caminho/completo/do/arquivo2.ts
+[código completo do arquivo]
+
+📋 Decisões tomadas: [lista curta se houver] ⚠️ Atenção: [só se tiver algo crítico] 📝 CHANGELOG: [entrada pronta pra copiar]
+
+
+## O QUE NÃO MOSTRAR NO MODO TURBO
+
+- ❌ Seção de Entendimento (já foi feita no plano)
+- ❌ Seção de Investigação (já foi feita no plano)
+- ❌ Seção de Plano (já foi aprovado)
+- ❌ Alternativas e trade-offs (já foram discutidos)
+- ❌ Auto-revisão detalhada (fazer interna, só mostrar se achar problema)
+
+## REGRA DE COMPLETUDE
+
+NUNCA entregue parcial. Uma entrega Turbo DEVE conter:
+- [ ] TODOS os arquivos que a task exige (novos e modificados)
+- [ ] TODOS os testes que a task exige
+- [ ] Código COMPLETO (não "// resto do arquivo permanece igual")
+- [ ] Se o arquivo já existe, entregar ele INTEIRO com a mudança aplicada
+
+Se a task for grande demais pra entregar tudo de uma vez:
+→ Divida em sub-entregas ANTES de começar
+→ Cada sub-entrega deve ser completa e funcional sozinha
+
+## BATCH MODE — MÚLTIPLAS TASKS DE UMA VEZ
+
+Se o usuário mandar várias tasks de uma vez:
+
+🚀 TURBO BATCH | [FEAT-ID]
+
+Task [ID-1]: [nome]
+[entrega completa]
+
+Task [ID-2]: [nome]
+[entrega completa]
+
+Task [ID-3]: [nome]
+[entrega completa]
+
+📋 Decisões tomadas: [consolidado] 📝 CHANGELOG: [entrada consolidada]
+
+---
+
+## Prompts de Velocidade — Templates Prontos
+
+Crie esses templates pra usar depois que o plano está aprovado:
+
+### Template 1: Execução Única Rápida
+
+```
+/turbo
+
+Task: [TASK-ID]
+T: [o que fazer]
+A: [quais arquivos]
+C: [antes → depois]
+E: [como saber que está pronto]
+
+Contexto já aprovado. Entrega completa, sem perguntas.
+```
+
+### Template 2: Batch de Tasks
+
+```
+/turbo batch
+
+Feature: [FEAT-ID]
+
+Tasks a executar:
+1. [TASK-ID] — [resumo 1 linha]
+2. [TASK-ID] — [resumo 1 linha]
+3. [TASK-ID] — [resumo 1 linha]
+
+Todas já aprovadas. Entregar todas de uma vez, completas.
+```
+
+### Template 3: Variação com Contexto Injetado
+
+```
+/turbo
+
+Task: [TASK-ID]
+T: Criar Action de envio de mensagem
+A: api/src/Domain/Chat/Actions/SendMessageAction.php
+C: Antes: não existe | Depois: Action recebe DTO, valida, persiste, dispara evento
+E: Teste passa, evento é disparado, mensagem persiste no banco
+
+Código existente relevante:
+[cola o DTO, a Entity, ou interface que a Action vai usar]
+
+Entrega completa, sem perguntas.
+```
+
+---
+
+## Diagrama: Fluxo Completo com os 2 Modos
+
+```
+Usuário manda pedido
+       ↓
+┌─────────────────────────────────┐
+│  MODO COGNIÇÃO (skill pesada)   │
+│                                 │
+│  Fase 0: Checkpoint contexto   │
+│  Fase 1: Entender              │
+│  Fase 2: Investigar            │
+│  Fase 3: Planejar              │
+│       ↓                        │
+│  Apresenta plano ao usuário    │
+└─────────────────────────────────┘
+       ↓
+  Usuário aprova? ──→ NÃO → ajusta plano → volta
+       ↓ SIM
+┌─────────────────────────────────┐
+│  MODO TURBO (execução rápida)   │
+│                                 │
+│  Zero perguntas                │
+│  Entrega completa              │
+│  Todos os arquivos             │
+│  Todos os testes               │
+│  CHANGELOG pronto              │
+│       ↓                        │
+│  Revisão interna (invisível)   │
+└─────────────────────────────────┘
+       ↓
+  Entrega em 1 mensagem
+       ↓
+  Usuário valida (gates)
+       ↓
+  CONFIRM (CHANGELOG + MEMORY)
+```
+
+---
+
+## Outras Otimizações de Velocidade
+
+### 1. Pré-carregue o contexto pesado UMA VEZ
+
+No início da sessão, mande tudo de uma vez:
+
+```
+## Contexto da sessão (não responda, apenas absorva):
+
+Stack: Laravel 12 + Angular 20 + PostgreSQL
+Módulo atual: Chat (api/src/Domain/Chat/)
+Feature: FEAT-012 — Envio de mensagens
+Tasks pendentes: T1, T2, T3 [colar T.A.C.E de cada]
+
+Código existente relevante:
+[colar entities, DTOs, interfaces que serão usados]
+
+Convenções:
+- Actions retornam DTOs
+- Events são disparados no Domain
+- Testes com Pest, coverage obrigatório
+
+Quando eu disser "executa" ou "/turbo", entre no Modo Turbo.
+```
+
+### 2. Cole código existente que ele vai precisar
+
+O maior ladrão de tempo é a LLM INVENTAR código que já existe no seu projeto.
+
+Se ela precisa usar SendMessageDTO → cole o DTO no prompt.
+Se ela precisa implementar uma interface → cole a interface.
+
+Isso elimina o "chute" e acelera brutalmente.
+
+### 3. Uma task por vez vs Batch
+
+```
+Tasks SIMPLES (PP/P) → mande em batch (3-5 de uma vez)
+Tasks MÉDIAS (M)     → mande 1-2 por vez
+Tasks GRANDES (G/GG) → mande 1 por vez com contexto completo
+```
+
+### 4. Não peça explicação quando não precisa
+
+```
+❌ "Cria a Action e me explica o que fez"
+✅ "Cria a Action. Modo turbo, sem explicação."
+
+Explicação = tokens = tempo = custo
+```
+
+---
+
+## Resumo
+
+```
+ANTES:
+  Cognição completa em TUDO → lento mas seguro → certo porém demorado
+
+AGORA:
+  Cognição completa no PLANEJAMENTO → lento mas seguro ✅
+  Modo Turbo na EXECUÇÃO            → rápido e direto  ✅
+
+  Pensar devagar, agir rápido.
+  Igual um sênior de verdade. 🎯
+```
