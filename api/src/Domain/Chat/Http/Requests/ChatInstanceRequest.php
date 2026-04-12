@@ -53,7 +53,7 @@ class ChatInstanceRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'provider' => ['required', 'string', 'in:evolution,zapi,codechat,uazapi'], // matched frontend map
+            'provider' => ['required', 'string', 'in:zapi,uazapi'],
             'is_active' => ['boolean'],
             'evaluation_enabled' => ['boolean'],
             'evaluation_cutoff_score' => ['integer', 'min:1', 'max:5'],

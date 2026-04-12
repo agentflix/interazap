@@ -1,332 +1,71 @@
-runtime:
-  # Backend (Laravel / PHP)
-  - name: "laravel/framework"
-    version: "^12.0"
-    purpose: "Core framework do backend API"
-  - name: "laravel/sanctum"
-    version: "^4.2"
-    purpose: "Autenticação API via tokens"
-  - name: "laravel/reverb"
-    version: "^1.0"
-    purpose: "WebSocket server para broadcasting em tempo real"
-  - name: "laravel/horizon"
-    version: "^5.43"
-    purpose: "Dashboard e gerenciamento de filas Redis"
-  - name: "laravel/octane"
-    version: "^2.17"
-    purpose: "Server de alta performance para Laravel"
-  - name: "spatie/laravel-permission"
-    version: "^6.24"
-    purpose: "Roles e permissions para autorização"
-  - name: "predis/predis"
-    version: "^3.3"
-    purpose: "Cliente Redis para cache, filas e pub/sub"
-  - name: "owen-it/laravel-auditing"
-    version: "^14.0"
-    purpose: "Auditoria de alterações em modelos"
-  - name: "league/csv"
-    version: "^9.28"
-    purpose: "Exportação e importação de arquivos CSV"
-  - name: "maatwebsite/excel"
-    version: "^3.1"
-    purpose: "Exportação e importação de planilhas Excel"
-  - name: "smalot/pdfparser"
-    version: "^2.12"
-    purpose: "Parsing de documentos PDF para knowledge base"
-  - name: "promphp/prometheus_client_php"
-    version: "^2.14"
-    purpose: "Métricas Prometheus para observabilidade"
-  # Frontend (Angular / TypeScript)
-  - name: "@angular/core"
-    version: "^20.3.0"
-    purpose: "Core framework do frontend SPA"
-  - name: "@angular/router"
-    version: "^20.3.0"
-    purpose: "Roteamento SPA com lazy loading"
-  - name: "@angular/forms"
-    version: "^20.3.0"
-    purpose: "Formulários reativos e template-driven"
-  - name: "@angular/cdk"
-    version: "20.2.14"
-    purpose: "Component Dev Kit para componentes avançados"
-  - name: "rxjs"
-    version: "~7.8.0"
-    purpose: "Programação reativa e gerenciamento de streams"
-  - name: "socket.io-client"
-    version: "^4.8.3"
-    purpose: "Cliente WebSocket para comunicação real-time"
-  - name: "apexcharts"
-    version: "^5.6.0"
-    purpose: "Visualização de dados e gráficos interativos"
-  - name: "ngx-mask"
-    version: "^20.0.3"
-    purpose: "Máscaras de input para formulários"
-  - name: "ngx-sonner"
-    version: "^3.1.0"
-    purpose: "Notificações toast no frontend"
-  - name: "@ng-icons/lucide"
-    version: "32.5.0"
-    purpose: "Ícones Lucide para a interface"
-  # Gateway (NestJS / TypeScript)
-  - name: "@nestjs/core"
-    version: "^11.0.1"
-    purpose: "Core framework do gateway de integração"
-  - name: "@nestjs/bullmq"
-    version: "^11.0.4"
-    purpose: "Processamento assíncrono de jobs no gateway"
-  - name: "bullmq"
-    version: "^5.67.2"
-    purpose: "Fila de jobs para webhooks e processamento assíncrono"
-  - name: "@nestjs/websockets"
-    version: "^11.1.11"
-    purpose: "WebSocket server no gateway"
-  - name: "@nestjs/platform-socket.io"
-    version: "^11.1.11"
-    purpose: "Adapter Socket.io para WebSocket"
-  - name: "@nestjs/throttler"
-    version: "^6.4.0"
-    purpose: "Rate limiting no gateway"
-  - name: "axios"
-    version: "^1.13.2"
-    purpose: "Cliente HTTP para chamadas a APIs externas"
-  - name: "ioredis"
-    version: "^5.9.1"
-    purpose: "Cliente Redis para cache e filas no gateway"
-  - name: "openai"
-    version: "^6.16.0"
-    purpose: "SDK OpenAI para integração AI no gateway"
-  - name: "helmet"
-    version: "^8.1.0"
-    purpose: "Headers de segurança HTTP"
-  - name: "prom-client"
-    version: "^15.1.3"
-    purpose: "Métricas Prometheus no gateway"
-  - name: "jsonwebtoken"
-    version: "^9.0.3"
-    purpose: "Validação de JWT entre camadas"
+# Dependências entre módulos
+# Regra: dependências devem ser unidirecionais. Ciclos são proibidos.
 
-dev:
-  # Backend
-  - name: "pestphp/pest"
-    version: "^4.3"
-    purpose: "Framework de testes para o backend"
-  - name: "larastan/larastan"
-    version: "^3.8"
-    purpose: "Análise estática PHPStan para Laravel"
-  - name: "phpstan/phpstan"
-    version: "^2.1"
-    purpose: "Análise estática PHP nível 6"
-  - name: "rector/rector"
-    version: "^2.1"
-    purpose: "Refactoring automatizado de código PHP"
-  - name: "laravel/pint"
-    version: "^1.24"
-    purpose: "Formatação de código PHP"
-  - name: "barryvdh/laravel-debugbar"
-    version: "^4.0"
-    purpose: "Debug toolbar para desenvolvimento"
-  - name: "mockery/mockery"
-    version: "^1.6"
-    purpose: "Mocking para testes unitários PHP"
-  # Frontend
-  - name: "vitest"
-    version: "^4.0.18"
-    purpose: "Framework de testes para o frontend Angular"
-  - name: "tailwindcss"
-    version: "^4.2.0"
-    purpose: "Framework CSS utility-first"
-  - name: "eslint"
-    version: "^9.39.2"
-    purpose: "Linting TypeScript no frontend"
-  - name: "prettier"
-    version: "^3.8.1"
-    purpose: "Formatação de código no frontend"
-  - name: "typescript"
-    version: "~5.9.2"
-    purpose: "Compilador TypeScript"
-  # Gateway
-  - name: "jest"
-    version: "^30.0.0"
-    purpose: "Framework de testes para o gateway"
-  - name: "@nestjs/testing"
-    version: "^11.0.1"
-    purpose: "Utilitários de teste NestJS"
+version: "1.0"
+project: "InteraZap"
 
-external_services:
-  - name: "PostgreSQL"
-    type: "database"
-    required: true
-  - name: "Redis"
-    type: "cache"
-    required: true
-  - name: "Asaas"
-    type: "payment"
-    required: true
-  - name: "Z-API"
-    type: "messaging"
-    required: true
-  - name: "UazAPI"
-    type: "messaging"
-    required: false
-  - name: "OpenAI"
-    type: "ai"
-    required: true
-  - name: "AWS S3"
-    type: "storage"
-    required: true
-  - name: "Sentry"
-    type: "monitoring"
-    required: false
-  - name: "Prometheus"
-    type: "monitoring"
-    required: false
-  - name: "Grafana"
-    type: "monitoring"
-    required: false
-  - name: "Alertmanager"
-    type: "monitoring"
-    required: false
-  - name: "SMTP (Mail)"
-    type: "email"
-    required: true
+dependency_rules:
+  - "Domain Layer NÃO pode importar Infrastructure ou Presentation"
+  - "Application Layer (Actions) depende apenas de Domain"
+  - "Infrastructure Layer implementa interfaces definidas no Domain"
+  - "Presentation Layer (Controllers) depende de Application"
+  - "Shared Kernel é compartilhado entre todos os módulos (acoplamento controlado)"
 
-environment_variables:
-  # App
-  - key: "APP_NAME"
-    required: true
-    description: "Nome da aplicação"
-  - key: "APP_ENV"
-    required: true
-    description: "Ambiente de execução (local, staging, production)"
-  - key: "APP_KEY"
-    required: true
-    description: "Chave de criptografia da aplicação"
-  - key: "APP_URL"
-    required: true
-    description: "URL base da aplicação backend"
-  # Database
-  - key: "DB_CONNECTION"
-    required: true
-    description: "Driver de conexão do banco de dados"
-  - key: "DB_HOST"
-    required: true
-    description: "Host do PostgreSQL"
-  - key: "DB_PORT"
-    required: true
-    description: "Porta do PostgreSQL"
-  - key: "DB_DATABASE"
-    required: true
-    description: "Nome do banco de dados"
-  - key: "DB_USERNAME"
-    required: true
-    description: "Usuário do banco de dados"
-  - key: "DB_PASSWORD"
-    required: true
-    description: "Senha do banco de dados"
-  # Redis
-  - key: "REDIS_HOST"
-    required: true
-    description: "Host do Redis"
-  - key: "REDIS_PORT"
-    required: true
-    description: "Porta do Redis"
-  - key: "REDIS_PASSWORD"
-    required: false
-    description: "Senha do Redis"
-  # WebSocket / Reverb
-  - key: "REVERB_APP_ID"
-    required: true
-    description: "App ID do Laravel Reverb"
-  - key: "REVERB_APP_KEY"
-    required: true
-    description: "App Key do Laravel Reverb"
-  - key: "REVERB_APP_SECRET"
-    required: true
-    description: "App Secret do Laravel Reverb"
-  - key: "REVERB_HOST"
-    required: true
-    description: "Host do servidor WebSocket Reverb"
-  # Mail
-  - key: "MAIL_MAILER"
-    required: true
-    description: "Driver de envio de email"
-  - key: "MAIL_HOST"
-    required: true
-    description: "Host do servidor SMTP"
-  - key: "MAIL_PORT"
-    required: true
-    description: "Porta do servidor SMTP"
-  - key: "MAIL_USERNAME"
-    required: true
-    description: "Usuário SMTP"
-  - key: "MAIL_PASSWORD"
-    required: true
-    description: "Senha SMTP"
-  # AWS S3
-  - key: "AWS_ACCESS_KEY_ID"
-    required: true
-    description: "Access key da AWS para S3"
-  - key: "AWS_SECRET_ACCESS_KEY"
-    required: true
-    description: "Secret key da AWS para S3"
-  - key: "AWS_DEFAULT_REGION"
-    required: true
-    description: "Região da AWS"
-  - key: "AWS_BUCKET"
-    required: true
-    description: "Nome do bucket S3"
-  # Chat / WhatsApp
-  - key: "CHAT_PROVIDER"
-    required: true
-    description: "Provider de WhatsApp ativo (zapi, uazapi)"
-  - key: "ZAPI_INSTANCE_ID"
-    required: false
-    description: "ID da instância Z-API"
-  - key: "ZAPI_TOKEN"
-    required: false
-    description: "Token de autenticação Z-API"
-  - key: "UAZAPI_BASE_URL"
-    required: false
-    description: "URL base da UazAPI"
-  - key: "UAZAPI_TOKEN"
-    required: false
-    description: "Token de autenticação UazAPI"
-  # Gateway
-  - key: "GATEWAY_URL"
-    required: true
-    description: "URL do serviço gateway NestJS"
-  - key: "GATEWAY_SECRET"
-    required: true
-    description: "Secret compartilhado para autenticação entre backend e gateway"
-  # AI / OpenAI
-  - key: "OPENAI_API_KEY"
-    required: true
-    description: "Chave de API da OpenAI"
-  - key: "OPENAI_MODEL"
-    required: false
-    description: "Modelo padrão da OpenAI (ex: gpt-4o)"
-  # Billing / Asaas
-  - key: "ASAAS_API_KEY"
-    required: true
-    description: "Chave de API do Asaas"
-  - key: "ASAAS_ENVIRONMENT"
-    required: true
-    description: "Ambiente do Asaas (sandbox, production)"
-  - key: "ASAAS_WEBHOOK_SECRET"
-    required: true
-    description: "Secret para validação de webhooks Asaas"
-  # Multi-tenancy
-  - key: "TENANT_ISOLATION_MODE"
-    required: true
-    description: "Modo de isolamento do tenant (row, schema)"
-  # Auth
-  - key: "SANCTUM_STATEFUL_DOMAINS"
-    required: true
-    description: "Domínios stateful para Sanctum SPA auth"
-  # Sentry
-  - key: "SENTRY_LARAVEL_DSN"
-    required: false
-    description: "DSN do Sentry para error tracking"
-  - key: "SENTRY_TRACES_SAMPLE_RATE"
-    required: false
-    description: "Taxa de amostragem de traces do Sentry"
+module_dependencies:
+  "AI":
+    depends_on: []
+    communication: "sync"
+
+  "Auth":
+    depends_on: []
+    communication: "standalone"
+
+  "Billing":
+    depends_on: ["Auth"]
+    communication: "sync"
+
+  "Chat":
+    depends_on: ["Auth"]
+    communication: "sync/events"
+
+  "Configuration":
+    depends_on: ["Auth"]
+    communication: "sync"
+
+  "CRM":
+    depends_on: ["Auth"]
+    communication: "sync"
+
+  "Dashboard":
+    depends_on: ["Chat", "Billing"]
+    communication: "sync"
+
+  "Gateway":
+    depends_on: ["Chat"]
+    communication: "async/events"
+
+  "Platform":
+    depends_on: []
+    communication: "standalone"
+
+  "Reports":
+    depends_on: ["Chat", "Billing", "CRM"]
+    communication: "sync"
+
+  "Shared":
+    depends_on: []
+    communication: "shared-kernel"
+
+forbidden_dependencies:
+  - from: "Domain"
+    to: "Infrastructure"
+    reason: "Viola DDD — Domain não conhece implementação"
+  - from: "Domain"
+    to: "Presentation"
+    reason: "Viola DDD — Domain não conhece controllers"
+  - from: "Application"
+    to: "Infrastructure"
+    reason: "Application conhece apenas interfaces do Domain"
+  - from: "Shared"
+    to: "any"
+    reason: "Shared Kernel não deve ter dependências direcionais"

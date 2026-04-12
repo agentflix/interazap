@@ -138,6 +138,7 @@ export class CompanyFormComponent {
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.isSaving.set(false);
+        this.resetForm();
         this.saved.emit(response.data);
       },
       error: () => {
@@ -190,7 +191,12 @@ export class CompanyFormComponent {
       this.form.patchValue({ name: (data.trade_name || data.legal_name) ?? '' });
     }
     if (data.phone) {
-      this.form.patchValue({ phone: data.phone.replace(/\D/g, '') });
+      let phone = data.phone.replace(/\D/g, '');
+      // Normaliza formato antigo BR com 0 no DDI/DDD (ex: (055)3322-7091 → 5533227091)
+      if (phone.startsWith('0') && phone.length >= 10) {
+        phone = phone.slice(1);
+      }
+      this.form.patchValue({ phone });
     }
     if (data.street) {
       const address = [data.street, data.number, data.complement, data.district]

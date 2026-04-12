@@ -89,21 +89,6 @@ class ChatChannelConnectorTest extends TestCase
         $connector->connect($instance, 'qr');
     }
 
-    public function test_configure_webhook_returns_null_for_non_uazapi(): void
-    {
-        $tenant = \Domain\Platform\Models\PlatformTenant::factory()->create();
-        $instance = ChatInstance::factory()->create([
-            'tenant_id' => $tenant->id,
-            'provider' => 'evolution',
-            'settings_json' => [],
-        ]);
-
-        $connector = new ChatChannelConnector(Mockery::mock(UazapiGatewayService::class));
-        $response = $connector->configureWebhook($instance, 'https://app.test/webhook');
-
-        $this->assertNull($response);
-    }
-
     public function test_configure_webhook_calls_gateway_for_uazapi(): void
     {
         $tenant = \Domain\Platform\Models\PlatformTenant::factory()->create();

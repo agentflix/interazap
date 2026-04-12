@@ -33,7 +33,7 @@ import {
  * Formulario para criacao e edicao de canais de chat.
  *
  * @remarks
- * Suporta multiplos provedores (UaZapi, Evolution API, Z-API, CodeChat)
+ * Suporta multiplos provedores (UaZapi, Z-API)
  * com validacao condicional de campos e gerenciamento de conexao.
  *
  * @example
@@ -81,9 +81,7 @@ export class ChannelFormComponent {
 
   readonly providerOptions: SelectOption[] = [
     { label: 'UaZapi', value: 'uazapi' },
-    { label: 'Evolution API', value: 'evolution' },
     { label: 'Z-API', value: 'zapi' },
-    { label: 'CodeChat', value: 'codechat' },
   ];
 
   readonly form = this.fb.group({
@@ -240,9 +238,7 @@ export class ChannelFormComponent {
 
     const providerMap: Record<string, number> = {
       zapi: 1,
-      codechat: 3,
       uazapi: 5,
-      evolution: 6,
     };
 
     const provider = formValue.provider || 'uazapi';

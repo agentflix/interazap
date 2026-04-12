@@ -1,131 +1,146 @@
+# Módulos do InteraZap
+# Gerado com base em: análise do código
+
+version: "1.0"
+project: "InteraZap"
+architecture: "DDD (Domain-Driven Design)"
+generated_at: "2026-04-11"
+
 modules:
-  - id: "MOD-001"
-    name: "Ai"
-    description: "Integração AI/ML, autopilot, knowledge base, embeddings com pgvector e OpenAI"
-    dependencies:
-      - "MOD-002"  # Auth
-      - "MOD-004"  # Chat
-      - "MOD-005"  # CRM
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/Ai/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-002"
-    name: "Auth"
-    description: "Autenticação via Sanctum, autorização via Spatie Permissions, gerenciamento de tenant"
-    dependencies:
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/Auth/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-003"
-    name: "Billing"
-    description: "Processamento de pagamentos via Asaas, assinaturas, faturamento e invoices"
-    dependencies:
-      - "MOD-002"  # Auth
-      - "MOD-009"  # Platform
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/Billing/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-004"
-    name: "Chat"
-    description: "Mensagens WhatsApp via Z-API/UazAPI, conversas em tempo real com WebSocket"
-    dependencies:
-      - "MOD-001"  # Ai
-      - "MOD-002"  # Auth
-      - "MOD-005"  # CRM
-      - "MOD-008"  # Gateway
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/Chat/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-005"
-    name: "CRM"
-    description: "Gestão de contatos, empresas, deals, pipelines e campos customizados"
-    dependencies:
-      - "MOD-002"  # Auth
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/CRM/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-006"
-    name: "Configuration"
-    description: "Configurações do sistema, configurações por empresa, integrações"
-    dependencies:
-      - "MOD-002"  # Auth
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/Configuration/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-007"
-    name: "Dashboard"
-    description: "Analytics, métricas, widgets de relatórios e visão geral do tenant"
-    dependencies:
-      - "MOD-002"  # Auth
-      - "MOD-003"  # Billing
-      - "MOD-004"  # Chat
-      - "MOD-005"  # CRM
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/Dashboard/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-008"
-    name: "Gateway"
-    description: "Relay de APIs externas, tratamento de webhooks, circuit breaker, BullMQ jobs"
-    dependencies:
-      - "MOD-002"  # Auth
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/Gateway/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-009"
-    name: "Platform"
-    description: "Funcionalidades multi-tenant da plataforma, onboarding, gestão de planos"
-    dependencies:
-      - "MOD-002"  # Auth
-      - "MOD-006"  # Configuration
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/Platform/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-010"
-    name: "Reports"
-    description: "Geração de relatórios, exportação CSV/PDF, relatórios agendados"
-    dependencies:
-      - "MOD-002"  # Auth
-      - "MOD-004"  # Chat
-      - "MOD-005"  # CRM
-      - "MOD-007"  # Dashboard
-      - "MOD-011"  # Shared
-    entrypoints:
-      - "src/Domain/Reports/Routes/api.php"
-    status: "in_progress"
-    owner: null
-
-  - id: "MOD-011"
-    name: "Shared"
-    description: "Utilitários cross-domain, busca global, traits compartilhados, base classes"
+  - name: "AI"
+    description: "Módulo de Inteligência Artificial - modelos, prompts, configurações de IA"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Ai"
     dependencies: []
-    entrypoints:
-      - "src/Shared/"
-    status: "in_progress"
-    owner: null
+    exposes:
+      - "AiService"
+      - "PromptManagement"
+    database_tables:
+      - "ai_configs"
+      - "ai_conversations"
+
+  - name: "Auth"
+    description: "Autenticação e autorização - users, roles, permissions"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Auth"
+    dependencies: []
+    exposes:
+      - "AuthService"
+      - "RoleManagement"
+    database_tables:
+      - "users"
+      - "roles"
+      - "permissions"
+      - "personal_access_tokens"
+
+  - name: "Billing"
+    description: "Gestão de assinaturas, planos e pagamento"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Billing"
+    dependencies: ["Auth"]
+    exposes:
+      - "SubscriptionService"
+      - "PaymentGateway"
+    database_tables:
+      - "subscriptions"
+      - "invoices"
+      - "plans"
+
+  - name: "Chat"
+    description: "Módulo de chat - mensagens, tickets, conversas, webhooks"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Chat"
+    dependencies: ["Auth"]
+    exposes:
+      - "ChatService"
+      - "TicketManagement"
+    database_tables:
+      - "chat_instances"
+      - "chat_messages"
+      - "chat_tickets"
+      - "chat_webhook_events"
+      - "chat_transmission_lists"
+
+  - name: "Configuration"
+    description: "Configurações gerais da plataforma"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Configuration"
+    dependencies: ["Auth"]
+    exposes:
+      - "ConfigService"
+    database_tables:
+      - "configurations"
+
+  - name: "CRM"
+    description: "Gestão de relacionamento com clientes - companies, contacts"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/CRM"
+    dependencies: ["Auth"]
+    exposes:
+      - "CompanyService"
+      - "ContactManagement"
+    database_tables:
+      - "companies"
+      - "contacts"
+
+  - name: "Dashboard"
+    description: "Dashboards e métricas"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Dashboard"
+    dependencies: ["Chat", "Billing"]
+    exposes:
+      - "DashboardMetrics"
+    database_tables: []
+
+  - name: "Gateway"
+    description: "Gateway de integração com canais externos"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Gateway"
+    dependencies: ["Chat"]
+    exposes:
+      - "ChannelConnector"
+      - "WebhookHandler"
+    database_tables:
+      - "channel_connections"
+      - "webhook_events"
+
+  - name: "Platform"
+    description: "Gestão de tenants e plataforma multi-tenant"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Platform"
+    dependencies: []
+    exposes:
+      - "TenantManagement"
+    database_tables:
+      - "tenants"
+
+  - name: "Reports"
+    description: "Relatórios e analytics"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Reports"
+    dependencies: ["Chat", "Billing", "CRM"]
+    exposes:
+      - "ReportGenerator"
+    database_tables: []
+
+  - name: "Shared"
+    description: "Kernel compartilhado entre módulos"
+    type: "shared-kernel"
+    status: "active"
+    path: "api/src/Domain/Shared"
+    dependencies: []
+    exposes:
+      - "BaseEntity"
+      - "ValueObjects"
+      - "CommonServices"
+    database_tables: []

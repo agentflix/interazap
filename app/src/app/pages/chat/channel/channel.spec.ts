@@ -90,19 +90,9 @@ describe('Integrations', () => {
       has_token: true,
     } as Integration;
 
-    const unsupportedProviderWithToken = {
-      id: 'int-4',
-      name: 'WhatsApp Evolution',
-      provider: 'evolution',
-      is_connected: false,
-      connection_status: 'disconnected',
-      has_token: true,
-    } as Integration;
-
     expect(component.canConnect(disconnectedWithToken)).toBe(true);
     expect(component.canConnect(disconnectedWithoutToken)).toBe(false);
     expect(component.canConnect(connectedWithToken)).toBe(false);
-    expect(component.canConnect(unsupportedProviderWithToken)).toBe(false);
   });
 
   it('should prioritize is_connected over textual status for connection UI decisions', () => {

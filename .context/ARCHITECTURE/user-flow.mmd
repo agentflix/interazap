@@ -1,87 +1,43 @@
-sequenceDiagram
-    actor User as Usuário
-    participant SPA as Angular SPA
-    participant GW as NestJS Gateway
-    participant API as Laravel API
-    participant Auth as Sanctum Auth
-    participant Redis as Redis
-    participant DB as PostgreSQL
-    participant WS as WebSocket (Reverb)
-    participant WhatsApp as Z-API / UazAPI
-    participant AI as OpenAI
+graph TD
+    START["Usuário acessa InteraZap"]
 
-    Note over User, AI: 1. Login e Autenticação
+    AUTH{"Autenticado?"}
+    LOGIN["Login / Registro"]
+    DASHBOARD["Dashboard"]
 
-    User->>SPA: Acessa a aplicação
-    SPA->>GW: POST /auth/login
-    GW->>API: Proxy login request
-    API->>Auth: Validar credenciais
-    Auth->>DB: Verificar usuário + tenant
-    DB-->>Auth: Usuário válido
-    Auth-->>API: Token Sanctum gerado
-    API-->>GW: Token + user data
-    GW-->>SPA: Token + user data
-    SPA->>SPA: Armazena token, conecta WebSocket
+    START --> AUTH
+    AUTH -->|Não| LOGIN
+    AUTH -->|Sim| DASHBOARD
+    LOGIN --> DASHBOARD
 
-    Note over User, AI: 2. Dashboard
+    DASHBOARD --> CHAT["Chat"]
+    DASHBOARD --> CRM["CRM"]
+    DASHBOARD --> BILLING["Billing"]
+    DASHBOARD --> REPORTS["Relatórios"]
+    DASHBOARD --> SETTINGS["Configurações"]
+    DASHBOARD --> AI["AI Assistant"]
 
-    User->>SPA: Navega para Dashboard
-    SPA->>GW: GET /dashboard/metrics
-    GW->>API: Proxy com auth token
-    API->>DB: Query métricas do tenant
-    DB-->>API: Dados agregados
-    API-->>GW: Dashboard data
-    GW-->>SPA: Renderiza métricas e gráficos
+    CHAT --> CHAT_FLOW["Fluxo de Chat"]
+    CHAT_FLOW --> CHANNEL["Selecionar Canal"]
+    CHAT_FLOW --> CONVERSATION["Conversa"]
+    CHAT_FLOW --> TICKET["Ticket/Atendimento"]
 
-    Note over User, AI: 3. Conversa WhatsApp
+    CRM --> COMPANIES["Empresas"]
+    CRM --> CONTACTS["Contatos"]
+    CRM --> PIPELINE["Pipeline de Vendas"]
 
-    User->>SPA: Abre conversa de um contato
-    SPA->>GW: GET /chat/conversations/:id
-    GW->>API: Buscar mensagens
-    API->>DB: Query mensagens do contato
-    DB-->>API: Histórico de mensagens
-    API-->>GW: Lista de mensagens
-    GW-->>SPA: Renderiza chat
+    BILLING --> PLANS["Planos"]
+    BILLING --> SUBSCRIPTION["Assinatura"]
+    BILLING --> INVOICES["Faturas"]
 
-    User->>SPA: Digita e envia mensagem
-    SPA->>GW: POST /chat/messages
-    GW->>API: Criar mensagem
-    API->>DB: Salvar mensagem (status: sending)
-    API->>Redis: Dispatch job SendWhatsAppMessage
-    API-->>GW: Mensagem criada (202 Accepted)
-    GW-->>SPA: Confirma envio
+    AI --> PROMPTS["Gerenciar Prompts"]
+    AI --> MODELS["Configurar Modelos"]
+    AI --> ANALYTICS["Analytics de IA"]
 
-    Redis-->>GW: BullMQ processa job
-    GW->>WhatsApp: Enviar mensagem via API
+    REPORTS --> CHAT_REPORTS["Relatórios de Chat"]
+    REPORTS --> SALES_REPORTS["Relatórios de Vendas"]
+    REPORTS --> AI_REPORTS["Relatórios de IA"]
 
-    WhatsApp-->>GW: Webhook - mensagem entregue
-    GW->>API: Atualizar status mensagem
-    API->>DB: Update status: delivered
-    API->>Redis: Broadcast event
-    Redis-->>WS: Publish MessageDelivered
-    WS-->>SPA: Real-time update ✓✓
-
-    Note over User, AI: 4. Resposta do contato com AI Autopilot
-
-    WhatsApp->>GW: Webhook - mensagem recebida
-    GW->>API: POST /chat/incoming
-    API->>DB: Salvar mensagem recebida
-    API->>Redis: Broadcast nova mensagem
-    Redis-->>WS: Publish NewMessage
-    WS-->>SPA: Exibe mensagem no chat
-
-    API->>DB: Verificar se autopilot está ativo
-    DB-->>API: Autopilot habilitado
-    API->>DB: Buscar embeddings (pgvector)
-    DB-->>API: Contexto relevante
-    API->>AI: Gerar resposta com contexto RAG
-    AI-->>API: Resposta gerada
-    API->>DB: Salvar resposta AI
-    API->>Redis: Dispatch job SendWhatsAppMessage
-    Redis-->>GW: BullMQ processa job
-    GW->>WhatsApp: Enviar resposta AI
-    WhatsApp-->>GW: Mensagem entregue
-    GW->>API: Atualizar status
-    API->>Redis: Broadcast event
-    Redis-->>WS: Publish AI response sent
-    WS-->>SPA: Exibe resposta AI no chat ✓✓
+    style START fill:#E3F2FD,stroke:#2196F3
+    style DASHBOARD fill:#E8F5E9,stroke:#4CAF50
+    style AUTH fill:#FFF3E0,stroke:#FF9800
