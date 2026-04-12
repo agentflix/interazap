@@ -40,6 +40,30 @@
     </div>
   }
 
+  @if (isMeta()) {
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <app-text-input
+          label="Phone Number ID (Meta)"
+          [control]="form.controls.phone_number_id"
+          placeholder="Ex: 123456789012345"
+          dataTest="integration-form-phone-number-id"
+          [required]="true"
+        />
+      </div>
+      <div>
+        <app-text-input
+          label="Access Token (Meta)"
+          [control]="form.controls.access_token"
+          type="password"
+          placeholder="••••••••"
+          dataTest="integration-form-access-token"
+          [required]="true"
+        />
+      </div>
+    </div>
+  }
+
   <div>
     <app-text-input
       [label]="tokenLabel()"

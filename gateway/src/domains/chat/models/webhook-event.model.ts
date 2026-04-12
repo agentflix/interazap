@@ -11,7 +11,7 @@ export type EventDirection = 'inbound' | 'outbound' | 'status' | 'connection';
 /**
  * Provedor de mensageria suportado no dominio de chat.
  */
-export type ProviderType = 'uazapi' | 'zapi';
+export type ProviderType = 'uazapi' | 'zapi' | 'meta';
 
 /**
  * Tipo de conteudo da mensagem normalizada.

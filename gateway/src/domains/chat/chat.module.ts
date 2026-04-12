@@ -35,13 +35,18 @@ import { ZapiNormalizer } from './providers/zapi/zapi.normalizer';
 import { ZapiAdapter } from './providers/zapi/zapi.adapter';
 import { ProviderFactory } from './providers/provider.factory';
 
+// Meta Provider
+import { MetaModule } from './providers/meta/meta.module';
+import { MetaWebhookController } from './controllers/meta-webhook.controller';
+import { ChannelsController } from './channels.controller';
+
 // Outbound
 import { SendMessageService } from './outbound/send-message.service';
 import { SendMessageConsumer } from './outbound/send-message.consumer';
 import { RetryPolicy } from './outbound/retry-policy';
 
 @Module({
-  imports: [RealtimeModule, RedisModule, MetricsModule],
+  imports: [RealtimeModule, RedisModule, MetricsModule, MetaModule],
   controllers: [
     ChatWebhookController,
     UazapiInstancesController,
@@ -52,6 +57,8 @@ import { RetryPolicy } from './outbound/retry-policy';
     ChatOutboundController,
     SendMessageController,
     ChatController,
+    MetaWebhookController,
+    ChannelsController,
   ],
   providers: [
     InternalApiKeyGuard,

@@ -82,6 +82,7 @@ export class ChannelFormComponent {
   readonly providerOptions: SelectOption[] = [
     { label: 'UaZapi', value: 'uazapi' },
     { label: 'Z-API', value: 'zapi' },
+    { label: 'Meta', value: 'meta' },
   ];
 
   readonly form = this.fb.group({
@@ -92,6 +93,8 @@ export class ChannelFormComponent {
     client_token: this.fb.control(''),
     cellphone: this.fb.nonNullable.control('', Validators.required),
     country_code: this.fb.nonNullable.control('+55', Validators.required),
+    phone_number_id: this.fb.control(''),
+    access_token: this.fb.control(''),
     is_active: this.fb.control(true),
     send_attendant_name: this.fb.control(false),
     send_outside_business_hours_message: this.fb.control(false),
@@ -127,6 +130,14 @@ export class ChannelFormComponent {
       map((provider) => provider === 'uazapi'),
     ),
     { initialValue: true },
+  );
+
+  readonly isMeta = toSignal(
+    this.form.controls.provider.valueChanges.pipe(
+      startWith(this.form.controls.provider.value),
+      map((provider) => provider === 'meta'),
+    ),
+    { initialValue: false },
   );
 
   readonly isEvaluationEnabled = toSignal(
@@ -189,6 +200,8 @@ export class ChannelFormComponent {
           client_token: integration.settings?.client_token || '',
           cellphone: cellphone.local,
           country_code: cellphone.countryCode,
+          phone_number_id: integration.settings?.phone_number_id || '',
+          access_token: integration.settings?.access_token || '',
           is_active: integration.is_active,
           send_attendant_name: integration.settings?.send_attendant_name ?? false,
           send_outside_business_hours_message:
@@ -212,12 +225,14 @@ export class ChannelFormComponent {
 
         this.form.enable({ emitEvent: false });
         this.updateTokenValidators(integration.provider || 'uazapi');
+        this.updateMetaFieldValidators(integration.provider || 'uazapi');
         this.applyConnectionLock(integration);
       } else {
         this.lastLoadedIntegrationId.set(null);
         this.resetForm();
         this.form.enable({ emitEvent: false });
         this.updateTokenValidators(this.form.controls.provider.value ?? 'uazapi');
+        this.updateMetaFieldValidators(this.form.controls.provider.value ?? 'uazapi');
       }
     });
 
@@ -225,7 +240,24 @@ export class ChannelFormComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((provider) => {
         this.updateTokenValidators(provider ?? 'uazapi');
+        this.updateMetaFieldValidators(provider ?? 'uazapi');
       });
+  }
+
+  private updateMetaFieldValidators(provider: string): void {
+    const phoneNumberIdControl = this.form.controls.phone_number_id;
+    const accessTokenControl = this.form.controls.access_token;
+
+    if (provider === 'meta') {
+      phoneNumberIdControl.setValidators([Validators.required]);
+      accessTokenControl.setValidators([Validators.required]);
+    } else {
+      phoneNumberIdControl.clearValidators();
+      accessTokenControl.clearValidators();
+    }
+
+    phoneNumberIdControl.updateValueAndValidity({ emitEvent: false });
+    accessTokenControl.updateValueAndValidity({ emitEvent: false });
   }
 
   submit(): void {
@@ -259,6 +291,8 @@ export class ChannelFormComponent {
         ),
         instance: formValue.instance || undefined,
         client_token: formValue.client_token || undefined,
+        phone_number_id: formValue.phone_number_id || undefined,
+        access_token: formValue.access_token || undefined,
         send_attendant_name: formValue.send_attendant_name ?? false,
         send_outside_business_hours_message: formValue.send_outside_business_hours_message ?? false,
         outside_business_hours_message: formValue.outside_business_hours_message || undefined,
@@ -313,6 +347,8 @@ export class ChannelFormComponent {
       client_token: '',
       cellphone: '',
       country_code: '+55',
+      phone_number_id: '',
+      access_token: '',
       is_active: true,
       send_attendant_name: false,
       send_outside_business_hours_message: false,
@@ -351,6 +387,8 @@ export class ChannelFormComponent {
       this.form.controls.provider.disable({ emitEvent: false });
       this.form.controls.instance.disable({ emitEvent: false });
       this.form.controls.client_token.disable({ emitEvent: false });
+      this.form.controls.phone_number_id.disable({ emitEvent: false });
+      this.form.controls.access_token.disable({ emitEvent: false });
       this.form.controls.is_active.disable({ emitEvent: false });
     }
   }

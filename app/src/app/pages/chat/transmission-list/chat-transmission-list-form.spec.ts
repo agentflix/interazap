@@ -49,7 +49,7 @@ describe('ChatTransmissionListFormComponent', () => {
     provider: 'whatsapp',
     is_active: true,
     settings: {
-      integration_id: 1,
+      channel_provider_id: 1,
       cellphone: '5511999999999',
     },
   };

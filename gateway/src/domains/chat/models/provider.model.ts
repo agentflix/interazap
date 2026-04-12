@@ -6,4 +6,4 @@
 /**
  * Nome canonical de provedor registrado na fabrica de adaptadores.
  */
-export type ProviderName = 'uazapi' | 'zapi';
+export type ProviderName = 'uazapi' | 'zapi' | 'meta';

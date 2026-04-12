@@ -14,12 +14,15 @@ export interface Integration {
   evaluation_enabled?: boolean;
   evaluation_cutoff_score?: number;
   status?: string;
+  integration_id?: string | number;
   settings: {
     channel_provider_id: number;
     cellphone: string;
     instance?: string;
     client_token?: string;
     token?: string;
+    phone_number_id?: string;
+    access_token?: string;
     channel_fallback_message?: string;
     send_attendant_name?: boolean;
     send_outside_business_hours_message?: boolean;

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { WhatsAppProvider } from '../contracts/provider.interface';
 import { UazapiAdapter } from './uazapi/uazapi.adapter';
 import { ZapiAdapter } from './zapi/zapi.adapter';
+import { MetaAdapter } from './meta/meta.adapter';
 import { ProviderName } from '../models/provider.model';
 
 export type { ProviderName };
@@ -17,12 +18,14 @@ export class ProviderFactory {
   constructor(
     private readonly uazapiAdapter: UazapiAdapter,
     private readonly zapiAdapter: ZapiAdapter,
+    private readonly metaAdapter: MetaAdapter,
   ) {
     this.providers = new Map<ProviderName, WhatsAppProvider>();
 
     // Register providers
     this.providers.set('uazapi', uazapiAdapter);
     this.providers.set('zapi', zapiAdapter);
+    this.providers.set('meta', metaAdapter);
   }
 
   /**

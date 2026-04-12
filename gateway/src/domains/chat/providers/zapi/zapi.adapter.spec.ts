@@ -199,7 +199,7 @@ describe('ZapiAdapter', () => {
   });
 
   describe('normalizeWebhook', () => {
-    it('should delegate to normalizer', () => {
+    it('should delegate to normalizer', async () => {
       const mockNormalized = {
         provider: 'zapi' as const,
         eventType: 'message',
@@ -210,7 +210,7 @@ describe('ZapiAdapter', () => {
       );
 
       const rawPayload = { messageId: 'msg-123' };
-      const result = adapter.normalizeWebhook(
+      const result = await adapter.normalizeWebhook(
         'token-1',
         rawPayload,
         'tenant-1',

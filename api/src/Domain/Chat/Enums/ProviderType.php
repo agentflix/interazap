@@ -11,6 +11,7 @@ enum ProviderType: string
 {
     case UAZAPI = 'uazapi';
     case ZAPI = 'zapi';
+    case META = 'meta';
 
     /**
      * Returns label for display.
@@ -20,6 +21,7 @@ enum ProviderType: string
         return match ($this) {
             self::UAZAPI => 'Uazapi',
             self::ZAPI => 'Z-API',
+            self::META => 'Meta',
         };
     }
 }

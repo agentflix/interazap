@@ -7,7 +7,9 @@ import type {
   CorsConfiguration,
   DatabaseConfiguration,
   GoogleConfiguration,
+  GatewayConfiguration,
   MiniMaxConfiguration,
+  MetaConfiguration,
   InternalConfiguration,
   JwtConfiguration,
   OpenAIConfiguration,
@@ -26,8 +28,10 @@ export type {
   CorsConfiguration,
   DatabaseConfiguration,
   GoogleConfiguration,
+  GatewayConfiguration,
   InternalConfiguration,
   JwtConfiguration,
+  MetaConfiguration,
   MiniMaxConfiguration,
   OpenAIConfiguration,
   RedisConfiguration,
@@ -198,6 +202,24 @@ export const throttlerConfig = registerAs(
   }),
 );
 
+export const metaConfig = registerAs(
+  'meta',
+  (): MetaConfiguration => ({
+    verifyToken: process.env.META_VERIFY_TOKEN ?? '',
+    appSecret: process.env.META_APP_SECRET ?? '',
+    webhookCallbackUrl: process.env.META_WEBHOOK_CALLBACK_URL ?? '',
+    graphApiUrl:
+      process.env.META_GRAPH_API_URL ?? 'https://graph.facebook.com/v18.0',
+  }),
+);
+
+export const gatewayConfig = registerAs(
+  'gateway',
+  (): GatewayConfiguration => ({
+    secret: process.env.GATEWAY_SECRET ?? '',
+  }),
+);
+
 export const configFactories = [
   appConfig,
   redisConfig,
@@ -214,6 +236,8 @@ export const configFactories = [
   apiConfig,
   aiConfig,
   throttlerConfig,
+  metaConfig,
+  gatewayConfig,
 ];
 
 export default (): { defaultTenantId: string } => ({

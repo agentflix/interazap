@@ -151,7 +151,7 @@ export class UazapiAdapter implements WhatsAppProvider {
   /**
    * Normaliza payload bruto da Uazapi para o contrato interno.
    */
-  normalizeWebhook(token: string, rawPayload: unknown): NormalizedWebhookEvent {
+  async normalizeWebhook(token: string, rawPayload: unknown): Promise<NormalizedWebhookEvent> {
     const normalized = this.provider.normalize(
       token,
       rawPayload as UazapiWebhookDto,

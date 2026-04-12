@@ -12,12 +12,15 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { toast } from 'ngx-sonner';
+import { HttpClient } from '@angular/common/http';
 import { ModalComponent } from 'src/app/shared/components/modal/modal';
 import { type Contact } from 'src/app/core/models/contact.model';
 import { ContactService } from 'src/app/core/services/contact.service';
 import { CalledService } from 'src/app/core/services/called.service';
 import { CalledMessageService } from 'src/app/core/services/called-message.service';
 import { type Instance, InstanceService } from 'src/app/core/services/instance.service';
+import { WindowVerificationService } from './services/window-verification.service';
+import { TemplateSelectorComponent, type TemplateSelectedEvent } from './components/template-selector/template-selector';
 import { ButtonComponent, LoadingButtonComponent } from 'src/app/shared/components/buttons';
 import {
   SelectInputComponent,
@@ -26,6 +29,7 @@ import {
   type SelectOption,
 } from 'src/app/shared/components/inputs';
 import { AfScrollAreaComponent } from 'src/app/shared/components/scroll-area/scroll-area';
+import { environment } from '@env/environment';
 
 const CONNECTED_STATUSES = new Set([
   'connected',
@@ -63,6 +67,7 @@ const INSTANCE_SELECTION_STORAGE = 'chat:selectedInstanceId';
     TextInputComponent,
     TextareaInputComponent,
     AfScrollAreaComponent,
+    TemplateSelectorComponent,
   ],
   templateUrl: './new-conversation-modal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -74,6 +79,8 @@ export class NewConversationModalComponent {
   private readonly messageService = inject(CalledMessageService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly windowVerificationService = inject(WindowVerificationService);
+  private readonly http = inject(HttpClient);
 
   /** Controla se o modal está aberto. */
   readonly isOpen = signal(false);
@@ -120,6 +127,15 @@ export class NewConversationModalComponent {
   /** FormControl da mensagem inicial. */
   readonly startMessageControl = new FormControl<string>('', { nonNullable: true });
 
+  /** Modo de envio: 'freeText' ou 'template' */
+  readonly sendMode = signal<'freeText' | 'template'>('freeText');
+
+  /** Template selecionado para envio (quando sendMode='template') */
+  readonly selectedTemplate = signal<TemplateSelectedEvent | null>(null);
+
+  /** ID do canal Meta selecionado (para buscar templates) */
+  readonly selectedChannelId = signal<string>('');
+
   /** Opções do select de instâncias. */
   readonly instanceOptions = computed<readonly SelectOption[]>(() =>
     this.instances().map((inst) => ({
@@ -143,6 +159,18 @@ export class NewConversationModalComponent {
 
   /** True se o select de instância deve ser exibido. */
   readonly shouldDisplayInstanceSelect = computed(() => this.instances().length > 1);
+
+  /** True se deve mostrar modo template (Meta + fora da janela 24h) */
+  readonly isTemplateMode = computed(() => this.sendMode() === 'template');
+
+  /** Instância selecionada com provider info */
+  readonly selectedInstance = computed(() => {
+    const id = this.selectedInstanceId();
+    return this.instances().find((inst) => String(inst.id) === id) ?? null;
+  });
+
+  /** True se o provider é Meta */
+  readonly isMetaProvider = computed(() => this.selectedInstance()?.provider === 'meta');
 
   private searchTimeoutId: number | undefined;
 
@@ -171,6 +199,8 @@ export class NewConversationModalComponent {
     this.isLoadingContacts.set(false);
     this.selectedContactId.set('');
     this.startMessage.set('');
+    this.sendMode.set('freeText');
+    this.selectedTemplate.set(null);
     this.contactSearchControl.setValue('', { emitEvent: false });
     this.startMessageControl.setValue('', { emitEvent: false });
     this.restorePersistedInstanceSelection();
@@ -189,6 +219,8 @@ export class NewConversationModalComponent {
     this.isLoadingContacts.set(false);
     this.selectedContactId.set('');
     this.startMessage.set('');
+    this.sendMode.set('freeText');
+    this.selectedTemplate.set(null);
     this.contactSearchControl.setValue('', { emitEvent: false });
     this.instanceControl.setValue('', { emitEvent: false });
     this.startMessageControl.setValue('', { emitEvent: false });
@@ -204,6 +236,42 @@ export class NewConversationModalComponent {
    */
   selectContact(id: string | number): void {
     this.selectedContactId.set(String(id));
+
+    // If Meta provider is selected, check window status
+    if (this.isMetaProvider()) {
+      this.checkWindowStatus(String(id));
+    }
+  }
+
+  /**
+   * Manipula a seleção de um template.
+   * @param event Evento com template selecionado.
+   */
+  handleTemplateSelected(event: TemplateSelectedEvent): void {
+    this.selectedTemplate.set(event);
+  }
+
+  /**
+   * Verifica o status da janela 24h para o contato.
+   * Atualiza o modo de envio baseado no resultado.
+   * @param contactId ID do contato.
+   */
+  private checkWindowStatus(contactId: string): void {
+    this.windowVerificationService
+      .checkStatus(contactId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => {
+        if (status.canSendFreeText) {
+          this.sendMode.set('freeText');
+        } else {
+          this.sendMode.set('template');
+          // Also set the channel ID for template loading
+          const channelId = this.selectedChannelId();
+          if (channelId) {
+            // TemplateSelector will load templates via its own input
+          }
+        }
+      });
   }
 
   /**
@@ -217,6 +285,9 @@ export class NewConversationModalComponent {
     const instanceId =
       this.selectedInstanceId() ||
       (firstInstance?.id !== undefined ? String(firstInstance.id) : '');
+    const mode = this.sendMode();
+    const template = this.selectedTemplate();
+    const channelId = this.selectedChannelId();
 
     if (!contactId) {
       this.startError.set('Selecione um contato.');
@@ -228,13 +299,39 @@ export class NewConversationModalComponent {
       return;
     }
 
-    if (!message) {
+    // Validate based on mode
+    if (mode === 'freeText' && !message) {
       this.startError.set('Digite uma mensagem inicial.');
+      return;
+    }
+
+    if (mode === 'template' && !template) {
+      this.startError.set('Selecione um template.');
       return;
     }
 
     this.startError.set(null);
     this.isStarting.set(true);
+
+    // Helper to send message based on mode
+    const sendMessage = (calledId: string) => {
+      if (mode === 'template' && template) {
+        // Send template via gateway API
+        const payload = {
+          contact_id: contactId,
+          template_name: template.templateName,
+          parameters: template.parameters,
+        };
+        return this.http
+          .post(`${environment.gateway.url}/channels/${channelId}/send-template`, payload)
+          .pipe(map(() => ({ calledId, reused: false })));
+      } else {
+        // Send free text via message service
+        return this.messageService.send(calledId, message).pipe(
+          map(() => ({ calledId, reused: false })),
+        );
+      }
+    };
 
     forkJoin({
       open: this.calledService.list({ contact_id: contactId, status: 'open', per_page: 1 }),
@@ -258,9 +355,13 @@ export class NewConversationModalComponent {
             .pipe(
               switchMap((created) => {
                 const newId = String(created.data.id);
-                return this.messageService.send(newId, message).pipe(
-                  switchMap(() => this.calledService.open(newId).pipe(catchError(() => of(null)))),
-                  map(() => ({ calledId: newId, reused: false })),
+                return sendMessage(newId).pipe(
+                  switchMap((result) =>
+                    this.calledService.open(result.calledId).pipe(
+                      catchError(() => of(null)),
+                      map(() => result),
+                    ),
+                  ),
                 );
               }),
             );
@@ -351,6 +452,13 @@ export class NewConversationModalComponent {
   /** Seleciona e persiste a instância escolhida. */
   private selectInstance(value: string): void {
     this.selectedInstanceId.set(value);
+
+    // Find the selected instance to get its integration_id (channel id for Meta)
+    const instance = this.instances().find((inst) => String(inst.id) === value);
+    if (instance?.integration_id) {
+      this.selectedChannelId.set(String(instance.integration_id));
+    }
+
     try {
       localStorage.setItem(INSTANCE_SELECTION_STORAGE, value);
     } catch {
@@ -358,6 +466,11 @@ export class NewConversationModalComponent {
     }
     if (this.instanceControl.value !== value) {
       this.instanceControl.setValue(value, { emitEvent: false });
+    }
+
+    // If Meta provider and contact is already selected, recheck window status
+    if (this.isMetaProvider() && this.selectedContactId()) {
+      this.checkWindowStatus(this.selectedContactId());
     }
   }
 

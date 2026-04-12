@@ -22,6 +22,7 @@ use Domain\Chat\Http\Controllers\ChatTicketEvaluationPublicController;
 use Domain\Chat\Http\Controllers\ChatTicketTransferController;
 use Domain\Chat\Http\Controllers\ChatTransmissionListController;
 use Domain\Chat\Http\Controllers\ChatWebhookController;
+use Domain\Chat\Http\Controllers\ChatWindowController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,9 +36,21 @@ Route::middleware(['throttle:webhooks'])->group(function (): void {
     Route::post('/webhooks/uazapi/instances/{token}', [ChatWebhookController::class, 'uazapi']);
 });
 
+/*
+|--------------------------------------------------------------------------
+| Gateway Routes with GATEWAY_SECRET
+|--------------------------------------------------------------------------
+| Routes accessed by the Gateway service using GATEWAY_SECRET authentication.
+| These routes are not tenant-isolated as they use global lookups.
+*/
+Route::middleware(['gateway.secret'])->prefix('chat')->group(function (): void {
+    Route::get('instances/by-phone-number/{phoneNumberId}', [ChatWindowController::class, 'lookupByPhoneNumber']);
+});
+
 Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttle:api')->group(function (): void {
     Route::prefix('chat')->group(function (): void {
         Route::get('init', [ChatTicketController::class, 'init']);
+        Route::get('contacts/{id}/window-status', [ChatWindowController::class, 'windowStatus']);
         Route::get('tickets', [ChatTicketController::class, 'index']);
         Route::post('tickets', [ChatTicketController::class, 'store']);
         Route::get('tickets/{id}', [ChatTicketController::class, 'show']);

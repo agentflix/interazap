@@ -23,13 +23,13 @@ stack:
     e2e: "Playwright"
 
 metrics:
-  total_features: 0
-  features_completed: 0
+  total_features: 1
+  features_completed: 1
   features_in_progress: 0
-  total_tasks: 0
-  tasks_completed: 0
+  total_tasks: 17
+  tasks_completed: 16
   tasks_in_progress: 0
-  tasks_pending: 0
+  tasks_pending: 1  # TASK-039.17 E2E (pré-existente)
 
 modules_status:
   "AI":

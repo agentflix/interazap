@@ -38,6 +38,7 @@ return [
     'gateway' => [
         'url' => env('GATEWAY_URL', 'http://gateway:3000'),
         'api_key' => env('GATEWAY_INTERNAL_API_KEY'),
+        'secret' => env('GATEWAY_SECRET'),
         'timeout' => (int) env('GATEWAY_TIMEOUT', 3),
         'retry_attempts' => (int) env('GATEWAY_RETRY_ATTEMPTS', 3),
         'retry_delay_ms' => (int) env('GATEWAY_RETRY_DELAY_MS', 150),

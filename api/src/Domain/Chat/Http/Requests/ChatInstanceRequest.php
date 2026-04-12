@@ -53,7 +53,7 @@ class ChatInstanceRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'provider' => ['required', 'string', 'in:zapi,uazapi'],
+            'provider' => ['required', 'string', 'in:zapi,uazapi,meta'],
             'is_active' => ['boolean'],
             'evaluation_enabled' => ['boolean'],
             'evaluation_cutoff_score' => ['integer', 'min:1', 'max:5'],
@@ -81,6 +81,8 @@ class ChatInstanceRequest extends FormRequest
             'settings.send_end_service_message' => ['nullable', 'boolean'],
             'settings.end_service_message' => ['nullable', 'string', 'max:2000'],
             'settings.channel_fallback_message' => ['nullable', 'string', 'max:2000'],
+            'settings.phone_number_id' => ['nullable', 'string', 'max:255'],
+            'settings.access_token' => ['nullable', 'string', 'max:500'],
         ];
     }
 }

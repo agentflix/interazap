@@ -153,12 +153,12 @@ export class ZapiAdapter implements WhatsAppProvider {
   /**
    * Normaliza payload bruto recebido da Z-API para o contrato interno.
    */
-  normalizeWebhook(
+  async normalizeWebhook(
     webhookToken: string,
     rawPayload: unknown,
     tenantId = '',
     instanceId = '',
-  ): NormalizedWebhookEvent {
+  ): Promise<NormalizedWebhookEvent> {
     return this.normalizer.normalize(
       webhookToken,
       rawPayload as ZapiWebhookPayload,
