@@ -3,7 +3,6 @@ import {
   Get,
   Param,
   NotFoundException,
-  Inject,
   Logger,
   UseGuards,
 } from '@nestjs/common';
@@ -74,9 +73,11 @@ export class ChannelsController {
   /**
    * Busca um canal pelo ID no banco de dados.
    */
-  private async fetchChannel(
-    id: string,
-  ): Promise<{ id: string; provider: string; settings: Record<string, unknown> } | null> {
+  private async fetchChannel(id: string): Promise<{
+    id: string;
+    provider: string;
+    settings: Record<string, unknown>;
+  } | null> {
     try {
       const result = await this.databaseService.query<{
         id: string;

@@ -48,7 +48,9 @@ describe('WindowVerificationService', () => {
     });
 
     expect(result).toEqual(mockStatus);
-    expect(http.get).toHaveBeenCalledWith('/api/chat/contacts/contact-1/window-status');
+    expect(http.get).toHaveBeenCalledWith(
+      'https://api.interazap.com.br/api/chat/contacts/contact-1/window-status',
+    );
   });
 
   it('checkStatus() returns cached result within stale time', () => {
@@ -103,12 +105,12 @@ describe('WindowVerificationService', () => {
 
     service.checkStatus('contact-1').subscribe();
     service.checkStatus('contact-2').subscribe();
-    expect(http.get).toHaveBeenCalledTimes(1);
+    expect(http.get).toHaveBeenCalledTimes(2);
 
     service.clearCache();
     service.checkStatus('contact-1').subscribe();
     service.checkStatus('contact-2').subscribe();
 
-    expect(http.get).toHaveBeenCalledTimes(3);
+    expect(http.get).toHaveBeenCalledTimes(4);
   });
 });

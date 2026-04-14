@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
+  type OnInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -44,7 +45,7 @@ import { ProposalFormComponent } from '../proposal-form/proposal-form';
   templateUrl: './proposal-list.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProposalListComponent {
+export class ProposalListComponent implements OnInit {
   readonly negotiationId = input.required<string | number>();
 
   private readonly destroyRef = inject(DestroyRef);
@@ -63,6 +64,10 @@ export class ProposalListComponent {
   readonly isDeleting = signal(false);
 
   constructor() {
+    // Load is called from ngOnInit to avoid NG0950 with required input signals
+  }
+
+  ngOnInit(): void {
     this.load();
   }
 

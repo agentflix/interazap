@@ -1,0 +1,19 @@
+<!-- Loading state while restoring session -->
+@if (isRestoring()) {
+  <div class="flex items-center justify-center min-h-screen bg-neutral-50 dark:bg-neutral-950">
+    <div class="flex flex-col items-center gap-3">
+      <af-spinner size="md" />
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">Restaurando sessão...</p>
+    </div>
+  </div>
+}
+
+<!-- Pre-Chat Form -->
+@if (showPreChat()) {
+  <app-pre-chat [tenantId]="tenantId()" (sessionReady)="onSessionReady($event)" />
+}
+
+<!-- Chat Window -->
+@if (showChat()) {
+  <app-chat-window #chatWindow />
+}

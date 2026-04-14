@@ -14,7 +14,6 @@ import {
   ZapiStreamPayload,
 } from './chat-webhook.types';
 import { PayloadSemanticsResolver } from './payload-semantics-resolver.service';
-import { ZapiAdapter } from '../providers/zapi/zapi.adapter';
 import { NormalizedWebhookEvent } from '../contracts/provider.interface';
 
 /**

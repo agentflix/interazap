@@ -2,8 +2,6 @@
  * DTOs especificos para o provider Meta WhatsApp Business API.
  */
 
-import { MetaTemplate, SendTemplateRequest } from '../../contracts/meta-provider.interface';
-
 /**
  * Resposta da API Graph da Meta para listagem de templates.
  */

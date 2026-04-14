@@ -12,6 +12,7 @@ enum ProviderType: string
     case UAZAPI = 'uazapi';
     case ZAPI = 'zapi';
     case META = 'meta';
+    case WEB = 'web';
 
     /**
      * Returns label for display.
@@ -22,6 +23,7 @@ enum ProviderType: string
             self::UAZAPI => 'Uazapi',
             self::ZAPI => 'Z-API',
             self::META => 'Meta',
+            self::WEB => 'Webchat',
         };
     }
 }

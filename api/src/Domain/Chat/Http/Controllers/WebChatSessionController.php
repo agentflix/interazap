@@ -1,0 +1,296 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Domain\Chat\Http\Controllers;
+
+use Domain\Chat\DTOs\ChatMessageDTO;
+use Domain\Chat\DTOs\ChatTicketDTO;
+use Domain\Chat\Models\ChatMessage;
+use Domain\Chat\Models\ChatSession;
+use Domain\Chat\Models\ChatTicket;
+use Domain\Chat\Services\WebChatJwtService;
+use Domain\CRM\Models\CRMContact;
+use Domain\Shared\Http\Controllers\BaseController;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+
+/**
+ * Controlador de Sessões Webchat.
+ *
+ * Gerencia a criação e recuperação de sessões webchat para visitantes,
+ * incluindo criação automática de contato e ticket.
+ *
+ * @category Controllers
+ */
+final class WebChatSessionController extends BaseController
+{
+    public function __construct(
+        private readonly WebChatJwtService $jwtService,
+    ) {}
+
+    /**
+     * Criar ou buscar sessão webchat existente.
+     *
+     * POST /api/webchat/sessions
+     *
+     * @param  Request  $request
+     * @return JsonResponse{token: string, sessionId: string, ticketId: string}
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $this->validateStoreRequest($request);
+
+        $tenantId = $validated['tenant_id'];
+        $visitorName = $validated['visitor_name'];
+        $visitorEmail = $validated['visitor_email'];
+        $visitorPhone = $validated['visitor_phone'];
+        $clientInfo = $validated['client_info'];
+
+        // Tentar encontrar sessão ativa pelo token (idempotência)
+        if (isset($validated['token']) && $validated['token'] !== '') {
+            $existingSession = ChatSession::query()
+                ->where('token', $validated['token'])
+                ->where('tenant_id', $tenantId)
+                ->first();
+
+            if ($existingSession) {
+                $existingSession->touchLastActivity();
+                $existingSession->loadMissing(['contact', 'ticket']);
+
+                $token = $this->jwtService->generateToken(
+                    sessionId: (string) $existingSession->id,
+                    tenantId: (string) $existingSession->tenant_id,
+                    contactId: (string) $existingSession->contact_id,
+                    ticketId: (string) $existingSession->ticket_id,
+                );
+
+                return $this->success([
+                    'token' => $token,
+                    'sessionId' => (string) $existingSession->id,
+                    'ticketId' => (string) $existingSession->ticket_id,
+                ], 'Sessão recuperada', 200);
+            }
+        }
+
+        // Encontrar ou criar contato
+        $contactId = $this->findOrCreateContact($tenantId, $visitorName, $visitorEmail, $visitorPhone);
+
+        // Encontrar ou criar ticket webchat
+        $ticket = $this->findOrCreateTicket($tenantId, $contactId, $visitorName, $clientInfo);
+
+        // Criar sessão
+        $session = ChatSession::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenantId,
+            'contact_id' => $contactId,
+            'ticket_id' => (string) $ticket->id,
+            'token' => (string) Str::uuid(),
+            'client_info' => $clientInfo,
+            'last_activity_at' => now(),
+        ]);
+
+        $token = $this->jwtService->generateToken(
+            sessionId: (string) $session->id,
+            tenantId: (string) $session->tenant_id,
+            contactId: (string) $session->contact_id,
+            ticketId: (string) $session->ticket_id,
+        );
+
+        Log::info('[WebChat] Nova sessão criada', [
+            'session_id' => (string) $session->id,
+            'ticket_id' => (string) $ticket->id,
+            'contact_id' => $contactId,
+            'tenant_id' => $tenantId,
+        ]);
+
+        return $this->created([
+            'token' => $token,
+            'sessionId' => (string) $session->id,
+            'ticketId' => (string) $ticket->id,
+        ], 'Sessão criada');
+    }
+
+    /**
+     * Obter sessão webchat por ID.
+     *
+     * GET /api/webchat/sessions/{id}
+     *
+     * @param  Request  $request
+     * @param  string  $id  UUID da sessão
+     * @return JsonResponse
+     */
+    public function show(Request $request, string $id): JsonResponse
+    {
+        $tenantId = (string) ($request->query('tenant_id') ?? '');
+
+        if ($tenantId === '') {
+            return $this->unauthorized('tenant_id é obrigatório');
+        }
+
+        $session = ChatSession::query()
+            ->where('id', $id)
+            ->where('tenant_id', $tenantId)
+            ->with(['contact', 'ticket.contact'])
+            ->first();
+
+        if (! $session) {
+            return $this->notFound('Sessão não encontrada');
+        }
+
+        $session->touchLastActivity();
+
+        return $this->success([
+            'id' => (string) $session->id,
+            'token' => $session->token,
+            'ticketId' => (string) $session->ticket_id,
+            'contactId' => $session->contact_id,
+            'clientInfo' => $session->client_info,
+            'lastActivityAt' => $session->last_activity_at?->toIso8601String(),
+            'createdAt' => $session->created_at?->toIso8601String(),
+            'contact' => $session->relationLoaded('contact') && $session->contact ? [
+                'id' => (string) $session->contact->id,
+                'name' => $session->contact->name,
+                'email' => $session->contact->email,
+                'phone' => $session->contact->phone,
+            ] : null,
+            'ticket' => $session->relationLoaded('ticket') && $session->ticket ? [
+                'id' => (string) $session->ticket->id,
+                'status' => $session->ticket->status,
+                'protocol' => $session->ticket->protocol,
+            ] : null,
+        ], 'Sessão obtida');
+    }
+
+    /**
+     * Validar request de criação de sessão.
+     *
+     * @return array<string, mixed>
+     */
+    private function validateStoreRequest(Request $request): array
+    {
+        $tenantId = $request->input('tenant_id');
+        if (! is_string($tenantId) || $tenantId === '') {
+            abort(400, 'tenant_id é obrigatório');
+        }
+
+        return [
+            'tenant_id' => $tenantId,
+            'token' => $request->input('token'),
+            'visitor_name' => $request->input('visitor_name', 'Visitante Web'),
+            'visitor_email' => $request->input('visitor_email'),
+            'visitor_phone' => $request->input('visitor_phone'),
+            'client_info' => $request->input('client_info') ? (array) $request->input('client_info') : null,
+        ];
+    }
+
+    /**
+     * Encontrar ou criar contato para o visitante webchat.
+     */
+    private function findOrCreateContact(
+        string $tenantId,
+        string $name,
+        ?string $email,
+        ?string $phone,
+    ): ?string {
+        $query = CRMContact::query()
+            ->where('tenant_id', $tenantId)
+            ->where('is_active', true);
+
+        if ($email) {
+            $query->orWhere('email', $email);
+        }
+        if ($phone) {
+            $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+            $query->orWhere('phone', 'like', "%{$cleanPhone}%");
+            $query->orWhere('whatsapp', 'like', "%{$cleanPhone}%");
+        }
+
+        $contact = $query->first();
+
+        if ($contact) {
+            return $contact->id;
+        }
+
+        $newContact = CRMContact::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenantId,
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'is_active' => true,
+        ]);
+
+        return $newContact->id;
+    }
+
+    /**
+     * Encontrar ticket webchat ativo ou criar novo.
+     */
+    private function findOrCreateTicket(
+        string $tenantId,
+        ?string $contactId,
+        string $visitorName,
+        ?array $clientInfo,
+    ): ChatTicket {
+        // Buscar ticket webchat ativo mais recente do contato
+        if ($contactId) {
+            $existingTicket = ChatTicket::query()
+                ->where('tenant_id', $tenantId)
+                ->where('contact_id', $contactId)
+                ->where('channel', 'web')
+                ->whereIn('status', ['pending', 'open', 'in_progress'])
+                ->orderByDesc('created_at')
+                ->first();
+
+            if ($existingTicket) {
+                $existingTicket->last_message_at = now();
+                $existingTicket->save();
+
+                return $existingTicket;
+            }
+        }
+
+        // Criar novo ticket
+        $ticketNumber = $this->generateTicketNumber($tenantId);
+
+        $ticket = ChatTicket::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenantId,
+            'contact_id' => $contactId,
+            'channel' => 'web',
+            'protocol' => $ticketNumber,
+            'status' => 'pending',
+            'push_name' => $visitorName,
+            'metadata' => ['source' => 'webchat', 'client_info' => $clientInfo],
+            'last_message_at' => now(),
+        ]);
+
+        return $ticket;
+    }
+
+    /**
+     * Gerar número de protocolo sequencial para ticket webchat.
+     */
+    private function generateTicketNumber(string $tenantId): string
+    {
+        $prefix = 'WC-';
+        $date = now()->format('ymd');
+
+        $lastTicket = ChatTicket::query()
+            ->where('tenant_id', $tenantId)
+            ->where('protocol', 'like', $prefix.$date.'%')
+            ->orderByDesc('protocol')
+            ->first();
+
+        if ($lastTicket && preg_match('/^WC-\d{6}(\d{4})$/', (string) $lastTicket->protocol, $matches)) {
+            $nextSeq = (int) $matches[1] + 1;
+
+            return $prefix.$date.str_pad((string) $nextSeq, 4, '0', STR_PAD_LEFT);
+        }
+
+        return $prefix.$date.'0001';
+    }
+}

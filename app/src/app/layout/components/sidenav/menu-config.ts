@@ -90,6 +90,12 @@ export const SIDEBAR_MENU: SidebarMenuItem[] = [
       },
       {
         type: 'item',
+        label: 'Chat Externo',
+        link: '/chat/external',
+        iconName: 'external-link',
+      },
+      {
+        type: 'item',
         label: 'Resposta Automática',
         link: '/chat/auto-reply',
         iconName: 'bot',

@@ -1,14 +1,15 @@
-import {
-  WhatsAppProvider,
-  SendTextRequest,
-  SendMediaRequest,
+import { WhatsAppProvider } from './provider.interface';
+import type {
+  SendMessageResult,
+  NormalizedWebhookEvent,
+} from './provider.interface';
+
+// Re-export types for convenience
+export type {
   SendMessageResult,
   NormalizedWebhookEvent,
   MessagePayload,
 } from './provider.interface';
-
-// Re-export types for convenience
-export type { SendMessageResult, NormalizedWebhookEvent, MessagePayload } from './provider.interface';
 
 /**
  * Interface dedicada para Meta WhatsApp Business API.
@@ -87,10 +88,20 @@ export interface MetaWebhookPayload {
           timestamp: string;
           type: string;
           text?: { body: string };
-          image?: { id: string; mime_type: string; sha256: string; url?: string };
+          image?: {
+            id: string;
+            mime_type: string;
+            sha256: string;
+            url?: string;
+          };
           audio?: { id: string; mime_type: string; voice: boolean };
           video?: { id: string; mime_type: string; sha256: string };
-          document?: { id: string; mime_type: string; sha256: string; filename: string };
+          document?: {
+            id: string;
+            mime_type: string;
+            sha256: string;
+            filename: string;
+          };
           location?: {
             latitude: number;
             longitude: number;

@@ -35,12 +35,13 @@ export class MetaWebhookController {
    * GET /webhooks/meta?hub.mode=subscribe&hub.verify_token=xxx&hub.challenge=xxx
    */
   @Get()
-  async verifyWebhook(
+  verifyWebhook(
     @Query('hub.mode') mode: string,
     @Query('hub.verify_token') token: string,
     @Query('hub.challenge') challenge: string,
-  ): Promise<string> {
-    const verifyToken = this.configService.get<string>('meta.verifyToken') ?? '';
+  ): string {
+    const verifyToken =
+      this.configService.get<string>('meta.verifyToken') ?? '';
 
     this.logger.debug(`Webhook verification request: mode=${mode}`);
 
@@ -72,9 +73,7 @@ export class MetaWebhookController {
 
     // 2. Get raw body for HMAC calculation
     const rawBody =
-      typeof req.body === 'string'
-        ? req.body
-        : JSON.stringify(req.body);
+      typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
 
     // 3. Calculate expected signature
     const expectedSig = `sha256=${crypto

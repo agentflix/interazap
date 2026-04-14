@@ -9,6 +9,18 @@ import { autoReplyAvailabilityGuard } from './core/guards/auto-reply-availabilit
 import { Starter } from './pages/platform/starter/starter';
 
 export const routes: Routes = [
+  // ─── Public WebChat Routes (outside MainLayout — no auth) ─────────────────
+  {
+    path: 'chat/external/:tenantId',
+    loadComponent: () => import('./pages/webchat/webchat-page.component'),
+    data: { title: 'Chat Externo' },
+  },
+  {
+    path: 'embed/:tenantId',
+    loadComponent: () => import('./pages/webchat/embed/webchat-embed.component'),
+    data: { title: 'Chat Embed' },
+  },
+  // ─── Public Evaluation/Proposal Routes ──────────────────────────────────
   {
     path: 'chat/evaluations/:token',
     loadComponent: () => import('./pages/public/chat-evaluation/chat-evaluation'),
@@ -286,7 +298,13 @@ export const routes: Routes = [
         data: { title: 'Detalhes do Atendimento', permission: 'chat.called.view' },
       },
       {
+        path: 'chat/external',
+        loadComponent: () => import('./pages/chat/external-chat/external-chat-page'),
+        data: { title: 'Chat Externo' },
+      },
+      {
         path: 'chat/ticket',
+        pathMatch: 'full',
         canActivate: [permissionGuard],
         loadComponent: () => import('./pages/chat/ticket/ticket-page'),
         data: { title: 'Gestão de Atendimentos', permission: 'chat.called.view' },

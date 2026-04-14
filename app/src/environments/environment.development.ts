@@ -5,6 +5,7 @@ export const environment = {
     url: '',
     path: '/ws',
   },
+  publicWebchatUrl: 'http://localhost:4200',
   sentry: {
     dsn: '', // Disabled in development
     tracesSampleRate: 0,

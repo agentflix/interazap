@@ -24,9 +24,13 @@ export class MetaLookupService {
    * @param phoneNumberId - Phone Number ID da Meta
    * @returns InstanceLookupResult ou null se nao encontrado
    */
-  async resolvePhoneNumberId(phoneNumberId: string): Promise<InstanceLookupResult | null> {
+  async resolvePhoneNumberId(
+    phoneNumberId: string,
+  ): Promise<InstanceLookupResult | null> {
     if (!phoneNumberId) {
-      this.logger.warn('Empty phone_number_id provided to resolvePhoneNumberId');
+      this.logger.warn(
+        'Empty phone_number_id provided to resolvePhoneNumberId',
+      );
       return null;
     }
 
@@ -46,7 +50,9 @@ export class MetaLookupService {
     try {
       const url = `${backendUrl}/api/chat/instances/by-phone-number/${phoneNumberId}`;
 
-      this.logger.debug(`Resolving phone_number_id ${phoneNumberId} via Backend`);
+      this.logger.debug(
+        `Resolving phone_number_id ${phoneNumberId} via Backend`,
+      );
 
       const response = await axios.get<InstanceLookupResult>(url, {
         headers: {
@@ -68,7 +74,9 @@ export class MetaLookupService {
       const axiosError = error as AxiosError;
 
       if (axiosError.response?.status === 404) {
-        this.logger.warn(`Instance not found for phone_number_id: ${phoneNumberId}`);
+        this.logger.warn(
+          `Instance not found for phone_number_id: ${phoneNumberId}`,
+        );
         return null;
       }
 

@@ -1,84 +1,85 @@
 # Estado atual do projeto
 # Atualizado a cada fase CONFIRM do PREVC
 
-version: "1.0"
-project: "InteraZap"
-last_updated: "2026-04-11"
+version: '1.0'
+project: 'InteraZap'
+last_updated: '2026-04-13'
 
 stack:
-  backend:
-    language: "PHP 8.2+"
-    framework: "Laravel 12"
-    version: "12.x"
-  frontend:
-    language: "TypeScript"
-    framework: "Angular 20"
-    version: "20.3.x"
-  database:
-    type: "PostgreSQL"
-    version: "16"
-  testing:
-    backend: "Pest"
-    frontend: "Jasmine/Karma"
-    e2e: "Playwright"
+    backend:
+        language: 'PHP 8.2+'
+        framework: 'Laravel 12'
+        version: '12.x'
+    frontend:
+        language: 'TypeScript'
+        framework: 'Angular 20'
+        version: '20.3.x'
+    database:
+        type: 'PostgreSQL'
+        version: '16'
+    testing:
+        backend: 'Pest'
+        frontend: 'Jasmine/Karma'
+        e2e: 'Playwright'
 
 metrics:
-  total_features: 1
-  features_completed: 1
-  features_in_progress: 0
-  total_tasks: 17
-  tasks_completed: 16
-  tasks_in_progress: 0
-  tasks_pending: 1  # TASK-039.17 E2E (pré-existente)
+    total_features: 2
+    features_completed: 2 # FEAT-039 + FEAT-040
+    features_in_progress: 0
+    total_tasks: 39 # 17 (FEAT-039) + 22 (FEAT-040)
+    tasks_completed: 38 # 16 (FEAT-039) + 22 (FEAT-040)
+    tasks_in_progress: 0
+    tasks_pending: 1 # TASK-039.17 E2E (pré-existente)
+    tasks_pending_new: 0 # FEAT-040 tasks pending optional
 
 modules_status:
-  "AI":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "Auth":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "Billing":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "Chat":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "Configuration":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "CRM":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "Dashboard":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "Gateway":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "Platform":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "Reports":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
-  "Shared":
-    status: "active"
-    completion: "unknown"
-    last_change: "2026-04-11"
+    'AI':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
+    'Auth':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
+    'Billing':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
+    'Chat':
+        status: 'completed'
+        completion: '100% (FEAT-040)'
+        last_change: '2026-04-13'
+    'Configuration':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
+    'CRM':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
+    'Dashboard':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
+    'Gateway':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
+    'Platform':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
+    'Reports':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
+    'Shared':
+        status: 'active'
+        completion: 'unknown'
+        last_change: '2026-04-11'
 
 quality:
-  test_coverage_backend: "unknown"
-  test_coverage_frontend: "unknown"
-  lint_status: "unknown"
-  last_validation: "2026-04-11"
+    test_coverage_backend: 'unknown'
+    test_coverage_frontend: 'unknown'
+    lint_status: 'unknown'
+    last_validation: '2026-04-11'

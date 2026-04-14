@@ -39,56 +39,65 @@ export class MetaAdapter implements MetaWhatsAppProvider {
    * Envia mensagem de texto (nao suportado pela Meta fora da janela 24h).
    * Lanca erro indicando que deve usar sendTemplate.
    */
-  async sendText(
-    instanceToken: string,
-    request: SendTextRequest,
+  sendText(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _instanceToken: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _request: SendTextRequest,
   ): Promise<SendMessageResult> {
     this.logger.warn(
-      `sendText called on Meta adapter - this should use sendTemplate for Meta. Instance: ${instanceToken}`,
+      `sendText called on Meta adapter - this should use sendTemplate for Meta.`,
     );
-    return {
+    return Promise.resolve({
       success: false,
-      error: 'Meta provider requires sendTemplate for outbound messages. Use sendTemplate instead.',
-    };
+      error:
+        'Meta provider requires sendTemplate for outbound messages. Use sendTemplate instead.',
+    });
   }
 
   /**
    * Envia mensagem de midia (stub - nao implementado para Meta).
    */
-  async sendMedia(
-    instanceToken: string,
-    request: SendMediaRequest,
+  sendMedia(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _instanceToken: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _request: SendMediaRequest,
   ): Promise<SendMessageResult> {
     this.logger.warn('sendMedia is not implemented for Meta provider');
-    return {
+    return Promise.resolve({
       success: false,
       error: 'Not implemented for Meta provider',
-    };
+    });
   }
 
   /**
    * Consulta status de conexao (sempre conectado para Meta Business API).
    */
-  async getStatus(instanceToken: string): Promise<InstanceStatus> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getStatus(_instanceToken: string): Promise<InstanceStatus> {
     // Meta Business API instances are always "connected" as they use webhooks
-    return {
+    return Promise.resolve({
       connected: true,
       loggedIn: true,
-    };
+    });
   }
 
   /**
    * Desconecta instancia (nao aplicavel para Meta Business API).
    */
-  async disconnect(instanceToken: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  disconnect(_instanceToken: string): Promise<void> {
     this.logger.debug('Disconnect called on Meta adapter - no-op');
+    return Promise.resolve();
   }
 
   /**
    * Recupera QR Code (nao aplicavel para Meta Business API).
    */
-  async getQrCode(instanceToken: string): Promise<string | null> {
-    return null;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getQrCode(_instanceToken: string): Promise<string | null> {
+    return Promise.resolve(null);
   }
 
   /**
@@ -115,7 +124,9 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     }
 
     // Fetch from Meta API - only APPROVED templates
-    this.logger.debug(`Fetching templates from Meta API for instance ${instanceToken}`);
+    this.logger.debug(
+      `Fetching templates from Meta API for instance ${instanceToken}`,
+    );
     const templates = await this.client.getTemplates(instanceToken, {
       status: 'APPROVED',
     });
@@ -124,7 +135,11 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     try {
       await this.redisService
         .getClient()
-        .setex(cacheKey, this.templatesCacheTtlSeconds, JSON.stringify(templates));
+        .setex(
+          cacheKey,
+          this.templatesCacheTtlSeconds,
+          JSON.stringify(templates),
+        );
     } catch (error) {
       this.logger.warn(
         `Failed to cache templates: ${error instanceof Error ? error.message : String(error)}`,
@@ -158,7 +173,8 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     }
 
     // Validate parameter count
-    const bodyParams = template.components.find((c) => c.type === 'BODY')?.params ?? [];
+    const bodyParams =
+      template.components.find((c) => c.type === 'BODY')?.params ?? [];
     if ((request.templateParams?.length ?? 0) !== bodyParams.length) {
       return {
         success: false,
@@ -167,7 +183,8 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     }
 
     // Extract phone_number_id from instanceToken (expected format: phoneNumberId:accessToken)
-    const { phoneNumberId, accessToken } = this.parseInstanceToken(instanceToken);
+    const { phoneNumberId, accessToken } =
+      this.parseInstanceToken(instanceToken);
 
     if (!accessToken) {
       return {
@@ -202,10 +219,13 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     }
 
     // Resolve instance via HTTP to Backend
-    const instance = await this.lookupService.resolvePhoneNumberId(phoneNumberId);
+    const instance =
+      await this.lookupService.resolvePhoneNumberId(phoneNumberId);
 
     if (!instance) {
-      throw new Error(`Instance not found for phone_number_id: ${phoneNumberId}`);
+      throw new Error(
+        `Instance not found for phone_number_id: ${phoneNumberId}`,
+      );
     }
 
     // Validate webhook token
@@ -227,7 +247,11 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       status: normalized.status
         ? {
             messageId: normalized.status.messageId,
-            status: normalized.status.status as 'sent' | 'delivered' | 'read' | 'failed',
+            status: normalized.status.status as
+              | 'sent'
+              | 'delivered'
+              | 'read'
+              | 'failed',
             timestamp: normalized.status.timestamp,
           }
         : undefined,
@@ -241,9 +265,10 @@ export class MetaAdapter implements MetaWhatsAppProvider {
    * Parse instance token to extract phone_number_id and access_token.
    * Expected format: phoneNumberId:accessToken
    */
-  private parseInstanceToken(
-    instanceToken: string,
-  ): { phoneNumberId: string; accessToken: string } {
+  private parseInstanceToken(instanceToken: string): {
+    phoneNumberId: string;
+    accessToken: string;
+  } {
     const parts = instanceToken.split(':');
     if (parts.length !== 2) {
       return { phoneNumberId: instanceToken, accessToken: '' };

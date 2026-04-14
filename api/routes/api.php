@@ -52,3 +52,12 @@ Route::middleware(['throttle:public'])->group(function (): void {
     Route::get('/utils/cep/{cep}', \Domain\Shared\Http\Controllers\CepLookupController::class);
     Route::get('/crm/cnpj/{cnpj}', \Domain\Shared\Http\Controllers\CnpjLookupController::class);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Webchat Public Routes (no auth, rate-limited)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['throttle:webchat'])->group(function (): void {
+    require base_path('src/Domain/Chat/Routes/webchat.php');
+});

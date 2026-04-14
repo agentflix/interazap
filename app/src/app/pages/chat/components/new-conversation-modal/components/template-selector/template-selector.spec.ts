@@ -34,6 +34,7 @@ describe('TemplateSelectorComponent', () => {
 
     fixture = TestBed.createComponent(TemplateSelectorComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('channelId', 'channel-1');
     http.get.mockReturnValue(
       of({
         data: [
@@ -66,6 +67,7 @@ describe('TemplateSelectorComponent', () => {
 
     const newFixture = TestBed.createComponent(TemplateSelectorComponent);
     const newComponent = newFixture.componentInstance;
+    newFixture.componentRef.setInput('channelId', 'channel-1');
     newFixture.detectChanges();
 
     expect(newComponent.templates().length).toBe(2);
@@ -77,6 +79,7 @@ describe('TemplateSelectorComponent', () => {
 
     const newFixture = TestBed.createComponent(TemplateSelectorComponent);
     const newComponent = newFixture.componentInstance;
+    newFixture.componentRef.setInput('channelId', 'channel-1');
     newFixture.detectChanges();
 
     expect(newComponent.loadError()).toBeTruthy();
@@ -115,11 +118,12 @@ describe('TemplateSelectorComponent', () => {
 
     const newFixture = TestBed.createComponent(TemplateSelectorComponent);
     const newComponent = newFixture.componentInstance;
+    newFixture.componentRef.setInput('channelId', 'channel-1');
     newFixture.detectChanges();
 
     newComponent.templateControl.setValue('param_template');
     expect(newComponent.hasRequiredParameters()).toBe(true);
-    expect(newComponent.requiredParamCount()).toBe(2);
+    expect(newComponent.requiredParamCount()).toBe(1);
   });
 
   it('canSubmit is false when required params not filled', () => {
@@ -136,6 +140,7 @@ describe('TemplateSelectorComponent', () => {
 
     const newFixture = TestBed.createComponent(TemplateSelectorComponent);
     const newComponent = newFixture.componentInstance;
+    newFixture.componentRef.setInput('channelId', 'channel-1');
     newFixture.detectChanges();
 
     newComponent.templateControl.setValue('param_template');

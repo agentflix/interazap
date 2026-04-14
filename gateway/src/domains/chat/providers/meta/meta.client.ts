@@ -7,7 +7,11 @@ import {
   MetaSendTemplateResponse,
   ListTemplatesFilters,
 } from './meta.dto';
-import { MetaTemplate, SendTemplateRequest, SendMessageResult } from '../../contracts/meta-provider.interface';
+import {
+  MetaTemplate,
+  SendTemplateRequest,
+  SendMessageResult,
+} from '../../contracts/meta-provider.interface';
 
 /**
  * Configuracao do provider Meta.
@@ -61,10 +65,12 @@ export class MetaClient {
    */
   private loadConfig(): MetaConfiguration {
     return {
-      baseUrl: this.configService.get<string>('meta.graphApiUrl') ??
+      baseUrl:
+        this.configService.get<string>('meta.graphApiUrl') ??
         'https://graph.facebook.com/v18.0',
       appSecret: this.configService.get<string>('meta.appSecret') ?? '',
-      graphApiUrl: this.configService.get<string>('meta.graphApiUrl') ??
+      graphApiUrl:
+        this.configService.get<string>('meta.graphApiUrl') ??
         'https://graph.facebook.com/v18.0',
     };
   }
@@ -93,22 +99,21 @@ export class MetaClient {
     const statusFilter = filters.status ?? 'APPROVED';
 
     try {
-      const response =
-        await this.http.get<MetaGraphTemplatesResponse>(
-          '/message_templates',
-          { params },
-        );
+      const response = await this.http.get<MetaGraphTemplatesResponse>(
+        '/message_templates',
+        { params },
+      );
 
       const allTemplates = response.data.data;
 
       // Filter by status if specified
       const filteredTemplates = statusFilter
-        ? allTemplates.filter(
-            (t) => t.status.toUpperCase() === statusFilter,
-          )
+        ? allTemplates.filter((t) => t.status.toUpperCase() === statusFilter)
         : allTemplates;
 
-      return filteredTemplates.map((template) => this.normalizeTemplate(template));
+      return filteredTemplates.map((template) =>
+        this.normalizeTemplate(template),
+      );
     } catch (error) {
       this.logger.error(
         `Failed to fetch templates: ${error instanceof Error ? error.message : String(error)}`,
@@ -174,7 +179,8 @@ export class MetaClient {
     } catch (error) {
       const axiosError = error as AxiosError;
       const errorMessage =
-        axiosError.response?.data && typeof axiosError.response.data === 'object'
+        axiosError.response?.data &&
+        typeof axiosError.response.data === 'object'
           ? JSON.stringify(axiosError.response.data)
           : axiosError.message;
 
@@ -190,7 +196,9 @@ export class MetaClient {
   /**
    * Normaliza template da API Graph para o formato interno.
    */
-  private normalizeTemplate(raw: MetaGraphTemplatesResponse['data'][0]): MetaTemplate {
+  private normalizeTemplate(
+    raw: MetaGraphTemplatesResponse['data'][0],
+  ): MetaTemplate {
     return {
       name: raw.name,
       status: raw.status as MetaTemplate['status'],

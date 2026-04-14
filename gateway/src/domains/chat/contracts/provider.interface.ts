@@ -110,7 +110,10 @@ export interface WhatsAppProvider {
   /**
    * Normalize raw webhook payload to standard format
    */
-  normalizeWebhook(token: string, rawPayload: unknown): Promise<NormalizedWebhookEvent>;
+  normalizeWebhook(
+    token: string,
+    rawPayload: unknown,
+  ): Promise<NormalizedWebhookEvent>;
 }
 
 export interface NormalizedWebhookEvent {
