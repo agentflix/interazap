@@ -13,7 +13,7 @@ export interface WebChatSessionResponse {
 
 /** Incoming message from the visitor */
 export interface WebChatMessageRequest {
-  sessionId: string;
+  token: string;
   content: string;
 }
 

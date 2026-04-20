@@ -3,7 +3,7 @@
 
 version: '1.0'
 project: 'InteraZap'
-last_updated: '2026-04-13'
+last_updated: '2026-04-20'
 
 stack:
     backend:
@@ -23,11 +23,11 @@ stack:
         e2e: 'Playwright'
 
 metrics:
-    total_features: 2
-    features_completed: 2 # FEAT-039 + FEAT-040
+    total_features: 3
+    features_completed: 3 # FEAT-039, FEAT-040, FEAT-041
     features_in_progress: 0
-    total_tasks: 39 # 17 (FEAT-039) + 22 (FEAT-040)
-    tasks_completed: 38 # 16 (FEAT-039) + 22 (FEAT-040)
+    total_tasks: 44 # 17 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041)
+    tasks_completed: 43 # 16 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041)
     tasks_in_progress: 0
     tasks_pending: 1 # TASK-039.17 E2E (pré-existente)
     tasks_pending_new: 0 # FEAT-040 tasks pending optional
@@ -47,8 +47,8 @@ modules_status:
         last_change: '2026-04-11'
     'Chat':
         status: 'completed'
-        completion: '100% (FEAT-040)'
-        last_change: '2026-04-13'
+        completion: '100% (FEAT-040, FEAT-041)'
+        last_change: '2026-04-20'
     'Configuration':
         status: 'active'
         completion: 'unknown'
@@ -82,4 +82,4 @@ quality:
     test_coverage_backend: 'unknown'
     test_coverage_frontend: 'unknown'
     lint_status: 'unknown'
-    last_validation: '2026-04-11'
+    last_validation: '2026-04-20'

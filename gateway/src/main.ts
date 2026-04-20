@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { json, urlencoded } from 'express';
+import { StructuredLoggerService } from './common/logger';
 
 /**
  * Bootstraps the NestJS Gateway application.
@@ -14,7 +15,15 @@ import { json, urlencoded } from 'express';
  * the server listening on the configured port.
  */
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  // Use structured JSON logger as the application logger
+  const logger = app.get(StructuredLoggerService);
+  logger.setContext('Gateway');
+  app.useLogger(logger);
+
   const configService = app.get(ConfigService);
 
   // Body parser limits — base64-encoded files can be large (PDFs, images, etc.)
@@ -48,13 +57,15 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: { enableImplicitConversion: true },
     }),
   );
 
   const port = configService.get<number>('PORT') ?? 3000;
   await app.listen(port);
-  console.log(`Gateway listening on http://localhost:${port}`);
+  logger.log(`Gateway listening on http://localhost:${port}`);
 }
 bootstrap().catch((err) => {
   console.error('Gateway failed to start:', err);

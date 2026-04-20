@@ -14,10 +14,13 @@ import { HealthModule } from './health/health.module';
 import { TraceIdInterceptor } from './common/interceptors/trace-id.interceptor';
 import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
 import { MetricsModule } from './metrics/metrics.module';
+import { LoggerModule } from './common/logger';
 import { WsThrottlerGuard } from './domains/realtime/guards/ws-throttler.guard';
 import { CircuitBreakerModule } from './shared/services/circuit-breaker';
 import { IdempotencyModule } from './shared/services/idempotency';
 import { SharedModule } from './shared/shared.module';
+import { BotModule } from './bot/bot.module';
+import { SecretsModule } from './common/secrets/secrets.module';
 import { configFactories } from './core/config/configuration';
 import { ThrottlerTrackerRequest } from './common/models/app.model';
 import { ThrottlerConfiguration } from './core/config/models/configuration.model';
@@ -33,6 +36,7 @@ import { ThrottlerConfiguration } from './core/config/models/configuration.model
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: configFactories }),
+    LoggerModule,
     SharedModule,
     CircuitBreakerModule,
     IdempotencyModule,
@@ -72,6 +76,8 @@ import { ThrottlerConfiguration } from './core/config/models/configuration.model
     WebhooksModule,
     RealtimeModule,
     InternalModule,
+    BotModule,
+    SecretsModule,
   ],
   providers: [
     {

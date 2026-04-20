@@ -1,8 +1,7 @@
-import { type OnDestroy, Injectable, DestroyRef, inject, signal, computed } from '@angular/core';
+import { type OnDestroy, Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { type Observable, Subject } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { type Observable, Subject, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { io, type Socket } from 'socket.io-client';
 import {
   type WebChatMessage,
@@ -22,7 +21,6 @@ const WEBCHAT_PATH = '/ws/webchat';
 @Injectable({ providedIn: 'root' })
 export class WebChatService implements OnDestroy {
   private readonly http = inject(HttpClient);
-  private readonly destroyRef = inject(DestroyRef);
 
   // ─── Socket.io state ───────────────────────────────────────────────────────
   private socket: Socket | null = null;
@@ -54,7 +52,16 @@ export class WebChatService implements OnDestroy {
   readonly joined$ = this._joined$.asObservable();
 
   // ─── API Base URL ─────────────────────────────────────────────────────────
-  private readonly apiBase = environment.gateway?.url ?? window.location.origin;
+  // Use || instead of ?? so an empty-string url falls back to the current origin
+  // (Angular dev-server proxy forwards /ws to the NestJS gateway).
+  private readonly apiBase = environment.gateway?.url || window.location.origin;
+
+  // API responses come in `{ success, message, data }` envelope.
+  private unwrapData<T>(response: unknown): T {
+    const maybeEnvelope = response as { data?: unknown };
+    const payload = maybeEnvelope?.data ?? response;
+    return payload as T;
+  }
 
   // ─── Public API ───────────────────────────────────────────────────────────
 
@@ -72,18 +79,17 @@ export class WebChatService implements OnDestroy {
       visitor_name: name,
       visitor_phone: whatsapp,
     };
-    return this.http
-      .post<WebChatSessionResponse>(`${this.apiBase}/api/webchat/sessions`, body)
-      .pipe(
-        tap((response) => {
-          this.sessionToken = response.token;
-          this.sessionId = response.sessionId;
-        }),
-        catchError((err) => {
-          this._error.set(err?.error?.message ?? 'Falha ao criar sessão');
-          throw err;
-        }),
-      );
+    return this.http.post<unknown>(`${this.apiBase}/api/webchat/sessions`, body).pipe(
+      map((response) => this.unwrapData<WebChatSessionResponse>(response)),
+      tap((response) => {
+        this.sessionToken = response.token;
+        this.sessionId = response.sessionId;
+      }),
+      catchError((err) => {
+        this._error.set(err?.error?.message ?? 'Falha ao criar sessão');
+        throw err;
+      }),
+    );
   }
 
   /**
@@ -95,49 +101,65 @@ export class WebChatService implements OnDestroy {
     content: string,
     tempId?: string,
   ): Observable<WebChatMessageResponse> {
-    const body: WebChatMessageRequest = { sessionId, content };
-    return this.http
-      .post<WebChatMessageResponse>(`${this.apiBase}/api/webchat/messages`, body)
-      .pipe(
-        tap((response) => {
-          // Optimistically add pending message to local state
-          const optimisticMessage: WebChatMessage = {
-            id: tempId ?? response.messageId,
-            content,
-            direction: 'outgoing',
-            source: 'visitor',
-            type: 'text',
-            status: 'pending',
-            createdAt: new Date().toISOString(),
-            sessionId,
-          };
-          this.addMessage(optimisticMessage);
-          this._messageSent$.next({ messageId: response.messageId, tempId });
-        }),
-        catchError((err) => {
-          this._error.set(err?.error?.message ?? 'Falha ao enviar mensagem');
-          throw err;
-        }),
-      );
+    const token = this.sessionToken?.trim();
+    if (!token) {
+      const message = 'Sessão inválida ou expirada. Inicie uma nova conversa para continuar.';
+      this._error.set(message);
+      return throwError(() => new Error(message));
+    }
+
+    const body: WebChatMessageRequest = { token, content };
+    return this.http.post<unknown>(`${this.apiBase}/api/webchat/messages`, body).pipe(
+      map((response) => this.unwrapData<WebChatMessageResponse>(response)),
+      tap((response) => {
+        // Optimistically add pending message to local state
+        const optimisticMessage: WebChatMessage = {
+          id: tempId ?? response.messageId,
+          content,
+          direction: 'outgoing',
+          source: 'visitor',
+          type: 'text',
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          sessionId,
+        };
+        this.addMessage(optimisticMessage);
+        this._messageSent$.next({ messageId: response.messageId, tempId });
+      }),
+      catchError((err) => {
+        this._error.set(err?.error?.message ?? 'Falha ao enviar mensagem');
+        throw err;
+      }),
+    );
   }
 
   /**
    * Connects to the WebSocket gateway and joins the session room.
-   * Uses the token from createSession().
+   * Uses the token from createSession(), or pass sessionId explicitly when restoring a session.
    */
-  connectWebSocket(token: string): void {
+  connectWebSocket(token: string, sessionId?: string): void {
     if (this.socket?.connected) {
       return;
     }
 
+    if (typeof token !== 'string' || token.trim() === '') {
+      this._connectionState.set('error');
+      this._error.set('Token de sessão inválido para conexão WebSocket');
+      return;
+    }
+
     this._connectionState.set('connecting');
-    this.sessionToken = token;
+    this.sessionToken = token.trim();
+    // When restoring from localStorage, sessionId is not set via createSession() tap.
+    if (sessionId && typeof sessionId === 'string' && sessionId.trim() !== '') {
+      this.sessionId = sessionId.trim();
+    }
 
     const gatewayUrl = this.apiBase;
 
     this.socket = io(gatewayUrl, {
       path: environment.gateway?.path ?? WEBCHAT_PATH,
-      auth: { token },
+      auth: { token: this.sessionToken },
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
@@ -189,8 +211,21 @@ export class WebChatService implements OnDestroy {
     try {
       const raw = localStorage.getItem('webchat_session');
       if (!raw) return null;
-      const parsed = JSON.parse(raw) as { token: string; sessionId: string; expiresAt: number };
-      if (Date.now() > parsed.expiresAt) {
+      const parsed = JSON.parse(raw) as {
+        token?: string;
+        sessionId?: string;
+        expiresAt?: number;
+      };
+      if (typeof parsed.expiresAt !== 'number' || Date.now() > parsed.expiresAt) {
+        localStorage.removeItem('webchat_session');
+        return null;
+      }
+      if (
+        typeof parsed.token !== 'string' ||
+        parsed.token.trim() === '' ||
+        typeof parsed.sessionId !== 'string' ||
+        parsed.sessionId.trim() === ''
+      ) {
         localStorage.removeItem('webchat_session');
         return null;
       }
@@ -234,9 +269,9 @@ export class WebChatService implements OnDestroy {
 
     this.socket.on('disconnect', (reason: string) => {
       this._connectionState.set('disconnected');
-      if (reason === 'io server disconnect') {
-        this.socket?.connect();
-      }
+      // Prevent reconnect loops when server disconnects explicitly
+      // (typically due to auth rejection).
+      if (reason === 'io server disconnect') return;
     });
 
     this.socket.on('connect_error', (err: Error) => {

@@ -43,6 +43,16 @@ class ChatGatewayService
         string $instanceId,
         array $payload,
     ): array {
+        if ($provider === 'telegram') {
+            return $this->gateway->post('/outbound/send', [
+                'provider' => $provider,
+                'instanceToken' => $instanceToken,
+                'tenantId' => $tenantId,
+                'instanceId' => $instanceId,
+                ...$payload,
+            ]);
+        }
+
         if ($provider !== 'zapi') {
             throw new InvalidArgumentException("Outbound provider not supported: {$provider}");
         }

@@ -74,7 +74,7 @@ export interface WhatsAppProvider {
   /**
    * Provider identifier
    */
-  readonly name: 'uazapi' | 'zapi' | 'meta';
+  readonly name: 'uazapi' | 'zapi' | 'meta' | 'telegram';
 
   /**
    * Send a text message

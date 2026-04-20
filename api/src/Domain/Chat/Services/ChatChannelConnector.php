@@ -6,8 +6,10 @@ namespace Domain\Chat\Services;
 
 use Domain\Chat\Models\ChatInstance;
 use Domain\Platform\Services\UazapiGatewayService;
+use Domain\Shared\Infrastructure\Gateway\GatewayHttpClient;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 /**
@@ -23,9 +25,13 @@ class ChatChannelConnector
     /**
      * Inicializa o conector com o serviço de gateway.
      *
-     * @param  UazapiGatewayService  $gateway  Serviço de abstração do provedor.
+     * @param  UazapiGatewayService  $gateway  Serviço de abstração do provedor Uazapi.
+     * @param  GatewayHttpClient  $gatewayHttp  Client HTTP para comunicação com o Gateway.
      */
-    public function __construct(private readonly UazapiGatewayService $gateway) {}
+    public function __construct(
+        private readonly UazapiGatewayService $gateway,
+        private readonly GatewayHttpClient $gatewayHttp,
+    ) {}
 
     /**
      * Estabelecer uma nova conexão com a instância de chat.
@@ -42,6 +48,10 @@ class ChatChannelConnector
      */
     public function connect(ChatInstance $instance, string $mode, ?string $phone = null): array
     {
+        if ($instance->provider === 'telegram') {
+            return $this->connectTelegram($instance);
+        }
+
         $mode = $mode === 'pair' ? 'pair' : 'qr';
 
         $connection = $this->connectUazapi($instance, $mode, $phone);
@@ -182,6 +192,134 @@ class ChatChannelConnector
         }
 
         return $this->gateway->updatePresence($token, $presence);
+    }
+
+    /**
+     * Desconectar uma instância de chat do provedor externo.
+     *
+     * @param  ChatInstance  $instance  A instância que será desconectada.
+     * @return array{status:string} Dados da desconexão.
+     *
+     * @throws RuntimeException Caso o provedor não seja suportado.
+     */
+    public function disconnect(ChatInstance $instance): array
+    {
+        if ($instance->provider === 'telegram') {
+            return $this->disconnectTelegram($instance);
+        }
+
+        if ($instance->provider === 'uazapi') {
+            $token = $instance->settings_json['token'] ?? null;
+            if ($token !== null) {
+                $this->gateway->disconnectInstance($token);
+            }
+
+            return ['status' => 'disconnected'];
+        }
+
+        throw new RuntimeException("Provedor '{$instance->provider}' não suportado para desconexão.");
+    }
+
+    /**
+     * Conectar instância Telegram via Bot API.
+     *
+     * Valida o bot_token via getMe, configura o webhook no Gateway e atualiza
+     * as settings da instância com bot_id, bot_username e webhook_secret.
+     *
+     * @param  ChatInstance  $instance  Instância Telegram a conectar.
+     * @return array{status:string,bot_username:?string,bot_id:?int} Dados da conexão.
+     *
+     * @throws RuntimeException Se bot_token estiver ausente ou inválido.
+     */
+    private function connectTelegram(ChatInstance $instance): array
+    {
+        $botToken = $instance->settings_json['bot_token'] ?? null;
+        if ($botToken === null || $botToken === '') {
+            throw new RuntimeException('Bot token ausente para instância Telegram.');
+        }
+
+        try {
+            $botInfo = $this->gatewayHttp->post('/telegram/validate-token', [
+                'bot_token' => $botToken,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('channel.telegram.validate_token_failed', [
+                'instance_id' => $instance->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw new RuntimeException('Falha ao validar bot token Telegram: '.$e->getMessage(), 0, $e);
+        }
+
+        if (empty($botInfo['id']) || empty($botInfo['username'])) {
+            throw new RuntimeException('Resposta inválida do Telegram ao validar bot token.');
+        }
+
+        $webhookSecret = Str::random(256);
+        $webhookUrl = rtrim((string) config('services.gateway.url'), '/')
+            .'/webhooks/telegram/'.$instance->webhook_token;
+
+        try {
+            $this->gatewayHttp->post('/telegram/set-webhook', [
+                'bot_token' => $botToken,
+                'webhook_url' => $webhookUrl,
+                'webhook_secret' => $webhookSecret,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('channel.telegram.set_webhook_failed', [
+                'instance_id' => $instance->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw new RuntimeException('Falha ao configurar webhook Telegram: '.$e->getMessage(), 0, $e);
+        }
+
+        $instance->settings_json = [
+            ...($instance->settings_json ?? []),
+            'bot_id' => $botInfo['id'],
+            'bot_username' => $botInfo['username'],
+            'webhook_secret' => $webhookSecret,
+        ];
+        $instance->status = 'connected';
+        $instance->save();
+
+        return [
+            'status' => 'connected',
+            'bot_username' => $botInfo['username'],
+            'bot_id' => $botInfo['id'],
+        ];
+    }
+
+    /**
+     * Desconectar instância Telegram removendo o webhook.
+     *
+     * @param  ChatInstance  $instance  Instância Telegram a desconectar.
+     * @return array{status:string} Confirmação da desconexão.
+     */
+    private function disconnectTelegram(ChatInstance $instance): array
+    {
+        $botToken = $instance->settings_json['bot_token'] ?? null;
+
+        if ($botToken !== null && $botToken !== '') {
+            try {
+                $this->gatewayHttp->post('/telegram/delete-webhook', [
+                    'bot_token' => $botToken,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('channel.telegram.delete_webhook_failed', [
+                    'instance_id' => $instance->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $settingsJson = $instance->settings_json ?? [];
+        unset($settingsJson['webhook_secret']);
+        $instance->settings_json = $settingsJson;
+        $instance->status = 'disconnected';
+        $instance->save();
+
+        return ['status' => 'disconnected'];
     }
 
     /**

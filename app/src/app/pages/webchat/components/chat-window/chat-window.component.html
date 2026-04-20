@@ -1,15 +1,11 @@
 <div class="flex flex-col h-screen bg-white dark:bg-neutral-950 overflow-hidden">
-
   <!-- Header -->
   <header
-    class="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800
-      bg-white dark:bg-neutral-900 shrink-0"
+    class="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shrink-0"
   >
     <div class="flex items-center gap-3">
       <!-- Chat icon -->
-      <div
-        class="w-8 h-8 rounded-full bg-accent-500 flex items-center justify-center shrink-0"
-      >
+      <div class="w-8 h-8 rounded-full bg-accent-500 flex items-center justify-center shrink-0">
         <svg
           class="w-4 h-4 text-white"
           fill="none"
@@ -26,9 +22,7 @@
         </svg>
       </div>
       <div>
-        <h1 class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
-          Atendimento Web
-        </h1>
+        <h1 class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Atendimento Web</h1>
         <div class="flex items-center gap-1.5">
           <span
             [class]="connectionStatusDot()"
@@ -77,13 +71,11 @@
     aria-label="Mensagens do chat"
   >
     <div class="flex flex-col gap-3 min-h-full justify-end">
-
       <!-- Welcome message (first message) -->
       @if (messages().length === 0 && isConnected()) {
         <div class="flex justify-center my-8">
           <div
-            class="max-w-[80%] px-4 py-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800
-              text-sm text-neutral-600 dark:text-neutral-300 text-center"
+            class="max-w-[80%] px-4 py-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-sm text-neutral-600 dark:text-neutral-300 text-center"
           >
             Olá, {{ visitorName() }}! Como posso ajudar hoje?
           </div>
@@ -128,21 +120,20 @@
           </div>
         </div>
       }
-
     </div>
   </main>
 
-  <!-- Composer -->
+  <!-- Composer — shown as soon as session is active, independent of WS state -->
+  <!-- Messages are sent via REST; WS is only needed for real-time incoming responses -->
   <footer class="shrink-0">
-    @if (isConnected()) {
+    @if (sessionId()) {
       <af-chat-composer
         placeholder="Digite sua mensagem..."
         (messageSent)="onMessageSent($event)"
       />
     } @else {
       <div
-        class="px-4 py-3 text-center text-sm text-neutral-500 dark:text-neutral-400
-          bg-neutral-50 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800"
+        class="px-4 py-3 text-center text-sm text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800"
       >
         @switch (connectionState()) {
           @case ('connecting') {
@@ -161,5 +152,4 @@
       </div>
     }
   </footer>
-
 </div>

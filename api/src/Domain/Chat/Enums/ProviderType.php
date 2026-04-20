@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Chat\Enums;
 
 /**
- * WhatsApp service provider type.
+ * Communication service provider type.
  */
 enum ProviderType: string
 {
@@ -13,6 +13,7 @@ enum ProviderType: string
     case ZAPI = 'zapi';
     case META = 'meta';
     case WEB = 'web';
+    case TELEGRAM = 'telegram';
 
     /**
      * Returns label for display.
@@ -24,6 +25,7 @@ enum ProviderType: string
             self::ZAPI => 'Z-API',
             self::META => 'Meta',
             self::WEB => 'Webchat',
+            self::TELEGRAM => 'Telegram',
         };
     }
 }

@@ -64,28 +64,50 @@
     </div>
   }
 
-  <div>
-    <app-text-input
-      [label]="tokenLabel()"
-      [control]="form.controls.token"
-      type="password"
-      placeholder="••••••••"
-      dataTest="integration-form-token"
-      [required]="isTokenRequired()"
-      [helpText]="tokenHelpText()"
-    />
-  </div>
+  @if (isTelegram()) {
+    <div
+      class="flex items-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-3 text-sm text-purple-700 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300"
+    >
+      <i class="pi pi-telegram"></i>
+      <span>Canal selecionado: Telegram Bot</span>
+    </div>
+    <div>
+      <app-text-input
+        label="Bot Token"
+        [control]="form.controls.bot_token"
+        type="password"
+        placeholder="123456789:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+        dataTest="integration-form-bot-token"
+        [required]="true"
+        helpText="Obtenha o token via @BotFather no Telegram"
+      />
+    </div>
+  }
 
-  <div>
-    <app-phone-input
-      label="WhatsApp"
-      [control]="form.controls.cellphone"
-      [countryControl]="form.controls.country_code"
-      dataTest="integration-form-cellphone"
-      [required]="true"
-      [helpText]="whatsappHelpText()"
-    />
-  </div>
+  @if (isWhatsappProvider()) {
+    <div>
+      <app-text-input
+        [label]="tokenLabel()"
+        [control]="form.controls.token"
+        type="password"
+        placeholder="••••••••"
+        dataTest="integration-form-token"
+        [required]="isTokenRequired()"
+        [helpText]="tokenHelpText()"
+      />
+    </div>
+
+    <div>
+      <app-phone-input
+        label="WhatsApp"
+        [control]="form.controls.cellphone"
+        [countryControl]="form.controls.country_code"
+        dataTest="integration-form-cellphone"
+        [required]="true"
+        [helpText]="whatsappHelpText()"
+      />
+    </div>
+  }
 
   <app-switch-input
     label="Ativo"

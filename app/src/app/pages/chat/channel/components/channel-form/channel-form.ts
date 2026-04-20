@@ -83,6 +83,7 @@ export class ChannelFormComponent {
     { label: 'UaZapi', value: 'uazapi' },
     { label: 'Z-API', value: 'zapi' },
     { label: 'Meta', value: 'meta' },
+    { label: 'Telegram', value: 'telegram' },
   ];
 
   readonly form = this.fb.group({
@@ -95,6 +96,7 @@ export class ChannelFormComponent {
     country_code: this.fb.nonNullable.control('+55', Validators.required),
     phone_number_id: this.fb.control(''),
     access_token: this.fb.control(''),
+    bot_token: this.fb.control(''),
     is_active: this.fb.control(true),
     send_attendant_name: this.fb.control(false),
     send_outside_business_hours_message: this.fb.control(false),
@@ -139,6 +141,16 @@ export class ChannelFormComponent {
     ),
     { initialValue: false },
   );
+
+  readonly isTelegram = toSignal(
+    this.form.controls.provider.valueChanges.pipe(
+      startWith(this.form.controls.provider.value),
+      map((provider) => provider === 'telegram'),
+    ),
+    { initialValue: false },
+  );
+
+  readonly isWhatsappProvider = computed(() => !this.isTelegram());
 
   readonly isEvaluationEnabled = toSignal(
     this.form.controls.evaluation_enabled.valueChanges.pipe(
@@ -202,6 +214,7 @@ export class ChannelFormComponent {
           country_code: cellphone.countryCode,
           phone_number_id: integration.settings?.phone_number_id || '',
           access_token: integration.settings?.access_token || '',
+          bot_token: '',
           is_active: integration.is_active,
           send_attendant_name: integration.settings?.send_attendant_name ?? false,
           send_outside_business_hours_message:
@@ -226,6 +239,7 @@ export class ChannelFormComponent {
         this.form.enable({ emitEvent: false });
         this.updateTokenValidators(integration.provider || 'uazapi');
         this.updateMetaFieldValidators(integration.provider || 'uazapi');
+        this.updateTelegramFieldValidators(integration.provider || 'uazapi');
         this.applyConnectionLock(integration);
       } else {
         this.lastLoadedIntegrationId.set(null);
@@ -233,6 +247,7 @@ export class ChannelFormComponent {
         this.form.enable({ emitEvent: false });
         this.updateTokenValidators(this.form.controls.provider.value ?? 'uazapi');
         this.updateMetaFieldValidators(this.form.controls.provider.value ?? 'uazapi');
+        this.updateTelegramFieldValidators(this.form.controls.provider.value ?? 'uazapi');
       }
     });
 
@@ -241,6 +256,7 @@ export class ChannelFormComponent {
       .subscribe((provider) => {
         this.updateTokenValidators(provider ?? 'uazapi');
         this.updateMetaFieldValidators(provider ?? 'uazapi');
+        this.updateTelegramFieldValidators(provider ?? 'uazapi');
       });
   }
 
@@ -260,6 +276,30 @@ export class ChannelFormComponent {
     accessTokenControl.updateValueAndValidity({ emitEvent: false });
   }
 
+  private updateTelegramFieldValidators(provider: string): void {
+    const botTokenControl = this.form.controls.bot_token;
+    const cellphoneControl = this.form.controls.cellphone;
+    const countryCodeControl = this.form.controls.country_code;
+
+    if (provider === 'telegram') {
+      botTokenControl.setValidators([
+        Validators.required,
+        Validators.pattern(/^\d+:[A-Za-z0-9_-]+$/),
+      ]);
+      cellphoneControl.clearValidators();
+      countryCodeControl.clearValidators();
+    } else {
+      botTokenControl.clearValidators();
+      botTokenControl.setValue('', { emitEvent: false });
+      cellphoneControl.setValidators([Validators.required]);
+      countryCodeControl.setValidators([Validators.required]);
+    }
+
+    botTokenControl.updateValueAndValidity({ emitEvent: false });
+    cellphoneControl.updateValueAndValidity({ emitEvent: false });
+    countryCodeControl.updateValueAndValidity({ emitEvent: false });
+  }
+
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -275,6 +315,33 @@ export class ChannelFormComponent {
 
     const provider = formValue.provider || 'uazapi';
     const integrationId = providerMap[provider] || 5;
+    const settings: Partial<Integration['settings']> = {
+      channel_provider_id: integrationId,
+      cellphone:
+        provider === 'telegram'
+          ? undefined
+          : this.buildInternationalCellphone(
+              formValue.cellphone || '',
+              formValue.country_code || '+55',
+            ),
+      instance: formValue.instance || undefined,
+      client_token: formValue.client_token || undefined,
+      phone_number_id: formValue.phone_number_id || undefined,
+      access_token: formValue.access_token || undefined,
+      bot_token: provider === 'telegram' ? formValue.bot_token || undefined : undefined,
+      send_attendant_name: formValue.send_attendant_name ?? false,
+      send_outside_business_hours_message: formValue.send_outside_business_hours_message ?? false,
+      outside_business_hours_message: formValue.outside_business_hours_message || undefined,
+      send_no_business_hours_message: formValue.send_no_business_hours_message ?? false,
+      no_business_hours_message: formValue.no_business_hours_message || undefined,
+      send_department_transfer_message: formValue.send_department_transfer_message ?? false,
+      department_transfer_message: formValue.department_transfer_message || undefined,
+      send_start_service_message: formValue.send_start_service_message ?? false,
+      start_service_message: formValue.start_service_message || undefined,
+      send_end_service_message: formValue.send_end_service_message ?? false,
+      end_service_message: formValue.end_service_message || undefined,
+      channel_fallback_message: formValue.channel_fallback_message || undefined,
+    };
 
     const payload: Partial<Integration> = {
       name: formValue.name || '',
@@ -283,29 +350,7 @@ export class ChannelFormComponent {
       is_active: formValue.is_active ?? true,
       evaluation_enabled: formValue.evaluation_enabled ?? false,
       evaluation_cutoff_score: formValue.evaluation_cutoff_score ?? 3,
-      settings: {
-        channel_provider_id: integrationId,
-        cellphone: this.buildInternationalCellphone(
-          formValue.cellphone || '',
-          formValue.country_code || '+55',
-        ),
-        instance: formValue.instance || undefined,
-        client_token: formValue.client_token || undefined,
-        phone_number_id: formValue.phone_number_id || undefined,
-        access_token: formValue.access_token || undefined,
-        send_attendant_name: formValue.send_attendant_name ?? false,
-        send_outside_business_hours_message: formValue.send_outside_business_hours_message ?? false,
-        outside_business_hours_message: formValue.outside_business_hours_message || undefined,
-        send_no_business_hours_message: formValue.send_no_business_hours_message ?? false,
-        no_business_hours_message: formValue.no_business_hours_message || undefined,
-        send_department_transfer_message: formValue.send_department_transfer_message ?? false,
-        department_transfer_message: formValue.department_transfer_message || undefined,
-        send_start_service_message: formValue.send_start_service_message ?? false,
-        start_service_message: formValue.start_service_message || undefined,
-        send_end_service_message: formValue.send_end_service_message ?? false,
-        end_service_message: formValue.end_service_message || undefined,
-        channel_fallback_message: formValue.channel_fallback_message || undefined,
-      },
+      settings: settings as Integration['settings'],
     };
 
     if (!payload.token) {
@@ -349,6 +394,7 @@ export class ChannelFormComponent {
       country_code: '+55',
       phone_number_id: '',
       access_token: '',
+      bot_token: '',
       is_active: true,
       send_attendant_name: false,
       send_outside_business_hours_message: false,

@@ -12,12 +12,18 @@ export interface StructuredLogEntry {
   timestamp: string;
   /** Nível do log (info, warn, error, debug, verbose, fatal) */
   level: string;
+  /** Nome do serviço que emitiu o log */
+  service: string;
   /** Mensagem do log */
   message: string;
   /** Contexto/módulo que gerou o log */
   context?: string;
   /** ID de rastreamento distribuído */
   traceId?: string;
+  /** ID do span dentro do trace */
+  spanId?: string;
+  /** Stack trace (apenas para erros) */
+  stack?: string;
   /** Campos adicionais de contexto */
   [key: string]: unknown;
 }

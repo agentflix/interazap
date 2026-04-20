@@ -53,7 +53,7 @@ class ChatInstanceRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'provider' => ['required', 'string', 'in:zapi,uazapi,meta'],
+            'provider' => ['required', 'string', 'in:zapi,uazapi,meta,telegram'],
             'is_active' => ['boolean'],
             'evaluation_enabled' => ['boolean'],
             'evaluation_cutoff_score' => ['integer', 'min:1', 'max:5'],
@@ -62,6 +62,12 @@ class ChatInstanceRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::requiredIf(fn () => $this->isMethod('post') && $this->input('provider') === 'uazapi'),
+            ],
+            'bot_token' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::requiredIf(fn () => $this->input('provider') === 'telegram'),
             ],
             'settings' => ['nullable', 'array'],
             'settings.channel_provider_id' => ['nullable', 'integer'],

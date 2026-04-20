@@ -13,7 +13,6 @@ describe('WebChatService', () => {
     token: 'jwt-token-123',
     sessionId: 'session-abc',
     ticketId: 'ticket-xyz',
-    tenantId: 'tenant-1',
   };
 
   beforeEach(() => {
@@ -52,7 +51,7 @@ describe('WebChatService', () => {
         visitor_phone: '+5511999999999',
       });
 
-      req.flush(mockResponse);
+      req.flush({ success: true, data: mockResponse });
 
       expect(result).toEqual(mockResponse);
       expect(service['sessionToken']).toBe(mockResponse.token);
@@ -83,6 +82,7 @@ describe('WebChatService', () => {
   describe('sendMessage', () => {
     it('should send a message and add it optimistically to messages list', () => {
       service['sessionId'] = 'session-abc';
+      service['sessionToken'] = 'jwt-token-123';
 
       let result: unknown;
 
@@ -96,12 +96,12 @@ describe('WebChatService', () => {
       const req = httpMock.expectOne(`${service['apiBase']}/api/webchat/messages`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({
-        sessionId: 'session-abc',
+        token: 'jwt-token-123',
         content: 'Olá, precisa de ajuda',
       });
 
       const messageResponse = { messageId: 'msg-123' };
-      req.flush(messageResponse);
+      req.flush({ success: true, data: messageResponse });
 
       expect(result).toEqual(messageResponse);
       expect(service.messages().length).toBe(1);
@@ -111,6 +111,7 @@ describe('WebChatService', () => {
 
     it('should use tempId when provided for optimistic message', () => {
       service['sessionId'] = 'session-abc';
+      service['sessionToken'] = 'jwt-token-123';
       const tempId = 'temp-123';
 
       service
@@ -119,9 +120,36 @@ describe('WebChatService', () => {
         .subscribe(() => {});
 
       const req = httpMock.expectOne(`${service['apiBase']}/api/webchat/messages`);
-      req.flush({ messageId: 'msg-real' });
+      req.flush({ success: true, data: { messageId: 'msg-real' } });
 
       expect(service.messages()[0].id).toBe(tempId);
+    });
+
+    it('should fail fast with friendly error when token is missing', () => {
+      service['sessionId'] = 'session-abc';
+      service['sessionToken'] = null;
+
+      let capturedError: unknown = null;
+
+      service
+        .sendMessage('session-abc', 'Mensagem sem token')
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe({
+          next: () => {},
+          error: (err) => {
+            capturedError = err;
+          },
+        });
+
+      httpMock.expectNone(`${service['apiBase']}/api/webchat/messages`);
+      expect(capturedError).toBeTruthy();
+      expect(capturedError instanceof Error).toBe(true);
+      expect((capturedError as Error).message).toBe(
+        'Sessão inválida ou expirada. Inicie uma nova conversa para continuar.',
+      );
+      expect(service.error()).toBe(
+        'Sessão inválida ou expirada. Inicie uma nova conversa para continuar.',
+      );
     });
   });
 
@@ -155,6 +183,27 @@ describe('WebChatService', () => {
       const result = service.restoreSession();
       expect(result).toBeNull();
     });
+
+    it('should return null and clear storage for malformed persisted session', () => {
+      localStorage.setItem(
+        'webchat_session',
+        JSON.stringify({ sessionId: 'session-123', expiresAt: Date.now() + 60000 }),
+      );
+
+      const result = service.restoreSession();
+      expect(result).toBeNull();
+      expect(localStorage.getItem('webchat_session')).toBeNull();
+    });
+  });
+
+  describe('connectWebSocket', () => {
+    it('should set error state and not create socket when token is invalid', () => {
+      service.connectWebSocket('   ');
+
+      expect(service.connectionState()).toBe('error');
+      expect(service.error()).toBe('Token de sessão inválido para conexão WebSocket');
+      expect(service['socket']).toBeNull();
+    });
   });
 
   describe('connection state signals', () => {
@@ -165,6 +214,7 @@ describe('WebChatService', () => {
 
     it('should update message status', () => {
       service['sessionId'] = 'session-abc';
+      service['sessionToken'] = 'jwt-token-123';
 
       service
         .sendMessage('session-abc', 'Hello')
@@ -172,7 +222,7 @@ describe('WebChatService', () => {
         .subscribe(() => {});
 
       const req = httpMock.expectOne(`${service['apiBase']}/api/webchat/messages`);
-      req.flush({ messageId: 'msg-1' });
+      req.flush({ success: true, data: { messageId: 'msg-1' } });
 
       expect(service.messages()[0].status).toBe('pending');
 

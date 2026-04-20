@@ -34,6 +34,8 @@ use Illuminate\Support\Facades\Route;
 */
 Route::middleware(['throttle:webhooks'])->group(function (): void {
     Route::post('/webhooks/uazapi/instances/{token}', [ChatWebhookController::class, 'uazapi']);
+    Route::post('/webhooks/telegram/instances/{token}', [ChatWebhookController::class, 'telegram'])
+        ->name('chat.webhooks.telegram');
 });
 
 /*

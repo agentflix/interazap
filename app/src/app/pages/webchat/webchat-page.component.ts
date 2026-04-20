@@ -60,9 +60,12 @@ export class WebChatPageComponent implements OnInit {
   private attemptSessionRestore(): void {
     const restored = this.webchatService.restoreSession();
     if (restored) {
-      this.webchatService.connectWebSocket(restored.token);
+      // Pass sessionId so the service can emit webchat:join on socket connect.
+      this.webchatService.connectWebSocket(restored.token, restored.sessionId);
       this.hasSession.set(true);
-      this.initChatWindow(restored.sessionId);
+      // queueMicrotask ensures Angular has processed hasSession change before
+      // calling chatWindowRef(), which requires the @if(showChat()) block to be rendered.
+      queueMicrotask(() => this.initChatWindow(restored.sessionId));
     }
     this.isRestoring.set(false);
   }

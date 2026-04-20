@@ -23,6 +23,7 @@ export interface Integration {
     token?: string;
     phone_number_id?: string;
     access_token?: string;
+    bot_token?: string;
     channel_fallback_message?: string;
     send_attendant_name?: boolean;
     send_outside_business_hours_message?: boolean;

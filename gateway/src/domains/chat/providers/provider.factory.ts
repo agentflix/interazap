@@ -55,6 +55,23 @@ export class ProviderFactory {
   }
 
   /**
+   * Registra um adaptador externo na fabrica de provedores.
+   * Permite que modulos externos (ex.: BotModule) registrem provedores
+   * sem acoplamento direto no construtor da fabrica.
+   *
+   * @param name - Nome canonico do provedor
+   * @param provider - Instancia do adaptador que implementa WhatsAppProvider
+   */
+  registerProvider(name: ProviderName, provider: WhatsAppProvider): void {
+    if (this.providers.has(name)) {
+      this.logger.warn(`Provider '${name}' already registered — skipping`);
+      return;
+    }
+    this.providers.set(name, provider);
+    this.logger.log(`Provider '${name}' registered dynamically`);
+  }
+
+  /**
    * Lista os nomes de todos os provedores registrados.
    *
    * @returns Array com os nomes canonicos dos provedores
