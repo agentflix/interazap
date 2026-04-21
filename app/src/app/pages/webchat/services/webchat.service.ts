@@ -1,14 +1,16 @@
 import { type OnDestroy, Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { type Observable, Subject, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, finalize, map, tap } from 'rxjs/operators';
 import { io, type Socket } from 'socket.io-client';
 import {
   type WebChatMessage,
   type WebChatMessageRequest,
   type WebChatMessageResponse,
   type WebChatSessionResponse,
+  type WebChatCloseResponse,
   type WebChatConnectionState,
+  type WebChatTicketStatus,
 } from '../webchat.model';
 import { environment } from '@env/environment';
 
@@ -32,15 +34,22 @@ export class WebChatService implements OnDestroy {
   private readonly _messages = signal<WebChatMessage[]>([]);
   private readonly _isAiTyping = signal(false);
   private readonly _error = signal<string | null>(null);
+  private readonly _ticketStatus = signal<WebChatTicketStatus>('open');
+  private readonly _isClosing = signal(false);
+  private readonly _closeError = signal<string | null>(null);
 
   // Public readonly signals
   readonly connectionState = this._connectionState.asReadonly();
   readonly messages = this._messages.asReadonly();
   readonly isAiTyping = this._isAiTyping.asReadonly();
   readonly error = this._error.asReadonly();
+  readonly ticketStatus = this._ticketStatus.asReadonly();
+  readonly isClosing = this._isClosing.asReadonly();
+  readonly closeError = this._closeError.asReadonly();
 
   readonly isConnected = computed(() => this._connectionState() === 'connected');
   readonly hasMessages = computed(() => this._messages().length > 0);
+  readonly isClosed = computed(() => this._ticketStatus() === 'closed');
 
   // ─── Event streams ────────────────────────────────────────────────────────
   private readonly _aiResponse$ = new Subject<WebChatMessage>();
@@ -84,6 +93,8 @@ export class WebChatService implements OnDestroy {
       tap((response) => {
         this.sessionToken = response.token;
         this.sessionId = response.sessionId;
+        this._ticketStatus.set('open');
+        this._closeError.set(null);
       }),
       catchError((err) => {
         this._error.set(err?.error?.message ?? 'Falha ao criar sessão');
@@ -129,6 +140,36 @@ export class WebChatService implements OnDestroy {
       catchError((err) => {
         this._error.set(err?.error?.message ?? 'Falha ao enviar mensagem');
         throw err;
+      }),
+    );
+  }
+
+  /**
+   * Closes the current webchat ticket using the public endpoint.
+   * POST /api/webchat/close
+   */
+  closeTicket(): Observable<WebChatCloseResponse> {
+    const token = this.sessionToken?.trim();
+    if (!token) {
+      const message = 'Sessão inválida ou expirada. Inicie uma nova conversa para continuar.';
+      this._closeError.set(message);
+      return throwError(() => new Error(message));
+    }
+
+    this._isClosing.set(true);
+    this._closeError.set(null);
+
+    return this.http.post<unknown>(`${this.apiBase}/api/webchat/close`, { token }).pipe(
+      map((response) => this.unwrapData<WebChatCloseResponse>(response)),
+      tap((response) => {
+        this._ticketStatus.set(response.status);
+      }),
+      catchError((err) => {
+        this._closeError.set(err?.error?.message ?? 'Falha ao encerrar chamado');
+        throw err;
+      }),
+      finalize(() => {
+        this._isClosing.set(false);
       }),
     );
   }
@@ -182,6 +223,9 @@ export class WebChatService implements OnDestroy {
     this._connectionState.set('disconnected');
     this._messages.set([]);
     this._isAiTyping.set(false);
+    this._ticketStatus.set('open');
+    this._isClosing.set(false);
+    this._closeError.set(null);
   }
 
   /**

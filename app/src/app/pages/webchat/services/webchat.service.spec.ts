@@ -153,6 +153,91 @@ describe('WebChatService', () => {
     });
   });
 
+  describe('closeTicket', () => {
+    it('should close the ticket and set local status to closed', () => {
+      service['sessionToken'] = 'jwt-token-123';
+
+      let result: unknown;
+
+      service
+        .closeTicket()
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe((res) => {
+          result = res;
+        });
+
+      expect(service.isClosing()).toBe(true);
+
+      const req = httpMock.expectOne(`${service['apiBase']}/api/webchat/close`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ token: 'jwt-token-123' });
+
+      const closeResponse = { ticketId: 'ticket-xyz', status: 'closed' as const, closedAt: null };
+      req.flush({ success: true, data: closeResponse });
+
+      expect(result).toEqual(closeResponse);
+      expect(service.ticketStatus()).toBe('closed');
+      expect(service.isClosed()).toBe(true);
+      expect(service.isClosing()).toBe(false);
+      expect(service.closeError()).toBeNull();
+    });
+
+    it('should set closeError on close failure', () => {
+      service['sessionToken'] = 'jwt-token-123';
+
+      let capturedError: unknown = null;
+
+      service
+        .closeTicket()
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe({
+          next: () => {},
+          error: (err) => {
+            capturedError = err;
+          },
+        });
+
+      const req = httpMock.expectOne(`${service['apiBase']}/api/webchat/close`);
+      req.flush(
+        { message: 'Não foi possível encerrar' },
+        { status: 500, statusText: 'Server Error' },
+      );
+
+      expect(capturedError).toBeTruthy();
+      expect(service.closeError()).toBe('Não foi possível encerrar');
+      expect(service.ticketStatus()).toBe('open');
+      expect(service.isClosing()).toBe(false);
+    });
+
+    it('should fail fast when session token is missing', () => {
+      service['sessionToken'] = null;
+
+      let capturedError: unknown = null;
+
+      service
+        .closeTicket()
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe({
+          next: () => {},
+          error: (err) => {
+            capturedError = err;
+          },
+        });
+
+      httpMock.expectNone(`${service['apiBase']}/api/webchat/close`);
+
+      expect(capturedError).toBeTruthy();
+      expect(capturedError instanceof Error).toBe(true);
+      expect((capturedError as Error).message).toBe(
+        'Sessão inválida ou expirada. Inicie uma nova conversa para continuar.',
+      );
+      expect(service.closeError()).toBe(
+        'Sessão inválida ou expirada. Inicie uma nova conversa para continuar.',
+      );
+      expect(service.isClosing()).toBe(false);
+    });
+  });
+
   describe('session persistence', () => {
     it('should save and restore session from localStorage', () => {
       service.saveSession('token-xyz', 'session-123');

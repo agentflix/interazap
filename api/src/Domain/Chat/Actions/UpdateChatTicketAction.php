@@ -74,6 +74,23 @@ final class UpdateChatTicketAction
                 (string) $ticket->id,
                 $ticket->assigned_to ? (string) $ticket->assigned_to : null,
             );
+
+            $ticket->load(['latestMessage', 'contact', 'user']);
+            $this->activityBroadcast->emit(
+                (string) $ticket->id,
+                [
+                    [
+                        'type' => 'ticket.updated',
+                        'data' => [
+                            'ticket_id' => (string) $ticket->id,
+                            'tenant_id' => (string) $ticket->tenant_id,
+                            'ticket' => $ticket->toArray(),
+                            'event_type' => 'ticket_closed',
+                        ],
+                    ],
+                ],
+                (string) $ticket->tenant_id
+            );
         }
 
         return $ticket;

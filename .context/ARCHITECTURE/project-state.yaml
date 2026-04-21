@@ -3,7 +3,7 @@
 
 version: '1.0'
 project: 'InteraZap'
-last_updated: '2026-04-20'
+last_updated: '2026-04-21'
 
 stack:
     backend:
@@ -23,14 +23,14 @@ stack:
         e2e: 'Playwright'
 
 metrics:
-    total_features: 3
-    features_completed: 3 # FEAT-039, FEAT-040, FEAT-041
-    features_in_progress: 0
-    total_tasks: 44 # 17 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041)
-    tasks_completed: 43 # 16 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041)
+    total_features: 5
+    features_completed: 4 # FEAT-039, FEAT-040, FEAT-041, FEAT-042
+    features_in_progress: 1 # FEAT-043 (WebSocket Realtime Fix)
+    total_tasks: 57 # 17 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041) + 7 (FEAT-042) + 6 (FEAT-043)
+    tasks_completed: 50 # 16 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041) + 7 (FEAT-042)
     tasks_in_progress: 0
-    tasks_pending: 1 # TASK-039.17 E2E (pré-existente)
-    tasks_pending_new: 0 # FEAT-040 tasks pending optional
+    tasks_pending: 7 # TASK-039.17 E2E + FEAT-043 tasks
+    tasks_pending_new: 0
 
 modules_status:
     'AI':
@@ -46,9 +46,9 @@ modules_status:
         completion: 'unknown'
         last_change: '2026-04-11'
     'Chat':
-        status: 'completed'
-        completion: '100% (FEAT-040, FEAT-041)'
-        last_change: '2026-04-20'
+        status: 'active'
+        completion: '100% FEAT-040/041/042 concluídas + FEAT-043 (WebSocket Realtime) em andamento'
+        last_change: '2026-04-21'
     'Configuration':
         status: 'active'
         completion: 'unknown'
@@ -82,4 +82,4 @@ quality:
     test_coverage_backend: 'unknown'
     test_coverage_frontend: 'unknown'
     lint_status: 'unknown'
-    last_validation: '2026-04-20'
+    last_validation: '2026-04-21'

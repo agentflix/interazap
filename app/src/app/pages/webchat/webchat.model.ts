@@ -11,6 +11,16 @@ export interface WebChatSessionResponse {
   tenantId: string;
 }
 
+/** Public ticket status for webchat lifecycle */
+export type WebChatTicketStatus = 'open' | 'closed';
+
+/** Response data returned by POST /api/webchat/close */
+export interface WebChatCloseResponse {
+  ticketId: string;
+  status: WebChatTicketStatus;
+  closedAt?: string | null;
+}
+
 /** Incoming message from the visitor */
 export interface WebChatMessageRequest {
   token: string;

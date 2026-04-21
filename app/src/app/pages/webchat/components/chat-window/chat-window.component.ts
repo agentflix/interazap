@@ -14,7 +14,12 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { AfChatBubbleComponent, AfChatComposerComponent } from '@shared/components';
+import {
+  AfButtonComponent,
+  AfChatBubbleComponent,
+  AfChatComposerComponent,
+  AfConfirmModalComponent,
+} from '@shared/components';
 import { WebChatService } from '../../services/webchat.service';
 import { type WebChatMessage } from '../../webchat.model';
 
@@ -25,7 +30,7 @@ import { type WebChatMessage } from '../../webchat.model';
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [AfChatBubbleComponent, AfChatComposerComponent],
+  imports: [AfChatBubbleComponent, AfChatComposerComponent, AfButtonComponent, AfConfirmModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './chat-window.component.html',
   styleUrl: './chat-window.component.scss',
@@ -46,6 +51,11 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
   readonly isAiTyping = this.webchatService.isAiTyping;
   readonly error = this.webchatService.error;
   readonly connectionState = this.webchatService.connectionState;
+  readonly ticketStatus = this.webchatService.ticketStatus;
+  readonly isClosed = this.webchatService.isClosed;
+  readonly isClosing = this.webchatService.isClosing;
+  readonly closeError = this.webchatService.closeError;
+  readonly isCloseModalOpen = signal(false);
 
   // Visitor name from session
   readonly visitorName = signal('Visitante');
@@ -101,7 +111,7 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
   /** Handles message send from the composer */
   onMessageSent(content: string): void {
     const sessionId = this.sessionId();
-    if (!sessionId || !content.trim()) return;
+    if (!sessionId || !content.trim() || this.isClosed()) return;
 
     const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
@@ -111,6 +121,35 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
         this.webchatService.updateMessageStatus(tempId, 'failed');
       },
     });
+  }
+
+  openCloseModal(): void {
+    if (this.isClosed() || this.isClosing()) {
+      return;
+    }
+    this.isCloseModalOpen.set(true);
+  }
+
+  closeCloseModal(): void {
+    if (this.isClosing()) {
+      return;
+    }
+    this.isCloseModalOpen.set(false);
+  }
+
+  confirmClose(): void {
+    if (this.isClosed() || this.isClosing()) {
+      return;
+    }
+
+    this.webchatService
+      .closeTicket()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.isCloseModalOpen.set(false);
+        },
+      });
   }
 
   /** Formats a timestamp for display */

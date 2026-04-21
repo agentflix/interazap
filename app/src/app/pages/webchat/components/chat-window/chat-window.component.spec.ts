@@ -39,7 +39,12 @@ describe('ChatWindowComponent', () => {
   const mockIsConnectedSignal = signal(false);
   const mockIsAiTypingSignal = signal(false);
   const mockErrorSignal = signal<string | null>(null);
-  const mockConnectionStateSignal = signal<'connected' | 'disconnected' | 'connecting' | 'error'>('disconnected');
+  const mockConnectionStateSignal = signal<'connected' | 'disconnected' | 'connecting' | 'error'>(
+    'disconnected',
+  );
+  const mockTicketStatusSignal = signal<'open' | 'closed'>('open');
+  const mockIsClosingSignal = signal(false);
+  const mockCloseErrorSignal = signal<string | null>(null);
 
   const mockWebChatService = {
     messages: mockMessagesSignal.asReadonly(),
@@ -47,15 +52,23 @@ describe('ChatWindowComponent', () => {
     isAiTyping: mockIsAiTypingSignal.asReadonly(),
     error: mockErrorSignal.asReadonly(),
     connectionState: mockConnectionStateSignal.asReadonly(),
+    ticketStatus: mockTicketStatusSignal.asReadonly(),
+    isClosing: mockIsClosingSignal.asReadonly(),
+    closeError: mockCloseErrorSignal.asReadonly(),
+    isClosed: () => mockTicketStatusSignal() === 'closed',
     aiResponse$: aiResponseSubject.asObservable(),
     messageSent$: messageSentSubject.asObservable(),
     sendMessage: vi.fn().mockReturnValue(of({ messageId: 'msg-new' })),
+    closeTicket: vi.fn().mockReturnValue(of({ ticketId: 'ticket-1', status: 'closed' })),
     updateMessageStatus: vi.fn(),
   };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     mockMessagesSignal.set([]);
+    mockTicketStatusSignal.set('open');
+    mockIsClosingSignal.set(false);
+    mockCloseErrorSignal.set(null);
 
     TestBed.configureTestingModule({
       imports: [ChatWindowComponent],
@@ -168,6 +181,108 @@ describe('ChatWindowComponent', () => {
       component.onMessageSent('   ');
 
       expect(mockWebChatService.sendMessage).not.toHaveBeenCalled();
+    });
+
+    it('should not send when ticket is closed', () => {
+      component.init('session-1', 'João');
+      mockTicketStatusSignal.set('closed');
+
+      component.onMessageSent('mensagem');
+
+      expect(mockWebChatService.sendMessage).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('close ticket flow', () => {
+    it('should render close button when ticket is open', () => {
+      component.init('session-1', 'João');
+      mockTicketStatusSignal.set('open');
+      fixture.detectChanges();
+
+      const buttons = fixture.nativeElement.querySelectorAll(
+        'button',
+      ) as NodeListOf<HTMLButtonElement>;
+      const closeButton = Array.from(buttons).find((btn) =>
+        btn.textContent?.includes('Encerrar chamado'),
+      );
+
+      expect(closeButton).toBeTruthy();
+    });
+
+    it('should hide composer and show closed message when ticket is closed', () => {
+      component.init('session-1', 'João');
+      mockTicketStatusSignal.set('closed');
+      fixture.detectChanges();
+
+      const composer = fixture.nativeElement.querySelector('af-chat-composer');
+      expect(composer).toBeNull();
+      expect(fixture.nativeElement.textContent).toContain('Este chamado foi encerrado.');
+    });
+
+    it('should open and close modal through handlers', () => {
+      expect(component.isCloseModalOpen()).toBe(false);
+
+      component.openCloseModal();
+      expect(component.isCloseModalOpen()).toBe(true);
+
+      component.closeCloseModal();
+      expect(component.isCloseModalOpen()).toBe(false);
+    });
+
+    it('should confirm close and hide modal on success', () => {
+      component.openCloseModal();
+      expect(component.isCloseModalOpen()).toBe(true);
+
+      component.confirmClose();
+
+      expect(mockWebChatService.closeTicket).toHaveBeenCalled();
+      expect(component.isCloseModalOpen()).toBe(false);
+    });
+
+    it('should not open modal while closing', () => {
+      mockIsClosingSignal.set(true);
+
+      component.openCloseModal();
+
+      expect(component.isCloseModalOpen()).toBe(false);
+    });
+
+    it('should render close error banner when closeError is set', () => {
+      mockCloseErrorSignal.set('Falha ao encerrar');
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('Falha ao encerrar');
+    });
+
+    // CA-002 — evidência explícita: histórico visível + composer oculto após fechamento
+    it('should keep message history visible and hide composer after successful close', () => {
+      // Arrange: pré-carregar mensagens históricas e inicializar sessão
+      mockMessagesSignal.set(mockMessages);
+      component.init('session-1', 'João');
+      fixture.detectChanges();
+
+      // Confirma que as mensagens estão sendo renderizadas antes do fechamento
+      const bubblesBeforeClose = fixture.nativeElement.querySelectorAll(
+        'af-chat-bubble',
+      ) as NodeListOf<Element>;
+      expect(bubblesBeforeClose.length).toBe(mockMessages.length);
+
+      // Act: simular fechamento bem-sucedido (ticketStatus → 'closed')
+      mockTicketStatusSignal.set('closed');
+      fixture.detectChanges();
+
+      // Assert 1: histórico de mensagens permanece renderizado
+      const bubblesAfterClose = fixture.nativeElement.querySelectorAll(
+        'af-chat-bubble',
+      ) as NodeListOf<Element>;
+      expect(bubblesAfterClose.length).toBe(mockMessages.length);
+
+      // Assert 2: composer está oculto
+      const composer = fixture.nativeElement.querySelector('af-chat-composer');
+      expect(composer).toBeNull();
+
+      // Assert 3: mensagem de encerramento exibida
+      expect(fixture.nativeElement.textContent).toContain('Este chamado foi encerrado.');
     });
   });
 

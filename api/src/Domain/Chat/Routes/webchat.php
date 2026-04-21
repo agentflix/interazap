@@ -8,6 +8,7 @@ declare(strict_types=1);
  * Endpoints públicos para visitantes webchat (sem autenticação Sanctum).
  */
 use Domain\Chat\Http\Controllers\WebChatHealthController;
+use Domain\Chat\Http\Controllers\WebChatCloseController;
 use Domain\Chat\Http\Controllers\WebChatMessageController;
 use Domain\Chat\Http\Controllers\WebChatSessionController;
 use Illuminate\Support\Facades\Route;
@@ -27,4 +28,7 @@ Route::middleware(['throttle:webchat'])->group(function (): void {
 
     // Message ingestion
     Route::post('/webchat/messages', [WebChatMessageController::class, 'store']);
+
+    // Ticket closure
+    Route::post('/webchat/close', [WebChatCloseController::class, 'store']);
 });
