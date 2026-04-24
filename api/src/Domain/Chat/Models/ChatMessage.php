@@ -7,6 +7,7 @@ namespace Domain\Chat\Models;
 use Database\Factories\ChatMessageFactory;
 use Domain\Auth\Models\AuthUser;
 use Domain\Shared\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -67,6 +68,18 @@ class ChatMessage extends Model
     public $incrementing = false;
 
     protected $keyType = 'string';
+
+    /**
+     * Accessors included automatically in toArray() / JSON serialization.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'file_url',
+        'file_name',
+        'mime_type',
+        'file_size',
+    ];
 
     /**
      * @var list<string>
@@ -420,5 +433,15 @@ class ChatMessage extends Model
         $extended->save();
         $this->setRelation('extended', $extended);
         $this->pendingExtendedAttributes = [];
+    }
+
+    /**
+     * Scope: Filtrar por hash md5 do conteudo.
+     *
+     * @param Builder<self> $query
+     */
+    public function scopeWhereContentHash(Builder $query, string $hash): void
+    {
+        $query->whereRaw('MD5(LOWER(TRIM(content))) = ?', [$hash]);
     }
 }

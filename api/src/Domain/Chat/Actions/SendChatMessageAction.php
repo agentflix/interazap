@@ -8,8 +8,10 @@ use Domain\Auth\Models\AuthUser;
 use Domain\Chat\DTOs\ChatMessageDTO;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
+use Domain\Chat\Models\ChatSession;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatGatewayService;
+use Domain\Chat\Services\WebChatRedisPublisher;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -28,6 +30,7 @@ final readonly class SendChatMessageAction
         private ChatGatewayService $gateway,
         private ChatTicketActions $ticketActions,
         private ProcessChatMessageAction $processAction,
+        private WebChatRedisPublisher $webChatPublisher,
     ) {}
 
     /**
@@ -94,14 +97,34 @@ final readonly class SendChatMessageAction
                 if (! $ticket->relationLoaded('contact')) {
                     $ticket->load('contact');
                 }
-                $this->sendToGateway($message, $ticket);
+
+                // Verificar se é um ticket webchat — se sim, entregar ao visitante via WebChat publisher
+                // em vez de enviar para o gateway externo (WhatsApp).
+                $webchatSession = ChatSession::query()
+                    ->where('ticket_id', (string) $ticket->id)
+                    ->first();
+
+                if ($webchatSession !== null) {
+                    $this->publishAgentMessageToWebChat(
+                        session: $webchatSession,
+                        message: $message,
+                        tenantId: $tenantId,
+                    );
+                } else {
+                    $this->sendToGateway($message, $ticket);
+                }
             }
         }
 
-        // Only emit new message event for incoming messages (from contact).
-        // Outgoing messages (agent → contact) should only emit status updates
-        // after WhatsApp confirmation via emitMessageStatusEvent().
-        if ($dto->direction === 'incoming' || $dto->type === 'internal_note') {
+        // Emit new message event for incoming messages (from contact) and
+        // for outgoing messages from agent/AI/bot (so the attendant UI and the
+        // ticket list update in real time when the AI/bot answers a customer).
+        if ($dto->direction === 'incoming'
+            || $dto->type === 'internal_note'
+            || $dto->source === ChatMessageDTO::SOURCE_AGENT
+            || $dto->source === ChatMessageDTO::SOURCE_AI
+            || $dto->source === ChatMessageDTO::SOURCE_BOT
+        ) {
             if ($ticket instanceof ChatTicket) {
                 $ticket->load(['latestMessage', 'contact']);
                 $this->processAction->emitNewMessageEvent($message, $ticket);
@@ -240,6 +263,34 @@ final readonly class SendChatMessageAction
         $this->processAction->emitMessageStatusEvent($message);
 
         return $message;
+    }
+
+    /**
+     * Publicar mensagem do atendente para o visitante webchat e marcar como entregue.
+     *
+     * @param  ChatSession  $session  Sessão webchat do ticket.
+     * @param  ChatMessage  $message  Mensagem criada pelo atendente.
+     * @param  string  $tenantId  Identificador do tenant.
+     */
+    private function publishAgentMessageToWebChat(
+        ChatSession $session,
+        ChatMessage $message,
+        string $tenantId,
+    ): void {
+        $message->loadMissing('extended');
+
+        $this->webChatPublisher->publishAgentMessage(
+            sessionId: (string) $session->id,
+            tenantId: $tenantId,
+            message: $this->processAction->sanitizeMessageForRealtime($message),
+        );
+
+        $message->status = 'delivered';
+        $message->sent_at = now();
+        $message->delivered_at = now();
+        $message->save();
+
+        $this->processAction->emitMessageStatusEvent($message);
     }
 
     /**
@@ -628,7 +679,7 @@ final readonly class SendChatMessageAction
     private function resolveMediaType(ChatMessage $message): string
     {
         $type = $message->type;
-        $mimeType = $message->mime_type ?? '';
+        $mimeType = strtolower((string) ($message->mime_type ?? ''));
 
         if (in_array($type, ['image', 'video', 'sticker', 'document'], true)) {
             return $type;
@@ -644,6 +695,10 @@ final readonly class SendChatMessageAction
 
         if (str_starts_with($mimeType, 'audio/')) {
             return 'audio';
+        }
+
+        if (str_starts_with($mimeType, 'application/') || str_starts_with($mimeType, 'text/')) {
+            return 'document';
         }
 
         if ($message->file_url) {

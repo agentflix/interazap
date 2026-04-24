@@ -228,9 +228,10 @@ return [
     */
 
     'defaults' => [
+        // Supervisor genérico — cuida de jobs leves (default, sentiment, media)
         'supervisor-1' => [
             'connection' => 'redis',
-            'queue' => ['default', 'ai', 'sentiment', 'media'],
+            'queue' => ['default', 'sentiment', 'media'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,
@@ -241,20 +242,40 @@ return [
             'timeout' => 60,
             'nice' => 0,
         ],
+        // Supervisor dedicado à fila `ai` — evita starvation por jobs de outras filas
+        // e garante paralelismo real para AiRunExecutionJob/AiToolCallJob.
+        'supervisor-ai' => [
+            'connection' => 'redis',
+            'queue' => ['ai'],
+            'balance' => 'simple',
+            'maxProcesses' => 1,
+            'maxTime' => 3600,
+            'maxJobs' => 1000,
+            'memory' => 192,
+            'tries' => 1,
+            'timeout' => 300,       // Igual ao timeout do AiRunExecutionJob
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 4,  // Limitado para VPS 4GB RAM
+                'maxProcesses' => 3,  // Limitado para VPS 4GB RAM
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
+            ],
+            'supervisor-ai' => [
+                'maxProcesses' => (int) env('HORIZON_AI_MAX_PROCESSES', 6),
             ],
         ],
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => 2,
+            ],
+            'supervisor-ai' => [
+                'maxProcesses' => (int) env('HORIZON_AI_MAX_PROCESSES', 4),
             ],
         ],
     ],

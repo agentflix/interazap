@@ -86,6 +86,7 @@ const buildMocks = () => {
     recordTotalTokensPerRun: jest.fn(),
     recordEarlyExit: jest.fn(),
     recordTruncatedResponse: jest.fn(),
+    recordSnapshotResolution: jest.fn(),
   } as unknown as jest.Mocked<AiMetricsService>;
 
   return {

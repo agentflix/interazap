@@ -53,6 +53,9 @@ export class MetricsService implements OnModuleInit {
     'source_agent_id' | 'target_agent_id' | 'status'
   >;
   public readonly autopilotCacheHitsTotal: Counter<'cache_type' | 'hit'>;
+  public readonly autopilotSnapshotResolutionsTotal: Counter<
+    'slice' | 'source'
+  >;
 
   // Autopilot loop metrics (Phase 3)
   public readonly autopilotIterationsPerRun: Histogram<'agent_id'>;
@@ -181,6 +184,13 @@ export class MetricsService implements OnModuleInit {
       name: 'autopilot_cache_hits_total',
       help: 'Total cache hits/misses',
       labelNames: ['cache_type', 'hit'],
+      registers: [this.registry],
+    });
+
+    this.autopilotSnapshotResolutionsTotal = new Counter({
+      name: 'autopilot_snapshot_resolutions_total',
+      help: 'How a slice (prompt/context/tools) was resolved: snapshot (publisher hydrated), redis (gateway cache) or api (HTTP fallback)',
+      labelNames: ['slice', 'source'],
       registers: [this.registry],
     });
 
@@ -452,6 +462,20 @@ export class MetricsService implements OnModuleInit {
       cache_type: cacheType,
       hit: hit ? 'true' : 'false',
     });
+  }
+
+  /**
+   * Records the source from which a snapshot slice was resolved.
+   * Used to validate the QW1 publisher-side hydration is working.
+   *
+   * @param slice  - Which slice was resolved (prompt, context or tools).
+   * @param source - Where the data came from: snapshot (best), redis (good) or api (fallback).
+   */
+  recordSnapshotResolution(
+    slice: 'prompt' | 'context' | 'tools',
+    source: 'snapshot' | 'redis' | 'api',
+  ): void {
+    this.autopilotSnapshotResolutionsTotal.inc({ slice, source });
   }
 
   /**

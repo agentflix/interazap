@@ -120,6 +120,7 @@ Route::middleware(['auth:sanctum', 'permission:ai.prompts.manage'])
 // No auth:sanctum here — the Gateway authenticates via the shared API key.
 // ─────────────────────────────────────────────────────────────────────────────
 Route::middleware(['internal.api.key'])->prefix('internal/ai')->group(function (): void {
+    Route::get('agents/available', [InternalAiController::class, 'availableAgents']);
     Route::get('context/{ticketId}', [InternalAiController::class, 'context']);
     Route::get('prompt/{tenantId}', [InternalAiController::class, 'prompt']);
     Route::get('tools/{agentId}', [InternalAiController::class, 'tools']);

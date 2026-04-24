@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use Domain\Ai\Jobs\AiRunTrackerJob;
 use Domain\Ai\Models\AiAutopilotRun;
+use Domain\Ai\Models\AiUsageLog;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Redis;
 use Mockery;
@@ -154,6 +155,79 @@ final class AiRunTrackerJobTest extends TestCase
         $this->assertSame('tracker_exhausted', data_get($run->output, 'error_code'));
         $this->assertSame('Tracker retries exhausted', data_get($run->output, 'error'));
         $this->assertNotNull($run->completed_at);
+    }
+
+    public function test_creates_ai_usage_log_on_successful_run(): void
+    {
+        $run = AiAutopilotRun::factory()->create([
+            'status' => 'queued',
+            'input_context' => [
+                'ticket_id' => 'ticket-5',
+                'message_id' => 'message-5',
+            ],
+        ]);
+
+        (new AiRunTrackerJob([
+            'run_id' => (string) $run->id,
+            'tenant_id' => (string) $run->tenant_id,
+            'status' => 'completed',
+            'prompt_tokens' => 150,
+            'completion_tokens' => 300,
+            'model' => 'gpt-4o-mini',
+            'output' => [
+                'raw' => [
+                    'prompt_tokens' => 150,
+                    'completion_tokens' => 300,
+                    'model' => 'gpt-4o-mini',
+                ],
+            ],
+        ]))->handle();
+
+        $usageLog = AiUsageLog::query()->first();
+
+        $this->assertNotNull($usageLog);
+        $this->assertSame((string) $run->tenant_id, $usageLog->tenant_id);
+        $this->assertSame('gpt-4o-mini', $usageLog->model_name);
+        $this->assertSame('openai', $usageLog->provider);
+        $this->assertSame(150, $usageLog->input_tokens);
+        $this->assertSame(300, $usageLog->output_tokens);
+        $this->assertSame('autopilot.run', $usageLog->feature);
+        $this->assertSame(AiAutopilotRun::class, $usageLog->usable_type);
+        $this->assertSame((string) $run->id, $usageLog->usable_id);
+        $this->assertSame('completed', $usageLog->metadata['status']);
+    }
+
+    public function test_creates_ai_usage_log_with_output_raw_fallback(): void
+    {
+        $run = AiAutopilotRun::factory()->create([
+            'status' => 'queued',
+        ]);
+
+        (new AiRunTrackerJob([
+            'run_id' => (string) $run->id,
+            'tenant_id' => (string) $run->tenant_id,
+            'status' => 'completed',
+            'output' => [
+                'raw' => [
+                    'prompt_tokens' => 500,
+                    'completion_tokens' => 200,
+                    'model' => 'gpt-4o',
+                    'cached_prompt_tokens' => 100,
+                    'input_cost' => 0.00025,
+                    'output_cost' => 0.0006,
+                ],
+            ],
+        ]))->handle();
+
+        $usageLog = AiUsageLog::query()->first();
+
+        $this->assertNotNull($usageLog);
+        $this->assertSame('gpt-4o', $usageLog->model_name);
+        $this->assertSame(500, $usageLog->input_tokens);
+        $this->assertSame(200, $usageLog->output_tokens);
+        $this->assertSame(100, $usageLog->cached_prompt_tokens);
+        $this->assertSame(0.00025, $usageLog->input_cost);
+        $this->assertSame(0.0006, $usageLog->output_cost);
     }
 
     private function expectChatActivityPublish(string $type, string $tenantId, string $ticketId, string $messageId, ?string $error = null, ?string $sourceStatus = null): void

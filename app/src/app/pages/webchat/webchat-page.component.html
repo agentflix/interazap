@@ -15,5 +15,5 @@
 
 <!-- Chat Window -->
 @if (showChat()) {
-  <app-chat-window #chatWindow />
+  <app-chat-window #chatWindow (ticketClosed)="onTicketClosed()" />
 }

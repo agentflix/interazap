@@ -4,10 +4,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { PreChatComponent } from '../components/pre-chat/pre-chat.component';
 import { ChatWindowComponent } from '../components/chat-window/chat-window.component';
@@ -30,6 +33,10 @@ import { AfSpinnerComponent } from '@shared/components';
 export class WebChatEmbedComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly webchatService = inject(WebChatService);
+  private readonly document = inject(DOCUMENT);
+
+  /** Tracks whether dark mode was active before this embed forced light mode */
+  private wasDark = false;
 
   // ─── Child component references ────────────────────────────────────────────
   readonly chatWindowRef = viewChild<ChatWindowComponent>('chatWindow');
@@ -45,7 +52,29 @@ export class WebChatEmbedComponent implements OnInit, OnDestroy {
 
   readonly tenantId = signal<string | null>(null);
 
+  // ─── Pending init (sessionId aguardando chatWindowRef disponível) ────────────
+  private readonly pendingSessionId = signal<string | null>(null);
+
+  constructor() {
+    // Reage ao chatWindowRef() ficando disponível após hasSession=true renderizar
+    // o ChatWindowComponent. Elimina race condition do queueMicrotask.
+    effect(() => {
+      const ref = this.chatWindowRef();
+      const sessionId = this.pendingSessionId();
+      if (ref && sessionId) {
+        untracked(() => {
+          ref.init(sessionId, this.visitorName());
+          this.pendingSessionId.set(null);
+        });
+      }
+    });
+  }
+
   ngOnInit(): void {
+    // Force light mode for the public-facing embed widget.
+    this.wasDark = this.document.documentElement.classList.contains('dark');
+    this.document.documentElement.classList.remove('dark');
+
     this.tenantId.set(this.route.snapshot.paramMap.get('tenantId'));
     this.attemptSessionRestore();
   }
@@ -53,6 +82,10 @@ export class WebChatEmbedComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     // When embedded, disconnect on component destroy to clean up
     this.webchatService.disconnect();
+    // Restore dark mode if it was active before the embed forced light mode.
+    if (this.wasDark) {
+      this.document.documentElement.classList.add('dark');
+    }
   }
 
   /**
@@ -61,9 +94,17 @@ export class WebChatEmbedComponent implements OnInit, OnDestroy {
   private attemptSessionRestore(): void {
     const restored = this.webchatService.restoreSession();
     if (restored) {
-      this.webchatService.connectWebSocket(restored.token);
+      // Passa sessionId para o service emitir webchat:join ao conectar.
+      this.webchatService.connectWebSocket(restored.token, restored.sessionId);
       this.hasSession.set(true);
-      queueMicrotask(() => this.initChatWindow(restored.sessionId));
+      this.pendingSessionId.set(restored.sessionId);
+
+      // Busca histórico do banco para garantir mensagens completas.
+      this.webchatService.fetchSessionMessages(restored.sessionId, restored.token).subscribe({
+        error: () => {
+          /* silently ignored */
+        },
+      });
     }
     this.isRestoring.set(false);
   }
@@ -74,7 +115,7 @@ export class WebChatEmbedComponent implements OnInit, OnDestroy {
   onSessionReady(data: { token: string; sessionId: string }): void {
     this.visitorName.set(this.resolveVisitorName());
     this.hasSession.set(true);
-    queueMicrotask(() => this.initChatWindow(data.sessionId));
+    this.pendingSessionId.set(data.sessionId);
   }
 
   private initChatWindow(sessionId: string): void {

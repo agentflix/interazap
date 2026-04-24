@@ -40,6 +40,7 @@ return [
         'api_key' => env('GATEWAY_INTERNAL_API_KEY'),
         'secret' => env('GATEWAY_SECRET'),
         'timeout' => (int) env('GATEWAY_TIMEOUT', 3),
+        'connect_timeout' => (int) env('GATEWAY_CONNECT_TIMEOUT', 5),
         'retry_attempts' => (int) env('GATEWAY_RETRY_ATTEMPTS', 3),
         'retry_delay_ms' => (int) env('GATEWAY_RETRY_DELAY_MS', 150),
         'realtime_pubsub_enabled' => (bool) env('REALTIME_PUBSUB_ENABLED', true),

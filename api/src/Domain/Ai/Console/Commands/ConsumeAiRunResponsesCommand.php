@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Redis;
  */
 final class ConsumeAiRunResponsesCommand extends Command
 {
-    protected $signature = 'ai:consume-run-responses {--once : Process a single read cycle}';
+    protected $signature = 'ai:consume-run-responses {--once : Process a single read cycle} {--max-runtime=0 : Maximum runtime in seconds (0 = unlimited)}';
 
     protected $description = 'Consume ai.run.response stream messages and dispatch AiRunTrackerJob.';
 
@@ -36,10 +36,17 @@ final class ConsumeAiRunResponsesCommand extends Command
         $consumer = sprintf('%s-%s', gethostname() ?: 'api', (string) getmypid());
         $this->ensureGroupExists();
 
+        $maxRuntime = (int) $this->option('max-runtime');
+        $deadline = $maxRuntime > 0 ? microtime(true) + $maxRuntime : null;
+
         do {
             $messages = $this->readMessages($consumer);
             if ($messages === null || $messages === []) {
                 if ($this->option('once')) {
+                    break;
+                }
+
+                if ($deadline !== null && microtime(true) >= $deadline) {
                     break;
                 }
 
@@ -58,6 +65,10 @@ final class ConsumeAiRunResponsesCommand extends Command
             }
 
             if ($this->option('once')) {
+                break;
+            }
+
+            if ($deadline !== null && microtime(true) >= $deadline) {
                 break;
             }
         } while (true);

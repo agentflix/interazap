@@ -1,10 +1,60 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { LogLevel, Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { json, urlencoded } from 'express';
 import { StructuredLoggerService } from './common/logger';
+
+const LOG_LEVEL_PRIORITY: Record<string, number> = {
+  error: 0,
+  warn: 1,
+  log: 2,
+  info: 2,
+  debug: 3,
+  verbose: 4,
+};
+
+const ORDERED_LOG_LEVELS: LogLevel[] = [
+  'error',
+  'warn',
+  'log',
+  'debug',
+  'verbose',
+];
+
+function parseBooleanEnv(
+  value: string | undefined,
+  fallback: boolean,
+): boolean {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+    return true;
+  }
+
+  if (['0', 'false', 'no', 'off'].includes(normalized)) {
+    return false;
+  }
+
+  return fallback;
+}
+
+function resolveLogLevels(level: string | undefined): LogLevel[] {
+  const normalized = (level ?? 'log').trim().toLowerCase();
+  const maxPriority = LOG_LEVEL_PRIORITY[normalized];
+
+  if (maxPriority === undefined) {
+    return ['error', 'warn', 'log'];
+  }
+
+  return ORDERED_LOG_LEVELS.filter(
+    (candidate) => LOG_LEVEL_PRIORITY[candidate] <= maxPriority,
+  );
+}
 
 /**
  * Bootstraps the NestJS Gateway application.
@@ -19,12 +69,24 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  // Use structured JSON logger as the application logger
-  const logger = app.get(StructuredLoggerService);
-  logger.setContext('Gateway');
-  app.useLogger(logger);
-
   const configService = app.get(ConfigService);
+  const nodeEnv = configService.get<string>('app.nodeEnv') ?? 'development';
+  const useStructuredLogger = parseBooleanEnv(
+    configService.get<string>('LOG_STRUCTURED'),
+    nodeEnv === 'production',
+  );
+
+  const structuredLogger = useStructuredLogger
+    ? app.get(StructuredLoggerService)
+    : undefined;
+
+  if (structuredLogger !== undefined) {
+    structuredLogger.setContext('Gateway');
+    app.useLogger(structuredLogger);
+  } else {
+    const logLevels = resolveLogLevels(configService.get<string>('LOG_LEVEL'));
+    app.useLogger(logLevels);
+  }
 
   // Body parser limits — base64-encoded files can be large (PDFs, images, etc.)
   const bodyLimit = configService.get<string>('GATEWAY_BODY_LIMIT') ?? '50mb';
@@ -65,7 +127,12 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT') ?? 3000;
   await app.listen(port);
-  logger.log(`Gateway listening on http://localhost:${port}`);
+
+  if (structuredLogger !== undefined) {
+    structuredLogger.log(`Gateway listening on http://localhost:${port}`);
+  } else {
+    Logger.log(`Gateway listening on http://localhost:${port}`, 'Gateway');
+  }
 }
 bootstrap().catch((err) => {
   console.error('Gateway failed to start:', err);

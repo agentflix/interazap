@@ -14,6 +14,8 @@ class GatewayHttpClient
 
     private readonly int $timeout;
 
+    private readonly int $connectTimeout;
+
     private readonly int $retryAttempts;
 
     private readonly int $retryDelay;
@@ -45,6 +47,7 @@ class GatewayHttpClient
             throw new InvalidArgumentException('services.gateway.url is not configured');
         }
         $this->timeout = (int) ($config['timeout'] ?? 30);
+        $this->connectTimeout = (int) ($config['connect_timeout'] ?? 5);
         $this->retryAttempts = max(1, (int) ($config['retry_attempts'] ?? 3));
         $this->retryDelay = max(50, (int) ($config['retry_delay_ms'] ?? 100));
         $this->apiKey = $config['api_key'] ?? null;
@@ -107,6 +110,7 @@ class GatewayHttpClient
     {
         $request = Http::baseUrl($this->baseUrl)
             ->timeout($this->timeout)
+            ->connectTimeout($this->connectTimeout)
             ->retry($this->retryAttempts, $this->retryDelay)
             ->acceptJson();
 

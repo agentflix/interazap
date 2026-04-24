@@ -9,6 +9,7 @@ use Domain\Chat\DTOs\ChatTicketDTO;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatSession;
 use Domain\Chat\Models\ChatTicket;
+use Domain\Chat\Services\ChatActivityBroadcastService;
 use Domain\Chat\Services\WebChatJwtService;
 use Domain\CRM\Models\CRMContact;
 use Domain\Shared\Http\Controllers\BaseController;
@@ -29,6 +30,7 @@ final class WebChatSessionController extends BaseController
 {
     public function __construct(
         private readonly WebChatJwtService $jwtService,
+        private readonly ChatActivityBroadcastService $activityBroadcast,
     ) {}
 
     /**
@@ -71,6 +73,9 @@ final class WebChatSessionController extends BaseController
                     'token' => $token,
                     'sessionId' => (string) $existingSession->id,
                     'ticketId' => (string) $existingSession->ticket_id,
+                    'contactName' => $existingSession->contact?->name ?? $visitorName,
+                    'contactPhone' => $existingSession->contact?->phone ?? $visitorPhone,
+                    'protocol' => $existingSession->ticket?->protocol ?? '',
                 ], 'Sessão recuperada', 200);
             }
         }
@@ -110,6 +115,9 @@ final class WebChatSessionController extends BaseController
             'token' => $token,
             'sessionId' => (string) $session->id,
             'ticketId' => (string) $ticket->id,
+            'contactName' => $visitorName,
+            'contactPhone' => $visitorPhone,
+            'protocol' => $ticket->protocol ?? '',
         ], 'Sessão criada');
     }
 
@@ -267,6 +275,23 @@ final class WebChatSessionController extends BaseController
             'metadata' => ['source' => 'webchat', 'client_info' => $clientInfo],
             'last_message_at' => now(),
         ]);
+
+        // Broadcast ticket.new para que apareça na lista do atendente em tempo real
+        $ticket->load(['contact']);
+        $this->activityBroadcast->emit(
+            (string) $ticket->id,
+            [
+                [
+                    'type' => 'ticket.new',
+                    'data' => [
+                        'ticket_id' => (string) $ticket->id,
+                        'tenant_id' => (string) $tenantId,
+                        'ticket' => $ticket->toArray(),
+                    ],
+                ],
+            ],
+            (string) $tenantId,
+        );
 
         return $ticket;
     }

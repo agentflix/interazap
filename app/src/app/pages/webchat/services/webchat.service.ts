@@ -7,6 +7,8 @@ import {
   type WebChatMessage,
   type WebChatMessageRequest,
   type WebChatMessageResponse,
+  type WebChatMediaUploadResponse,
+  type WebChatMessageType,
   type WebChatSessionResponse,
   type WebChatCloseResponse,
   type WebChatConnectionState,
@@ -55,10 +57,12 @@ export class WebChatService implements OnDestroy {
   private readonly _aiResponse$ = new Subject<WebChatMessage>();
   private readonly _messageSent$ = new Subject<{ messageId: string; tempId?: string }>();
   private readonly _joined$ = new Subject<string>();
+  private readonly _ticketClosedByAgent$ = new Subject<void>();
 
   readonly aiResponse$ = this._aiResponse$.asObservable();
   readonly messageSent$ = this._messageSent$.asObservable();
   readonly joined$ = this._joined$.asObservable();
+  readonly ticketClosedByAgent$ = this._ticketClosedByAgent$.asObservable();
 
   // ─── API Base URL ─────────────────────────────────────────────────────────
   // Use || instead of ?? so an empty-string url falls back to the current origin
@@ -139,6 +143,77 @@ export class WebChatService implements OnDestroy {
       }),
       catchError((err) => {
         this._error.set(err?.error?.message ?? 'Falha ao enviar mensagem');
+        throw err;
+      }),
+    );
+  }
+
+  /**
+   * Uploads a media file to the webchat storage.
+   * POST /api/webchat/media
+   */
+  uploadMedia(file: File): Observable<WebChatMediaUploadResponse> {
+    const token = this.sessionToken?.trim();
+    if (!token) {
+      return throwError(() => new Error('Sessão inválida'));
+    }
+    const form = new FormData();
+    form.append('token', token);
+    form.append('file', file);
+    return this.http.post<unknown>(`${this.apiBase}/api/webchat/media`, form).pipe(
+      map((r) => this.unwrapData<WebChatMediaUploadResponse>(r)),
+      catchError((err) => {
+        this._error.set(err?.error?.message ?? 'Falha ao enviar arquivo');
+        throw err;
+      }),
+    );
+  }
+
+  /**
+   * Sends a media message after a successful upload.
+   * POST /api/webchat/messages  { token, file_url, mime_type, type }
+   */
+  sendFileMessage(
+    sessionId: string,
+    fileUrl: string,
+    mimeType: string,
+    messageType: WebChatMessageType,
+    fileName?: string,
+    tempId?: string,
+  ): Observable<WebChatMessageResponse> {
+    const token = this.sessionToken?.trim();
+    if (!token) {
+      return throwError(() => new Error('Sessão inválida'));
+    }
+
+    const body: WebChatMessageRequest = {
+      token,
+      file_url: fileUrl,
+      mime_type: mimeType,
+      type: messageType,
+      ...(fileName ? { file_name: fileName } : {}),
+    };
+
+    return this.http.post<unknown>(`${this.apiBase}/api/webchat/messages`, body).pipe(
+      map((response) => this.unwrapData<WebChatMessageResponse>(response)),
+      tap((response) => {
+        const optimisticMessage: WebChatMessage = {
+          id: tempId ?? response.messageId,
+          content: '',
+          direction: 'outgoing',
+          source: 'visitor',
+          type: messageType === 'document' ? 'file' : messageType,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          sessionId,
+          fileUrl,
+          mimeType,
+        };
+        this.addMessage(optimisticMessage);
+        this._messageSent$.next({ messageId: response.messageId, tempId });
+      }),
+      catchError((err) => {
+        this._error.set(err?.error?.message ?? 'Falha ao enviar arquivo');
         throw err;
       }),
     );
@@ -229,7 +304,33 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Adds a message to the local messages list.
+   * Carrega o histórico de mensagens da sessão a partir do banco de dados.
+   * Substitui as mensagens em memória, preservando qualquer mensagem local
+   * que ainda não tenha ID persistido.
+   *
+   * GET /api/webchat/sessions/{sessionId}/messages?token={jwt}
+   */
+  fetchSessionMessages(sessionId: string, token: string): Observable<WebChatMessage[]> {
+    const params = new URLSearchParams({ token });
+    return this.http
+      .get<unknown>(`${this.apiBase}/api/webchat/sessions/${sessionId}/messages?${params}`)
+      .pipe(
+        map((response) => this.unwrapData<WebChatMessage[]>(response)),
+        tap((messages) => {
+          if (messages.length > 0) {
+            this._messages.set(messages);
+            this.persistMessages(messages);
+          }
+        }),
+        catchError((err) => {
+          // Não sobrescreve erro global — falha silenciosa para não bloquear UI
+          return throwError(() => err);
+        }),
+      );
+  }
+
+  /**
+   * Adds a message to the local messages list and persists to localStorage.
    */
   addMessage(message: WebChatMessage): void {
     this._messages.update((msgs) => {
@@ -237,8 +338,25 @@ export class WebChatService implements OnDestroy {
       if (msgs.some((m) => m.id === message.id)) {
         return msgs;
       }
-      return [...msgs, message];
+      const updated = [...msgs, message];
+      this.persistMessages(updated);
+      return updated;
     });
+  }
+
+  /**
+   * Persists the current messages list into the existing localStorage session entry.
+   * Silently ignores if no session is stored yet.
+   */
+  private persistMessages(messages: WebChatMessage[]): void {
+    try {
+      const raw = localStorage.getItem('webchat_session');
+      if (!raw) return;
+      const session = JSON.parse(raw) as object;
+      localStorage.setItem('webchat_session', JSON.stringify({ ...session, messages }));
+    } catch {
+      // Ignore serialization errors (e.g. quota exceeded)
+    }
   }
 
   /**
@@ -250,8 +368,16 @@ export class WebChatService implements OnDestroy {
 
   /**
    * Loads a restored session from localStorage.
+   * When `expectedSessionId` is provided (e.g. from URL query param ?s=),
+   * the stored session is only returned if the sessionId matches.
    */
-  restoreSession(): { token: string; sessionId: string } | null {
+  restoreSession(expectedSessionId?: string): {
+    token: string;
+    sessionId: string;
+    contactName?: string;
+    contactPhone?: string;
+    protocol?: string;
+  } | null {
     try {
       const raw = localStorage.getItem('webchat_session');
       if (!raw) return null;
@@ -259,6 +385,10 @@ export class WebChatService implements OnDestroy {
         token?: string;
         sessionId?: string;
         expiresAt?: number;
+        messages?: unknown[];
+        contactName?: string;
+        contactPhone?: string;
+        protocol?: string;
       };
       if (typeof parsed.expiresAt !== 'number' || Date.now() > parsed.expiresAt) {
         localStorage.removeItem('webchat_session');
@@ -273,7 +403,27 @@ export class WebChatService implements OnDestroy {
         localStorage.removeItem('webchat_session');
         return null;
       }
-      return { token: parsed.token, sessionId: parsed.sessionId };
+      // parsed.messages is validated below before use
+      // If the caller provided an expected sessionId (from URL), reject mismatches.
+      if (
+        expectedSessionId !== undefined &&
+        expectedSessionId.trim() !== '' &&
+        parsed.sessionId !== expectedSessionId.trim()
+      ) {
+        return null;
+      }
+      const messages = Array.isArray(parsed.messages) ? (parsed.messages as WebChatMessage[]) : [];
+      // Restore persisted messages immediately so components see them on mount.
+      if (messages.length > 0) {
+        this._messages.set(messages);
+      }
+      return {
+        token: parsed.token,
+        sessionId: parsed.sessionId,
+        contactName: parsed.contactName,
+        contactPhone: parsed.contactPhone,
+        protocol: parsed.protocol,
+      };
     } catch {
       return null;
     }
@@ -281,10 +431,18 @@ export class WebChatService implements OnDestroy {
 
   /**
    * Persists the session to localStorage with a 4-hour expiry.
+   * Any previously persisted messages are discarded on a new session.
    */
-  saveSession(token: string, sessionId: string): void {
+  saveSession(
+    token: string,
+    sessionId: string,
+    contactInfo?: { contactName?: string; contactPhone?: string; protocol?: string },
+  ): void {
     const expiresAt = Date.now() + 4 * 60 * 60 * 1000; // 4 hours
-    localStorage.setItem('webchat_session', JSON.stringify({ token, sessionId, expiresAt }));
+    localStorage.setItem(
+      'webchat_session',
+      JSON.stringify({ token, sessionId, expiresAt, messages: [], ...contactInfo }),
+    );
   }
 
   /**
@@ -335,16 +493,52 @@ export class WebChatService implements OnDestroy {
     });
 
     // AI / agent response
-    this.socket.on('webchat:ai_response', (data: WebChatMessage) => {
+    // Gateway emits { tenant_id, session_id, message: { ...WebChatMessage } }
+    // so we unwrap the nested `message` field if present.
+    this.socket.on('webchat:ai_response', (raw: unknown) => {
       this._isAiTyping.set(false);
+      const envelope = raw as Record<string, unknown>;
+      const msgData =
+        envelope['message'] !== null && typeof envelope['message'] === 'object'
+          ? (envelope['message'] as Record<string, unknown>)
+          : (raw as Record<string, unknown>);
       const message: WebChatMessage = {
-        ...data,
+        ...(msgData as unknown as WebChatMessage),
         direction: 'incoming',
-        source: data.source ?? 'ai',
+        source: (msgData['source'] as WebChatMessage['source']) ?? 'ai',
         status: 'delivered',
+        // Backend serializa em snake_case — mapear explicitamente para camelCase
+        fileUrl:
+          (msgData['file_url'] as string | undefined) ?? (msgData['fileUrl'] as string | undefined),
+        mimeType:
+          (msgData['mime_type'] as string | undefined) ??
+          (msgData['mimeType'] as string | undefined),
       };
       this.addMessage(message);
       this._aiResponse$.next(message);
+    });
+
+    // Mensagem do atendente humano para o visitante webchat
+    // Gateway emits { tenant_id, session_id, message: { ...WebChatMessage } }
+    this.socket.on('webchat:agent_message', (raw: unknown) => {
+      const envelope = raw as Record<string, unknown>;
+      const msgData =
+        envelope['message'] !== null && typeof envelope['message'] === 'object'
+          ? (envelope['message'] as Record<string, unknown>)
+          : (raw as Record<string, unknown>);
+      const message: WebChatMessage = {
+        ...(msgData as unknown as WebChatMessage),
+        direction: 'incoming',
+        source: 'agent',
+        status: 'delivered',
+        // Backend serializa em snake_case — mapear explicitamente para camelCase
+        fileUrl:
+          (msgData['file_url'] as string | undefined) ?? (msgData['fileUrl'] as string | undefined),
+        mimeType:
+          (msgData['mime_type'] as string | undefined) ??
+          (msgData['mimeType'] as string | undefined),
+      };
+      this.addMessage(message);
     });
 
     // Typing indicator
@@ -355,6 +549,12 @@ export class WebChatService implements OnDestroy {
     // Error event
     this.socket.on('webchat:error', (data: { code: string; message: string }) => {
       this._error.set(data.message);
+    });
+
+    // Ticket encerrado pelo atendente
+    this.socket.on('webchat:ticket_closed', () => {
+      this._ticketStatus.set('closed');
+      this._ticketClosedByAgent$.next();
     });
   }
 }

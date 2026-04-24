@@ -35,7 +35,13 @@ export class PreChatComponent implements OnInit {
   readonly tenantId = input<string | null>(null);
 
   /** Emits when session is created and ready to show chat */
-  readonly sessionReady = output<{ token: string; sessionId: string }>();
+  readonly sessionReady = output<{
+    token: string;
+    sessionId: string;
+    contactName?: string;
+    contactPhone?: string;
+    protocol?: string;
+  }>();
 
   // Form controls
   readonly nameControl = new FormControl<string>('', {
@@ -160,10 +166,20 @@ export class PreChatComponent implements OnInit {
 
     this.webchatService.createSession(tenantId, name, whatsapp).subscribe({
       next: (response) => {
-        this.webchatService.saveSession(response.token, response.sessionId);
+        this.webchatService.saveSession(response.token, response.sessionId, {
+          contactName: response.contactName,
+          contactPhone: response.contactPhone,
+          protocol: response.protocol,
+        });
         this.webchatService.connectWebSocket(response.token);
         this.isLoading.set(false);
-        this.sessionReady.emit({ token: response.token, sessionId: response.sessionId });
+        this.sessionReady.emit({
+          token: response.token,
+          sessionId: response.sessionId,
+          contactName: response.contactName,
+          contactPhone: response.contactPhone,
+          protocol: response.protocol,
+        });
       },
       error: (err) => {
         this.isLoading.set(false);

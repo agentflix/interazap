@@ -32,6 +32,7 @@ export class ContextWindowService {
       const context = snapshot.context;
       if (context && typeof context === 'object' && !Array.isArray(context)) {
         this.aiMetrics.recordContextCacheHit(true);
+        this.aiMetrics.recordSnapshotResolution('context', 'snapshot');
         return context;
       }
     }
@@ -41,6 +42,7 @@ export class ContextWindowService {
 
     if (cached) {
       this.aiMetrics.recordContextCacheHit(true);
+      this.aiMetrics.recordSnapshotResolution('context', 'redis');
       try {
         return JSON.parse(cached) as Record<string, unknown>;
       } catch {
@@ -49,6 +51,7 @@ export class ContextWindowService {
     }
 
     this.aiMetrics.recordContextCacheHit(false);
+    this.aiMetrics.recordSnapshotResolution('context', 'api');
     const context = await this.internalAiClient.fetchContext(ticketId, traceId);
     await this.redisService.set(key, JSON.stringify(context), 1800);
 

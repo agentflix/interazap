@@ -20,6 +20,7 @@ use Illuminate\Redis\Connections\PredisConnection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 
 /**
  * Controller interno para endpoints de IA (requer API key interna).
@@ -198,6 +199,49 @@ final class InternalAiController extends BaseController
     }
 
     /**
+     * Listar agentes delegaveis a partir de um agente origem.
+     *
+     * @param  Request  $request  tenant_id e agent_id via query string.
+     * @return JsonResponse Lista de agentes com regra de delegacao ativa.
+     */
+    public function availableAgents(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'tenant_id' => ['required', 'uuid'],
+            'agent_id' => ['required', 'uuid'],
+        ]);
+
+        $tenantId = (string) $validated['tenant_id'];
+        $agentId = (string) $validated['agent_id'];
+
+        $cacheKey = sprintf('internal:ai:available-agents:%s:%s', $tenantId, $agentId);
+
+        $payload = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($tenantId, $agentId): array {
+            $agents = AiAgent::query()
+                ->where('tenant_id', $tenantId)
+                ->where('is_active', true)
+                ->whereHas('targetDelegations', static function ($query) use ($tenantId, $agentId): void {
+                    $query->where('tenant_id', $tenantId)
+                        ->where('source_agent_id', $agentId)
+                        ->where('is_active', true);
+                })
+                ->get(['id', 'name']);
+
+            return [
+                'agents' => $agents
+                    ->map(static fn (AiAgent $agent): array => [
+                        'id' => (string) $agent->id,
+                        'name' => (string) $agent->name,
+                    ])
+                    ->values()
+                    ->all(),
+            ];
+        });
+
+        return $this->success($payload);
+    }
+
+    /**
      * Delegar uma run para outro agente (corrente de delegacao).
      *
      * @param  Request  $request  Dados da delegacao (tenant_id, parent_run_id, target_agent_id, etc).
@@ -208,7 +252,7 @@ final class InternalAiController extends BaseController
         $validated = $request->validate([
             'tenant_id' => ['required', 'uuid'],
             'parent_run_id' => ['required', 'uuid'],
-            'target_agent_id' => ['required', 'uuid'],
+            'target_agent_id' => ['required', 'string', 'min:1'],
             'delegation_stack' => ['required', 'array'],
             'delegation_stack.*' => ['string'],
             'input_context' => ['required', 'array'],
@@ -216,9 +260,31 @@ final class InternalAiController extends BaseController
 
         $tenantId = (string) $validated['tenant_id'];
         $parentRunId = (string) $validated['parent_run_id'];
-        $targetAgentId = (string) $validated['target_agent_id'];
+        $rawTargetInput = (string) $validated['target_agent_id'];
         $delegationStack = array_values(array_map(static fn (mixed $item): string => (string) $item, (array) $validated['delegation_stack']));
 
+        // Verificação antecipada de delegação circular para entradas UUID
+        if (Str::isUuid($rawTargetInput) && in_array($rawTargetInput, $delegationStack, true)) {
+            return response()->json([
+                'error' => 'circular_delegation',
+            ], 422);
+        }
+
+        $targetAgentQuery = AiAgent::query()
+            ->where('tenant_id', $tenantId)
+            ->where('is_active', true);
+
+        $targetAgent = Str::isUuid($rawTargetInput)
+            ? $targetAgentQuery->find($rawTargetInput)
+            : $targetAgentQuery->whereRaw('LOWER(name) = ?', [mb_strtolower($rawTargetInput)])->first();
+
+        if (! $targetAgent instanceof AiAgent) {
+            return $this->error("Target agent not found or inactive: {$rawTargetInput}", 422);
+        }
+
+        $targetAgentId = (string) $targetAgent->id;
+
+        // Verificação antecipada de delegação circular pelo UUID resolvido
         if (in_array($targetAgentId, $delegationStack, true)) {
             return response()->json([
                 'error' => 'circular_delegation',
@@ -263,13 +329,6 @@ final class InternalAiController extends BaseController
         }
 
         $childRunId = (string) ($result['child_run_id'] ?? '');
-        $childRun = AiAutopilotRun::query()
-            ->where('tenant_id', $tenantId)
-            ->findOrFail($childRunId);
-
-        $targetAgent = AiAgent::query()
-            ->where('tenant_id', $tenantId)
-            ->findOrFail($targetAgentId);
 
         $promptComponents = $this->resolvePromptComponents($tenantId);
         $agentFilePrompts = $this->resolveAgentFilePrompts($targetAgent);

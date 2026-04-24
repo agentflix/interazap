@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Http\Controllers;
 
+use Domain\Chat\Actions\ProcessChatMessageAction;
 use Domain\Chat\DTOs\ChatMessageDTO;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatSession;
@@ -28,6 +29,7 @@ final class WebChatMessageController extends BaseController
     public function __construct(
         private readonly WebChatJwtService $jwtService,
         private readonly ChatAutopilotResponder $autopilotResponder,
+        private readonly ProcessChatMessageAction $processAction,
     ) {}
 
     /**
@@ -78,7 +80,10 @@ final class WebChatMessageController extends BaseController
             'contact_id' => $session->contact_id,
             'content' => $validated['content'],
             'direction' => 'incoming',
-            'type' => 'text',
+            'type' => $validated['type'],
+            'file_url' => $validated['file_url'],
+            'file_name' => $validated['file_name'],
+            'mime_type' => $validated['mime_type'],
             'is_from_contact' => true,
             'source' => 'webchat',
             'status' => 'received',
@@ -95,17 +100,34 @@ final class WebChatMessageController extends BaseController
             'tenant_id' => $tenantId,
         ]);
 
-        // Dispara ChatAutopilotResponder para resposta da IA
-        $this->autopilotResponder->respond(
-            tenantId: $tenantId,
-            ticketId: $ticketId,
-            body: $validated['content'],
-            context: [
-                'session_id' => $sessionId,
-                'message_id' => (string) $message->id,
-                'source' => 'webchat',
-            ],
-        );
+        // Emitir evento realtime para que o agente veja a mensagem sem F5
+        $ticket = \Domain\Chat\Models\ChatTicket::query()
+            ->where('id', $ticketId)
+            ->where('tenant_id', $tenantId)
+            ->with(['latestMessage', 'contact'])
+            ->first();
+
+        // Atualizar last_message_at do ticket para que apareça no topo da lista
+        // do atendente e tenha o preview correto da última mensagem.
+        if ($ticket !== null) {
+            $ticket->forceFill(['last_message_at' => $message->created_at])->save();
+        }
+
+        $this->processAction->emitNewMessageEvent($message, $ticket);
+
+        // Dispara ChatAutopilotResponder apenas para mensagens de texto
+        if ($validated['file_url'] === null) {
+            $this->autopilotResponder->respond(
+                tenantId: $tenantId,
+                ticketId: $ticketId,
+                body: $validated['content'],
+                context: [
+                    'session_id' => $sessionId,
+                    'message_id' => (string) $message->id,
+                    'source' => 'webchat',
+                ],
+            );
+        }
 
         return $this->created([
             'messageId' => (string) $message->id,
@@ -115,23 +137,67 @@ final class WebChatMessageController extends BaseController
     /**
      * Validar request de envio de mensagem.
      *
+     * Suporta dois modos mutuamente exclusivos:
+     *   - Texto: { token, content }
+     *   - Mídia: { token, file_url, mime_type, type }
+     *
      * @return array<string, mixed>
      */
     private function validateStoreRequest(Request $request): array
     {
-        $content = $request->input('content');
-        if (! is_string($content) || trim($content) === '') {
-            abort(400, 'content é obrigatório e não pode ser vazio');
-        }
-
         $token = $request->input('token');
         if (! is_string($token) || $token === '') {
             abort(400, 'token é obrigatório');
         }
 
+        $fileUrl = $request->input('file_url');
+
+        // Modo mídia
+        if ($fileUrl !== null) {
+            if (! is_string($fileUrl) || $fileUrl === '') {
+                abort(400, 'file_url deve ser uma string não vazia');
+            }
+
+            $mimeType = $request->input('mime_type');
+            if (! is_string($mimeType) || $mimeType === '') {
+                abort(400, 'mime_type é obrigatório para mensagens de mídia');
+            }
+
+            $type = $request->input('type');
+            $allowedTypes = ['image', 'video', 'audio', 'document'];
+            if (! is_string($type) || ! in_array($type, $allowedTypes, true)) {
+                abort(400, 'type inválido. Valores permitidos: ' . implode(', ', $allowedTypes));
+            }
+
+            $fileName = $request->input('file_name');
+            if ($fileName !== null && ! is_string($fileName)) {
+                abort(400, 'file_name deve ser uma string');
+            }
+
+            return [
+                'token'             => $token,
+                'content'           => '',
+                'file_url'          => $fileUrl,
+                'file_name'         => $fileName,
+                'mime_type'         => $mimeType,
+                'type'              => $type,
+                'client_message_id' => $request->input('client_message_id'),
+            ];
+        }
+
+        // Modo texto
+        $content = $request->input('content');
+        if (! is_string($content) || trim($content) === '') {
+            abort(400, 'content é obrigatório e não pode ser vazio');
+        }
+
         return [
-            'content' => trim($content),
-            'token' => $token,
+            'token'             => $token,
+            'content'           => trim($content),
+            'file_url'          => null,
+            'file_name'         => null,
+            'mime_type'         => null,
+            'type'              => 'text',
             'client_message_id' => $request->input('client_message_id'),
         ];
     }

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EventsGateway } from './gateways/events.gateway';
+import { WebChatGateway } from './gateways/webchat.gateway';
 import { EventFanoutService } from './services/event-fanout.service';
 import { InternalBroadcastController } from './controllers/internal-broadcast.controller';
 import { WsAuthGuard } from './guards/ws-auth.guard';
@@ -12,6 +13,7 @@ import { WsSessionService } from './services/ws-session.service';
   controllers: [InternalBroadcastController],
   providers: [
     EventsGateway,
+    WebChatGateway,
     EventFanoutService,
     WsAuthGuard,
     InternalApiKeyGuard,
@@ -19,6 +21,6 @@ import { WsSessionService } from './services/ws-session.service';
     WsRoomAccessService,
     WsSessionService,
   ],
-  exports: [EventsGateway],
+  exports: [EventsGateway, WebChatGateway],
 })
 export class RealtimeModule {}

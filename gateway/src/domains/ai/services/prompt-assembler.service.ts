@@ -35,6 +35,7 @@ export class PromptAssemblerService {
       snapshot.prompt.trim() !== ''
     ) {
       this.aiMetrics.recordPromptCacheHit(true);
+      this.aiMetrics.recordSnapshotResolution('prompt', 'snapshot');
       return snapshot.prompt;
     }
 
@@ -43,10 +44,12 @@ export class PromptAssemblerService {
 
     if (cached) {
       this.aiMetrics.recordPromptCacheHit(true);
+      this.aiMetrics.recordSnapshotResolution('prompt', 'redis');
       return cached;
     }
 
     this.aiMetrics.recordPromptCacheHit(false);
+    this.aiMetrics.recordSnapshotResolution('prompt', 'api');
     const prompt = await this.internalAiClient.fetchPrompt(tenantId, traceId);
     await this.redisService.set(key, prompt, 3600);
 

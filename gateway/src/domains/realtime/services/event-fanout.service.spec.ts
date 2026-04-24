@@ -3,12 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { EventFanoutService } from './event-fanout.service';
 import { RedisService } from '../../../infrastructure/redis/redis.service';
 import { EventsGateway } from '../gateways/events.gateway';
+import { WebChatGateway } from '../gateways/webchat.gateway';
 import { GatewayConfigService } from '../../../shared/services/gateway-config.service';
 
 describe('EventFanoutService', () => {
   let service: EventFanoutService;
   let mockRedisService: Partial<RedisService>;
   let mockEventsGateway: Partial<EventsGateway>;
+  let mockWebChatGateway: Partial<WebChatGateway>;
   const mockConfigService = {
     get: jest.fn(),
   };
@@ -46,12 +48,17 @@ describe('EventFanoutService', () => {
       emitToRoom: jest.fn(),
     };
 
+    mockWebChatGateway = {
+      emitToRoom: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         EventFanoutService,
         { provide: ConfigService, useValue: mockConfigService },
         { provide: RedisService, useValue: mockRedisService },
         { provide: EventsGateway, useValue: mockEventsGateway },
+        { provide: WebChatGateway, useValue: mockWebChatGateway },
         {
           provide: GatewayConfigService,
           useValue: {
@@ -258,6 +265,7 @@ describe('EventFanoutService', () => {
           { provide: ConfigService, useValue: mockConfigService },
           { provide: RedisService, useValue: mockRedisService },
           { provide: EventsGateway, useValue: mockEventsGateway },
+          { provide: WebChatGateway, useValue: mockWebChatGateway },
           {
             provide: GatewayConfigService,
             useValue: {
@@ -351,6 +359,51 @@ describe('EventFanoutService', () => {
           sentiment_score: 91,
         }),
       );
+    });
+
+    it('should emit webchat:ai_response to session room via webChatGateway', () => {
+      const message = JSON.stringify({
+        event: 'webchat:ai_response',
+        tenant_id: 'tenant-webchat',
+        data: {
+          tenant_id: 'tenant-webchat',
+          session_id: 'session-abc',
+          message: {
+            id: 'msg-ai-1',
+            content: 'AI response here',
+            type: 'text',
+          },
+        },
+      });
+
+      messageHandler?.('ws.events', message);
+
+      expect(mockWebChatGateway.emitToRoom).toHaveBeenCalledWith(
+        'session:session-abc',
+        'webchat:ai_response',
+        expect.objectContaining({
+          tenant_id: 'tenant-webchat',
+          session_id: 'session-abc',
+          message: expect.objectContaining({
+            id: 'msg-ai-1',
+          }),
+        }),
+      );
+    });
+
+    it('should ignore webchat:ai_response without session_id', () => {
+      const message = JSON.stringify({
+        event: 'webchat:ai_response',
+        tenant_id: 'tenant-webchat',
+        data: {
+          tenant_id: 'tenant-webchat',
+          message: { id: 'msg-ai-1' },
+        },
+      });
+
+      messageHandler?.('ws.events', message);
+
+      expect(mockWebChatGateway.emitToRoom).not.toHaveBeenCalled();
     });
 
     it('should ignore ticket.sentiment_updated without tenant_id', () => {

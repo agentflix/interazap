@@ -34,6 +34,7 @@ describe('ChatWindowComponent', () => {
 
   const aiResponseSubject = new Subject<WebChatMessage>();
   const messageSentSubject = new Subject<{ messageId: string; tempId?: string }>();
+  const ticketClosedByAgentSubject = new Subject<void>();
 
   const mockMessagesSignal = signal<WebChatMessage[]>([]);
   const mockIsConnectedSignal = signal(false);
@@ -58,9 +59,12 @@ describe('ChatWindowComponent', () => {
     isClosed: () => mockTicketStatusSignal() === 'closed',
     aiResponse$: aiResponseSubject.asObservable(),
     messageSent$: messageSentSubject.asObservable(),
+    ticketClosedByAgent$: ticketClosedByAgentSubject.asObservable(),
     sendMessage: vi.fn().mockReturnValue(of({ messageId: 'msg-new' })),
     closeTicket: vi.fn().mockReturnValue(of({ ticketId: 'ticket-1', status: 'closed' })),
     updateMessageStatus: vi.fn(),
+    uploadMedia: vi.fn(),
+    sendFileMessage: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -154,6 +158,18 @@ describe('ChatWindowComponent', () => {
     it('should return the message id as track key', () => {
       const msg = { id: 'msg-123' } as WebChatMessage;
       expect(component.trackByMessageId(0, msg)).toBe('msg-123');
+    });
+
+    it('should render each message row with full width to avoid premature wrapping', () => {
+      mockMessagesSignal.set(mockMessages);
+      component.init('session-1', 'João');
+      fixture.detectChanges();
+
+      const messageRows = fixture.nativeElement.querySelectorAll(
+        'main[aria-label="Mensagens do chat"] > div > div.flex.w-full',
+      ) as NodeListOf<HTMLDivElement>;
+
+      expect(messageRows.length).toBe(mockMessages.length);
     });
   });
 
@@ -291,6 +307,80 @@ describe('ChatWindowComponent', () => {
       mockConnectionStateSignal.set('connected');
       fixture.detectChanges();
       expect(component.connectionStatusDot()).toContain('bg-green');
+    });
+  });
+
+  // ─── Scroll indicator (FEAT-046) ──────────────────────────────────────────
+
+  describe('scroll indicator', () => {
+    function makeScrollEl(opts: { scrollTop: number; clientHeight: number; scrollHeight: number }) {
+      return { ...opts, scrollTo: vi.fn() } as unknown as HTMLElement;
+    }
+
+    it('showScrollToBottom inicia como false', () => {
+      expect((component as any).showScrollToBottom()).toBe(false);
+    });
+
+    it('unreadCount inicia como zero', () => {
+      expect((component as any).unreadCount()).toBe(0);
+    });
+
+    it('scrollToBottomClick zera showScrollToBottom e unreadCount', () => {
+      (component as any).showScrollToBottom.set(true);
+      (component as any).unreadCount.set(3);
+      (component as any).scrollElement = makeScrollEl({ scrollTop: 0, clientHeight: 500, scrollHeight: 2000 });
+
+      component['scrollToBottomClick']();
+
+      expect((component as any).showScrollToBottom()).toBe(false);
+      expect((component as any).unreadCount()).toBe(0);
+    });
+
+    it('botao aparece quando usuario nao esta no fundo e nova mensagem chega', async () => {
+      (component as any).scrollElement = makeScrollEl({ scrollTop: 0, clientHeight: 500, scrollHeight: 2000 });
+      (component as any).prevMessageCount = 0;
+
+      mockMessagesSignal.set([mockMessages[0]]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect((component as any).showScrollToBottom()).toBe(true);
+      expect((component as any).unreadCount()).toBe(1);
+    });
+
+    it('botao nao aparece quando usuario esta no fundo (isNearBottom true)', async () => {
+      (component as any).scrollElement = makeScrollEl({ scrollTop: 1900, clientHeight: 500, scrollHeight: 2000 });
+      (component as any).prevMessageCount = 0;
+
+      mockMessagesSignal.set([mockMessages[0]]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect((component as any).showScrollToBottom()).toBe(false);
+    });
+
+    it('isNearBottom retorna true quando scrollElement e null', () => {
+      (component as any).scrollElement = null;
+      expect((component as any).isNearBottom()).toBe(true);
+    });
+
+    it('init reseta showScrollToBottom e unreadCount', () => {
+      (component as any).showScrollToBottom.set(true);
+      (component as any).unreadCount.set(5);
+
+      component.init('session-new', 'Rafael');
+
+      expect((component as any).showScrollToBottom()).toBe(false);
+      expect((component as any).unreadCount()).toBe(0);
+    });
+
+    it('botao com aria-label correto renderiza no DOM quando showScrollToBottom e true', async () => {
+      (component as any).showScrollToBottom.set(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const btn = fixture.nativeElement.querySelector('[aria-label="Rolar para novas mensagens"]');
+      expect(btn).not.toBeNull();
     });
   });
 });

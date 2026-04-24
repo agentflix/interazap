@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { OpenAIProviderAdapter } from '../providers/openai/openai-provider.adapter';
 import { PromptAssemblerService } from './prompt-assembler.service';
 import { ContextWindowService } from './context-window.service';
@@ -25,12 +26,13 @@ export class AiRunOrchestratorService {
   private static readonly DEFAULT_MAX_TOOL_ITERATIONS = 5;
   private static readonly DEFAULT_RUN_TOKEN_BUDGET = 32000;
   private static readonly COMPACT_MAX_DATA_LENGTH = 500;
-  private static readonly MAX_TOOL_HISTORY_MESSAGES = 10;
+  private static readonly DEFAULT_MAX_TOOL_HISTORY_MESSAGES = 8;
 
   private readonly logger = new Logger(AiRunOrchestratorService.name);
   private readonly messageBuilder = new MessageBuilderService();
   private readonly toolCallLoop: ToolCallLoopService;
   private readonly runCompletion: RunCompletionService;
+  private readonly maxToolHistoryMessages: number;
 
   constructor(
     private readonly openaiProvider: OpenAIProviderAdapter,
@@ -41,7 +43,16 @@ export class AiRunOrchestratorService {
     private readonly guardrail: GuardrailEvaluatorService,
     private readonly streamHandler: StreamHandlerService,
     private readonly aiMetrics: AiMetricsService,
+    private readonly configService?: ConfigService,
   ) {
+    const configured = this.configService?.get<string | number>(
+      'AI_MAX_TOOL_HISTORY_MESSAGES',
+    );
+    const parsed = configured !== undefined ? Number(configured) : NaN;
+    this.maxToolHistoryMessages =
+      Number.isFinite(parsed) && parsed > 0
+        ? Math.trunc(parsed)
+        : AiRunOrchestratorService.DEFAULT_MAX_TOOL_HISTORY_MESSAGES;
     this.toolCallLoop = new ToolCallLoopService(
       this.guardrail,
       this.toolExecutor,
@@ -105,8 +116,12 @@ export class AiRunOrchestratorService {
       Array.isArray(request.toolsSnapshot) &&
       request.toolsSnapshot.length > 0
     ) {
+      this.aiMetrics.recordSnapshotResolution('tools', 'snapshot');
       toolsPromise = Promise.resolve(request.toolsSnapshot);
     } else if (request.agentId) {
+      // fetchToolsCached internally hits Redis or API; we mark 'redis' optimistically
+      // since the cache TTL is 1h and miss only happens on first call per agent.
+      this.aiMetrics.recordSnapshotResolution('tools', 'redis');
       toolsPromise = this.internalAiClient
         .fetchToolsCached(request.agentId, request.traceId)
         .then((tools) => tools as unknown[]);
@@ -260,12 +275,9 @@ export class AiRunOrchestratorService {
 
       // Sliding window: keep base messages + only recent tool history
       const toolMessages = completionRequest.messages.slice(baseMessageCount);
-      if (
-        toolMessages.length > AiRunOrchestratorService.MAX_TOOL_HISTORY_MESSAGES
-      ) {
+      if (toolMessages.length > this.maxToolHistoryMessages) {
         const trimmed = toolMessages.slice(
-          toolMessages.length -
-            AiRunOrchestratorService.MAX_TOOL_HISTORY_MESSAGES,
+          toolMessages.length - this.maxToolHistoryMessages,
         );
         completionRequest.messages = [
           ...completionRequest.messages.slice(0, baseMessageCount),

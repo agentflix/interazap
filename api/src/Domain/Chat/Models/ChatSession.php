@@ -6,6 +6,8 @@ namespace Domain\Chat\Models;
 
 use Domain\CRM\Models\CRMContact;
 use Domain\Shared\Concerns\BelongsToTenant;
+use Database\Factories\ChatSessionFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -30,6 +32,7 @@ use Illuminate\Support\Str;
 class ChatSession extends Model
 {
     use BelongsToTenant;
+    use HasFactory;
 
     protected $table = 'chat_sessions';
 
@@ -90,11 +93,19 @@ class ChatSession extends Model
     }
 
     /**
-     * Update last activity timestamp.
+     * Atualizar timestamp de última atividade.
      */
     public function touchLastActivity(): void
     {
         $this->last_activity_at = now();
         $this->save();
+    }
+
+    /**
+     * Criar nova instância da Factory para testes.
+     */
+    protected static function newFactory(): ChatSessionFactory
+    {
+        return ChatSessionFactory::new();
     }
 }

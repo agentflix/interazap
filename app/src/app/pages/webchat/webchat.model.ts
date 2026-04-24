@@ -9,6 +9,9 @@ export interface WebChatSessionResponse {
   sessionId: string;
   ticketId: string;
   tenantId: string;
+  contactName?: string;
+  contactPhone?: string;
+  protocol?: string;
 }
 
 /** Public ticket status for webchat lifecycle */
@@ -21,10 +24,25 @@ export interface WebChatCloseResponse {
   closedAt?: string | null;
 }
 
+/** Supported message types for webchat requests */
+export type WebChatMessageType = 'text' | 'image' | 'video' | 'audio' | 'document';
+
 /** Incoming message from the visitor */
 export interface WebChatMessageRequest {
   token: string;
-  content: string;
+  content?: string;
+  file_url?: string;
+  file_name?: string;
+  mime_type?: string;
+  type?: WebChatMessageType;
+}
+
+/** Response after uploading a media file */
+export interface WebChatMediaUploadResponse {
+  url: string;
+  file_name: string;
+  mime_type: string;
+  size: number;
 }
 
 /** Response after sending a message */
@@ -42,6 +60,8 @@ export interface WebChatMessage {
   status?: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
   createdAt: string;
   sessionId: string;
+  fileUrl?: string;
+  mimeType?: string;
 }
 
 /** Data collected during pre-chat form */

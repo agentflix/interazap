@@ -9,19 +9,21 @@ import {
   computed,
   effect,
   inject,
+  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, finalize, switchMap } from 'rxjs/operators';
 import {
   AfButtonComponent,
   AfChatBubbleComponent,
   AfChatComposerComponent,
   AfConfirmModalComponent,
 } from '@shared/components';
+import { LucideAngularModule } from 'lucide-angular';
 import { WebChatService } from '../../services/webchat.service';
-import { type WebChatMessage } from '../../webchat.model';
+import { type WebChatMessage, type WebChatMessageType } from '../../webchat.model';
 
 /**
  * ChatWindowComponent — displays the chat messages list, typing indicator,
@@ -30,7 +32,13 @@ import { type WebChatMessage } from '../../webchat.model';
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [AfChatBubbleComponent, AfChatComposerComponent, AfButtonComponent, AfConfirmModalComponent],
+  imports: [
+    AfChatBubbleComponent,
+    AfChatComposerComponent,
+    AfButtonComponent,
+    AfConfirmModalComponent,
+    LucideAngularModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './chat-window.component.html',
   styleUrl: './chat-window.component.scss',
@@ -39,11 +47,21 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
   private readonly webchatService = inject(WebChatService);
   private readonly destroyRef = inject(DestroyRef);
 
+  /** Emitido quando o cliente encerra o chamado com sucesso. */
+  readonly ticketClosed = output<void>();
+
   @ViewChild('scrollContainer', { read: ElementRef })
   private readonly scrollContainer?: ElementRef<HTMLElement>;
 
+  @ViewChild('fileInput')
+  private readonly fileInputRef!: ElementRef<HTMLInputElement>;
+
   private scrollElement: HTMLElement | null = null;
   private pendingScrollToBottom = true;
+  private prevMessageCount = 0;
+
+  protected readonly showScrollToBottom = signal(false);
+  protected readonly unreadCount = signal(0);
 
   // ─── UI Signals ───────────────────────────────────────────────────────────
   readonly messages = this.webchatService.messages;
@@ -57,36 +75,76 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
   readonly closeError = this.webchatService.closeError;
   readonly isCloseModalOpen = signal(false);
 
-  // Visitor name from session
+  // Upload state
+  readonly isUploading = signal(false);
+  readonly uploadError = signal<string | null>(null);
+  private readonly pendingAttachmentType = signal<WebChatMessageType | null>(null);
+
+  /** Accept attribute for the hidden file input, derived from selected attachment type */
+  protected readonly fileAccept = computed(() => {
+    switch (this.pendingAttachmentType()) {
+      case 'image':
+        return 'image/*';
+      case 'video':
+        return 'video/*';
+      case 'audio':
+        return 'audio/*';
+      case 'document':
+        return '.pdf,.doc,.docx,.xls,.xlsx';
+      default:
+        return '*/*';
+    }
+  });
+
+  // Visitor info from session
   readonly visitorName = signal('Visitante');
+  readonly visitorPhone = signal<string | undefined>(undefined);
+  readonly protocol = signal<string | undefined>(undefined);
 
   // Session info
   readonly sessionId = signal<string | null>(null);
 
   constructor() {
-    // Scroll to bottom whenever messages change
     effect(() => {
       const count = this.messages().length;
       if (count === 0) return;
-      // Use queueMicrotask to scroll after DOM has updated
-      queueMicrotask(() => this.scrollToBottomIfNear());
+      queueMicrotask(() => {
+        const delta = count - this.prevMessageCount;
+        this.prevMessageCount = count;
+        if (delta > 0 && !this.isNearBottom()) {
+          this.unreadCount.update(n => n + delta);
+          this.showScrollToBottom.set(true);
+        } else {
+          this.scrollToBottomIfNear();
+        }
+      });
     });
   }
 
   ngOnInit(): void {
     // Listen for AI responses to maintain scroll position
-    this.webchatService.aiResponse$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.pendingScrollToBottom = true;
-        this.scrollToBottomIfNear();
-      });
+    this.webchatService.aiResponse$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.pendingScrollToBottom = true;
+      this.scrollToBottomIfNear();
+    });
 
     // Listen for sent confirmations
     this.webchatService.messageSent$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ messageId }) => {
         this.webchatService.updateMessageStatus(messageId, 'sent');
+      });
+
+    // Quando atendente encerra o chamado remotamente: atualiza UI e
+    // retorna automaticamente para a tela inicial (PreChat) após breve delay,
+    // permitindo que o cliente visualize a mensagem de encerramento antes do reload.
+    this.webchatService.ticketClosedByAgent$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.pendingScrollToBottom = true;
+        this.scrollToBottomIfNear();
+        // Auto-redirect para PreChat após 2.5s (UX: dá tempo para ler "Atendimento encerrado")
+        setTimeout(() => this.ticketClosed.emit(), 2500);
       });
   }
 
@@ -95,6 +153,10 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
       this.scrollElement = this.resolveScrollElement();
       if (this.scrollElement) {
         this.attachScrollListener();
+        // Scroll inicial: garante que o chat abre já no fundo (sem animação)
+        if (this.messages().length > 0) {
+          this.scrollToBottom('auto');
+        }
       }
     });
   }
@@ -102,10 +164,15 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
   // ─── Public API ───────────────────────────────────────────────────────────
 
   /** Initializes the component with session data */
-  init(sessionId: string, visitorName: string): void {
+  init(sessionId: string, visitorName: string, visitorPhone?: string, protocol?: string): void {
     this.sessionId.set(sessionId);
     this.visitorName.set(visitorName);
+    this.visitorPhone.set(visitorPhone);
+    this.protocol.set(protocol);
     this.pendingScrollToBottom = true;
+    this.prevMessageCount = 0;
+    this.showScrollToBottom.set(false);
+    this.unreadCount.set(0);
   }
 
   /** Handles message send from the composer */
@@ -121,6 +188,56 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
         this.webchatService.updateMessageStatus(tempId, 'failed');
       },
     });
+  }
+
+  /** Triggered by af-chat-composer (attachmentTypeSelected) — opens file picker for the given type */
+  onAttachmentSelected(type: WebChatMessageType): void {
+    if (this.isClosed() || this.isUploading()) return;
+    this.pendingAttachmentType.set(type);
+    this.fileInputRef.nativeElement.click();
+  }
+
+  /** Triggered by the hidden file input (change) — uploads file then sends message */
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+    if (file.size > MAX_SIZE_BYTES) {
+      this.uploadError.set('O arquivo não pode ser maior que 5 MB.');
+      input.value = '';
+      return;
+    }
+
+    const messageType: WebChatMessageType = this.pendingAttachmentType() ?? 'document';
+    const sessionId = this.sessionId();
+    if (!sessionId) return;
+
+    this.isUploading.set(true);
+    this.uploadError.set(null);
+
+    this.webchatService
+      .uploadMedia(file)
+      .pipe(
+        switchMap((upload) =>
+          this.webchatService.sendFileMessage(
+            sessionId,
+            upload.url,
+            upload.mime_type,
+            messageType,
+            upload.file_name,
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.isUploading.set(false);
+          input.value = '';
+        }),
+      )
+      .subscribe({
+        error: (err: Error) => this.uploadError.set(err?.message ?? 'Falha no envio'),
+      });
   }
 
   openCloseModal(): void {
@@ -148,6 +265,7 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: () => {
           this.isCloseModalOpen.set(false);
+          this.ticketClosed.emit();
         },
       });
   }
@@ -211,23 +329,33 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
     return message.id;
   }
 
+  protected scrollToBottomClick(): void {
+    this.scrollToBottom('smooth');
+    this.showScrollToBottom.set(false);
+    this.unreadCount.set(0);
+  }
+
   // ─── Private ───────────────────────────────────────────────────────────────
 
-  private scrollToBottomIfNear(): void {
-    if (!this.scrollElement) return;
+  private isNearBottom(): boolean {
+    if (!this.scrollElement) return true;
     const { scrollTop, clientHeight, scrollHeight } = this.scrollElement;
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
+    return scrollTop + clientHeight >= scrollHeight - 100;
+  }
+
+  private scrollToBottomIfNear(): void {
+    if (this.isNearBottom()) {
       this.scrollToBottom();
     }
   }
 
-  private scrollToBottom(): void {
+  private scrollToBottom(behavior: ScrollBehavior = 'smooth'): void {
     if (!this.scrollElement) return;
     setTimeout(() => {
       if (this.scrollElement) {
         this.scrollElement.scrollTo({
           top: this.scrollElement.scrollHeight,
-          behavior: 'smooth',
+          behavior,
         });
       }
     }, 50);
@@ -244,6 +372,10 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
       .pipe(debounceTime(100), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.pendingScrollToBottom = false;
+        if (this.isNearBottom()) {
+          this.showScrollToBottom.set(false);
+          this.unreadCount.set(0);
+        }
       });
   }
 }

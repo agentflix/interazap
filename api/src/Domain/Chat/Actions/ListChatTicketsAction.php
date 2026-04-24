@@ -72,8 +72,7 @@ final class ListChatTicketsAction
         return Cache::remember("chat_counts:{$tenantId}", 15, function () use ($tenantId): array {
             $counts = ChatTicket::query()
                 ->where('tenant_id', $tenantId)
-                ->selectRaw('status, count(*) as total')
-                ->groupBy('status')
+                ->withStatusCounts()
                 ->pluck('total', 'status')
                 ->toArray();
 
@@ -200,8 +199,7 @@ final class ListChatTicketsAction
     private function applyGroupByContact(Builder $query, string $tenantId, array $filters): void
     {
         $rankedTickets = ChatTicket::query()
-            ->select('id')
-            ->selectRaw('ROW_NUMBER() OVER (PARTITION BY COALESCE(contact_id::text, remote_jid, id::text) ORDER BY COALESCE(last_message_at, updated_at, created_at) DESC, updated_at DESC, created_at DESC, id DESC) as row_num')
+            ->withContactDeduplicationRank()
             ->where('tenant_id', $tenantId);
 
         $this->applyFilters($rankedTickets, $filters);

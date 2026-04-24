@@ -8,10 +8,13 @@ use Domain\Auth\Models\AuthUser;
 use Domain\Chat\DTOs\ChatMessageDTO;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
+use Domain\Chat\Models\ChatSession;
 use Domain\Chat\Models\ChatTicket;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
+use Mockery;
 use Tests\TestCase;
 
 class ChatMessageOutboundTest extends TestCase
@@ -267,5 +270,163 @@ class ChatMessageOutboundTest extends TestCase
 
         // Bot deve chamar o gateway para entregar a mensagem
         Http::assertSent(fn ($request): bool => str_contains($request->url(), 'gateway.test'));
+    }
+
+    public function test_outgoing_ai_message_emits_chat_activity_for_attendant_and_chat_list(): void
+    {
+        $user = AuthUser::factory()->create();
+
+        $instance = ChatInstance::factory()->create([
+            'tenant_id' => $user->tenant_id,
+            'webhook_token' => 'tok-ai',
+        ]);
+
+        $ticket = ChatTicket::factory()->forTenant($user->tenant_id)->create([
+            'instance_id' => $instance->id,
+            'phone' => '5511999999999',
+        ]);
+
+        $publishedPayloads = [];
+        $redisConnection = Mockery::mock();
+        $redisConnection->shouldReceive('publish')
+            ->atLeast()->once()
+            ->with('ws.events', Mockery::on(function (string $raw) use (&$publishedPayloads): bool {
+                $publishedPayloads[] = json_decode($raw, true);
+
+                return true;
+            }))
+            ->andReturn(1);
+
+        Redis::shouldReceive('connection')
+            ->atLeast()->once()
+            ->andReturn($redisConnection);
+
+        Http::fake([
+            'http://gateway.test/*' => Http::response(['messageid' => 'ai-msg-1'], 200),
+        ]);
+
+        $actions = app(\Domain\Chat\Actions\ChatMessageActions::class);
+
+        $dto = new ChatMessageDTO(
+            ticketId: (string) $ticket->id,
+            content: 'Resposta da IA',
+            direction: 'outgoing',
+            type: 'text',
+            isFromContact: false,
+            source: ChatMessageDTO::SOURCE_AI,
+        );
+
+        $message = $actions->create((string) $user->tenant_id, $dto);
+
+        $this->assertNotNull($message->id);
+        $this->assertSame('outgoing', $message->direction);
+
+        $activityPayloads = array_values(array_filter(
+            $publishedPayloads,
+            static fn (array $payload): bool => ($payload['event'] ?? null) === 'chat.activity',
+        ));
+
+        $this->assertNotEmpty($activityPayloads, 'Deve publicar chat.activity para atualizar painel do atendente');
+
+        $hasReceivedWithAiSource = false;
+        $hasChatListUpdate = false;
+
+        foreach ($activityPayloads as $payload) {
+            $subevents = $payload['data']['subevents'] ?? [];
+            foreach ($subevents as $subevent) {
+                if (($subevent['type'] ?? null) === 'msg.received'
+                    && ($subevent['data']['message']['source'] ?? null) === ChatMessageDTO::SOURCE_AI
+                ) {
+                    $hasReceivedWithAiSource = true;
+                }
+
+                if (($subevent['type'] ?? null) === 'chat.list.updated') {
+                    $hasChatListUpdate = true;
+                }
+            }
+        }
+
+        $this->assertTrue($hasReceivedWithAiSource, 'Payload deve conter msg.received com source=ai');
+        $this->assertTrue($hasChatListUpdate, 'Payload deve conter chat.list.updated para atualizar lista de tickets');
+    }
+
+    public function test_outgoing_bot_message_emits_chat_activity_for_attendant_and_chat_list(): void
+    {
+        $user = AuthUser::factory()->create();
+
+        $instance = ChatInstance::factory()->create([
+            'tenant_id' => $user->tenant_id,
+            'webhook_token' => 'tok-bot-webchat',
+        ]);
+
+        $ticket = ChatTicket::factory()->forTenant($user->tenant_id)->create([
+            'instance_id' => $instance->id,
+            'phone' => '5511999999999',
+        ]);
+
+        ChatSession::factory()->forTicket($ticket)->create([
+            'tenant_id' => $user->tenant_id,
+            'contact_id' => $ticket->contact_id,
+        ]);
+
+        $publishedPayloads = [];
+        $redisConnection = Mockery::mock();
+        $redisConnection->shouldReceive('publish')
+            ->atLeast()->once()
+            ->with('ws.events', Mockery::on(function (string $raw) use (&$publishedPayloads): bool {
+                $publishedPayloads[] = json_decode($raw, true);
+
+                return true;
+            }))
+            ->andReturn(1);
+
+        Redis::shouldReceive('connection')
+            ->atLeast()->once()
+            ->andReturn($redisConnection);
+
+        Http::fake();
+
+        $actions = app(\Domain\Chat\Actions\ChatMessageActions::class);
+
+        $dto = new ChatMessageDTO(
+            ticketId: (string) $ticket->id,
+            content: 'Resposta automática do bot (webchat)',
+            direction: 'outgoing',
+            type: 'text',
+            isFromContact: false,
+            source: ChatMessageDTO::SOURCE_BOT,
+        );
+
+        $message = $actions->create((string) $user->tenant_id, $dto);
+
+        $this->assertNotNull($message->id);
+
+        $activityPayloads = array_values(array_filter(
+            $publishedPayloads,
+            static fn (array $payload): bool => ($payload['event'] ?? null) === 'chat.activity',
+        ));
+
+        $this->assertNotEmpty($activityPayloads, 'Deve publicar chat.activity para atualizar painel do atendente');
+
+        $hasReceivedWithBotSource = false;
+        $hasChatListUpdate = false;
+
+        foreach ($activityPayloads as $payload) {
+            $subevents = $payload['data']['subevents'] ?? [];
+            foreach ($subevents as $subevent) {
+                if (($subevent['type'] ?? null) === 'msg.received'
+                    && ($subevent['data']['message']['source'] ?? null) === ChatMessageDTO::SOURCE_BOT
+                ) {
+                    $hasReceivedWithBotSource = true;
+                }
+
+                if (($subevent['type'] ?? null) === 'chat.list.updated') {
+                    $hasChatListUpdate = true;
+                }
+            }
+        }
+
+        $this->assertTrue($hasReceivedWithBotSource, 'Payload deve conter msg.received com source=bot');
+        $this->assertTrue($hasChatListUpdate, 'Payload deve conter chat.list.updated para atualizar lista de tickets');
     }
 }

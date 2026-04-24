@@ -30,6 +30,7 @@ final class ChatActivityBroadcastServiceTest extends TestCase
             'negotiation.status.changed',
             'ticket.new',
             'ticket.updated',
+            'typing',
         ];
 
         $this->assertEquals($expectedTypes, ChatActivityBroadcastService::VALID_SUBEVENT_TYPES);
@@ -37,7 +38,7 @@ final class ChatActivityBroadcastServiceTest extends TestCase
 
     public function test_valid_subevent_types_count(): void
     {
-        $this->assertCount(15, ChatActivityBroadcastService::VALID_SUBEVENT_TYPES);
+        $this->assertCount(16, ChatActivityBroadcastService::VALID_SUBEVENT_TYPES);
     }
 
     public function test_service_can_be_instantiated(): void

@@ -12,6 +12,7 @@ use Domain\Ai\Models\AiAgentDelegation;
 use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Ai\Models\AiUsageLog;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -19,6 +20,11 @@ use Illuminate\Support\Str;
  */
 final class AiAgentDelegationService
 {
+    public function __construct(
+        private readonly AutopilotRunStreamPublisher $streamPublisher,
+        private readonly AutopilotRunSnapshotResolver $snapshotResolver,
+    ) {}
+
     /**
      * @param  array<string, mixed>  $payload
      * @return array{success: bool, message: string, child_run_id?: string, return_after?: bool}
@@ -80,9 +86,15 @@ final class AiAgentDelegationService
             ->first();
 
         if (! $delegationRule) {
+            Log::warning('[AiAgentDelegation] No delegation rule found', [
+                'tenant_id' => $tenantId,
+                'source_agent_id' => $sourceAgentId,
+                'target_agent_id' => $targetAgentId,
+            ]);
+
             return [
                 'success' => false,
-                'message' => 'Delegation rule not allowed for this source/target pair.',
+                'message' => "No active delegation rule from agent {$sourceAgentId} to agent {$targetAgentId}.",
             ];
         }
 
@@ -170,9 +182,7 @@ final class AiAgentDelegationService
         }
 
         if ($dispatchExecutionJob) {
-            AiRunExecutionJob::dispatch((string) $childRun->id)
-                ->onConnection(config('ai.autopilot.queue_connection', 'redis'))
-                ->onQueue(config('ai.autopilot.queue_name', 'ai'));
+            $this->publishChildRunToStream($childRun, $targetAgent, $payload);
         }
 
         AiRunDelegated::dispatch(
@@ -233,18 +243,14 @@ final class AiAgentDelegationService
             $parentOfCurrent = AiAutopilotRun::query()
                 ->where('tenant_id', $tenantId)
                 ->where('id', $currentRun->parent_run_id)
-                ->first(['id', 'agent_id', 'parent_run_id', 'tenant_id', 'input_context']);
+                ->first(['id', 'parent_run_id', 'tenant_id', 'input_context']);
 
             if ($parentOfCurrent === null) {
                 break;
             }
 
-            // Check agent_id column directly
-            if ((string) $parentOfCurrent->agent_id === $targetAgentId) {
-                return true;
-            }
-
-            // Also check input_context for backwards compatibility
+            // O agent_id vive em input_context['agent_id'] — a tabela
+            // ai_autopilot_runs não tem coluna dedicada para isso.
             $inputContext = is_array($parentOfCurrent->input_context) ? $parentOfCurrent->input_context : [];
             $contextAgentId = (string) ($inputContext['agent_id'] ?? '');
 
@@ -264,5 +270,103 @@ final class AiAgentDelegationService
         }
 
         return false;
+    }
+
+    /**
+     * Publica o child run no stream `ai.run.request` para que o gateway o
+     * processe pelo mesmo caminho rápido do dispatch inicial (com snapshot,
+     * tools paralelas e sliding window). Substitui o antigo
+     * AiRunExecutionJob (caminho síncrono PHP) que pagava 2–3 round-trips
+     * HTTP por run e não tinha paralelização de tools.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function publishChildRunToStream(AiAutopilotRun $childRun, AiAgent $targetAgent, array $payload): void
+    {
+        $tenantId = (string) $childRun->tenant_id;
+        $inputContext = is_array($childRun->input_context) ? $childRun->input_context : [];
+        $ticketId = (string) ($inputContext['ticket_id'] ?? '');
+        $messageId = (string) ($inputContext['message_id'] ?? '');
+        $instanceId = (string) ($inputContext['instance_id'] ?? '');
+        $contactId = (string) ($inputContext['contact_id'] ?? '');
+        $sourceId = (string) ($inputContext['source_id'] ?? $ticketId);
+        $inputText = (string) ($payload['input_text'] ?? $payload['question'] ?? $payload['message'] ?? ($inputContext['body'] ?? ''));
+
+        $modelId = is_string($targetAgent->model_id) && $targetAgent->model_id !== ''
+            ? $targetAgent->model_id
+            : null;
+
+        $delegationStack = is_array($inputContext['delegation_stack'] ?? null)
+            ? array_values(array_filter($inputContext['delegation_stack'], 'is_string'))
+            : [];
+        $delegationStack[] = (string) ($inputContext['delegated_from_agent_id'] ?? '');
+        $delegationStack = array_values(array_filter($delegationStack, fn ($v) => $v !== ''));
+
+        $streamPayload = [
+            'event' => 'ai.run.request',
+            'run_id' => (string) $childRun->id,
+            'tenant_id' => $tenantId,
+            'agent_id' => (string) $targetAgent->id,
+            'agent_role' => (string) $targetAgent->getAttribute('role'),
+            'parent_run_id' => (string) ($childRun->parent_run_id ?? ''),
+            'delegation_depth' => (int) ($childRun->delegation_depth ?? 1),
+            'delegation_stack' => $delegationStack,
+            'ticket_id' => $ticketId,
+            'contact_id' => $contactId,
+            'input_text' => $inputText,
+            'source' => 'agent_delegation',
+            'trigger_type' => 'delegation',
+            'source_id' => $sourceId,
+            'instance_id' => $instanceId,
+            'playbook_id' => (string) ($childRun->playbook_id ?? ''),
+            'streaming_enabled' => true,
+            'max_tokens' => (int) config('ai.autopilot.max_tokens', 800),
+            'max_tool_iterations' => (int) config('ai.autopilot.max_tool_iterations', 5),
+            'run_token_budget' => (int) config('ai.autopilot.run_token_budget', 3000),
+            'compact_tool_results' => (bool) config('ai.autopilot.compact_tool_results', true) ? 'true' : 'false',
+            'requested_at' => now()->toIso8601String(),
+        ];
+
+        if ($modelId !== null) {
+            $streamPayload['model'] = $modelId;
+        }
+
+        $snapshot = $this->snapshotResolver->resolve($tenantId, $targetAgent, $ticketId);
+        $streamPayload['hydrated_at'] = $snapshot['hydrated_at'];
+
+        if (is_string($snapshot['prompt']) && $snapshot['prompt'] !== '') {
+            $streamPayload['prompt'] = $snapshot['prompt'];
+        }
+
+        if (is_array($snapshot['context'])) {
+            $streamPayload['context'] = $snapshot['context'];
+        }
+
+        if (is_array($snapshot['tools']) && $snapshot['tools'] !== []) {
+            $streamPayload['tools'] = $snapshot['tools'];
+        }
+
+        try {
+            $this->streamPublisher->publish($streamPayload);
+
+            Log::info('[AiAgentDelegation] Published child run to ai.run.request', [
+                'tenant_id' => $tenantId,
+                'run_id' => (string) $childRun->id,
+                'parent_run_id' => (string) ($childRun->parent_run_id ?? ''),
+                'target_agent_id' => (string) $targetAgent->id,
+                'delegation_depth' => (int) ($childRun->delegation_depth ?? 1),
+            ]);
+        } catch (\Throwable $exception) {
+            Log::error('[AiAgentDelegation] Failed to publish child run, falling back to PHP job', [
+                'tenant_id' => $tenantId,
+                'run_id' => (string) $childRun->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            // Fallback: caminho lento PHP (mantém confiabilidade se o stream falhar).
+            AiRunExecutionJob::dispatch((string) $childRun->id)
+                ->onConnection(config('ai.autopilot.queue_connection', 'redis'))
+                ->onQueue(config('ai.autopilot.queue_name', 'ai'));
+        }
     }
 }

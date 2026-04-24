@@ -14,6 +14,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { fromEvent, startWith } from 'rxjs';
@@ -30,6 +31,7 @@ import { UserChatTypingIndicatorComponent } from './user-chat-typing-indicator.c
   standalone: true,
   imports: [
     ButtonComponent,
+    LucideAngularModule,
     UserChatEmptyStateComponent,
     UserChatThreadViewComponent,
     UserChatTypingIndicatorComponent,
@@ -79,6 +81,10 @@ export class UserChatThreadComponent implements OnInit, AfterViewInit, OnDestroy
   private resizeObserver: ResizeObserver | null = null;
   private wasNearBottom = true;
   private latestScrollBehavior: 'auto' | 'smooth' = 'auto';
+  private prevMessageCount = 0;
+
+  protected readonly showScrollToBottom = signal(false);
+  protected readonly unreadCount = signal(0);
 
   constructor() {
     effect(() => {
@@ -92,6 +98,9 @@ export class UserChatThreadComponent implements OnInit, AfterViewInit, OnDestroy
       this.pendingScrollToBottom = true;
       this.lastScrollTop = 0;
       this.pendingRestore = null;
+      this.showScrollToBottom.set(false);
+      this.unreadCount.set(0);
+      this.prevMessageCount = 0;
     });
 
     effect(() => {
@@ -117,6 +126,15 @@ export class UserChatThreadComponent implements OnInit, AfterViewInit, OnDestroy
     effect(() => {
       const count = this.messages().length;
       if (count === 0) return;
+
+      const delta = count - this.prevMessageCount;
+      this.prevMessageCount = count;
+
+      if (delta > 0 && !this.wasNearBottom && this.scrollElement !== null) {
+        this.unreadCount.update(n => n + delta);
+        this.showScrollToBottom.set(true);
+        return;
+      }
 
       if (this.scrollElement !== null && !this.hasUserScrollIntent() && !this.isNearBottom()) {
         return;
@@ -204,6 +222,12 @@ export class UserChatThreadComponent implements OnInit, AfterViewInit, OnDestroy
     this.store.openStartConversation();
   }
 
+  protected scrollToBottomClick(): void {
+    this.scrollToBottom('smooth');
+    this.showScrollToBottom.set(false);
+    this.unreadCount.set(0);
+  }
+
   protected onReply(message: CalledMessage): void {
     this.reply.emit(message);
   }
@@ -230,6 +254,11 @@ export class UserChatThreadComponent implements OnInit, AfterViewInit, OnDestroy
     const isScrollingUp = currentScrollTop < this.lastScrollTop;
 
     this.wasNearBottom = this.isNearBottom();
+
+    if (this.wasNearBottom) {
+      this.showScrollToBottom.set(false);
+      this.unreadCount.set(0);
+    }
 
     if (currentScrollTop <= 40 && isScrollingUp && this.hasUserScrollIntent()) {
       const previousHeight = this.scrollElement.scrollHeight;

@@ -1,6 +1,7 @@
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { WsRoomAccessService } from './ws-room-access.service';
+import { GatewayFileLogger } from '../../../common/logger/gateway-file-logger';
 import { FileLogger } from '../models/ws-session.model';
 
 /**
@@ -10,15 +11,17 @@ import { FileLogger } from '../models/ws-session.model';
  * o enfileiramento de requisições de join que chegam antes da autenticação
  * e o processamento dessas requisiões pendentes após autenticação bem-sucedida.
  */
+@Injectable()
 export class WsSessionService {
   private readonly pendingJoinRequests = new Map<string, Set<string>>();
   private static readonly maxPendingRoomsPerClient = 50;
+  private readonly logger: Logger;
+  private readonly fileLogger: FileLogger;
 
-  constructor(
-    private readonly logger: Logger,
-    private readonly fileLogger: FileLogger,
-    private readonly roomAccess: WsRoomAccessService,
-  ) {}
+  constructor(private readonly roomAccess: WsRoomAccessService) {
+    this.logger = new Logger(WsSessionService.name);
+    this.fileLogger = new GatewayFileLogger(WsSessionService.name);
+  }
 
   /**
    * Remove todas as requisições de join pendentes para o cliente informado.

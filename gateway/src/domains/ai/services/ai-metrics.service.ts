@@ -175,6 +175,18 @@ export class AiMetricsService {
   }
 
   /**
+   * Registra de onde veio uma fatia de snapshot resolvida pelo gateway.
+   * @param slice - Qual fatia (prompt|context|tools).
+   * @param source - Origem (snapshot do publisher, redis cache ou HTTP fallback).
+   */
+  recordSnapshotResolution(
+    slice: 'prompt' | 'context' | 'tools',
+    source: 'snapshot' | 'redis' | 'api',
+  ): void {
+    this.metricsService.recordSnapshotResolution(slice, source);
+  }
+
+  /**
    * Registra a quantidade total de iterações de tool call executadas em uma run.
    * @param agentId - Identificador do agente executor.
    * @param count - Quantidade de iterações realizadas.

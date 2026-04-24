@@ -328,6 +328,22 @@ export class ChatStore implements OnDestroy, ChatMessageCacheDelegate {
       return;
     }
 
+    if (type === 'chat.list.updated') {
+      const ticketData = rawEvent.data as Record<string, unknown>;
+      const ticketId = this.toStringValue(ticketData['id']);
+      if (ticketId !== null) {
+        const existing = changes.tickets.get(ticketId);
+        changes.tickets.set(
+          ticketId,
+          existing !== undefined
+            ? { ...existing, ...ticketData }
+            : (ticketData as unknown as Called),
+        );
+        flags.hasTicketChanges = true;
+      }
+      return;
+    }
+
     if (type === 'ticket.updated') {
       const ticketData = rawEvent.data as TicketEventData;
       const tkt = ticketData.ticket;

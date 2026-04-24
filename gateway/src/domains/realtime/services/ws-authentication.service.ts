@@ -79,7 +79,7 @@ export class WsAuthenticationService {
       try {
         return await this.verifyJwt(token, secret);
       } catch {
-        this.logger.debug(
+        this.logger.verbose(
           'JWT verification failed, trying Sanctum token validation',
         );
       }
@@ -172,10 +172,19 @@ export class WsAuthenticationService {
 
       return payload;
     } catch (error: unknown) {
-      const message = axios.isAxiosError(error)
-        ? `Sanctum validation failed: ${error.response?.status ?? error.message}`
-        : `Sanctum validation failed: ${error instanceof Error ? error.message : String(error)}`;
-      throw new Error(message);
+      let detail: string;
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          detail = `HTTP ${error.response.status}`;
+        } else if (error.code) {
+          detail = `${error.code} (${apiUrl})`;
+        } else {
+          detail = error.message || 'unknown axios error';
+        }
+      } else {
+        detail = error instanceof Error ? error.message : String(error);
+      }
+      throw new Error(`Sanctum validation failed: ${detail}`);
     }
   }
 

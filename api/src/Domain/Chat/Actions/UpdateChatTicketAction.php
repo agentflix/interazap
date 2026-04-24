@@ -6,9 +6,11 @@ namespace Domain\Chat\Actions;
 
 use Domain\Chat\Jobs\SyncReadReceiptJob;
 use Domain\Chat\Models\ChatMessage;
+use Domain\Chat\Models\ChatSession;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatActivityBroadcastService;
 use Domain\Chat\Services\ChatGatewayService;
+use Domain\Chat\Services\WebChatRedisPublisher;
 use Domain\Configuration\Events\TicketAssignedEvent;
 use Domain\Configuration\Events\TicketClosedEvent;
 use Illuminate\Support\Facades\Cache;
@@ -22,6 +24,7 @@ final class UpdateChatTicketAction
         private readonly ChatActivityBroadcastService $activityBroadcast,
         private readonly SendTicketMessageAction $messageAction,
         private readonly EvaluateTicketCsatAction $evaluateAction,
+        private readonly WebChatRedisPublisher $webChatPublisher,
     ) {}
 
     /**
@@ -91,6 +94,20 @@ final class UpdateChatTicketAction
                 ],
                 (string) $ticket->tenant_id
             );
+
+            // Notificar cliente webchat se o ticket veio de uma sessão webchat
+            $webchatSession = ChatSession::query()
+                ->where('ticket_id', (string) $ticket->id)
+                ->where('tenant_id', (string) $ticket->tenant_id)
+                ->first();
+
+            if ($webchatSession !== null) {
+                $this->webChatPublisher->publishTicketClosed(
+                    (string) $webchatSession->id,
+                    (string) $ticket->tenant_id,
+                    (string) $ticket->id,
+                );
+            }
         }
 
         return $ticket;
@@ -141,7 +158,13 @@ final class UpdateChatTicketAction
         $ticket->status = 'in_progress';
         $ticket->assigned_to = $userId;
         $ticket->started_at = now();
+        // Iniciar atendimento ativa takeover humano: encerra o fluxo de IA neste ticket.
+        $ticket->loadMissing('extended');
+        if (! $ticket->human_takeover_at) {
+            $ticket->human_takeover_at = now();
+        }
         $ticket->save();
+        $ticket->flushPendingExtended();
         Cache::forget("chat_counts:{$tenantId}");
         TicketAssignedEvent::dispatch((string) $tenantId, (string) $ticket->id, $userId);
         $this->messageAction->sendConfiguredSystemMessage(

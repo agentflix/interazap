@@ -4,6 +4,7 @@ import { LucideAngularModule } from 'lucide-angular';
 /**
  * AfChatBubbleComponent — Renders a single chat message bubble with
  * directional styling (incoming vs outgoing), timestamp, and read receipts.
+ * Supports text, image, video, audio, and document/file types.
  *
  * @example
  * ```html
@@ -38,19 +39,52 @@ export class AfChatBubbleComponent {
   /** Delivery status (outgoing only) */
   readonly status = input<'sent' | 'delivered' | 'read'>('sent');
 
+  /** Message type — controls how media is rendered */
+  readonly type = input<'text' | 'image' | 'video' | 'audio' | 'file' | 'document'>('text');
+
+  /** Media file URL (used when type is not 'text') */
+  readonly fileUrl = input<string | undefined>(undefined);
+
+  /** MIME type of the media (e.g. 'image/jpeg', 'video/mp4') */
+  readonly mimeType = input<string | undefined>(undefined);
+
+  /** True when this bubble contains an image to render */
+  protected readonly isImage = computed(() => this.type() === 'image');
+
+  /** True when this bubble contains a video to render */
+  protected readonly isVideo = computed(() => this.type() === 'video');
+
+  /** True when this bubble contains audio to render */
+  protected readonly isAudio = computed(() => this.type() === 'audio');
+
+  /** True when this bubble contains a downloadable file/document */
+  protected readonly isFile = computed(
+    () => this.type() === 'file' || this.type() === 'document',
+  );
+
+  /** True when there is a media URL to show */
+  protected readonly hasMedia = computed(
+    () =>
+      (this.isImage() || this.isVideo() || this.isAudio() || this.isFile()) &&
+      !!this.fileUrl(),
+  );
+
   /** Wrapper alignment */
   protected readonly wrapperClasses = computed(() => {
-    const base = 'flex flex-col max-w-[75%]';
-    return this.direction() === 'out'
-      ? `${base} items-end self-end ml-auto`
-      : `${base} items-start self-start`;
+    const base = 'flex flex-col w-full';
+    return this.direction() === 'out' ? `${base} items-end` : `${base} items-start`;
   });
 
   /** Bubble styling varies by direction */
   protected readonly bubbleClasses = computed(() => {
-    const base = 'px-3.5 py-2 rounded-2xl max-w-full';
+    const base = 'px-3.5 py-2 rounded-2xl max-w-[85%]';
     return this.direction() === 'out'
       ? `${base} bg-accent-500 text-white rounded-br-md`
       : `${base} bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 rounded-bl-md`;
   });
+
+  /** Opens a URL in a new tab (used when clicking an image to view full-size) */
+  protected openUrl(url: string): void {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
 }

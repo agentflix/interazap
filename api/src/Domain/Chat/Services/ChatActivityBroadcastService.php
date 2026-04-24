@@ -24,7 +24,7 @@ use Domain\Shared\Contracts\ActivityBroadcastService;
  *     ['type' => 'chat.list.updated', 'data' => ['ticket_id' => 'ticket-123', ...]],
  * ]);
  */
-final class ChatActivityBroadcastService implements ActivityBroadcastService
+class ChatActivityBroadcastService implements ActivityBroadcastService
 {
     private const MAX_ENVELOPE_BYTES = 16384;
 

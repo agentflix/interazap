@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Models;
 
+use Database\Factories\ChatMessageExtendedFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
@@ -37,6 +39,8 @@ use Illuminate\Support\Str;
  */
 class ChatMessageExtended extends Model
 {
+    use HasFactory;
+
     protected $table = 'chat_messages_extended';
 
     public $incrementing = false;
@@ -78,6 +82,14 @@ class ChatMessageExtended extends Model
         'media_transcription_cost' => 'float',
         'media_transcribed_at' => 'datetime',
     ];
+
+    /**
+     * Criar uma nova instância da Factory para testes.
+     */
+    protected static function newFactory(): ChatMessageExtendedFactory
+    {
+        return ChatMessageExtendedFactory::new();
+    }
 
     /**
      * Inicializar o modelo e definir comportamentos automaticos.

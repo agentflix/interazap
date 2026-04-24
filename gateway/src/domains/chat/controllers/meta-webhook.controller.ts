@@ -7,6 +7,7 @@ import {
   Req,
   ForbiddenException,
   Logger,
+  Body,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
@@ -14,6 +15,8 @@ import * as crypto from 'crypto';
 import { ChatWebhookService } from '../services/chat-webhook.service';
 import { WebhookEventDto } from '../dto/webhook-event.dto';
 import { MetaWebhookPayload } from '../contracts/meta-provider.interface';
+import { MetaWebhookDto } from '../dto/meta-webhook.dto';
+import { BadRequestException } from '@nestjs/common';
 
 /**
  * MetaWebhookController
@@ -61,6 +64,7 @@ export class MetaWebhookController {
   @Post()
   async handleWebhook(
     @Headers('x-hub-signature-256') signature: string,
+    @Body() payload: MetaWebhookDto,
     @Req() req: Request,
   ): Promise<{ success: boolean }> {
     const appSecret = this.configService.get<string>('meta.appSecret') ?? '';
@@ -96,9 +100,13 @@ export class MetaWebhookController {
     this.logger.debug('Webhook HMAC signature verified');
 
     // 5. Extract phone_number_id from payload for routing
-    const payload = req.body as MetaWebhookPayload;
     const phoneNumberId =
-      payload?.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id ?? '';
+      payload.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
+
+    if (!phoneNumberId) {
+      this.logger.warn('Webhook payload missing phone_number_id for routing');
+      throw new BadRequestException('Invalid payload: missing metadata.phone_number_id');
+    }
 
     // 6. Build webhook event
     const event: WebhookEventDto = {

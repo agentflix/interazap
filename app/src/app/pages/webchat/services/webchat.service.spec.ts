@@ -342,4 +342,111 @@ describe('WebChatService', () => {
       expect(service.messages().length).toBe(2);
     });
   });
+
+  describe('uploadMedia', () => {
+    it('should send FormData with token and file', () => {
+      service['sessionToken'] = 'jwt-token-123';
+      const file = new File(['content'], 'test.png', { type: 'image/png' });
+      const uploadResponse = {
+        url: 'http://test/storage/file.png',
+        file_name: 'test.png',
+        mime_type: 'image/png',
+        size: 7,
+      };
+
+      let result: unknown;
+      service
+        .uploadMedia(file)
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe((res) => {
+          result = res;
+        });
+
+      const req = httpMock.expectOne(`${service['apiBase']}/api/webchat/media`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body instanceof FormData).toBe(true);
+      expect(req.request.body.get('token')).toBe('jwt-token-123');
+      expect(req.request.body.get('file')).toBe(file);
+
+      req.flush({ success: true, data: uploadResponse });
+      expect(result).toEqual(uploadResponse);
+    });
+
+    it('should return error when sessionToken is null', () => {
+      service['sessionToken'] = null;
+      const file = new File(['content'], 'test.png', { type: 'image/png' });
+
+      let capturedError: unknown = null;
+      service
+        .uploadMedia(file)
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe({ next: () => {}, error: (err) => { capturedError = err; } });
+
+      httpMock.expectNone(`${service['apiBase']}/api/webchat/media`);
+      expect(capturedError).toBeTruthy();
+    });
+
+    it('should set error signal on HTTP error', () => {
+      service['sessionToken'] = 'jwt-token-123';
+      const file = new File(['content'], 'test.exe', { type: 'application/x-msdownload' });
+
+      let capturedError: unknown = null;
+      service
+        .uploadMedia(file)
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe({ next: () => {}, error: (err) => { capturedError = err; } });
+
+      const req = httpMock.expectOne(`${service['apiBase']}/api/webchat/media`);
+      req.flush(
+        { errors: [{ message: 'Tipo de arquivo não permitido.' }] },
+        { status: 422, statusText: 'Unprocessable Entity' },
+      );
+
+      expect(capturedError).toBeTruthy();
+      expect(service.error()).toBeTruthy();
+    });
+  });
+
+  describe('sendFileMessage', () => {
+    it('should send correct payload and add optimistic message', () => {
+      service['sessionToken'] = 'jwt-token-123';
+      service['sessionId'] = 'session-abc';
+
+      let result: unknown;
+      service
+        .sendFileMessage('session-abc', 'http://test/file.png', 'image/png', 'image', 'temp-123')
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe((res) => {
+          result = res;
+        });
+
+      const req = httpMock.expectOne(`${service['apiBase']}/api/webchat/messages`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        token: 'jwt-token-123',
+        file_url: 'http://test/file.png',
+        mime_type: 'image/png',
+        type: 'image',
+      });
+
+      req.flush({ success: true, data: { messageId: 'msg-456' } });
+      expect(result).toEqual({ messageId: 'msg-456' });
+      expect(service.messages().length).toBe(1);
+      expect(service.messages()[0].type).toBe('image');
+      expect(service.messages()[0].status).toBe('pending');
+    });
+
+    it('should return error when sessionToken is null', () => {
+      service['sessionToken'] = null;
+
+      let capturedError: unknown = null;
+      service
+        .sendFileMessage('session-abc', 'http://test/file.png', 'image/png', 'image')
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe({ next: () => {}, error: (err) => { capturedError = err; } });
+
+      httpMock.expectNone(`${service['apiBase']}/api/webchat/messages`);
+      expect(capturedError).toBeTruthy();
+    });
+  });
 });

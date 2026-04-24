@@ -7,6 +7,7 @@ namespace Domain\Ai\Listeners;
 use Domain\Ai\Enums\AutopilotTriggerType;
 use Domain\Ai\Events\AiRunRequested;
 use Domain\Ai\Events\AutopilotTriggerFired;
+use Domain\Chat\Models\ChatTicket;
 
 /**
  * Gatekeeper listener for the AI Autopilot pipeline.
@@ -15,8 +16,9 @@ use Domain\Ai\Events\AutopilotTriggerFired;
  * AutopilotTriggerFired (Ai domain), maintaining clean domain separation.
  *
  * Business trigger conditions (ALL must be true before this listener fires):
- *   1. Inbound message body is not empty — enforced in ChatWebhookRouter.
- *   2. Ticket is NOT under human takeover — enforced in ChatWebhookRouter.
+ *   1. Inbound message body is not empty — enforced upstream by senders.
+ *   2. Ticket is NOT under human takeover — enforced HERE as the central gate
+ *      (covers WhatsApp via ChatWebhookRouter and Webchat via WebChatMessageController).
  *   3. Tenant plan has AI enabled — enforced via PlatformPlanEnforcementService.
  *
  * Downstream idempotency (duplicate-message guard) is enforced in
@@ -32,6 +34,20 @@ final class AiGateKeeperListener
      */
     public function handle(AiRunRequested $event): void
     {
+        $ticket = ChatTicket::query()
+            ->where('tenant_id', $event->tenantId)
+            ->find($event->ticketId);
+
+        if ($ticket !== null && $ticket->human_takeover_at !== null) {
+            logger()->info('[AiGateKeeper] AI run bloqueado: ticket sob atendimento humano', [
+                'ticket_id' => $event->ticketId,
+                'tenant_id' => $event->tenantId,
+                'human_takeover_at' => (string) $ticket->human_takeover_at,
+            ]);
+
+            return;
+        }
+
         AutopilotTriggerFired::dispatch(
             $event->tenantId,
             AutopilotTriggerType::INBOUND_MESSAGE,

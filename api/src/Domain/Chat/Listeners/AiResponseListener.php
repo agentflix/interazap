@@ -45,6 +45,7 @@ final class AiResponseListener
             $message = ChatMessage::query()
                 ->where('id', $messageId)
                 ->where('tenant_id', $tenantId)
+                ->with('extended')
                 ->first();
         }
 
@@ -68,6 +69,10 @@ final class AiResponseListener
                 'source' => $message->source,
                 'direction' => $message->direction,
                 'type' => $message->type,
+                'file_url' => $message->file_url,
+                'file_name' => $message->file_name,
+                'mime_type' => $message->mime_type,
+                'file_size' => $message->file_size,
                 'created_at' => $message->created_at?->toIso8601String(),
             ],
         );

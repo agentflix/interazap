@@ -6,6 +6,7 @@ namespace Domain\Ai\Jobs;
 
 use Carbon\Carbon;
 use Domain\Ai\Models\AiAutopilotRun;
+use Domain\Ai\Models\AiUsageLog;
 use Domain\Chat\Services\ChatAiActivityService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -66,6 +67,8 @@ final class AiRunTrackerJob implements ShouldQueue
             }
             $run->save();
 
+            $this->createUsageLog($run);
+
             $updatedRun = $run;
         });
 
@@ -122,6 +125,40 @@ final class AiRunTrackerJob implements ShouldQueue
         }
 
         return $fallback ?? now();
+    }
+
+    private function createUsageLog(AiAutopilotRun $run): void
+    {
+        $payload = $this->payload;
+        $output = is_array($run->output) ? $run->output : [];
+        $raw = is_array($output['raw'] ?? null) ? $output['raw'] : [];
+
+        $inputTokens = (int) ($raw['prompt_tokens'] ?? 0);
+        $outputTokens = (int) ($raw['completion_tokens'] ?? 0);
+
+        // Fallback: try to read from payload top-level
+        if ($inputTokens === 0) {
+            $inputTokens = (int) ($payload['prompt_tokens'] ?? 0);
+            $outputTokens = (int) ($payload['completion_tokens'] ?? 0);
+        }
+
+        AiUsageLog::query()->create([
+            'tenant_id' => (string) $run->tenant_id,
+            'model_name' => (string) ($raw['model'] ?? $payload['model'] ?? 'unknown'),
+            'provider' => 'openai',
+            'input_tokens' => $inputTokens,
+            'output_tokens' => $outputTokens,
+            'cached_prompt_tokens' => (int) ($raw['cached_prompt_tokens'] ?? 0),
+            'input_cost' => (float) ($raw['input_cost'] ?? 0),
+            'output_cost' => (float) ($raw['output_cost'] ?? 0),
+            'feature' => 'autopilot.run',
+            'usable_type' => AiAutopilotRun::class,
+            'usable_id' => (string) $run->id,
+            'metadata' => [
+                'playbook_id' => (string) $run->playbook_id,
+                'status' => (string) $run->status,
+            ],
+        ]);
     }
 
     private function emitChatLifecycleEvent(AiAutopilotRun $run): void

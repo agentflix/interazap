@@ -8,6 +8,7 @@ export interface JwtPayload {
   tenant_id: string;
   email?: string;
   exp?: number;
+  session_id?: string;
 }
 
 /**

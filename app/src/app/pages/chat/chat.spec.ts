@@ -2,12 +2,12 @@ import { signal } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Observable, of } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AppShellService } from 'src/app/core/services/app-shell.service';
 import { CalledService } from 'src/app/core/services/called.service';
 import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
-import { ChatRealtimeService } from 'src/app/core/services/chat-realtime.service';
+import { RealtimeService } from 'src/app/core/services/realtime.service';
 import { type ChatQuickAnswer } from './models/chat-quick-answer.model';
 import { ChatQuickAnswerService } from './services/chat-quick-answer.service';
 import { ChatRecorderService } from './services/chat-recorder.service';
@@ -70,23 +70,23 @@ class ChatRecorderServiceStub {
   stop = vi.fn();
 }
 
-class ChatRealtimeServiceStub {
-  connected = signal(false);
-  contactUpdated = signal({ event: null, version: 0 });
-  dealUpdated = signal({ event: null, version: 0 });
-  newMessage = signal({ event: null, version: 0 });
-  messageStatus = signal({ event: null, version: 0 });
-  typing = signal({ event: null, version: 0 });
-  readonly ['delete'] = signal({ event: null, version: 0 });
-  newTicket = signal({ event: null, version: 0 });
-  ticketUpdated = signal({ event: null, version: 0 });
-  reaction = signal({ event: null, version: 0 });
-  edit = signal({ event: null, version: 0 });
-  activity = signal({ event: null, version: 0 });
+class RealtimeServiceStub {
+  private readonly subjects = new Map<string, Subject<unknown>>();
   connect = vi.fn();
-  disconnect = vi.fn();
-  joinTicket = vi.fn();
-  leaveTicket = vi.fn();
+
+  on<T = unknown>(eventName: string): Observable<T> {
+    let subject = this.subjects.get(eventName);
+    if (!subject) {
+      subject = new Subject<unknown>();
+      this.subjects.set(eventName, subject);
+    }
+
+    return subject.asObservable() as Observable<T>;
+  }
+
+  emit(eventName: string, payload: unknown): void {
+    this.subjects.get(eventName)?.next(payload);
+  }
 }
 
 class ActivatedRouteStub {
@@ -119,7 +119,7 @@ describe('Chat', () => {
         { provide: ChatMediaBatchService, useClass: ChatMediaBatchServiceStub },
         { provide: ChatQuickAnswerService, useClass: ChatQuickAnswerServiceStub },
         { provide: ChatRecorderService, useClass: ChatRecorderServiceStub },
-        { provide: ChatRealtimeService, useClass: ChatRealtimeServiceStub },
+        { provide: RealtimeService, useClass: RealtimeServiceStub },
         { provide: ActivatedRoute, useClass: ActivatedRouteStub },
       ],
     });
@@ -190,5 +190,41 @@ describe('Chat', () => {
     expect(component.transferError()).toBe(
       'Não foi possível transferir o chamado. Tente novamente.',
     );
+  });
+
+  it('should request ticket list refresh when chat.activity contains ticket.new', () => {
+    const realtime = TestBed.inject(RealtimeService) as unknown as RealtimeServiceStub;
+    const chatRefresh = TestBed.inject(ChatRefreshService) as unknown as ChatRefreshServiceStub;
+    chatRefresh.request.mockClear();
+
+    realtime.emit('chat.activity', {
+      subevents: [
+        { type: 'msg.received', data: {} },
+        { type: 'ticket.new', data: { ticket_id: 'ticket-123' } },
+      ],
+    });
+
+    expect(chatRefresh.request).toHaveBeenCalledTimes(1);
+  });
+
+  it('should request ticket list refresh when chat.activity contains ticket.updated', () => {
+    const realtime = TestBed.inject(RealtimeService) as unknown as RealtimeServiceStub;
+    const chatRefresh = TestBed.inject(ChatRefreshService) as unknown as ChatRefreshServiceStub;
+    chatRefresh.request.mockClear();
+
+    realtime.emit('chat.activity', {
+      subevents: [
+        {
+          type: 'ticket.updated',
+          data: {
+            ticket_id: 'ticket-123',
+            event_type: 'ticket_closed',
+            ticket: { id: 'ticket-123', status: 'closed' },
+          },
+        },
+      ],
+    });
+
+    expect(chatRefresh.request).toHaveBeenCalledTimes(1);
   });
 });
