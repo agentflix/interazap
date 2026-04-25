@@ -49,9 +49,12 @@ export class RunCompletionService {
     postGuardAllowed: boolean;
     toolCalls: Array<Record<string, unknown>>;
   }> {
-    const postGuard = this.guardrail.evaluateFinalOutput(completionContent);
+    const normalizedContent =
+      this.extractContentFromSendMessagePayload(completionContent) ??
+      completionContent;
+    const postGuard = this.guardrail.evaluateFinalOutput(normalizedContent);
     const finalContent = postGuard.allowed
-      ? completionContent
+      ? normalizedContent
       : 'Desculpe, não posso responder essa solicitação.';
 
     const sendMessageAlreadySent = toolCalls.some(
@@ -105,5 +108,86 @@ export class RunCompletionService {
       postGuardAllowed: postGuard.allowed,
       toolCalls,
     };
+  }
+
+  /**
+   * Extrai texto humano de um payload JSON que represente uma tool call send_message.
+   */
+  private extractContentFromSendMessagePayload(content: string): string | null {
+    try {
+      const parsed = JSON.parse(content) as unknown;
+      const candidate = Array.isArray(parsed) ? parsed[0] : parsed;
+      if (!candidate || typeof candidate !== 'object') {
+        return null;
+      }
+
+      const record = candidate as Record<string, unknown>;
+      if (
+        record.type === 'function' &&
+        typeof record.function === 'object' &&
+        !Array.isArray(record.function)
+      ) {
+        const fn = record.function as Record<string, unknown>;
+        if (this.readOptionalString(fn.name) !== 'send_message') {
+          return null;
+        }
+
+        return this.extractTextFromArguments(fn.arguments);
+      }
+
+      if (this.readOptionalString(record.name) !== 'send_message') {
+        return null;
+      }
+
+      return this.extractTextFromArguments(record.arguments);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Extrai o campo textual principal dos argumentos da send_message.
+   */
+  private extractTextFromArguments(argumentsValue: unknown): string | null {
+    const args = this.toRecord(argumentsValue);
+    const text =
+      this.readOptionalString(args['content']) ??
+      this.readOptionalString(args['text']) ??
+      this.readOptionalString(args['message']) ??
+      this.readOptionalString(args['body']);
+
+    if (!text) {
+      return null;
+    }
+
+    const trimmed = text.trim();
+    return trimmed !== '' ? trimmed : null;
+  }
+
+  private toRecord(value: unknown): Record<string, unknown> {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value) as unknown;
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          return parsed as Record<string, unknown>;
+        }
+      } catch {
+        return {};
+      }
+    }
+
+    return {};
+  }
+
+  private readOptionalString(value: unknown): string | undefined {
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    return undefined;
   }
 }

@@ -81,7 +81,10 @@ import { ChatRecorderService } from './services/chat-recorder.service';
 import { ChatTicketListService } from './services/chat-ticket-list.service';
 import { ChatStore } from './chat.store';
 import { MediaPreviewComponent } from './components/media-preview/media-preview';
-import { type MediaPreviewItem, type MediaPreviewType } from 'src/app/shared/models/media-preview.model';
+import {
+  type MediaPreviewItem,
+  type MediaPreviewType,
+} from 'src/app/shared/models/media-preview.model';
 import { toast } from 'ngx-sonner';
 import { ChatListComponent } from './components/chat-list-component/chat-list-component';
 import { ChatConversationComponent } from './components/chat-conversation-component/chat-conversation-component';
@@ -92,12 +95,30 @@ import { ChatMessageCacheService } from 'src/app/core/services/chat-message-cach
 
 const CHAT_NOTIFICATION_SOUND_URL = '/assets/audio/chat-notification.mp3';
 const MESSAGE_RECEIVED_EVENT = 'message.received';
+const CHAT_ACTIVITY_EVENT = 'chat.activity';
+const CHAT_NEW_TICKET_EVENT = 'chat.ticket.new';
 const NOTIFICATION_COOLDOWN_MS = 600;
+const TICKET_LIST_REFRESH_COOLDOWN_MS = 300;
 
 interface MessageReceivedPayload {
   data?: {
     ticket_id?: string;
     direction?: string | null;
+  };
+}
+
+interface ChatActivitySubeventPayload {
+  type?: string;
+}
+
+interface ChatActivityPayload {
+  subevents?: ChatActivitySubeventPayload[];
+}
+
+interface ChatNewTicketPayload {
+  ticket_id?: string | number;
+  ticket?: {
+    id?: string | number;
   };
 }
 
@@ -178,6 +199,8 @@ export class Chat implements OnInit, OnDestroy {
 
   /** Timestamp da última notificação para evitar repetições rápidas. */
   private lastNotificationAt = 0;
+  /** Timestamp do último refresh da lista por evento de criação de ticket. */
+  private lastTicketListRefreshAt = 0;
   readonly activeTab = signal<'chat' | 'contact' | 'negotiation'>('chat');
   readonly ticketFilter = signal<'pending' | 'open' | 'all'>('pending');
   readonly emergencyFilter = signal<CalledSentiment | null>(null);
@@ -844,10 +867,21 @@ export class Chat implements OnInit, OnDestroy {
    */
   private setupRealtimeListeners(): void {
     this.realtime.connect();
+
     this.realtime
       .on<MessageReceivedPayload>(MESSAGE_RECEIVED_EVENT)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((event) => this.handleIncomingMessage(event));
+
+    this.realtime
+      .on<ChatActivityPayload>(CHAT_ACTIVITY_EVENT)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => this.handleActivityEvent(event));
+
+    this.realtime
+      .on<ChatNewTicketPayload>(CHAT_NEW_TICKET_EVENT)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => this.handleNewTicketEvent(event));
   }
 
   /**
@@ -866,6 +900,48 @@ export class Chat implements OnInit, OnDestroy {
 
     this.lastNotificationAt = now;
     void tocarNotificacao(CHAT_NOTIFICATION_SOUND_URL);
+    this.chatRefresh.request();
+  }
+
+  /**
+   * Trata eventos unificados de atividade para detectar mutações de ticket.
+   */
+  private handleActivityEvent(event: ChatActivityPayload | null): void {
+    const subevents = event?.subevents;
+    if (!Array.isArray(subevents) || subevents.length === 0) return;
+
+    const hasTicketMutation = subevents.some((subevent) => {
+      const type = subevent?.type;
+      return type === 'ticket.new' || type === 'ticket.updated' || type === 'chat.list.updated';
+    });
+
+    if (!hasTicketMutation) return;
+
+    this.requestTicketListRefresh();
+  }
+
+  /**
+   * Trata evento dedicado de criação de ticket.
+   */
+  private handleNewTicketEvent(event: ChatNewTicketPayload | null): void {
+    if (!event) return;
+
+    const ticketId = event.ticket_id ?? event.ticket?.id;
+    if (ticketId === null || ticketId === undefined || String(ticketId).trim() === '') return;
+
+    this.requestTicketListRefresh();
+  }
+
+  /**
+   * Solicita refresh da lista com cooldown curto para evitar rajadas de reload.
+   */
+  private requestTicketListRefresh(): void {
+    const now = Date.now();
+    if (now - this.lastTicketListRefreshAt < TICKET_LIST_REFRESH_COOLDOWN_MS) {
+      return;
+    }
+
+    this.lastTicketListRefreshAt = now;
     this.chatRefresh.request();
   }
 

@@ -11,12 +11,14 @@ import {
 } from '../providers/ai-provider.factory';
 import { OpenAIProviderAdapter } from '../providers/openai/openai-provider.adapter';
 import { GeminiProviderAdapter } from '../providers/google/gemini-provider.adapter';
+import { MiniMaxProviderAdapter } from '../providers/minimax/minimax-provider.adapter';
 import { AIProvider } from '../interfaces/ai-provider.interface';
 
 describe('AIProviderFactory', () => {
   let factory: AIProviderFactory;
   let mockOpenAIAdapter: jest.Mocked<OpenAIProviderAdapter>;
   let mockGeminiAdapter: jest.Mocked<GeminiProviderAdapter>;
+  let mockMiniMaxAdapter: jest.Mocked<MiniMaxProviderAdapter>;
 
   beforeEach(async () => {
     mockOpenAIAdapter = {
@@ -31,6 +33,12 @@ describe('AIProviderFactory', () => {
       isHealthy: jest.fn(),
     } as any;
 
+    mockMiniMaxAdapter = {
+      name: 'minimax',
+      complete: jest.fn(),
+      isHealthy: jest.fn(),
+    } as any;
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AIProviderFactory,
@@ -41,6 +49,10 @@ describe('AIProviderFactory', () => {
         {
           provide: GeminiProviderAdapter,
           useValue: mockGeminiAdapter,
+        },
+        {
+          provide: MiniMaxProviderAdapter,
+          useValue: mockMiniMaxAdapter,
         },
       ],
     }).compile();

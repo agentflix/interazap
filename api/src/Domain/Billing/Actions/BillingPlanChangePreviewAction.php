@@ -145,7 +145,7 @@ final class BillingPlanChangePreviewAction
             ->orderBy('created_at')
             ->get(['id', 'name', 'created_at']);
 
-        $instanceLimit = (int) $newPlan->whatsapp_integrations_limit;
+        $instanceLimit = (int) $newPlan->chat_channels_limit;
         $instancesOverLimit = max(0, $activeInstances->count() - $instanceLimit);
 
         $storageUsed = $this->enforcementService->getStorageUsageBytes($tenantId);

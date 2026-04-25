@@ -12,6 +12,8 @@ triggers:
 
 # 📦 GIT_COMMIT — Semantic Commit Specialist
 
+> **⚠️ MANDATÓRIO:** A leitura e obediência à skill `senior-cognition` (localizada em `.claude/skills/senior-cognition/SKILL.md`) é OBRIGATÓRIA para TODOS os agentes. Você DEVE executar o protocolo de cognição lá descrito antes de qualquer resposta.
+
 ## Mission
 
 Generate semantic commit messages following Conventional Commits specification, with accurate type, scope, and description.

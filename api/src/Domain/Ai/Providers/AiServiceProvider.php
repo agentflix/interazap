@@ -90,20 +90,24 @@ class AiServiceProvider extends ServiceProvider
                 ->withoutOverlapping()
                 ->onOneServer();
 
-            $schedule->command('ai:consume-run-responses --once')
+            // Run consumers near-continuously: each tick keeps the worker alive for ~55s,
+            // so the next scheduler tick (every minute) seamlessly takes over.
+            // In production, Supervisor owns the long-running process; `withoutOverlapping`
+            // makes this schedule a harmless watchdog there.
+            $schedule->command('ai:consume-run-responses --max-runtime=55')
                 ->everyMinute()
                 ->runInBackground()
-                ->withoutOverlapping()
+                ->withoutOverlapping(2)
                 ->onOneServer();
 
-            $schedule->command('ai:consume-tool-requests --once')
+            $schedule->command('ai:consume-tool-requests --max-runtime=55')
                 ->everyMinute()
                 ->runInBackground()
-                ->withoutOverlapping()
+                ->withoutOverlapping(2)
                 ->onOneServer();
 
             $schedule->command('ai:detect-stale-runs')
-                ->everyFiveMinutes()
+                ->everyMinute()
                 ->runInBackground()
                 ->withoutOverlapping()
                 ->onOneServer();

@@ -443,7 +443,8 @@ export class InstanceResolverService {
     const provider = value.provider;
     const hasValidProvider =
       provider === ('uazapi' as ProviderType) ||
-      provider === ('zapi' as ProviderType);
+      provider === ('zapi' as ProviderType) ||
+      provider === ('meta' as ProviderType);
 
     return (
       typeof value.instance_id === 'string' &&

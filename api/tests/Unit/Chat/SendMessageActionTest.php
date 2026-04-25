@@ -286,4 +286,23 @@ class SendMessageActionTest extends TestCase
         $this->assertTrue($result1['created']);
         $this->assertTrue($result2['created']);
     }
+
+    #[Test]
+    public function it_resolves_pdf_mime_as_document_even_without_file_url(): void
+    {
+        $message = ChatMessage::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'ticket_id' => $this->ticket->id,
+            'type' => 'file',
+            'mime_type' => 'application/pdf',
+            'file_url' => null,
+        ]);
+
+        $resolver = new \ReflectionMethod($this->messageActions, 'resolveMediaType');
+        $resolver->setAccessible(true);
+
+        $resolvedType = $resolver->invoke($this->messageActions, $message);
+
+        $this->assertSame('document', $resolvedType);
+    }
 }

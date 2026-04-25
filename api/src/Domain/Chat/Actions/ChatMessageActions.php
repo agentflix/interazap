@@ -30,7 +30,7 @@ final readonly class ChatMessageActions
         ChatActivityBroadcastService $activityBroadcast,
     ) {
         $processAction = new ProcessChatMessageAction($activityBroadcast);
-        $this->listAction = new ListChatMessagesAction();
+        $this->listAction = new ListChatMessagesAction;
         $this->sendAction = new SendChatMessageAction($gateway, $ticketActions, $processAction);
     }
 

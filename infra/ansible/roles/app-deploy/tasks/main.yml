@@ -49,8 +49,8 @@
 - name: 'Criar pasta da release atual (API)'
   file:
       path: '{{ deploy_path }}/api/releases/{{ deploy_timestamp }}'
-      owner: www-data
-      group: www-data
+      owner: deploy
+      group: deploy
       mode: '0755'
       state: directory
 
@@ -64,8 +64,17 @@
       dest: '{{ deploy_path }}/api/releases/{{ deploy_timestamp }}'
       version: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
       force: yes
+      accept_hostkey: yes
   become: yes
-  become_user: www-data
+  become_user: deploy
+
+- name: 'Ajustar ownership da release API para www-data'
+  file:
+      path: '{{ deploy_path }}/api/releases/{{ deploy_timestamp }}'
+      owner: www-data
+      group: www-data
+      recurse: yes
+      state: directory
 
 - name: 'Remover diretórios conflitantes antes do symlink'
   file:
@@ -125,6 +134,11 @@
       REVERB_PORT=8080
       REVERB_SCHEME=http
 
+      GATEWAY_URL=http://127.0.0.1:{{ 6001 if app_environment == 'staging' else 6002 }}
+      GATEWAY_INTERNAL_API_KEY=${VAULT_INTERNAL_API_KEY}
+      REALTIME_PUBSUB_ENABLED=true
+      REALTIME_HTTP_FALLBACK_ENABLED=true
+
       LOG_CHANNEL=stack
       LOG_LEVEL={{ 'debug' if app_environment == 'staging' else 'info' }}
 
@@ -136,6 +150,7 @@
       VAULT_APP_KEY: "{{ agentflix_secret_key_staging | default('') if app_environment == 'staging' else agentflix_secret_key_production | default('') }}"
       VAULT_DB_PASSWORD: "{{ postgres_app_password | default('') }}"
       VAULT_REDIS_PASSWORD: "{{ redis_password | default('') }}"
+      VAULT_INTERNAL_API_KEY: "{{ gateway_internal_api_key | default('') }}"
       VAULT_REVERB_APP_ID: "{{ reverb_app_id_staging | default('interazap-stage') if app_environment == 'staging' else reverb_app_id_production | default('interazap-prod') }}"
       VAULT_REVERB_APP_KEY: "{{ reverb_app_key_staging | default('interazap-stage-key') if app_environment == 'staging' else reverb_app_key_production | default('interazap-prod-key') }}"
       VAULT_REVERB_APP_SECRET: "{{ reverb_app_secret_staging | default('interazap-stage-secret') if app_environment == 'staging' else reverb_app_secret_production | default('interazap-prod-secret') }}"
@@ -271,6 +286,7 @@
       dest: '{{ deploy_path }}/app/releases/{{ deploy_timestamp }}'
       version: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
       force: yes
+      accept_hostkey: yes
   become: yes
   become_user: deploy
 
@@ -338,6 +354,7 @@
       dest: '{{ deploy_path }}/gateway/releases/{{ deploy_timestamp }}'
       version: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
       force: yes
+      accept_hostkey: yes
   become: yes
   become_user: deploy
 

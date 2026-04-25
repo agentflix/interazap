@@ -17,6 +17,10 @@ use Illuminate\Support\Str;
 
 /**
  * Async execution job for autopilot runs.
+ *
+ * Sets up the initial messages and dispatches the first AiToolCallJob.
+ * Each tool call iteration runs in its own job (AiToolCallJob) to avoid
+ * PHP max_execution_time timeout when OpenAI takes minutes to respond.
  */
 final class AiRunExecutionJob implements ShouldQueue
 {
@@ -50,13 +54,39 @@ final class AiRunExecutionJob implements ShouldQueue
             return;
         }
 
+        $run->status = 'running';
+        $run->started_at = $run->started_at ?? now();
+        $run->input_context = array_merge($run->input_context ?? [], [
+            'messages' => [],
+        ]);
+        $run->output = null;
+        $run->save();
+
+        $this->publishEvent('ai.run.started', $run, [
+            'status' => 'running',
+            'started_at' => optional($run->started_at)->toIso8601String(),
+        ]);
+
         try {
-            $actions->executeWithEvents(
-                run: $run,
-                emitEvent: function (string $eventType, array $data) use ($run): void {
+            // Execute first iteration; subsequent iterations self-dispatch via AiToolCallJob
+            $result = $actions->executeWithEvents($run, function (string $eventType, array $data) use ($run): void {
+                $this->publishEvent($eventType, $run, $data);
+            });
+
+            $output = $result['output'];
+            $hasMore = (bool) data_get($output, 'hasMoreIterations', false);
+
+            if ($hasMore) {
+                // More tool calls needed — dispatch AiToolCallJob for next iteration
+                AiToolCallJob::dispatch($this->runId);
+            } else {
+                // No more iterations — finalize the run
+                $actions->finalizeRun($run, $output, function (string $eventType, array $data) use ($run): void {
                     $this->publishEvent($eventType, $run, $data);
-                },
-            );
+                });
+                $run->refresh();
+                $this->publishDelegationResult($run);
+            }
         } catch (\Throwable $exception) {
             Log::error('Autopilot run failed', [
                 'run_id' => $run->id,
@@ -76,10 +106,9 @@ final class AiRunExecutionJob implements ShouldQueue
                 'status' => 'failed',
                 'error' => $exception->getMessage(),
             ]);
-        }
 
-        $run->refresh();
-        $this->publishDelegationResult($run);
+            $this->publishDelegationResult($run);
+        }
     }
 
     /**

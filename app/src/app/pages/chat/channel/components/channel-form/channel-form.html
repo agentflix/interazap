@@ -1,0 +1,240 @@
+<form class="space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+  <div>
+    <app-text-input
+      label="Nome"
+      [control]="form.controls.name"
+      placeholder="Ex: WhatsApp Comercial"
+      dataTest="integration-form-name"
+      [required]="true"
+    />
+  </div>
+
+  <div>
+    <app-select-input
+      label="Provedor"
+      [control]="form.controls.provider"
+      [options]="providerOptions"
+      dataTest="integration-form-provider"
+      [required]="true"
+    />
+  </div>
+
+  @if (isZapi()) {
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <app-text-input
+          label="ID da Instância (Z-API)"
+          [control]="form.controls.instance"
+          placeholder="Ex: 3B2D..."
+          dataTest="integration-form-instance"
+        />
+      </div>
+      <div>
+        <app-text-input
+          label="Client Token (Z-API)"
+          [control]="form.controls.client_token"
+          placeholder="Ex: e4f5..."
+          dataTest="integration-form-client-token"
+        />
+      </div>
+    </div>
+  }
+
+  @if (isMeta()) {
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <app-text-input
+          label="Phone Number ID (Meta)"
+          [control]="form.controls.phone_number_id"
+          placeholder="Ex: 123456789012345"
+          dataTest="integration-form-phone-number-id"
+          [required]="true"
+        />
+      </div>
+      <div>
+        <app-text-input
+          label="Access Token (Meta)"
+          [control]="form.controls.access_token"
+          type="password"
+          placeholder="••••••••"
+          dataTest="integration-form-access-token"
+          [required]="true"
+        />
+      </div>
+    </div>
+  }
+
+  @if (isTelegram()) {
+    <div
+      class="flex items-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-3 text-sm text-purple-700 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300"
+    >
+      <i class="pi pi-telegram"></i>
+      <span>Canal selecionado: Telegram Bot</span>
+    </div>
+    <div>
+      <app-text-input
+        label="Bot Token"
+        [control]="form.controls.bot_token"
+        type="password"
+        placeholder="123456789:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+        dataTest="integration-form-bot-token"
+        [required]="true"
+        helpText="Obtenha o token via @BotFather no Telegram"
+      />
+    </div>
+  }
+
+  @if (isWhatsappProvider()) {
+    <div>
+      <app-text-input
+        [label]="tokenLabel()"
+        [control]="form.controls.token"
+        type="password"
+        placeholder="••••••••"
+        dataTest="integration-form-token"
+        [required]="isTokenRequired()"
+        [helpText]="tokenHelpText()"
+      />
+    </div>
+
+    <div>
+      <app-phone-input
+        label="WhatsApp"
+        [control]="form.controls.cellphone"
+        [countryControl]="form.controls.country_code"
+        dataTest="integration-form-cellphone"
+        [required]="true"
+        [helpText]="whatsappHelpText()"
+      />
+    </div>
+  }
+
+  <app-switch-input
+    label="Ativo"
+    [control]="form.controls.is_active"
+    dataTest="integration-form-active"
+  />
+
+  <app-switch-input
+    label="Enviar nome do atendente na mensagem"
+    [control]="form.controls.send_attendant_name"
+    dataTest="integration-form-send-attendant-name"
+  />
+
+  <app-switch-input
+    label="Enviar mensagem fora do expediente"
+    [control]="form.controls.send_outside_business_hours_message"
+    dataTest="integration-form-send-outside-business-hours-message"
+  />
+
+  <div>
+    <app-textarea-input
+      label="Mensagem fora do expediente"
+      [control]="form.controls.outside_business_hours_message"
+      placeholder="Ex: Nosso expediente hoje já foi encerrado."
+      dataTest="integration-form-outside-business-hours-message"
+      [rows]="3"
+      resize="vertical"
+    />
+  </div>
+
+  <app-switch-input
+    label="Enviar mensagem sem expediente no dia"
+    [control]="form.controls.send_no_business_hours_message"
+    dataTest="integration-form-send-no-business-hours-message"
+  />
+
+  <div>
+    <app-textarea-input
+      label="Mensagem sem expediente"
+      [control]="form.controls.no_business_hours_message"
+      placeholder="Ex: Hoje não temos expediente."
+      dataTest="integration-form-no-business-hours-message"
+      [rows]="3"
+      resize="vertical"
+    />
+  </div>
+
+  <app-switch-input
+    label="Enviar mensagem na transferência de departamento"
+    [control]="form.controls.send_department_transfer_message"
+    dataTest="integration-form-send-department-transfer-message"
+  />
+
+  <div>
+    <app-textarea-input
+      label="Mensagem de transferência de departamento"
+      [control]="form.controls.department_transfer_message"
+      placeholder="Ex: Seu atendimento foi transferido para outro departamento."
+      dataTest="integration-form-department-transfer-message"
+      [rows]="3"
+      resize="vertical"
+    />
+  </div>
+
+  <app-switch-input
+    label="Enviar mensagem ao iniciar atendimento"
+    [control]="form.controls.send_start_service_message"
+    dataTest="integration-form-send-start-service-message"
+  />
+
+  <div>
+    <app-textarea-input
+      label="Mensagem de início de atendimento"
+      [control]="form.controls.start_service_message"
+      placeholder="Ex: Seu atendimento foi iniciado."
+      dataTest="integration-form-start-service-message"
+      [rows]="3"
+      resize="vertical"
+    />
+  </div>
+
+  <app-switch-input
+    label="Enviar mensagem ao finalizar atendimento"
+    [control]="form.controls.send_end_service_message"
+    dataTest="integration-form-send-end-service-message"
+  />
+
+  <div>
+    <app-textarea-input
+      label="Mensagem de finalização de atendimento"
+      [control]="form.controls.end_service_message"
+      placeholder="Ex: Seu atendimento foi finalizado."
+      dataTest="integration-form-end-service-message"
+      [rows]="3"
+      resize="vertical"
+    />
+  </div>
+
+  <div>
+    <app-textarea-input
+      label="Mensagem padrão de fallback do canal"
+      [control]="form.controls.channel_fallback_message"
+      placeholder="Ex: No momento não consegui concluir seu atendimento automático."
+      dataTest="integration-form-fallback-message"
+      [rows]="3"
+      resize="vertical"
+    />
+  </div>
+
+  <app-switch-input
+    label="Enviar pesquisa de satisfação ao encerrar"
+    [control]="form.controls.evaluation_enabled"
+    dataTest="integration-form-evaluation-enabled"
+  />
+
+  @if (isEvaluationEnabled()) {
+    <div>
+      <app-text-input
+        label="Nota de corte para alerta"
+        [control]="form.controls.evaluation_cutoff_score"
+        type="number"
+        min="1"
+        max="5"
+        placeholder="3"
+        dataTest="integration-form-evaluation-cutoff"
+        [required]="true"
+      />
+    </div>
+  }
+</form>

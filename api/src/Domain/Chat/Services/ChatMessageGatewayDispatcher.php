@@ -284,7 +284,7 @@ final class ChatMessageGatewayDispatcher
     private function resolveMediaType(ChatMessage $message): string
     {
         $type = $message->type;
-        $mimeType = $message->mime_type ?? '';
+        $mimeType = strtolower((string) ($message->mime_type ?? ''));
 
         if (in_array($type, ['image', 'video', 'sticker', 'document'], true)) {
             return $type;
@@ -300,6 +300,10 @@ final class ChatMessageGatewayDispatcher
 
         if (str_starts_with($mimeType, 'audio/')) {
             return 'audio';
+        }
+
+        if (str_starts_with($mimeType, 'application/') || str_starts_with($mimeType, 'text/')) {
+            return 'document';
         }
 
         if ($message->file_url) {

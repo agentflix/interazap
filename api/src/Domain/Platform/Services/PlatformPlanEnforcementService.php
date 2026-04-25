@@ -125,13 +125,13 @@ final class PlatformPlanEnforcementService
             return true;
         }
 
-        if ($plan->whatsapp_integrations_limit <= 0) {
+        if ($plan->chat_channels_limit <= 0) {
             return true;
         }
 
         $count = ChatInstance::query()->where('tenant_id', $tenantId)->count();
 
-        return $count < $plan->whatsapp_integrations_limit;
+        return $count < $plan->chat_channels_limit;
     }
 
     public function canCreateNegotiation(string $tenantId): bool

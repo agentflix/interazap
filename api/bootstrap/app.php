@@ -77,6 +77,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => \Domain\Shared\Http\Middleware\TenantContextMiddleware::class,
             'billing.delinquency' => \Domain\Billing\Http\Middleware\BillingDelinquencyMiddleware::class,
             'internal.api.key' => \Domain\Shared\Http\Middleware\InternalApiKeyMiddleware::class,
+            'gateway.secret' => \Domain\Chat\Http\Middleware\GatewaySecretGuard::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

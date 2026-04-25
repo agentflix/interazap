@@ -19,7 +19,7 @@ describe('Input Validation Security', function (): void {
         ]);
 
         // Grant necessary permissions for tests
-        $permissions = ['chat.tickets.view', 'chat.tickets.update', 'chat.campaigns.manage'];
+        $permissions = ['chat.tickets.view', 'chat.tickets.update', 'chat.transmission_lists.manage'];
         foreach ($permissions as $permission) {
             $perm = AuthPermission::query()->firstOrCreate(
                 ['name' => $permission, 'guard_name' => 'sanctum'],
@@ -63,16 +63,16 @@ describe('Input Validation Security', function (): void {
         $response->assertSuccessful();
     });
 
-    it('ChatCampaignPreviewRequest requires message', function (): void {
-        $response = $this->postJson('/api/chat/campaigns/preview', []);
+    it('ChatTransmissionListPreviewRequest requires message', function (): void {
+        $response = $this->postJson('/api/chat/transmission-lists/preview', []);
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['message']);
     });
 
-    it('ChatCampaignPreviewRequest validates message max length', function (): void {
+    it('ChatTransmissionListPreviewRequest validates message max length', function (): void {
         $longMessage = str_repeat('a', 4097);
-        $response = $this->postJson('/api/chat/campaigns/preview', [
+        $response = $this->postJson('/api/chat/transmission-lists/preview', [
             'message' => $longMessage,
         ]);
 
@@ -80,8 +80,8 @@ describe('Input Validation Security', function (): void {
         $response->assertJsonValidationErrors(['message']);
     });
 
-    it('ChatCampaignAudienceRequest validates criteria structure', function (): void {
-        $response = $this->postJson('/api/chat/campaigns/audience', [
+    it('ChatTransmissionListAudienceRequest validates criteria structure', function (): void {
+        $response = $this->postJson('/api/chat/transmission-lists/audience', [
             'criteria' => [
                 'tags' => ['invalid-uuid'],
             ],

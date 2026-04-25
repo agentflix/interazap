@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseService } from '../../../infrastructure/database/database.service';
 import { RoomPrefix } from '../../../shared/constants/gateway.constants';
 
@@ -8,11 +8,11 @@ import { RoomPrefix } from '../../../shared/constants/gateway.constants';
  * Validates WebSocket room join requests against tenant permissions.
  * Checks ownership for tenant, ticket, and AI run rooms.
  */
+@Injectable()
 export class WsRoomAccessService {
-  constructor(
-    private readonly databaseService: DatabaseService,
-    private readonly logger: Logger,
-  ) {}
+  private readonly logger = new Logger(WsRoomAccessService.name);
+
+  constructor(private readonly databaseService: DatabaseService) {}
 
   /**
    * Checks whether a user may join a given WebSocket room.

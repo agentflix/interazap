@@ -105,6 +105,19 @@ export interface MiniMaxConfiguration {
   maxRetries: number;
 }
 
+/** Configuração do provider Meta WhatsApp Business API. */
+export interface MetaConfiguration {
+  verifyToken: string;
+  appSecret: string;
+  webhookCallbackUrl: string;
+  graphApiUrl: string;
+}
+
+/** Configurações do Gateway para comunicação interna. */
+export interface GatewayConfiguration {
+  secret: string;
+}
+
 /** Estrutura consolidada de configuração do Gateway. */
 export interface Configuration {
   app: AppConfiguration;
@@ -122,5 +135,7 @@ export interface Configuration {
   api: ApiConfiguration;
   ai: AiConfiguration;
   throttler: ThrottlerConfiguration;
+  meta: MetaConfiguration;
+  gateway: GatewayConfiguration;
   defaultTenantId: string;
 }

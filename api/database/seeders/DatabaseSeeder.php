@@ -124,6 +124,12 @@ class DatabaseSeeder extends Seeder
 
         app(PlatformTenantBootstrapAction::class)->execute($tenant);
 
+        // ── Tenant-scoped autopilot tools (required by product-expert agents) ─
+        $this->call(AiAutopilotToolSeeder::class);
+
+        // ── Product-expert agents for the default InteraZap tenant ────────
+        $this->call(InteraZapProductAgentsSeeder::class);
+
         // ── Demo / sample data (opt-in via SEED_DEMO_DATA=true) ───────────
         if ((bool) Config::get('app.seed_demo_data', false)) {
             $this->call(DemoSeeder::class);

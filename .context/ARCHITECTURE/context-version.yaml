@@ -1,5 +1,61 @@
-context_schema_version: "1.0"
-generated_by: "ai-bootstrap"
-last_bootstrap_run: "2026-03-25T00:00:00Z"
-bootstrap_mode: "existing_code"
-changelog_entries: 1
+# Versionamento do contexto
+# Controla quando cada arquivo de contexto foi atualizado
+
+version: "1.0"
+project: "InteraZap"
+
+context_files:
+  "AGENTS.md":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/ARCHITECTURE/architecture.mmd":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/ARCHITECTURE/modules.yaml":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/ARCHITECTURE/modules.mmd":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/ARCHITECTURE/dependencies.yaml":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/ARCHITECTURE/project-state.yaml":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/ARCHITECTURE/project-brain.yaml":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/ARCHITECTURE/context-version.yaml":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/ARCHITECTURE/user-flow.mmd":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/WORKFLOW/PREVC.md":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"
+
+  ".context/WORKFLOW/validation-flow.md":
+    version: "1.0.0"
+    last_updated: "2026-04-11"
+    updated_by: "setup-ai"

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { InternalApiKeyGuard } from '../realtime/guards/internal-api-key.guard';
 import { EventsGateway } from '../realtime/gateways/events.gateway';
+import { WebChatGateway } from '../realtime/gateways/webchat.gateway';
 import { tenantRoom, ticketRoom, CHAT_EVENTS } from '../../shared/constants';
 import type {
   BroadcastEventDto,
@@ -30,10 +31,17 @@ import type {
 export class InternalController {
   private readonly logger = new Logger(InternalController.name);
 
-  constructor(private readonly eventsGateway: EventsGateway) {}
+  constructor(
+    private readonly eventsGateway: EventsGateway,
+    private readonly webChatGateway: WebChatGateway,
+  ) {}
 
   /**
    * Broadcast genérico de evento para todos os clientes ou para uma room específica.
+   *
+   * Rooms de sessão webchat (session:*) são roteadas para o WebChatGateway,
+   * que opera no namespace /webchat onde os visitantes estão conectados.
+   * Demais rooms usam o EventsGateway (namespace dos agentes).
    */
   @Post('broadcast/event')
   broadcastEvent(@Body() payload: BroadcastEventDto): { success: boolean } {
@@ -42,7 +50,19 @@ export class InternalController {
     );
 
     if (payload.room) {
-      this.eventsGateway.emitToRoom(payload.room, payload.event, payload.data);
+      if (payload.room.startsWith('session:')) {
+        this.webChatGateway.emitToRoom(
+          payload.room,
+          payload.event,
+          payload.data,
+        );
+      } else {
+        this.eventsGateway.emitToRoom(
+          payload.room,
+          payload.event,
+          payload.data,
+        );
+      }
     } else {
       this.eventsGateway.emit(payload.event, payload.data);
     }

@@ -1,0 +1,273 @@
+<div class="flex flex-col h-screen bg-white dark:bg-neutral-950 overflow-hidden">
+  <!-- Header -->
+  <header
+    class="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shrink-0"
+  >
+    <div class="flex items-center gap-3">
+      <!-- Chat icon -->
+      <div class="w-8 h-8 rounded-full bg-accent-500 flex items-center justify-center shrink-0">
+        <svg
+          class="w-4 h-4 text-white"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          />
+        </svg>
+      </div>
+      <div>
+        <!-- Row 1: name + protocol badge -->
+        <div class="flex items-center gap-2">
+          @if (visitorName() && visitorName() !== 'Visitante') {
+            <h1 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-tight">
+              {{ visitorName() }}
+            </h1>
+          } @else {
+            <h1 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-tight">
+              Atendimento Web
+            </h1>
+          }
+          @if (protocol()) {
+            <span
+              class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 leading-none"
+            >
+              #{{ protocol() }}
+            </span>
+          }
+        </div>
+        <!-- Row 2: service label · phone · connection status -->
+        <div class="flex items-center gap-1.5 mt-0.5">
+          @if (visitorName() && visitorName() !== 'Visitante') {
+            <span class="text-xs text-neutral-400 dark:text-neutral-500">Atendimento Web</span>
+            @if (visitorPhone()) {
+              <span class="text-neutral-300 dark:text-neutral-700" aria-hidden="true">·</span>
+            }
+          }
+          @if (visitorPhone()) {
+            <span class="text-xs text-neutral-400 dark:text-neutral-500">{{ visitorPhone() }}</span>
+            <span class="text-neutral-300 dark:text-neutral-700" aria-hidden="true">·</span>
+          }
+          <span
+            [class]="connectionStatusDot()"
+            class="w-1.5 h-1.5 rounded-full shrink-0"
+            aria-hidden="true"
+          ></span>
+          <span class="text-xs text-neutral-500 dark:text-neutral-400">{{
+            connectionLabel()
+          }}</span>
+        </div>
+      </div>
+    </div>
+
+    @if (!isClosed()) {
+      <af-button variant="outline" size="sm" [disabled]="isClosing()" (clicked)="openCloseModal()">
+        Encerrar chamado
+      </af-button>
+    }
+  </header>
+
+  <!-- Connection Error Banner -->
+  @if (connectionState() === 'error') {
+    <div
+      class="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-950 border-b border-red-200 dark:border-red-800"
+    >
+      <svg
+        class="w-4 h-4 text-red-500 shrink-0"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
+      </svg>
+      <p class="text-xs text-red-600 dark:text-red-400">
+        {{ error() ?? 'Erro de conexão. Tentando reconectar...' }}
+      </p>
+    </div>
+  }
+
+  @if (closeError()) {
+    <div
+      class="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-950 border-b border-red-200 dark:border-red-800"
+    >
+      <svg
+        class="w-4 h-4 text-red-500 shrink-0"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
+      </svg>
+      <p class="text-xs text-red-600 dark:text-red-400">
+        {{ closeError() }}
+      </p>
+    </div>
+  }
+
+  <!-- Messages List -->
+  <div class="relative flex-1 overflow-hidden">
+  <main
+    #scrollContainer
+    class="h-full overflow-y-auto py-4 px-4"
+    role="log"
+    aria-live="polite"
+    aria-label="Mensagens do chat"
+  >
+    <div class="flex flex-col gap-3 min-h-full justify-end">
+      <!-- Welcome message (first message) -->
+      @if (messages().length === 0 && isConnected()) {
+        <div class="flex justify-center my-8">
+          <div
+            class="max-w-[80%] px-4 py-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-sm text-neutral-600 dark:text-neutral-300 text-center"
+          >
+            Olá, {{ visitorName() }}! Como posso ajudar hoje?
+          </div>
+        </div>
+      }
+
+      <!-- Message list -->
+      @for (message of messages(); track trackByMessageId($index, message)) {
+        <div
+          class="flex w-full"
+          [class.justify-end]="message.direction === 'outgoing'"
+          [class.justify-start]="message.direction === 'incoming'"
+        >
+          <af-chat-bubble
+            [message]="message.content"
+            [timestamp]="formatTime(message.createdAt)"
+            [direction]="getBubbleDirection(message.direction)"
+            [senderName]="message.direction === 'incoming' ? 'Atendente' : visitorName()"
+            [status]="getStatusForBubble(message.status)"
+            [type]="message.type"
+            [fileUrl]="message.fileUrl"
+            [mimeType]="message.mimeType"
+          />
+        </div>
+      }
+
+      <!-- Typing Indicator -->
+      @if (isAiTyping()) {
+        <div class="flex justify-start">
+          <div
+            class="flex items-center gap-2 px-3 py-2 rounded-2xl bg-neutral-100 dark:bg-neutral-800"
+          >
+            <span class="flex gap-1" aria-hidden="true">
+              <span
+                class="size-1.5 animate-bounce rounded-full bg-neutral-400 dark:bg-neutral-500 [animation-delay:0ms]"
+              ></span>
+              <span
+                class="size-1.5 animate-bounce rounded-full bg-neutral-400 dark:bg-neutral-500 [animation-delay:120ms]"
+              ></span>
+              <span
+                class="size-1.5 animate-bounce rounded-full bg-neutral-400 dark:bg-neutral-500 [animation-delay:240ms]"
+              ></span>
+            </span>
+            <span class="text-xs text-neutral-500 dark:text-neutral-400">Digitando...</span>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+
+  @if (showScrollToBottom()) {
+    <button
+      type="button"
+      class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10
+             flex items-center gap-1.5 rounded-full
+             bg-accent-500 px-3 py-1.5 text-white shadow-lg
+             hover:bg-accent-600 focus-visible:outline-none
+             focus-visible:ring-2 focus-visible:ring-accent-500
+             focus-visible:ring-offset-2 transition-colors"
+      aria-label="Rolar para novas mensagens"
+      (click)="scrollToBottomClick()"
+    >
+      <lucide-icon name="chevron-down" [size]="16" aria-hidden="true" />
+      @if (unreadCount() > 0) {
+        <span class="text-xs font-medium leading-none">{{ unreadCount() }}</span>
+      }
+    </button>
+  }
+  </div>
+
+  <!-- Composer — shown as soon as session is active, independent of WS state -->
+  <!-- Messages are sent via REST; WS is only needed for real-time incoming responses -->
+  <footer class="shrink-0">
+    @if (sessionId() && !isClosed()) {
+      <af-chat-composer
+        placeholder="Digite sua mensagem..."
+        (messageSent)="onMessageSent($event)"
+        [disabled]="isUploading() || isClosed()"
+        (attachmentTypeSelected)="onAttachmentSelected($event)"
+      />
+      <input
+        #fileInput
+        type="file"
+        class="hidden"
+        [accept]="fileAccept()"
+        (change)="onFileSelected($event)"
+      />
+      @if (uploadError()) {
+        <div class="px-4 py-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950">
+          {{ uploadError() }}
+        </div>
+      }
+    } @else if (sessionId() && isClosed()) {
+      <div
+        class="px-4 py-4 text-center bg-neutral-50 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 flex flex-col items-center gap-3"
+      >
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">Este chamado foi encerrado.</p>
+        <af-button variant="outline" size="sm" (clicked)="ticketClosed.emit()">
+          Iniciar novo chamado
+        </af-button>
+      </div>
+    } @else {
+      <div
+        class="px-4 py-3 text-center text-sm text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800"
+      >
+        @switch (connectionState()) {
+          @case ('connecting') {
+            Conectando...
+          }
+          @case ('disconnected') {
+            Desconectado. Tentando reconectar...
+          }
+          @case ('error') {
+            Erro de conexão.
+          }
+          @default {
+            Aguardando conexão...
+          }
+        }
+      </div>
+    }
+  </footer>
+
+  <af-confirm-modal
+    [isOpen]="isCloseModalOpen()"
+    title="Encerrar chamado"
+    message="Tem certeza que deseja encerrar este atendimento?"
+    confirmLabel="Encerrar"
+    cancelLabel="Cancelar"
+    variant="danger"
+    [isLoading]="isClosing()"
+    (confirmed)="confirmClose()"
+    (cancelled)="closeCloseModal()"
+  />
+</div>

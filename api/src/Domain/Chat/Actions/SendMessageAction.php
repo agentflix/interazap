@@ -205,7 +205,7 @@ final class SendMessageAction
             ->where('ticket_id', $dto->ticketId)
             ->where('direction', $dto->direction)
             ->where('created_at', '>=', $windowStart)
-            ->whereRaw('MD5(LOWER(TRIM(content))) = ?', [$contentHash])
+            ->whereContentHash($contentHash)
             ->exists();
     }
 

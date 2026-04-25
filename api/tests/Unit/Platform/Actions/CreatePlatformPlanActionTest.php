@@ -32,7 +32,7 @@ class CreatePlatformPlanActionTest extends TestCase
             storageMode: PlatformStorageMode::UNLIMITED,
             storageLimitBytes: null,
             aiEnabled: true,
-            whatsappIntegrationsLimit: 10,
+            whatsappChannelsLimit: 10,
             negotiationsMode: PlatformNegotiationsMode::UNLIMITED,
             negotiationsLimit: null,
             priceMonthly: 299.99,
@@ -59,7 +59,7 @@ class CreatePlatformPlanActionTest extends TestCase
             storageMode: PlatformStorageMode::LIMITED,
             storageLimitBytes: 1024 * 1024 * 1024,
             aiEnabled: false,
-            whatsappIntegrationsLimit: 1,
+            whatsappChannelsLimit: 1,
             negotiationsMode: PlatformNegotiationsMode::LIMITED,
             negotiationsLimit: 50,
             priceMonthly: 49.99,
@@ -84,7 +84,7 @@ class CreatePlatformPlanActionTest extends TestCase
             storageMode: PlatformStorageMode::LIMITED,
             storageLimitBytes: 5 * 1024 * 1024 * 1024,
             aiEnabled: true,
-            whatsappIntegrationsLimit: 5,
+            whatsappChannelsLimit: 5,
             negotiationsMode: PlatformNegotiationsMode::LIMITED,
             negotiationsLimit: 100,
             priceMonthly: 149.99,
@@ -103,7 +103,7 @@ class CreatePlatformPlanActionTest extends TestCase
         $this->assertSame(PlatformStorageMode::LIMITED, $plan->storage_mode);
         $this->assertSame(5 * 1024 * 1024 * 1024, $plan->storage_limit_bytes);
         $this->assertTrue($plan->ai_enabled);
-        $this->assertSame(5, $plan->whatsapp_integrations_limit);
+        $this->assertSame(5, $plan->chat_channels_limit);
         $this->assertSame(PlatformNegotiationsMode::LIMITED, $plan->negotiations_mode);
         $this->assertSame(100, $plan->negotiations_limit);
         $this->assertTrue($plan->is_active);
@@ -118,7 +118,7 @@ class CreatePlatformPlanActionTest extends TestCase
             storageMode: PlatformStorageMode::LIMITED,
             storageLimitBytes: 1024 * 1024 * 512,
             aiEnabled: false,
-            whatsappIntegrationsLimit: 1,
+            whatsappChannelsLimit: 1,
             negotiationsMode: PlatformNegotiationsMode::LIMITED,
             negotiationsLimit: 10,
             priceMonthly: 29.99,

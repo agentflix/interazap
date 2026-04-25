@@ -5,11 +5,10 @@ declare(strict_types=1);
 /**
  * Rotas do Módulo de Chat.
  *
- * Define os endpoints para gestão de tickets, mensagens, automações (chatbot),
- * campanhas e integrações de instâncias WhatsApp.
+ * Define os endpoints para gestão de tickets, mensagens, automações (auto-reply),
+ * campanhas e canais de instâncias WhatsApp.
  */
-use Domain\Chat\Http\Controllers\ChatCampaignController;
-use Domain\Chat\Http\Controllers\ChatChatbotRuleController;
+use Domain\Chat\Http\Controllers\ChatAutoReplyRuleController;
 use Domain\Chat\Http\Controllers\ChatInstanceController;
 use Domain\Chat\Http\Controllers\ChatMediaController;
 use Domain\Chat\Http\Controllers\ChatMessageController;
@@ -21,7 +20,9 @@ use Domain\Chat\Http\Controllers\ChatTicketController;
 use Domain\Chat\Http\Controllers\ChatTicketEvaluationController;
 use Domain\Chat\Http\Controllers\ChatTicketEvaluationPublicController;
 use Domain\Chat\Http\Controllers\ChatTicketTransferController;
+use Domain\Chat\Http\Controllers\ChatTransmissionListController;
 use Domain\Chat\Http\Controllers\ChatWebhookController;
+use Domain\Chat\Http\Controllers\ChatWindowController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,11 +34,25 @@ use Illuminate\Support\Facades\Route;
 */
 Route::middleware(['throttle:webhooks'])->group(function (): void {
     Route::post('/webhooks/uazapi/instances/{token}', [ChatWebhookController::class, 'uazapi']);
+    Route::post('/webhooks/telegram/instances/{token}', [ChatWebhookController::class, 'telegram'])
+        ->name('chat.webhooks.telegram');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Gateway Routes with GATEWAY_SECRET
+|--------------------------------------------------------------------------
+| Routes accessed by the Gateway service using GATEWAY_SECRET authentication.
+| These routes are not tenant-isolated as they use global lookups.
+*/
+Route::middleware(['gateway.secret'])->prefix('chat')->group(function (): void {
+    Route::get('instances/by-phone-number/{phoneNumberId}', [ChatWindowController::class, 'lookupByPhoneNumber']);
 });
 
 Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttle:api')->group(function (): void {
     Route::prefix('chat')->group(function (): void {
         Route::get('init', [ChatTicketController::class, 'init']);
+        Route::get('contacts/{id}/window-status', [ChatWindowController::class, 'windowStatus']);
         Route::get('tickets', [ChatTicketController::class, 'index']);
         Route::post('tickets', [ChatTicketController::class, 'store']);
         Route::get('tickets/{id}', [ChatTicketController::class, 'show']);
@@ -73,25 +88,25 @@ Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttl
         Route::put('quick-answers/{id}', [ChatQuickAnswerController::class, 'update']);
         Route::delete('quick-answers/{id}', [ChatQuickAnswerController::class, 'destroy']);
 
-        Route::get('chatbot/rules', [ChatChatbotRuleController::class, 'index']);
-        Route::get('chatbot/rules/validate-keyword', [ChatChatbotRuleController::class, 'validateKeyword']);
-        Route::post('chatbot/rules', [ChatChatbotRuleController::class, 'store']);
-        Route::get('chatbot/rules/{id}', [ChatChatbotRuleController::class, 'show']);
-        Route::put('chatbot/rules/{id}', [ChatChatbotRuleController::class, 'update']);
-        Route::delete('chatbot/rules/{id}', [ChatChatbotRuleController::class, 'destroy']);
+        Route::get('auto-reply/rules', [ChatAutoReplyRuleController::class, 'index']);
+        Route::get('auto-reply/rules/validate-keyword', [ChatAutoReplyRuleController::class, 'validateKeyword']);
+        Route::post('auto-reply/rules', [ChatAutoReplyRuleController::class, 'store']);
+        Route::get('auto-reply/rules/{id}', [ChatAutoReplyRuleController::class, 'show']);
+        Route::put('auto-reply/rules/{id}', [ChatAutoReplyRuleController::class, 'update']);
+        Route::delete('auto-reply/rules/{id}', [ChatAutoReplyRuleController::class, 'destroy']);
 
-        Route::get('campaigns', [ChatCampaignController::class, 'index']);
-        Route::post('campaigns', [ChatCampaignController::class, 'store']);
-        Route::post('campaigns/preview', [ChatCampaignController::class, 'preview']);
-        Route::post('campaigns/audience', [ChatCampaignController::class, 'audience']);
-        Route::get('campaigns/{id}', [ChatCampaignController::class, 'show']);
-        Route::put('campaigns/{id}', [ChatCampaignController::class, 'update']);
-        Route::post('campaigns/{id}/send', [ChatCampaignController::class, 'send']);
-        Route::delete('campaigns/{id}', [ChatCampaignController::class, 'destroy']);
+        Route::get('transmission-lists', [ChatTransmissionListController::class, 'index']);
+        Route::post('transmission-lists', [ChatTransmissionListController::class, 'store']);
+        Route::post('transmission-lists/preview', [ChatTransmissionListController::class, 'preview']);
+        Route::post('transmission-lists/audience', [ChatTransmissionListController::class, 'audience']);
+        Route::get('transmission-lists/{id}', [ChatTransmissionListController::class, 'show']);
+        Route::put('transmission-lists/{id}', [ChatTransmissionListController::class, 'update']);
+        Route::post('transmission-lists/{id}/send', [ChatTransmissionListController::class, 'send']);
+        Route::delete('transmission-lists/{id}', [ChatTransmissionListController::class, 'destroy']);
         Route::post('media', [ChatMediaController::class, 'store']);
     });
 
-    Route::prefix('integrations')->group(function (): void {
+    Route::prefix('channels')->group(function (): void {
         Route::get('/', [ChatInstanceController::class, 'index']);
         Route::post('/', [ChatInstanceController::class, 'store']);
         Route::get('{id}', [ChatInstanceController::class, 'show']);

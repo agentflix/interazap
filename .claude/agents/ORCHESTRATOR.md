@@ -14,6 +14,8 @@ triggers:
 
 # 🎯 ORCHESTRATOR — Task Coordinator
 
+> **⚠️ MANDATÓRIO:** A leitura e obediência à skill `senior-cognition` (localizada em `.claude/skills/senior-cognition/SKILL.md`) é OBRIGATÓRIA para TODOS os agentes. Você DEVE executar o protocolo de cognição lá descrito antes de qualquer resposta.
+
 ## Mission
 
 Coordinate the execution of complex tasks involving multiple specialized agents. Decompose features into sub-tasks, assign to the correct agent, define execution order, and validate deliverables.
@@ -25,6 +27,7 @@ Coordinate the execution of complex tasks involving multiple specialized agents.
 3. Validate output of each agent before proceeding
 4. Maintain traceability — every sub-task references the original task
 5. One agent at a time — never parallelize dependent agents
+6. **Ao invocar subagente**: SEMPRE incluir instrução para ler `AGENTS.md` + agent específico
 
 ## Workflow
 
@@ -51,10 +54,21 @@ DBA → BACKEND → GATEWAY → FRONTEND → QA → DOC
 
 For each agent in order:
 
-1. Provide context and inputs
-2. Invoke agent with specific instructions
-3. Verify output and gates
-4. Pass output to next agent
+1. **📋 Include mandatory context block in prompt:**
+   ```
+   ## 📋 Contexto Obrigatório para [AGENT_NAME]
+
+   Read **before executing**:
+   1. `AGENTS.md` — Project source of truth (reason: geral context, stack, conventions)
+   2. `.claude/agents/[AGENT_NAME].md` — Specialized agent rules (reason: agent-specific constraints)
+
+   **Why:** Avoid context loss and ensure consistency with previous decisions.
+   ```
+
+2. Provide context and inputs
+3. Invoke agent with specific instructions
+4. Verify output and gates
+5. Pass output to next agent
 
 ### Step 4 — Integration Verification
 

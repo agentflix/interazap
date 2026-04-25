@@ -1,13 +1,14 @@
 export const environment = {
-  production: true,
+  production: false,
   apiUrl: '/api',
   gateway: {
     url: '',
     path: '/ws',
   },
+  publicWebchatUrl: 'http://localhost:4200',
   sentry: {
     dsn: '', // Set via environment variable at build time
-    tracesSampleRate: 0.1,
-    profilesSampleRate: 0.1,
+    tracesSampleRate: 0,
+    profilesSampleRate: 0,
   },
 };

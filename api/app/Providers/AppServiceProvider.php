@@ -159,5 +159,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('chat', static fn (Request $request): Limit => Limit::perMinute(180)->by((string) ($request->user()?->id ?: $request->ip() ?: 'guest-chat')));
 
         RateLimiter::for('ai-knowledge-bulk', static fn (Request $request): Limit => Limit::perMinute(30)->by($request->ip() ?: 'ai-knowledge-bulk'));
+
+        RateLimiter::for('webchat', static fn (Request $request): Limit => Limit::perMinute(60)->by($request->ip() ?: 'webchat'));
     }
 }

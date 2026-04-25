@@ -137,7 +137,7 @@
             }
             .model-grid {
                 display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-columns: 1fr 1fr;
                 gap: 6px;
             }
             .model-tabs {
@@ -175,6 +175,29 @@
                 display: none;
             }
             .model-tab-panel.active {
+                display: block;
+            }
+            /* Per-model accent colors when active */
+            .model-btn[data-model="claude"].active    { background: #c8f04a; border-color: #c8f04a; color: #0d0d0d; }
+            .model-btn[data-model="gpt54"].active     { background: #10a37f; border-color: #10a37f; color: #fff; }
+            .model-btn[data-model="gemini"].active    { background: #4285f4; border-color: #4285f4; color: #fff; }
+            .model-btn[data-model="minimax"].active   { background: #a855f7; border-color: #a855f7; color: #fff; }
+            .model-btn[data-model="gpt53"].active     { background: #f59e0b; border-color: #f59e0b; color: #0d0d0d; }
+            .model-btn[data-model="qwen"].active      { background: #ef4444; border-color: #ef4444; color: #fff; }
+            .model-btn[data-model="lovable"].active   { background: #ec4899; border-color: #ec4899; color: #fff; }
+            .model-personality {
+                font-family: var(--mono);
+                font-size: 9px;
+                color: var(--muted);
+                margin-top: 8px;
+                padding: 8px 10px;
+                background: var(--surface2);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                line-height: 1.6;
+                display: none;
+            }
+            .model-personality.visible {
                 display: block;
             }
             .model-btn {
@@ -579,6 +602,29 @@
                     overflow-y: auto;
                 }
             }
+            /* Toast de erro */
+            .error-toast {
+                position: fixed;
+                bottom: 24px;
+                left: 50%;
+                transform: translateX(-50%) translateY(12px);
+                background: #1e1010;
+                border: 1px solid #f04a4a;
+                color: #f07a7a;
+                font-family: var(--mono);
+                font-size: 12px;
+                padding: 10px 20px;
+                border-radius: 8px;
+                z-index: 1000;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s, transform 0.2s;
+                white-space: nowrap;
+            }
+            .error-toast.visible {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
         </style>
     </head>
     <body>
@@ -594,13 +640,11 @@
                 </div>
                 <div class="panel-tab-panel" data-panel-content="model">
                     <div class="section">
-                        <div class="section-label">modelo de ia</div>
-                        <div class="model-grid">
-                            <button class="model-btn active" data-model="claude">
-                                Claude<br />Sonnet 4.6 · sua key
-                            </button>
-                            <button class="model-btn" data-model="minimax">MiniMax<br />M2.7 · sua key</button>
-                            <button class="model-btn" data-model="gemini">Gemini<br />2.5 Pro · sua key</button>
+                        <div class="section-label">llm geradora — faz a chamada api</div>
+                        <div class="model-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                            <button class="model-btn active" data-model="claude">Claude<br/>Sonnet 4.6</button>
+                            <button class="model-btn" data-model="minimax">MiniMax<br/>M2.7</button>
+                            <button class="model-btn" data-model="gemini">Gemini<br/>2.5 Pro</button>
                         </div>
                     </div>
                     <div class="section">
@@ -638,36 +682,20 @@
                     <div class="section">
                         <div class="section-label">api key</div>
                         <div class="key-section" id="claudeKeySection">
-                            <input
-                                type="password"
-                                class="key-input"
-                                id="claude-key"
-                                placeholder="Cole sua API key da Anthropic..."
-                            />
-                            <a class="key-link" href="https://console.anthropic.com" target="_blank" rel="noopener"
-                                >obter key ↗</a
-                            >
+                            <input type="password" class="key-input" id="claude-key" placeholder="API key Anthropic..." />
+                            <a class="key-link" href="https://console.anthropic.com" target="_blank" rel="noopener">obter key ↗</a>
                             <div class="key-status hidden" id="claudeKeyStatus"></div>
                         </div>
                         <div class="key-section hidden" id="keySection">
                             <input type="password" class="key-input" id="apiKey" placeholder="API key MiniMax" />
-                            <a class="key-link" href="https://platform.minimax.io" target="_blank" rel="noopener"
-                                >obter key ↗</a
-                            >
+                            <a class="key-link" href="https://platform.minimax.io" target="_blank" rel="noopener">obter key ↗</a>
                         </div>
                         <div class="key-section hidden" id="geminiKeySection">
-                            <input
-                                type="password"
-                                class="key-input"
-                                id="gemini-key"
-                                placeholder="Cole sua API key do Gemini..."
-                            />
-                            <a class="key-link" href="https://aistudio.google.com" target="_blank" rel="noopener"
-                                >obter key ↗</a
-                            >
+                            <input type="password" class="key-input" id="gemini-key" placeholder="API key Gemini..." />
+                            <a class="key-link" href="https://aistudio.google.com" target="_blank" rel="noopener">obter key ↗</a>
                             <div class="key-status hidden" id="geminiKeyStatus"></div>
                         </div>
-                        <div class="key-hint" id="keyHint">Claude usa integração sem key.</div>
+                        <div class="key-hint" id="keyHint">Claude exige API key da Anthropic.</div>
                     </div>
                 </div>
                 <div class="panel-tab-panel active" data-panel-content="prompt">
@@ -753,6 +781,26 @@
                             placeholder="Descreva o que você quer fazer..."
                         ></textarea>
                     </div>
+                    <div class="section">
+                        <div class="section-label">prompt otimizado para</div>
+                        <div class="chips" id="targetModelChips">
+                            <span class="chip active" data-target="claude"
+                                data-tip="Segue intenção — usa linguagem natural, contexto rico, agentes PREVC.">Claude</span>
+                            <span class="chip" data-target="gpt54"
+                                data-tip="Raciocínio profundo — fases explícitas: Analyze → Plan → Execute → Verify.">GPT-5.4</span>
+                            <span class="chip" data-target="gemini"
+                                data-tip="Spec técnica — afirmativo, numerado, critérios testáveis, formato explícito.">Gemini</span>
+                            <span class="chip" data-target="minimax"
+                                data-tip="End-to-end — destino de negócio primeiro, contexto de domínio antes do técnico.">MiniMax</span>
+                            <span class="chip" data-target="gpt53"
+                                data-tip="Sequencial/CLI — passos executáveis numerados, framing debug: state → error → fix.">GPT-5.3</span>
+                            <span class="chip" data-target="qwen"
+                                data-tip="Literal — spec explícita, padrões repetíveis, naming conventions declaradas.">Qwen3</span>
+                            <span class="chip" data-target="lovable"
+                                data-tip="UI/UX first — visão do produto, componentes, design system, todos os estados.">Lovable</span>
+                        </div>
+                        <div class="model-personality" id="targetPersonality"></div>
+                    </div>
                     <div class="generate-wrap">
                         <button class="generate-btn" id="generateBtn">⚡ Gerar prompt</button>
                     </div>
@@ -790,12 +838,271 @@
         <script>
             (function () {
                 var selectedModel = 'claude';
+                var selectedTargetModel = 'claude';
                 var selectedPromptLevel = 'rapido';
                 var selectedOutputLanguage = 'pt-BR';
                 var isGenerating = false;
                 var generatedData = null;
 
+                /* ── Personalidades dos modelos ── */
+                var MODEL_META = {
+                    claude:  { label: 'claude · sonnet 4.6',   personality: 'Segue intenção, tolera ambiguidade, infere contexto — aceita linguagem natural.' },
+                    gpt54:   { label: 'gpt-5.4 · openai',      personality: 'Raciocínio avançado multi-etapa — ótimo para tarefas complexas e análise profunda.' },
+                    gemini:  { label: 'gemini · 2.5 pro',      personality: 'Lê o prompt como spec técnica — exige estrutura clara, negações explícitas e critérios objetivos.' },
+                    minimax: { label: 'minimax · m2.7',         personality: 'Pensa end-to-end — quer saber o destino antes de planejar; exige contexto de negócio rico.' },
+                    gpt53:   { label: 'gpt-5.3 · codex',       personality: 'Mental model sequencial/CLI — executa melhor em debug, scripts e automação passo a passo.' },
+                    qwen:    { label: 'qwen3 · coder',          personality: 'Literal e consistente — ideal para geração em massa de código multilíngue com padrão fixo.' },
+                    lovable: { label: 'lovable · v2',           personality: 'Especialista em UI/UX e apps completos — pense em componentes visuais, fluxo e stack gerada.' }
+                };
+
+                /* ── System instructions por modelo ── */
+                var SYSTEM_BY_MODEL = {
+
+                    /* CLAUDE — segue intenção, aceita ambiguidade, contextual */
+                    claude_quick:
+`You are an expert LLM prompt engineer. Generate a SINGLE optimized prompt for Claude (Sonnet/Opus).
+
+First line of the generated prompt MUST be the persona declaration:
+> You are acting as [SPECIFIC EXPERT ROLE relevant to the task].
+
+Claude processes intent, not just literal instruction — leverage this:
+- Use natural, conversational language when describing the task
+- Provide rich context and business goals; Claude will infer the gaps
+- Avoid over-specifying obvious steps — Claude fills them intelligently
+- Use PREVC flow (Plan → Review → Execute → Verify → Confirm) for complex work
+- Specialized agents when needed: @PM @DOC @QA @REVIEWER
+
+Output format: Markdown with ## headings (Contexto, Tarefa, Regras, Dicas). No JSON. No code fences around the full output.
+All content in the output language requested by the user.`,
+
+                    claude_enterprise:
+`You are a senior SaaS architect and prompt engineer. Generate a COMPLETE PROFESSIONAL PROMPT for Claude (Sonnet/Opus).
+
+First line MUST be persona:
+> You are acting as [SPECIFIC EXPERT ROLE].
+
+Leverage Claude's strength in following INTENT over literal instruction:
+- Rich business context, not step-by-step micro-management
+- Use PREVC orchestration with explicit agent delegation
+- Claude infers what is missing — give goals, not recipes
+
+Generate 8 sections:
+## 1. Contexto  ## 2. Objetivo  ## 3. Ação (with PREVC + @agents)
+## 4. Mockup Textual  ## 5. Critérios de Aceitação  ## 6. Contratos e Regras
+## 7. Formato de Saída  ## 8. Lista de Tarefas
+No JSON. No code fences. All content in the user-requested output language.`,
+
+                    /* GPT-5.4 — raciocínio profundo, multi-etapa */
+                    gpt54_quick:
+`You are an expert LLM prompt engineer. Generate a SINGLE optimized prompt for GPT-5.4 (OpenAI).
+
+First line of the generated prompt MUST be the persona declaration:
+> You are a [SPECIFIC EXPERT ROLE] with deep reasoning capability.
+
+GPT-5.4 excels at multi-step reasoning and complex analysis — leverage this:
+- Break the task into explicit reasoning phases: Analyze → Plan → Execute → Verify
+- Ask the model to "think step by step" and show intermediate reasoning when helpful
+- Use structured requirements with clear success criteria
+- Be explicit about output format expectations
+- For code tasks: specify language, patterns, edge cases, and test expectations
+
+Output format: Markdown with ## headings (Contexto, Tarefa, Passos de Raciocínio, Regras, Formato de Saída). No JSON. No code fences around the full output.
+All content in the output language requested by the user.`,
+
+                    gpt54_enterprise:
+`You are a senior SaaS architect and prompt engineer. Generate a COMPLETE PROFESSIONAL PROMPT for GPT-5.4 (OpenAI).
+
+First line MUST be persona:
+> You are a [SPECIFIC EXPERT ROLE] with deep reasoning capability.
+
+GPT-5.4 has advanced multi-step reasoning — structure prompts to exploit this:
+- Explicit reasoning chain with labeled phases
+- Success criteria per phase
+- Think-before-act pattern embedded in the prompt structure
+
+Generate 8 sections:
+## 1. Contexto  ## 2. Objetivo  ## 3. Ação (numbered reasoning steps)
+## 4. Mockup Textual  ## 5. Critérios de Aceitação  ## 6. Contratos e Regras
+## 7. Formato de Saída  ## 8. Lista de Tarefas
+No JSON. No code fences. All content in the user-requested output language.`,
+
+                    /* GEMINI — preciso como spec técnica */
+                    gemini_quick:
+`You are an expert LLM prompt engineer. Generate a SINGLE optimized prompt for Gemini 2.5 Pro.
+
+First line of the generated prompt MUST be the persona declaration:
+> You are a [SPECIFIC EXPERT ROLE]. Act as a precise technical executor.
+
+Gemini reads the prompt as a technical specification — optimize for this:
+- Every requirement must be EXPLICIT and AFFIRMATIVE (avoid vague negations)
+- Use structured lists and numbered steps — Gemini executes specs with surgical precision
+- Define acceptance criteria as testable conditions, not subjective goals
+- Specify EXACTLY what format the output must use
+- Avoid ambiguous pronouns and implicit context — state everything directly
+
+Output format: Markdown with ## headings (Contexto, Especificação Técnica, Passo a Passo, Restrições Explícitas, Formato de Saída). No JSON. No code fences around the full output.
+All content in the output language requested by the user.`,
+
+                    gemini_enterprise:
+`You are a senior SaaS architect and prompt engineer. Generate a COMPLETE PROFESSIONAL PROMPT for Gemini 2.5 Pro.
+
+First line MUST be persona:
+> You are a [SPECIFIC EXPERT ROLE]. Act as a precise technical executor.
+
+Gemini reads prompts as technical specs — structure accordingly:
+- Every requirement explicit and affirmative
+- Numbered, unambiguous steps
+- Testable acceptance criteria only
+- Explicit output format specification
+
+Generate 8 sections:
+## 1. Contexto  ## 2. Objetivo  ## 3. Especificação Técnica (numbered steps)
+## 4. Mockup Textual  ## 5. Critérios de Aceitação (testable only)
+## 6. Restrições Explícitas  ## 7. Formato de Saída  ## 8. Lista de Tarefas
+No JSON. No code fences. All content in the user-requested output language.`,
+
+                    /* MINIMAX — end-to-end, exige contexto de negócio */
+                    minimax_quick:
+`You are an expert LLM prompt engineer. Generate a SINGLE optimized prompt for MiniMax M2.7.
+
+First line of the generated prompt MUST be the persona declaration:
+> You are a [SPECIFIC EXPERT ROLE] responsible for end-to-end delivery of [DOMAIN].
+
+MiniMax M2.7 was trained in agentic loops — it thinks in terms of end-to-end delivery:
+- Lead with BUSINESS DESTINATION: what is the final outcome and its business value?
+- Provide rich domain context BEFORE any technical details
+- Use delivery-oriented framing: "The system must deliver X so that Y happens"
+- Explicitly state dependencies, integration points, and downstream consumers
+- Without business context, it generates technically correct but disconnected code — avoid this
+
+Output format: Markdown with ## headings (Destino de Negócio, Contexto de Domínio, Tarefa Técnica, Dependências, Regras, Criterios de Entrega). No JSON. No code fences.
+All content in the output language requested by the user.`,
+
+                    minimax_enterprise:
+`You are a senior SaaS architect and prompt engineer. Generate a COMPLETE PROFESSIONAL PROMPT for MiniMax M2.7.
+
+First line MUST be persona:
+> You are a [SPECIFIC EXPERT ROLE] responsible for end-to-end delivery of [DOMAIN].
+
+MiniMax M2.7 optimizes for end-to-end delivery — it wants the destination before the route:
+- Business destination first, always
+- Rich domain context and integration map
+- State downstream consumers and dependencies
+
+Generate 8 sections:
+## 1. Destino de Negócio  ## 2. Contexto de Domínio  ## 3. Ação End-to-End
+## 4. Mapa de Integrações  ## 5. Critérios de Entrega  ## 6. Contratos e Regras
+## 7. Formato de Saída  ## 8. Lista de Tarefas (com dependências explícitas)
+No JSON. No code fences. All content in the user-requested output language.`,
+
+                    /* GPT-5.3 CODEX — sequencial, CLI, debug/scripts */
+                    gpt53_quick:
+`You are an expert LLM prompt engineer. Generate a SINGLE optimized prompt for GPT-5.3 Codex.
+
+First line of the generated prompt MUST be the persona declaration:
+> You are a senior [LANGUAGE/TOOL] engineer. Execute the following task step by step.
+
+GPT-5.3 Codex thinks sequentially and in executable steps — optimize for this:
+- Structure the task as a numbered sequence of executable steps
+- Use terminal/CLI language and command-oriented framing when applicable
+- Be explicit about: input state, expected intermediate states, final output
+- For debug tasks: provide the error, the context, and ask for step-by-step diagnosis
+- Avoid abstract architectural reasoning — translate it into concrete actions
+
+Output format: Markdown with ## headings (Setup, Passos Executáveis, Validação, Output Esperado). No JSON. No code fences.
+All content in the output language requested by the user.`,
+
+                    gpt53_enterprise:
+`You are a senior SaaS architect and prompt engineer. Generate a COMPLETE PROFESSIONAL PROMPT for GPT-5.3 Codex.
+
+First line MUST be persona:
+> You are a senior [LANGUAGE/TOOL] engineer. Execute the following task step by step.
+
+GPT-5.3 Codex excels at sequential, step-by-step execution and CLI/automation tasks:
+- Every action as an executable step
+- Debug framing: state → error → diagnosis steps
+- Concrete commands, not abstract patterns
+
+Generate 8 sections:
+## 1. Contexto de Execução  ## 2. Objetivo  ## 3. Passos Executáveis (numbered)
+## 4. Estado Esperado por Etapa  ## 5. Critérios de Validação  ## 6. Restrições
+## 7. Formato de Saída  ## 8. Checklist de Execução
+No JSON. No code fences. All content in the user-requested output language.`,
+
+                    /* QWEN3-CODER — literal, consistente, multilíngue */
+                    qwen_quick:
+`You are an expert LLM prompt engineer. Generate a SINGLE optimized prompt for Qwen3-Coder.
+
+First line of the generated prompt MUST be the persona declaration:
+> You are a [LANGUAGE] code generation engine. Follow the specification exactly.
+
+Qwen3-Coder is trained on massive multilingual code — it thinks literally and consistently:
+- Provide EXPLICIT, UNAMBIGUOUS specifications — no room for inference
+- Use patterns, conventions, and templates that can be repeated mechanically
+- Specify the exact language, framework version, and naming conventions
+- Define the EXACT structure of output files/functions — Qwen will replicate the pattern
+- Avoid asking it to "infer best practices" — state them explicitly instead
+
+Output format: Markdown with ## headings (Especificação Literal, Padrão de Código, Convenções, Output Esperado, Checklist). No JSON. No code fences.
+All content in the output language requested by the user.`,
+
+                    qwen_enterprise:
+`You are a senior SaaS architect and prompt engineer. Generate a COMPLETE PROFESSIONAL PROMPT for Qwen3-Coder.
+
+First line MUST be persona:
+> You are a [LANGUAGE] code generation engine. Follow the specification exactly.
+
+Qwen3-Coder is literal and consistent — perfect for large-scale code generation:
+- Explicit spec, no inference expected
+- Exact patterns, repetitive structure
+- Naming conventions stated explicitly
+
+Generate 8 sections:
+## 1. Especificação Literal  ## 2. Padrão de Código  ## 3. Convenções Explícitas
+## 4. Estrutura de Output  ## 5. Critérios de Conformidade  ## 6. Restrições
+## 7. Formato de Saída  ## 8. Checklist de Geração
+No JSON. No code fences. All content in the user-requested output language.`,
+
+                    /* LOVABLE — UI/UX, apps completos */
+                    lovable_quick:
+`You are an expert LLM prompt engineer. Generate a SINGLE optimized prompt for Lovable v2.
+
+First line of the generated prompt MUST be the persona declaration:
+> You are a senior full-stack UI engineer building a [APP TYPE] with [STACK].
+
+Lovable specializes in generating complete, beautiful UI applications:
+- Lead with the USER EXPERIENCE: what does the user see, feel, and do?
+- Describe the visual design: color palette, layout type, component hierarchy
+- Specify the tech stack explicitly (React, Next.js, Tailwind, Shadcn, etc.)
+- Define all states: empty, loading, error, success, hover, mobile-responsive
+- Think in COMPONENTS: list the key UI components needed
+- Include data shape / mock data for demonstration
+
+Output format: Markdown with ## headings (Visão do Produto, Stack, Componentes, Design System, Estados, Dados). No JSON. No code fences.
+All content in the output language requested by the user.`,
+
+                    lovable_enterprise:
+`You are a senior product designer and prompt engineer. Generate a COMPLETE PROFESSIONAL PROMPT for Lovable v2.
+
+First line MUST be persona:
+> You are a senior full-stack UI engineer building a [APP TYPE] with [STACK].
+
+Lovable generates complete apps — structure the prompt for maximum UI quality:
+- UX vision first
+- Complete component inventory
+- Design system tokens
+- All interaction states
+
+Generate 8 sections:
+## 1. Visão do Produto  ## 2. Stack Técnica  ## 3. Componentes e Hierarquia
+## 4. Mockup Visual (text wireframe)  ## 5. Design System  ## 6. Estados de UI
+## 7. Dados e Integração  ## 8. Checklist de Entrega
+No JSON. No code fences. All content in the user-requested output language.`
+                };
+
                 var modelBtns = document.querySelectorAll('.model-btn');
+                var targetModelChips = document.getElementById('targetModelChips');
+                var targetPersonality = document.getElementById('targetPersonality');
                 var panelTabs = document.querySelectorAll('.panel-tab-btn');
                 var panelContents = document.querySelectorAll('.panel-tab-panel');
                 var claudeKeySection = document.getElementById('claudeKeySection');
@@ -859,6 +1166,7 @@
                 function saveUiState(options) {
                     var state = {
                         selectedModel: selectedModel,
+                        selectedTargetModel: selectedTargetModel,
                         selectedPromptLevel: selectedPromptLevel,
                         selectedOutputLanguage: selectedOutputLanguage,
                         objective: objectiveSelect.value,
@@ -914,21 +1222,40 @@
                 }
 
                 function updateModelIndicator() {
+                    // Hide all generator key sections first
                     claudeKeySection.classList.add('hidden');
-                    keySection.classList.add('hidden');
                     geminiKeySection.classList.add('hidden');
-                    if (selectedModel === 'minimax') {
-                        modelIndicator.textContent = 'minimax · m2.7 · ' + getPromptLevelLabel();
-                        keyHint.textContent = 'MiniMax exige API key para gerar.';
-                        keySection.classList.remove('hidden');
-                    } else if (selectedModel === 'gemini') {
-                        modelIndicator.textContent = 'gemini · 2.5 pro · ' + getPromptLevelLabel();
-                        keyHint.textContent = 'Gemini exige API key para gerar.';
-                        geminiKeySection.classList.remove('hidden');
-                    } else {
-                        modelIndicator.textContent = 'claude · sonnet 4.6 · ' + getPromptLevelLabel();
+                    keySection.classList.add('hidden');
+
+                    var generatorLabel = selectedModel === 'gemini' ? 'gemini · 2.5 pro'
+                        : selectedModel === 'minimax' ? 'minimax · m2.7'
+                        : 'claude · sonnet 4.6';
+                    var targetMeta = MODEL_META[selectedTargetModel] || MODEL_META.claude;
+                    modelIndicator.textContent = generatorLabel + ' → ' + targetMeta.label + ' · ' + getPromptLevelLabel();
+
+                    if (selectedModel === 'claude') {
                         keyHint.textContent = 'Claude exige API key da Anthropic.';
                         claudeKeySection.classList.remove('hidden');
+                    } else if (selectedModel === 'gemini') {
+                        keyHint.textContent = 'Gemini exige API key para gerar.';
+                        geminiKeySection.classList.remove('hidden');
+                    } else if (selectedModel === 'minimax') {
+                        keyHint.textContent = 'MiniMax exige API key para gerar.';
+                        keySection.classList.remove('hidden');
+                    }
+                }
+
+                function updateTargetPersonality() {
+                    var meta = MODEL_META[selectedTargetModel] || MODEL_META.claude;
+                    if (targetPersonality) {
+                        targetPersonality.textContent = '💡 ' + meta.personality;
+                        targetPersonality.classList.add('visible');
+                    }
+                    // Also update the chip that has data-tip for tooltip-like display
+                    if (targetModelChips) {
+                        targetModelChips.querySelectorAll('.chip').forEach(function(c) {
+                            c.classList.toggle('active', c.dataset.target === selectedTargetModel);
+                        });
                     }
                 }
 
@@ -941,23 +1268,17 @@
                 }
 
                 var storedClaudeKey = localStorage.getItem(claudeKeyStorageKey);
-                if (storedClaudeKey) {
-                    claudeApiKeyInput.value = storedClaudeKey;
-                }
-                var storedApiKey = sessionStorage.getItem(apiKeyStorageKey);
-                if (storedApiKey) {
-                    apiKeyInput.value = storedApiKey;
-                }
+                if (storedClaudeKey) claudeApiKeyInput.value = storedClaudeKey;
                 var storedGeminiKey = localStorage.getItem(geminiKeyStorageKey);
-                if (storedGeminiKey) {
-                    geminiApiKeyInput.value = storedGeminiKey;
-                }
+                if (storedGeminiKey) geminiApiKeyInput.value = storedGeminiKey;
+                var storedApiKey = sessionStorage.getItem(apiKeyStorageKey);
+                if (storedApiKey) apiKeyInput.value = storedApiKey;
 
                 (function restoreUiState() {
                     var state = readPersistedState();
                     if (!state) return;
 
-                    if (state.selectedModel) {
+                    if (state.selectedModel && ['claude','minimax','gemini'].indexOf(state.selectedModel) !== -1) {
                         var hasModel = false;
                         modelBtns.forEach(function (btn) {
                             var isActive = btn.dataset.model === state.selectedModel;
@@ -965,6 +1286,10 @@
                             if (isActive) hasModel = true;
                         });
                         if (hasModel) selectedModel = state.selectedModel;
+                    }
+
+                    if (state.selectedTargetModel && MODEL_META[state.selectedTargetModel]) {
+                        selectedTargetModel = state.selectedTargetModel;
                     }
 
                     if (state.selectedPromptLevel === 'enterprise' || state.selectedPromptLevel === 'rapido') {
@@ -1023,6 +1348,8 @@
                     if (state.generatedData) {
                         showResult(state.generatedData, false);
                     }
+
+                    updateTargetPersonality();
                 })();
 
                 apiKeyInput.addEventListener('input', function () {
@@ -1084,6 +1411,7 @@
 
                 updateModelIndicator();
                 updateEnterpriseHint();
+                updateTargetPersonality();
 
                 if (window.location.protocol === 'file:') {
                     fileProtocolHint.classList.remove('hidden');
@@ -1111,6 +1439,18 @@
                     e.target.classList.add('active');
                     saveUiState();
                 });
+
+                // Target model chips — which LLM the prompt is optimized FOR
+                if (targetModelChips) {
+                    targetModelChips.addEventListener('click', function (e) {
+                        var chip = e.target.closest('.chip');
+                        if (!chip || !chip.dataset.target) return;
+                        selectedTargetModel = chip.dataset.target;
+                        updateTargetPersonality();
+                        updateModelIndicator();
+                        saveUiState();
+                    });
+                }
 
                 function getActiveChips(container) {
                     var result = [];
@@ -1161,7 +1501,9 @@
                     'You are a senior specialist in SaaS Software Architecture, Product Management\nand Software Engineering. You think as a Product Owner, Tech Lead, UX Designer,\nSenior Engineer and critical PRD reviewer simultaneously.\n\nWhen receiving a request, generate a COMPLETE PROFESSIONAL PROMPT in Markdown\nformat, ready to be pasted directly into a chat conversation.\n\nStructure with these 8 sections using markdown headings:\n## 1. Contexto\nSystem scenario, AI role, involved modules, users, business goals\n## 2. Objetivo\nWhat must be built, expected result, product value\n## 3. Ação\nNumbered subtopics (3.1, 3.2…) covering layout, flows, rules,\nbehaviors and all states: error, loading, empty, success, validation and UX.\nWhen needed, orchestrate execution with PREVC (Plan, Review, Execute, Verify,\nConfirm) and explicit roles: @PM for decomposition/scope, @DOC for\ndocumentation/handoff, @QA for test strategy/quality gates, @REVIEWER for\ncode review/risk findings. Parallelize only independent tasks; keep dependent\ntasks sequential.\n## 4. Mockup Textual\nText wireframe of the screen or step-by-step user flow\n## 5. Critérios de Aceitação\nObjective and verifiable conditions that define done.\nNothing subjective. Each item must be independently testable.\n## 6. Contratos e Regras\nMandatory language selected by the user (Portuguese or English), what must NOT be done,\nvisual and technical standards, prohibition of undocumented assumptions\n## 7. Formato de Saída\nExactly how the final response must be delivered\n## 8. Lista de Tarefas\nNumbered list, tasks in logical execution order, never generic\n\nDo NOT wrap in JSON. Do NOT use code fences around the entire output.\nUse markdown formatting: headings (##), bullet lists (-), bold (**),\nnumbered lists, etc.\n\nRules:\n- If ReAct method is selected, embed Thought/Action/Observation cycles in\nsection 3 (Ação)\n- If few-shot is selected and an example is provided, include it in section 3\n- Keep mandatory output language aligned with the user-selected output language\n- All generated content must be in Brazilian Portuguese (pt-BR)\n- Never simplify a vague input — always expand, structure and make it explicit';
 
                 function getSystemInstructionByLevel() {
-                    return selectedPromptLevel === 'enterprise' ? systemInstructionEnterprise : systemInstructionQuick;
+                    // System instruction based on TARGET LLM personality, not the generator
+                    var key = selectedTargetModel + '_' + (selectedPromptLevel === 'enterprise' ? 'enterprise' : 'quick');
+                    return SYSTEM_BY_MODEL[key] || SYSTEM_BY_MODEL['claude_quick'];
                 }
 
                 function typeText(el, text, speed, cb) {
@@ -1544,34 +1886,149 @@
                     return { prompt: cleaned };
                 }
 
+                function showToast(msg) {
+                    var toast = document.getElementById('errorToast');
+                    if (!toast) {
+                        toast = document.createElement('div');
+                        toast.id = 'errorToast';
+                        toast.className = 'error-toast';
+                        document.body.appendChild(toast);
+                    }
+                    toast.textContent = msg;
+                    toast.classList.add('visible');
+                    clearTimeout(toast._timer);
+                    toast._timer = setTimeout(function() { toast.classList.remove('visible'); }, 3000);
+                }
+
+                function switchToModelTab() {
+                    panelTabs.forEach(function(t) { t.classList.toggle('active', t.dataset.panelTab === 'model'); });
+                    panelContents.forEach(function(p) { p.classList.toggle('active', p.dataset.panelContent === 'model'); });
+                }
+
                 function showKeyError(input, statusFn, msg) {
-                    input.style.borderColor = '#f04a4a';
-                    input.focus();
-                    statusFn(msg, '#f04a4a');
-                    setTimeout(function () {
-                        input.style.borderColor = '';
-                        statusFn('', null);
-                    }, 3000);
+                    switchToModelTab();
+                    setTimeout(function() {
+                        input.style.borderColor = '#f04a4a';
+                        input.focus();
+                        statusFn(msg, '#f04a4a');
+                        setTimeout(function () {
+                            input.style.borderColor = '';
+                            statusFn('', null);
+                        }, 3000);
+                    }, 50);
+                    showToast('⚠️ Cole a API key na aba Modelo para continuar');
+                }
+
+                /* ── OpenAI-compatible call (GPT-5.4 and GPT-5.3 Codex) ── */
+                async function callOpenAI(userMsg, key, model) {
+                    var systemInstruction = getSystemInstructionByLevel();
+                    var res = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + key
+                        },
+                        body: JSON.stringify({
+                            model: model,
+                            max_tokens: 4096,
+                            messages: [
+                                { role: 'system', content: systemInstruction },
+                                { role: 'user', content: userMsg }
+                            ]
+                        })
+                    });
+                    var data = await res.json();
+                    if (!res.ok) {
+                        var authErr = res.status === 400 || res.status === 401 || res.status === 403;
+                        var apiErr = new Error(data.error && data.error.message ? data.error.message : 'HTTP ' + res.status);
+                        apiErr.authFailed = authErr;
+                        throw apiErr;
+                    }
+                    var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+                    if (!text) throw new Error('Resposta vazia da API OpenAI');
+                    var finishReason = data.choices[0].finish_reason;
+                    if (finishReason === 'length') {
+                        return text + '\n\n---\n⚠️ Resposta truncada (OpenAI). Gere novamente com tarefa mais objetiva.';
+                    }
+                    return text;
+                }
+
+                /* ── Qwen3-Coder via DashScope ── */
+                async function callQwen(userMsg, key) {
+                    var systemInstruction = getSystemInstructionByLevel();
+                    var res = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + key
+                        },
+                        body: JSON.stringify({
+                            model: 'qwen3-coder-plus',
+                            max_tokens: 4096,
+                            messages: [
+                                { role: 'system', content: systemInstruction },
+                                { role: 'user', content: userMsg }
+                            ]
+                        })
+                    });
+                    var data = await res.json();
+                    if (!res.ok) {
+                        var msg = data.error && data.error.message ? data.error.message : 'HTTP ' + res.status;
+                        throw new Error(msg);
+                    }
+                    return data.choices[0].message.content;
+                }
+
+                /* ── Lovable: gera localmente sem API call ── */
+                async function generateLovablePrompt(userMsg) {
+                    var systemInstruction = getSystemInstructionByLevel();
+                    // For Lovable, we use Claude API to generate the optimized prompt
+                    // If no Claude key, fallback to local template
+                    var claudeKey = claudeApiKeyInput.value.trim();
+                    if (claudeKey) {
+                        return await callClaude(userMsg, claudeKey);
+                    }
+                    // Local fallback template
+                    var task = taskInput.value.trim();
+                    return '> You are a senior full-stack UI engineer building a complete, beautiful web application.\n\n## Visão do Produto\n' + task + '\n\n## Stack\nReact + TypeScript + Tailwind CSS + Shadcn/ui\n\n## Componentes\n[Lovable irá gerar com base na visão acima]\n\n## Design\nModerno, responsivo, dark mode opcional\n\n## Estados\nLoading, erro, vazio, sucesso — todos tratados\n\n> Cole este prompt diretamente em lovable.dev';
+                }
+
+                function showGenericStatus(statusEl, msg, color) {
+                    if (!statusEl) return;
+                    statusEl.textContent = msg;
+                    statusEl.style.color = color;
+                    statusEl.classList.remove('hidden');
+                }
+                function clearGenericStatus(statusEl) {
+                    if (!statusEl) return;
+                    statusEl.textContent = '';
+                    statusEl.classList.add('hidden');
                 }
 
                 async function generate() {
                     if (isGenerating) return;
                     if (!taskInput.value.trim()) {
+                        showToast('✏️ Descreva a tarefa antes de gerar');
                         taskInput.focus();
                         return;
                     }
+
+                    // Key validation — only 3 generator models need keys
                     if (selectedModel === 'claude' && !claudeApiKeyInput.value.trim()) {
                         showKeyError(claudeApiKeyInput, showClaudeStatus, 'cole sua API key para continuar');
-                        return;
-                    }
-                    if (selectedModel === 'minimax' && !apiKeyInput.value.trim()) {
-                        apiKeyInput.focus();
                         return;
                     }
                     if (selectedModel === 'gemini' && !geminiApiKeyInput.value.trim()) {
                         showKeyError(geminiApiKeyInput, showGeminiStatus, 'cole sua API key para continuar');
                         return;
                     }
+                    if (selectedModel === 'minimax' && !apiKeyInput.value.trim()) {
+                        switchToModelTab();
+                        showToast('⚠️ Cole a API key na aba Modelo para continuar');
+                        setTimeout(function() { apiKeyInput.focus(); }, 50);
+                        return;
+                    }
+
                     resetResultForGeneration();
                     saveUiState({ keepPreviousGenerated: true });
                     setLoading(true);
@@ -1584,14 +2041,14 @@
                             localStorage.setItem(claudeKeyStorageKey, claudeKey);
                             showClaudeStatus('✓ Claude respondeu com sucesso', 'var(--accent)');
                             setTimeout(clearClaudeStatus, 3000);
-                        } else if (selectedModel === 'minimax') {
-                            raw = await callMinimax(userMsg, apiKeyInput.value.trim());
                         } else if (selectedModel === 'gemini') {
                             var geminiKey = geminiApiKeyInput.value.trim();
                             raw = await callGemini(userMsg, geminiKey);
                             localStorage.setItem(geminiKeyStorageKey, geminiKey);
                             showGeminiStatus('✓ Gemini respondeu com sucesso', 'var(--accent)');
                             setTimeout(clearGeminiStatus, 3000);
+                        } else if (selectedModel === 'minimax') {
+                            raw = await callMinimax(userMsg, apiKeyInput.value.trim());
                         }
                         var parsed = parseResponse(raw);
                         showResult(parsed);
@@ -1606,6 +2063,8 @@
                             }
                             if (err.authFailed) localStorage.removeItem(geminiKeyStorageKey);
                             showGeminiStatus('✗ ' + err.message, '#f04a4a');
+                        } else {
+                            showToast('✗ Erro: ' + err.message);
                         }
                         showResult({ prompt: 'Erro: ' + err.message });
                     } finally {

@@ -1,5 +1,6 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NewConversationModalComponent } from './new-conversation-modal';
@@ -71,6 +72,7 @@ describe('NewConversationModalComponent', () => {
     await TestBed.configureTestingModule({
       imports: [NewConversationModalComponent],
       providers: [
+        provideHttpClient(),
         { provide: ContactService, useClass: ContactServiceStub },
         { provide: InstanceService, useClass: InstanceServiceStub },
         { provide: CalledService, useClass: CalledServiceStub },

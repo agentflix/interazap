@@ -27,7 +27,7 @@ test('can fetch tenant details with plan and resources', function (): void {
         'name' => 'Pro',
         'slug' => 'pro',
         'limit_users' => 10,
-        'whatsapp_integrations_limit' => 3,
+        'chat_channels_limit' => 3,
         'storage_mode' => 'LIMITED',
         'storage_limit_bytes' => 5368709120,
         'ai_enabled' => true,
@@ -92,7 +92,7 @@ test('tenant details returns 404 for nonexistent tenant', function (): void {
 test('tenant details calculates available resources correctly', function (): void {
     $plan = PlatformPlan::factory()->create([
         'limit_users' => 5,
-        'whatsapp_integrations_limit' => 2,
+        'chat_channels_limit' => 2,
         'storage_mode' => 'LIMITED',
         'storage_limit_bytes' => 1073741824,
         'negotiations_mode' => 'LIMITED',

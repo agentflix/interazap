@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Redis;
  */
 final class ConsumeToolRequestsCommand extends Command
 {
-    protected $signature = 'ai:consume-tool-requests {--once : Process a single read cycle}';
+    protected $signature = 'ai:consume-tool-requests {--once : Process a single read cycle} {--max-runtime=0 : Maximum runtime in seconds (0 = unlimited)}';
 
     protected $description = 'Consume ai.tool.request stream messages, execute tools, and reply via Redis list RPC.';
 
@@ -41,10 +41,17 @@ final class ConsumeToolRequestsCommand extends Command
         $consumer = sprintf('%s-%s', gethostname() ?: 'api', (string) getmypid());
         $this->ensureGroupExists();
 
+        $maxRuntime = (int) $this->option('max-runtime');
+        $deadline = $maxRuntime > 0 ? microtime(true) + $maxRuntime : null;
+
         do {
             $messages = $this->readMessages($consumer);
             if ($messages === null || $messages === []) {
                 if ($this->option('once')) {
+                    break;
+                }
+
+                if ($deadline !== null && microtime(true) >= $deadline) {
                     break;
                 }
 
@@ -64,6 +71,10 @@ final class ConsumeToolRequestsCommand extends Command
             }
 
             if ($this->option('once')) {
+                break;
+            }
+
+            if ($deadline !== null && microtime(true) >= $deadline) {
                 break;
             }
         } while (true);

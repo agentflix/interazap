@@ -7,6 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../../infrastructure/redis/redis.service';
 import { EventsGateway } from '../gateways/events.gateway';
+import { WebChatGateway } from '../gateways/webchat.gateway';
 import { GatewayFileLogger } from '../../../common/logger/gateway-file-logger';
 import type { Redis } from 'ioredis';
 import {
@@ -37,6 +38,7 @@ export class EventFanoutService implements OnModuleInit, OnModuleDestroy {
     private readonly gatewayConfigService: GatewayConfigService,
     private readonly redisService: RedisService,
     private readonly eventsGateway: EventsGateway,
+    private readonly webChatGateway: WebChatGateway,
   ) {
     this.debugChatActivity =
       this.configService.get<boolean>('REALTIME_DEBUG_CHAT_ACTIVITY') ===
@@ -156,6 +158,16 @@ export class EventFanoutService implements OnModuleInit, OnModuleDestroy {
         );
         return;
       }
+
+      if (payload.event === 'webchat:ai_response') {
+        this.processWebChatAiResponse(payload);
+        return;
+      }
+
+      if (payload.event === 'webchat:agent_message') {
+        this.processWebChatAgentMessage(payload);
+        return;
+      }
     } catch (error) {
       this.logger.error(
         `Failed to process ws.events message: ${(error as Error).message}`,
@@ -209,7 +221,12 @@ export class EventFanoutService implements OnModuleInit, OnModuleDestroy {
     }
 
     for (const room of rooms) {
-      this.eventsGateway.emitToRoom(room, payload.event, payload.data);
+      // Rooms de sessão (session:*) pertencem ao namespace /webchat — usar webChatGateway
+      if (room.startsWith('session:')) {
+        this.webChatGateway.emitToRoom(room, payload.event, payload.data);
+      } else {
+        this.eventsGateway.emitToRoom(room, payload.event, payload.data);
+      }
     }
   }
 
@@ -365,6 +382,77 @@ export class EventFanoutService implements OnModuleInit, OnModuleDestroy {
     }
 
     this.eventsGateway.emitToRoom(`tenant:${resolvedTenantId}`, event, data);
+  }
+
+  /**
+   * Processa evento de resposta de IA para o webchat público.
+   * Emite para a room de sessão do webchat (session:{sessionId}).
+   *
+   * @param payload - Envelope do evento com dados da resposta de IA
+   */
+  private processWebChatAiResponse(payload: GatewayEvent): void {
+    const data = payload.data;
+    if (!isRecord(data)) {
+      this.logger.warn(
+        'Received webchat:ai_response with invalid payload',
+        data,
+      );
+      return;
+    }
+
+    const sessionId = getString(data, 'session_id');
+    if (!sessionId) {
+      this.logger.warn('Received webchat:ai_response without session_id', data);
+      return;
+    }
+
+    const room = `session:${sessionId}`;
+    const message = getRecord(data, 'message');
+
+    this.webChatGateway.emitToRoom(room, 'webchat:ai_response', {
+      tenant_id: payload.tenant_id,
+      session_id: sessionId,
+      message,
+    });
+
+    this.logger.debug(`Emitted webchat:ai_response to room ${room}`);
+  }
+
+  /**
+   * Processa evento de mensagem de atendente para o webchat público.
+   * Emite para a room de sessão do webchat (session:{sessionId}).
+   *
+   * @param payload - Envelope do evento com dados da mensagem do atendente
+   */
+  private processWebChatAgentMessage(payload: GatewayEvent): void {
+    const data = payload.data;
+    if (!isRecord(data)) {
+      this.logger.warn(
+        'Received webchat:agent_message with invalid payload',
+        data,
+      );
+      return;
+    }
+
+    const sessionId = getString(data, 'session_id');
+    if (!sessionId) {
+      this.logger.warn(
+        'Received webchat:agent_message without session_id',
+        data,
+      );
+      return;
+    }
+
+    const room = `session:${sessionId}`;
+    const message = getRecord(data, 'message');
+
+    this.webChatGateway.emitToRoom(room, 'webchat:agent_message', {
+      tenant_id: payload.tenant_id,
+      session_id: sessionId,
+      message,
+    });
+
+    this.logger.debug(`Emitted webchat:agent_message to room ${room}`);
   }
 
   /**

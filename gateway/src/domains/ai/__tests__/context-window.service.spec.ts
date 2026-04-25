@@ -17,6 +17,7 @@ const buildMocks = () => ({
   } as unknown as jest.Mocked<RedisService>,
   aiMetrics: {
     recordContextCacheHit: jest.fn(),
+    recordSnapshotResolution: jest.fn(),
   } as unknown as jest.Mocked<AiMetricsService>,
   internalAiClient: {
     fetchContext: jest.fn<

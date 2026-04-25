@@ -92,7 +92,7 @@ final class BillingSubscriptionController extends BaseController
                 'slug' => $currentPlan->slug,
                 'price_monthly' => number_format((float) $currentPlan->price_monthly, 2, '.', ''),
                 'limit_users' => (int) $currentPlan->limit_users,
-                'whatsapp_integrations_limit' => (int) $currentPlan->whatsapp_integrations_limit,
+                'chat_channels_limit' => (int) $currentPlan->chat_channels_limit,
                 'storage_mode' => $currentPlan->storage_mode->value,
                 'storage_limit_bytes' => $currentPlan->storage_limit_bytes,
                 'ai_enabled' => (bool) $currentPlan->ai_enabled,
@@ -107,8 +107,8 @@ final class BillingSubscriptionController extends BaseController
                 ],
                 'instances' => [
                     'current' => $instancesCurrent,
-                    'limit' => $currentPlan ? (int) $currentPlan->whatsapp_integrations_limit : null,
-                    'percentage' => $this->percentage($instancesCurrent, $currentPlan?->whatsapp_integrations_limit),
+                    'limit' => $currentPlan ? (int) $currentPlan->chat_channels_limit : null,
+                    'percentage' => $this->percentage($instancesCurrent, $currentPlan?->chat_channels_limit),
                 ],
                 'storage' => [
                     'used_bytes' => $storageUsed,

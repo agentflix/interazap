@@ -1,30 +1,95 @@
+<div [class]="wrapperClasses()">
+  <!-- Sender name (incoming only) -->
+  @if (direction() === 'in' && senderName()) {
+    <span class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-0.5">
+      {{ senderName() }}
+    </span>
+  }
 
-    <div [class]="wrapperClasses()">
-      <!-- Sender name (incoming only) -->
-      @if (direction() === 'in' && senderName()) {
-        <span class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-0.5">
-          {{ senderName() }}
-        </span>
-      }
+  <!-- Bubble -->
+  <div [class]="bubbleClasses()">
+    <!-- Image -->
+    @if (isImage() && fileUrl()) {
+      <img
+        [src]="fileUrl()"
+        alt="Imagem"
+        class="rounded-lg max-w-60 max-h-60 object-cover cursor-pointer"
+        (click)="fileUrl() && openUrl(fileUrl()!)"
+      />
+    }
 
-      <!-- Bubble -->
-      <div [class]="bubbleClasses()">
-        <p class="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word">
-          {{ message() }}
-        </p>
+    <!-- Video -->
+    @if (isVideo() && fileUrl()) {
+      <video [src]="fileUrl()" controls class="rounded-lg max-w-60 max-h-50"></video>
+    }
 
-        <!-- Footer: timestamp + status -->
-        <div class="flex items-center justify-end gap-1 mt-1">
-          <span class="text-[10px] opacity-60">{{ timestamp() }}</span>
+    <!-- Audio -->
+    @if (isAudio() && fileUrl()) {
+      <audio [src]="fileUrl()" controls class="w-full min-w-45"></audio>
+    }
+
+    <!-- File / Document -->
+    @if (isFile() && fileUrl()) {
+      <a
+        [href]="fileUrl()"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center gap-2 underline underline-offset-2 text-sm"
+      >
+        <lucide-icon name="file" [size]="16" class="shrink-0" />
+        <span class="break-all">{{ message() || 'Arquivo' }}</span>
+      </a>
+    }
+
+    <!-- Text (only when no media is shown) -->
+    @if (!hasMedia()) {
+      <p class="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word">
+        {{ message() }}
+        <span
+          class="inline-flex items-center gap-0.5 align-bottom ml-1.5 text-[10px] opacity-60 select-none whitespace-nowrap font-normal"
+        >
+          {{ timestamp() }}
           @if (direction() === 'out') {
             <lucide-icon
               [name]="status() === 'read' ? 'check-check' : 'check'"
               [size]="12"
-              [class]="status() === 'read' ? 'text-white' : 'opacity-40'"
+              [class]="status() === 'read' ? 'text-white' : 'opacity-70'"
               class="block"
             />
           }
-        </div>
+        </span>
+      </p>
+    } @else if (message()) {
+      <!-- Caption below media -->
+      <p class="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word mt-1">
+        {{ message() }}
+        <span
+          class="inline-flex items-center gap-0.5 align-bottom ml-1.5 text-[10px] opacity-60 select-none whitespace-nowrap font-normal"
+        >
+          {{ timestamp() }}
+          @if (direction() === 'out') {
+            <lucide-icon
+              [name]="status() === 'read' ? 'check-check' : 'check'"
+              [size]="12"
+              [class]="status() === 'read' ? 'text-white' : 'opacity-70'"
+              class="block"
+            />
+          }
+        </span>
+      </p>
+    } @else {
+      <!-- Media-only: timestamp/status no rodapé -->
+      <div class="flex items-center justify-end gap-1 mt-1">
+        <span class="text-[10px] opacity-60">{{ timestamp() }}</span>
+        @if (direction() === 'out') {
+          <lucide-icon
+            [name]="status() === 'read' ? 'check-check' : 'check'"
+            [size]="12"
+            [class]="status() === 'read' ? 'text-white' : 'opacity-40'"
+            class="block"
+          />
+        }
       </div>
-    </div>
-  
+    }
+  </div>
+</div>

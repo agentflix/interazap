@@ -1,0 +1,81 @@
+<div class="space-y-8">
+  <af-page-title title="Chat Externo" subtitle="Widget para sites externos">
+    <div class="flex items-center gap-2">
+      <lucide-icon name="external-link" [size]="20" class="text-primary-600 dark:text-primary-400" />
+      <span class="text-sm text-neutral-500 dark:text-neutral-400">
+        Use o código abaixo para adicionar o chat em seu site
+      </span>
+    </div>
+  </af-page-title>
+
+  <!-- Widget URL Section -->
+  <div class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+        URL Pública do Widget
+      </h3>
+      <span class="text-xs text-neutral-400">Links diretos para o chat</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <code class="flex-1 px-4 py-3 bg-neutral-100 dark:bg-neutral-900 rounded-lg text-sm font-mono text-neutral-700 dark:text-neutral-300 truncate">
+        {{ widgetUrl() }}
+      </code>
+      <app-copy-button [text]="widgetUrl()" (copied)="onCopied()" />
+    </div>
+
+    <div class="flex items-center gap-3">
+      <code class="flex-1 px-4 py-3 bg-neutral-100 dark:bg-neutral-900 rounded-lg text-sm font-mono text-neutral-700 dark:text-neutral-300 truncate">
+        {{ embedUrl() }}
+      </code>
+      <app-copy-button [text]="embedUrl()" (copied)="onCopied()" />
+    </div>
+
+    <p class="text-xs text-neutral-500 dark:text-neutral-400">
+      Compartilhe a URL pública com seus visitantes ou use no iframe abaixo.
+    </p>
+  </div>
+
+  <!-- Embed Code Section -->
+  <div class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+        Código de Integração
+      </h3>
+      <af-select-input
+        [control]="embedTypeControl"
+        [options]="embedTypeOptions"
+        placeholder="Tipo de embed"
+        dataTest="embed-type-select"
+      />
+    </div>
+
+    <af-code-block [code]="activeEmbedCode()" language="html" />
+
+    <div class="flex items-center justify-between">
+      <p class="text-xs text-neutral-500 dark:text-neutral-400">
+        Cole este código no seu site antes do fechamento da tag
+        <code class="px-1 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-xs">&lt;/body&gt;</code>
+      </p>
+      <app-copy-button [text]="activeEmbedCode()" (copied)="onCopied()" />
+    </div>
+  </div>
+
+  <!-- Preview Section -->
+  <div class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4">
+    <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+      Preview do Widget
+    </h3>
+    <div class="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+      <iframe
+        [src]="safeEmbedUrl()"
+        class="w-full h-[500px]"
+        title="Chat Widget Preview"
+        sandbox="allow-scripts allow-same-origin"
+      ></iframe>
+    </div>
+    <p class="text-xs text-neutral-500 dark:text-neutral-400">
+      Preview pode não funcionar em localhost. Teste no ambiente de produção.
+    </p>
+  </div>
+</div>

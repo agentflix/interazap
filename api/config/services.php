@@ -38,15 +38,17 @@ return [
     'gateway' => [
         'url' => env('GATEWAY_URL', 'http://gateway:3000'),
         'api_key' => env('GATEWAY_INTERNAL_API_KEY'),
+        'secret' => env('GATEWAY_SECRET'),
         'timeout' => (int) env('GATEWAY_TIMEOUT', 3),
+        'connect_timeout' => (int) env('GATEWAY_CONNECT_TIMEOUT', 5),
         'retry_attempts' => (int) env('GATEWAY_RETRY_ATTEMPTS', 3),
         'retry_delay_ms' => (int) env('GATEWAY_RETRY_DELAY_MS', 150),
         'realtime_pubsub_enabled' => (bool) env('REALTIME_PUBSUB_ENABLED', true),
         'realtime_http_fallback_enabled' => (bool) env('REALTIME_HTTP_FALLBACK_ENABLED', true),
     ],
 
-    'integrations' => [
-        'webhook_base_url' => env('INTEGRATIONS_WEBHOOK_BASE_URL', env('APP_URL', 'http://localhost:3000')),
+    'channels' => [
+        'webhook_base_url' => env('CHANNELS_WEBHOOK_BASE_URL', env('APP_URL', 'http://localhost:3000')),
     ],
 
     'openai' => [

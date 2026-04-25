@@ -53,7 +53,7 @@ class ChatInstanceRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'provider' => ['required', 'string', 'in:evolution,zapi,codechat,uazapi'], // matched frontend map
+            'provider' => ['required', 'string', 'in:zapi,uazapi,meta,telegram'],
             'is_active' => ['boolean'],
             'evaluation_enabled' => ['boolean'],
             'evaluation_cutoff_score' => ['integer', 'min:1', 'max:5'],
@@ -63,8 +63,14 @@ class ChatInstanceRequest extends FormRequest
                 'max:255',
                 Rule::requiredIf(fn () => $this->isMethod('post') && $this->input('provider') === 'uazapi'),
             ],
+            'bot_token' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::requiredIf(fn () => $this->input('provider') === 'telegram'),
+            ],
             'settings' => ['nullable', 'array'],
-            'settings.integration_id' => ['nullable', 'integer'],
+            'settings.channel_provider_id' => ['nullable', 'integer'],
             'settings.cellphone' => ['nullable', 'string'],
             'settings.instance' => ['nullable', 'string'],
             'settings.client_token' => ['nullable', 'string'],
@@ -80,7 +86,9 @@ class ChatInstanceRequest extends FormRequest
             'settings.start_service_message' => ['nullable', 'string', 'max:2000'],
             'settings.send_end_service_message' => ['nullable', 'boolean'],
             'settings.end_service_message' => ['nullable', 'string', 'max:2000'],
-            'settings.integration_fallback_message' => ['nullable', 'string', 'max:2000'],
+            'settings.channel_fallback_message' => ['nullable', 'string', 'max:2000'],
+            'settings.phone_number_id' => ['nullable', 'string', 'max:255'],
+            'settings.access_token' => ['nullable', 'string', 'max:500'],
         ];
     }
 }

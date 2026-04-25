@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Http\Controllers;
 
+use Domain\Chat\Actions\ChatTelegramWebhookActions;
 use Domain\Chat\Actions\ChatUazapiWebhookActions;
+use Domain\Chat\Http\Requests\ChatTelegramWebhookRequest;
 use Domain\Chat\Http\Requests\ChatUazapiWebhookRequest;
 use Domain\Shared\Http\Controllers\BaseController;
 use Domain\Shared\Services\MetricsService;
@@ -25,6 +27,7 @@ final class ChatWebhookController extends BaseController
 {
     public function __construct(
         private readonly ChatUazapiWebhookActions $actions,
+        private readonly ChatTelegramWebhookActions $telegramActions,
         private readonly MetricsService $metricsService,
     ) {}
 
@@ -77,6 +80,59 @@ final class ChatWebhookController extends BaseController
                 microtime(true) - $startedAt,
                 [
                     'provider' => 'uazapi',
+                    'status' => $status,
+                ]
+            );
+        }
+    }
+
+    /**
+     * Receber e processar eventos vindos do Telegram Bot API (via Gateway).
+     *
+     * @param  ChatTelegramWebhookRequest  $request  Carga de dados validada.
+     * @param  string  $token  Token de segurança da instância para identificação do tenant.
+     * @return JsonResponse Confirmação de recebimento para o gateway.
+     */
+    public function telegram(ChatTelegramWebhookRequest $request, string $token): JsonResponse
+    {
+        $startedAt = microtime(true);
+        $status = 'success';
+
+        Log::channel('webhook')->info('Webhook recebido', [
+            'provider' => 'telegram',
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'payload_keys' => array_keys($request->all()),
+            'update_id' => $request->input('update_id'),
+            'instance_token' => $this->maskToken($token),
+            'ip' => $request->ip(),
+        ]);
+
+        try {
+            $result = $this->telegramActions->handle($token, $request->validated());
+
+            return $this->success($result, 'Webhook recebido');
+        } catch (RuntimeException $e) {
+            if ($e->getMessage() === 'Token de webhook inválido') {
+                $status = 'unauthorized';
+
+                return $this->unauthorized($e->getMessage());
+            }
+
+            $status = 'error';
+            report($e);
+
+            return $this->error('Erro ao processar webhook', 500);
+        } catch (\Throwable $e) {
+            $status = 'error';
+            report($e);
+
+            return $this->error('Erro ao processar webhook', 500);
+        } finally {
+            $this->metricsService->recordAutopilotWebhookDuration(
+                microtime(true) - $startedAt,
+                [
+                    'provider' => 'telegram',
                     'status' => $status,
                 ]
             );

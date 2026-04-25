@@ -51,6 +51,9 @@ final class AssignChatTicketAction
         }
 
         if ($userId) {
+            // Transferência para humano ativa takeover, encerrando o fluxo de IA neste ticket.
+            $this->activateHumanTakeover((string) $ticket->tenant_id, (string) $ticket->id, $userId);
+
             TicketAssignedEvent::dispatch((string) $ticket->tenant_id, (string) $ticket->id, (string) $userId);
         }
 

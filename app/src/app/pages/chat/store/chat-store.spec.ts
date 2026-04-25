@@ -240,5 +240,40 @@ describe('ChatStore', () => {
       expect(updatedReply?.quoted_message?.is_edited).toBe(true);
       expect(updatedReply?.quoted_message?.edited_at).toBe('2026-03-17T10:05:00.000Z');
     });
+
+    it('should merge closed status when ticket.updated arrives for the selected ticket', () => {
+      store.tickets.set(
+        new Map([
+          [
+            'tk-closed',
+            {
+              id: 'tk-closed',
+              status: 'open',
+              unread: false,
+            } as unknown as Called,
+          ],
+        ]),
+      );
+      store.selectTicket('tk-closed');
+
+      store.applyBatch([
+        {
+          type: 'ticket.updated',
+          timestamp: Date.now(),
+          data: {
+            ticket_id: 'tk-closed',
+            ticket: {
+              id: 'tk-closed',
+              status: 'closed',
+              unread: false,
+            },
+            event_type: 'ticket_closed',
+          },
+        },
+      ]);
+
+      expect(store.selectedTicket()?.status).toBe('closed');
+      expect(store.tickets().get('tk-closed')?.status).toBe('closed');
+    });
   });
 });

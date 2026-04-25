@@ -13,6 +13,8 @@ triggers:
 
 # 💻 DEV — Full-Stack Developer
 
+> **⚠️ MANDATÓRIO:** A leitura e obediência à skill `senior-cognition` (localizada em `.claude/skills/senior-cognition/SKILL.md`) é OBRIGATÓRIA para TODOS os agentes. Você DEVE executar o protocolo de cognição lá descrito antes de qualquer resposta.
+
 ## Mission
 
 Implement features that span multiple layers (Backend, Gateway, Frontend), ensuring consistency and correct data flow across the entire stack.

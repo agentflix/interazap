@@ -36,7 +36,7 @@ class PlatformReportsModeTest extends TestCase
             'storage_mode' => 'LIMITED',
             'storage_limit_bytes' => 1024,
             'ai_enabled' => true,
-            'whatsapp_integrations_limit' => 2,
+            'chat_channels_limit' => 2,
             'negotiations_mode' => 'LIMITED',
             'negotiations_limit' => 5,
             'price_monthly' => 9.9,

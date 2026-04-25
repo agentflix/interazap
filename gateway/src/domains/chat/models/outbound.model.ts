@@ -12,7 +12,7 @@ export interface OutboundMessage {
   /** Instancia de chat utilizada no envio. */
   instanceId: string;
   /** Provedor de mensageria usado no envio. */
-  provider: 'uazapi' | 'zapi';
+  provider: 'uazapi' | 'zapi' | 'meta' | 'telegram';
   /** Token da instancia no provedor. */
   instanceToken: string;
   /** Tipo da operacao de envio. */

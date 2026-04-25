@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use Domain\Auth\Models\AuthUser;
 use Domain\CRM\Models\CRMContact;
-use Domain\CRM\Models\CRMProduct;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;

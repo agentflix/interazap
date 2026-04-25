@@ -69,7 +69,7 @@ return new class extends Migration
             $table->string('storage_mode', 20); // unlimited, limited
             $table->unsignedBigInteger('storage_limit_bytes')->nullable();
             $table->boolean('ai_enabled');
-            $table->unsignedInteger('whatsapp_integrations_limit');
+            $table->unsignedInteger('chat_channels_limit');
             $table->string('negotiations_mode', 20); // unlimited, limited
             $table->unsignedInteger('negotiations_limit')->nullable();
 

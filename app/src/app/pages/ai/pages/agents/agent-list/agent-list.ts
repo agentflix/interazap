@@ -51,6 +51,22 @@ export class AgentListComponent {
 
   readonly isEmpty = () => !this.isLoading() && !this.hasError() && this.agents().length === 0;
 
+  private readonly agentTypeLabels: Record<string, string> = {
+    sales: 'Vendas',
+    support: 'Suporte',
+    qualifier: 'Qualificador',
+    general: 'Geral',
+    sales_qualifier: 'Qualificador de Vendas',
+    cs_retention: 'Retenção de Clientes',
+    support_l1: 'Suporte Nível 1',
+    support_l2: 'Suporte Nível 2',
+  };
+
+  typeLabel(type: string | undefined): string {
+    if (!type) return '—';
+    return this.agentTypeLabels[type] ?? type;
+  }
+
   private currentPage = 1;
   private currentSearch = '';
 

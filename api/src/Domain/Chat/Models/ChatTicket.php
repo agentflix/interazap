@@ -9,6 +9,7 @@ use Domain\Ai\Enums\AutopilotTriggerType;
 use Domain\Ai\Events\AutopilotTriggerFired;
 use Domain\CRM\Models\CRMContact;
 use Domain\Shared\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -402,5 +403,25 @@ class ChatTicket extends Model
         $extended->save();
         $this->setRelation('extended', $extended);
         $this->pendingExtendedAttributes = [];
+    }
+
+    /**
+     * Scope: Adicionar contador agrupado por status.
+     *
+     * @param Builder<self> $query
+     */
+    public function scopeWithStatusCounts(Builder $query): void
+    {
+        $query->selectRaw('status, count(*) as total')->groupBy('status');
+    }
+
+    /**
+     * Scope: Aplicar função de particionamento (window function) de dedup por contato.
+     *
+     * @param Builder<self> $query
+     */
+    public function scopeWithContactDeduplicationRank(Builder $query): void
+    {
+        $query->select('id')->selectRaw('ROW_NUMBER() OVER (PARTITION BY COALESCE(contact_id::text, remote_jid, id::text) ORDER BY COALESCE(last_message_at, updated_at, created_at) DESC, updated_at DESC, created_at DESC, id DESC) as row_num');
     }
 }

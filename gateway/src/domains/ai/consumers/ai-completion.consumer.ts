@@ -56,6 +56,8 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   private readonly defaultRunTokenBudget: number;
   private readonly defaultCompactToolResults: boolean;
   private readonly isTestEnvironment: boolean;
+  private readonly concurrency: number;
+  private readonly readBatchSize: number;
 
   /**
    * Initializes consumer configuration from environment variables.
@@ -90,6 +92,21 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
     );
     this.defaultCompactToolResults =
       this.configService.get<string>('AI_COMPACT_TOOL_RESULTS') !== 'false';
+    const rawConcurrency = Number(
+      this.configService.get<string | number>('AI_CONSUMER_CONCURRENCY') ?? 4,
+    );
+    this.concurrency =
+      Number.isFinite(rawConcurrency) && rawConcurrency > 0
+        ? Math.min(Math.floor(rawConcurrency), 32)
+        : 4;
+    const rawBatch = Number(
+      this.configService.get<string | number>('AI_CONSUMER_BATCH_SIZE') ??
+        Math.max(this.concurrency * 2, 10),
+    );
+    this.readBatchSize =
+      Number.isFinite(rawBatch) && rawBatch > 0
+        ? Math.min(Math.floor(rawBatch), 100)
+        : 10;
   }
 
   /**
@@ -135,37 +152,15 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
           REQUEST_STREAM,
           this.consumerGroup,
           this.consumerName,
-          10,
+          this.readBatchSize,
           500,
         );
 
-        for (const streamMessage of messages) {
-          if (this.isShuttingDown) {
-            return;
-          }
-
-          try {
-            await this.processMessage(streamMessage);
-          } catch (error) {
-            this.logger.error(
-              `Critical error processing message ${streamMessage.id}`,
-              {
-                error: error instanceof Error ? error.message : String(error),
-              },
-            );
-            try {
-              await this.redisStreams.ack(
-                REQUEST_STREAM,
-                this.consumerGroup,
-                streamMessage.id,
-              );
-            } catch {
-              this.logger.error('Failed to ACK failed message', {
-                messageId: streamMessage.id,
-              });
-            }
-          }
+        if (messages.length === 0) {
+          continue;
         }
+
+        await this.processBatchInParallel(messages);
       } catch (error) {
         this.logger.error('Consumer loop error, retrying in 5s', {
           error: error instanceof Error ? error.message : String(error),
@@ -175,6 +170,58 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
         );
       }
     }
+  }
+
+  /**
+   * Processes a batch of messages with bounded concurrency. Messages within the
+   * batch are handled in parallel up to `this.concurrency`, dramatically reducing
+   * end-to-end latency under sustained load (each AI completion is I/O bound and
+   * can be safely overlapped).
+   */
+  private async processBatchInParallel(
+    messages: ReadonlyArray<StreamMessage<AICompletionRequest>>,
+  ): Promise<void> {
+    const queue = [...messages];
+    const workerCount = Math.min(this.concurrency, queue.length);
+
+    const worker = async (): Promise<void> => {
+      while (queue.length > 0) {
+        if (this.isShuttingDown) {
+          return;
+        }
+        const streamMessage = queue.shift();
+        if (!streamMessage) {
+          return;
+        }
+        try {
+          await this.processMessage(streamMessage);
+        } catch (error) {
+          this.logger.error(
+            `Critical error processing message ${streamMessage.id}`,
+            {
+              error: error instanceof Error ? error.message : String(error),
+            },
+          );
+          try {
+            await this.redisStreams.ack(
+              REQUEST_STREAM,
+              this.consumerGroup,
+              streamMessage.id,
+            );
+          } catch {
+            this.logger.error('Failed to ACK failed message', {
+              messageId: streamMessage.id,
+            });
+          }
+        }
+      }
+    };
+
+    const workers: Promise<void>[] = [];
+    for (let i = 0; i < workerCount; i++) {
+      workers.push(worker());
+    }
+    await Promise.all(workers);
   }
 
   /**

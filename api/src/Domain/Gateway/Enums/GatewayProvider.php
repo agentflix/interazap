@@ -8,7 +8,7 @@ namespace Domain\Gateway\Enums;
  * Gateway service providers categorized by domain.
  *
  * AI: openai, gemini, minimax
- * WhatsApp: zapi, uazapi, evolution
+ * WhatsApp: zapi, uazapi
  * Payment: asaas
  */
 enum GatewayProvider: string
@@ -18,6 +18,5 @@ enum GatewayProvider: string
     case MINIMAX = 'minimax';
     case ZAPI = 'zapi';
     case UAZAPI = 'uazapi';
-    case EVOLUTION = 'evolution';
     case ASAAS = 'asaas';
 }

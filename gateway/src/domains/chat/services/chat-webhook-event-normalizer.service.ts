@@ -14,7 +14,7 @@ import {
   ZapiStreamPayload,
 } from './chat-webhook.types';
 import { PayloadSemanticsResolver } from './payload-semantics-resolver.service';
-import { ZapiAdapter } from '../providers/zapi/zapi.adapter';
+import { NormalizedWebhookEvent } from '../contracts/provider.interface';
 
 /**
  * Normaliza, extrai e transforma payloads de webhook de diferentes provedores
@@ -345,7 +345,7 @@ export class ChatWebhookEventNormalizer {
    * @returns Payload de stream no formato Z-API
    */
   mapZapiNormalizedToStream(
-    normalized: ReturnType<ZapiAdapter['normalizeWebhook']>,
+    normalized: NormalizedWebhookEvent,
   ): ZapiStreamPayload {
     const directionMap: Record<typeof normalized.direction, string> = {
       inbound: 'incoming',

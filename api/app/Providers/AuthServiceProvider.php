@@ -20,20 +20,20 @@ use Domain\Auth\Policies\AuthRolePolicy;
 use Domain\Auth\Policies\AuthUserPolicy;
 use Domain\Billing\Models\BillingInvoice;
 use Domain\Billing\Policies\BillingInvoicePolicy;
-use Domain\Chat\Models\ChatCampaign;
-use Domain\Chat\Models\ChatChatbotRule;
+use Domain\Chat\Models\ChatAutoReplyRule;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatMessageTemplate;
 use Domain\Chat\Models\ChatQuickAnswer;
 use Domain\Chat\Models\ChatTicket;
-use Domain\Chat\Policies\ChatCampaignPolicy;
-use Domain\Chat\Policies\ChatChatbotRulePolicy;
+use Domain\Chat\Models\ChatTransmissionList;
+use Domain\Chat\Policies\ChatAutoReplyRulePolicy;
 use Domain\Chat\Policies\ChatInstancePolicy;
 use Domain\Chat\Policies\ChatMessagePolicy;
 use Domain\Chat\Policies\ChatMessageTemplatePolicy;
 use Domain\Chat\Policies\ChatQuickAnswerPolicy;
 use Domain\Chat\Policies\ChatTicketPolicy;
+use Domain\Chat\Policies\ChatTransmissionListPolicy;
 use Domain\Configuration\Models\ConfigurationNotificationPreference;
 use Domain\Configuration\Models\ConfigurationOpeningHour;
 use Domain\Configuration\Policies\ConfigurationNotificationPreferencePolicy;
@@ -94,8 +94,8 @@ class AuthServiceProvider extends ServiceProvider
         ChatMessage::class => ChatMessagePolicy::class,
         ChatMessageTemplate::class => ChatMessageTemplatePolicy::class,
         ChatQuickAnswer::class => ChatQuickAnswerPolicy::class,
-        ChatChatbotRule::class => ChatChatbotRulePolicy::class,
-        ChatCampaign::class => ChatCampaignPolicy::class,
+        ChatAutoReplyRule::class => ChatAutoReplyRulePolicy::class,
+        ChatTransmissionList::class => ChatTransmissionListPolicy::class,
         ChatInstance::class => ChatInstancePolicy::class,
 
         // Configuration

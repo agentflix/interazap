@@ -1,0 +1,179 @@
+<af-crud-page
+  title="Canais"
+  subtitle="Chat"
+  createLabel="Novo Canal"
+  searchPlaceholder="Buscar canais..."
+  [loading]="isLoading()"
+  [empty]="isEmpty()"
+  emptyTitle="Nenhum canal encontrado"
+  emptyDescription="Conecte seus canais de comunicação (WhatsApp, Instagram, etc)."
+  [skeletonColumns]="5"
+  [skeletonRows]="5"
+  [currentPage]="meta().current_page"
+  [lastPage]="meta().last_page"
+  [perPage]="meta().per_page"
+  [total]="meta().total"
+  (create)="openCreate()"
+  (search)="onSearch($event)"
+  (pageChange)="loadPage($event)"
+>
+  <!-- Table -->
+  @if (hasError()) {
+    <div class="p-6">
+      <af-alert
+        variant="danger"
+        title="Erro ao carregar"
+        message="Não foi possível carregar os canais."
+      />
+      <div class="mt-4">
+        <af-button variant="outline" size="sm" (click)="loadIntegrations()">
+          Tentar novamente
+        </af-button>
+      </div>
+    </div>
+  } @else {
+    <af-data-table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Provedor</th>
+          <th>Telefone</th>
+          <th>Status</th>
+          <th>Conexão</th>
+          <th class="text-right">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of integrations(); track item.id) {
+          <tr>
+            <td class="font-medium">{{ item.name }}</td>
+            <td>
+              @if (item.provider === 'telegram') {
+                <span
+                  class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                >
+                  <i class="pi pi-telegram text-xs"></i>
+                  Telegram
+                </span>
+              } @else {
+                <span class="capitalize">{{ item.provider }}</span>
+              }
+            </td>
+            <td>{{ formatPhone(item.settings.cellphone) }}</td>
+            <td>
+              <af-status-badge [status]="item.is_active ? 'online' : 'offline'">
+                {{ item.is_active ? 'Ativo' : 'Inativo' }}
+              </af-status-badge>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-2 h-2 rounded-full"
+                  [class.bg-green-500]="connectionState(item) === 'connected'"
+                  [class.bg-red-500]="connectionState(item) === 'disconnected'"
+                  [class.bg-yellow-500]="
+                    connectionState(item) === 'connecting' || connectionState(item) === 'qr'
+                  "
+                  [class.bg-neutral-400]="connectionState(item) === 'unknown'"
+                ></div>
+                <span class="text-sm">{{ connectionLabel(item) }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="flex justify-end gap-2">
+                @if (isConnected(item)) {
+                  <af-button
+                    variant="ghost"
+                    size="xs"
+                    (click)="disconnect(item)"
+                    title="Desconectar"
+                  >
+                    <lucide-icon name="plug" [size]="16" />
+                  </af-button>
+                } @else if (canConnect(item)) {
+                  <af-button variant="ghost" size="xs" (click)="connect(item)" title="Conectar">
+                    <lucide-icon name="qr-code" [size]="16" />
+                  </af-button>
+                }
+                <af-table-actions
+                  [deleteDisabled]="isConnected(item)"
+                  (edit)="openEdit(item)"
+                  (delete)="openDelete(item)"
+                />
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </af-data-table>
+  }
+</af-crud-page>
+
+<!-- Create/Edit Modal -->
+<af-modal
+  [open]="showFormModal()"
+  [title]="selectedIntegration() ? 'Editar Integração' : 'Nova Integração'"
+  size="lg"
+  (closed)="handleFormCancelled()"
+>
+  <app-channel-form
+    #integrationForm
+    [integration]="selectedIntegration()"
+    (saved)="handleFormSaved($event)"
+    (cancelled)="handleFormCancelled()"
+  />
+  <div footer class="flex justify-end gap-2">
+    <af-button variant="ghost" (click)="handleFormCancelled()"> Cancelar </af-button>
+    <af-loading-button
+      [loading]="integrationFormRef()?.isSaving() ?? false"
+      (click)="integrationFormRef()?.submit()"
+    >
+      Salvar
+    </af-loading-button>
+  </div>
+</af-modal>
+
+<!-- Delete Confirmation -->
+<af-confirm-modal
+  [open]="showDeleteModal()"
+  title="Excluir Integração"
+  [message]="'Tem certeza que deseja excluir o canal ' + (integrationToDelete()?.name || '') + '?'"
+  variant="danger"
+  (confirmed)="handleDeleteConfirmed()"
+  (cancelled)="showDeleteModal.set(false)"
+/>
+
+<!-- QR Code Modal -->
+<af-modal [open]="showQrModal()" title="Conectar WhatsApp" size="md" (closed)="closeQrModal()">
+  <div class="flex flex-col items-center p-6 space-y-4">
+    @if (qrCodeLoading()) {
+      <div class="animate-spin text-primary-600">
+        <lucide-icon name="loader-circle" [size]="48" />
+      </div>
+      <p class="text-neutral-500">Gerando QR Code...</p>
+    } @else if (qrCodeData()) {
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-neutral-200">
+        <img [src]="qrCodeData()" alt="QR Code" class="w-64 h-64" />
+      </div>
+      <p class="text-sm text-neutral-600 text-center max-w-xs">
+        Abra o WhatsApp no seu celular, vá em Aparelhos Conectados > Conectar Aparelho e escaneie o
+        código acima.
+      </p>
+      <af-button
+        variant="outline"
+        size="sm"
+        [disabled]="qrCodeLoading()"
+        (click)="regenerateQrCode()"
+      >
+        <lucide-icon name="refresh-cw" [size]="14" />
+        Regenerar QR Code
+      </af-button>
+    } @else {
+      <p class="text-red-500 dark:text-red-400">Erro ao gerar QR Code</p>
+      <af-button variant="outline" size="sm" (click)="regenerateQrCode()">
+        <lucide-icon name="refresh-cw" [size]="14" />
+        Tentar novamente
+      </af-button>
+    }
+  </div>
+</af-modal>

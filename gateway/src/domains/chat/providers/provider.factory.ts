@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { WhatsAppProvider } from '../contracts/provider.interface';
 import { UazapiAdapter } from './uazapi/uazapi.adapter';
 import { ZapiAdapter } from './zapi/zapi.adapter';
+import { MetaAdapter } from './meta/meta.adapter';
 import { ProviderName } from '../models/provider.model';
 
 export type { ProviderName };
@@ -17,12 +18,14 @@ export class ProviderFactory {
   constructor(
     private readonly uazapiAdapter: UazapiAdapter,
     private readonly zapiAdapter: ZapiAdapter,
+    private readonly metaAdapter: MetaAdapter,
   ) {
     this.providers = new Map<ProviderName, WhatsAppProvider>();
 
     // Register providers
     this.providers.set('uazapi', uazapiAdapter);
     this.providers.set('zapi', zapiAdapter);
+    this.providers.set('meta', metaAdapter);
   }
 
   /**
@@ -49,6 +52,23 @@ export class ProviderFactory {
    */
   hasProvider(name: string): name is ProviderName {
     return this.providers.has(name as ProviderName);
+  }
+
+  /**
+   * Registra um adaptador externo na fabrica de provedores.
+   * Permite que modulos externos (ex.: BotModule) registrem provedores
+   * sem acoplamento direto no construtor da fabrica.
+   *
+   * @param name - Nome canonico do provedor
+   * @param provider - Instancia do adaptador que implementa WhatsAppProvider
+   */
+  registerProvider(name: ProviderName, provider: WhatsAppProvider): void {
+    if (this.providers.has(name)) {
+      this.logger.warn(`Provider '${name}' already registered — skipping`);
+      return;
+    }
+    this.providers.set(name, provider);
+    this.logger.log(`Provider '${name}' registered dynamically`);
   }
 
   /**

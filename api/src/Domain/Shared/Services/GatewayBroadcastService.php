@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
  *
  * @category Services
  */
-final class GatewayBroadcastService
+class GatewayBroadcastService
 {
     private string $gatewayUrl;
 

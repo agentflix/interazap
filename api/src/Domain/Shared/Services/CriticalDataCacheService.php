@@ -127,7 +127,7 @@ final class CriticalDataCacheService
      *     limit_users: int,
      *     storage_limit_bytes: int,
      *     ai_enabled: bool,
-     *     whatsapp_integrations_limit: int,
+     *     chat_channels_limit: int,
      *     negotiations_limit: int|null
      * }|null
      */
@@ -135,7 +135,7 @@ final class CriticalDataCacheService
     {
         $key = "plan:{$planId}:quotas";
 
-        /** @var array{limit_users: int, storage_limit_bytes: int, ai_enabled: bool, whatsapp_integrations_limit: int, negotiations_limit: int|null}|null $result */
+        /** @var array{limit_users: int, storage_limit_bytes: int, ai_enabled: bool, chat_channels_limit: int, negotiations_limit: int|null}|null $result */
         $result = Cache::remember($key, self::PLAN_QUOTAS_TTL, function () use ($planId): ?array {
             $plan = PlatformPlan::query()
                 ->select([
@@ -143,7 +143,7 @@ final class CriticalDataCacheService
                     'limit_users',
                     'storage_limit_bytes',
                     'ai_enabled',
-                    'whatsapp_integrations_limit',
+                    'chat_channels_limit',
                     'negotiations_limit',
                 ])
                 ->find($planId);
@@ -156,7 +156,7 @@ final class CriticalDataCacheService
                 'limit_users' => (int) $plan->limit_users,
                 'storage_limit_bytes' => (int) $plan->storage_limit_bytes,
                 'ai_enabled' => (bool) $plan->ai_enabled,
-                'whatsapp_integrations_limit' => (int) $plan->whatsapp_integrations_limit,
+                'chat_channels_limit' => (int) $plan->chat_channels_limit,
                 'negotiations_limit' => $plan->negotiations_limit,
             ];
         });

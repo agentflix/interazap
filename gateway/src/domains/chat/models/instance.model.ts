@@ -6,7 +6,7 @@
 /**
  * Provedor de mensageria aceito para uma instancia de chat.
  */
-export type ProviderType = 'uazapi' | 'zapi';
+export type ProviderType = 'uazapi' | 'zapi' | 'meta';
 
 /**
  * Representa uma instancia resolvida a partir do token do webhook.

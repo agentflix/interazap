@@ -28,9 +28,9 @@ final class RolePermissionSeeder extends Seeder
             'chat.tickets.manage',
             'chat.messages.update',
             'chat.messages.delete',
-            // Integrations
-            'integrations.whatsapp.view',
-            'integrations.whatsapp.manage',
+            // Channels
+            'chat.channel.view',
+            'chat.channel.manage',
             // CRM
             'crm.contact.view',
             'crm.company.view',
@@ -84,8 +84,8 @@ final class RolePermissionSeeder extends Seeder
             'chat.called.view',
             'chat.tickets.manage',
             'chat.messages.update',
-            // Integrations
-            'integrations.whatsapp.view',
+            // Channels
+            'chat.channel.view',
             // CRM
             'crm.contact.view',
             'crm.company.view',

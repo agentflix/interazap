@@ -1,0 +1,204 @@
+<af-crud-page
+  title="Resposta Automática"
+  subtitle="Chat"
+  createLabel="Adicionar regra"
+  [loading]="isLoading()"
+  [empty]="!isLoading() && !errorMessage() && !hasRules()"
+  emptyTitle="Nenhuma regra configurada"
+  emptyDescription="Crie regras de resposta automática baseadas em palavras-chave."
+  [skeletonColumns]="5"
+  [skeletonRows]="4"
+  (create)="openCreate()"
+>
+  @if (errorMessage()) {
+    <div class="p-6 space-y-3">
+      <af-alert variant="danger" [message]="errorMessage()!" />
+      <af-button variant="outline" size="sm" (click)="loadRules()">
+        <lucide-icon name="refresh-cw" [size]="14" class="block" />
+        Tentar novamente
+      </af-button>
+    </div>
+  } @else {
+    <af-data-table [hoverable]="true">
+      <thead>
+        <tr>
+          <th>Regra / Palavra-chave</th>
+          <th>Tipo</th>
+          <th>Ação</th>
+          <th>Instância</th>
+          <th>Status</th>
+          <th class="text-right">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (rule of rules(); track rule.id) {
+          <tr>
+            <!-- Regra -->
+            <td>
+              <div class="flex flex-col gap-1">
+                <span class="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                  {{ getOption(rule) }}
+                </span>
+                <div class="flex flex-wrap gap-1">
+                  @if (getRuleName(rule)) {
+                    <span
+                      class="inline-flex items-center rounded bg-accent-500/10 px-2 py-0.5 text-xs font-semibold text-accent-600 dark:text-accent-400"
+                    >
+                      {{ getRuleName(rule) }}
+                    </span>
+                  }
+                  @if (rule.is_welcome) {
+                    <span
+                      class="inline-flex items-center rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                    >
+                      Boas-vindas
+                    </span>
+                  }
+                </div>
+              </div>
+            </td>
+
+            <!-- Tipo -->
+            <td>
+              <span
+                class="inline-flex items-center rounded bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-xs font-semibold text-neutral-600 dark:text-neutral-400"
+              >
+                {{ getActionTypeBadge(rule) }}
+              </span>
+            </td>
+
+            <!-- Ação -->
+            <td>
+              <span
+                class="inline-flex items-center rounded bg-accent-500/10 px-2 py-0.5 text-xs font-semibold text-accent-600 dark:text-accent-400"
+              >
+                {{ getActionLabel(rule) }}
+              </span>
+            </td>
+
+            <!-- Instância -->
+            <td>
+              @if (rule.instance_id) {
+                <span class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ getInstanceName(rule) }}
+                </span>
+              } @else {
+                <span class="text-xs text-neutral-400 dark:text-neutral-500">Global</span>
+              }
+            </td>
+
+            <!-- Status -->
+            <td>
+              <div class="flex items-center gap-3">
+                <af-status-badge [status]="rule.is_active ? 'online' : 'offline'">
+                  {{ rule.is_active ? 'Ativo' : 'Inativo' }}
+                </af-status-badge>
+                <af-switch-input [checked]="rule.is_active" (toggled)="toggleRule(rule)" />
+              </div>
+            </td>
+
+            <!-- Ações -->
+            <td>
+              <af-table-actions (edit)="openEdit(rule)" (delete)="openDelete(rule)" />
+            </td>
+          </tr>
+        }
+      </tbody>
+    </af-data-table>
+  }
+</af-crud-page>
+
+<!-- Create / Edit modal -->
+<af-modal [open]="isEditOpen()" title="Resposta Automática" size="xl" (closed)="closeEdit()">
+  <div class="space-y-4">
+    <div>
+      <af-select-input
+        label="Tipo de mensagem"
+        [control]="form.controls.messageType"
+        [options]="messageTypeOptions"
+      />
+    </div>
+
+    <div>
+      <div class="flex items-end gap-2">
+        <div class="flex-1">
+          <af-text-input label="Palavra-chave" [control]="form.controls.keyword" />
+        </div>
+        @if (keywordStatus() === 'checking') {
+          <span
+            class="mb-2 inline-flex size-9 items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-700 text-neutral-500"
+            aria-label="Validando palavra"
+          >
+            <span
+              class="size-4 animate-spin rounded-full border-2 border-neutral-300 border-t-accent-500"
+            ></span>
+          </span>
+        }
+      </div>
+      @if (keywordStatus() === 'checking') {
+        <p class="mt-1 text-xs text-neutral-500">Validando palavra...</p>
+      } @else if (keywordStatus() === 'available') {
+        <p class="mt-1 text-xs text-emerald-600 dark:text-emerald-400">Palavra disponível.</p>
+      } @else if (keywordStatus() === 'unavailable') {
+        <p class="mt-1 text-xs text-red-600 dark:text-red-400">Palavra já está em uso.</p>
+      } @else if (keywordStatus() === 'error') {
+        <p class="mt-1 text-xs text-red-600 dark:text-red-400">
+          Não foi possível validar a palavra.
+        </p>
+      }
+    </div>
+
+    <af-checkbox-input label="Mensagem de boas-vindas" [control]="form.controls.isWelcome" />
+
+    <div>
+      <af-select-input
+        label="Tipo da ação"
+        [control]="form.controls.actionType"
+        [options]="actionTypeOptions"
+      />
+    </div>
+
+    @if (form.controls.actionType.value === 'transfer') {
+      <div>
+        <af-select-input
+          label="Departamento"
+          [control]="form.controls.department"
+          [options]="departmentOptions()"
+          [required]="true"
+        />
+      </div>
+    }
+
+    <div>
+      <af-textarea-input label="Legenda" [control]="form.controls.caption" [rows]="6" />
+    </div>
+
+    @if (form.controls.messageType.value !== '1') {
+      <div>
+        <af-file-input label="Arquivo" [control]="form.controls.file" />
+      </div>
+    }
+  </div>
+
+  <div footer class="flex justify-end gap-2">
+    <af-button variant="ghost" size="sm" (click)="closeEdit()"> Fechar </af-button>
+    <af-loading-button variant="primary" size="sm" [loading]="isSaving()" (click)="saveEdit()">
+      Salvar
+    </af-loading-button>
+  </div>
+</af-modal>
+
+<!-- Delete confirmation -->
+<af-confirm-modal
+  [open]="isDeleteOpen()"
+  title="Remover opção"
+  [message]="
+    'Tem certeza que deseja remover a opção ' + (deletingRule()?.patterns?.[0] ?? '') + '?'
+  "
+  confirmLabel="Remover"
+  cancelLabel="Cancelar"
+  variant="danger"
+  iconName="trash-2"
+  (confirmed)="confirmDelete()"
+  (cancelled)="closeDelete()"
+/>

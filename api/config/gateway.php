@@ -43,6 +43,9 @@ return [
         'whatsapp_request' => 'whatsapp.message.request',
         'whatsapp_response_prefix' => 'whatsapp.message.response:',
 
+        'telegram_request' => 'telegram.message.request',
+        'telegram_response_prefix' => 'telegram.message.response:',
+
         'payment_request' => 'payment.charge.request',
         'payment_response_prefix' => 'payment.charge.response:',
     ],

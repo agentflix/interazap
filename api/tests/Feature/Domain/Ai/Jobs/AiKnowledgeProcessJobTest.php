@@ -35,7 +35,7 @@ describe('AiKnowledgeProcessJob', function (): void {
 
         Storage::put($document->file_path, 'Hello world');
 
-        $chunkingService = Mockery::mock(AiChunkingServiceInterface::class);
+        $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldReceive('chunk')
             ->once()
             ->andReturn([
@@ -43,7 +43,7 @@ describe('AiKnowledgeProcessJob', function (): void {
                 new ChunkDTO(1, 'world', 1),
             ]);
 
-        $embeddingService = Mockery::mock(AiEmbeddingServiceInterface::class);
+        $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
         $embeddingService->shouldReceive('embedBatch')
             ->once()
             ->andReturn([
@@ -77,7 +77,7 @@ describe('AiKnowledgeProcessJob', function (): void {
 
         Storage::put($document->file_path, "name,email\nJohn Doe,john@example.com");
 
-        $chunkingService = Mockery::mock(AiChunkingServiceInterface::class);
+        $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldReceive('chunk')
             ->once()
             ->with('name: John Doe, email: john@example.com')
@@ -85,7 +85,7 @@ describe('AiKnowledgeProcessJob', function (): void {
                 new ChunkDTO(0, 'row', 2),
             ]);
 
-        $embeddingService = Mockery::mock(AiEmbeddingServiceInterface::class);
+        $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
         $embeddingService->shouldReceive('embedBatch')
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.2)]);
@@ -114,7 +114,7 @@ describe('AiKnowledgeProcessJob', function (): void {
 
         Storage::put($document->file_path, "1,2\n3,4");
 
-        $chunkingService = Mockery::mock(AiChunkingServiceInterface::class);
+        $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldReceive('chunk')
             ->once()
             ->with("1 2\n3 4")
@@ -122,7 +122,7 @@ describe('AiKnowledgeProcessJob', function (): void {
                 new ChunkDTO(0, 'row', 2),
             ]);
 
-        $embeddingService = Mockery::mock(AiEmbeddingServiceInterface::class);
+        $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
         $embeddingService->shouldReceive('embedBatch')
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.2)]);
@@ -160,16 +160,16 @@ describe('AiKnowledgeProcessJob', function (): void {
             'active' => true,
         ]));
 
-        $chunkingService = Mockery::mock(AiChunkingServiceInterface::class);
+        $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldReceive('chunk')
             ->once()
-            ->with(Mockery::on(fn (string $content): bool => str_contains($content, 'user.name: Jane')
+            ->with(\Mockery::on(fn (string $content): bool => str_contains($content, 'user.name: Jane')
                 && str_contains($content, 'user.age: 32')))
             ->andReturn([
                 new ChunkDTO(0, 'json', 3),
             ]);
 
-        $embeddingService = Mockery::mock(AiEmbeddingServiceInterface::class);
+        $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
         $embeddingService->shouldReceive('embedBatch')
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.9)]);
@@ -198,8 +198,8 @@ describe('AiKnowledgeProcessJob', function (): void {
 
         Storage::put($document->file_path, '%PDF-1.4 binary');
 
-        $parser = Mockery::mock('overload:Smalot\\PdfParser\\Parser');
-        $pdf = Mockery::mock();
+        $parser = \Mockery::mock('overload:Smalot\\PdfParser\\Parser');
+        $pdf = \Mockery::mock();
 
         $parser->shouldReceive('parseContent')
             ->once()
@@ -209,7 +209,7 @@ describe('AiKnowledgeProcessJob', function (): void {
             ->once()
             ->andReturn('Conteúdo PDF extraído');
 
-        $chunkingService = Mockery::mock(AiChunkingServiceInterface::class);
+        $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldReceive('chunk')
             ->once()
             ->with('Conteúdo PDF extraído')
@@ -217,7 +217,7 @@ describe('AiKnowledgeProcessJob', function (): void {
                 new ChunkDTO(0, 'pdf', 2),
             ]);
 
-        $embeddingService = Mockery::mock(AiEmbeddingServiceInterface::class);
+        $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
         $embeddingService->shouldReceive('embedBatch')
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.3)]);
@@ -231,6 +231,45 @@ describe('AiKnowledgeProcessJob', function (): void {
             ->and($document->chunk_count)->toBe(1);
     });
 
+    it('normalizes oversized embeddings to configured dimensions', function (): void {
+        config()->set('ai.embedding.dimensions', 512);
+
+        $tenant = PlatformTenant::factory()->create();
+
+        $document = AiKnowledgeDocument::factory()
+            ->forTenant($tenant)
+            ->txt()
+            ->pending()
+            ->create([
+                'file_path' => 'knowledge/'.$tenant->id.'/oversized-embedding.txt',
+            ]);
+
+        Storage::put($document->file_path, 'Embedding payload mismatch');
+
+        $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
+        $chunkingService->shouldReceive('chunk')
+            ->once()
+            ->andReturn([
+                new ChunkDTO(0, 'Embedding payload mismatch', 3),
+            ]);
+
+        $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
+        $embeddingService->shouldReceive('embedBatch')
+            ->once()
+            ->andReturn([
+                array_fill(0, 1536, 0.1),
+            ]);
+
+        $job = new AiKnowledgeProcessJob($document->id);
+        $job->handle($chunkingService, $embeddingService);
+
+        $document->refresh();
+
+        expect($document->embedding_status)->toBe(AiEmbeddingStatus::READY)
+            ->and($document->chunk_count)->toBe(1)
+            ->and($document->error_message)->toBeNull();
+    });
+
     it('marks document as failed when file is missing', function (): void {
         $tenant = PlatformTenant::factory()->create();
 
@@ -242,10 +281,10 @@ describe('AiKnowledgeProcessJob', function (): void {
                 'file_path' => 'knowledge/'.$tenant->id.'/missing.txt',
             ]);
 
-        $chunkingService = Mockery::mock(AiChunkingServiceInterface::class);
+        $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldNotReceive('chunk');
 
-        $embeddingService = Mockery::mock(AiEmbeddingServiceInterface::class);
+        $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
 
         $job = new AiKnowledgeProcessJob($document->id);
 
@@ -271,15 +310,15 @@ describe('AiKnowledgeProcessJob', function (): void {
 
         Storage::put($document->file_path, '%PDF-1.4 secured');
 
-        $parser = Mockery::mock('overload:Smalot\\PdfParser\\Parser');
+        $parser = \Mockery::mock('overload:Smalot\\PdfParser\\Parser');
         $parser->shouldReceive('parseContent')
             ->once()
             ->andThrow(new Exception('Secured pdf file are currently not supported.'));
 
-        $chunkingService = Mockery::mock(AiChunkingServiceInterface::class);
+        $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldNotReceive('chunk');
 
-        $embeddingService = Mockery::mock(AiEmbeddingServiceInterface::class);
+        $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
         $embeddingService->shouldNotReceive('embedBatch');
 
         $job = new AiKnowledgeProcessJob($document->id);
@@ -302,10 +341,10 @@ describe('AiKnowledgeProcessJob', function (): void {
             ->ready()
             ->create();
 
-        $chunkingService = Mockery::mock(AiChunkingServiceInterface::class);
+        $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldNotReceive('chunk');
 
-        $embeddingService = Mockery::mock(AiEmbeddingServiceInterface::class);
+        $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
         $embeddingService->shouldNotReceive('embedBatch');
 
         $job = new AiKnowledgeProcessJob($document->id);

@@ -46,8 +46,8 @@ class DemoSeeder extends Seeder
 
             // ── Chat ──────────────────────────────────────────────────────
             ChatQuickAnswerSeeder::class,
-            ChatChatbotSeeder::class,
-            ChatCampaignSeeder::class,
+            ChatAutoReplySeeder::class,
+            ChatTransmissionListSeeder::class,
             ChatConversationScenarioSeeder::class,
 
             // ── AI (per-tenant demo data) ─────────────────────────────────

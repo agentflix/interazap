@@ -51,6 +51,7 @@ final readonly class ProcessChatMessageAction
      */
     public function emitNewMessageEvent(ChatMessage $message, ?ChatTicket $ticket): void
     {
+        $message->loadMissing('extended');
         $ticketData = $ticket instanceof ChatTicket ? $this->sanitizeTicketForRealtime($ticket) : null;
 
         $metadata = is_array($message->metadata) ? $message->metadata : [];

@@ -2264,5 +2264,107 @@
 
             revealElements.forEach((el) => revealObserver.observe(el));
         </script>
+
+        <!-- ========== CHAT LAUNCHER (FEAT-041) ========== -->
+        <button
+            id="interazap-chat-launcher"
+            data-iz-chat-launcher="v1"
+            data-iz-tenant-id="3453efd7-1344-4551-999b-340b37b8d501"
+            data-iz-entrypoint="landing"
+            data-iz-channel="webchat"
+            data-iz-open-mode="redirect"
+            aria-label="Abrir chat de atendimento InteraZap"
+            title="Fale conosco pelo chat"
+            class="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-semibold px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2 group"
+            style="animation: fadeUp 0.6s ease-out 1s forwards; opacity: 0; transform: translateY(20px)"
+        >
+            <!-- Chat bubble icon -->
+            <svg class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+            </svg>
+            <span class="hidden sm:inline text-sm">Fale conosco</span>
+            <!-- Pulse ping -->
+            <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/60"></span>
+                <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-white/90"></span>
+            </span>
+        </button>
+
+        <script>
+            // ── Chat Launcher Integration (FEAT-041) ─────────────────────────────
+            (function () {
+                'use strict';
+
+                var launcher = document.getElementById('interazap-chat-launcher');
+                if (!launcher) return;
+
+                var tenantId = launcher.getAttribute('data-iz-tenant-id');
+                var entrypoint = launcher.getAttribute('data-iz-entrypoint');
+
+                // Determine webchat base URL based on environment
+                var host = window.location.hostname;
+                var webchatBase;
+                if (host === 'localhost' || host === '127.0.0.1') {
+                    webchatBase = 'http://localhost:4200';
+                } else if (host.includes('stage')) {
+                    webchatBase = 'https://stage.app.interazap.com.br';
+                } else {
+                    webchatBase = 'https://app.interazap.com';
+                }
+
+                var chatUrl = webchatBase + '/chat/external/' + tenantId;
+
+                // Telemetry helper (dispatches CustomEvents for external listeners)
+                function emitEvent(name, detail) {
+                    try {
+                        window.dispatchEvent(
+                            new CustomEvent('iz:' + name, {
+                                detail: Object.assign({ entrypoint: entrypoint, tenant_id: tenantId }, detail || {}),
+                            }),
+                        );
+                    } catch (_) {}
+                }
+
+                // Impression event on first visibility
+                var impressionFired = false;
+                var impressionObserver = new IntersectionObserver(
+                    function (entries) {
+                        if (!impressionFired && entries[0] && entries[0].isIntersecting) {
+                            impressionFired = true;
+                            emitEvent('chat_launcher_impression');
+                            impressionObserver.disconnect();
+                        }
+                    },
+                    { threshold: 0.5 },
+                );
+                impressionObserver.observe(launcher);
+
+                // Click handler
+                launcher.addEventListener('click', function () {
+                    emitEvent('chat_launcher_click', { open_mode: 'redirect' });
+
+                    try {
+                        window.open(chatUrl, '_blank', 'noopener,noreferrer');
+                        emitEvent('chat_launcher_open_success', { session_status: 'new_tab' });
+                    } catch (err) {
+                        emitEvent('chat_launcher_open_error', { error_code: 'window_blocked' });
+                        // Fallback: navigate in same tab
+                        window.location.href = chatUrl;
+                    }
+                });
+
+                // Keyboard: Enter or Space activates button (native for <button>, but explicit for safety)
+                launcher.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        launcher.click();
+                    }
+                });
+            })();
+        </script>
     </body>
 </html>

@@ -279,4 +279,312 @@ class InternalAiControllerTest extends TestCase
                 'error' => 'circular_delegation',
             ]);
     }
+
+    // TASK-045.2
+    public function test_delegate_endpoint_accepts_agent_name_instead_of_uuid(): void
+    {
+        Queue::fake();
+
+        $tenant = PlatformTenant::factory()->create();
+        $playbook = AiAutopilotPlaybook::factory()->create([
+            'tenant_id' => (string) $tenant->id,
+        ]);
+
+        $sourceAgent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'name' => 'Source Agent',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.7,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        $targetAgent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'name' => 'Agente Financeiro',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.7,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        AiAgentDelegation::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'source_agent_id' => (string) $sourceAgent->id,
+            'target_agent_id' => (string) $targetAgent->id,
+            'max_depth' => 3,
+            'is_active' => true,
+        ]);
+
+        $parentRun = AiAutopilotRun::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'playbook_id' => (string) $playbook->id,
+            'playbook_version' => 1,
+            'status' => 'running',
+            'delegation_depth' => 0,
+            'input_context' => [
+                'agent_id' => (string) $sourceAgent->id,
+                'ticket_id' => 'ticket-fin-001',
+                'body' => 'Resolver questão financeira.',
+            ],
+        ]);
+
+        $targetAgentUuid = (string) $targetAgent->id;
+
+        $redisConnection = Mockery::mock();
+        $redisConnection->shouldReceive('xadd')
+            ->once()
+            ->with('ai.run.request', '*', Mockery::on(fn (array $payload): bool => ($payload['event'] ?? null) === 'ai.run.request'
+                && ($payload['agent_id'] ?? null) === $targetAgentUuid))
+            ->andReturn('1-0');
+
+        Redis::shouldReceive('connection')
+            ->with('gateway')
+            ->andReturn($redisConnection);
+
+        $response = $this->postJson('/api/internal/ai/runs/delegate', [
+            'tenant_id' => (string) $tenant->id,
+            'parent_run_id' => (string) $parentRun->id,
+            'target_agent_id' => 'Agente Financeiro',
+            'delegation_stack' => [(string) $sourceAgent->id],
+            'input_context' => [
+                'ticket_id' => 'ticket-fin-001',
+                'body' => 'Resolver questão financeira.',
+            ],
+        ], [
+            'X-Internal-Api-Key' => 'internal-test-key',
+        ]);
+
+        $response
+            ->assertStatus(202)
+            ->assertJsonPath('data.status', 'queued');
+
+        $childRunId = (string) $response->json('data.child_run_id');
+        expect($childRunId)->not->toBe('');
+
+        $childRun = AiAutopilotRun::query()->find($childRunId);
+        expect($childRun)->not->toBeNull();
+        expect((string) $childRun?->parent_run_id)->toBe((string) $parentRun->id);
+
+        Queue::assertNotPushed(AiRunExecutionJob::class);
+    }
+
+    // TASK-045.3
+    public function test_delegate_endpoint_returns_422_for_unknown_agent_name(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $playbook = AiAutopilotPlaybook::factory()->create([
+            'tenant_id' => (string) $tenant->id,
+        ]);
+
+        $sourceAgent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'name' => 'Source Agent',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.7,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        $parentRun = AiAutopilotRun::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'playbook_id' => (string) $playbook->id,
+            'playbook_version' => 1,
+            'status' => 'running',
+            'delegation_depth' => 0,
+            'input_context' => [
+                'agent_id' => (string) $sourceAgent->id,
+                'ticket_id' => 'ticket-xyz',
+                'body' => 'Algum contexto.',
+            ],
+        ]);
+
+        $response = $this->postJson('/api/internal/ai/runs/delegate', [
+            'tenant_id' => (string) $tenant->id,
+            'parent_run_id' => (string) $parentRun->id,
+            'target_agent_id' => 'Agente Que Nao Existe',
+            'delegation_stack' => [(string) $sourceAgent->id],
+            'input_context' => [
+                'ticket_id' => 'ticket-xyz',
+            ],
+        ], [
+            'X-Internal-Api-Key' => 'internal-test-key',
+        ]);
+
+        $response->assertStatus(422);
+
+        $message = (string) ($response->json('message') ?? $response->json('error') ?? '');
+        expect($message)->toContain('Agente Que Nao Existe');
+    }
+
+    // TASK-045.5
+    public function test_delegate_endpoint_returns_422_with_reason_when_no_rule_exists(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $playbook = AiAutopilotPlaybook::factory()->create([
+            'tenant_id' => (string) $tenant->id,
+        ]);
+
+        $sourceAgent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'name' => 'Source Agent No Rule',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.7,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        $targetAgent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'name' => 'Target Agent No Rule',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.7,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        $parentRun = AiAutopilotRun::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'playbook_id' => (string) $playbook->id,
+            'playbook_version' => 1,
+            'status' => 'running',
+            'delegation_depth' => 0,
+            'input_context' => [
+                'agent_id' => (string) $sourceAgent->id,
+                'ticket_id' => 'ticket-norule',
+                'body' => 'Contexto sem regra.',
+            ],
+        ]);
+
+        $response = $this->postJson('/api/internal/ai/runs/delegate', [
+            'tenant_id' => (string) $tenant->id,
+            'parent_run_id' => (string) $parentRun->id,
+            'target_agent_id' => (string) $targetAgent->id,
+            'delegation_stack' => [(string) $sourceAgent->id],
+            'input_context' => [
+                'ticket_id' => 'ticket-norule',
+            ],
+        ], [
+            'X-Internal-Api-Key' => 'internal-test-key',
+        ]);
+
+        $response->assertStatus(422);
+
+        $message = (string) ($response->json('message') ?? '');
+        expect(
+            str_contains($message, (string) $sourceAgent->id) || str_contains($message, (string) $targetAgent->id)
+        )->toBeTrue();
+    }
+
+    // TASK-045.7
+    public function test_available_agents_endpoint_returns_delegatable_agents(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+
+        $sourceAgent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'name' => 'Source Agent',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.7,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        $delegatableAgent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'name' => 'Agente Financeiro',
+            'type' => 'general',
+            'role' => 'finance',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.7,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        $agentWithoutRule = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'name' => 'Agente Sem Regra',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.7,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        $inactiveAgent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'name' => 'Agente Inativo',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.7,
+            'top_p' => 1.0,
+            'is_active' => false,
+        ]);
+
+        // Apenas delegatableAgent tem regra ativa
+        AiAgentDelegation::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'source_agent_id' => (string) $sourceAgent->id,
+            'target_agent_id' => (string) $delegatableAgent->id,
+            'max_depth' => 3,
+            'is_active' => true,
+        ]);
+
+        // inactiveAgent tem regra mas o agente está inativo
+        AiAgentDelegation::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+            'source_agent_id' => (string) $sourceAgent->id,
+            'target_agent_id' => (string) $inactiveAgent->id,
+            'max_depth' => 3,
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson(
+            '/api/internal/ai/agents/available?tenant_id='.(string) $tenant->id.'&agent_id='.(string) $sourceAgent->id,
+            ['X-Internal-Api-Key' => 'internal-test-key'],
+        );
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data.agents');
+        $response->assertJsonPath('data.agents.0.id', (string) $delegatableAgent->id);
+        $response->assertJsonPath('data.agents.0.name', 'Agente Financeiro');
+    }
 }

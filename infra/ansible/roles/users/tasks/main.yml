@@ -41,15 +41,21 @@
       ssh_key_comment: 'deploy@interazap'
   register: deploy_ssh_key
 
+- name: 'Ler chave SSH pública do deploy (remoto)'
+  slurp:
+      src: /home/deploy/.ssh/id_ed25519.pub
+  register: deploy_ssh_pubkey
+  when: deploy_ssh_key.changed
+  ignore_errors: yes
+
 - name: 'Copiar chave SSH pública para authorized_keys'
   copy:
-      content: "{{ lookup('file', '/home/deploy/.ssh/id_ed25519.pub') }}"
+      content: "{{ deploy_ssh_pubkey['content'] | b64decode }}"
       dest: /home/deploy/.ssh/authorized_keys
       owner: deploy
       group: deploy
       mode: '0600'
-  ignore_errors: yes
-  when: deploy_ssh_key.changed or lookup('file', '/home/deploy/.ssh/id_ed25519.pub', errors='ignore') != ''
+  when: deploy_ssh_key.changed and not (deploy_ssh_pubkey.failed | default(false))
 
 - name: 'Exibir chave SSH pública do deploy (para adicionar ao GitHub)'
   debug:
@@ -57,29 +63,38 @@
           - '=============================================='
           - 'CHAVE SSH PÚBLICA DO DEPLOY (adicionar ao GitHub Deploy Keys):'
           - '=============================================='
-          - "{{ lookup('file', '/home/deploy/.ssh/id_ed25519.pub') }}"
+          - "{{ deploy_ssh_pubkey['content'] | b64decode }}"
           - '=============================================='
-  when: deploy_ssh_key.changed
+  when: deploy_ssh_key.changed and not (deploy_ssh_pubkey.failed | default(false))
 
 - name: 'Salvar chave SSH pública em arquivo para backup'
   copy:
-      content: "{{ lookup('file', '/home/deploy/.ssh/id_ed25519.pub') }}"
+      content: "{{ deploy_ssh_pubkey['content'] | b64decode }}"
       dest: /root/deploy_ssh_public_key.txt
       mode: '0644'
-  when: deploy_ssh_key.changed
+  when: deploy_ssh_key.changed and not (deploy_ssh_pubkey.failed | default(false))
 
 - name: 'Configurar sudo para grupo deploysudo'
-  lineinfile:
-      path: /etc/sudoers.d/deploysudo
-      line: '%deploysudo ALL=(ALL) NOPASSWD: /usr/bin/apt-get *, /usr/bin/apt *, /usr/bin/systemctl reload nginx, /usr/bin/supervisorctl reread, /usr/bin/supervisorctl update, /usr/bin/supervisorctl restart interazap:*, /usr/bin/supervisorctl status, /usr/bin/pm2 restart, /usr/bin/pm2 reload, /usr/bin/pm2 stop, /usr/bin/pm2 start, /usr/bin/pm2 status, /usr/bin/pm2 describe'
-      create: yes
+  copy:
+      dest: /etc/sudoers.d/deploysudo
+      content: |
+          %deploysudo ALL=(ALL) NOPASSWD: /usr/bin/apt-get *
+          %deploysudo ALL=(ALL) NOPASSWD: /usr/bin/apt *
+          %deploysudo ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload nginx
+          %deploysudo ALL=(ALL) NOPASSWD: /usr/bin/supervisorctl *
+      owner: root
+      group: root
+      mode: '0440'
       validate: 'visudo -cf %s'
 
 - name: 'Configurar sudo para deploy (senha requerida)'
-  lineinfile:
-      path: /etc/sudoers.d/deploy
-      line: 'deploy ALL=(ALL) ALL'
-      create: yes
+  copy:
+      dest: /etc/sudoers.d/deploy
+      content: |
+          deploy ALL=(ALL) ALL
+      owner: root
+      group: root
+      mode: '0440'
       validate: 'visudo -cf %s'
 
 - name: 'Criar diretórios de aplicação - Production'

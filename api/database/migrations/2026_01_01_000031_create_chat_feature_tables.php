@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Schema;
  * Chat Domain Feature Tables - Consolidated Migration
  *
  * Creates chat feature entities:
- * - chat_chatbot_rules: Chatbot automation rules
- * - chat_chatbot_cooldowns: Rate limiting for chatbot
- * - chat_campaigns: Marketing campaigns
- * - chat_campaign_contacts: Campaign recipients
+ * - chat_auto_reply_rules: Auto Reply automation rules
+ * - chat_auto_reply_cooldowns: Rate limiting for auto reply
+ * - chat_transmission_lists: Transmission lists
+ * - chat_transmission_list_contacts: Transmission list recipients
  * - chat_quick_answers: Quick reply templates
  * - chat_ticket_evaluations: Customer satisfaction
  */
@@ -22,9 +22,9 @@ return new class extends Migration
     public function up(): void
     {
         // =====================================================================
-        // CHAT_CHATBOT_RULES
+        // CHAT_AUTO_REPLY_RULES
         // =====================================================================
-        Schema::create('chat_chatbot_rules', function (Blueprint $table): void {
+        Schema::create('chat_auto_reply_rules', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('tenant_id');
             $table->string('name');
@@ -45,9 +45,9 @@ return new class extends Migration
         });
 
         // =====================================================================
-        // CHAT_CHATBOT_COOLDOWNS
+        // CHAT_AUTO_REPLY_COOLDOWNS
         // =====================================================================
-        Schema::create('chat_chatbot_cooldowns', function (Blueprint $table): void {
+        Schema::create('chat_auto_reply_cooldowns', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('tenant_id');
             $table->uuid('ticket_id');
@@ -67,16 +67,16 @@ return new class extends Migration
 
             $table->foreign('rule_id')
                 ->references('id')
-                ->on('chat_chatbot_rules')
+                ->on('chat_auto_reply_rules')
                 ->cascadeOnDelete();
 
             $table->index(['ticket_id', 'rule_id', 'cooldown_until']);
         });
 
         // =====================================================================
-        // CHAT_CAMPAIGNS
+        // CHAT_TRANSMISSION_LISTS
         // =====================================================================
-        Schema::create('chat_campaigns', function (Blueprint $table): void {
+        Schema::create('chat_transmission_lists', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('tenant_id');
             $table->uuid('instance_id')->nullable();
@@ -103,12 +103,12 @@ return new class extends Migration
         });
 
         // =====================================================================
-        // CHAT_CAMPAIGN_CONTACTS
+        // CHAT_TRANSMISSION_LIST_CONTACTS
         // =====================================================================
-        Schema::create('chat_campaign_contacts', function (Blueprint $table): void {
+        Schema::create('chat_transmission_list_contacts', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('tenant_id');
-            $table->uuid('campaign_id');
+            $table->uuid('transmission_list_id');
             $table->uuid('contact_id');
             $table->string('status', 20)->default('pending'); // pending, sent, failed
             $table->timestamp('sent_at')->nullable();
@@ -120,9 +120,9 @@ return new class extends Migration
                 ->on('platform_tenants')
                 ->cascadeOnDelete();
 
-            $table->foreign('campaign_id')
+            $table->foreign('transmission_list_id')
                 ->references('id')
-                ->on('chat_campaigns')
+                ->on('chat_transmission_lists')
                 ->cascadeOnDelete();
 
             $table->foreign('contact_id')
@@ -130,7 +130,7 @@ return new class extends Migration
                 ->on('crm_contacts')
                 ->cascadeOnDelete();
 
-            $table->unique(['campaign_id', 'contact_id']);
+            $table->unique(['transmission_list_id', 'contact_id']);
             $table->index('status');
         });
 
@@ -186,9 +186,9 @@ return new class extends Migration
     {
         Schema::dropIfExists('chat_ticket_evaluations');
         Schema::dropIfExists('chat_quick_answers');
-        Schema::dropIfExists('chat_campaign_contacts');
-        Schema::dropIfExists('chat_campaigns');
-        Schema::dropIfExists('chat_chatbot_cooldowns');
-        Schema::dropIfExists('chat_chatbot_rules');
+        Schema::dropIfExists('chat_transmission_list_contacts');
+        Schema::dropIfExists('chat_transmission_lists');
+        Schema::dropIfExists('chat_auto_reply_cooldowns');
+        Schema::dropIfExists('chat_auto_reply_rules');
     }
 };

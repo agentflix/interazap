@@ -69,3 +69,14 @@ it('creates dto from array with defaults and exports array', function (): void {
         'source' => ChatMessageDTO::SOURCE_WEBHOOK,
     ]);
 });
+
+it('accepts ai source when building from array', function (): void {
+    $dto = ChatMessageDTO::fromArray([
+        'ticket_id' => 'ticket-ai',
+        'content' => 'Mensagem da IA',
+        'source' => ChatMessageDTO::SOURCE_AI,
+    ]);
+
+    expect($dto->source)->toBe(ChatMessageDTO::SOURCE_AI)
+        ->and(ChatMessageDTO::SOURCE_AI)->toBe('ai');
+});

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Chat\Actions;
 
 use Domain\Chat\Models\ChatInstance;
-use Domain\Chat\Services\ChatIntegrationConnector;
+use Domain\Chat\Services\ChatChannelConnector;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -24,7 +24,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  */
 final class ChatInstanceActions
 {
-    public function __construct(private readonly ChatIntegrationConnector $connector) {}
+    public function __construct(private readonly ChatChannelConnector $connector) {}
 
     /**
      * Listar instâncias do tenant com suporte a busca e filtros de status.
@@ -68,7 +68,7 @@ final class ChatInstanceActions
 
         if (($data['provider'] ?? null) === 'uazapi' && $token === null) {
             throw ValidationException::withMessages([
-                'token' => ['Token é obrigatório para integrações Uazapi'],
+                'token' => ['Token é obrigatório para canais Uazapi'],
             ]);
         }
 
@@ -161,7 +161,7 @@ final class ChatInstanceActions
 
         if ($this->isConnected($instance)) {
             throw new ConflictHttpException(
-                'Não é possível excluir uma integração conectada. Desconecte primeiro.'
+                'Não é possível excluir um canal conectado. Desconecte primeiro.'
             );
         }
 
@@ -373,9 +373,9 @@ final class ChatInstanceActions
             $settings['token'] = $token;
         }
 
-        if (array_key_exists('integration_fallback_message', $settings)) {
-            $settings['integration_fallback_message'] = $this->normalizeIntegrationFallbackMessage(
-                $settings['integration_fallback_message']
+        if (array_key_exists('channel_fallback_message', $settings)) {
+            $settings['channel_fallback_message'] = $this->normalizeChannelFallbackMessage(
+                $settings['channel_fallback_message']
             );
         }
 
@@ -383,9 +383,9 @@ final class ChatInstanceActions
     }
 
     /**
-     * Normaliza a mensagem de fallback por integração preservando comportamento legadо.
+     * Normaliza a mensagem de fallback por canal preservando comportamento legado.
      */
-    private function normalizeIntegrationFallbackMessage(mixed $value): ?string
+    private function normalizeChannelFallbackMessage(mixed $value): ?string
     {
         if (! is_string($value)) {
             return null;
@@ -435,7 +435,7 @@ final class ChatInstanceActions
 
         if (str_contains($normalized, 'Application bundle generation failed')) {
             throw ValidationException::withMessages([
-                'token' => ['Token inválido para integração. Verifique o valor informado.'],
+                'token' => ['Token inválido para canal. Verifique o valor informado.'],
             ]);
         }
 
@@ -450,7 +450,7 @@ final class ChatInstanceActions
      */
     private function buildWebhookUrl(ChatInstance $instance): string
     {
-        $baseUrl = config('services.integrations.webhook_base_url', config('app.url'));
+        $baseUrl = config('services.channels.webhook_base_url', config('app.url'));
 
         if (! $baseUrl) {
             throw new RuntimeException('Webhook base URL não configurada');

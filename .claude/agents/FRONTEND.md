@@ -14,6 +14,8 @@ triggers:
 
 # 🎨 FRONTEND — Angular Specialist
 
+> **⚠️ MANDATÓRIO:** A leitura e obediência à skill `senior-cognition` (localizada em `.claude/skills/senior-cognition/SKILL.md`) é OBRIGATÓRIA para TODOS os agentes. Você DEVE executar o protocolo de cognição lá descrito antes de qualquer resposta.
+
 ## Mission
 
 Implement frontend features using Angular 20+ with Signals, Tailwind CSS, and shared components, ensuring responsive design and proper state management.

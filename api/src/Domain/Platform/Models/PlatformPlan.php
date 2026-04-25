@@ -26,7 +26,7 @@ use Illuminate\Support\Str;
  * @property \Domain\Platform\Enums\PlatformStorageMode $storage_mode
  * @property int|null $storage_limit_bytes
  * @property bool $ai_enabled
- * @property int|null $whatsapp_integrations_limit
+ * @property int|null $chat_channels_limit
  * @property \Domain\Platform\Enums\PlatformNegotiationsMode $negotiations_mode
  * @property int|null $negotiations_limit
  * @property \Domain\Platform\Enums\PlatformReportsMode $reports_mode
@@ -56,7 +56,7 @@ final class PlatformPlan extends Model
         'storage_mode',
         'storage_limit_bytes',
         'ai_enabled',
-        'whatsapp_integrations_limit',
+        'chat_channels_limit',
         'negotiations_mode',
         'negotiations_limit',
         'reports_mode',
@@ -73,7 +73,7 @@ final class PlatformPlan extends Model
         'storage_mode' => PlatformStorageMode::class,
         'storage_limit_bytes' => 'integer',
         'ai_enabled' => 'boolean',
-        'whatsapp_integrations_limit' => 'integer',
+        'chat_channels_limit' => 'integer',
         'negotiations_mode' => PlatformNegotiationsMode::class,
         'negotiations_limit' => 'integer',
         'reports_mode' => PlatformReportsMode::class,

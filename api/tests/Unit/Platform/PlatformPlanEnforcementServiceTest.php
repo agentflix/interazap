@@ -203,7 +203,7 @@ class PlatformPlanEnforcementServiceTest extends TestCase
 
     public function test_can_create_instance_returns_true_when_under_limit(): void
     {
-        $plan = PlatformPlan::factory()->create(['whatsapp_integrations_limit' => 5]);
+        $plan = PlatformPlan::factory()->create(['chat_channels_limit' => 5]);
         $this->createPaidInvoice($plan);
 
         ChatInstance::factory()->count(3)->create(['tenant_id' => $this->tenantId]);
@@ -215,7 +215,7 @@ class PlatformPlanEnforcementServiceTest extends TestCase
 
     public function test_can_create_instance_returns_false_when_at_limit(): void
     {
-        $plan = PlatformPlan::factory()->create(['whatsapp_integrations_limit' => 2]);
+        $plan = PlatformPlan::factory()->create(['chat_channels_limit' => 2]);
         $this->createPaidInvoice($plan);
 
         ChatInstance::factory()->count(2)->create(['tenant_id' => $this->tenantId]);
@@ -374,7 +374,7 @@ class PlatformPlanEnforcementServiceTest extends TestCase
 
     public function test_tenant_isolation_in_instance_count(): void
     {
-        $plan = PlatformPlan::factory()->create(['whatsapp_integrations_limit' => 2]);
+        $plan = PlatformPlan::factory()->create(['chat_channels_limit' => 2]);
         $this->createPaidInvoice($plan);
 
         $otherTenant = PlatformTenant::factory()->create();

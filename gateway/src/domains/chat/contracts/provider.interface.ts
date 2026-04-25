@@ -74,7 +74,7 @@ export interface WhatsAppProvider {
   /**
    * Provider identifier
    */
-  readonly name: 'uazapi' | 'zapi';
+  readonly name: 'uazapi' | 'zapi' | 'meta' | 'telegram';
 
   /**
    * Send a text message
@@ -110,14 +110,17 @@ export interface WhatsAppProvider {
   /**
    * Normalize raw webhook payload to standard format
    */
-  normalizeWebhook(token: string, rawPayload: unknown): NormalizedWebhookEvent;
+  normalizeWebhook(
+    token: string,
+    rawPayload: unknown,
+  ): Promise<NormalizedWebhookEvent>;
 }
 
 export interface NormalizedWebhookEvent {
   tenantId: string;
   instanceId: string;
   instanceWebhookToken: string;
-  provider: 'uazapi' | 'zapi';
+  provider: 'uazapi' | 'zapi' | 'meta';
   eventType: string;
   direction: 'inbound' | 'outbound' | 'status' | 'connection';
   message?: MessagePayload;

@@ -94,7 +94,7 @@ class PlatformPlanEnforcementTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $plan = PlatformPlan::factory()->create([
-            'whatsapp_integrations_limit' => 1,
+            'chat_channels_limit' => 1,
         ]);
         $this->seedTenantPlan($tenant, $plan);
 
@@ -109,7 +109,7 @@ class PlatformPlanEnforcementTest extends TestCase
             'token' => 'tok-123',
         ];
 
-        $this->postJson('/api/integrations', $payload)
+        $this->postJson('/api/channels', $payload)
             ->assertStatus(403)
             ->assertJsonPath('code', 'PLAN_LIMIT_EXCEEDED');
     }

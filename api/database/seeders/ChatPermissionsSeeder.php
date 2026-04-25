@@ -23,14 +23,14 @@ class ChatPermissionsSeeder extends Seeder
         'chat.quick_answers.create',
         'chat.quick_answers.update',
         'chat.quick_answers.delete',
-        'chat.chatbot_rules.view',
-        'chat.chatbot_rules.create',
-        'chat.chatbot_rules.update',
-        'chat.chatbot_rules.delete',
-        'chat.campaigns.view',
-        'chat.campaigns.create',
-        'chat.campaigns.update',
-        'chat.campaigns.delete',
+        'chat.auto_reply_rules.view',
+        'chat.auto_reply_rules.create',
+        'chat.auto_reply_rules.update',
+        'chat.auto_reply_rules.delete',
+        'chat.transmission_lists.view',
+        'chat.transmission_lists.create',
+        'chat.transmission_lists.update',
+        'chat.transmission_lists.delete',
     ];
 
     public function run(): void

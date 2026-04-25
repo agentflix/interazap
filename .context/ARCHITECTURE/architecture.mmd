@@ -1,75 +1,50 @@
-graph TD
-    subgraph Client["🖥️ Client Layer"]
-        User["👤 User / Browser"]
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4CAF50'}}}%%
+graph TB
+    subgraph Presentation["🖥️ Presentation Layer (Laravel Http)"]
+        CTRL["Controllers"]
+        MW["Middleware"]
+        REQ["Form Requests / Validators"]
     end
 
-    subgraph Frontend["🎨 Frontend — Angular 20"]
-        SPA["SPA Angular"]
-        WS_Client["Socket.io Client"]
+    subgraph Application["⚙️ Application Layer (Actions)"]
+        SVC["Application Services"]
+        DTO["DTOs / Commands"]
+        EVT_H["Event Handlers"]
     end
 
-    subgraph Gateway["⚡ Gateway — NestJS 11"]
-        API_GW["REST API Gateway"]
-        WS_Server["WebSocket Server"]
-        BullMQ["BullMQ Workers"]
-        CircuitBreaker["Circuit Breaker"]
-        Throttler["Rate Limiter"]
+    subgraph Domain["🏛️ Domain Layer"]
+        ENT["Entities / Aggregates"]
+        VO["Value Objects"]
+        REPO_I["Repository Interfaces"]
+        DOM_SVC["Domain Services"]
+        DOM_EVT["Domain Events"]
+        POL["Policies"]
     end
 
-    subgraph Backend["🏗️ Backend — Laravel 12"]
-        API["REST API"]
-        Reverb["Laravel Reverb"]
-        Horizon["Horizon Queue Workers"]
-        Actions["Domain Actions"]
-        Policies["Policies + Spatie Permissions"]
-        Sanctum["Sanctum Auth"]
+    subgraph Infrastructure["🔧 Infrastructure Layer"]
+        REPO["Repository Implementations"]
+        EXT["External Services"]
+        PERSIST["Database / ORM"]
+        QUEUE["Queue / Jobs"]
+        MAIL["Mail / Notifications"]
     end
 
-    subgraph Data["💾 Data Layer"]
-        PG["PostgreSQL 17 + pgvector"]
-        Redis["Redis 7"]
-    end
+    CTRL --> REQ
+    CTRL --> SVC
+    MW --> CTRL
+    SVC --> DTO
+    SVC --> ENT
+    SVC --> REPO_I
+    SVC --> DOM_SVC
+    EVT_H --> DOM_EVT
+    REPO -.->|implements| REPO_I
+    REPO --> PERSIST
+    EXT --> QUEUE
 
-    subgraph External["🌐 External Services"]
-        WhatsApp["Z-API / UazAPI\n(WhatsApp)"]
-        OpenAI["OpenAI\n(GPT / Embeddings)"]
-        Asaas["Asaas\n(Pagamentos)"]
-        S3["AWS S3\n(Storage)"]
-        Mail["SMTP\n(Email)"]
-    end
+    style Domain fill:#E8F5E9,stroke:#4CAF50,stroke-width:3px
+    style Application fill:#E3F2FD,stroke:#2196F3,stroke-width:2px
+    style Presentation fill:#FFF3E0,stroke:#FF9800,stroke-width:2px
+    style Infrastructure fill:#F3E5F5,stroke:#9C27B0,stroke-width:2px
 
-    subgraph Monitoring["📊 Observability"]
-        Prometheus["Prometheus"]
-        Grafana["Grafana"]
-        Alertmanager["Alertmanager"]
-        Sentry["Sentry"]
-    end
-
-    User -->|"HTTPS"| SPA
-    User -->|"WSS"| WS_Client
-    SPA -->|"REST"| API_GW
-    WS_Client -->|"Socket.io"| WS_Server
-    API_GW -->|"HTTP"| API
-    WS_Server -->|"Redis PubSub"| Reverb
-    API_GW --> Throttler
-    API_GW --> CircuitBreaker
-    CircuitBreaker -->|"Webhook relay"| BullMQ
-    API -->|"Auth"| Sanctum
-    API -->|"Authorization"| Policies
-    API -->|"Business Logic"| Actions
-    Actions -->|"SQL / pgvector"| PG
-    Actions -->|"Cache / Queue"| Redis
-    Horizon -->|"Jobs"| Redis
-    Reverb -->|"Broadcast"| Redis
-    BullMQ -->|"Jobs"| Redis
-    CircuitBreaker -->|"API"| WhatsApp
-    Actions -->|"AI Requests"| OpenAI
-    Actions -->|"Payments"| Asaas
-    Actions -->|"Files"| S3
-    Actions -->|"Emails"| Mail
-    Backend -->|"Metrics"| Prometheus
-    Gateway -->|"Metrics"| Prometheus
-    Prometheus --> Grafana
-    Prometheus --> Alertmanager
-    Backend -->|"Errors"| Sentry
-    Gateway -->|"Errors"| Sentry
+    classDef entity fill:#fff,stroke:#333,stroke-width:1px
+    class ENT entity

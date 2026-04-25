@@ -24,6 +24,8 @@ final readonly class ChatMessageDTO
 
     public const SOURCE_BOT = 'bot';
 
+    public const SOURCE_AI = 'ai';
+
     /**
      * @param  string  $ticketId  UUID do ticket vinculado.
      * @param  string  $content  Conteúdo textual ou descrição da mensagem.

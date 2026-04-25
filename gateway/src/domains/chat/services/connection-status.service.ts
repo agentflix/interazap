@@ -101,12 +101,9 @@ export class ConnectionStatusService {
 
     if (isTerminal) {
       this.flushBufferedConnectionEvent(bufferKey);
-      this.realtimeEmitter.emitIntegrationConnection(
-        payload.tenant_id ?? null,
-        {
-          ...message,
-        },
-      );
+      this.realtimeEmitter.emitChannelConnection(payload.tenant_id ?? null, {
+        ...message,
+      });
       return;
     }
 
@@ -206,7 +203,7 @@ export class ConnectionStatusService {
     }
 
     this.bufferedConnectionEvents.delete(bufferKey);
-    this.realtimeEmitter.emitIntegrationConnection(buffered.tenantId, {
+    this.realtimeEmitter.emitChannelConnection(buffered.tenantId, {
       ...buffered.payload,
     });
   }

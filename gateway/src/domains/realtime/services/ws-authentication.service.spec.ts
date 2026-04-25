@@ -34,6 +34,7 @@ describe('WsAuthenticationService', () => {
 
     logger = {
       debug: jest.fn(),
+      verbose: jest.fn(),
     } as unknown as Logger;
 
     mockedAxios.get.mockResolvedValue({

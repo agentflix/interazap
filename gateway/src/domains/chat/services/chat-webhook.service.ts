@@ -4,6 +4,7 @@ import { RedisService } from '../../../infrastructure/redis/redis.service';
 import { WebhookEventDto } from '../dto/webhook-event.dto';
 import { UazapiProvider } from '../providers/uazapi/uazapi.provider';
 import { ZapiAdapter } from '../providers/zapi/zapi.adapter';
+import { MetaAdapter } from '../providers/meta/meta.adapter';
 import { isUazapiWebhookEvent } from '../providers/uazapi/uazapi.dto';
 import { InstanceResolverService } from './instance-resolver.service';
 import { composeIdempotencyKey } from '../../../shared/utils/idempotency-key.util';
@@ -36,6 +37,7 @@ export class ChatWebhookService {
     private readonly redisService: RedisService,
     private readonly uazapiProvider: UazapiProvider,
     private readonly zapiAdapter: ZapiAdapter,
+    private readonly metaAdapter: MetaAdapter,
     private readonly instanceResolver: InstanceResolverService,
     private readonly webhookFileLogger: ChatWebhookFileLoggerService,
     private readonly eventNormalizer: ChatWebhookEventNormalizer,
@@ -91,11 +93,29 @@ export class ChatWebhookService {
 
     if (provider.toLowerCase() === 'zapi') {
       const rawPayload: Record<string, unknown> = event.raw ?? { ...event };
-      const normalized = this.zapiAdapter.normalizeWebhook(
+      const normalized = await this.zapiAdapter.normalizeWebhook(
         token,
         rawPayload,
         resolved.tenant_id,
         resolved.instance_id ?? '',
+      );
+
+      const streamPayload =
+        this.eventNormalizer.mapZapiNormalizedToStream(normalized);
+      this.logger.debug(
+        `Normalized webhook: ${JSON.stringify({ event_type: streamPayload.event_type, message_id: streamPayload.message?.id })}`,
+      );
+      this.logger.debug('Normalized raw payload captured');
+
+      await this.processStreamPayload(streamPayload, resolved);
+      return;
+    }
+
+    if (provider.toLowerCase() === 'meta') {
+      const rawPayload: Record<string, unknown> = event.raw ?? { ...event };
+      const normalized = await this.metaAdapter.normalizeWebhook(
+        token,
+        rawPayload,
       );
 
       const streamPayload =

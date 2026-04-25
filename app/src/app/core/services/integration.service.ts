@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
 
-/** Integration entity used by chat campaigns form. */
+/** Integration entity used by transmission list form. */
 export interface Integration {
   id: string;
   name: string;
@@ -14,13 +14,17 @@ export interface Integration {
   evaluation_enabled?: boolean;
   evaluation_cutoff_score?: number;
   status?: string;
+  integration_id?: string | number;
   settings: {
-    integration_id: number;
+    channel_provider_id: number;
     cellphone: string;
     instance?: string;
     client_token?: string;
     token?: string;
-    integration_fallback_message?: string;
+    phone_number_id?: string;
+    access_token?: string;
+    bot_token?: string;
+    channel_fallback_message?: string;
     send_attendant_name?: boolean;
     send_outside_business_hours_message?: boolean;
     outside_business_hours_message?: string;
@@ -195,7 +199,7 @@ export interface IntegrationStatusResponse {
 @Injectable({ providedIn: 'root' })
 export class IntegrationService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/integrations`;
+  private readonly baseUrl = `${environment.apiUrl}/channels`;
 
   /** Lists integrations with optional filters. */
   list(filters: IntegrationFilters = {}): Observable<PaginatedResponse<Integration>> {

@@ -109,112 +109,95 @@ final class AiAutopilotRunActions
     }
 
     /**
+     * Execute a single iteration of the tool loop.
+     *
+     * Reads accumulated messages from $run->input_context['messages'],
+     * appends new messages from this iteration, and saves back to DB.
+     * If more tool calls remain, caller (AiToolCallJob) self-dispatches.
+     * If this is the final iteration, saves output and emits completion event.
+     *
      * @param  callable(string, array<string, mixed>):void|null  $emitEvent
+     * @return array{messages: array<int, array<string, mixed>>, output: array<string, mixed>, hasMore: bool}
      */
-    public function executeWithEvents(AiAutopilotRun $run, ?callable $emitEvent = null): AiAutopilotRun
+    public function executeWithEvents(AiAutopilotRun $run, ?callable $emitEvent = null): array
     {
         $emit = $emitEvent ?? static function (string $eventType, array $data): void {};
 
-        $run = AiAutopilotRun::query()
-            ->where('tenant_id', $run->tenant_id)
-            ->findOrFail($run->id);
+        $runtimeContext = $run->input_context ?? [];
+        $agentRole = (string) data_get($runtimeContext, 'agent_role', 'general');
+        $toolDefinitions = $this->toolDispatcher->getToolDefinitions((string) $run->tenant_id, $agentRole);
 
-        if ((string) $run->status === 'cancelled') {
-            return $run;
-        }
+        // Load accumulated messages from previous iterations (persisted in input_context)
+        $messages = is_array(data_get($runtimeContext, 'messages'))
+            ? data_get($runtimeContext, 'messages')
+            : [];
 
-        $run->status = 'running';
-        $run->started_at = $run->started_at ?? now();
+        $result = $this->generateResponse(
+            tenantId: (string) $run->tenant_id,
+            context: $runtimeContext,
+            toolDefinitions: $toolDefinitions,
+            run: $run,
+            emitEvent: $emit,
+            initialMessages: $messages,
+        );
+
+        // Persist updated messages back to input_context for next iteration
+        $updatedContext = $run->input_context ?? [];
+        $updatedContext['messages'] = $result['messages'];
+        $run->input_context = $updatedContext;
         $run->save();
 
-        $emit('ai.run.started', [
-            'status' => 'running',
-            'playbook_id' => $run->playbook_id,
-            'started_at' => optional($run->started_at)->toIso8601String(),
+        return [
+            'messages' => $result['messages'],
+            'output' => $result['output'],
+            'hasMore' => (bool) data_get($result['output'], 'hasMoreIterations', false),
+        ];
+    }
+
+    /**
+     * Finalize a completed or blocked run — saves output, usage log, and emits event.
+     */
+    public function finalizeRun(AiAutopilotRun $run, array $output, ?callable $emitEvent = null): void
+    {
+        $emit = $emitEvent ?? static function (string $eventType, array $data): void {};
+
+        $isBlocked = (bool) data_get($output, 'blocked', false);
+        $cachedPromptTokens = (int) data_get($output, 'raw.prompt_tokens', 0);
+
+        $run->status = $isBlocked ? 'blocked' : 'completed';
+        $run->output = $output;
+        $run->cached_prompt_tokens = $cachedPromptTokens;
+        $run->completed_at = now();
+        $run->save();
+
+        AiUsageLog::query()->create([
+            'tenant_id' => (string) $run->tenant_id,
+            'model_name' => (string) data_get($output, 'raw.model', 'unknown'),
+            'provider' => 'openai',
+            'input_tokens' => (int) data_get($output, 'raw.prompt_tokens', 0),
+            'output_tokens' => (int) data_get($output, 'raw.completion_tokens', 0),
+            'cached_prompt_tokens' => $cachedPromptTokens,
+            'feature' => 'autopilot.run',
+            'usable_type' => AiAutopilotRun::class,
+            'usable_id' => (string) $run->id,
+            'metadata' => [
+                'playbook_id' => (string) $run->playbook_id,
+                'status' => (string) $run->status,
+            ],
         ]);
 
-        try {
-            $runtimeContext = $run->input_context ?? [];
-            $agentRole = (string) data_get($runtimeContext, 'agent_role', 'general');
-            $toolDefinitions = $this->toolDispatcher->getToolDefinitions((string) $run->tenant_id, $agentRole);
-
-            $responsePayload = $this->generateResponse(
-                tenantId: (string) $run->tenant_id,
-                context: $runtimeContext,
-                toolDefinitions: $toolDefinitions,
-                run: $run,
-                emitEvent: $emit,
-            );
-
-            $output = $responsePayload['output'];
-            $messages = $responsePayload['messages'];
-            $isBlocked = (bool) data_get($output, 'blocked', false);
-            $cachedPromptTokens = (int) data_get($output, 'raw.prompt_tokens', 0);
-
-            $run->status = $isBlocked ? 'blocked' : 'completed';
-            $run->output = $output;
-            $run->cached_prompt_tokens = $cachedPromptTokens;
-            $run->completed_at = now();
-            $run->save();
-
-            AiUsageLog::query()->create([
-                'tenant_id' => (string) $run->tenant_id,
-                'model_name' => (string) data_get($output, 'raw.model', 'unknown'),
-                'provider' => 'openai',
-                'input_tokens' => (int) data_get($output, 'raw.prompt_tokens', 0),
-                'output_tokens' => (int) data_get($output, 'raw.completion_tokens', 0),
-                'cached_prompt_tokens' => $cachedPromptTokens,
-                'feature' => 'autopilot.run',
-                'usable_type' => AiAutopilotRun::class,
-                'usable_id' => (string) $run->id,
-                'metadata' => [
-                    'playbook_id' => (string) $run->playbook_id,
-                    'status' => (string) $run->status,
-                ],
+        if ($isBlocked) {
+            $emit('ai.run.blocked', [
+                'status' => 'blocked',
+                'reason' => (string) data_get($output, 'error', 'Execution blocked by guardrail policy.'),
+                'output' => $output,
             ]);
-
-            if ($isBlocked) {
-                $emit('ai.run.blocked', [
-                    'status' => 'blocked',
-                    'reason' => (string) data_get($output, 'error', 'Execution blocked by guardrail policy.'),
-                    'output' => $output,
-                ]);
-            } else {
-                $emit('ai.run.completed', [
-                    'status' => 'completed',
-                    'output' => $output,
-                    'tokens' => data_get($output, 'raw'),
-                ]);
-            }
-
-            return $run;
-        } catch (\Throwable $exception) {
-            $errorMessage = $exception->getMessage();
-            $run->status = 'failed';
-            $run->output = [
-                'response' => 'Execution failed.',
-                'error' => $errorMessage,
-                'blocked' => false,
-                'raw' => [
-                    'model' => data_get($run->output, 'raw.model', 'unknown'),
-                    'prompt_tokens' => (int) data_get($run->output, 'raw.prompt_tokens', 0),
-                    'completion_tokens' => (int) data_get($run->output, 'raw.completion_tokens', 0),
-                    'total_tokens' => (int) data_get($run->output, 'raw.total_tokens', 0),
-                    'tool_iterations' => (int) data_get($run->output, 'raw.tool_iterations', 0),
-                ],
-            ];
-            $run->completed_at = now();
-            $run->save();
-
-            $emit('ai.run.failed', [
-                'run_id' => (string) $run->id,
-                'tenant_id' => (string) $run->tenant_id,
-                'status' => 'failed',
-                'error' => $errorMessage,
-                'completed_at' => optional($run->completed_at)->toIso8601String(),
+        } else {
+            $emit('ai.run.completed', [
+                'status' => 'completed',
+                'output' => $output,
+                'tokens' => data_get($output, 'raw'),
             ]);
-
-            return $run;
         }
     }
 
@@ -232,6 +215,7 @@ final class AiAutopilotRunActions
      *
      * @param  array<string, mixed>  $context  Contexto de entrada do usuário/sistema.
      * @param  array<int, array<string, mixed>>  $toolDefinitions
+     * @param  array<int, array<string, mixed>>  $initialMessages  Mensagens acumuladas de iterações anteriores (persisted in DB).
      * @return array{output: array<string, mixed>, messages: array<int, array<string, mixed>>}
      */
     private function generateResponse(
@@ -240,6 +224,7 @@ final class AiAutopilotRunActions
         array $toolDefinitions,
         AiAutopilotRun $run,
         callable $emitEvent,
+        array $initialMessages = [],
     ): array {
         $tenant = PlatformTenant::query()->findOrFail($tenantId);
         $playbookObjective = trim((string) data_get($context, 'playbook.objective', ''));
@@ -280,7 +265,7 @@ final class AiAutopilotRunActions
             }
         }
 
-        $messages = [
+        $messages = $initialMessages !== [] ? $initialMessages : [
             ['role' => 'system', 'content' => $systemPrompt],
             ['role' => 'user', 'content' => $runtimeContextJson],
         ];
@@ -290,6 +275,9 @@ final class AiAutopilotRunActions
             'completion' => 0,
             'total' => 0,
         ];
+        $currentIteration = count($initialMessages) > 0
+            ? (int) data_get($run->output, 'raw.tool_iterations', 0)
+            : 0;
 
         $addTokens = static function (AICompletionResponse $response) use (&$tokenTotals): void {
             $tokenTotals['prompt'] += $response->promptTokens;
@@ -300,14 +288,13 @@ final class AiAutopilotRunActions
         $emitEvent('ai.run.thinking', [
             'status' => 'running',
             'step' => 'Chamando LLM...',
-            'iteration' => 0,
+            'iteration' => $currentIteration,
         ]);
         $response = $this->completeWithTools($messages, $toolDefinitions);
         $addTokens($response);
-        $iteration = 0;
 
-        while ($response->hasToolCalls() && $iteration < $this->resolveMaxToolIterations()) {
-            $iteration++;
+        while ($response->hasToolCalls() && $currentIteration < $this->resolveMaxToolIterations()) {
+            $currentIteration++;
 
             foreach ($response->toolCalls as $toolCall) {
                 $toolName = (string) data_get($toolCall, 'name', '');
@@ -332,13 +319,14 @@ final class AiAutopilotRunActions
                             'response' => 'Execution blocked by guardrail policy.',
                             'error' => 'Execution blocked by guardrail policy.',
                             'blocked' => true,
+                            'hasMoreIterations' => false,
                             'raw' => [
                                 'model' => $response->model,
                                 'prompt_tokens' => $tokenTotals['prompt'],
                                 'completion_tokens' => $tokenTotals['completion'],
                                 'total_tokens' => $tokenTotals['total'],
                                 'finish_reason' => $response->finishReason?->value,
-                                'tool_iterations' => $iteration,
+                                'tool_iterations' => $currentIteration,
                             ],
                             'tool_trace' => [[
                                 'tool' => $toolName,
@@ -355,7 +343,7 @@ final class AiAutopilotRunActions
                     'status' => 'running',
                     'tool_name' => $toolName,
                     'tool_args' => is_array($arguments) ? $arguments : [],
-                    'iteration' => $iteration,
+                    'iteration' => $currentIteration,
                 ]);
 
                 $result = $this->toolDispatcher->dispatch(
@@ -374,7 +362,7 @@ final class AiAutopilotRunActions
                     'args' => is_array($arguments) ? $arguments : [],
                     'result' => $result->toArray(),
                     'success' => $result->success,
-                    'iteration' => $iteration,
+                    'iteration' => $currentIteration,
                 ];
 
                 $emitEvent('ai.run.tool_result', [
@@ -382,7 +370,7 @@ final class AiAutopilotRunActions
                     'tool_name' => $toolName,
                     'result' => $result->toArray(),
                     'success' => $result->success,
-                    'iteration' => $iteration,
+                    'iteration' => $currentIteration,
                 ]);
 
                 $messages[] = [
@@ -399,7 +387,7 @@ final class AiAutopilotRunActions
             $emitEvent('ai.run.thinking', [
                 'status' => 'running',
                 'step' => 'Chamando LLM...',
-                'iteration' => $iteration,
+                'iteration' => $currentIteration,
             ]);
             $response = $this->completeWithTools($messages, $toolDefinitions);
             $addTokens($response);
@@ -419,13 +407,14 @@ final class AiAutopilotRunActions
             'error' => $isBlockedAfterResponse ? 'Execution blocked by guardrail policy.' : null,
             'blocked' => $isBlockedAfterResponse,
             'guardrail_result' => $finalGuardrailResult->evaluations,
+            'hasMoreIterations' => $response->hasToolCalls() && $currentIteration < $this->resolveMaxToolIterations(),
             'raw' => [
                 'model' => $response->model,
                 'prompt_tokens' => $tokenTotals['prompt'],
                 'completion_tokens' => $tokenTotals['completion'],
                 'total_tokens' => $tokenTotals['total'],
                 'finish_reason' => $response->finishReason?->value,
-                'tool_iterations' => $iteration,
+                'tool_iterations' => $currentIteration,
             ],
             'tool_trace' => $toolTrace,
             'skill_trace' => $preSkillTrace,

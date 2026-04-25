@@ -24,7 +24,7 @@ describe('ConnectionStatusService', () => {
     } as unknown as jest.Mocked<RedisService>;
 
     const realtimeEmitter = {
-      emitIntegrationConnection: jest.fn(),
+      emitChannelConnection: jest.fn(),
     } as unknown as jest.Mocked<WebhookRealtimeEmitter>;
 
     return {

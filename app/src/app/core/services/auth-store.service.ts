@@ -1,4 +1,5 @@
-import { Injectable, computed, signal, inject } from '@angular/core';
+import { Injectable, computed, signal, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PreferencesService } from './preferences.service';
 import { ThemeService } from './theme.service';
 
@@ -67,6 +68,7 @@ export class AuthStoreService {
 
   private readonly preferencesService = inject(PreferencesService, { optional: true });
   private readonly themeService = inject(ThemeService, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     this.init();
@@ -103,7 +105,7 @@ export class AuthStoreService {
   private loadUserPreferences(): void {
     if (!this.preferencesService || !this.themeService) return;
     const themeSvc = this.themeService;
-    this.preferencesService.getPreferences().subscribe({
+    this.preferencesService.getPreferences().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         const theme = response.data.appearance?.theme;
         if (theme) {

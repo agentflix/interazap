@@ -5,6 +5,7 @@ import { ChatWebhookRealtimeProcessor } from './chat-webhook-realtime-processor.
 import { RedisService } from '../../../infrastructure/redis/redis.service';
 import { UazapiProvider } from '../providers/uazapi/uazapi.provider';
 import { ZapiAdapter } from '../providers/zapi/zapi.adapter';
+import { MetaAdapter } from '../providers/meta/meta.adapter';
 import { InstanceResolverService } from './instance-resolver.service';
 import { DatabaseService } from '../../../infrastructure/database/database.service';
 import { EventsGateway } from '../../realtime/gateways/events.gateway';
@@ -50,6 +51,7 @@ describe('ChatWebhookService Coverage', () => {
         },
         { provide: UazapiProvider, useValue: { normalize: jest.fn() } },
         { provide: ZapiAdapter, useValue: { normalizeWebhook: jest.fn() } },
+        { provide: MetaAdapter, useValue: { normalizeWebhook: jest.fn() } },
         {
           provide: InstanceResolverService,
           useValue: {

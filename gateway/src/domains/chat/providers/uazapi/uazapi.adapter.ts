@@ -151,7 +151,10 @@ export class UazapiAdapter implements WhatsAppProvider {
   /**
    * Normaliza payload bruto da Uazapi para o contrato interno.
    */
-  normalizeWebhook(token: string, rawPayload: unknown): NormalizedWebhookEvent {
+  normalizeWebhook(
+    token: string,
+    rawPayload: unknown,
+  ): Promise<NormalizedWebhookEvent> {
     const normalized = this.provider.normalize(
       token,
       rawPayload as UazapiWebhookDto,
@@ -160,7 +163,7 @@ export class UazapiAdapter implements WhatsAppProvider {
     const direction =
       normalized.direction === 'outgoing' ? 'outbound' : 'inbound';
 
-    return {
+    return Promise.resolve({
       tenantId: '',
       instanceId: '',
       instanceWebhookToken: token,
@@ -198,7 +201,7 @@ export class UazapiAdapter implements WhatsAppProvider {
       rawPayload: this.toRecord(normalized.raw),
       idempotencyKey: `${token}:${normalized.event_type}:${normalized.message?.id ?? 'generic'}`,
       receivedAt: new Date(),
-    };
+    });
   }
 
   /**

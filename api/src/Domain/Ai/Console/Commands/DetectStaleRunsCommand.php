@@ -15,9 +15,11 @@ use Illuminate\Support\Str;
  */
 final class DetectStaleRunsCommand extends Command
 {
-    protected $signature = 'ai:detect-stale-runs {--threshold=5 : Minutes before a run is considered stale}';
+    protected $signature = 'ai:detect-stale-runs {--threshold= : Minutes before a run is considered stale (default from env AI_STALE_RUN_THRESHOLD_MINUTES)}';
 
     protected $description = 'Mark stale queued/running AI runs as failed and emit chat lifecycle failure events.';
+
+    private const int DEFAULT_THRESHOLD_MINUTES = 2;
 
     public function __construct(private readonly ChatAiActivityService $chatAiActivity)
     {
@@ -29,7 +31,15 @@ final class DetectStaleRunsCommand extends Command
      */
     public function handle(): int
     {
-        $thresholdMinutes = (int) $this->option('threshold');
+        $optionValue = $this->option('threshold');
+        $thresholdMinutes = $optionValue !== null && $optionValue !== ''
+            ? (int) $optionValue
+            : (int) env('AI_STALE_RUN_THRESHOLD_MINUTES', self::DEFAULT_THRESHOLD_MINUTES);
+
+        if ($thresholdMinutes < 1) {
+            $thresholdMinutes = self::DEFAULT_THRESHOLD_MINUTES;
+        }
+
         $threshold = now()->subMinutes($thresholdMinutes);
         $processed = 0;
 

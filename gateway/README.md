@@ -68,6 +68,8 @@ pnpm build
 | `OPENAI_MODEL`      | Default model         | gpt-4o-mini            |
 | `ASAAS_BASE_URL`    | Asaas API URL         | -                      |
 | `ASAAS_API_KEY`     | Asaas API key         | -                      |
+| `LOG_STRUCTURED`    | Logger JSON estruturado (`true`) ou colorido (`false`) | `false` (dev) / `true` (prod) |
+| `LOG_LEVEL`         | Nível mínimo de log (`error,warn,log,debug,verbose`) | `log`                  |
 
 ## Endpoints
 

@@ -9,6 +9,7 @@ import { InstanceResolverService } from './instance-resolver.service';
 import { DatabaseService } from '../../../infrastructure/database/database.service';
 import { EventsGateway } from '../../realtime/gateways/events.gateway';
 import { ZapiAdapter } from '../providers/zapi/zapi.adapter';
+import { MetaAdapter } from '../providers/meta/meta.adapter';
 import { WebhookEventDto } from '../dto/webhook-event.dto';
 import { ChatWebhookFileLoggerService } from './chat-webhook-file-logger.service';
 import { NormalizedUazapiEvent } from '../providers/uazapi/uazapi.dto';
@@ -52,6 +53,10 @@ const buildTestProviders = () => [
   },
   {
     provide: ZapiAdapter,
+    useValue: { normalizeWebhook: jest.fn() },
+  },
+  {
+    provide: MetaAdapter,
     useValue: { normalizeWebhook: jest.fn() },
   },
   {
@@ -1095,7 +1100,7 @@ describe('ChatWebhookService', () => {
       expect(redisService.ensureIdempotent).not.toHaveBeenCalled();
       expect(scopedEventsGateway.emitToRoom).toHaveBeenCalledWith(
         'tenant:tenant-123',
-        'integration.connection',
+        'channel.connection',
         expect.objectContaining({ status: 'connected', connected: true }),
       );
     });
@@ -1136,7 +1141,7 @@ describe('ChatWebhookService', () => {
 
       expect(scopedEventsGateway.emitToRoom).not.toHaveBeenCalledWith(
         'tenant:tenant-123',
-        'integration.connection',
+        'channel.connection',
         expect.anything(),
       );
 
@@ -1144,7 +1149,7 @@ describe('ChatWebhookService', () => {
 
       expect(scopedEventsGateway.emitToRoom).toHaveBeenCalledWith(
         'tenant:tenant-123',
-        'integration.connection',
+        'channel.connection',
         expect.objectContaining({ status: 'qr' }),
       );
       jest.useRealTimers();
@@ -1191,13 +1196,13 @@ describe('ChatWebhookService', () => {
       expect(scopedEventsGateway.emitToRoom).toHaveBeenNthCalledWith(
         1,
         'tenant:tenant-123',
-        'integration.connection',
+        'channel.connection',
         expect.objectContaining({ status: 'connecting' }),
       );
       expect(scopedEventsGateway.emitToRoom).toHaveBeenNthCalledWith(
         2,
         'tenant:tenant-123',
-        'integration.connection',
+        'channel.connection',
         expect.objectContaining({ status: 'connected' }),
       );
       jest.useRealTimers();

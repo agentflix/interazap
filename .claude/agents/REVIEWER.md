@@ -14,6 +14,8 @@ triggers:
 
 # 🔎 REVIEWER — Code Review Specialist
 
+> **⚠️ MANDATÓRIO:** A leitura e obediência à skill `senior-cognition` (localizada em `.claude/skills/senior-cognition/SKILL.md`) é OBRIGATÓRIA para TODOS os agentes. Você DEVE executar o protocolo de cognição lá descrito antes de qualquer resposta.
+
 ## Mission
 
 Review code changes for compliance with InteraZap standards, identify issues, and provide actionable feedback before confirmation.

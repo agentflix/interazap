@@ -5,10 +5,22 @@ import { adminGuard } from './core/guards/admin.guard';
 import { authChildGuard, authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { aiFeatureGuard } from './core/guards/ai-feature.guard';
-import { chatbotAvailabilityGuard } from './core/guards/chatbot-availability.guard';
+import { autoReplyAvailabilityGuard } from './core/guards/auto-reply-availability.guard';
 import { Starter } from './pages/platform/starter/starter';
 
 export const routes: Routes = [
+  // ─── Public WebChat Routes (outside MainLayout — no auth) ─────────────────
+  {
+    path: 'chat/external/:tenantId',
+    loadComponent: () => import('./pages/webchat/webchat-page.component'),
+    data: { title: 'Chat Externo' },
+  },
+  {
+    path: 'embed/:tenantId',
+    loadComponent: () => import('./pages/webchat/embed/webchat-embed.component'),
+    data: { title: 'Chat Embed' },
+  },
+  // ─── Public Evaluation/Proposal Routes ──────────────────────────────────
   {
     path: 'chat/evaluations/:token',
     loadComponent: () => import('./pages/public/chat-evaluation/chat-evaluation'),
@@ -278,7 +290,7 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin/circuit-breaker-status/circuit-breaker-status'),
         data: { title: 'Circuit Breakers', permission: 'users.role.manage' },
       },
-      // ─── Chat Campaigns ────────────────────────────────────────────────────
+      // ─── Chat Transmission Lists ────────────────────────────────────────────────────
       {
         path: 'chat/ticket/:ticketId',
         canActivate: [permissionGuard],
@@ -286,16 +298,22 @@ export const routes: Routes = [
         data: { title: 'Detalhes do Atendimento', permission: 'chat.called.view' },
       },
       {
+        path: 'chat/external',
+        loadComponent: () => import('./pages/chat/external-chat/external-chat-page'),
+        data: { title: 'Chat Externo' },
+      },
+      {
         path: 'chat/ticket',
+        pathMatch: 'full',
         canActivate: [permissionGuard],
         loadComponent: () => import('./pages/chat/ticket/ticket-page'),
         data: { title: 'Gestão de Atendimentos', permission: 'chat.called.view' },
       },
       {
-        path: 'chat/chatbot',
-        canActivate: [permissionGuard, chatbotAvailabilityGuard],
-        loadComponent: () => import('./pages/chat/chatbot/chatbot').then((m) => m.Chatbot),
-        data: { title: 'Chatbot', permission: 'chat.called.view' },
+        path: 'chat/auto-reply',
+        canActivate: [permissionGuard, autoReplyAvailabilityGuard],
+        loadComponent: () => import('./pages/chat/auto-reply/auto-reply').then((m) => m.AutoReply),
+        data: { title: 'Resposta Automática', permission: 'chat.called.view' },
       },
       {
         path: 'chat/quick-answers',
@@ -305,28 +323,28 @@ export const routes: Routes = [
         data: { title: 'Respostas Rápidas', permission: 'chat.called.view' },
       },
       {
-        path: 'chat/campaigns/new',
+        path: 'chat/transmission-list/new',
         canActivate: [permissionGuard],
-        loadComponent: () => import('./pages/chat/campaigns/campaign-form'),
-        data: { title: 'Nova Campanha', permission: 'chat.called.view' },
+        loadComponent: () => import('./pages/chat/transmission-list/chat-transmission-list-form'),
+        data: { title: 'Nova Lista de Transmissão', permission: 'chat.transmission_lists.view' },
       },
       {
-        path: 'chat/campaigns/:id',
+        path: 'chat/transmission-list/:id',
         canActivate: [permissionGuard],
-        loadComponent: () => import('./pages/chat/campaigns/campaign-form'),
-        data: { title: 'Editar Campanha', permission: 'chat.called.view' },
+        loadComponent: () => import('./pages/chat/transmission-list/chat-transmission-list-form'),
+        data: { title: 'Editar Lista de Transmissão', permission: 'chat.transmission_lists.view' },
       },
       {
-        path: 'chat/campaigns',
+        path: 'chat/transmission-list',
         canActivate: [permissionGuard],
-        loadComponent: () => import('./pages/chat/campaigns/campaigns'),
-        data: { title: 'Campanhas', permission: 'chat.called.view' },
+        loadComponent: () => import('./pages/chat/transmission-list/chat-transmission-list'),
+        data: { title: 'Listas de Transmissão', permission: 'chat.transmission_lists.view' },
       },
       {
-        path: 'chat/integration',
+        path: 'chat/channel',
         canActivate: [permissionGuard],
-        loadComponent: () => import('./pages/chat/integration').then((m) => m.IntegrationPage),
-        data: { title: 'Integrações', permission: 'integrations.whatsapp.view' },
+        loadComponent: () => import('./pages/chat/channel').then((m) => m.ChannelPage),
+        data: { title: 'Canais', permission: 'chat.channel.view' },
       },
       {
         path: 'chat',

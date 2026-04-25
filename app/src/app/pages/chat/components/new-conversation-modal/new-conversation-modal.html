@@ -79,17 +79,29 @@
       </div>
     }
 
-    <!-- Mensagem inicial -->
-    <div>
-      <app-textarea-input
-        label="Mensagem inicial"
-        [control]="startMessageControl"
-        placeholder="Digite a mensagem inicial..."
-        [rows]="4"
-        [spacing]="false"
-        [classTextarea]="'mt-2 min-h-28'"
-      />
-    </div>
+    <!-- Modo template (Meta + fora da janela 24h) -->
+    @if (isTemplateMode()) {
+      <div>
+        <app-template-selector
+          [channelId]="selectedChannelId()"
+          (templateSelected)="handleTemplateSelected($event)"
+        />
+      </div>
+    }
+
+    <!-- Modo texto livre -->
+    @if (!isTemplateMode()) {
+      <div>
+        <app-textarea-input
+          label="Mensagem inicial"
+          [control]="startMessageControl"
+          placeholder="Digite a mensagem inicial..."
+          [rows]="4"
+          [spacing]="false"
+          [classTextarea]="'mt-2 min-h-28'"
+        />
+      </div>
+    }
 
     <!-- Erro de envio -->
     @if (startError()) {

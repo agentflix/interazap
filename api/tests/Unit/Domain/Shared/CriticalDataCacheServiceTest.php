@@ -148,7 +148,7 @@ class CriticalDataCacheServiceTest extends TestCase
             'limit_users' => 10,
             'storage_limit_bytes' => 1073741824, // 1GB
             'ai_enabled' => true,
-            'whatsapp_integrations_limit' => 5,
+            'chat_channels_limit' => 5,
             'negotiations_limit' => 100,
         ]);
 
@@ -159,7 +159,7 @@ class CriticalDataCacheServiceTest extends TestCase
         $this->assertSame(10, $result['limit_users']);
         $this->assertSame(1073741824, $result['storage_limit_bytes']);
         $this->assertTrue($result['ai_enabled']);
-        $this->assertSame(5, $result['whatsapp_integrations_limit']);
+        $this->assertSame(5, $result['chat_channels_limit']);
         $this->assertSame(100, $result['negotiations_limit']);
 
         // Second call - should be cached

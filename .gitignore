@@ -16,3 +16,7 @@ api/.env
 
 # Docker environment (contains secrets)
 .env.docker
+/.opencode
+
+# Symlink IA (regenerável via scripts/setup-ai.sh)
+CLAUDE.md
