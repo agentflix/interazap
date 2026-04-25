@@ -10,7 +10,7 @@
       - ufw
       - fail2ban
       - auditd
-      - libpam-cracklib
+      - libpam-pwquality
     state: present
 
 - name: "Configurar regras UFW padrão"

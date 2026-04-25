@@ -27,14 +27,14 @@
 
 - name: 'Criar configuração de programas do InteraZap - Production'
   template:
-      src: interazap-production.conf.j2
+      src: agentflix-production.conf.j2
       dest: /etc/supervisor/conf.d/interazap-production.conf
       mode: '0644'
   notify: 'Recarregar Supervisor'
 
 - name: 'Criar configuração de programas do InteraZap - Staging'
   template:
-      src: interazap-staging.conf.j2
+      src: agentflix-staging.conf.j2
       dest: /etc/supervisor/conf.d/interazap-staging.conf
       mode: '0644'
   notify: 'Recarregar Supervisor'

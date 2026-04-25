@@ -41,6 +41,7 @@
     dest: '{{ landing_current_release_path }}'
     version: '{{ landing_target_branch }}'
     force: yes
+    accept_hostkey: yes
   become: yes
   become_user: deploy
 

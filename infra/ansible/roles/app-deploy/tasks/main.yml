@@ -49,8 +49,8 @@
 - name: 'Criar pasta da release atual (API)'
   file:
       path: '{{ deploy_path }}/api/releases/{{ deploy_timestamp }}'
-      owner: www-data
-      group: www-data
+      owner: deploy
+      group: deploy
       mode: '0755'
       state: directory
 
@@ -64,8 +64,17 @@
       dest: '{{ deploy_path }}/api/releases/{{ deploy_timestamp }}'
       version: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
       force: yes
+      accept_hostkey: yes
   become: yes
-  become_user: www-data
+  become_user: deploy
+
+- name: 'Ajustar ownership da release API para www-data'
+  file:
+      path: '{{ deploy_path }}/api/releases/{{ deploy_timestamp }}'
+      owner: www-data
+      group: www-data
+      recurse: yes
+      state: directory
 
 - name: 'Remover diretórios conflitantes antes do symlink'
   file:
@@ -277,6 +286,7 @@
       dest: '{{ deploy_path }}/app/releases/{{ deploy_timestamp }}'
       version: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
       force: yes
+      accept_hostkey: yes
   become: yes
   become_user: deploy
 
@@ -344,6 +354,7 @@
       dest: '{{ deploy_path }}/gateway/releases/{{ deploy_timestamp }}'
       version: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
       force: yes
+      accept_hostkey: yes
   become: yes
   become_user: deploy
 
