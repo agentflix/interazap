@@ -208,7 +208,14 @@
 - meta: flush_handlers
 
 - name: 'Reiniciar Octane via Supervisor'
-  command: '/usr/bin/supervisorctl restart {{ octane_supervisor_program }}'
+  shell: |
+    /usr/bin/supervisorctl reread
+    /usr/bin/supervisorctl update
+    if /usr/bin/supervisorctl status {{ octane_supervisor_program }} | grep -qE 'RUNNING|STOPPED|FATAL|EXITED'; then
+      /usr/bin/supervisorctl restart {{ octane_supervisor_program }}
+    else
+      /usr/bin/supervisorctl start {{ octane_supervisor_program }}
+    fi
   become: yes
 
 # =====================================================
@@ -256,7 +263,14 @@
   notify: 'Reiniciar PHP-FPM'
 
 - name: 'Reiniciar Octane após rollback'
-  command: '/usr/bin/supervisorctl restart {{ octane_supervisor_program }}'
+  shell: |
+    /usr/bin/supervisorctl reread
+    /usr/bin/supervisorctl update
+    if /usr/bin/supervisorctl status {{ octane_supervisor_program }} | grep -qE 'RUNNING|STOPPED|FATAL|EXITED'; then
+      /usr/bin/supervisorctl restart {{ octane_supervisor_program }}
+    else
+      /usr/bin/supervisorctl start {{ octane_supervisor_program }}
+    fi
   become: yes
   when: (api_liveness_check.failed | default(false)) or (api_health_check.failed | default(false))
 
