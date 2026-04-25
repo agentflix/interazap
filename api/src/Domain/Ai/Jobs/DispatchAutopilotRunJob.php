@@ -7,6 +7,7 @@ namespace Domain\Ai\Jobs;
 use Carbon\Carbon;
 use Domain\Ai\Enums\AutopilotTriggerType;
 use Domain\Ai\Models\AiAgent;
+use Domain\Ai\Models\AiAgentFile;
 use Domain\Ai\Models\AiAgentTrigger;
 use Domain\Ai\Models\AiAutopilotPlaybook;
 use Domain\Ai\Models\AiAutopilotRun;
@@ -137,6 +138,8 @@ final class DispatchAutopilotRunJob implements ShouldQueue
             ]);
         }
 
+        $agentFilePrompts = $this->resolveAgentFilePrompts($agent);
+
         $streamPayload = [
             'event' => 'ai.run.request',
             'run_id' => $runId,
@@ -156,6 +159,8 @@ final class DispatchAutopilotRunJob implements ShouldQueue
             'max_tool_iterations' => (int) config('ai.autopilot.max_tool_iterations', 5),
             'run_token_budget' => (int) config('ai.autopilot.run_token_budget', 3000),
             'compact_tool_results' => (bool) config('ai.autopilot.compact_tool_results', true) ? 'true' : 'false',
+            'agent_system_prompt' => (string) ($agent->system_prompt ?? ''),
+            'agent_file_prompts' => $agentFilePrompts,
             'requested_at' => now()->toIso8601String(),
         ];
 
@@ -460,5 +465,28 @@ final class DispatchAutopilotRunJob implements ShouldQueue
             : $redis->set($lockKey, '1', ['EX' => 60, 'NX']);
 
         return $acquired === true || $acquired === 'OK';
+    }
+
+    /**
+     * Carrega arquivos do agente (IDENTITY.md, SOUL.md, etc.) e formata
+     * cada um como `[slug]\ncontent`, igual ao InternalAiController de delegação.
+     *
+     * @return list<string>
+     */
+    private function resolveAgentFilePrompts(AiAgent $agent): array
+    {
+        $files = $agent->relationLoaded('files')
+            ? $agent->getRelation('files')
+            : AiAgentFile::query()
+                ->where('tenant_id', (string) $agent->tenant_id)
+                ->where('agent_id', (string) $agent->id)
+                ->orderBy('slug')
+                ->get(['slug', 'content']);
+
+        return collect($files)
+            ->filter(static fn (AiAgentFile $file): bool => trim((string) $file->content) !== '')
+            ->map(static fn (AiAgentFile $file): string => sprintf('[%s]'."\n".'%s', (string) $file->slug, (string) $file->content))
+            ->values()
+            ->all();
     }
 }

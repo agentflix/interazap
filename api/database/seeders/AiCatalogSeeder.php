@@ -39,42 +39,6 @@ class AiCatalogSeeder extends Seeder
             'prompt_suffix' => 'Atue com foco em atendimento consultivo, segurança e geração de oportunidades qualificadas.',
             'agents' => [
                 [
-                    'name' => 'Recepção Inteligente',
-                    'type' => 'general',
-                    'model_id' => 'gpt-4o-mini',
-                    'system_prompt' => 'Você é o agente de recepção e triagem principal.',
-                    'classifier_model' => 'gpt-4o-mini',
-                    'max_tokens' => 2048,
-                    'temperature' => 0.5,
-                    'top_p' => 1.0,
-                    'token_budget_input' => 5000,
-                    'token_budget_output' => 2000,
-                    'fallback_message' => 'Vou conectar você com a equipe correta agora mesmo.',
-                    'skills' => [
-                        [
-                            'name' => 'Autopilot Orchestration',
-                            'description' => 'Orquestra agentes especializados e decide escalonamento conforme contexto.',
-                            'metadata' => [
-                                'prompt_append' => '=== ORQUESTRACAO === Coordene agentes e escale para humano quando necessario.',
-                            ],
-                        ],
-                    ],
-                    'files' => [
-                        [
-                            'slug' => 'IDENTITY.md',
-                            'content' => '# Quem sou eu\n\nSou o primeiro ponto de contato do cliente.',
-                        ],
-                    ],
-                    'channels' => ['whatsapp'],
-                    'tools' => [
-                        AiToolEnum::SEARCH_KNOWLEDGE,
-                        AiToolEnum::SEND_MESSAGE,
-                        AiToolEnum::TRANSFER_TO_HUMAN,
-                        AiToolEnum::CREATE_NOTE,
-                        AiToolEnum::CREATE_TASK,
-                    ],
-                ],
-                [
                     'name' => 'Peggy',
                     'type' => 'qualifier',
                     'model_id' => 'gpt-4o-mini',

@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use Domain\Ai\Enums\AiDocumentType;
 use Domain\Ai\Enums\AiEmbeddingStatus;
 use Domain\Ai\Enums\AutopilotTriggerType;
+use Domain\Ai\Jobs\AiKnowledgeProcessJob;
 use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAgentChannel;
 use Domain\Ai\Models\AiAgentDelegation;
@@ -14,7 +15,6 @@ use Domain\Ai\Models\AiAgentFile;
 use Domain\Ai\Models\AiAgentSkill;
 use Domain\Ai\Models\AiAgentTrigger;
 use Domain\Ai\Models\AiAutopilotTool;
-use Domain\Ai\Models\AiKnowledgeChunk;
 use Domain\Ai\Models\AiKnowledgeDocument;
 use Domain\Ai\Observers\AiAgentTriggerObserver;
 use Domain\Platform\Models\PlatformTenant;
@@ -22,6 +22,7 @@ use Domain\Shared\Support\TenantContext;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -383,6 +384,9 @@ class InteraZapProductAgentsSeeder extends Seeder
     private function syncKnowledgeDocument(string $tenantId): void
     {
         $content = $this->knowledgeContent();
+        $filePath = sprintf('knowledge/%s/catalogo-interazap.md', $tenantId);
+
+        Storage::put($filePath, $content);
 
         $document = AiKnowledgeDocument::query()->updateOrCreate(
             [
@@ -391,12 +395,13 @@ class InteraZapProductAgentsSeeder extends Seeder
             ],
             [
                 'original_filename' => 'catalogo-interazap.md',
-                'file_path' => sprintf('knowledge/%s/catalogo-interazap.md', $tenantId),
+                'file_path' => $filePath,
                 'file_size_bytes' => strlen($content),
                 'file_type' => AiDocumentType::MARKDOWN,
                 'version' => 1,
-                'chunk_count' => 1,
+                'chunk_count' => 0,
                 'embedding_status' => AiEmbeddingStatus::PENDING,
+                'error_message' => null,
                 'metadata' => [
                     'source' => 'product-expert-seeder',
                     'language' => 'pt-BR',
@@ -405,17 +410,7 @@ class InteraZapProductAgentsSeeder extends Seeder
             ]
         );
 
-        AiKnowledgeChunk::query()->where('document_id', $document->id)->delete();
-
-        AiKnowledgeChunk::query()->create([
-            'id' => (string) Str::orderedUuid(),
-            'document_id' => $document->id,
-            'tenant_id' => $tenantId,
-            'chunk_index' => 0,
-            'content' => $content,
-            'token_count' => (int) ceil(strlen($content) / 4),
-            'embedding' => null,
-        ]);
+        AiKnowledgeProcessJob::dispatch($document->id);
     }
 
     /**

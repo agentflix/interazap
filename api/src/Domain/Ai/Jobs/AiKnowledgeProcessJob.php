@@ -143,6 +143,10 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
 
                 foreach ($chunks as $i => $chunk) {
                     $embedding = $allEmbeddings[$i] ?? null;
+                    $normalizedEmbedding = is_array($embedding)
+                        ? $this->normalizeEmbeddingDimensions($embedding)
+                        : null;
+
                     $rows[] = [
                         'id' => (string) Str::orderedUuid(),
                         'document_id' => $document->id,
@@ -150,7 +154,7 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
                         'chunk_index' => $chunk->index,
                         'content' => $chunk->content,
                         'token_count' => $chunk->tokenCount,
-                        'embedding' => $embedding ? '['.implode(',', $embedding).']' : null,
+                        'embedding' => $normalizedEmbedding ? '['.implode(',', $normalizedEmbedding).']' : null,
                     ];
                 }
 
@@ -304,6 +308,40 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
 
         return str_contains($normalized, strtolower(self::SECURED_PDF_VENDOR_ERROR))
             || str_contains($normalized, strtolower(self::SECURED_PDF_USER_ERROR));
+    }
+
+    /**
+     * Normalize embedding vector length to match configured pgvector dimensions.
+     *
+     * @param  list<float|int>  $embedding
+     * @return list<float>
+     */
+    private function normalizeEmbeddingDimensions(array $embedding): array
+    {
+        $expectedDimensions = (int) config('ai.embedding.dimensions', 512);
+
+        if ($expectedDimensions <= 0) {
+            return array_map('floatval', $embedding);
+        }
+
+        $normalized = array_map('floatval', $embedding);
+        $actualDimensions = count($normalized);
+
+        if ($actualDimensions === $expectedDimensions) {
+            return $normalized;
+        }
+
+        Log::warning('Embedding dimensions mismatch detected. Normalizing vector length.', [
+            'document_id' => $this->documentId,
+            'expected_dimensions' => $expectedDimensions,
+            'actual_dimensions' => $actualDimensions,
+        ]);
+
+        if ($actualDimensions > $expectedDimensions) {
+            return array_slice($normalized, 0, $expectedDimensions);
+        }
+
+        return array_pad($normalized, $expectedDimensions, 0.0);
     }
 
     /**

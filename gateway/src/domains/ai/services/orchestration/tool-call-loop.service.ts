@@ -26,49 +26,44 @@ export class ToolCallLoopService {
   ): Array<{ name: string | undefined; arguments: unknown }> {
     try {
       const parsed = JSON.parse(content) as unknown;
-      if (Array.isArray(parsed)) {
-        return parsed
-          .map((item) => {
-            if (!item || typeof item !== 'object') {
-              return null;
-            }
+      const items =
+        Array.isArray(parsed) && parsed.length > 0
+          ? parsed
+          : parsed && typeof parsed === 'object'
+            ? [parsed]
+            : [];
 
-            const record = item as Record<string, unknown>;
-            if (
-              record.type === 'function' &&
-              typeof record.function === 'object'
-            ) {
-              const fn = record.function as Record<string, unknown>;
-              let parsedArguments: unknown = fn.arguments ?? {};
-              if (typeof fn.arguments === 'string') {
-                try {
-                  parsedArguments = JSON.parse(fn.arguments);
-                } catch {
-                  parsedArguments = {};
-                }
-              }
+      return items
+        .map((item) => {
+          if (!item || typeof item !== 'object') {
+            return null;
+          }
 
-              return {
-                name: this.readOptionalString(fn.name),
-                arguments: parsedArguments,
-              };
-            }
+          const record = item as Record<string, unknown>;
+          if (
+            record.type === 'function' &&
+            typeof record.function === 'object'
+          ) {
+            const fn = record.function as Record<string, unknown>;
 
             return {
-              name: this.readOptionalString(record.name),
-              arguments: record.arguments ?? {},
+              name: this.readOptionalString(fn.name),
+              arguments: this.parseToolArguments(fn.arguments),
             };
-          })
-          .filter(
-            (item): item is { name: string | undefined; arguments: unknown } =>
-              item !== null,
-          );
-      }
+          }
+
+          return {
+            name: this.readOptionalString(record.name),
+            arguments: this.parseToolArguments(record.arguments),
+          };
+        })
+        .filter(
+          (item): item is { name: string | undefined; arguments: unknown } =>
+            item !== null,
+        );
     } catch {
       return [];
     }
-
-    return [];
   }
 
   /**
@@ -149,15 +144,19 @@ export class ToolCallLoopService {
     );
     const skippedByPriority = new Set<string>();
 
-    if (hasSendMessage) {
+    // Priority order: delegate_to_agent > send_message > other tools.
+    // Rationale: delegation is a control-transfer — any message from the router
+    // becomes noise once the specialist takes over. When both are emitted in the
+    // same turn (Router→Specialist pattern), keep only the delegation.
+    if (hasDelegation) {
       for (const c of eligibleCalls) {
-        if (c.name !== 'send_message') {
+        if (c.name !== 'delegate_to_agent') {
           skippedByPriority.add(c.toolHash);
         }
       }
-    } else if (hasDelegation && eligibleCalls.length > 1) {
+    } else if (hasSendMessage) {
       for (const c of eligibleCalls) {
-        if (c.name !== 'delegate_to_agent') {
+        if (c.name !== 'send_message') {
           skippedByPriority.add(c.toolHash);
         }
       }
@@ -363,6 +362,21 @@ export class ToolCallLoopService {
     }
 
     return undefined;
+  }
+
+  /**
+   * Parseia argumentos de tool call quando vierem como objeto ou JSON serializado.
+   */
+  private parseToolArguments(value: unknown): unknown {
+    if (typeof value !== 'string') {
+      return value ?? {};
+    }
+
+    try {
+      return JSON.parse(value) as unknown;
+    } catch {
+      return {};
+    }
   }
 
   /**

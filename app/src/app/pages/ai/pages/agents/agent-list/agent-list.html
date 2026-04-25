@@ -35,6 +35,7 @@
           <thead>
             <tr>
               <th>Nome</th>
+              <th>Tipo</th>
               <th>Modelo</th>
               <th>Status</th>
               <th class="text-right">Ações</th>
@@ -56,6 +57,9 @@
                       }
                     </div>
                   </div>
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ typeLabel(agent.type) }}
                 </td>
                 <td class="text-sm text-neutral-600 dark:text-neutral-400">
                   {{ agent.model_id ?? 'gpt-4o-mini' }}
