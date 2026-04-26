@@ -107,6 +107,11 @@
       APP_DEBUG=false
       APP_URL=https://{{ domain_api }}
       APP_LOCALE=pt_BR
+      APP_FALLBACK_LOCALE=pt_BR
+      APP_FAKER_LOCALE=en_US
+      APP_MAINTENANCE_DRIVER=file
+      BCRYPT_ROUNDS=12
+      FILESYSTEM_DISK=local
 
       DB_CONNECTION=pgsql
       DB_HOST=127.0.0.1
@@ -121,28 +126,101 @@
       REDIS_PORT=6379
       REDIS_DB={{ '1' if app_environment == 'staging' else '0' }}
       REDIS_PREFIX={{ 'agentflix_stage_' if app_environment == 'staging' else 'agentflix_prod_' }}
+      REDIS_QUEUE=default
+      REDIS_QUEUE_RETRY_AFTER=90
+      REDIS_BACKOFF_ALGORITHM=decorrelated_jitter
+      REDIS_BACKOFF_BASE=100
+      REDIS_BACKOFF_CAP=1000
 
       CACHE_STORE=redis
       QUEUE_CONNECTION=redis
       SESSION_DRIVER=redis
+      SESSION_LIFETIME=120
+      SESSION_ENCRYPT=true
+      SESSION_PATH=/
+      SESSION_DOMAIN=null
 
       BROADCAST_DRIVER=reverb
+      BROADCAST_CONNECTION=reverb
       REVERB_APP_ID=${VAULT_REVERB_APP_ID}
       REVERB_APP_KEY=${VAULT_REVERB_APP_KEY}
       REVERB_APP_SECRET=${VAULT_REVERB_APP_SECRET}
       REVERB_HOST=127.0.0.1
       REVERB_PORT=8080
       REVERB_SCHEME=http
+      REVERB_APP_MAX_MESSAGE_SIZE=20000
+
+      LOG_CHANNEL=stack
+      LOG_STACK=single
+      LOG_LEVEL={{ 'debug' if app_environment == 'staging' else 'info' }}
+
+      CORS_ALLOWED_ORIGINS=https://{{ domain_app }}
 
       GATEWAY_URL=http://127.0.0.1:{{ 6001 if app_environment == 'staging' else 6002 }}
       GATEWAY_INTERNAL_API_KEY=${VAULT_INTERNAL_API_KEY}
+      GATEWAY_E2E=0
+      GATEWAY_TIMEOUT=3
+      GATEWAY_RETRY_ATTEMPTS=3
+      GATEWAY_RETRY_DELAY_MS=150
       REALTIME_PUBSUB_ENABLED=true
       REALTIME_HTTP_FALLBACK_ENABLED=true
 
-      LOG_CHANNEL=stack
-      LOG_LEVEL={{ 'debug' if app_environment == 'staging' else 'info' }}
+      CHAT_AUTO_CLOSE_MINUTES=20
+      CHAT_EVALUATION_PUBLIC_URL=https://{{ domain_app }}
+
+      AI_AUTOPILOT_MAX_TOKENS=800
+      AI_MAX_TOOL_ITERATIONS=10
+      AI_AUTOPILOT_QUEUE_CONNECTION=redis
+      AI_AUTOPILOT_QUEUE_NAME=ai
+      AI_EMBEDDING_DIMENSIONS=512
+      AI_EMBEDDING_BATCH_SIZE=100
+      AI_CHUNKING_CHARS_PER_TOKEN=3.5
+
+      ASAAS_API_KEY=${VAULT_ASAAS_API_KEY}
+      DEFAULT_TENANT_ID=${VAULT_DEFAULT_TENANT_ID}
+      SANCTUM_EXPIRATION=1440
 
       HORIZON_NAME={{ 'interazap-staging' if app_environment == 'staging' else 'interazap-prod' }}
+      HORIZON_MAX_PROCESSES=10
+      HORIZON_MIN_PROCESSES=1
+      HORIZON_NOTIFICATION_EMAIL=${VAULT_HORIZON_NOTIFICATION_EMAIL}
+      HORIZON_ADMIN_EMAIL=${VAULT_HORIZON_NOTIFICATION_EMAIL}
+      HORIZON_SLACK_WEBHOOK=
+      HORIZON_SLACK_CHANNEL=#alerts
+
+      SENTRY_LARAVEL_DSN=${VAULT_SENTRY_DSN}
+      SENTRY_TRACES_SAMPLE_RATE=0.1
+
+      QUEUE_CRITICAL_TIMEOUT=30
+      QUEUE_CRITICAL_TRIES=5
+      QUEUE_HIGH_TIMEOUT=60
+      QUEUE_HIGH_TRIES=3
+      QUEUE_DEFAULT_TIMEOUT=120
+      QUEUE_DEFAULT_TRIES=3
+      QUEUE_LOW_TIMEOUT=300
+      QUEUE_LOW_TRIES=2
+      QUEUE_AI_TIMEOUT=180
+      QUEUE_AI_TRIES=3
+      QUEUE_MEDIA_TIMEOUT=300
+      QUEUE_MEDIA_TRIES=3
+      QUEUE_HEALTH_MAX_SIZE=1000
+      QUEUE_HEALTH_MAX_STUCK=10
+      QUEUE_HEALTH_STUCK_THRESHOLD=600
+
+      WHATSAPP_USE_REAL_PROVIDER=true
+      WHATSAPP_CB_FAILURE_THRESHOLD=5
+      WHATSAPP_CB_SUCCESS_THRESHOLD=2
+      WHATSAPP_CB_OPEN_TIMEOUT=60
+      HTTP_RETRY_DELAY_MS=1000
+
+      MAIL_MAILER=smtp
+      MAIL_HOST=${VAULT_MAIL_HOST}
+      MAIL_PORT=${VAULT_MAIL_PORT}
+      MAIL_USERNAME=${VAULT_MAIL_USERNAME}
+      MAIL_PASSWORD=${VAULT_MAIL_PASSWORD}
+      MAIL_SCHEME=null
+      MAIL_FROM_ADDRESS=${VAULT_MAIL_FROM_ADDRESS}
+      MAIL_FROM_NAME=InteraZap
       ENVEOF
       chown www-data:www-data {{ deploy_path }}/api/shared/.env
       chmod 640 {{ deploy_path }}/api/shared/.env
@@ -150,10 +228,19 @@
       VAULT_APP_KEY: "{{ agentflix_secret_key_staging | default('') if app_environment == 'staging' else agentflix_secret_key_production | default('') }}"
       VAULT_DB_PASSWORD: "{{ postgres_app_password | default('') }}"
       VAULT_REDIS_PASSWORD: "{{ redis_password | default('') }}"
-      VAULT_INTERNAL_API_KEY: "{{ gateway_internal_api_key | default('') }}"
+      VAULT_INTERNAL_API_KEY: "{{ gateway_internal_api_key_production if app_environment == 'production' else gateway_internal_api_key_staging | default('') }}"
       VAULT_REVERB_APP_ID: "{{ reverb_app_id_staging | default('interazap-stage') if app_environment == 'staging' else reverb_app_id_production | default('interazap-prod') }}"
       VAULT_REVERB_APP_KEY: "{{ reverb_app_key_staging | default('interazap-stage-key') if app_environment == 'staging' else reverb_app_key_production | default('interazap-prod-key') }}"
       VAULT_REVERB_APP_SECRET: "{{ reverb_app_secret_staging | default('interazap-stage-secret') if app_environment == 'staging' else reverb_app_secret_production | default('interazap-prod-secret') }}"
+      VAULT_ASAAS_API_KEY: "{{ asaas_api_key | default('') }}"
+      VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
+      VAULT_SENTRY_DSN: "{{ sentry_dsn | default('') }}"
+      VAULT_HORIZON_NOTIFICATION_EMAIL: "{{ horizon_notification_email | default('') }}"
+      VAULT_MAIL_HOST: "{{ mail_host | default('sandbox.smtp.mailtrap.io') }}"
+      VAULT_MAIL_PORT: "{{ mail_port | default('2525') }}"
+      VAULT_MAIL_USERNAME: "{{ mail_username | default('') }}"
+      VAULT_MAIL_PASSWORD: "{{ mail_password | default('') }}"
+      VAULT_MAIL_FROM_ADDRESS: "{{ mail_from_address | default('noreply@interazap.com.br') }}"
 
 - name: 'Linkar pastas compartilhadas (Storage/Logs)'
   file:
@@ -413,17 +500,53 @@
       REDIS_URL=redis://${REDIS_AUTH_SEGMENT}127.0.0.1:6379/{{ '1' if app_environment == 'staging' else '0' }}
       API_URL=http://127.0.0.1:{{ octane_port | default(9501) }}
       JWT_SECRET=${VAULT_JWT_SECRET}
+      JWT_ALGORITHM=HS256
       INTERNAL_API_KEY=${VAULT_INTERNAL_API_KEY}
       CORS_ORIGINS=https://{{ domain_app }}
       LOG_LEVEL={{ 'debug' if app_environment == 'staging' else 'info' }}
+      LOG_STRUCTURED={{ 'false' if app_environment == 'staging' else 'true' }}
+      OPENAI_API_KEY=${VAULT_OPENAI_API_KEY}
+      OPENAI_DEFAULT_MODEL=gpt-4o
+      OPENAI_TIMEOUT_MS=180000
+      OPENAI_MAX_RETRIES=3
+      OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+      GOOGLE_AI_API_KEY=${VAULT_GOOGLE_AI_API_KEY}
+      GOOGLE_DEFAULT_MODEL=gemini-2.5-flash
+      MINIMAX_API_KEY=${VAULT_MINIMAX_API_KEY}
+      ASAAS_API_KEY=${VAULT_ASAAS_API_KEY}
+      UAZAPI_BASE_URL=${VAULT_UAZAPI_BASE_URL}
+      UAZAPI_ADMIN_TOKEN=${VAULT_UAZAPI_ADMIN_TOKEN}
+      DEFAULT_TENANT_ID=${VAULT_DEFAULT_TENANT_ID}
+      AI_CONSUMER_GROUP=gateway-ai
+      AI_CONSUMER_NAME=consumer-1
+      BULLMQ_DEFAULT_ATTEMPTS=5
+      BULLMQ_DEFAULT_BACKOFF_DELAY=1000
+      BULLMQ_COMPLETED_JOB_AGE=3600
+      BULLMQ_COMPLETED_JOB_COUNT=1000
+      DLQ_MAX_RETRIES=3
+      DLQ_REPROCESSING_DELAY=300000
+      DLQ_ALERT_THRESHOLD=100
+      AI_RATE_LIMIT_MAX=10
+      AI_RATE_LIMIT_DURATION=60000
+      WEBHOOK_RATE_LIMIT_MAX=50
+      WEBHOOK_RATE_LIMIT_DURATION=60000
+      NOTIFICATION_RATE_LIMIT_MAX=100
+      NOTIFICATION_RATE_LIMIT_DURATION=60000
       ENVEOF
       chown deploy:deploy {{ deploy_path }}/gateway/shared/.env
       chmod 640 {{ deploy_path }}/gateway/shared/.env
   environment:
       VAULT_DB_PASSWORD: "{{ postgres_app_password | default('') }}"
       VAULT_REDIS_PASSWORD: "{{ redis_password | default('') }}"
-      VAULT_JWT_SECRET: "{{ gateway_jwt_secret | default('') }}"
-      VAULT_INTERNAL_API_KEY: "{{ gateway_internal_api_key | default('') }}"
+      VAULT_JWT_SECRET: "{{ gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging | default('') }}"
+      VAULT_INTERNAL_API_KEY: "{{ gateway_internal_api_key_production if app_environment == 'production' else gateway_internal_api_key_staging | default('') }}"
+      VAULT_OPENAI_API_KEY: "{{ openai_api_key | default('') }}"
+      VAULT_GOOGLE_AI_API_KEY: "{{ google_ai_api_key | default('') }}"
+      VAULT_MINIMAX_API_KEY: "{{ minimax_api_key | default('') }}"
+      VAULT_ASAAS_API_KEY: "{{ asaas_api_key | default('') }}"
+      VAULT_UAZAPI_BASE_URL: "{{ uazapi_base_url | default('') }}"
+      VAULT_UAZAPI_ADMIN_TOKEN: "{{ uazapi_admin_token | default('') }}"
+      VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
 
 - name: 'Linkar .env Gateway'
   file:
