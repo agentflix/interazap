@@ -6,9 +6,12 @@ node_modules/.bin/browserslist
 
 # --- electron/ ---
 /electron/node_modules
-/electron/dist          # TypeScript compilado (gerado por tsc)
-/electron/app           # Renderer Angular copiado pelo prebuild
-/electron/release       # Artefatos de distribuição (.dmg, .exe, .AppImage)
+# TypeScript compilado (gerado por tsc)
+/electron/dist
+# Renderer Angular copiado pelo prebuild
+/electron/app
+# Artefatos de distribuição (.dmg, .exe, .AppImage)
+/electron/release
 # Certificados de code signing — NUNCA versionar
 electron/*.p12
 electron/*.pfx

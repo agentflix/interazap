@@ -49,7 +49,7 @@ A — Arquivo: api/src/Domain/Chat/DTOs/CreateChatMessageDTO.php
 
 ### C — Comportamento (ANTES → DEPOIS)
 
-Descreve a mudança de comportamento:
+Descreve a mudança de comportamento. O campo C deve ser **PRESCRITIVO**, não descritivo.
 
 **ANTES:** (estado atual)
 ```
@@ -62,6 +62,59 @@ Descreve a mudança de comportamento:
 - Validação rejecta channel_type inválido (não existe)
 - Retorna erro 422 com mensagem "Tipo de canal inválido: {tipo}"
 ```
+
+---
+
+#### Regras obrigatórias para o campo C
+
+O campo C **exige** prescrição por camada. Prosa vaga como "melhorar validação" ou "atualizar o componente" é inválida.
+
+##### Para tasks de Backend (PHP/Laravel):
+- Query Eloquent exata quando há acesso a banco
+- Estrutura do DTO com tipos PHP exatos
+- Método de retorno em caso de não encontrado (`null` vs exception vs DTO vazio)
+- Middleware ou Guard envolvido quando aplicável
+
+##### Para tasks de Frontend (Angular):
+- Signal ou Observable — não misturar; declare qual
+- `standalone: true/false` explícito
+- Inputs/Outputs tipados exatos
+- Qual endpoint HTTP e qual service chama
+
+##### Para tasks de banco (DBA):
+- SQL ou migration exata (nome da coluna, tipo, constraint, default)
+- Comportamento em rollback
+- Índices afetados
+
+---
+
+#### Template C obrigatório
+
+```
+C — Comportamento:
+
+ANTES:
+[estado atual do sistema — seja específico, não use prosa vaga]
+
+DEPOIS:
+[mudança exata — use pseudocódigo ou assinaturas reais]
+
+RESTRIÇÕES:
+- [o que NÃO deve mudar]
+- [o que NÃO deve ser criado além do pedido]
+- [comportamento esperado em caso de erro]
+
+EXEMPLO DE CHAMADA:
+[como o código será usado por quem o chamar]
+```
+
+##### Exemplos — válido vs. inválido
+
+| Inválido (prosa) | Válido (prescritivo) |
+|------------------|----------------------|
+| "Atualizar o componente para mostrar o botão" | `showScrollToBottom = signal(false)` exposto como `protected readonly`; renderizado com `@if (showScrollToBottom())` |
+| "Melhorar a query de busca" | `User::where('tenant_id', $tenantId)->where('email', $email)->firstOrFail()` |
+| "Tratar erro de autenticação" | Retornar `$this->unauthorized('Token inválido')` com HTTP 401 quando `$payload === null` |
 
 ### E — Evidência (COMO SABER QUE ESTÁ PRONTO)
 

@@ -28,7 +28,7 @@
 11. **Toda task concluída gera entrada em `.context/DOCS/CHANGELOG/`**
 12. **Toda decisão relevante gera entrada em `.context/DOCS/MEMORY/`**
 13. **`.context/ARCHITECTURE/project-state.yaml` é atualizado a cada feature concluída**
-14. **MANDATÓRIO:** A leitura e obediência à skill `senior-cognition` (`.claude/skills/senior-cognition/SKILL.md`) é OBRIGATÓRIA para **todos os agents** antes de qualquer resposta.
+14. **Skills:** Cada agent carrega apenas as skills definidas na seção `🧠 Carregamento de Skills por Agente`.
 
 ---
 
@@ -128,6 +128,51 @@ PLANNING → REVIEW → EXECUTION → VALIDATION → CONFIRM
 
 ---
 
+## 🧠 Carregamento de Skills por Agente
+
+> Cada agent carrega **apenas** as skills listadas abaixo. Subagentes de execução não carregam skills de raciocínio — as tasks T.A.C.E já são prescritivas o suficiente.
+
+| Agent | Skills obrigatórias | Skills opcionais | Não carrega |
+|-------|--------------------|--------------------|-------------|
+| ORCHESTRATOR | `tace-framework`, `decompose-feature` | `human-architect-mindset` | — |
+| ARCHITECT | `tace-framework`, `human-architect-mindset` | `technical-design-doc-creator` | — |
+| REVIEWER | `tace-framework`, `coding-guidelines` | — | — |
+| PM | `tace-framework`, `write-feature` | `prd` | `coding-guidelines` |
+| BACKEND | `coding-guidelines` | `laravel-specialist`, `php-pro` | `tace-framework`, `human-architect-mindset` |
+| FRONTEND | `coding-guidelines` | `angular-architect`, `design` | `tace-framework`, `human-architect-mindset` |
+| DEV | `coding-guidelines`, `tace-framework` | — | `human-architect-mindset` |
+| DBA | `coding-guidelines` | — | `tace-framework`, `human-architect-mindset` |
+| QA | `tace-framework` | `e2e-testing`, `tdd` | `coding-guidelines` |
+| DEBUG | `coding-guidelines` | — | `tace-framework` |
+| DOC | — | — | `coding-guidelines`, `tace-framework` |
+| GIT_COMMIT | `git-commit` | — | `tace-framework`, `coding-guidelines` |
+| DESIGNER | `design` | `frontend-design` | `tace-framework`, `coding-guidelines` |
+
+**Regra:** ORCHESTRATOR é o único com visão completa do PLAN. Subagentes recebem apenas a task específica + contexto mínimo do seu domínio.
+
+---
+
+## 📦 Contexto Mínimo por Agente
+
+> Subagentes leem APENAS o necessário para sua task. ORCHESTRATOR é o único com visão completa.
+
+| Agent | Lê sempre | Lê se relevante | NUNCA lê |
+|-------|-----------|-----------------|----------|
+| BACKEND | `AGENTS.md` + task específica + módulo DDD do domínio | MEMORY do domínio | PLAN inteiro, tasks de outros agentes |
+| FRONTEND | `AGENTS.md` + task específica + `.context/LAYOUT/` | MEMORY do componente | PLAN inteiro, tasks de backend |
+| DBA | `AGENTS.md` + task específica + schema do módulo | MEMORY de migrations | Código de aplicação |
+| QA | `AGENTS.md` + task específica + critérios de evidência | Testes existentes do módulo | Código de implementação |
+| DOC | `AGENTS.md` + task específica + template de CHANGELOG | MEMORY recente | Código fonte |
+| DEBUG | `AGENTS.md` + task específica + arquivo com bug | MEMORY do módulo | Tasks não relacionadas |
+| GIT_COMMIT | `AGENTS.md` + diff atual | — | Feature docs, tasks, PLAN |
+| ORCHESTRATOR | `AGENTS.md` + PLAN completo + todas as tasks | MEMORY global | — |
+| ARCHITECT | `AGENTS.md` + feature doc + MEMORY do domínio | PLANs anteriores similares | Código de implementação |
+| PM | `AGENTS.md` + PRD relacionado + MEMORY global | Features similares anteriores | Código, tasks T.A.C.E |
+| REVIEWER | `AGENTS.md` + código a revisar + task de referência | MEMORY do módulo | PLANs, tasks de outros módulos |
+| DESIGNER | `AGENTS.md` + `.context/LAYOUT/` + feature doc | MEMORY de UI | Código de implementação |
+
+---
+
 ## 📝 Framework T.A.C.E
 
 | Letra | Significado | Pergunta |
@@ -137,7 +182,7 @@ PLANNING → REVIEW → EXECUTION → VALIDATION → CONFIRM
 | **C** | Comportamento | COMO funciona (antes→depois)? |
 | **E** | Evidência | COMO SABER que está pronto? |
 
-> Skill: `.claude/skills/tace-framework/tace-framework.md`
+> Skill: `.claude/skills/tace-framework/SKILL.md`
 
 ---
 
