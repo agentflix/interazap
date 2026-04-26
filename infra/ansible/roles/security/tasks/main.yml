@@ -162,6 +162,14 @@
       ===============================================
     mode: '0644'
 
+- name: "Criar diretório de privilege separation do SSH"
+  file:
+    path: /run/sshd
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: "Validar configuração SSH"
   command: "sshd -t"
   changed_when: false
