@@ -107,6 +107,7 @@ async function bootstrap() {
       'Authorization',
       'X-Requested-With',
       'X-Trace-ID',
+      'X-Session-ID',
       'X-Idempotency-Key',
     ],
     credentials: true,
