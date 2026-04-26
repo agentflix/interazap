@@ -43,7 +43,7 @@
       - name: 'Validar variaveis obrigatorias'
         assert:
             that:
-                - agentflix_password is defined
+                - interazap_password is defined
                 - postgres_root_password is defined
                 - postgres_app_password is defined
                 - redis_password is defined

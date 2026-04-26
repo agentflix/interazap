@@ -512,10 +512,19 @@
       OPENAI_EMBEDDING_MODEL=text-embedding-3-small
       GOOGLE_AI_API_KEY=${VAULT_GOOGLE_AI_API_KEY}
       GOOGLE_DEFAULT_MODEL=gemini-2.5-flash
+      GOOGLE_TIMEOUT_MS=180000
+      GOOGLE_MAX_RETRIES=3
       MINIMAX_API_KEY=${VAULT_MINIMAX_API_KEY}
+      MINIMAX_DEFAULT_MODEL=MiniMax-M2.5
+      MINIMAX_TIMEOUT_MS=180000
+      MINIMAX_MAX_RETRIES=3
       ASAAS_API_KEY=${VAULT_ASAAS_API_KEY}
       UAZAPI_BASE_URL=${VAULT_UAZAPI_BASE_URL}
       UAZAPI_ADMIN_TOKEN=${VAULT_UAZAPI_ADMIN_TOKEN}
+      UAZAPI_WEBHOOK_URL=${VAULT_UAZAPI_WEBHOOK_URL}
+      UAZAPI_WEBHOOK_EVENTS=connection,messages,messages_update
+      UAZAPI_WEBHOOK_EXCLUDE_MESSAGES=wasSentByApi,isGroupYes
+      UAZAPI_WEBHOOK_RETRIES=3
       DEFAULT_TENANT_ID=${VAULT_DEFAULT_TENANT_ID}
       AI_CONSUMER_GROUP=gateway-ai
       AI_CONSUMER_NAME=consumer-1
@@ -546,6 +555,7 @@
       VAULT_ASAAS_API_KEY: "{{ asaas_api_key | default('') }}"
       VAULT_UAZAPI_BASE_URL: "{{ uazapi_base_url | default('') }}"
       VAULT_UAZAPI_ADMIN_TOKEN: "{{ uazapi_admin_token | default('') }}"
+      VAULT_UAZAPI_WEBHOOK_URL: "{{ uazapi_webhook_url | default('') }}"
       VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
 
 - name: 'Linkar .env Gateway'

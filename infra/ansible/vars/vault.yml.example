@@ -1,131 +1,148 @@
 # =====================================================
-  # Interazap - Template de Variáveis Seguras (Vault)                                                                                                                           
-  # =====================================================                                                                                                                       
-  # COPIAR PARA vault.yml E PREENCHER VALORES REAIS
-  # Autor: DevOps Interazap                                                                                                                                                     
-  # =====================================================                                                                                                                       
-  #                                                                                                                                                                             
-  # Criptografar após preencher:                                                                                                                                                
-  # ansible-vault encrypt vars/vault.yml                                                                                                                                        
-  #
-  # Editar:                                                                                                                                                                     
-  # ansible-vault edit vars/vault.yml                                                                                                                                           
-  #
-                                                                                                                                                                                
-  # =====================================================         
-  # USUÁRIOS
-  # =====================================================
-                                                                                                                                                                                
-  # Senha do usuário agentflix (hash SHA512)                                                                                                                                    
-  agentflix_password: ''                                                                                                                                                        
-                                                                                                                                                                                
-  # =====================================================         
-  # POSTGRESQL
-  # =====================================================
+# InteraZap - Template de Variáveis Seguras (Vault)
+# =====================================================
+# COPIAR PARA vault.yml E PREENCHER VALORES REAIS
+# Autor: DevOps InteraZap
+# =====================================================
+#
+# Criar novo vault:
+#   ansible-vault create vars/vault.yml
+#
+# Editar vault existente:
+#   ansible-vault edit vars/vault.yml
+#
+# Descriptografar para edição manual:
+#   ansible-vault decrypt vars/vault.yml
+#
+# Criptografar após edição manual:
+#   ansible-vault encrypt vars/vault.yml
+#
 
-  # Senha do superusuário postgres                                                                                                                                              
-  postgres_root_password: ''
-                                                                                                                                                                                
-  # Senha do usuário da aplicação                                 
-  postgres_app_password: ''
+# =====================================================
+# USUÁRIOS
+# =====================================================
 
-  # =====================================================
-  # REDIS
-  # =====================================================
+# Senha do usuário deploy (texto puro — Ansible aplica hash sha512)
+interazap_password: ''
 
-  # Senha do Redis (obrigatória)                                                                                                                                                
-  redis_password: ''
-                                                                                                                                                                                
-  # =====================================================         
-  # LARAVEL API
-  # =====================================================                                                                                                                       
-   
-  # APP_KEY do Laravel - PRODUÇÃO (gerar com: php artisan key:generate --show)                                                                                                  
-  agentflix_secret_key_production: ''                             
-                                                                                                                                                                                
-  # APP_KEY do Laravel - STAGING (chave separada da produção)     
-  agentflix_secret_key_staging: ''                                                                                                                                              
-                                                                  
-  # =====================================================                                                                                                                       
-  # GATEWAY
-  # =====================================================                                                                                                                       
-                                                                  
-  # Chave API interna - PRODUÇÃO (gerar com: uuidgen)                                                                                                                           
-  gateway_internal_api_key_production: ''
-                                                                                                                                                                                
-  # Chave API interna - STAGING (gerar com: uuidgen)                                                                                                                            
-  gateway_internal_api_key_staging: ''
-                                                                                                                                                                                
-  # JWT Secret - PRODUÇÃO (gerar com: openssl rand -hex 32)       
-  gateway_jwt_secret_production: ''
-                                                                                                                                                                                
-  # JWT Secret - STAGING (gerar com: openssl rand -hex 32)
-  gateway_jwt_secret_staging: ''                                                                                                                                                
-                                                                  
-  # =====================================================
-  # REVERB (WebSockets)
-  # =====================================================
+# =====================================================
+# POSTGRESQL
+# =====================================================
 
-  reverb_app_id_production: 'interazap-prod'                                                                                                                                    
-  reverb_app_key_production: '55d3f952db28a640e9d711de115ccee0'
-  reverb_app_secret_production: '303acbede345b2f51e1b950745ed01669921a0be0c9c8e847a350bf067a29094'                                                                              
-                                                                                                                                                                                
-  reverb_app_id_staging: 'interazap-stage'                                                                                                                                      
-  reverb_app_key_staging: '6ac1c931afd6ed654852cf298f67d020'                                                                                                                    
-  reverb_app_secret_staging: 'f03d4c6b885b30849cb383c99d6a299002b6d5b172aff8e75cdba6e70a802036'                                                                                 
-                                                                                                                                                                                
-  # =====================================================
-  # AI PROVIDERS                                                                                                                                                                
-  # =====================================================         
+# Senha do superusuário postgres
+postgres_root_password: ''
 
-  # OpenAI (obrigatório)                                                                                                                                                        
-  openai_api_key: ''
-                                                                                                                                                                                
-  # Google Gemini (opcional)                                      
-  google_ai_api_key: ''
-                                                                                                                                                                                
-  # MiniMax (opcional)
-  minimax_api_key: ''                                                                                                                                                           
-                                                                  
-  # =====================================================
-  # UAZAPI (WhatsApp Provider)
-  # =====================================================                                                                                                                       
-   
-  uazapi_base_url: 'https://free.uazapi.com'                                                                                                                                    
-  uazapi_admin_token: ''                                          
-                                                                                                                                                                                
-  # =====================================================         
-  # TENANT
-  # =====================================================                                                                                                                       
-   
-  # UUID do tenant padrão (gerar com: uuidgen)                                                                                                                                  
-  default_tenant_id: ''                                           
-                                                                                                                                                                                
-  # =====================================================
-  # ASAAS (Billing)                                                                                                                                                             
-  # =====================================================         
+# Senha do usuário da aplicação (agentflix_app)
+postgres_app_password: ''
 
-  asaas_api_key: ''                                                                                                                                                             
-   
-  # =====================================================                                                                                                                       
-  # MAIL                                                          
-  # =====================================================
+# =====================================================
+# REDIS
+# =====================================================
 
-  mail_host: 'smtp.exemplo.com'
-  mail_port: '587'
-  mail_username: ''                                                                                                                                                             
-  mail_password: ''
-  mail_from_address: 'noreply@interazap.com.br'                                                                                                                                 
-                                                                                                                                                                                
-  # =====================================================
-  # OBSERVABILIDADE (opcionais)                                                                                                                                                 
-  # =====================================================         
+# Senha do Redis (gerar com: openssl rand -hex 24)
+redis_password: ''
 
-  sentry_dsn: ''                                                                                                                                                                
-  horizon_notification_email: ''
-                                                                                                                                                                                
-  # =====================================================         
-  # SSH
-  # =====================================================
+# =====================================================
+# LARAVEL API
+# =====================================================
 
-  ssh_port: 22
+# APP_KEY - PRODUÇÃO (gerar com: php artisan key:generate --show)
+agentflix_secret_key_production: ''
+
+# APP_KEY - STAGING (chave separada da produção)
+agentflix_secret_key_staging: ''
+
+# =====================================================
+# GATEWAY (NestJS)
+# =====================================================
+
+# Chave API interna - PRODUÇÃO (gerar com: uuidgen)
+# Deve ser igual em: API.GATEWAY_INTERNAL_API_KEY e Gateway.INTERNAL_API_KEY
+gateway_internal_api_key_production: ''
+
+# Chave API interna - STAGING (gerar com: uuidgen)
+gateway_internal_api_key_staging: ''
+
+# JWT Secret - PRODUÇÃO (gerar com: openssl rand -hex 32)
+gateway_jwt_secret_production: ''
+
+# JWT Secret - STAGING (gerar com: openssl rand -hex 32)
+gateway_jwt_secret_staging: ''
+
+# =====================================================
+# REVERB (WebSockets)
+# =====================================================
+
+# PRODUÇÃO
+reverb_app_id_production: 'interazap-prod'
+reverb_app_key_production: ''
+reverb_app_secret_production: ''
+
+# STAGING
+reverb_app_id_staging: 'interazap-stage'
+reverb_app_key_staging: ''
+reverb_app_secret_staging: ''
+
+# =====================================================
+# AI PROVIDERS
+# =====================================================
+
+# OpenAI — obrigatório
+openai_api_key: ''
+
+# Google Gemini — opcional
+google_ai_api_key: ''
+
+# MiniMax — opcional
+minimax_api_key: ''
+
+# =====================================================
+# UAZAPI (WhatsApp Provider)
+# =====================================================
+
+# URL base da instância Uazapi (ex: https://interazap.uazapi.com)
+uazapi_base_url: ''
+
+# Token admin da instância Uazapi
+uazapi_admin_token: ''
+
+# URL base de webhook para auto-configuração no initInstance (opcional)
+# Formato: https://api.interazap.com.br (sem trailing slash, sem path)
+# Deixar vazio se a configuração de webhook for feita exclusivamente pela API
+uazapi_webhook_url: ''
+
+# =====================================================
+# TENANT
+# =====================================================
+
+# UUID do tenant padrão (gerar com: uuidgen)
+default_tenant_id: ''
+
+# =====================================================
+# ASAAS (Billing)
+# =====================================================
+
+asaas_api_key: ''
+
+# =====================================================
+# MAIL
+# =====================================================
+
+mail_host: ''
+mail_port: '587'
+mail_username: ''
+mail_password: ''
+mail_from_address: 'noreply@interazap.com.br'
+
+# =====================================================
+# OBSERVABILIDADE (opcionais)
+# =====================================================
+
+sentry_dsn: ''
+horizon_notification_email: ''
+
+# =====================================================
+# SSH
+# =====================================================
+
+ssh_port: 22

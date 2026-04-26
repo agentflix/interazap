@@ -1,4 +1,4 @@
-import { IsOptional, IsString, Matches } from 'class-validator';
+import { IsEnum, IsOptional, IsString, Matches } from 'class-validator';
 
 /**
  * Payload for connecting an existing Uazapi instance.
@@ -9,4 +9,12 @@ export class ConnectInstanceDto {
   @IsString()
   @Matches(/^\d{10,15}$/)
   phone?: string;
+
+  /**
+   * Connection mode: 'qr' for QR code scan, 'pair' for phone number pairing.
+   * Defaults to 'qr' if not provided.
+   */
+  @IsOptional()
+  @IsEnum(['qr', 'pair'])
+  mode?: 'qr' | 'pair';
 }

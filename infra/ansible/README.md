@@ -64,7 +64,7 @@ ansible-vault edit vars/vault.yml
 **Variáveis obrigatórias no vault:**
 
 ```yaml
-agentflix_password: 'SENHA_STRONG'
+interazap_password: 'SENHA_STRONG'
 postgres_root_password: 'POSTGRES_ROOT_SENHA'
 postgres_app_password: 'POSTGRES_APP_SENHA'
 redis_password: 'REDIS_SENHA'
@@ -80,6 +80,7 @@ ssh_port: 22
 ## Deploy - Passo a Passo
 
 > O playbook tem **dois plays separados**:
+>
 > - **Play 1 — `provision`**: roda como `root`, cria o usuário deploy, instala pacotes base, aplica hardening. Rodar **uma única vez** em VPS nova.
 > - **Play 2 — `setup,deploy`**: roda como `deploy`, instala nginx/PHP/PostgreSQL/etc e faz deploy da aplicação. Executado automaticamente pelo GitHub Actions a cada push.
 
@@ -102,6 +103,7 @@ Aguarde `ok=55, failed=0`. Depois adicione a chave pública gerada (`/home/deplo
 ### PASSO 3: Setup + Deploy (Play 2 — via GitHub Actions)
 
 Após o provisionamento, o GitHub Actions cuida do restante automaticamente:
+
 - `push → main` → deploy em **production**
 - `push → develop` → deploy em **staging**
 
