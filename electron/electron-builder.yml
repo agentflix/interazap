@@ -1,31 +1,44 @@
 appId: com.interazap.desktop
 productName: InteraZap Desktop
+copyright: Copyright © 2026 InteraZap
 directories:
     output: release
     buildResources: build
 files:
     - dist/**/*
+    - app/**/*
     - package.json
+    - '!**/*.map'
 asar: true
+compression: maximum
 win:
     target:
         - target: nsis
           arch:
               - x64
     icon: build/icon.ico
+    artifactName: '${productName} Setup ${version}.${ext}'
 nsis:
     oneClick: false
+    perMachine: false
     allowToChangeInstallationDirectory: true
     createDesktopShortcut: true
     createStartMenuShortcut: true
+    shortcutName: InteraZap
 mac:
     target:
         - target: dmg
           arch:
-              - x64
               - arm64
+              - x64
+    icon: build/icon.icns
     category: public.app-category.business
     minimumSystemVersion: '10.15'
+    identity: null
+    artifactName: '${productName}-${version}-${arch}.${ext}'
+dmg:
+    title: '${productName} ${version}'
+    icon: build/icon.icns
 linux:
     target:
         - AppImage
@@ -33,7 +46,8 @@ linux:
         - rpm
     icon: build/icons
     category: Office
+    maintainer: InteraZap <suporte@interazap.com>
 publish:
     provider: github
-    owner: interazap
+    owner: agentflix
     repo: interazap-desktop

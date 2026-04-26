@@ -6,11 +6,16 @@
     "author": "InteraZap",
     "license": "MIT",
     "scripts": {
+        "clean": "rm -rf dist app release",
+        "copy:renderer": "rm -rf app && mkdir -p app && cp -R ../app/dist/app-new/browser app/browser",
+        "build:angular": "cd ../app && pnpm exec ng build --configuration production",
+        "build:main": "tsc -p tsconfig.electron.json",
+        "prebuild": "pnpm run build:angular && pnpm run copy:renderer && pnpm run build:main",
         "electron:dev": "tsc -p tsconfig.electron.json && electron .",
-        "electron:build": "tsc -p tsconfig.electron.json && electron-builder",
-        "electron:build:win": "tsc -p tsconfig.electron.json && electron-builder --win",
-        "electron:build:mac": "tsc -p tsconfig.electron.json && electron-builder --mac",
-        "electron:build:linux": "tsc -p tsconfig.electron.json && electron-builder --linux"
+        "electron:build": "pnpm run prebuild && electron-builder",
+        "electron:build:win": "pnpm run prebuild && electron-builder --win",
+        "electron:build:mac": "pnpm run prebuild && electron-builder --mac",
+        "electron:build:linux": "pnpm run prebuild && electron-builder --linux"
     },
     "devDependencies": {
         "electron": "^33.0.0",

@@ -1,6 +1,7 @@
 packages:
   - app
   - gateway
+  - electron
 
 ignoredBuiltDependencies:
   - '@nestjs/core'

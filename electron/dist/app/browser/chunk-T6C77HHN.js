@@ -1,1 +1,0 @@
-import{Ma as a,pa as o,vc as i}from"./chunk-OWT6VCYY.js";import"./chunk-JKOY2XUY.js";var n=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=o({type:t,selectors:[["app-ai-governance"]],decls:1,vars:0,template:function(e,c){e&1&&a(0,"router-outlet")},dependencies:[i],encapsulation:2,changeDetection:0})},l=n;export{n as AiGovernanceComponent,l as default};

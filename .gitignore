@@ -1,22 +1,35 @@
 .DS_Store
 node_modules/.bin/browserslist
 /node_modules
-/electron/node_modules
-/electron/release
 /code-base
+/testsprite_tests
+
+# --- electron/ ---
+/electron/node_modules
+/electron/dist          # TypeScript compilado (gerado por tsc)
+/electron/app           # Renderer Angular copiado pelo prebuild
+/electron/release       # Artefatos de distribuição (.dmg, .exe, .AppImage)
+# Certificados de code signing — NUNCA versionar
+electron/*.p12
+electron/*.pfx
+electron/*.key
+electron/*.pem
+
+# --- gateway/ ---
 /gateway/node_modules
 /gateway/dist
 /gateway/.env
 /gateway/logs
 gateway/logs/gateway-events.log
-/testsprite_tests
 /gateway/coverage
+
+# --- api/ ---
 api/coverage.xml
 api/.env
 
-# Docker environment (contains secrets)
+# --- Docker ---
 .env.docker
-/.opencode
 
-# Symlink IA (regenerável via scripts/setup-ai.sh)
+# --- IA (regenerável via scripts/setup-ai.sh) ---
+/.opencode
 CLAUDE.md
