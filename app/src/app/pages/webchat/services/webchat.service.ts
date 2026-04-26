@@ -16,7 +16,7 @@ import {
 } from '../webchat.model';
 import { environment } from '@env/environment';
 
-const WEBCHAT_PATH = '/ws/webchat';
+const WEBCHAT_PATH = '/ws';
 
 /**
  * WebChatService — manages session creation, WebSocket communication,
@@ -271,7 +271,7 @@ export class WebChatService implements OnDestroy {
       this.sessionId = sessionId.trim();
     }
 
-    const gatewayUrl = this.apiBase;
+    const gatewayUrl = `${this.apiBase}/webchat`;
 
     this.socket = io(gatewayUrl, {
       path: environment.gateway?.path ?? WEBCHAT_PATH,
