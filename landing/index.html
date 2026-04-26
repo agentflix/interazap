@@ -1388,7 +1388,7 @@
                             </li>
                             <li class="flex items-center gap-3 text-white/80">
                                 <span class="text-xl" aria-hidden="true">💻</span>
-                                Versão web completa para desktop, sem instalação
+                                App Desktop para Windows e macOS — baixe e instale
                             </li>
                             <li class="flex items-center gap-3 text-white/80">
                                 <span class="text-xl" aria-hidden="true">🔔</span>
@@ -1417,35 +1417,49 @@
 
                             <!-- Windows -->
                             <a
-                                href="https://app.interazap.com.br"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                href="https://github.com/agentflix/interazap-desktop/releases/download/v1.0.1/InteraZap-Desktop-Setup-1.0.1.exe"
+                                download
                                 class="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition"
-                                aria-label="Acessar InteraZap no Windows"
+                                aria-label="Baixar InteraZap Desktop para Windows"
                             >
                                 <svg class="w-7 h-7" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.849"/>
                                 </svg>
                                 <div class="text-left">
-                                    <p class="text-[10px] text-gray-400">Acesse no</p>
+                                    <p class="text-[10px] text-gray-400">Baixar para</p>
                                     <p class="text-sm font-semibold">Windows</p>
                                 </div>
                             </a>
 
-                            <!-- macOS -->
+                            <!-- macOS Apple Silicon -->
                             <a
-                                href="https://app.interazap.com.br"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                href="https://github.com/agentflix/interazap-desktop/releases/download/v1.0.1/InteraZap-Desktop-1.0.1-arm64.dmg"
+                                download
                                 class="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition"
-                                aria-label="Acessar InteraZap no macOS"
+                                aria-label="Baixar InteraZap Desktop para macOS Apple Silicon"
                             >
                                 <svg class="w-7 h-7" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.459 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
                                 </svg>
                                 <div class="text-left">
-                                    <p class="text-[10px] text-gray-400">Acesse no</p>
-                                    <p class="text-sm font-semibold">macOS</p>
+                                    <p class="text-[10px] text-gray-400">macOS — Apple Silicon</p>
+                                    <p class="text-sm font-semibold">Mac (M1/M2/M3/M4)</p>
+                                </div>
+                            </a>
+
+                            <!-- macOS Intel -->
+                            <a
+                                href="https://github.com/agentflix/interazap-desktop/releases/download/v1.0.1/InteraZap-Desktop-1.0.1-x64.dmg"
+                                download
+                                class="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition"
+                                aria-label="Baixar InteraZap Desktop para macOS Intel"
+                            >
+                                <svg class="w-7 h-7" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.459 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
+                                </svg>
+                                <div class="text-left">
+                                    <p class="text-[10px] text-gray-400">macOS — Intel</p>
+                                    <p class="text-sm font-semibold">Mac (Intel x64)</p>
                                 </div>
                             </a>
                         </div>
@@ -2580,7 +2594,7 @@
         <button
             id="interazap-chat-launcher"
             data-iz-chat-launcher="v1"
-            data-iz-tenant-id="3453efd7-1344-4551-999b-340b37b8d501"
+            data-iz-tenant-id="a1a30625-3b6f-42b2-b6e9-ea8471192c7e"
             data-iz-entrypoint="landing"
             data-iz-channel="webchat"
             data-iz-open-mode="redirect"
