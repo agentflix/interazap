@@ -57,6 +57,13 @@
       mode: '0600'
   when: deploy_ssh_key.changed and not (deploy_ssh_pubkey.failed | default(false))
 
+- name: 'Adicionar chave SSH do admin (máquina local) ao authorized_keys do deploy'
+  authorized_key:
+      user: deploy
+      state: present
+      key: "{{ lookup('pipe', 'ssh-add -L 2>/dev/null || true') }}"
+  when: lookup('pipe', 'ssh-add -L 2>/dev/null || true') != ''
+
 - name: 'Exibir chave SSH pública do deploy (para adicionar ao GitHub)'
   debug:
       msg:
