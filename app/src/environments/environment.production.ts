@@ -5,7 +5,7 @@ export const environment = {
     url: 'https://gateway.interazap.com.br',
     path: '/ws',
   },
-  publicWebchatUrl: 'https://app.interazap.com',
+  publicWebchatUrl: 'https://app.interazap.com.br',
   sentry: {
     dsn: '',
     tracesSampleRate: 0.1,

@@ -92,12 +92,12 @@ export class ExternalChatPage implements OnInit {
   (w[o].q=w[o].q||[]).push(arguments)};
   js=d.createElement(s),fjs=d.getElementsByTagName(s)[0];
   js.id='iz-embed';js.src=f;js.async=1;fjs.parentNode.insertBefore(js,fjs);
-}(window,document,'script','iz','https://app.interazap.com/embed/${tenantId}.js'));
+}(window,document,'script','iz','${environment.publicWebchatUrl}/embed/${tenantId}.js'));
 </script>`;
   }
 
   private buildIframeCode(tenantId: string): string {
-    const url = `https://app.interazap.com/embed/${tenantId}`;
+    const url = `${environment.publicWebchatUrl}/embed/${tenantId}`;
     return `<iframe
   src="${url}"
   width="100%"
@@ -108,7 +108,7 @@ export class ExternalChatPage implements OnInit {
   }
 
   private buildFullPageCode(tenantId: string): string {
-    const url = `https://app.interazap.com/chat/external/${tenantId}`;
+    const url = `${environment.publicWebchatUrl}/chat/external/${tenantId}`;
     return `<a href="${url}" target="_blank">Abrir chat InteraZap</a>`;
   }
 }
