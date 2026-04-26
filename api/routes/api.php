@@ -51,6 +51,8 @@ Route::middleware(['throttle:public'])->group(function (): void {
     Route::get('/utils/cnpj/{cnpj}', \Domain\Shared\Http\Controllers\CnpjLookupController::class);
     Route::get('/utils/cep/{cep}', \Domain\Shared\Http\Controllers\CepLookupController::class);
     Route::get('/crm/cnpj/{cnpj}', \Domain\Shared\Http\Controllers\CnpjLookupController::class);
+
+    require base_path('src/Domain/Platform/Routes/platform-public.php');
 });
 
 /*

@@ -3,24 +3,38 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>InteraZap | CRM + WhatsApp + IA Autopilot para Vendas</title>
+        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+        <title>InteraZap — Atendimento, CRM e IA conversacional num lugar só</title>
         <meta
             name="description"
-            content="Plataforma brasileira que une CRM, WhatsApp e IA Autopilot. Venda mais, atenda melhor e automatize com IA. Disponível no App Store e Google Play."
+            content="InteraZap é a plataforma brasileira de IA conversacional que une atendimento multicanal (WhatsApp, Telegram, Webchat), CRM integrado e IA Autopilot — a IA que explica cada resposta que dá."
         />
         <meta
             name="keywords"
-            content="crm whatsapp, crm para whatsapp, automação whatsapp, ia para vendas, chatbot whatsapp brasil"
+            content="ia conversacional, atendimento multicanal, crm whatsapp, crm telegram, autopilot ia, plataforma de atendimento brasil"
         />
 
         <!-- Open Graph -->
-        <meta property="og:title" content="InteraZap | CRM + WhatsApp + IA Autopilot para Vendas" />
+        <meta property="og:title" content="InteraZap — Atendimento, CRM e IA conversacional num lugar só" />
         <meta
             property="og:description"
-            content="Plataforma brasileira que une CRM, WhatsApp e IA Autopilot. Venda mais, atenda melhor e automatize com IA."
+            content="Plataforma brasileira que une atendimento multicanal, CRM integrado e IA Autopilot — a IA que explica cada resposta que dá."
         />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="pt_BR" />
+
+        <!-- Schema.org Organization -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "InteraZap",
+                "description": "Plataforma brasileira de IA conversacional que une atendimento multicanal, CRM integrado e IA Autopilot — a IA que explica cada resposta que dá.",
+                "url": "https://interazap.com.br",
+                "areaServed": "BR",
+                "inLanguage": "pt-BR"
+            }
+        </script>
 
         <!-- Tailwind CSS CDN -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -162,6 +176,23 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+
+            /* ===== COOKIE CONSENT BANNER (LGPD) ===== */
+            #iz-cookie-banner {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 70;
+                background: #1a3c34;
+                border-top: 1px solid rgba(255, 255, 255, 0.10);
+                padding: 1rem 1.5rem;
+                transform: translateY(100%);
+                transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            #iz-cookie-banner.visible {
+                transform: translateY(0);
+            }
         </style>
     </head>
     <body class="bg-white text-dark antialiased">
@@ -196,11 +227,17 @@
                         <a href="#como-funciona" class="text-white/80 hover:text-white text-sm font-medium transition"
                             >Como funciona</a
                         >
+                        <a href="#precos" class="text-white/80 hover:text-white text-sm font-medium transition"
+                            >Preços</a
+                        >
                         <a href="#contato" class="text-white/80 hover:text-white text-sm font-medium transition"
                             >Contato</a
                         >
                         <a
                             href="#contato"
+                            data-iz-demo-cta="true"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             class="bg-accent hover:bg-accent-hover text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition"
                         >
                             Demonstração gratuita
@@ -223,8 +260,12 @@
                         <a href="#como-funciona" class="text-white/80 hover:text-white text-sm font-medium py-2"
                             >Como funciona</a
                         >
+                        <a href="#precos" class="text-white/80 hover:text-white text-sm font-medium py-2">Preços</a>
                         <a
                             href="#contato"
+                            data-iz-demo-cta="true"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             class="bg-accent hover:bg-accent-hover text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition text-center mt-2"
                         >
                             Demonstração gratuita
@@ -265,16 +306,16 @@
                         <h1
                             class="text-3xl sm:text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold text-white leading-tight mb-6 animate-fade-up animate-delay-1"
                         >
-                            Seu time de vendas vai responder leads no WhatsApp
-                            <span class="text-accent"> antes da concorrência</span>
+                            Atendimento, CRM e IA
+                            <span class="text-accent">num lugar só.</span>
                         </h1>
 
                         <p
                             class="text-base sm:text-lg text-white/75 mb-8 max-w-xl mx-auto lg:mx-0 animate-fade-up animate-delay-2"
                         >
-                            InteraZap é a plataforma que une CRM, WhatsApp Business e IA Autopilot — para você vender
-                            mais, atender melhor e nunca mais perder um lead. Com RAG para treinar a IA com os seus
-                            conteúdos. Feito no Brasil, para o mercado brasileiro.
+                            InteraZap é uma plataforma de IA conversacional. Reúne WhatsApp, Telegram e Webchat numa
+                            inbox única, com CRM integrado e um Autopilot de IA que explica cada resposta que dá. Feito no
+                            Brasil, pensado para o jeito brasileiro de atender.
                         </p>
 
                         <div
@@ -282,12 +323,15 @@
                         >
                             <a
                                 href="#contato"
+                                data-iz-demo-cta="true"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 class="bg-accent hover:bg-accent-hover text-white font-semibold px-8 py-3.5 rounded-lg shadow-lg shadow-accent/25 transition text-center"
                             >
-                                Quero uma demonstração gratuita
+                                Agendar demonstração
                             </a>
                             <a
-                                href="#solucao"
+                                href="#como-funciona"
                                 class="border border-white/20 hover:border-white/40 text-white font-semibold px-8 py-3.5 rounded-lg transition text-center"
                             >
                                 Ver como funciona ↓
@@ -300,6 +344,7 @@
                             <span class="flex items-center gap-2">
                                 <svg
                                     class="w-4 h-4 text-accent"
+                                    aria-hidden="true"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -307,11 +352,12 @@
                                 >
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
-                                Integração centralizada com WhatsApp
+                                WhatsApp, Telegram e Webchat
                             </span>
                             <span class="flex items-center gap-2">
                                 <svg
                                     class="w-4 h-4 text-accent"
+                                    aria-hidden="true"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -319,11 +365,12 @@
                                 >
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
-                                Google Play e App Store
+                                CRM integrado
                             </span>
                             <span class="flex items-center gap-2">
                                 <svg
                                     class="w-4 h-4 text-accent"
+                                    aria-hidden="true"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -331,7 +378,7 @@
                                 >
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
-                                Sem cartão de crédito
+                                Autopilot com IA
                             </span>
                         </div>
                     </div>
@@ -577,127 +624,107 @@
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-12 reveal">
                     <h2 class="text-3xl md:text-4xl font-extrabold text-dark mb-4">
-                        Você reconhece alguma dessas situações?
+                        Atender bem ficou complicado demais.
                     </h2>
-                    <p class="text-muted text-lg">Se marcar pelo menos 2, o InteraZap foi feito para você.</p>
+                    <p class="text-muted text-lg">
+                        Três problemas que aparecem em quase todo time que cresce no atendimento digital.
+                    </p>
                 </div>
 
-                <div class="grid sm:grid-cols-2 gap-4 md:gap-5 mb-12">
-                    <div class="flex items-start gap-4 p-5 rounded-xl bg-red-50/50 border border-red-100 reveal">
-                        <span class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                <div class="grid md:grid-cols-3 gap-5 mb-12">
+                    <div class="p-6 rounded-xl bg-red-50/50 border border-red-100 reveal">
+                        <span
+                            class="inline-flex w-10 h-10 bg-red-100 rounded-full items-center justify-center mb-4"
+                        >
                             <svg
-                                class="w-4 h-4 text-red-500"
+                                class="w-5 h-5 text-red-500"
+                                aria-hidden="true"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
-                                stroke-width="2.5"
+                                stroke-width="2"
                             >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                />
                             </svg>
                         </span>
-                        <p class="text-dark text-sm md:text-base leading-relaxed">
-                            Leads chegam pelo WhatsApp e <strong>se perdem</strong> porque o time não tem onde registrar
+                        <h3 class="text-lg font-bold text-dark mb-2">Mensagens espalhadas</h3>
+                        <p class="text-sm text-muted leading-relaxed">
+                            WhatsApp pessoal, número do site, Telegram, e-mail. Cada canal num lugar e ninguém vê o
+                            todo.
                         </p>
                     </div>
 
-                    <div class="flex items-start gap-4 p-5 rounded-xl bg-red-50/50 border border-red-100 reveal">
-                        <span class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <div class="p-6 rounded-xl bg-red-50/50 border border-red-100 reveal">
+                        <span
+                            class="inline-flex w-10 h-10 bg-red-100 rounded-full items-center justify-center mb-4"
+                        >
                             <svg
-                                class="w-4 h-4 text-red-500"
+                                class="w-5 h-5 text-red-500"
+                                aria-hidden="true"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
-                                stroke-width="2.5"
+                                stroke-width="2"
                             >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                                />
                             </svg>
                         </span>
-                        <p class="text-dark text-sm md:text-base leading-relaxed">
-                            Você não sabe o que seu time responde para os clientes — <strong>é uma caixa preta</strong>
+                        <h3 class="text-lg font-bold text-dark mb-2">Contexto que se perde</h3>
+                        <p class="text-sm text-muted leading-relaxed">
+                            O cliente repete a mesma coisa pra cada atendente. Histórico fica no chat, dados no Excel,
+                            decisão na cabeça de alguém.
                         </p>
                     </div>
 
-                    <div class="flex items-start gap-4 p-5 rounded-xl bg-red-50/50 border border-red-100 reveal">
-                        <span class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <div class="p-6 rounded-xl bg-red-50/50 border border-red-100 reveal">
+                        <span
+                            class="inline-flex w-10 h-10 bg-red-100 rounded-full items-center justify-center mb-4"
+                        >
                             <svg
-                                class="w-4 h-4 text-red-500"
+                                class="w-5 h-5 text-red-500"
+                                aria-hidden="true"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
-                                stroke-width="2.5"
+                                stroke-width="2"
                             >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                                />
                             </svg>
                         </span>
-                        <p class="text-dark text-sm md:text-base leading-relaxed">
-                            Campanhas de WhatsApp feitas no <strong>ctrl+c, ctrl+v</strong> sem controle ou histórico
-                        </p>
-                    </div>
-
-                    <div class="flex items-start gap-4 p-5 rounded-xl bg-red-50/50 border border-red-100 reveal">
-                        <span class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                            <svg
-                                class="w-4 h-4 text-red-500"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                stroke-width="2.5"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </span>
-                        <p class="text-dark text-sm md:text-base leading-relaxed">
-                            Quando o cliente reclama, você só descobre <strong>depois que ele já foi embora</strong>
-                        </p>
-                    </div>
-
-                    <div class="flex items-start gap-4 p-5 rounded-xl bg-red-50/50 border border-red-100 reveal">
-                        <span class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                            <svg
-                                class="w-4 h-4 text-red-500"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                stroke-width="2.5"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </span>
-                        <p class="text-dark text-sm md:text-base leading-relaxed">
-                            Você paga por CRM, ferramenta de WhatsApp e chatbot separados — e
-                            <strong>não integram direito</strong>
-                        </p>
-                    </div>
-
-                    <div class="flex items-start gap-4 p-5 rounded-xl bg-red-50/50 border border-red-100 reveal">
-                        <span class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                            <svg
-                                class="w-4 h-4 text-red-500"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                stroke-width="2.5"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </span>
-                        <p class="text-dark text-sm md:text-base leading-relaxed">
-                            Sua IA responde coisas erradas e <strong>você não tem como auditar</strong> ou controlar
+                        <h3 class="text-lg font-bold text-dark mb-2">Pipeline às escuras</h3>
+                        <p class="text-sm text-muted leading-relaxed">
+                            Sem visibilidade do funil, fica difícil saber em que pé está cada negociação — e quanto está
+                            ficando pelo caminho.
                         </p>
                     </div>
                 </div>
 
                 <div class="text-center reveal">
-                    <p class="text-lg md:text-xl text-dark font-medium">
-                        Se você marcou pelo menos 2 itens acima, existe uma plataforma construída
-                        <strong>exatamente</strong> para resolver isso.
-                    </p>
                     <a
                         href="#solucao"
-                        class="inline-flex items-center gap-2 text-accent font-semibold mt-4 hover:gap-3 transition-all"
+                        class="inline-flex items-center gap-2 text-accent font-semibold hover:gap-3 transition-all"
                     >
-                        Conheça a solução
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        Ver a proposta do InteraZap
+                        <svg
+                            class="w-5 h-5"
+                            aria-hidden="true"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                         </svg>
                     </a>
@@ -710,19 +737,20 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16 reveal">
                     <h2 class="text-3xl md:text-4xl font-extrabold text-dark mb-4">
-                        Uma plataforma. Três superpoderes para o seu negócio.
+                        Uma plataforma. Três peças que conversam entre si.
                     </h2>
                     <p class="text-muted text-lg max-w-2xl mx-auto">
-                        Tudo integrado nativamente — sem gambiarras, sem ferramentas soltas.
+                        Atendimento, dados do cliente e IA — pensados juntos desde o começo, não colados depois.
                     </p>
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-8">
-                    <!-- Pilar 1 — CRM -->
+                    <!-- Pilar 1 — CRM Integrado -->
                     <div class="pillar-card p-8 shadow-sm card-hover reveal">
                         <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6">
                             <svg
                                 class="w-7 h-7 text-blue-600"
+                                aria-hidden="true"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -731,174 +759,37 @@
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
+                                    d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-2a4 4 0 100-8 4 4 0 000 8zm6 0a4 4 0 100-8 4 4 0 000 8z"
                                 />
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-dark mb-3">CRM Nativo Completo</h3>
+                        <h3 class="text-xl font-bold text-dark mb-3">CRM Integrado</h3>
                         <p class="text-muted mb-6 text-sm leading-relaxed">
-                            Funil de vendas que vive onde a venda acontece: no WhatsApp. Gerencie contatos, negociações,
-                            propostas e tarefas — tudo conectado ao histórico real de conversas.
+                            Cada conversa vira um contato. Cada contato pertence a uma empresa. Cada negociação anda
+                            por um funil que você desenha. Tudo ligado ao histórico real, sem planilha paralela.
                         </p>
                         <ul class="space-y-3">
                             <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Funil Kanban com arrastar e soltar
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Contatos e empresas com campos personalizados
                             </li>
                             <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Propostas com link público de visualização
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Funil de negociações configurável
                             </li>
                             <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Histórico completo vinculado a cada contato
-                            </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Campos personalizados para seu processo
-                            </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Follow-ups vinculados a negociações
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Histórico de conversas por contato
                             </li>
                         </ul>
                     </div>
 
-                    <!-- Pilar 2 — WhatsApp -->
+                    <!-- Pilar 2 — Atendimento Multicanal -->
                     <div class="pillar-card p-8 shadow-sm card-hover reveal">
                         <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
-                            <svg class="w-7 h-7 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"
-                                />
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-dark mb-3">WhatsApp Integrado ao seu Processo</h3>
-                        <p class="text-muted mb-6 text-sm leading-relaxed">
-                            Atendimento, campanhas e chatbot no WhatsApp — com controle total. Estrutura pronta para
-                            múltiplos agentes em paralelo.
-                        </p>
-                        <ul class="space-y-3">
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Múltiplos agentes no mesmo número
-                            </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Campanhas em massa com personalização
-                            </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Chatbot nativo com regras inteligentes
-                            </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Inbox unificado com filas e departamentos
-                            </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                CSAT automático ao fechar ticket
-                            </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Templates prontos para respostas rápidas
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Pilar 3 — IA -->
-                    <div class="pillar-card p-8 shadow-sm card-hover reveal">
-                        <div class="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mb-6">
                             <svg
-                                class="w-7 h-7 text-purple-600"
+                                class="w-7 h-7 text-green-600"
+                                aria-hidden="true"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -907,538 +798,187 @@
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                                 />
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-dark mb-3">IA Autopilot com Raciocínio Auditável</h3>
+                        <h3 class="text-xl font-bold text-dark mb-3">Atendimento Multicanal</h3>
                         <p class="text-muted mb-6 text-sm leading-relaxed">
-                            IA que vende, atende e aprende — com você no controle. Cada decisão é registrada em cadeia
-                            de raciocínio auditável e com RAG para treinamento contínuo da IA com sua base de
-                            conhecimento.
+                            WhatsApp, Telegram e um Webchat que você cola no seu site. Tudo numa inbox só, com
+                            histórico unificado por cliente — independente de por onde ele falou pela primeira vez.
                         </p>
                         <ul class="space-y-3">
                             <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Playbooks configuráveis por processo
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                WhatsApp via Meta Cloud API, UAZAPI ou Z-API
                             </li>
                             <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Raciocínio auditável: veja cada decisão da IA
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                 Telegram Bot e Chat no seu site
                             </li>
                             <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Guardrails de compliance configuráveis
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Inbox unificada com filas e atribuição
                             </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Knowledge Base com RAG (docs da empresa)
+                        </ul>
+                    </div>
+
+                    <!-- Pilar 3 — Autopilot com IA -->
+                    <div class="pillar-card p-8 shadow-lg card-hover reveal bg-gradient-to-br from-green-700 to-emerald-900">
+                        <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
+                            <svg
+                                class="w-7 h-7 text-white"
+                                aria-hidden="true"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
+                                />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">Autopilot com IA</h3>
+                        <p class="text-white/80 mb-6 text-sm leading-relaxed">
+                            Uma IA que atende seus clientes em nome do seu negócio. Para cada resposta, você vê
+                            uma explicação clara do porquê — dá pra revisar, ajustar e confiar no que está
+                            acontecendo.
+                        </p>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-2 text-sm text-white">
+                                <svg class="w-5 h-5 text-green-200 flex-shrink-0 mt-0.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Você vê o porquê de cada resposta da IA
                             </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Human Takeover: humano assume, IA respeita
+                            <li class="flex items-start gap-2 text-sm text-white">
+                                <svg class="w-5 h-5 text-green-200 flex-shrink-0 mt-0.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Histórico completo de como a IA se comportou
                             </li>
-                            <li class="flex items-start gap-2 text-sm text-dark">
-                                <svg
-                                    class="w-5 h-5 text-accent flex-shrink-0 mt-0.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                >
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                Controles de segurança e compliance configuráveis
+                            <li class="flex items-start gap-2 text-sm text-white">
+                                <svg class="w-5 h-5 text-green-200 flex-shrink-0 mt-0.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Humano assume a conversa quando quiser
                             </li>
                         </ul>
                     </div>
                 </div>
-
-                <div class="text-center mt-12 reveal">
-                    <a
-                        href="#contato"
-                        class="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-semibold px-8 py-3.5 rounded-lg shadow-lg shadow-accent/25 transition"
-                    >
-                        Quero ver na prática — agendar demo
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                    </a>
-                </div>
             </div>
         </section>
 
-        <!-- ========== SEÇÃO 4 — SOCIAL PROOF ========== -->
-        <section class="py-16 md:py-24 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16 reveal">
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-dark mb-4">
-                        Empresas que já vendem mais e atendem melhor com o InteraZap
-                    </h2>
-                </div>
-
-                <!-- Testimonial -->
-                <div class="max-w-3xl mx-auto mb-16 reveal">
-                    <div class="bg-light rounded-2xl p-8 md:p-10 relative">
-                        <svg
-                            class="absolute top-6 left-6 w-10 h-10 text-accent/20"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H0z"
-                            />
-                        </svg>
-                        <blockquote class="relative z-10">
-                            <p class="text-dark text-lg md:text-xl leading-relaxed mb-6 italic">
-                                "Antes do InteraZap, meu time respondia leads com 4 horas de atraso porque ninguém sabia
-                                quem era responsável por qual contato. Hoje, o Autopilot qualifica automaticamente e os
-                                vendedores só recebem leads quentes. <strong>Nosso ticket médio subiu 40%.</strong>"
-                            </p>
-                            <footer class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-                                    <span class="text-white font-bold text-sm">RC</span>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-dark">Roberto Carvalho</p>
-                                    <p class="text-muted text-sm">Diretor Comercial — TechSales Brasil</p>
-                                </div>
-                            </footer>
-                        </blockquote>
-                    </div>
-                </div>
-
-                <!-- Logos -->
-                <div class="mb-16 reveal">
-                    <p class="text-center text-muted text-sm font-medium uppercase tracking-wider mb-8">
-                        Empresas que confiam no InteraZap
-                    </p>
-                    <div class="grid grid-cols-3 md:grid-cols-6 gap-8 items-center opacity-50">
-                        <div class="flex items-center justify-center h-12">
-                            <div class="bg-gray-200 rounded-lg px-6 py-2 text-gray-500 text-xs font-semibold">
-                                TECHCORP
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center h-12">
-                            <div class="bg-gray-200 rounded-lg px-6 py-2 text-gray-500 text-xs font-semibold">
-                                GRUPO ABC
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center h-12">
-                            <div class="bg-gray-200 rounded-lg px-6 py-2 text-gray-500 text-xs font-semibold">
-                                VENDMAX
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center h-12">
-                            <div class="bg-gray-200 rounded-lg px-6 py-2 text-gray-500 text-xs font-semibold">
-                                DATAFLOW
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center h-12">
-                            <div class="bg-gray-200 rounded-lg px-6 py-2 text-gray-500 text-xs font-semibold">
-                                NEXTBIZ
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center h-12">
-                            <div class="bg-gray-200 rounded-lg px-6 py-2 text-gray-500 text-xs font-semibold">
-                                GROWUP
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Metrics -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 reveal">
-                    <div class="text-center p-6 bg-light rounded-xl">
-                        <div class="text-3xl md:text-4xl font-extrabold text-primary mb-1">500+</div>
-                        <p class="text-muted text-sm">Empresas ativas</p>
-                    </div>
-                    <div class="text-center p-6 bg-light rounded-xl">
-                        <div class="text-3xl md:text-4xl font-extrabold text-primary mb-1">9.2</div>
-                        <p class="text-muted text-sm">Nota Reclame Aqui</p>
-                    </div>
-                    <div class="text-center p-6 bg-light rounded-xl">
-                        <div class="text-3xl md:text-4xl font-extrabold text-primary mb-1">24/7</div>
-                        <p class="text-muted text-sm">Operação contínua no WhatsApp</p>
-                    </div>
-                    <div class="text-center p-6 bg-light rounded-xl">
-                        <div class="text-3xl md:text-4xl font-extrabold text-primary mb-1">🇧🇷</div>
-                        <p class="text-muted text-sm">Suporte 100% BR</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========== SEÇÃO 5 — FEATURES DEEP-DIVE ========== -->
+        <!-- ========== SEÇÃO 5 — RECURSOS ========== -->
         <section id="features" class="py-16 md:py-24 bg-light">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16 reveal">
                     <h2 class="text-3xl md:text-4xl font-extrabold text-dark mb-4">
-                        Tudo que seu time precisa. Em uma só plataforma.
+                        O que vem dentro da plataforma
                     </h2>
                     <p class="text-muted text-lg max-w-2xl mx-auto">
-                        Conheça os recursos que fazem seus vendedores fecharem mais negócios.
+                        Recursos reais, descritos sem rodeio. Se algo está aqui, está disponível.
                     </p>
                 </div>
 
-                <!-- Feature 1 — Inbox Unificado -->
-                <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center mb-20 reveal">
-                    <div class="feature-img p-8">
-                        <div class="w-full max-w-sm mx-auto">
-                            <div class="bg-white rounded-xl shadow-lg p-4">
-                                <div class="flex gap-3 mb-4">
-                                    <button
-                                        class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full"
-                                    >
-                                        Na Fila (5)
-                                    </button>
-                                    <button
-                                        class="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full"
-                                    >
-                                        Em Atendimento (3)
-                                    </button>
-                                    <button
-                                        class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full"
-                                    >
-                                        Finalizado (12)
-                                    </button>
-                                </div>
-                                <div class="space-y-2">
-                                    <div
-                                        class="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-100"
-                                    >
-                                        <div
-                                            class="w-8 h-8 bg-yellow-200 rounded-full flex items-center justify-center text-xs font-bold text-yellow-800"
-                                        >
-                                            PL
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-semibold">Paulo Lima</p>
-                                            <p class="text-xs text-gray-500">Aguardando há 2min</p>
-                                        </div>
-                                        <span
-                                            class="text-[10px] bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full font-semibold"
-                                            >Na Fila</span
-                                        >
-                                    </div>
-                                    <div
-                                        class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100"
-                                    >
-                                        <div
-                                            class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold text-blue-800"
-                                        >
-                                            MF
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-semibold">Mariana Fontes</p>
-                                            <p class="text-xs text-gray-500">Agente: Carlos</p>
-                                        </div>
-                                        <span
-                                            class="text-[10px] bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full font-semibold"
-                                            >Atendendo</span
-                                        >
-                                    </div>
-                                </div>
-                            </div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- WhatsApp Business -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm card-hover reveal">
+                        <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-green-600" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                            </svg>
                         </div>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl md:text-3xl font-bold text-dark mb-4">
-                            Nenhum cliente sem resposta. Nunca mais.
-                        </h3>
-                        <p class="text-muted leading-relaxed mb-6">
-                            Visualize todos os atendimentos em tempo real com três estados: Na Fila → Em Atendimento →
-                            Finalizado. Distribua automaticamente para o agente certo com base em regras e
-                            departamentos.
+                        <h3 class="text-lg font-bold text-dark mb-2">WhatsApp Business</h3>
+                        <p class="text-sm text-muted leading-relaxed">
+                            Conexão via Meta Cloud API oficial ou pelos provedores UAZAPI e Z-API. Você escolhe o que
+                            faz mais sentido pro seu volume.
                         </p>
-                        <a href="#contato" class="text-accent font-semibold hover:underline text-sm"
-                            >Agendar demonstração →</a
-                        >
+                    </div>
+
+                    <!-- Telegram -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm card-hover reveal">
+                        <div class="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-sky-600" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.022c.242-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.566-4.458c.534-.196 1.002.121.832.938z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-dark mb-2">Telegram Bot</h3>
+                        <p class="text-sm text-muted leading-relaxed">
+                            Atenda seus clientes do Telegram com o mesmo time, no mesmo lugar — e o histórico cola
+                            junto no contato do CRM.
+                        </p>
+                    </div>
+
+                    <!-- Webchat -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm card-hover reveal">
+                        <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-indigo-600" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-dark mb-2">Chat no seu site</h3>
+                        <p class="text-sm text-muted leading-relaxed">
+                            Cole um trecho de código no seu site e pronto: o visitante fala com você (ou com o
+                            Autopilot) direto pelo navegador, sem precisar instalar nada.
+                        </p>
+                    </div>
+
+                    <!-- CRM -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm card-hover reveal">
+                        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-blue-600" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-dark mb-2">CRM com funil</h3>
+                        <p class="text-sm text-muted leading-relaxed">
+                            Contatos, empresas e negociações organizados num funil que você desenha do jeito que sua
+                            operação realmente funciona.
+                        </p>
+                    </div>
+
+                    <!-- IA Autopilot -->
+                    <div class="bg-gradient-to-br from-green-700 to-emerald-900 rounded-2xl p-6 shadow-md card-hover reveal">
+                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-white" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">IA Autopilot</h3>
+                        <p class="text-sm text-white/80 leading-relaxed">
+                            IA que atende em nome do seu negócio e explica cada resposta que deu. Quando quiser,
+                            um humano assume com todo o contexto em mãos.
+                        </p>
+                    </div>
+
+                    <!-- App Mobile -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm card-hover reveal">
+                        <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-amber-600" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-dark mb-2">App Android</h3>
+                        <p class="text-sm text-muted leading-relaxed">
+                            Acompanhe atendimentos e responda do celular. Disponível na Google Play.
+                        </p>
+                    </div>
+
+                    <!-- Versão Desktop -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm card-hover reveal">
+                        <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6 text-slate-600" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-dark mb-2">Versão para computador</h3>
+                        <p class="text-sm text-muted leading-relaxed">
+                            Acesse pelo navegador, sem instalar nada. Todos os recursos disponíveis direto no desktop.
+                        </p>
                     </div>
                 </div>
 
-                <!-- Feature 2 — Funil Kanban -->
-                <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center mb-20 reveal">
-                    <div class="order-2 md:order-1">
-                        <h3 class="text-2xl md:text-3xl font-bold text-dark mb-4">
-                            Seu pipeline de vendas com um olhar — sem planilha, sem confusão
-                        </h3>
-                        <p class="text-muted leading-relaxed mb-6">
-                            Arraste negociações entre etapas do funil. Cada card mostra o valor, contato, último contato
-                            e próximo follow-up. Nunca mais um deal esquecido.
-                        </p>
-                        <a href="#contato" class="text-accent font-semibold hover:underline text-sm"
-                            >Ver o funil ao vivo →</a
-                        >
-                    </div>
-                    <div class="feature-img p-8 order-1 md:order-2">
-                        <div class="w-full max-w-sm mx-auto">
-                            <div class="bg-white rounded-xl shadow-lg p-4">
-                                <div class="grid grid-cols-3 gap-3">
-                                    <div>
-                                        <p class="text-xs font-bold text-blue-600 mb-2 text-center">Qualificação</p>
-                                        <div class="space-y-2">
-                                            <div class="bg-blue-50 rounded-lg p-2 border border-blue-100">
-                                                <p class="text-xs font-semibold">Tech Corp</p>
-                                                <p class="text-xs text-accent font-bold">R$ 25K</p>
-                                            </div>
-                                            <div class="bg-blue-50 rounded-lg p-2 border border-blue-100">
-                                                <p class="text-xs font-semibold">Loja ABC</p>
-                                                <p class="text-xs text-accent font-bold">R$ 12K</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-bold text-yellow-600 mb-2 text-center">Proposta</p>
-                                        <div class="space-y-2">
-                                            <div class="bg-yellow-50 rounded-lg p-2 border border-yellow-100">
-                                                <p class="text-xs font-semibold">Grupo XYZ</p>
-                                                <p class="text-xs text-accent font-bold">R$ 48K</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-bold text-green-600 mb-2 text-center">Fechamento</p>
-                                        <div class="space-y-2">
-                                            <div class="bg-green-50 rounded-lg p-2 border border-green-100">
-                                                <p class="text-xs font-semibold">MaxStar</p>
-                                                <p class="text-xs text-accent font-bold">R$ 32K</p>
-                                            </div>
-                                            <div class="bg-green-50 rounded-lg p-2 border border-green-100">
-                                                <p class="text-xs font-semibold">NetFlow</p>
-                                                <p class="text-xs text-accent font-bold">R$ 18K</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature 3 — IA Autopilot -->
-                <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center mb-20 reveal">
-                    <div class="feature-img p-8">
-                        <div class="w-full max-w-sm mx-auto">
-                            <div class="bg-white rounded-xl shadow-lg p-4">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                                        <svg
-                                            class="w-3 h-3 text-purple-600"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12"
-                                            />
-                                        </svg>
-                                    </div>
-                                    <span class="text-xs font-bold text-gray-700">Cadeia de Raciocínio</span>
-                                    <span
-                                        class="ml-auto bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                                        >Auditável</span
-                                    >
-                                </div>
-                                <div class="space-y-2 text-xs">
-                                    <div class="bg-gray-50 rounded-lg p-2 border-l-2 border-blue-400">
-                                        <p class="text-gray-500 text-[10px] mb-0.5">1. Leitura</p>
-                                        <p class="text-gray-700">Cliente perguntou sobre plano Pro</p>
-                                    </div>
-                                    <div class="bg-gray-50 rounded-lg p-2 border-l-2 border-yellow-400">
-                                        <p class="text-gray-500 text-[10px] mb-0.5">2. Consulta</p>
-                                        <p class="text-gray-700">Acessou Knowledge Base → Tabela de preços</p>
-                                    </div>
-                                    <div class="bg-gray-50 rounded-lg p-2 border-l-2 border-green-400">
-                                        <p class="text-gray-500 text-[10px] mb-0.5">3. Resposta</p>
-                                        <p class="text-gray-700">Enviou preço + benefícios do plano Pro</p>
-                                    </div>
-                                    <div class="bg-green-50 rounded-lg p-2 flex items-center gap-2">
-                                        <svg
-                                            class="w-4 h-4 text-green-600"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                                            />
-                                        </svg>
-                                        <span class="text-green-700 font-semibold text-[10px]"
-                                            >Guardrails: OK | Compliance: Aprovado</span
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl md:text-3xl font-bold text-dark mb-4">
-                            IA que você confia porque pode auditar
-                        </h3>
-                        <p class="text-muted leading-relaxed mb-6">
-                            Veja em tempo real o raciocínio completo do Autopilot: o que ele leu, o que considerou e por
-                            que respondeu assim. Com RAG, a IA é treinada com os documentos da sua empresa para
-                            respostas mais precisas. Controle total sobre limites e comportamentos da IA.
-                        </p>
-                        <a href="#contato" class="text-accent font-semibold hover:underline text-sm"
-                            >Testar o Autopilot →</a
-                        >
-                    </div>
-                </div>
-
-                <!-- Feature 4 — Campanhas em Massa -->
-                <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center mb-20 reveal">
-                    <div class="order-2 md:order-1">
-                        <h3 class="text-2xl md:text-3xl font-bold text-dark mb-4">
-                            Alcance centenas de clientes com uma mensagem personalizada — no WhatsApp
-                        </h3>
-                        <p class="text-muted leading-relaxed mb-6">
-                            Crie campanhas de WhatsApp segmentadas por tag, funil ou perfil de cliente. Cada mensagem
-                            sai com o nome do contato e contexto personalizado — com taxa de abertura de até 98%.
-                        </p>
-                        <a href="#contato" class="text-accent font-semibold hover:underline text-sm"
-                            >Criar minha primeira campanha →</a
-                        >
-                    </div>
-                    <div class="feature-img p-8 order-1 md:order-2">
-                        <div class="w-full max-w-sm mx-auto">
-                            <div class="bg-white rounded-xl shadow-lg p-4">
-                                <div class="flex items-center justify-between mb-4">
-                                    <span class="text-xs font-bold text-gray-700">Campanha: Black Friday</span>
-                                    <span
-                                        class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                                        >Enviando</span
-                                    >
-                                </div>
-                                <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                                    <p class="text-xs text-gray-600 leading-relaxed">
-                                        Olá
-                                        <span class="bg-accent/20 text-accent px-1 rounded font-semibold">{nome}</span>,
-                                        tudo bem? 🎉<br />Temos uma oferta exclusiva de Black Friday para você! Desconto
-                                        de 30% no plano Pro.
-                                    </p>
-                                </div>
-                                <div class="grid grid-cols-3 gap-3 text-center">
-                                    <div class="bg-blue-50 rounded-lg p-2">
-                                        <p class="text-lg font-extrabold text-blue-700">847</p>
-                                        <p class="text-[10px] text-gray-500">Enviados</p>
-                                    </div>
-                                    <div class="bg-green-50 rounded-lg p-2">
-                                        <p class="text-lg font-extrabold text-green-700">98%</p>
-                                        <p class="text-[10px] text-gray-500">Abertura</p>
-                                    </div>
-                                    <div class="bg-purple-50 rounded-lg p-2">
-                                        <p class="text-lg font-extrabold text-purple-700">127</p>
-                                        <p class="text-[10px] text-gray-500">Respostas</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature 5 — Relatórios -->
-                <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center reveal">
-                    <div class="feature-img p-8">
-                        <div class="w-full max-w-sm mx-auto">
-                            <div class="bg-white rounded-xl shadow-lg p-4">
-                                <div class="flex items-center justify-between mb-4">
-                                    <span class="text-xs font-bold text-gray-700">Dashboard</span>
-                                    <span class="text-[10px] text-gray-400">Fev 2026</span>
-                                </div>
-                                <div class="grid grid-cols-2 gap-3 mb-3">
-                                    <div class="bg-green-50 rounded-lg p-2 text-center">
-                                        <p class="text-lg font-extrabold text-green-700">↑ 42%</p>
-                                        <p class="text-[10px] text-gray-500">Conversão</p>
-                                    </div>
-                                    <div class="bg-blue-50 rounded-lg p-2 text-center">
-                                        <p class="text-lg font-extrabold text-blue-700">1.2K</p>
-                                        <p class="text-[10px] text-gray-500">Atendimentos</p>
-                                    </div>
-                                </div>
-                                <div class="bg-gray-50 rounded-lg p-3">
-                                    <div class="flex items-end gap-1 h-16">
-                                        <div class="flex-1 bg-accent/30 rounded-t" style="height: 40%"></div>
-                                        <div class="flex-1 bg-accent/40 rounded-t" style="height: 55%"></div>
-                                        <div class="flex-1 bg-accent/50 rounded-t" style="height: 45%"></div>
-                                        <div class="flex-1 bg-accent/60 rounded-t" style="height: 70%"></div>
-                                        <div class="flex-1 bg-accent/70 rounded-t" style="height: 65%"></div>
-                                        <div class="flex-1 bg-accent/80 rounded-t" style="height: 85%"></div>
-                                        <div class="flex-1 bg-accent rounded-t" style="height: 100%"></div>
-                                    </div>
-                                    <div class="flex justify-between mt-1">
-                                        <span class="text-[8px] text-gray-400">Seg</span>
-                                        <span class="text-[8px] text-gray-400">Ter</span>
-                                        <span class="text-[8px] text-gray-400">Qua</span>
-                                        <span class="text-[8px] text-gray-400">Qui</span>
-                                        <span class="text-[8px] text-gray-400">Sex</span>
-                                        <span class="text-[8px] text-gray-400">Sáb</span>
-                                        <span class="text-[8px] text-gray-400">Dom</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl md:text-3xl font-bold text-dark mb-4">
-                            Dados para decisões — não para relatórios que ninguém lê
-                        </h3>
-                        <p class="text-muted leading-relaxed mb-6">
-                            Acompanhe volume de atendimentos, satisfação dos clientes (CSAT), performance por agente,
-                            conversão do funil e resultado das campanhas. Tudo em tempo real.
-                        </p>
-                        <a href="#contato" class="text-accent font-semibold hover:underline text-sm"
-                            >Ver todos os relatórios →</a
-                        >
-                    </div>
-                </div>
+                <p class="text-center text-xs text-muted/80 mt-10">
+                    Plataforma multi-tenant, com controles de acesso por perfil e práticas alinhadas à LGPD.
+                </p>
             </div>
         </section>
 
@@ -1447,9 +987,9 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16 reveal">
                     <h2 class="text-3xl md:text-4xl font-extrabold text-dark mb-4">
-                        Você configura em minutos. Seu time começa a usar hoje.
+                        Como você começa
                     </h2>
-                    <p class="text-muted text-lg">Três passos simples para transformar suas vendas.</p>
+                    <p class="text-muted text-lg">Três passos para sair do papel até a operação rodando.</p>
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-8 mb-12">
@@ -1469,10 +1009,10 @@
                                 </svg>
                             </div>
                         </div>
-                        <h3 class="text-lg font-bold text-dark mb-3">Conecte seu WhatsApp Business</h3>
+                        <h3 class="text-lg font-bold text-dark mb-3">Conecte seus canais</h3>
                         <p class="text-muted text-sm leading-relaxed">
-                            Conecte seu WhatsApp em poucos minutos e comece a centralizar conversas sem complicação
-                            técnica.
+                            Plugue WhatsApp (Meta Cloud API, UAZAPI ou Z-API), Telegram e o Webchat do seu site. Tudo
+                            cai numa inbox só.
                         </p>
                     </div>
 
@@ -1500,10 +1040,10 @@
                                 </svg>
                             </div>
                         </div>
-                        <h3 class="text-lg font-bold text-dark mb-3">Configure seu funil de vendas</h3>
+                        <h3 class="text-lg font-bold text-dark mb-3">Configure sua operação</h3>
                         <p class="text-muted text-sm leading-relaxed">
-                            Crie as etapas do seu processo comercial e importe seus contatos. O InteraZap adapta ao seu
-                            jeito de vender — não o contrário.
+                            Importe contatos, monte o funil de negociações do seu jeito e organize times, filas e
+                            permissões.
                         </p>
                     </div>
 
@@ -1531,10 +1071,10 @@
                                 </svg>
                             </div>
                         </div>
-                        <h3 class="text-lg font-bold text-dark mb-3">Ative o Autopilot de IA</h3>
+                        <h3 class="text-lg font-bold text-dark mb-3">Ative o Autopilot</h3>
                         <p class="text-muted text-sm leading-relaxed">
-                            Configure os playbooks, adicione sua base de conhecimento e defina os guardrails. Sua IA
-                            começa a atender e qualificar leads automaticamente.
+                            Ensine a IA com o conhecimento da sua empresa, defina os limites e ela passa a responder —
+                            com explicação clara para você ver e revisar.
                         </p>
                     </div>
                 </div>
@@ -1544,8 +1084,8 @@
                         href="#contato"
                         class="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-semibold px-8 py-3.5 rounded-lg shadow-lg shadow-accent/25 transition"
                     >
-                        Quero começar agora — falar com especialista
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        Quero falar com a equipe
+                        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
                     </a>
@@ -1553,7 +1093,171 @@
             </div>
         </section>
 
-        <!-- ========== SEÇÃO 7 — APP MOBILE ========== -->
+        <!-- ========== SEÇÃO 7 — PREÇOS ========== -->
+        <section id="precos" class="py-16 md:py-24 bg-light">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-14 reveal">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-dark mb-4">Planos e preços</h2>
+                    <p class="text-muted text-lg max-w-2xl mx-auto">
+                        Sem surpresa na fatura. Escolha o plano que encaixa no tamanho da sua operação — você pode
+                        mudar de plano quando quiser.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 items-stretch">
+
+                    <!-- Starter -->
+                    <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col reveal">
+                        <div class="mb-6">
+                            <span class="text-xs font-bold uppercase tracking-widest text-muted">Starter</span>
+                            <div class="mt-3 flex items-end gap-1">
+                                <span class="text-4xl font-extrabold text-dark">R$&nbsp;97</span>
+                                <span class="text-muted text-sm pb-1">/mês</span>
+                            </div>
+                            <p class="text-sm text-muted mt-2 leading-relaxed">
+                                Para quem está começando a estruturar o atendimento.
+                            </p>
+                        </div>
+
+                        <ul class="space-y-3 flex-1 mb-8">
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Até 5 usuários
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                1 canal de atendimento
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                CRM com até 50 negociações
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                1 GB de armazenamento
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Relatórios básicos
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-muted">
+                                <svg class="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                IA Autopilot não incluso
+                            </li>
+                        </ul>
+
+                        <a href="#contato" data-iz-demo-cta="true" target="_blank" rel="noopener noreferrer"
+                            class="block text-center border-2 border-primary text-primary font-semibold py-3 rounded-xl hover:bg-primary hover:text-white transition">
+                            Falar com a equipe
+                        </a>
+                    </div>
+
+                    <!-- Professional — destaque -->
+                    <div class="bg-primary rounded-2xl p-8 shadow-xl flex flex-col relative reveal">
+                        <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-4 py-1.5 rounded-full shadow">
+                            Mais escolhido
+                        </span>
+
+                        <div class="mb-6">
+                            <span class="text-xs font-bold uppercase tracking-widest text-white/60">Professional</span>
+                            <div class="mt-3 flex items-end gap-1">
+                                <span class="text-4xl font-extrabold text-white">R$&nbsp;297</span>
+                                <span class="text-white/60 text-sm pb-1">/mês</span>
+                            </div>
+                            <p class="text-sm text-white/70 mt-2 leading-relaxed">
+                                Para times que querem crescer com IA e multicanal.
+                            </p>
+                        </div>
+
+                        <ul class="space-y-3 flex-1 mb-8">
+                            <li class="flex items-start gap-2 text-sm text-white">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Até 20 usuários
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-white">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Até 5 canais de atendimento
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-white">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                CRM com até 500 negociações
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-white">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                5 GB de armazenamento
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-white">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Relatórios avançados
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-white">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                <span><strong>IA Autopilot incluso</strong></span>
+                            </li>
+                        </ul>
+
+                        <a href="#contato" data-iz-demo-cta="true" target="_blank" rel="noopener noreferrer"
+                            class="block text-center bg-accent hover:bg-accent-hover text-white font-bold py-3 rounded-xl shadow transition">
+                            Falar com a equipe
+                        </a>
+                    </div>
+
+                    <!-- Business -->
+                    <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col reveal">
+                        <div class="mb-6">
+                            <span class="text-xs font-bold uppercase tracking-widest text-muted">Business</span>
+                            <div class="mt-3 flex items-end gap-1">
+                                <span class="text-4xl font-extrabold text-dark">R$&nbsp;897</span>
+                                <span class="text-muted text-sm pb-1">/mês</span>
+                            </div>
+                            <p class="text-sm text-muted mt-2 leading-relaxed">
+                                Para operações grandes com volume alto de atendimento.
+                            </p>
+                        </div>
+
+                        <ul class="space-y-3 flex-1 mb-8">
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Até 100 usuários
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Até 25 canais de atendimento
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                CRM com negociações ilimitadas
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Armazenamento ilimitado
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Relatórios completos
+                            </li>
+                            <li class="flex items-start gap-2 text-sm text-dark">
+                                <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                <span><strong>IA Autopilot incluso</strong></span>
+                            </li>
+                        </ul>
+
+                        <a href="#contato" data-iz-demo-cta="true" target="_blank" rel="noopener noreferrer"
+                            class="block text-center border-2 border-primary text-primary font-semibold py-3 rounded-xl hover:bg-primary hover:text-white transition">
+                            Falar com a equipe
+                        </a>
+                    </div>
+
+                </div>
+
+                <p class="text-center text-xs text-muted/70 mt-10">
+                    Todos os planos incluem suporte via chat, acesso ao app Android, versão desktop e à versão web. Cobrança mensal,
+                    sem fidelidade. Precisa de algo fora desses limites? Fale com a equipe.
+                </p>
+            </div>
+        </section>
+
+        <!-- ========== SEÇÃO 8 — APP MOBILE ========== -->
         <section class="py-16 md:py-24 bg-primary relative overflow-hidden">
             <div class="absolute inset-0">
                 <div class="absolute -top-40 -right-40 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
@@ -1670,57 +1374,37 @@
                     <!-- Copy -->
                     <div class="text-center md:text-left reveal">
                         <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-6">
-                            InteraZap em qualquer dispositivo — onde você estiver
+                            Também no celular, pra acompanhar de qualquer lugar
                         </h2>
                         <p class="text-white/70 text-lg leading-relaxed mb-8">
-                            Seu time não fica preso à mesa. Com o InteraZap no celular, seus vendedores respondem leads,
-                            fecham negócios e acompanham o funil de onde estiverem — na rua, no cliente ou em casa.
+                            Quando o atendimento não pode esperar você chegar no escritório, o app Android deixa o
+                            time responder e ver o que está rolando direto do celular.
                         </p>
 
                         <ul class="space-y-4 mb-10">
                             <li class="flex items-center gap-3 text-white/80">
-                                <span class="text-xl">📱</span>
-                                Disponível para Android e iOS
+                                <span class="text-xl" aria-hidden="true">📱</span>
+                                App Android disponível na Google Play
                             </li>
                             <li class="flex items-center gap-3 text-white/80">
-                                <span class="text-xl">💻</span>
-                                Versão web completa para desktop
+                                <span class="text-xl" aria-hidden="true">💻</span>
+                                Versão web completa para desktop, sem instalação
                             </li>
                             <li class="flex items-center gap-3 text-white/80">
-                                <span class="text-xl">🔔</span>
-                                Notificações push em tempo real
-                            </li>
-                            <li class="flex items-center gap-3 text-white/80">
-                                <span class="text-xl">🔒</span>
-                                Login seguro com autenticação 2FA
-                            </li>
-                            <li class="flex items-center gap-3 text-white/80">
-                                <span class="text-xl">⚡</span>
-                                Sincronização em tempo real
+                                <span class="text-xl" aria-hidden="true">🔔</span>
+                                Notificações de novos atendimentos no celular
                             </li>
                         </ul>
 
                         <!-- Store badges -->
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                        <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                            <!-- Google Play -->
                             <a
                                 href="#"
                                 class="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition"
+                                aria-label="Baixar InteraZap na Google Play"
                             >
-                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
-                                    <path
-                                        d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
-                                    />
-                                </svg>
-                                <div class="text-left">
-                                    <p class="text-[10px] text-gray-400">Baixar na</p>
-                                    <p class="text-sm font-semibold">App Store</p>
-                                </div>
-                            </a>
-                            <a
-                                href="#"
-                                class="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition"
-                            >
-                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+                                <svg class="w-7 h-7" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
                                     <path
                                         d="M3.18 23.76c-.36-.17-.59-.52-.59-.93V1.17c0-.41.23-.76.59-.93l11.83 11.76L3.18 23.76zM16.23 13.2l-2.42-2.42 2.42-2.42 2.72 1.57c.77.44.77 1.14 0 1.58L16.23 13.2zM13.07 12L4.4 3.33l9.89 5.71L13.07 12zm0 0l1.22 2.96L4.4 20.67 13.07 12z"
                                     />
@@ -1730,11 +1414,41 @@
                                     <p class="text-sm font-semibold">Google Play</p>
                                 </div>
                             </a>
-                        </div>
 
-                        <p class="text-white/40 text-xs mt-4">
-                            Versão web disponível em qualquer navegador — sem instalação
-                        </p>
+                            <!-- Windows -->
+                            <a
+                                href="https://app.interazap.com.br"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition"
+                                aria-label="Acessar InteraZap no Windows"
+                            >
+                                <svg class="w-7 h-7" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.849"/>
+                                </svg>
+                                <div class="text-left">
+                                    <p class="text-[10px] text-gray-400">Acesse no</p>
+                                    <p class="text-sm font-semibold">Windows</p>
+                                </div>
+                            </a>
+
+                            <!-- macOS -->
+                            <a
+                                href="https://app.interazap.com.br"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition"
+                                aria-label="Acessar InteraZap no macOS"
+                            >
+                                <svg class="w-7 h-7" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.459 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
+                                </svg>
+                                <div class="text-left">
+                                    <p class="text-[10px] text-gray-400">Acesse no</p>
+                                    <p class="text-sm font-semibold">macOS</p>
+                                </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1747,11 +1461,11 @@
                     <!-- Left: Copy -->
                     <div class="reveal">
                         <h2 class="text-3xl md:text-4xl font-extrabold text-dark mb-4">
-                            Pronto para transformar seu WhatsApp em máquina de vendas?
+                            Bora conversar?
                         </h2>
                         <p class="text-muted text-lg mb-8">
-                            Preencha o formulário e um especialista do InteraZap entra em contato com você em menos de
-                            24 horas.
+                            Deixa seu contato e a gente marca uma demonstração rápida pra mostrar o InteraZap rodando
+                            no seu cenário.
                         </p>
 
                         <div class="space-y-6">
@@ -1821,16 +1535,9 @@
                                 </div>
                                 <div>
                                     <p class="text-dark font-semibold">Sem compromisso</p>
-                                    <p class="text-muted text-sm">Demonstração gratuita, sem cartão de crédito</p>
+                                    <p class="text-muted text-sm">É só uma conversa pra entender se faz sentido</p>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mt-8 p-4 bg-accent/5 rounded-xl border border-accent/10">
-                            <p class="text-sm text-dark font-medium flex items-center gap-2">
-                                <span class="text-lg">⚡</span>
-                                Vagas limitadas para onboarding guiado este mês
-                            </p>
                         </div>
                     </div>
 
@@ -1894,6 +1601,32 @@
                                         </p>
                                     </div>
 
+                                    <!-- Empresa -->
+                                    <div>
+                                        <label for="company" class="block text-sm font-semibold text-dark mb-1.5"
+                                            >Empresa</label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="company"
+                                            name="company"
+                                            placeholder="Nome da sua empresa (opcional)"
+                                            class="w-full px-4 py-3 border border-gray-200 rounded-lg text-dark text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition placeholder:text-gray-400"
+                                        />
+                                    </div>
+
+                                    <!-- Honeypot anti-spam (não remover, não exibir) -->
+                                    <div class="hidden" aria-hidden="true">
+                                        <label for="website">Website</label>
+                                        <input
+                                            type="text"
+                                            id="website"
+                                            name="website"
+                                            tabindex="-1"
+                                            autocomplete="off"
+                                        />
+                                    </div>
+
                                     <!-- LGPD consent -->
                                     <div class="flex items-start gap-3">
                                         <input
@@ -1903,22 +1636,29 @@
                                             required
                                             class="mt-1 w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
                                         />
-                                        <label for="lgpd" class="text-xs text-muted leading-relaxed">
-                                            Concordo com a
-                                            <a href="#" class="text-accent hover:underline">Política de Privacidade</a>
-                                            e autorizo contato do InteraZap conforme a LGPD.
-                                        </label>
+                                         <label for="lgpd" class="text-xs text-muted leading-relaxed">
+                                             Concordo com a
+                                             <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">Política de Privacidade</a>
+                                             e autorizo contato do InteraZap conforme a <a href="lgpd.html" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">LGPD</a>.
+                                         </label>
                                     </div>
                                     <p class="text-red-500 text-xs hidden" id="lgpd-error">
                                         Você precisa aceitar a política de privacidade
                                     </p>
 
+                                    <!-- Erro genérico de envio -->
+                                    <div
+                                        id="form-error"
+                                        class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm"
+                                        role="alert"
+                                    ></div>
+
                                     <!-- Submit -->
                                     <button
                                         type="submit"
-                                        class="w-full bg-accent hover:bg-accent-hover text-white font-semibold py-3.5 rounded-lg shadow-lg shadow-accent/25 transition text-base"
+                                        class="w-full bg-accent hover:bg-accent-hover text-white font-semibold py-3.5 rounded-lg shadow-lg shadow-accent/25 transition text-base disabled:opacity-60 disabled:cursor-not-allowed"
                                     >
-                                        Quero conhecer o InteraZap
+                                        Quero falar com a equipe
                                     </button>
                                 </div>
 
@@ -1981,7 +1721,7 @@
                                 </div>
                                 <h3 class="text-xl font-bold text-dark mb-2">Recebemos seu contato! 🎉</h3>
                                 <p class="text-muted">
-                                    Um especialista entrará em contato em até 24 horas pelo WhatsApp.
+                                    A equipe vai te chamar no WhatsApp pra agendar a demonstração.
                                 </p>
                             </div>
                         </div>
@@ -1995,22 +1735,25 @@
         <section class="py-16 md:py-20 bg-white">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center reveal">
                 <h2 class="text-3xl md:text-4xl font-extrabold text-dark mb-4">
-                    Cada lead perdido no WhatsApp é dinheiro que vai para o concorrente.
+                    Vamos colocar sua operação pra rodar?
                 </h2>
                 <p class="text-muted text-lg mb-8 max-w-2xl mx-auto">
-                    Junte-se às empresas que já automatizaram suas vendas com o InteraZap.
+                    Em uma conversa rápida a gente entende seu cenário e mostra o InteraZap funcionando de verdade.
                 </p>
                 <a
                     href="#contato"
+                    data-iz-demo-cta="true"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     class="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-bold text-lg px-10 py-4 rounded-xl shadow-lg shadow-accent/25 transition"
                 >
-                    Quero uma demonstração gratuita
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    Agendar demonstração
+                    <svg class="w-6 h-6" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                 </a>
                 <p class="text-muted text-sm mt-4">
-                    Sem compromisso. Suporte 100% em português. Cancele quando quiser.
+                    Sem compromisso. Atendimento em português.
                 </p>
             </div>
         </section>
@@ -2040,15 +1783,15 @@
                             <span class="text-xl font-bold text-white">InteraZap</span>
                         </div>
                         <p class="text-white/50 text-sm leading-relaxed max-w-md mb-6">
-                            O primeiro CRM brasileiro com Autopilot de IA nativo para WhatsApp. Venda mais, atenda
-                            melhor e automatize seu negócio.
+                            Plataforma de IA conversacional para times que vendem e atendem pelo WhatsApp, Telegram e
+                            no site. Multicanal, com CRM integrado e IA que explica cada resposta que dá.
                         </p>
-                        <div class="flex items-center gap-3">
+                        <div class="flex flex-wrap items-center gap-3">
                             <span class="bg-white/10 text-white/60 text-xs font-medium px-3 py-1.5 rounded-full"
-                                >Integração com WhatsApp</span
+                                >WhatsApp · Telegram · Webchat</span
                             >
                             <span class="bg-white/10 text-white/60 text-xs font-medium px-3 py-1.5 rounded-full"
-                                >LGPD Compliance</span
+                                >LGPD-friendly</span
                             >
                         </div>
                     </div>
@@ -2058,14 +1801,15 @@
                         <h4 class="text-white font-semibold text-sm mb-4">Legal</h4>
                         <ul class="space-y-2.5">
                             <li>
-                                <a href="#" class="text-white/50 hover:text-white text-sm transition"
+                                <a href="politica-de-privacidade.html" class="text-white/50 hover:text-white text-sm transition"
                                     >Política de Privacidade</a
                                 >
                             </li>
                             <li>
-                                <a href="#" class="text-white/50 hover:text-white text-sm transition">Termos de Uso</a>
+                                <a href="termos-de-uso.html" class="text-white/50 hover:text-white text-sm transition">Termos de Uso</a>
                             </li>
-                            <li><a href="#" class="text-white/50 hover:text-white text-sm transition">LGPD</a></li>
+                            <li><a href="lgpd.html" class="text-white/50 hover:text-white text-sm transition">LGPD</a></li>
+                            <li><a href="whatsapp-nao-oficial.html" class="text-white/50 hover:text-white text-sm transition">WhatsApp Não Oficial</a></li>
                         </ul>
                     </div>
 
@@ -2109,29 +1853,44 @@
                         </div>
 
                         <div class="mt-6">
-                            <h4 class="text-white font-semibold text-sm mb-3">App</h4>
-                            <div class="flex gap-2">
+                            <h4 class="text-white font-semibold text-sm mb-3">App &amp; Desktop</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <!-- Google Play -->
                                 <a
                                     href="#"
                                     class="bg-white/10 hover:bg-white/20 text-white text-[10px] px-3 py-2 rounded-lg transition flex items-center gap-1.5"
+                                    aria-label="Baixar InteraZap na Google Play"
                                 >
-                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
-                                        />
-                                    </svg>
-                                    App Store
-                                </a>
-                                <a
-                                    href="#"
-                                    class="bg-white/10 hover:bg-white/20 text-white text-[10px] px-3 py-2 rounded-lg transition flex items-center gap-1.5"
-                                >
-                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M3.18 23.76c-.36-.17-.59-.52-.59-.93V1.17c0-.41.23-.76.59-.93l11.83 11.76L3.18 23.76zM16.23 13.2l-2.42-2.42 2.42-2.42 2.72 1.57c.77.44.77 1.14 0 1.58L16.23 13.2zM13.07 12L4.4 3.33l9.89 5.71L13.07 12zm0 0l1.22 2.96L4.4 20.67 13.07 12z"
-                                        />
+                                    <svg class="w-4 h-4" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M3.18 23.76c-.36-.17-.59-.52-.59-.93V1.17c0-.41.23-.76.59-.93l11.83 11.76L3.18 23.76zM16.23 13.2l-2.42-2.42 2.42-2.42 2.72 1.57c.77.44.77 1.14 0 1.58L16.23 13.2zM13.07 12L4.4 3.33l9.89 5.71L13.07 12zm0 0l1.22 2.96L4.4 20.67 13.07 12z"/>
                                     </svg>
                                     Google Play
+                                </a>
+                                <!-- Windows -->
+                                <a
+                                    href="https://app.interazap.com.br"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="bg-white/10 hover:bg-white/20 text-white text-[10px] px-3 py-2 rounded-lg transition flex items-center gap-1.5"
+                                    aria-label="Acessar InteraZap no Windows"
+                                >
+                                    <svg class="w-4 h-4" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.849"/>
+                                    </svg>
+                                    Windows
+                                </a>
+                                <!-- macOS -->
+                                <a
+                                    href="https://app.interazap.com.br"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="bg-white/10 hover:bg-white/20 text-white text-[10px] px-3 py-2 rounded-lg transition flex items-center gap-1.5"
+                                    aria-label="Acessar InteraZap no macOS"
+                                >
+                                    <svg class="w-4 h-4" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.459 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
+                                    </svg>
+                                    macOS
                                 </a>
                             </div>
                         </div>
@@ -2141,7 +1900,7 @@
                 <!-- Bottom bar -->
                 <div class="border-t border-white/10 pt-8">
                     <p class="text-white/30 text-xs text-center">
-                        &copy; 2026 InteraZap. Todos os direitos reservados. CNPJ: XX.XXX.XXX/0001-XX
+                        &copy; 2026 InteraZap. Todos os direitos reservados.
                     </p>
                 </div>
             </div>
@@ -2149,111 +1908,210 @@
 
         <!-- ========== SCRIPTS ========== -->
         <script>
-            // Mobile menu toggle
-            const menuBtn = document.getElementById('mobile-menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            menuBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
+            'use strict';
 
-            // Close mobile menu on link click
-            mobileMenu.querySelectorAll('a').forEach((link) => {
-                link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
-            });
+            // ── Config ───────────────────────────────────────────────────────────
+            // Pode ser sobrescrito antes deste script setando window.INTERAZAP_API_URL
+            var INTERAZAP_API_URL = window.INTERAZAP_API_URL || 'https://api.interazap.com.br';
 
-            // Navbar scroll effect
-            const navbar = document.getElementById('navbar');
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('navbar-scrolled');
-                } else {
-                    navbar.classList.remove('navbar-scrolled');
+            // ── Mobile menu toggle ───────────────────────────────────────────────
+            var menuBtn = document.getElementById('mobile-menu-btn');
+            var mobileMenu = document.getElementById('mobile-menu');
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener('click', function () {
+                    mobileMenu.classList.toggle('hidden');
+                });
+                mobileMenu.querySelectorAll('a').forEach(function (link) {
+                    link.addEventListener('click', function () {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+
+            // ── Navbar scroll effect ─────────────────────────────────────────────
+            var navbar = document.getElementById('navbar');
+            if (navbar) {
+                window.addEventListener('scroll', function () {
+                    if (window.scrollY > 50) {
+                        navbar.classList.add('navbar-scrolled');
+                    } else {
+                        navbar.classList.remove('navbar-scrolled');
+                    }
+                });
+            }
+
+            // ── WhatsApp mask (aplicada a todos .phone-input) ────────────────────
+            function applyPhoneMask(input) {
+                input.addEventListener('input', function (e) {
+                    var value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 11) value = value.slice(0, 11);
+                    if (value.length > 6) {
+                        value = '(' + value.slice(0, 2) + ') ' + value.slice(2, 7) + '-' + value.slice(7);
+                    } else if (value.length > 2) {
+                        value = '(' + value.slice(0, 2) + ') ' + value.slice(2);
+                    } else if (value.length > 0) {
+                        value = '(' + value;
+                    }
+                    e.target.value = value;
+                });
+            }
+            document.querySelectorAll('.phone-input').forEach(applyPhoneMask);
+
+            // ── UTM / referrer helpers ───────────────────────────────────────────
+            function getQueryParam(name) {
+                var params = new URLSearchParams(window.location.search);
+                var v = params.get(name);
+                return v && v.trim() ? v.trim() : null;
+            }
+
+            function buildLeadPayload(extra) {
+                var payload = {
+                    source: 'landing_form',
+                    referrer: document.referrer || null,
+                    user_agent: navigator.userAgent || null,
+                    utm_source: getQueryParam('utm_source'),
+                    utm_medium: getQueryParam('utm_medium'),
+                    utm_campaign: getQueryParam('utm_campaign'),
+                    utm_term: getQueryParam('utm_term'),
+                    utm_content: getQueryParam('utm_content'),
+                };
+                Object.keys(extra || {}).forEach(function (k) {
+                    payload[k] = extra[k];
+                });
+                return payload;
+            }
+
+            function submitLead(payload) {
+                return fetch(INTERAZAP_API_URL + '/api/public/leads', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+            }
+
+            function markLeadSubmitted() {
+                try {
+                    localStorage.setItem('iz_lead_submitted', '1');
+                } catch (_) {}
+            }
+
+            function hasLeadSubmitted() {
+                try {
+                    return localStorage.getItem('iz_lead_submitted') === '1';
+                } catch (_) {
+                    return false;
                 }
-            });
+            }
 
-            // WhatsApp mask
-            const whatsappInput = document.getElementById('whatsapp');
-            whatsappInput.addEventListener('input', (e) => {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 11) value = value.slice(0, 11);
+            function friendlyErrorMessage(status) {
+                if (status === 422) return 'Confira os dados e tente novamente.';
+                if (status === 429) return 'Muitas tentativas. Aguarde alguns segundos e tente novamente.';
+                if (status >= 500) return 'Tivemos um problema por aqui. Tente novamente em instantes.';
+                return 'Não foi possível enviar agora. Tente novamente.';
+            }
 
-                if (value.length > 6) {
-                    value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
-                } else if (value.length > 2) {
-                    value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
-                } else if (value.length > 0) {
-                    value = `(${value}`;
-                }
-                e.target.value = value;
-            });
+            // ── Form principal (#contact-form) ───────────────────────────────────
+            var form = document.getElementById('contact-form');
+            var successDiv = document.getElementById('form-success');
+            var formError = document.getElementById('form-error');
 
-            // Form validation + submission
-            const form = document.getElementById('contact-form');
-            const successDiv = document.getElementById('form-success');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    formError.classList.add('hidden');
+                    formError.textContent = '';
 
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                let valid = true;
+                    var valid = true;
 
-                // Name
-                const name = document.getElementById('name');
-                const nameError = document.getElementById('name-error');
-                if (!name.value.trim() || name.value.trim().length < 3) {
-                    nameError.classList.remove('hidden');
-                    name.classList.add('border-red-400');
-                    valid = false;
-                } else {
-                    nameError.classList.add('hidden');
-                    name.classList.remove('border-red-400');
-                }
+                    var name = document.getElementById('name');
+                    var nameError = document.getElementById('name-error');
+                    if (!name.value.trim() || name.value.trim().length < 3) {
+                        nameError.classList.remove('hidden');
+                        name.classList.add('border-red-400');
+                        valid = false;
+                    } else {
+                        nameError.classList.add('hidden');
+                        name.classList.remove('border-red-400');
+                    }
 
-                // WhatsApp
-                const whatsapp = document.getElementById('whatsapp');
-                const whatsappError = document.getElementById('whatsapp-error');
-                const phoneDigits = whatsapp.value.replace(/\D/g, '');
-                if (phoneDigits.length < 10 || phoneDigits.length > 11) {
-                    whatsappError.classList.remove('hidden');
-                    whatsapp.classList.add('border-red-400');
-                    valid = false;
-                } else {
-                    whatsappError.classList.add('hidden');
-                    whatsapp.classList.remove('border-red-400');
-                }
+                    var whatsapp = document.getElementById('whatsapp');
+                    var whatsappError = document.getElementById('whatsapp-error');
+                    var phoneDigits = whatsapp.value.replace(/\D/g, '');
+                    if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+                        whatsappError.classList.remove('hidden');
+                        whatsapp.classList.add('border-red-400');
+                        valid = false;
+                    } else {
+                        whatsappError.classList.add('hidden');
+                        whatsapp.classList.remove('border-red-400');
+                    }
 
-                // Email
-                const email = document.getElementById('email');
-                const emailError = document.getElementById('email-error');
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email.value)) {
-                    emailError.classList.remove('hidden');
-                    email.classList.add('border-red-400');
-                    valid = false;
-                } else {
-                    emailError.classList.add('hidden');
-                    email.classList.remove('border-red-400');
-                }
+                    var email = document.getElementById('email');
+                    var emailError = document.getElementById('email-error');
+                    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email.value)) {
+                        emailError.classList.remove('hidden');
+                        email.classList.add('border-red-400');
+                        valid = false;
+                    } else {
+                        emailError.classList.add('hidden');
+                        email.classList.remove('border-red-400');
+                    }
 
-                // LGPD
-                const lgpd = document.getElementById('lgpd');
-                const lgpdError = document.getElementById('lgpd-error');
-                if (!lgpd.checked) {
-                    lgpdError.classList.remove('hidden');
-                    valid = false;
-                } else {
-                    lgpdError.classList.add('hidden');
-                }
+                    var lgpd = document.getElementById('lgpd');
+                    var lgpdError = document.getElementById('lgpd-error');
+                    if (!lgpd.checked) {
+                        lgpdError.classList.remove('hidden');
+                        valid = false;
+                    } else {
+                        lgpdError.classList.add('hidden');
+                    }
 
-                if (valid) {
-                    form.classList.add('hidden');
-                    successDiv.classList.remove('hidden');
-                }
-            });
+                    if (!valid) return;
 
-            // Scroll reveal animation
-            const revealElements = document.querySelectorAll('.reveal');
-            const revealObserver = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
+                    var company = document.getElementById('company');
+                    var honeypot = document.getElementById('website');
+                    var submitBtn = form.querySelector('button[type="submit"]');
+
+                    submitBtn.disabled = true;
+                    var originalLabel = submitBtn.textContent;
+                    submitBtn.textContent = 'Enviando…';
+
+                    var payload = buildLeadPayload({
+                        name: name.value.trim(),
+                        phone: phoneDigits,
+                        email: email.value.trim(),
+                        company: company.value.trim() || null,
+                        lgpd_consent: true,
+                        website: honeypot ? honeypot.value : '',
+                    });
+
+                    submitLead(payload)
+                        .then(function (res) {
+                            if (!res.ok) {
+                                throw Object.assign(new Error('http_error'), { status: res.status });
+                            }
+                            markLeadSubmitted();
+                            form.classList.add('hidden');
+                            successDiv.classList.remove('hidden');
+                        })
+                        .catch(function (err) {
+                            formError.textContent = friendlyErrorMessage(err && err.status);
+                            formError.classList.remove('hidden');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalLabel;
+                        });
+                });
+            }
+
+            // ── Scroll reveal animation ──────────────────────────────────────────
+            var revealElements = document.querySelectorAll('.reveal');
+            var revealObserver = new IntersectionObserver(
+                function (entries) {
+                    entries.forEach(function (entry) {
                         if (entry.isIntersecting) {
                             entry.target.classList.add('visible');
                         }
@@ -2261,9 +2119,462 @@
                 },
                 { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
             );
+            revealElements.forEach(function (el) {
+                revealObserver.observe(el);
+            });
 
-            revealElements.forEach((el) => revealObserver.observe(el));
+            // ── Exit-intent modal ────────────────────────────────────────────────
+            // O HTML do modal (#exit-modal) está APÓS este script tag, portanto
+            // o getElementById retornaria null se executado inline. Usamos
+            // DOMContentLoaded para garantir que o DOM completo esteja disponível.
+            document.addEventListener('DOMContentLoaded', function () {
+            (function () {
+                var modal = document.getElementById('exit-modal');
+                if (!modal) return;
+
+                var panel = document.getElementById('exit-modal-panel');
+                var btnClose = document.getElementById('exit-modal-close');
+                var btnDismiss = document.getElementById('exit-modal-dismiss');
+                var exitForm = document.getElementById('exit-form');
+                var exitFormWrapper = document.getElementById('exit-modal-form-wrapper');
+                var exitSuccess = document.getElementById('exit-modal-success');
+                var exitError = document.getElementById('exit-form-error');
+                var firstInput = document.getElementById('exit-name');
+
+                var pageLoadedAt = Date.now();
+                var MIN_TIME_ON_PAGE_MS = 8000;
+                var lastTouchY = null;
+                var lastFocused = null;
+
+                function shouldSkip() {
+                    if (hasLeadSubmitted()) {
+                        console.debug('[exit-modal] skip: lead já enviado');
+                        return true;
+                    }
+                    try {
+                        if (sessionStorage.getItem('iz_exit_modal_shown') === '1') {
+                            console.debug(
+                                '[exit-modal] skip: já exibido nesta sessão. Para resetar, rode: sessionStorage.removeItem("iz_exit_modal_shown")',
+                            );
+                            return true;
+                        }
+                    } catch (_) {}
+                    var elapsed = Date.now() - pageLoadedAt;
+                    if (elapsed < MIN_TIME_ON_PAGE_MS) {
+                        console.debug(
+                            '[exit-modal] skip: aguardando cooldown (' +
+                                Math.round((MIN_TIME_ON_PAGE_MS - elapsed) / 1000) +
+                                's restantes)',
+                        );
+                        return true;
+                    }
+                    return false;
+                }
+
+                function trapFocus(e) {
+                    if (e.key !== 'Tab') return;
+                    var focusables = panel.querySelectorAll(
+                        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+                    );
+                    if (!focusables.length) return;
+                    var first = focusables[0];
+                    var last = focusables[focusables.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+
+                function onKeydown(e) {
+                    if (e.key === 'Escape') {
+                        closeModal();
+                    } else {
+                        trapFocus(e);
+                    }
+                }
+
+                function openModal() {
+                    if (shouldSkip()) return;
+                    try {
+                        sessionStorage.setItem('iz_exit_modal_shown', '1');
+                    } catch (_) {}
+                    lastFocused = document.activeElement;
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    document.body.style.overflow = 'hidden';
+                    document.addEventListener('keydown', onKeydown);
+                    setTimeout(function () {
+                        if (firstInput) firstInput.focus();
+                    }, 50);
+                }
+
+                function closeModal() {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    document.body.style.overflow = '';
+                    document.removeEventListener('keydown', onKeydown);
+                    if (lastFocused && typeof lastFocused.focus === 'function') {
+                        lastFocused.focus();
+                    }
+                }
+
+                btnClose.addEventListener('click', closeModal);
+                btnDismiss.addEventListener('click', closeModal);
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) closeModal();
+                });
+
+                // Trigger desktop: cursor saindo pela borda SUPERIOR da janela.
+                //
+                // Combina dois sinais para máxima confiabilidade:
+                //   1. mouseout no document com relatedTarget nulo (cursor saiu da janela)
+                //   2. mouseleave no <html> (fallback para alguns browsers)
+                // Ambos exigem clientY <= 5 para garantir que foi pelo topo, não pelas
+                // laterais ou inferior.
+                function handleExitIntent(e) {
+                    if (e.clientY > 5) return;
+                    console.debug('[exit-modal] exit-intent detectado (clientY=' + e.clientY + ')');
+                    openModal();
+                }
+
+                document.addEventListener('mouseout', function (e) {
+                    var to = e.relatedTarget || e.toElement;
+                    if (!to) handleExitIntent(e);
+                });
+                document.documentElement.addEventListener('mouseleave', handleExitIntent);
+
+                // Helper de debug exposto globalmente — abre o modal forçadamente
+                // ignorando cooldown/sessão. Útil para QA: window.izDebugExitModal()
+                window.izDebugExitModal = function () {
+                    try {
+                        sessionStorage.removeItem('iz_exit_modal_shown');
+                    } catch (_) {}
+                    pageLoadedAt = 0;
+                    console.debug('[exit-modal] debug: forçando abertura');
+                    openModal();
+                };
+
+                // Trigger mobile: scroll up rápido
+                window.addEventListener(
+                    'touchstart',
+                    function (e) {
+                        if (e.touches && e.touches[0]) lastTouchY = e.touches[0].clientY;
+                    },
+                    { passive: true },
+                );
+                window.addEventListener(
+                    'touchmove',
+                    function (e) {
+                        if (lastTouchY === null || !e.touches || !e.touches[0]) return;
+                        var dy = e.touches[0].clientY - lastTouchY;
+                        // scroll up rápido próximo do topo
+                        if (window.scrollY < 150 && dy > 60) {
+                            openModal();
+                            lastTouchY = null;
+                        }
+                    },
+                    { passive: true },
+                );
+
+                // Submit do exit form
+                exitForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    exitError.classList.add('hidden');
+                    exitError.textContent = '';
+
+                    var name = document.getElementById('exit-name');
+                    var phone = document.getElementById('exit-whatsapp');
+                    var email = document.getElementById('exit-email');
+                    var company = document.getElementById('exit-company');
+                    var lgpd = document.getElementById('exit-lgpd');
+                    var honeypot = document.getElementById('exit-website');
+
+                    var phoneDigits = phone.value.replace(/\D/g, '');
+                    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                    if (
+                        !name.value.trim() ||
+                        name.value.trim().length < 3 ||
+                        phoneDigits.length < 10 ||
+                        phoneDigits.length > 11 ||
+                        !emailRegex.test(email.value) ||
+                        !lgpd.checked
+                    ) {
+                        exitError.textContent = 'Confira nome, WhatsApp, e-mail e o aceite da política.';
+                        exitError.classList.remove('hidden');
+                        return;
+                    }
+
+                    var submitBtn = exitForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    var originalLabel = submitBtn.textContent;
+                    submitBtn.textContent = 'Enviando…';
+
+                    var payload = buildLeadPayload({
+                        source: 'landing_exit_modal',
+                        name: name.value.trim(),
+                        phone: phoneDigits,
+                        email: email.value.trim(),
+                        company: company.value.trim() || null,
+                        lgpd_consent: true,
+                        website: honeypot ? honeypot.value : '',
+                    });
+
+                    submitLead(payload)
+                        .then(function (res) {
+                            if (!res.ok) {
+                                throw Object.assign(new Error('http_error'), { status: res.status });
+                            }
+                            markLeadSubmitted();
+                            exitFormWrapper.classList.add('hidden');
+                            exitSuccess.classList.remove('hidden');
+                            setTimeout(closeModal, 4000);
+                        })
+                        .catch(function (err) {
+                            exitError.textContent = friendlyErrorMessage(err && err.status);
+                            exitError.classList.remove('hidden');
+                            submitBtn.disabled = false;
+                             submitBtn.textContent = originalLabel;
+                        });
+                });
+            })();
+            }); // DOMContentLoaded — exit-intent modal
         </script>
+
+        <!-- ========== COOKIE CONSENT BANNER — JS (LGPD) ========== -->
+        <script>
+            (function () {
+                var STORE_KEY = 'iz_cookie_consent';
+                var EXPIRE_MS = 365 * 24 * 60 * 60 * 1000; // 12 meses
+
+                function getConsent() {
+                    try {
+                        var raw = localStorage.getItem(STORE_KEY);
+                        if (!raw) return null;
+                        var data = JSON.parse(raw);
+                        if (!data || !data.ts) return null;
+                        if (Date.now() - data.ts > EXPIRE_MS) {
+                            localStorage.removeItem(STORE_KEY);
+                            return null;
+                        }
+                        return data.consent;
+                    } catch (e) { return null; }
+                }
+
+                function setConsent(type) {
+                    try {
+                        localStorage.setItem(STORE_KEY, JSON.stringify({ consent: type, ts: Date.now() }));
+                    } catch (e) {}
+                }
+
+                function hideBanner() {
+                    var banner = document.getElementById('iz-cookie-banner');
+                    if (!banner) return;
+                    banner.classList.remove('visible');
+                    setTimeout(function () { banner.style.display = 'none'; }, 520);
+                }
+
+                // Já consentiu — não mostra o banner
+                if (getConsent()) return;
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    var banner = document.getElementById('iz-cookie-banner');
+                    if (!banner) return;
+
+                    // Aguarda 900ms + dois frames para garantir transição suave
+                    setTimeout(function () {
+                        requestAnimationFrame(function () {
+                            requestAnimationFrame(function () {
+                                banner.classList.add('visible');
+                            });
+                        });
+                    }, 900);
+
+                    var btnAll       = document.getElementById('iz-cookie-accept-all');
+                    var btnEssential = document.getElementById('iz-cookie-accept-essential');
+
+                    if (btnAll) btnAll.addEventListener('click', function () {
+                        setConsent('all');
+                        hideBanner();
+                    });
+                    if (btnEssential) btnEssential.addEventListener('click', function () {
+                        setConsent('essential');
+                        hideBanner();
+                    });
+                });
+            })();
+        </script>
+
+        <!-- ========== EXIT-INTENT MODAL ========== -->
+        <div
+            id="exit-modal"
+            class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="exit-modal-title"
+            aria-describedby="exit-modal-desc"
+        >
+            <div
+                class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 md:p-8"
+                id="exit-modal-panel"
+            >
+                <button
+                    type="button"
+                    id="exit-modal-close"
+                    class="absolute top-3 right-3 w-8 h-8 rounded-full text-muted hover:text-dark hover:bg-light flex items-center justify-center transition"
+                    aria-label="Fechar"
+                >
+                    <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <div id="exit-modal-form-wrapper">
+                    <h3 id="exit-modal-title" class="text-2xl font-extrabold text-dark mb-2">
+                        Antes de sair…
+                    </h3>
+                    <p id="exit-modal-desc" class="text-muted text-sm mb-6">
+                        Deixa seu contato e a equipe te chama no WhatsApp pra mostrar o InteraZap rodando — leva uns
+                        15 minutos.
+                    </p>
+
+                    <form id="exit-form" novalidate class="space-y-4">
+                        <div>
+                            <label for="exit-name" class="block text-xs font-semibold text-dark mb-1">Nome *</label>
+                            <input
+                                type="text"
+                                id="exit-name"
+                                name="name"
+                                required
+                                placeholder="Seu nome"
+                                class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-dark text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition placeholder:text-gray-400"
+                            />
+                        </div>
+                        <div>
+                            <label for="exit-whatsapp" class="block text-xs font-semibold text-dark mb-1"
+                                >WhatsApp com DDD *</label
+                            >
+                            <input
+                                type="tel"
+                                id="exit-whatsapp"
+                                name="whatsapp"
+                                required
+                                placeholder="(11) 99999-9999"
+                                maxlength="15"
+                                class="phone-input w-full px-3 py-2.5 border border-gray-200 rounded-lg text-dark text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition placeholder:text-gray-400"
+                            />
+                        </div>
+                        <div>
+                            <label for="exit-email" class="block text-xs font-semibold text-dark mb-1"
+                                >E-mail *</label
+                            >
+                            <input
+                                type="email"
+                                id="exit-email"
+                                name="email"
+                                required
+                                placeholder="seu@empresa.com.br"
+                                class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-dark text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition placeholder:text-gray-400"
+                            />
+                        </div>
+                        <div>
+                            <label for="exit-company" class="block text-xs font-semibold text-dark mb-1"
+                                >Empresa</label
+                            >
+                            <input
+                                type="text"
+                                id="exit-company"
+                                name="company"
+                                placeholder="Nome da empresa (opcional)"
+                                class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-dark text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition placeholder:text-gray-400"
+                            />
+                        </div>
+
+                        <!-- Honeypot -->
+                        <div class="hidden" aria-hidden="true">
+                            <label for="exit-website">Website</label>
+                            <input type="text" id="exit-website" name="website" tabindex="-1" autocomplete="off" />
+                        </div>
+
+                        <div class="flex items-start gap-2">
+                            <input
+                                type="checkbox"
+                                id="exit-lgpd"
+                                name="lgpd"
+                                required
+                                class="mt-0.5 w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
+                            />
+                             <label for="exit-lgpd" class="text-xs text-muted leading-relaxed">
+                                 Concordo com a
+                                 <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">Política de Privacidade</a>
+                                 e com o <a href="lgpd.html" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">Aviso LGPD</a>,
+                                 e autorizo contato do InteraZap.
+                             </label>
+                        </div>
+
+                        <div
+                            id="exit-form-error"
+                            class="hidden p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs"
+                            role="alert"
+                        ></div>
+
+                        <div class="flex flex-col-reverse sm:flex-row gap-2 pt-1">
+                            <button
+                                type="button"
+                                id="exit-modal-dismiss"
+                                class="flex-1 sm:flex-none px-4 py-2.5 text-sm font-medium text-muted hover:text-dark transition"
+                            >
+                                Não, obrigado
+                            </button>
+                            <button
+                                type="submit"
+                                class="flex-1 bg-accent hover:bg-accent-hover text-white font-semibold py-2.5 rounded-lg shadow-lg shadow-accent/25 transition text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                Quero a demonstração
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="exit-modal-success" class="hidden text-center py-6">
+                    <div class="w-14 h-14 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-7 h-7 text-accent" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-dark mb-1">Recebemos seu contato!</h3>
+                    <p class="text-muted text-sm">A equipe vai te chamar no WhatsApp em breve.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== COOKIE CONSENT BANNER (LGPD) ========== -->
+        <div id="iz-cookie-banner" role="region" aria-label="Aviso de cookies">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <p class="text-white/80 text-sm leading-relaxed max-w-2xl">
+                    Usamos cookies essenciais para o funcionamento do site e cookies analíticos/marketing para melhorar sua experiência e medir campanhas.
+                    Saiba mais na nossa <a href="politica-de-privacidade.html" class="text-accent underline hover:text-accent/80">Política de Privacidade</a>
+                    e no nosso <a href="lgpd.html" class="text-accent underline hover:text-accent/80">Aviso LGPD</a>.
+                </p>
+                <div class="flex flex-shrink-0 gap-3 items-center">
+                    <button
+                        id="iz-cookie-accept-essential"
+                        class="text-white/60 hover:text-white text-xs font-medium transition whitespace-nowrap"
+                    >
+                        Apenas essenciais
+                    </button>
+                    <button
+                        id="iz-cookie-accept-all"
+                        class="bg-accent hover:bg-accent-hover text-white text-xs font-semibold px-5 py-2.5 rounded-lg transition whitespace-nowrap"
+                    >
+                        Aceitar todos
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- ========== CHAT LAUNCHER (FEAT-041) ========== -->
         <button
@@ -2313,7 +2624,7 @@
                 } else if (host.includes('stage')) {
                     webchatBase = 'https://stage.app.interazap.com.br';
                 } else {
-                    webchatBase = 'https://app.interazap.com';
+                    webchatBase = 'https://app.interazap.com.br';
                 }
 
                 var chatUrl = webchatBase + '/chat/external/' + tenantId;
@@ -2363,6 +2674,37 @@
                         e.preventDefault();
                         launcher.click();
                     }
+                });
+            })();
+        </script>
+
+        <script>
+            // ── Demo CTA Links — sincroniza href com a URL do chat launcher ────────
+            // Os botões [data-iz-demo-cta] ficam com href="#contato" como fallback;
+            // este script substitui pelo link real do webchat assim que o DOM carrega,
+            // reutilizando os data-attributes do launcher (env-aware: localhost/stage/prod).
+            (function () {
+                'use strict';
+                var launcher = document.getElementById('interazap-chat-launcher');
+                if (!launcher) return;
+
+                var tenantId = launcher.getAttribute('data-iz-tenant-id');
+                if (!tenantId) return;
+
+                var host = window.location.hostname;
+                var webchatBase;
+                if (host === 'localhost' || host === '127.0.0.1') {
+                    webchatBase = 'http://localhost:4200';
+                } else if (host.includes('stage')) {
+                    webchatBase = 'https://stage.app.interazap.com.br';
+                } else {
+                    webchatBase = 'https://app.interazap.com.br';
+                }
+
+                var chatUrl = webchatBase + '/chat/external/' + tenantId;
+
+                document.querySelectorAll('[data-iz-demo-cta]').forEach(function (el) {
+                    el.setAttribute('href', chatUrl);
                 });
             })();
         </script>

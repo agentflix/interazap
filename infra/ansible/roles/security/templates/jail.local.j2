@@ -15,24 +15,12 @@ findtime = 600
 maxretry = 5
 
 # Não banir IPs especificados
-ignoreip = 127.0.0.1/8 10.0.0.0/8 192.168.0.0/16
+# GitHub Actions runners + redes privadas
+ignoreip = 127.0.0.1/8 10.0.0.0/8 192.168.0.0/16 4.148.0.0/16 4.175.0.0/16 13.64.0.0/11 20.0.0.0/8 40.0.0.0/8 52.0.0.0/8 74.234.0.0/16 140.82.112.0/20 143.55.64.0/20 185.199.108.0/22 192.30.252.0/22 198.18.0.0/15
 
+# SSH protegido por chave pública + UFW rate-limit — fail2ban desnecessário para SSH
 [sshd]
-enabled = true
-port = {{ ssh_port | default(22) }}
-filter = sshd
-logpath = /var/log/auth.log
-maxretry = 3
-bantime = 86400
-findtime = 3600
-
-[sshd-ddos]
-enabled = true
-port = {{ ssh_port | default(22) }}
-filter = sshd-ddos
-logpath = /var/log/auth.log
-maxretry = 10
-bantime = 7200
+enabled = false
 
 [nginx-http-auth]
 enabled = true
