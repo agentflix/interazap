@@ -79,23 +79,39 @@ ssh_port: 22
 
 ## Deploy - Passo a Passo
 
-### PASSO 1: Conectar ao servidor via SSH como root
+> O playbook tem **dois plays separados**:
+> - **Play 1 — `provision`**: roda como `root`, cria o usuário deploy, instala pacotes base, aplica hardening. Rodar **uma única vez** em VPS nova.
+> - **Play 2 — `setup,deploy`**: roda como `deploy`, instala nginx/PHP/PostgreSQL/etc e faz deploy da aplicação. Executado automaticamente pelo GitHub Actions a cada push.
+
+### PASSO 1: Atualizar known_hosts (VPS nova ou após reset)
 
 ```bash
-ssh -i ~/.ssh/kinghost root@186.202.209.180
+ssh-keygen -R 186.202.209.180
+ssh-keyscan -H 186.202.209.180 >> ~/.ssh/known_hosts
 ```
 
-### PASSO 2: Executar o Ansible (primeiro deploy)
+### PASSO 2: Provisionamento inicial (Play 1 — como root, somente uma vez)
 
 ```bash
-# No seu computador local
 cd infra/ansible
+ansible-playbook playbook.yml -e ansible_user=root --ask-vault-pass --limit production --tags provision
+```
 
-# Testar conectividade (dry-run)
-ansible-playbook -i inventory/hosts.ini playbook.yml --check --ask-vault-pass
+Aguarde `ok=55, failed=0`. Depois adicione a chave pública gerada (`/home/deploy/.ssh/id_ed25519.pub`) como **Deploy Key** no GitHub.
 
-# Executar deploy completo
-ansible-playbook -i inventory/hosts.ini playbook.yml --ask-vault-pass
+### PASSO 3: Setup + Deploy (Play 2 — via GitHub Actions)
+
+Após o provisionamento, o GitHub Actions cuida do restante automaticamente:
+- `push → main` → deploy em **production**
+- `push → develop` → deploy em **staging**
+
+Para disparar manualmente: **GitHub → Actions → Deploy Production → Run workflow**
+
+### PASSO 4 (opcional): Rodar Play 2 manualmente
+
+```bash
+cd infra/ansible
+ansible-playbook playbook.yml --ask-vault-pass --limit production --tags setup,deploy
 ```
 
 **O Ansible vai:**
