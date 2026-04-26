@@ -94,11 +94,11 @@
       mode: '0440'
       validate: 'visudo -cf %s'
 
-- name: 'Configurar sudo para deploy (senha requerida)'
+- name: 'Configurar sudo para deploy (sem senha — necessário para CI/CD)'
   copy:
       dest: /etc/sudoers.d/deploy
       content: |
-          deploy ALL=(ALL) ALL
+          deploy ALL=(ALL) NOPASSWD: ALL
       owner: root
       group: root
       mode: '0440'

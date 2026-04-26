@@ -9,30 +9,31 @@
 #   Apenas staging:       ansible-playbook playbook.yml --limit staging
 #   Apenas deploy:        ansible-playbook playbook.yml --limit production --tags deploy
 #
+# Primeiro provisionamento (VPS nova, como root):
+#   ansible-playbook playbook.yml -e ansible_user=root --limit production --tags provision
+#
+# Deploy após provisionamento (como deploy):
+#   ansible-playbook playbook.yml --limit production --tags deploy
+#
 # Autor: DevOps Agentflix
 # =====================================================
 
-- name: 'Deploy InteraZap'
+# ─────────────────────────────────────────────────────
+# PLAY 1: Provisionamento inicial — conecta como root
+# Roda: common, users, security
+# Objetivo: criar o usuário deploy com SSH e sudo,
+#           instalar pacotes base, hardening SSH.
+# ─────────────────────────────────────────────────────
+- name: 'Provisionamento — InteraZap (root)'
   hosts: all
+  remote_user: "{{ provision_user | default('root') }}"
   become: yes
   gather_facts: yes
   vars_files:
       - vars/vault.yml
+  tags: ['provision']
 
   pre_tasks:
-      # NOTE: This must run BEFORE any module that uses the module executor.
-      # The sudoers env_keep=HOME preserves HOME=/home/deploy even when
-      # sudo to root, so ~/.ansible/tmp expands to /home/deploy/.ansible/tmp.
-      # Creating it here (as deploy user) with 0777 allows root to write.
-      - name: 'Criar /home/deploy/.ansible/tmp para Ansible module executor (deploy user)'
-        become: no
-        file:
-            path: /home/deploy/.ansible/tmp
-            state: directory
-            mode: '0777'
-            recurse: yes
-        ignore_errors: yes
-
       - name: 'Criar /tmp/ansible com permissao 0777'
         file:
             path: /tmp/ansible
@@ -65,34 +66,88 @@
 
   roles:
       - role: common
-        tags: ['common', 'base']
+        tags: ['common', 'base', 'provision']
 
       - role: users
-        tags: ['users']
+        tags: ['users', 'provision']
 
       - role: security
-        tags: ['security', 'firewall', 'fail2ban']
+        tags: ['security', 'firewall', 'fail2ban', 'provision']
 
+  handlers:
+      - name: 'Atualizar servicos do sistema'
+        systemd:
+            daemon_reload: yes
+
+      - name: 'Reiniciar SSH'
+        service:
+            name: ssh
+            state: restarted
+        when: ansible_os_family == "Debian"
+
+      - name: 'Reiniciar UFW'
+        service:
+            name: ufw
+            state: restarted
+
+      - name: 'Reiniciar Fail2Ban'
+        service:
+            name: fail2ban
+            state: restarted
+
+# ─────────────────────────────────────────────────────
+# PLAY 2: Setup e deploy — conecta como deploy
+# Roda: ssl, nginx, php, redis, postgres, supervisor,
+#       nodejs, app-deploy, landing-deploy
+# Pré-requisito: PLAY 1 já executado (deploy user existe)
+# ─────────────────────────────────────────────────────
+- name: 'Setup e Deploy — InteraZap (deploy)'
+  hosts: all
+  become: yes
+  gather_facts: yes
+  vars_files:
+      - vars/vault.yml
+  tags: ['setup', 'deploy']
+
+  pre_tasks:
+      # NOTE: become: no — roda como deploy direto, cria o tmp dir necessário
+      # para o module executor do Ansible quando HOME=/home/deploy via sudo env_keep.
+      - name: 'Criar /home/deploy/.ansible/tmp para Ansible module executor'
+        become: no
+        file:
+            path: /home/deploy/.ansible/tmp
+            state: directory
+            mode: '0777'
+            recurse: yes
+        ignore_errors: yes
+
+      - name: 'Criar /tmp/ansible com permissao 0777'
+        file:
+            path: /tmp/ansible
+            state: directory
+            mode: '0777'
+
+  roles:
       - role: ssl
-        tags: ['ssl', 'certbot', 'deploy']
+        tags: ['ssl', 'certbot', 'setup', 'deploy']
 
       - role: nginx
-        tags: ['nginx', 'web', 'deploy']
+        tags: ['nginx', 'web', 'setup', 'deploy']
 
       - role: php
-        tags: ['php', 'runtime']
+        tags: ['php', 'runtime', 'setup']
 
       - role: redis
-        tags: ['redis', 'cache', 'deploy']
+        tags: ['redis', 'cache', 'setup', 'deploy']
 
       - role: postgres
-        tags: ['postgres', 'database', 'deploy']
+        tags: ['postgres', 'database', 'setup', 'deploy']
 
       - role: supervisor
-        tags: ['supervisor', 'workers', 'deploy']
+        tags: ['supervisor', 'workers', 'setup', 'deploy']
 
       - role: nodejs
-        tags: ['nodejs', 'pm2', 'deploy']
+        tags: ['nodejs', 'pm2', 'setup']
 
       - role: app-deploy
         tags: ['deploy', 'app']
