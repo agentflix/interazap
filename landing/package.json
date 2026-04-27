@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "description": "InteraZap landing page",
     "scripts": {
-        "build": "tailwindcss -i ./src/input.css -o ./dist/styles.css --minify",
+        "build": "tailwindcss -i ./src/input.css -o ./dist/styles.css --minify && node scripts/inline-css.js",
+        "build:css-only": "tailwindcss -i ./src/input.css -o ./dist/styles.css --minify",
         "watch": "tailwindcss -i ./src/input.css -o ./dist/styles.css --watch"
     },
     "devDependencies": {
