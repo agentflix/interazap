@@ -152,6 +152,7 @@ export const jwtConfig = registerAs(
   'jwt',
   (): JwtConfiguration => ({
     secret: process.env.JWT_SECRET ?? '',
+    webchatSecret: process.env.WEBCHAT_JWT_SECRET ?? '',
     algorithm: process.env.JWT_ALGORITHM ?? 'HS256',
   }),
 );

@@ -71,6 +71,24 @@ export class WsAuthenticationService {
   }
 
   /**
+   * Verifica token do webchat público usando WEBCHAT_JWT_SECRET dedicado,
+   * com fallback para verifyToken() (JWT_SECRET → Sanctum).
+   */
+  async verifyWebChatToken(token: string): Promise<JwtPayload> {
+    const webchatSecret = this.configService.get<string>('jwt.webchatSecret');
+    if (webchatSecret) {
+      try {
+        return await this.verifyJwt(token, webchatSecret);
+      } catch {
+        this.logger.verbose(
+          'WEBCHAT_JWT_SECRET verification failed, trying fallback',
+        );
+      }
+    }
+    return this.verifyToken(token);
+  }
+
+  /**
    * Verifies JWT first, then falls back to Sanctum introspection.
    */
   async verifyToken(token: string): Promise<JwtPayload> {

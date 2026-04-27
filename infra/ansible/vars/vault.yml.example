@@ -69,6 +69,12 @@ gateway_jwt_secret_production: ''
 # JWT Secret - STAGING (gerar com: openssl rand -hex 32)
 gateway_jwt_secret_staging: ''
 
+# WebChat JWT Secret — segredo compartilhado entre API e Gateway para tokens do chat público
+# Deve ser IGUAL nos dois serviços (api e gateway) em cada ambiente
+# Gerar com: openssl rand -hex 32
+webchat_jwt_secret_production: ''
+webchat_jwt_secret_staging: ''
+
 # =====================================================
 # REVERB (WebSockets)
 # =====================================================

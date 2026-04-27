@@ -53,6 +53,8 @@
                 - gateway_internal_api_key_staging is defined
                 - gateway_jwt_secret_production is defined
                 - gateway_jwt_secret_staging is defined
+                - webchat_jwt_secret_production is defined
+                - webchat_jwt_secret_staging is defined
             fail_msg: 'Variaveis do vault nao configuradas! Execute: ansible-vault create vars/vault.yml'
 
       - name: 'Exibir informacoes do ambiente'

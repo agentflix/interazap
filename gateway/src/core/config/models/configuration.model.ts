@@ -63,6 +63,7 @@ export interface AsaasConfiguration {
 /** Configurações JWT. */
 export interface JwtConfiguration {
   secret: string;
+  webchatSecret: string;
   algorithm: string;
 }
 

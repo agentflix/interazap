@@ -69,7 +69,7 @@ export class WebChatGateway
     try {
       // Validate session token (different from agent JWT)
       // WebChatService uses session token stored in sessionToken
-      const payload = await this.wsAuthentication.verifyToken(token);
+      const payload = await this.wsAuthentication.verifyWebChatToken(token);
 
       if (!payload) {
         this.logger.warn(`WebChat client ${client.id} invalid session token`);
@@ -78,12 +78,16 @@ export class WebChatGateway
       }
 
       // Store session data on socket
-      (client as Socket & { data: { sessionId?: string; tenantId?: string } }).data = {
+      (
+        client as Socket & { data: { sessionId?: string; tenantId?: string } }
+      ).data = {
         sessionId: payload.session_id ?? payload.sub,
         tenantId: payload.tenant_id,
       };
 
-      this.logger.log(`WebChat client ${client.id} connected for session ${payload.session_id ?? payload.sub}`);
+      this.logger.log(
+        `WebChat client ${client.id} connected for session ${payload.session_id ?? payload.sub}`,
+      );
       this.fileLogger.info('WebChat client connected', {
         clientId: client.id,
         sessionId: payload.session_id ?? payload.sub,
@@ -101,9 +105,13 @@ export class WebChatGateway
    * Gerencia desconexão do cliente webchat.
    */
   handleDisconnect(client: Socket): void {
-    const clientData = (client as Socket & { data: { sessionId?: string; tenantId?: string } }).data;
+    const clientData = (
+      client as Socket & { data: { sessionId?: string; tenantId?: string } }
+    ).data;
     this.logger.log(`WebChat client disconnected: ${client.id}`);
-    this.fileLogger.info('WebChat client disconnected', { clientId: client.id });
+    this.fileLogger.info('WebChat client disconnected', {
+      clientId: client.id,
+    });
   }
 
   /**
@@ -118,20 +126,29 @@ export class WebChatGateway
     @MessageBody() data: { sessionId: string },
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const clientData = (client as Socket & { data: { sessionId?: string; tenantId?: string } }).data;
+    const clientData = (
+      client as Socket & { data: { sessionId?: string; tenantId?: string } }
+    ).data;
     const sessionId = data?.sessionId ?? clientData.sessionId;
     const tenantId = clientData.tenantId;
 
     if (!sessionId) {
-      this.logger.warn(`WebChat client ${client.id} sent webchat:join without sessionId`);
-      client.emit('webchat:error', { code: 'INVALID_SESSION', message: 'sessionId is required' });
+      this.logger.warn(
+        `WebChat client ${client.id} sent webchat:join without sessionId`,
+      );
+      client.emit('webchat:error', {
+        code: 'INVALID_SESSION',
+        message: 'sessionId is required',
+      });
       return;
     }
 
     const sessionRoom = `session:${sessionId}`;
     await client.join(sessionRoom);
 
-    this.logger.log(`WebChat client ${client.id} joined session room ${sessionRoom}`);
+    this.logger.log(
+      `WebChat client ${client.id} joined session room ${sessionRoom}`,
+    );
     this.fileLogger.info('WebChat client joined session room', {
       clientId: client.id,
       sessionId,
@@ -142,7 +159,9 @@ export class WebChatGateway
     if (tenantId) {
       const tenant = tenantRoom(tenantId);
       await client.join(tenant);
-      this.logger.log(`WebChat client ${client.id} also joined tenant room ${tenant}`);
+      this.logger.log(
+        `WebChat client ${client.id} also joined tenant room ${tenant}`,
+      );
     }
 
     // Confirm join to client
@@ -177,6 +196,8 @@ export class WebChatGateway
 
     const sessionRoom = `session:${sessionId}`;
     void client.leave(sessionRoom);
-    this.logger.debug(`WebChat client ${client.id} left session room ${sessionRoom}`);
+    this.logger.debug(
+      `WebChat client ${client.id} left session room ${sessionRoom}`,
+    );
   }
 }
