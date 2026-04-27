@@ -180,6 +180,8 @@
       DEFAULT_TENANT_ID=${VAULT_DEFAULT_TENANT_ID}
       SANCTUM_EXPIRATION=1440
 
+      WEBCHAT_JWT_SECRET=${VAULT_WEBCHAT_JWT_SECRET}
+
       HORIZON_NAME={{ 'interazap-staging' if app_environment == 'staging' else 'interazap-prod' }}
       HORIZON_MAX_PROCESSES=10
       HORIZON_MIN_PROCESSES=1
@@ -232,6 +234,7 @@
       VAULT_REVERB_APP_ID: "{{ reverb_app_id_staging | default('interazap-stage') if app_environment == 'staging' else reverb_app_id_production | default('interazap-prod') }}"
       VAULT_REVERB_APP_KEY: "{{ reverb_app_key_staging | default('interazap-stage-key') if app_environment == 'staging' else reverb_app_key_production | default('interazap-prod-key') }}"
       VAULT_REVERB_APP_SECRET: "{{ reverb_app_secret_staging | default('interazap-stage-secret') if app_environment == 'staging' else reverb_app_secret_production | default('interazap-prod-secret') }}"
+      VAULT_WEBCHAT_JWT_SECRET: "{{ webchat_jwt_secret_production if app_environment == 'production' else webchat_jwt_secret_staging | default('') }}"
       VAULT_ASAAS_API_KEY: "{{ asaas_api_key | default('') }}"
       VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
       VAULT_SENTRY_DSN: "{{ sentry_dsn | default('') }}"
@@ -492,15 +495,17 @@
   shell: |
       REDIS_AUTH_SEGMENT=""
       REDIS_ENC_PASSWORD=$(echo "${VAULT_REDIS_PASSWORD}" | python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read().strip(), safe=":"))')
+      DB_ENC_PASSWORD=$(echo "${VAULT_DB_PASSWORD}" | python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read().strip(), safe=""))')
       if [ -n "${VAULT_REDIS_PASSWORD}" ]; then REDIS_AUTH_SEGMENT=":${REDIS_ENC_PASSWORD}@"; fi
       cat > {{ deploy_path }}/gateway/shared/.env << ENVEOF
       NODE_ENV={{ app_environment }}
       PORT={{ 6001 if app_environment == 'staging' else 6002 }}
-      DATABASE_URL=postgres://agentflix_app:${VAULT_DB_PASSWORD}@127.0.0.1:5432/{{ 'agentflix_stage' if app_environment == 'staging' else 'interazap' }}
+      DATABASE_URL=postgres://agentflix_app:${DB_ENC_PASSWORD}@127.0.0.1:5432/{{ 'agentflix_stage' if app_environment == 'staging' else 'interazap' }}
       REDIS_URL=redis://${REDIS_AUTH_SEGMENT}127.0.0.1:6379/{{ '1' if app_environment == 'staging' else '0' }}
       API_URL=http://127.0.0.1:{{ octane_port | default(9501) }}
       JWT_SECRET=${VAULT_JWT_SECRET}
       JWT_ALGORITHM=HS256
+      WEBCHAT_JWT_SECRET=${VAULT_WEBCHAT_JWT_SECRET}
       INTERNAL_API_KEY=${VAULT_INTERNAL_API_KEY}
       CORS_ORIGINS=https://{{ domain_app }}
       LOG_LEVEL={{ 'debug' if app_environment == 'staging' else 'info' }}
@@ -548,6 +553,7 @@
       VAULT_DB_PASSWORD: "{{ postgres_app_password | default('') }}"
       VAULT_REDIS_PASSWORD: "{{ redis_password | default('') }}"
       VAULT_JWT_SECRET: "{{ gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging | default('') }}"
+      VAULT_WEBCHAT_JWT_SECRET: "{{ webchat_jwt_secret_production if app_environment == 'production' else webchat_jwt_secret_staging | default('') }}"
       VAULT_INTERNAL_API_KEY: "{{ gateway_internal_api_key_production if app_environment == 'production' else gateway_internal_api_key_staging | default('') }}"
       VAULT_OPENAI_API_KEY: "{{ openai_api_key | default('') }}"
       VAULT_GOOGLE_AI_API_KEY: "{{ google_ai_api_key | default('') }}"
