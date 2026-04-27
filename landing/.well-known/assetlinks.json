@@ -1,0 +1,10 @@
+[
+    {
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.interazap.app",
+            "sha256_cert_fingerprints": ["SUBSTITUIR_PELO_SHA256_DO_UPLOAD_KEYSTORE"]
+        }
+    }
+]
