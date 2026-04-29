@@ -31,6 +31,7 @@ import {
   lucideInbox,
   lucideLogOut,
   lucideMapPin,
+  lucideMessageSquareText,
   lucideMessagesSquare,
   lucideMic,
   lucidePaperclip,
@@ -96,6 +97,8 @@ import { ChatMessageCacheService } from 'src/app/core/services/chat-message-cach
 import { NativeBridgeService } from 'src/app/core/services/platform/native-bridge.service';
 import { PlatformService } from 'src/app/core/services/platform/platform.service';
 import { MessageSendService } from './services/message-send.service';
+import { WindowVerificationService } from './components/new-conversation-modal/services/window-verification.service';
+import { type TemplateSelectedEvent } from '@shared/components/template-selector/template-selector';
 
 @Component({
   selector: 'app-chat',
@@ -129,6 +132,7 @@ import { MessageSendService } from './services/message-send.service';
       lucideInbox,
       lucideLogOut,
       lucideMapPin,
+      lucideMessageSquareText,
       lucideMessagesSquare,
       lucideMic,
       lucidePaperclip,
@@ -176,8 +180,10 @@ export class Chat implements OnInit, OnDestroy {
   private readonly nativeBridge = inject(NativeBridgeService);
   private readonly platform = inject(PlatformService);
   private readonly messageSend = inject(MessageSendService);
+  private readonly windowVerification = inject(WindowVerificationService);
 
   readonly activeTab = signal<'chat' | 'contact' | 'negotiation'>('chat');
+  readonly composerMode = this.chatStore.composerMode;
   readonly ticketFilter = signal<'pending' | 'open' | 'all'>('pending');
   readonly emergencyFilter = signal<CalledSentiment | null>(null);
   readonly isEmergencyMenuOpen = signal(false);
@@ -190,6 +196,13 @@ export class Chat implements OnInit, OnDestroy {
   /** Alias for ChatStore.selectedCalledId - source of truth for selected ticket ID. */
   readonly selectedTicketId = this.chatStore.selectedCalledId;
   readonly isStartingTicket = signal(false);
+  /** Template selecionado para envio (modo mixed/template-only). */
+  readonly selectedTemplate = signal<TemplateSelectedEvent | null>(null);
+  /** ID da instância do ticket selecionado (para TemplateSelector). */
+  readonly selectedChatInstanceId = computed(() => {
+    const id = this.selectedTicket()?.instance_id;
+    return id ? String(id) : null;
+  });
   readonly isSendingMessage = signal(false);
   /** Estado do fluxo de fechamento (delegado ao ChatTicketCloseService). */
   readonly isClosingTicket = this.ticketClose.isClosing;
@@ -283,6 +296,25 @@ export class Chat implements OnInit, OnDestroy {
       }
     });
 
+    // Verifica janela 24h quando ticket Meta é selecionado
+    effect(() => {
+      const ticket = this.selectedTicket();
+      const contactId = ticket?.contact?.id ? String(ticket.contact.id) : null;
+      const instanceId = ticket?.instance_id ? String(ticket.instance_id) : null;
+      const provider = instanceId ? this.chatStore.instanceProviders()[instanceId] : null;
+
+      if (contactId && provider === 'meta') {
+        this.windowVerification
+          .checkStatus(contactId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe((status) => {
+            this.chatStore.setWindowStatus(status);
+          });
+      } else {
+        this.chatStore.clearWindowStatus();
+      }
+    });
+
     // Handle audio recording completion — upload and send (delegated)
     this.chatRecorder.recordingCompleted$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -307,6 +339,27 @@ export class Chat implements OnInit, OnDestroy {
         status: 'failed',
       });
     });
+
+    // Reabre composer quando cliente responde (invalida cache da janela 24h)
+    this.realtimeListener.incomingMessage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        const selectedId = this.selectedTicketId();
+        if (event.ticketId && selectedId && String(event.ticketId) === selectedId) {
+          const contactId = this.selectedTicket()?.contact?.id
+            ? String(this.selectedTicket()!.contact!.id)
+            : null;
+          if (contactId) {
+            this.windowVerification.invalidateCache(contactId);
+            this.windowVerification
+              .checkStatus(contactId)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe((status) => {
+                this.chatStore.setWindowStatus(status);
+              });
+          }
+        }
+      });
 
     this.realtimeListener.start(this.destroyRef);
   }
@@ -494,6 +547,35 @@ export class Chat implements OnInit, OnDestroy {
       });
   }
 
+  /** Handler quando um template é selecionado no picker. */
+  onTemplateSelected(event: TemplateSelectedEvent): void {
+    this.selectedTemplate.set(event);
+  }
+
+  /** Limpa o template selecionado. */
+  clearTemplateSelected(): void {
+    this.selectedTemplate.set(null);
+  }
+
+  /** Converte parâmetros do template-selector para formato de componentes Meta. */
+  private buildTemplateComponents(parameters: Record<string, string>): unknown[] {
+    const entries = Object.entries(parameters).sort(([a], [b]) => {
+      const numA = parseInt(a.split('_')[1], 10);
+      const numB = parseInt(b.split('_')[1], 10);
+      return numA - numB;
+    });
+    const bodyParams = entries.map(([, text]) => ({ type: 'text', text }));
+    if (bodyParams.length === 0) {
+      return [];
+    }
+    return [
+      {
+        type: 'body',
+        parameters: bodyParams,
+      },
+    ];
+  }
+
   /** Envia mensagem no footer quando ticket já está em atendimento. */
   sendMessage(): void {
     const ticket = this.selectedTicket();
@@ -501,12 +583,39 @@ export class Chat implements OnInit, OnDestroy {
       return;
     }
 
+    const ticketId = String(ticket.id);
+    const template = this.selectedTemplate();
+
+    // Envio via template
+    if (template) {
+      this.isSendingMessage.set(true);
+
+      const components = this.buildTemplateComponents(template.parameters);
+      this.calledMessageService
+        .sendTemplate(ticketId, template.templateName, components)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => {
+            this.conversationRef?.appendMessage(response.data);
+            this.selectedTemplate.set(null);
+            this.isSendingMessage.set(false);
+            toast.success('Template enviado. Aguardando entrega.');
+          },
+          error: (err: { error?: { message?: string } }) => {
+            const msg = err.error?.message ?? 'Não foi possível enviar o template.';
+            toast.error(`Não foi possível enviar: ${msg}`);
+            this.isSendingMessage.set(false);
+          },
+        });
+      return;
+    }
+
+    // Envio de texto livre
     const content = this.messageControl.value.trim();
     if (!content) {
       return;
     }
 
-    const ticketId = String(ticket.id);
     const tempId = crypto.randomUUID();
     const optimisticMessage: CalledMessage = {
       id: tempId,

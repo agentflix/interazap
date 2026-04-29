@@ -7,6 +7,7 @@ namespace Tests\Unit\Chat;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Services\ChatChannelConnector;
 use Domain\Platform\Services\UazapiGatewayService;
+use Domain\Shared\Infrastructure\Gateway\GatewayHttpClient;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Mockery;
 use RuntimeException;
@@ -40,7 +41,7 @@ class ChatChannelConnectorTest extends TestCase
                 'expires_at' => now()->addMinutes(5)->toIso8601String(),
             ]);
 
-        $connector = new ChatChannelConnector($gateway);
+        $connector = new ChatChannelConnector($gateway, Mockery::mock(GatewayHttpClient::class));
         $result = $connector->connect($instance, 'qr');
 
         $this->assertSame('qr', $result['mode']);
@@ -66,7 +67,7 @@ class ChatChannelConnectorTest extends TestCase
                 'expires_at' => now()->addMinutes(5)->toIso8601String(),
             ]);
 
-        $connector = new ChatChannelConnector($gateway);
+        $connector = new ChatChannelConnector($gateway, Mockery::mock(GatewayHttpClient::class));
         $result = $connector->connect($instance, 'pair', '5511999999999');
 
         $this->assertSame('pair', $result['mode']);
@@ -83,7 +84,7 @@ class ChatChannelConnectorTest extends TestCase
             'settings_json' => [],
         ]);
 
-        $connector = new ChatChannelConnector(Mockery::mock(UazapiGatewayService::class));
+        $connector = new ChatChannelConnector(Mockery::mock(UazapiGatewayService::class), Mockery::mock(GatewayHttpClient::class));
 
         $this->expectException(RuntimeException::class);
         $connector->connect($instance, 'qr');
@@ -104,7 +105,7 @@ class ChatChannelConnectorTest extends TestCase
             ->with('tok-3', Mockery::type('array'))
             ->andReturn(['ok' => true]);
 
-        $connector = new ChatChannelConnector($gateway);
+        $connector = new ChatChannelConnector($gateway, Mockery::mock(GatewayHttpClient::class));
         $response = $connector->configureWebhook($instance, 'https://app.test/webhook');
 
         $this->assertSame(['ok' => true], $response);

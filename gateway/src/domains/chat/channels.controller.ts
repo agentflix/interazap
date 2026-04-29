@@ -54,7 +54,7 @@ export class ChannelsController {
     const channel = await this.fetchChannel(id);
     this.validateMetaChannel(channel, id);
 
-    const accessToken = channel.settings?.access_token as string | undefined;
+    const accessToken = channel!.settings?.access_token as string | undefined;
     if (!accessToken) {
       throw new NotFoundException(
         `Channel ${id} does not have an access_token configured`,
@@ -90,14 +90,14 @@ export class ChannelsController {
     const channel = await this.fetchChannel(id);
     this.validateMetaChannel(channel, id);
 
-    const wabaId = channel.settings?.waba_id as string | undefined;
+    const wabaId = channel!.settings?.waba_id as string | undefined;
     if (!wabaId) {
       throw new NotFoundException(
         `Channel ${id} does not have a waba_id configured`,
       );
     }
 
-    const accessToken = channel.settings?.access_token as string | undefined;
+    const accessToken = channel!.settings?.access_token as string | undefined;
     if (!accessToken) {
       throw new NotFoundException(
         `Channel ${id} does not have an access_token configured`,
@@ -136,14 +136,14 @@ export class ChannelsController {
     const channel = await this.fetchChannel(id);
     this.validateMetaChannel(channel, id);
 
-    const wabaId = channel.settings?.waba_id as string | undefined;
+    const wabaId = channel!.settings?.waba_id as string | undefined;
     if (!wabaId) {
       throw new NotFoundException(
         `Channel ${id} does not have a waba_id configured`,
       );
     }
 
-    const accessToken = channel.settings?.access_token as string | undefined;
+    const accessToken = channel!.settings?.access_token as string | undefined;
     if (!accessToken) {
       throw new NotFoundException(
         `Channel ${id} does not have an access_token configured`,
@@ -178,7 +178,7 @@ export class ChannelsController {
     const channel = await this.fetchChannel(id);
     this.validateMetaChannel(channel, id);
 
-    const accessToken = channel.settings?.access_token as string | undefined;
+    const accessToken = channel!.settings?.access_token as string | undefined;
     if (!accessToken) {
       throw new NotFoundException(
         `Channel ${id} does not have an access_token configured`,

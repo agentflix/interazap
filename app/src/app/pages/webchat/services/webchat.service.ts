@@ -199,7 +199,7 @@ export class WebChatService implements OnDestroy {
       tap((response) => {
         const optimisticMessage: WebChatMessage = {
           id: tempId ?? response.messageId,
-          content: '',
+          content: fileName ?? '',
           direction: 'outgoing',
           source: 'visitor',
           type: messageType === 'document' ? 'file' : messageType,
@@ -208,6 +208,7 @@ export class WebChatService implements OnDestroy {
           sessionId,
           fileUrl,
           mimeType,
+          fileName,
         };
         this.addMessage(optimisticMessage);
         this._messageSent$.next({ messageId: response.messageId, tempId });
@@ -315,7 +316,25 @@ export class WebChatService implements OnDestroy {
     return this.http
       .get<unknown>(`${this.apiBase}/api/webchat/sessions/${sessionId}/messages?${params}`)
       .pipe(
-        map((response) => this.unwrapData<WebChatMessage[]>(response)),
+        map((response) => this.unwrapData<unknown[]>(response)),
+        map((items) =>
+          items.map((raw) => {
+            const msg = raw as Record<string, unknown>;
+            return {
+              ...(msg as unknown as WebChatMessage),
+              // Backend serializa em snake_case — normalizar para camelCase
+              fileUrl:
+                (msg['file_url'] as string | undefined) ??
+                (msg['fileUrl'] as string | undefined),
+              mimeType:
+                (msg['mime_type'] as string | undefined) ??
+                (msg['mimeType'] as string | undefined),
+              fileName:
+                (msg['file_name'] as string | undefined) ??
+                (msg['fileName'] as string | undefined),
+            } as WebChatMessage;
+          }),
+        ),
         tap((messages) => {
           if (messages.length > 0) {
             this._messages.set(messages);
@@ -513,6 +532,8 @@ export class WebChatService implements OnDestroy {
         mimeType:
           (msgData['mime_type'] as string | undefined) ??
           (msgData['mimeType'] as string | undefined),
+        fileName:
+          (msgData['file_name'] as string | undefined) ?? (msgData['fileName'] as string | undefined),
       };
       this.addMessage(message);
       this._aiResponse$.next(message);
@@ -537,6 +558,8 @@ export class WebChatService implements OnDestroy {
         mimeType:
           (msgData['mime_type'] as string | undefined) ??
           (msgData['mimeType'] as string | undefined),
+        fileName:
+          (msgData['file_name'] as string | undefined) ?? (msgData['fileName'] as string | undefined),
       };
       this.addMessage(message);
     });

@@ -45,6 +45,9 @@
       [isQueueFlushing]="isQueueFlushing()"
       [messageControl]="messageControl"
       [isSendingMessage]="isSendingMessage()"
+      [composerMode]="composerMode()"
+      [chatInstanceId]="selectedChatInstanceId()"
+      [selectedTemplate]="selectedTemplate()"
       (openNewConversationModal)="openNewConversationModal()"
       (closeSelectedTicket)="closeSelectedTicket()"
       (openTransferModal)="openTransferModal()"
@@ -64,6 +67,8 @@
       (sendMessage)="sendMessage()"
       (profilePictureError)="handleProfilePictureError($event)"
       (contactUpdated)="onContactUpdated($event)"
+      (templateSelected)="onTemplateSelected($event)"
+      (clearTemplateSelected)="clearTemplateSelected()"
     ></app-chat-conversation>
 
     <app-chat-page-sidebar

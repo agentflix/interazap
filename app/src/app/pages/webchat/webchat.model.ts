@@ -62,6 +62,7 @@ export interface WebChatMessage {
   sessionId: string;
   fileUrl?: string;
   mimeType?: string;
+  fileName?: string;
 }
 
 /** Data collected during pre-chat form */

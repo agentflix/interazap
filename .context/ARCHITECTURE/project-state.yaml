@@ -24,12 +24,12 @@ stack:
 
 metrics:
     total_features: 6
-    features_completed: 4 # FEAT-039, FEAT-040, FEAT-041, FEAT-042
-    features_in_progress: 2 # FEAT-043 (WebSocket Realtime Fix), FEAT-050 (Meta Templates)
+    features_completed: 5 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050
+    features_in_progress: 1 # FEAT-043 (WebSocket Realtime Fix)
     total_tasks: 88 # 17 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041) + 7 (FEAT-042) + 6 (FEAT-043) + 31 (FEAT-050)
-    tasks_completed: 61 # +11 tasks do Sprint 2 da FEAT-050
+    tasks_completed: 88 # FEAT-050 completa (+20 tasks dos Sprints 1-5)
     tasks_in_progress: 0
-    tasks_pending: 27 # FEAT-043 tasks + Sprint 3/4/5 da FEAT-050
+    tasks_pending: 6 # Apenas FEAT-043 restante
     tasks_pending_new: 0
 
 modules_status:
@@ -47,7 +47,7 @@ modules_status:
         last_change: '2026-04-11'
     'Chat':
         status: 'active'
-        completion: '100% FEAT-040/041/042 concluídas + FEAT-043 em andamento + FEAT-050 Sprint 2 (CRUD admin templates) concluído'
+        completion: '100% FEAT-040/041/042/050 concluídas + FEAT-043 em andamento'
         last_change: '2026-04-29'
     'Configuration':
         status: 'active'
@@ -63,7 +63,7 @@ modules_status:
         last_change: '2026-04-11'
     'Gateway':
         status: 'active'
-        completion: 'FEAT-050 Sprint 2 endpoints (create/delete/sync templates) concluídos'
+        completion: 'FEAT-050 completa (endpoints Meta templates + webhook status update)'
         last_change: '2026-04-29'
     'Platform':
         status: 'active'
@@ -79,7 +79,7 @@ modules_status:
         last_change: '2026-04-11'
 
 quality:
-    test_coverage_backend: 'unknown'
-    test_coverage_frontend: 'unknown'
-    lint_status: 'unknown'
+    test_coverage_backend: '>=80% nos paths Domain/Chat/Actions, Http, Listeners, Jobs'
+    test_coverage_frontend: 'Testes unitários passando para chat.store, chat-conversation-component, template-selector'
+    lint_status: 'ESLint 0 erros / 0 warnings nos arquivos FEAT-050'
     last_validation: '2026-04-29'

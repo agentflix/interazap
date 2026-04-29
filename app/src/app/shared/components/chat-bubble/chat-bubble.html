@@ -13,7 +13,7 @@
       <img
         [src]="fileUrl()"
         alt="Imagem"
-        class="rounded-lg max-w-60 max-h-60 object-cover cursor-pointer"
+        class="rounded-lg w-full h-auto max-w-60 max-h-60 object-cover cursor-pointer"
         (click)="fileUrl() && openUrl(fileUrl()!)"
       />
     }
@@ -34,10 +34,15 @@
         [href]="fileUrl()"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center gap-2 underline underline-offset-2 text-sm"
+        [attr.download]="message() || 'arquivo'"
+        class="flex items-center gap-3 min-w-0 w-full no-underline"
       >
-        <lucide-icon name="file" [size]="16" class="shrink-0" />
-        <span class="break-all">{{ message() || 'Arquivo' }}</span>
+        <lucide-icon name="file" [size]="24" class="shrink-0" />
+        <div class="flex-1 min-w-0 overflow-hidden">
+          <p class="text-sm font-medium truncate leading-snug" title="{{ displayFileName() }}">{{ displayFileName() }}</p>
+          <p class="text-xs opacity-50 mt-0.5">Documento</p>
+        </div>
+        <lucide-icon name="download" [size]="18" class="shrink-0 opacity-70" />
       </a>
     }
 
@@ -59,8 +64,8 @@
           }
         </span>
       </p>
-    } @else if (message()) {
-      <!-- Caption below media -->
+    } @else if (hasReadableCaption()) {
+      <!-- Caption below media (not for files) -->
       <p class="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word mt-1">
         {{ message() }}
         <span

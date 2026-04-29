@@ -210,157 +210,242 @@
                 </button>
               </div>
             } @else {
-              <div class="flex items-end gap-1.5">
-                <div class="relative shrink-0 mb-0.5">
-                  <button
-                    type="button"
-                    class="size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200"
-                    [class.bg-neutral-200]="isAttachmentMenuOpen()"
-                    [class.dark:bg-neutral-700]="isAttachmentMenuOpen()"
-                    aria-label="Anexar arquivo"
-                    (click)="toggleAttachmentMenu.emit()"
-                  >
-                    <ng-icon name="lucidePlus" size="22"></ng-icon>
-                  </button>
+              @if (composerMode() === 'template-only') {
+                <!-- Modo template-only: janela 24h expirada -->
+                <div class="space-y-3">
+                  <af-banner
+                    variant="warning"
+                    message="Janela de 24h expirada. O cliente não responde há mais de 24h. Para reabrir a conversa, envie um template aprovado pela Meta."
+                  />
 
-                  @if (isMobile()) {
-                    <af-sheet
-                      [open]="isAttachmentMenuOpen()"
-                      title="Anexar"
-                      (closed)="closeAttachmentMenu.emit()"
+                  <div class="m-3 p-4 rounded-lg border border-warning/20 bg-warning/5">
+                    <app-button
+                      variant="primary"
+                      size="md"
+                      class="w-full"
+                      (clicked)="isTemplateModalOpen.set(true)"
                     >
-                      <div class="space-y-2">
-                        <app-button
-                          variant="ghost"
-                          size="sm"
-                          class="w-full justify-start"
-                          (clicked)="selectAttachmentType.emit('camera')"
-                        >
-                          Tirar foto
-                        </app-button>
-                        <app-button
-                          variant="ghost"
-                          size="sm"
-                          class="w-full justify-start"
-                          (clicked)="selectAttachmentType.emit('gallery')"
-                        >
-                          Galeria
-                        </app-button>
-                        <app-button
-                          variant="ghost"
-                          size="sm"
-                          class="w-full justify-start"
-                          (clicked)="selectAttachmentType.emit('file')"
-                        >
-                          Arquivo
-                        </app-button>
-                      </div>
-                    </af-sheet>
-                  } @else {
-                    @if (isAttachmentMenuOpen()) {
-                      <button
-                        type="button"
-                        class="fixed inset-0 z-40"
-                        aria-label="Fechar menu de anexos"
-                        (click)="closeAttachmentMenu.emit()"
-                      ></button>
-
-                      <div
-                        class="absolute left-0 bottom-12 z-50 w-52 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg p-1.5"
-                      >
-                        <button
-                          type="button"
-                          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                          (click)="selectAttachmentType.emit('document')"
-                        >
-                          <span
-                            class="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0"
-                          >
-                            <ng-icon name="lucideFile" size="16"></ng-icon>
-                          </span>
-                          <span class="font-medium">Documento</span>
-                        </button>
-                        <button
-                          type="button"
-                          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                          (click)="selectAttachmentType.emit('image')"
-                        >
-                          <span
-                            class="size-8 rounded-full bg-success/10 text-success flex items-center justify-center shrink-0"
-                          >
-                            <ng-icon name="lucideImage" size="16"></ng-icon>
-                          </span>
-                          <span class="font-medium">Fotos e vídeos</span>
-                        </button>
-                        <button
-                          type="button"
-                          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                          (click)="selectAttachmentType.emit('video')"
-                        >
-                          <span
-                            class="size-8 rounded-full bg-accent-500/10 text-accent-500 flex items-center justify-center shrink-0"
-                          >
-                            <ng-icon name="lucideVideo" size="16"></ng-icon>
-                          </span>
-                          <span class="font-medium">Vídeo</span>
-                        </button>
-                        <button
-                          type="button"
-                          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                          (click)="selectAttachmentType.emit('location')"
-                        >
-                          <span
-                            class="size-8 rounded-full bg-warning/10 text-warning flex items-center justify-center shrink-0"
-                          >
-                            <ng-icon name="lucideMapPin" size="16"></ng-icon>
-                          </span>
-                          <span class="font-medium">Localização</span>
-                        </button>
-                      </div>
-                    }
-                  }
+                      <ng-icon name="lucideMessageSquareText" size="18" class="mr-2"></ng-icon>
+                      Selecionar template
+                    </app-button>
+                  </div>
                 </div>
 
-                <div
-                  class="grow flex items-center rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 overflow-hidden min-h-10"
+                <af-modal
+                  [isOpen]="isTemplateModalOpen()"
+                  title="Enviar template aprovado"
+                  size="md"
+                  (closed)="isTemplateModalOpen.set(false)"
                 >
+                  <div modal-body>
+                    @if (chatInstanceId()) {
+                      <app-template-selector
+                        [channelId]="chatInstanceId()!"
+                        (templateSelected)="
+                          templateSelected.emit($event);
+                          isTemplateModalOpen.set(false);
+                        "
+                      />
+                    }
+                  </div>
+                </af-modal>
+              } @else {
+                <!-- Modos free e mixed -->
+                @if (selectedTemplate(); as tpl) {
+                  <!-- Chip de template selecionado (mixed) -->
+                  <div class="flex items-center gap-2 mb-2">
+                    <af-badge variant="info" size="sm">
+                      Template: {{ tpl.templateName }}
+                    </af-badge>
+                    <app-button variant="ghost" size="xs" (clicked)="clearTemplateSelected.emit()">
+                      Cancelar
+                    </app-button>
+                    <app-button
+                      variant="primary"
+                      size="xs"
+                      [disabled]="isSendingMessage()"
+                      (clicked)="sendMessage.emit()"
+                    >
+                      Enviar
+                    </app-button>
+                  </div>
+                }
+
+                <div class="flex items-end gap-1.5">
+                  <div class="relative shrink-0 mb-0.5">
+                    <button
+                      type="button"
+                      class="size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200"
+                      [class.bg-neutral-200]="isAttachmentMenuOpen()"
+                      [class.dark:bg-neutral-700]="isAttachmentMenuOpen()"
+                      aria-label="Anexar arquivo"
+                      (click)="toggleAttachmentMenu.emit()"
+                    >
+                      <ng-icon name="lucidePlus" size="22"></ng-icon>
+                    </button>
+
+                    @if (isMobile()) {
+                      <af-sheet
+                        [open]="isAttachmentMenuOpen()"
+                        title="Anexar"
+                        (closed)="closeAttachmentMenu.emit()"
+                      >
+                        <div class="space-y-2">
+                          <app-button
+                            variant="ghost"
+                            size="sm"
+                            class="w-full justify-start"
+                            (clicked)="selectAttachmentType.emit('camera')"
+                          >
+                            Tirar foto
+                          </app-button>
+                          <app-button
+                            variant="ghost"
+                            size="sm"
+                            class="w-full justify-start"
+                            (clicked)="selectAttachmentType.emit('gallery')"
+                          >
+                            Galeria
+                          </app-button>
+                          <app-button
+                            variant="ghost"
+                            size="sm"
+                            class="w-full justify-start"
+                            (clicked)="selectAttachmentType.emit('file')"
+                          >
+                            Arquivo
+                          </app-button>
+                        </div>
+                      </af-sheet>
+                    } @else {
+                      @if (isAttachmentMenuOpen()) {
+                        <button
+                          type="button"
+                          class="fixed inset-0 z-40"
+                          aria-label="Fechar menu de anexos"
+                          (click)="closeAttachmentMenu.emit()"
+                        ></button>
+
+                        <div
+                          class="absolute left-0 bottom-12 z-50 w-52 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg p-1.5"
+                        >
+                          <button
+                            type="button"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            (click)="selectAttachmentType.emit('document')"
+                          >
+                            <span
+                              class="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0"
+                            >
+                              <ng-icon name="lucideFile" size="16"></ng-icon>
+                            </span>
+                            <span class="font-medium">Documento</span>
+                          </button>
+                          <button
+                            type="button"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            (click)="selectAttachmentType.emit('image')"
+                          >
+                            <span
+                              class="size-8 rounded-full bg-success/10 text-success flex items-center justify-center shrink-0"
+                            >
+                              <ng-icon name="lucideImage" size="16"></ng-icon>
+                            </span>
+                            <span class="font-medium">Fotos e vídeos</span>
+                          </button>
+                          <button
+                            type="button"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            (click)="selectAttachmentType.emit('video')"
+                          >
+                            <span
+                              class="size-8 rounded-full bg-accent-500/10 text-accent-500 flex items-center justify-center shrink-0"
+                            >
+                              <ng-icon name="lucideVideo" size="16"></ng-icon>
+                            </span>
+                            <span class="font-medium">Vídeo</span>
+                          </button>
+                          <button
+                            type="button"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            (click)="selectAttachmentType.emit('location')"
+                          >
+                            <span
+                              class="size-8 rounded-full bg-warning/10 text-warning flex items-center justify-center shrink-0"
+                            >
+                              <ng-icon name="lucideMapPin" size="16"></ng-icon>
+                            </span>
+                            <span class="font-medium">Localização</span>
+                          </button>
+                        </div>
+                      }
+                    }
+                  </div>
+
+                  @if (composerMode() === 'mixed' && !selectedTemplate()) {
+                    <af-popover align="end">
+                      <button
+                        trigger
+                        type="button"
+                        class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200"
+                        aria-label="Enviar template aprovado"
+                        title="Enviar template aprovado"
+                      >
+                        <ng-icon name="lucideMessageSquareText" size="20"></ng-icon>
+                      </button>
+
+                      <div content class="w-[380px]">
+                        @if (chatInstanceId()) {
+                          <app-template-selector
+                            [channelId]="chatInstanceId()!"
+                            (templateSelected)="templateSelected.emit($event)"
+                          />
+                        }
+                      </div>
+                    </af-popover>
+                  }
+
+                  <div
+                    class="grow flex items-center rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 overflow-hidden min-h-10"
+                  >
+                    <button
+                      type="button"
+                      class="shrink-0 inline-flex h-full items-center justify-center pl-3 pr-1 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                      aria-label="Emoji"
+                    >
+                      <ng-icon name="lucideSmile" size="20"></ng-icon>
+                    </button>
+                    <textarea
+                      #messageTextarea
+                      [formControl]="messageControl()"
+                      placeholder="Digite uma mensagem..."
+                      rows="1"
+                      class="grow resize-none border-0 bg-transparent py-2 pr-3 text-sm text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-0 max-h-32 leading-5"
+                      (keydown)="messageKeydown.emit($event)"
+                      (input)="messageInput.emit($event)"
+                    ></textarea>
+                  </div>
+
                   <button
                     type="button"
-                    class="shrink-0 inline-flex h-full items-center justify-center pl-3 pr-1 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
-                    aria-label="Emoji"
+                    class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                    aria-label="Gravar áudio"
+                    (click)="startRecording.emit()"
                   >
-                    <ng-icon name="lucideSmile" size="20"></ng-icon>
+                    <ng-icon name="lucideMic" size="20"></ng-icon>
                   </button>
-                  <textarea
-                    #messageTextarea
-                    [formControl]="messageControl()"
-                    placeholder="Digite uma mensagem..."
-                    rows="1"
-                    class="grow resize-none border-0 bg-transparent py-2 pr-3 text-sm text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-0 max-h-32 leading-5"
-                    (keydown)="messageKeydown.emit($event)"
-                    (input)="messageInput.emit($event)"
-                  ></textarea>
+
+                  <button
+                    type="button"
+                    class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full bg-accent-500 text-white transition-colors hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    [disabled]="isSendingMessage() || (!messageControl().value.trim() && !selectedTemplate())"
+                    aria-label="Enviar mensagem"
+                    (click)="sendMessage.emit()"
+                  >
+                    <ng-icon name="lucideSend" size="18"></ng-icon>
+                  </button>
                 </div>
-
-                <button
-                  type="button"
-                  class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                  aria-label="Gravar áudio"
-                  (click)="startRecording.emit()"
-                >
-                  <ng-icon name="lucideMic" size="20"></ng-icon>
-                </button>
-
-                <button
-                  type="button"
-                  class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full bg-accent-500 text-white transition-colors hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                  [disabled]="isSendingMessage() || !messageControl().value.trim()"
-                  aria-label="Enviar mensagem"
-                  (click)="sendMessage.emit()"
-                >
-                  <ng-icon name="lucideSend" size="18"></ng-icon>
-                </button>
-              </div>
+              }
             }
           } @else if (selectedTicket()?.status === 'pending') {
             <div class="flex items-center justify-center">

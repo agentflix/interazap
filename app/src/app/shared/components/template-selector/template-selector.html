@@ -51,6 +51,21 @@
         </div>
       }
 
+      <!-- Submit button -->
+      @if (selectedTemplate() && canSubmit()) {
+        <div class="mt-4">
+          <app-button
+            variant="primary"
+            size="sm"
+            class="w-full"
+            dataTest="template-submit"
+            (clicked)="submit()"
+          >
+            Enviar template
+          </app-button>
+        </div>
+      }
+
       <!-- Validation error -->
       @if (validationError()) {
         <p class="mt-2 text-sm text-danger">{{ validationError() }}</p>

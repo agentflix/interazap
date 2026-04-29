@@ -20,7 +20,7 @@ import { CalledService } from 'src/app/core/services/called.service';
 import { CalledMessageService } from 'src/app/core/services/called-message.service';
 import { type Instance, InstanceService } from 'src/app/core/services/instance.service';
 import { WindowVerificationService } from './services/window-verification.service';
-import { TemplateSelectorComponent, type TemplateSelectedEvent } from './components/template-selector/template-selector';
+import { TemplateSelectorComponent, type TemplateSelectedEvent } from '@shared/components/template-selector/template-selector';
 import { ButtonComponent, LoadingButtonComponent } from 'src/app/shared/components/buttons';
 import {
   SelectInputComponent,

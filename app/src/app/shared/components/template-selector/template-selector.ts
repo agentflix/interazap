@@ -19,6 +19,7 @@ import {
   TextInputComponent,
   type SelectOption,
 } from '@shared/components/inputs';
+import { ButtonComponent } from '@shared/components/buttons';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
@@ -81,7 +82,7 @@ export interface TemplateSelectedEvent {
 @Component({
   selector: 'app-template-selector',
   standalone: true,
-  imports: [ReactiveFormsModule, SelectInputComponent, TextInputComponent, LucideAngularModule],
+  imports: [ReactiveFormsModule, SelectInputComponent, TextInputComponent, ButtonComponent, LucideAngularModule],
   templateUrl: './template-selector.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -28,7 +28,7 @@ export {
   type MetaTemplateComponent,
   type MetaTemplateParameter,
   type TemplateSelectedEvent,
-} from '../../pages/chat/components/new-conversation-modal/components/template-selector/template-selector';
+} from './template-selector/template-selector';
 
 // ─── Form Primitives & Modals ────────────────────────────────────────
 export { AfFormLabelComponent } from './form-label/form-label';

@@ -1,5 +1,6 @@
 import { type DestroyRef, Injectable, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
 import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
 import { RealtimeService } from 'src/app/core/services/realtime.service';
 import { tocarNotificacao } from 'src/app/shared/utils/notifications/chat-audio';
@@ -10,6 +11,12 @@ const CHAT_ACTIVITY_EVENT = 'chat.activity';
 const CHAT_NEW_TICKET_EVENT = 'chat.ticket.new';
 const NOTIFICATION_COOLDOWN_MS = 600;
 const TICKET_LIST_REFRESH_COOLDOWN_MS = 300;
+
+export interface IncomingMessageEvent {
+  ticketId: string | null;
+  contactId: string | null;
+  direction: string | null;
+}
 
 interface MessageReceivedPayload {
   data?: {
@@ -43,6 +50,9 @@ interface ChatNewTicketPayload {
 export class ChatRealtimeListenerService {
   private readonly realtime = inject(RealtimeService);
   private readonly chatRefresh = inject(ChatRefreshService);
+
+  private readonly incomingMessageSubject = new Subject<IncomingMessageEvent>();
+  readonly incomingMessage$ = this.incomingMessageSubject.asObservable();
 
   private lastNotificationAt = 0;
   private lastTicketListRefreshAt = 0;
@@ -80,6 +90,12 @@ export class ChatRealtimeListenerService {
 
     const direction = (payload.direction ?? '').toLowerCase();
     if (direction && direction !== 'incoming') return;
+
+    this.incomingMessageSubject.next({
+      ticketId: payload.ticket_id ? String(payload.ticket_id) : null,
+      contactId: null,
+      direction,
+    });
 
     const now = Date.now();
     if (now - this.lastNotificationAt < NOTIFICATION_COOLDOWN_MS) return;
