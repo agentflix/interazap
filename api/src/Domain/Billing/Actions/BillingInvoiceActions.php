@@ -171,6 +171,10 @@ final class BillingInvoiceActions
      */
     public function pay(?string $tenantId, string $id, BillingInvoicePaymentDTO $paymentDto): array
     {
+        if (! is_string($tenantId) || $tenantId === '') {
+            throw new \DomainException('Tenant inválido para pagamento de fatura.');
+        }
+
         $invoice = $this->find($tenantId, $id);
 
         if (! $invoice->canBePaid()) {
@@ -184,7 +188,10 @@ final class BillingInvoiceActions
         $customerId = $this->gatewayService->ensureCustomer($tenant);
 
         if (! $customerId) {
-            throw new \DomainException('Não foi possível criar o cliente no Asaas. Verifique o documento do tenant.');
+            $gatewayReason = $this->gatewayService->getLastError();
+            $details = $gatewayReason ? " Motivo: {$gatewayReason}." : '';
+
+            throw new \DomainException('Não foi possível criar o cliente no Asaas. Verifique o documento do tenant.'.$details);
         }
 
         $method = strtoupper($paymentDto->method);
@@ -201,7 +208,10 @@ final class BillingInvoiceActions
         );
 
         if (! $payment['id']) {
-            throw new \DomainException('Não foi possível criar a cobrança no Asaas.');
+            $gatewayReason = $this->gatewayService->getLastError();
+            $details = $gatewayReason ? " Motivo: {$gatewayReason}." : '';
+
+            throw new \DomainException('Não foi possível criar a cobrança no Asaas.'.$details);
         }
 
         // Atualiza a fatura com os dados da cobrança

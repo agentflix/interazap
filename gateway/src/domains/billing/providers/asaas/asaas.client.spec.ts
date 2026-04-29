@@ -121,9 +121,7 @@ describe('AsaasClient', () => {
     });
   });
 
-  it('creates product', async () => {
-    mockAxiosInstance.post.mockResolvedValue({ data: { id: 'prod_1' } });
-
+  it('createProduct is a no-op (Asaas v3 has no /products endpoint)', async () => {
     const result = await client.createProduct({
       name: 'Starter',
       description: 'Plano Starter',
@@ -131,12 +129,11 @@ describe('AsaasClient', () => {
       externalReference: 'plan-1',
     });
 
-    expect(result).toEqual({ id: 'prod_1' });
+    expect(result).toEqual({ id: null });
+    expect(mockAxiosInstance.post).not.toHaveBeenCalled();
   });
 
-  it('updates product', async () => {
-    mockAxiosInstance.post.mockResolvedValue({ data: {} });
-
+  it('updateProduct is a no-op (Asaas v3 has no /products endpoint)', async () => {
     await expect(
       client.updateProduct('prod_2', {
         name: 'Pro',
@@ -145,11 +142,7 @@ describe('AsaasClient', () => {
       }),
     ).resolves.toBeUndefined();
 
-    expect(mockAxiosInstance.post).toHaveBeenCalledWith('/products/prod_2', {
-      name: 'Pro',
-      description: 'Plano Pro',
-      value: 39.9,
-    });
+    expect(mockAxiosInstance.post).not.toHaveBeenCalled();
   });
 
   describe('error handling', () => {
@@ -213,7 +206,7 @@ describe('AsaasClient', () => {
       await expect(client.getPaymentStatus('invalid-id')).rejects.toBeDefined();
     });
 
-    it('should handle Axios error in createProduct', async () => {
+    it('createProduct does not throw on Axios error (no-op)', async () => {
       const axiosError = {
         message: 'Product creation failed',
         isAxiosError: true,
@@ -228,10 +221,10 @@ describe('AsaasClient', () => {
           value: 10,
           externalReference: 'ref-1',
         }),
-      ).rejects.toBeDefined();
+      ).resolves.toEqual({ id: null });
     });
 
-    it('should handle Axios error in updateProduct', async () => {
+    it('updateProduct does not throw on Axios error (no-op)', async () => {
       const axiosError = {
         message: 'Update failed',
         isAxiosError: true,
@@ -246,7 +239,7 @@ describe('AsaasClient', () => {
           value: 20,
           externalReference: 'ref-1',
         }),
-      ).rejects.toBeDefined();
+      ).resolves.toBeUndefined();
     });
 
     it('should handle non-Axios error', async () => {
@@ -261,6 +254,38 @@ describe('AsaasClient', () => {
           externalReference: 'ref-1',
         }),
       ).rejects.toThrow('Network error');
+    });
+
+    it('fails fast when ASAAS_API_KEY is missing', async () => {
+      const moduleWithoutApiKey: TestingModule = await Test.createTestingModule(
+        {
+          providers: [
+            AsaasClient,
+            {
+              provide: ConfigService,
+              useValue: {
+                get: jest.fn().mockReturnValue({
+                  baseUrl: 'https://sandbox.asaas.com/api/v3',
+                  apiKey: '',
+                  webhookSecret: 'wh',
+                }),
+              },
+            },
+          ],
+        },
+      ).compile();
+
+      const clientWithoutApiKey =
+        moduleWithoutApiKey.get<AsaasClient>(AsaasClient);
+
+      await expect(
+        clientWithoutApiKey.createCustomer({
+          name: 'Tenant',
+          cpfCnpj: '12345678901',
+          email: 'tenant@example.com',
+          externalReference: 'tenant-1',
+        }),
+      ).rejects.toThrow('ASAAS_API_KEY is not configured');
     });
   });
 });

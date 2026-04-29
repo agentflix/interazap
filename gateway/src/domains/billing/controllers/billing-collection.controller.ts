@@ -16,7 +16,7 @@ import { BillingCollectionService } from '../services/billing-collection.service
  * Gerencia o envio de notificações de cobrança via WhatsApp
  * através do provider de SMS/Voice configurado.
  */
-@Controller({ path: 'internal/billing/collection', version: '1' })
+@Controller({ path: 'internal/billing/collection' })
 @UseGuards(InternalApiKeyGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class BillingCollectionController {

@@ -36,14 +36,24 @@ export class AsaasClient extends AbstractHttpClient {
       webhookSecret: '',
     };
 
+    // Asaas v3 expects the API key in the `access_token` header — NOT a
+    // Bearer Authorization header. Sending Bearer makes every request return
+    // 401 Unauthorized (silently logged here and surfaced as
+    // `DomainException` upstream). Reference: https://docs.asaas.com/
     this.axiosInstance = this.createAxiosInstance({
       baseURL: this.config.baseUrl,
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.config.apiKey}`,
+        access_token: this.config.apiKey,
       },
     });
+
+    if (!this.config.apiKey || this.config.apiKey.trim() === '') {
+      this.logger.warn(
+        '[Asaas] ASAAS_API_KEY is not configured; billing calls will fail fast',
+      );
+    }
   }
 
   /**
@@ -55,6 +65,8 @@ export class AsaasClient extends AbstractHttpClient {
   async createCustomer(
     payload: AsaasCustomerPayload,
   ): Promise<AsaasCustomerResponse> {
+    this.assertApiKeyConfigured();
+
     try {
       const response = await this.axiosInstance.post<AsaasCustomerResponse>(
         '/customers',
@@ -76,6 +88,8 @@ export class AsaasClient extends AbstractHttpClient {
   async createPayment(
     payload: AsaasPaymentPayload,
   ): Promise<AsaasPaymentResponse> {
+    this.assertApiKeyConfigured();
+
     try {
       const response = await this.axiosInstance.post<AsaasPaymentResponse>(
         '/payments',
@@ -95,6 +109,8 @@ export class AsaasClient extends AbstractHttpClient {
    * @returns Dados do QR Code PIX (payload, imagem e data de expiração)
    */
   async getPixQRCode(paymentId: string): Promise<AsaasPixResponse> {
+    this.assertApiKeyConfigured();
+
     try {
       const response = await this.axiosInstance.get<AsaasPixResponse>(
         `/payments/${paymentId}/pixQrCode`,
@@ -115,6 +131,8 @@ export class AsaasClient extends AbstractHttpClient {
   async getPaymentStatus(
     paymentId: string,
   ): Promise<AsaasPaymentStatusResponse> {
+    this.assertApiKeyConfigured();
+
     try {
       const response = await this.axiosInstance.get<AsaasPaymentStatusResponse>(
         `/payments/${paymentId}`,
@@ -127,42 +145,43 @@ export class AsaasClient extends AbstractHttpClient {
   }
 
   /**
-   * Cria um novo produto no Asaas.
+   * NO-OP: Asaas v3 does not expose a `/products` endpoint. The previous
+   * implementation hit a non-existent route and returned 404 in production
+   * (silently degraded to `null` in the Laravel caller).
    *
-   * @param payload - Dados do produto a ser criado
-   * @returns Resposta com o ID do produto criado
+   * Plan ↔ Asaas synchronization, when needed, must be modelled on top of
+   * `/subscriptions` or `/checkouts`. Until that work lands, we resolve with
+   * a stub so callers do not raise — `asaas_product_id` will simply remain
+   * `null` for the plan, which all current call-sites already tolerate.
+   *
+   * @param payload - Product payload (kept for API stability)
+   * @returns Stub response with `id: null`
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async createProduct(
-    payload: AsaasProductPayload,
+    _payload: AsaasProductPayload,
   ): Promise<AsaasProductResponse> {
-    try {
-      const response = await this.axiosInstance.post<AsaasProductResponse>(
-        '/products',
-        payload,
-      );
-      return response.data;
-    } catch (error) {
-      this.handleError('createProduct', error);
-      throw error;
-    }
+    this.logger.warn(
+      '[Asaas] createProduct is a no-op: Asaas v3 has no /products endpoint',
+    );
+    return Promise.resolve({ id: null } as unknown as AsaasProductResponse);
   }
 
   /**
-   * Atualiza um produto existente no Asaas.
+   * NO-OP: see `createProduct` for context.
    *
-   * @param productId - Identificador do produto no Asaas
-   * @param payload - Dados atualizados do produto
+   * @param productId - Product ID (kept for API stability)
+   * @param payload - Product payload (kept for API stability)
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async updateProduct(
-    productId: string,
-    payload: AsaasProductPayload,
+    _productId: string,
+    _payload: AsaasProductPayload,
   ): Promise<void> {
-    try {
-      await this.axiosInstance.post(`/products/${productId}`, payload);
-    } catch (error) {
-      this.handleError('updateProduct', error);
-      throw error;
-    }
+    this.logger.warn(
+      '[Asaas] updateProduct is a no-op: Asaas v3 has no /products endpoint',
+    );
+    return Promise.resolve();
   }
 
   /**
@@ -181,5 +200,11 @@ export class AsaasClient extends AbstractHttpClient {
     }
 
     this.logger.error(`[Asaas] ${method} failed with unknown error`, error);
+  }
+
+  private assertApiKeyConfigured(): void {
+    if (!this.config.apiKey || this.config.apiKey.trim() === '') {
+      throw new Error('ASAAS_API_KEY is not configured');
+    }
   }
 }

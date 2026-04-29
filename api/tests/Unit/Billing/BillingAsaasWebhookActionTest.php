@@ -124,4 +124,49 @@ class BillingAsaasWebhookActionTest extends TestCase
 
         $action->handle($tenant, $dto, true, $request);
     }
+
+    public function test_payment_refunded_reopens_invoice_and_marks_payment_refunded(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+
+        $invoice = BillingInvoice::factory()->create([
+            'tenant_id' => $tenant->id,
+            'status' => BillingInvoiceStatus::PAID,
+            'paid_at' => now(),
+            'due_date' => now()->addDays(5),
+        ]);
+
+        $payment = BillingPayment::query()->create([
+            'tenant_id' => $tenant->id,
+            'invoice_id' => $invoice->id,
+            'amount' => 120.50,
+            'payment_method' => 'pix',
+            'provider' => 'asaas',
+            'provider_payment_id' => 'pay_ref_123',
+            'status' => BillingPaymentStatus::CONFIRMED,
+            'confirmed_at' => now()->subDay(),
+        ]);
+
+        $dto = BillingWebhookDTO::fromArray([
+            'provider' => 'ASAAS',
+            'event_type' => 'PAYMENT_REFUNDED',
+            'payment' => [
+                'id' => 'pay_ref_123',
+                'externalReference' => (string) $invoice->id,
+            ],
+        ]);
+
+        /** @var BillingAsaasWebhookAction $action */
+        $action = app(BillingAsaasWebhookAction::class);
+
+        $result = $action->handle($tenant, $dto, true);
+
+        $invoice->refresh();
+        $payment->refresh();
+
+        $this->assertTrue($result['invoice_updated']);
+        $this->assertSame(BillingInvoiceStatus::PENDING, $invoice->status);
+        $this->assertNull($invoice->paid_at);
+        $this->assertSame(BillingPaymentStatus::REFUNDED, $payment->status);
+    }
 }

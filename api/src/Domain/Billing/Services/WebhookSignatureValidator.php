@@ -40,7 +40,6 @@ final class WebhookSignatureValidator
         $receivedToken = (string) (
             $request->header('asaas-access-token')
             ?? $request->header('x-asaas-access-token')
-            ?? $request->header('x-webhook-signature')
             ?? ''
         );
 
