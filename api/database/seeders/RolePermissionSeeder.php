@@ -28,6 +28,10 @@ final class RolePermissionSeeder extends Seeder
             'chat.tickets.manage',
             'chat.messages.update',
             'chat.messages.delete',
+            'chat.transmission_lists.view',
+            'chat.transmission_lists.create',
+            'chat.transmission_lists.update',
+            'chat.transmission_lists.delete',
             // Channels
             'chat.channel.view',
             'chat.channel.manage',
@@ -84,6 +88,10 @@ final class RolePermissionSeeder extends Seeder
             'chat.called.view',
             'chat.tickets.manage',
             'chat.messages.update',
+            'chat.transmission_lists.view',
+            'chat.transmission_lists.create',
+            'chat.transmission_lists.update',
+            'chat.transmission_lists.delete',
             // Channels
             'chat.channel.view',
             // CRM
