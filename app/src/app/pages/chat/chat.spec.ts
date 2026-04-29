@@ -103,9 +103,7 @@ class NativeBridgeServiceStub {
 }
 
 class PlatformServiceStub {
-  get isMobile(): boolean {
-    return false;
-  }
+  readonly isMobile = false;
 }
 
 class MessageSendServiceStub {

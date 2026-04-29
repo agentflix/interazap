@@ -71,8 +71,10 @@ import { NewConversationModalComponent } from './components/new-conversation-mod
 import { ChatTransferModalComponent } from './components/chat-transfer-modal/chat-transfer-modal';
 import { ChatSoundService } from 'src/app/core/services/chat-sound.service';
 import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
-import { RealtimeService } from 'src/app/core/services/realtime.service';
-import { tocarNotificacao } from 'src/app/shared/utils/notifications/chat-audio';
+import { ChatRealtimeListenerService } from './services/chat-realtime-listener.service';
+import { ChatTicketTransferService } from './services/chat-ticket-transfer.service';
+import { ChatTicketCloseService } from './services/chat-ticket-close.service';
+import { ChatRecordingDispatcher } from './services/chat-recording-dispatcher.service';
 import {
   ChatMediaBatchService,
   type MediaBatchEvent,
@@ -94,35 +96,6 @@ import { ChatMessageCacheService } from 'src/app/core/services/chat-message-cach
 import { NativeBridgeService } from 'src/app/core/services/platform/native-bridge.service';
 import { PlatformService } from 'src/app/core/services/platform/platform.service';
 import { MessageSendService } from './services/message-send.service';
-
-const CHAT_NOTIFICATION_SOUND_URL = '/assets/audio/chat-notification.mp3';
-const MESSAGE_RECEIVED_EVENT = 'message.received';
-const CHAT_ACTIVITY_EVENT = 'chat.activity';
-const CHAT_NEW_TICKET_EVENT = 'chat.ticket.new';
-const NOTIFICATION_COOLDOWN_MS = 600;
-const TICKET_LIST_REFRESH_COOLDOWN_MS = 300;
-
-interface MessageReceivedPayload {
-  data?: {
-    ticket_id?: string;
-    direction?: string | null;
-  };
-}
-
-interface ChatActivitySubeventPayload {
-  type?: string;
-}
-
-interface ChatActivityPayload {
-  subevents?: ChatActivitySubeventPayload[];
-}
-
-interface ChatNewTicketPayload {
-  ticket_id?: string | number;
-  ticket?: {
-    id?: string | number;
-  };
-}
 
 @Component({
   selector: 'app-chat',
@@ -189,7 +162,10 @@ export class Chat implements OnInit, OnDestroy {
   private readonly mediaBatchService = inject(ChatMediaBatchService);
   private readonly chatSound = inject(ChatSoundService);
   private readonly chatRefresh = inject(ChatRefreshService);
-  private readonly realtime = inject(RealtimeService);
+  private readonly realtimeListener = inject(ChatRealtimeListenerService);
+  private readonly ticketTransfer = inject(ChatTicketTransferService);
+  private readonly ticketClose = inject(ChatTicketCloseService);
+  private readonly recordingDispatcher = inject(ChatRecordingDispatcher);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -201,10 +177,6 @@ export class Chat implements OnInit, OnDestroy {
   private readonly platform = inject(PlatformService);
   private readonly messageSend = inject(MessageSendService);
 
-  /** Timestamp da última notificação para evitar repetições rápidas. */
-  private lastNotificationAt = 0;
-  /** Timestamp do último refresh da lista por evento de criação de ticket. */
-  private lastTicketListRefreshAt = 0;
   readonly activeTab = signal<'chat' | 'contact' | 'negotiation'>('chat');
   readonly ticketFilter = signal<'pending' | 'open' | 'all'>('pending');
   readonly emergencyFilter = signal<CalledSentiment | null>(null);
@@ -219,11 +191,13 @@ export class Chat implements OnInit, OnDestroy {
   readonly selectedTicketId = this.chatStore.selectedCalledId;
   readonly isStartingTicket = signal(false);
   readonly isSendingMessage = signal(false);
-  readonly isClosingTicket = signal(false);
-  readonly isCloseTicketConfirmOpen = signal(false);
-  readonly isTransferModalOpen = signal(false);
-  readonly isTransferLoading = signal(false);
-  readonly transferError = signal<string | null>(null);
+  /** Estado do fluxo de fechamento (delegado ao ChatTicketCloseService). */
+  readonly isClosingTicket = this.ticketClose.isClosing;
+  readonly isCloseTicketConfirmOpen = this.ticketClose.isConfirmOpen;
+  /** Estado do fluxo de transferência (delegado ao ChatTicketTransferService). */
+  readonly isTransferModalOpen = this.ticketTransfer.isModalOpen;
+  readonly isTransferLoading = this.ticketTransfer.isLoading;
+  readonly transferError = this.ticketTransfer.error;
 
   /** Estado de silenciamento do som das notificações. */
   readonly isSoundMuted = this.chatSound.mutedState;
@@ -240,7 +214,8 @@ export class Chat implements OnInit, OnDestroy {
   readonly recordingDurationSeconds = computed(() =>
     Math.floor(this.chatRecorder.duration() / 1000),
   );
-  readonly isSendingAudio = signal(false);
+  /** Estado de envio de áudio (delegado ao ChatRecordingDispatcher). */
+  readonly isSendingAudio = this.recordingDispatcher.isSending;
 
   // ── File upload / attachment ──────────────────────────────────────────────
   /** Referência ao input de arquivo oculto. */
@@ -308,10 +283,14 @@ export class Chat implements OnInit, OnDestroy {
       }
     });
 
-    // Handle audio recording completion — upload and send
+    // Handle audio recording completion — upload and send (delegated)
     this.chatRecorder.recordingCompleted$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ blob }) => this.handleRecordingCompleted(blob));
+      .subscribe(({ blob }) => {
+        const ticket = this.selectedTicket();
+        if (!ticket) return;
+        this.recordingDispatcher.dispatch(blob, ticket.id, this.destroyRef);
+      });
 
     this.messageSend.queueDelivered$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -329,7 +308,7 @@ export class Chat implements OnInit, OnDestroy {
       });
     });
 
-    this.setupRealtimeListeners();
+    this.realtimeListener.start(this.destroyRef);
   }
 
   readonly ticketTabs = computed<AfTabItem[]>(() => {
@@ -627,44 +606,6 @@ export class Chat implements OnInit, OnDestroy {
     this.chatRecorder.stop();
   }
 
-  /** Handle audio blob received from ChatRecorderService after recording stops. */
-  private handleRecordingCompleted(blob: Blob): void {
-    const ticket = this.selectedTicket();
-    if (!ticket) return;
-
-    const audioFile = new File([blob], 'audio-message.webm', { type: 'audio/webm' });
-    this.isSendingAudio.set(true);
-
-    this.calledMessageService
-      .uploadMedia(audioFile)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.calledMessageService
-            .send(String(ticket.id), '', 'audio', undefined, {
-              file_url: res.data.url,
-              file_name: res.data.file_name,
-              mime_type: res.data.mime_type,
-              file_size: res.data.size,
-            })
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-              next: () => {
-                this.isSendingAudio.set(false);
-              },
-              error: () => {
-                this.isSendingAudio.set(false);
-                toast.error('Erro ao enviar áudio.');
-              },
-            });
-        },
-        error: () => {
-          this.isSendingAudio.set(false);
-          toast.error('Erro ao fazer upload do áudio.');
-        },
-      });
-  }
-
   /** Reset textarea height after sending a message. */
   private resetTextareaHeight(): void {
     const el = this.messageTextareaRef()?.nativeElement;
@@ -733,234 +674,38 @@ export class Chat implements OnInit, OnDestroy {
 
   /** Abre modal de transferência do atendimento selecionado. */
   openTransferModal(): void {
-    const ticket = this.selectedTicket();
-    if (!ticket || ticket.status === 'closed' || this.isTransferLoading()) {
-      return;
-    }
-
-    this.transferError.set(null);
-    this.isTransferModalOpen.set(true);
+    this.ticketTransfer.openModal(this.selectedTicket());
   }
 
   /** Fecha modal de transferência. */
   closeTransferModal(): void {
-    if (this.isTransferLoading()) {
-      return;
-    }
-
-    this.transferError.set(null);
-    this.isTransferModalOpen.set(false);
+    this.ticketTransfer.closeModal();
   }
 
   /** Handler para transferência confirmada pelo ChatTransferModalComponent. */
   onTransferConfirmed(event: { ticketId: string; toUserId: string; reason: string }): void {
-    this.transferError.set(null);
-    this.isTransferLoading.set(true);
-
-    this.calledService
-      .transferToUser(event.ticketId, { to_user_id: event.toUserId, reason: event.reason })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.calledService
-            .get(event.ticketId)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-              next: (ticketResponse) => {
-                const updated = ticketResponse.data;
-                this.tickets.update((items) =>
-                  items.map((item) =>
-                    String(item.id) === event.ticketId ? { ...item, ...updated } : item,
-                  ),
-                );
-
-                this.isTransferLoading.set(false);
-                this.transferError.set(null);
-                this.isTransferModalOpen.set(false);
-                this.ticketList.loadTickets();
-              },
-              error: () => {
-                this.isTransferLoading.set(false);
-                this.transferError.set(
-                  'Não foi possível atualizar o chamado após a transferência.',
-                );
-              },
-            });
-        },
-        error: () => {
-          this.isTransferLoading.set(false);
-          this.transferError.set('Não foi possível transferir o chamado. Tente novamente.');
-        },
-      });
+    this.ticketTransfer.confirm(event, this.destroyRef, this.tickets);
   }
 
   /** Abre o modal de confirmação para encerrar o atendimento selecionado. */
   openCloseTicketConfirm(): void {
-    const ticket = this.selectedTicket();
-    if (!ticket || ticket.status === 'closed' || this.isClosingTicket()) {
-      return;
-    }
-
-    this.isCloseTicketConfirmOpen.set(true);
+    this.ticketClose.openConfirm(this.selectedTicket());
   }
 
   /** Fecha o modal de confirmação de encerramento. */
   closeCloseTicketConfirm(): void {
-    this.isCloseTicketConfirmOpen.set(false);
+    this.ticketClose.closeConfirm();
   }
 
   /** Confirma o encerramento do atendimento atual. */
   confirmCloseSelectedTicket(): void {
-    const ticket = this.selectedTicket();
-    if (!ticket || ticket.status === 'closed' || this.isClosingTicket()) {
-      return;
-    }
-
-    const ticketId = String(ticket.id);
-    const previousTicket = { ...ticket };
-    const previousCounts = this.counts();
-
-    this.isCloseTicketConfirmOpen.set(false);
-    this.isClosingTicket.set(true);
-
-    this.tickets.update((items) =>
-      items.map((item) =>
-        String(item.id) === ticketId
-          ? {
-              ...item,
-              status: 'closed',
-              closed_at: item.closed_at ?? new Date().toISOString(),
-            }
-          : item,
-      ),
+    this.ticketClose.confirm(
+      this.selectedTicket(),
+      this.destroyRef,
+      this.tickets,
+      this.counts,
+      this.selectedTicketId,
     );
-
-    this.counts.update((current) => ({
-      ...current,
-      open: Math.max(0, current.open - 1),
-      in_progress: Math.max(0, (current.in_progress ?? 0) - 1),
-      closed: current.closed + 1,
-    }));
-
-    this.calledService
-      .close(ticketId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          const closed = response.data;
-
-          this.tickets.update((items) =>
-            items.map((item) =>
-              String(item.id) === ticketId
-                ? {
-                    ...item,
-                    ...closed,
-                    status: 'closed',
-                    closed_at: closed.closed_at ?? item.closed_at,
-                    updated_at: closed.updated_at ?? item.updated_at,
-                  }
-                : item,
-            ),
-          );
-
-          this.isClosingTicket.set(false);
-          this.ticketList.loadTickets();
-          toast.success('Chamado fechado com sucesso.');
-          this.selectedTicketId.set(null);
-          void this.router.navigate(['/chat']);
-        },
-        error: () => {
-          this.tickets.update((items) =>
-            items.map((item) => (String(item.id) === ticketId ? previousTicket : item)),
-          );
-          this.counts.set(previousCounts);
-          this.isClosingTicket.set(false);
-        },
-      });
-  }
-
-  /**
-   * Conecta ao realtime e escuta eventos de mensagem recebida.
-   * Dispara notificação sonora e solicita reload da lista.
-   */
-  private setupRealtimeListeners(): void {
-    this.realtime.connect();
-
-    this.realtime
-      .on<MessageReceivedPayload>(MESSAGE_RECEIVED_EVENT)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((event) => this.handleIncomingMessage(event));
-
-    this.realtime
-      .on<ChatActivityPayload>(CHAT_ACTIVITY_EVENT)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((event) => this.handleActivityEvent(event));
-
-    this.realtime
-      .on<ChatNewTicketPayload>(CHAT_NEW_TICKET_EVENT)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((event) => this.handleNewTicketEvent(event));
-  }
-
-  /**
-   * Trata mensagem recebida via WebSocket.
-   * Emite som de notificação (se não silenciado) e recarrega a lista.
-   */
-  private handleIncomingMessage(event: MessageReceivedPayload | null): void {
-    const payload = event?.data;
-    if (!payload) return;
-
-    const direction = (payload.direction ?? '').toLowerCase();
-    if (direction && direction !== 'incoming') return;
-
-    const now = Date.now();
-    if (now - this.lastNotificationAt < NOTIFICATION_COOLDOWN_MS) return;
-
-    this.lastNotificationAt = now;
-    void tocarNotificacao(CHAT_NOTIFICATION_SOUND_URL);
-    this.chatRefresh.request();
-  }
-
-  /**
-   * Trata eventos unificados de atividade para detectar mutações de ticket.
-   */
-  private handleActivityEvent(event: ChatActivityPayload | null): void {
-    const subevents = event?.subevents;
-    if (!Array.isArray(subevents) || subevents.length === 0) return;
-
-    const hasTicketMutation = subevents.some((subevent) => {
-      const type = subevent?.type;
-      return type === 'ticket.new' || type === 'ticket.updated' || type === 'chat.list.updated';
-    });
-
-    if (!hasTicketMutation) return;
-
-    this.requestTicketListRefresh();
-  }
-
-  /**
-   * Trata evento dedicado de criação de ticket.
-   */
-  private handleNewTicketEvent(event: ChatNewTicketPayload | null): void {
-    if (!event) return;
-
-    const ticketId = event.ticket_id ?? event.ticket?.id;
-    if (ticketId === null || ticketId === undefined || String(ticketId).trim() === '') return;
-
-    this.requestTicketListRefresh();
-  }
-
-  /**
-   * Solicita refresh da lista com cooldown curto para evitar rajadas de reload.
-   */
-  private requestTicketListRefresh(): void {
-    const now = Date.now();
-    if (now - this.lastTicketListRefreshAt < TICKET_LIST_REFRESH_COOLDOWN_MS) {
-      return;
-    }
-
-    this.lastTicketListRefreshAt = now;
-    this.chatRefresh.request();
   }
 
   /** Sincroniza ticket selecionado a partir da rota ativa (`/chat/:calledId`). */
