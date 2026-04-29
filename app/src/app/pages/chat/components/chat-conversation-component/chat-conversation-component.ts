@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, ViewChild, input, output, type ElementRef, effect } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ViewChild,
+  input,
+  output,
+  type ElementRef,
+  effect,
+} from '@angular/core';
 import { toast } from 'ngx-sonner';
 import { ReactiveFormsModule, type FormControl } from '@angular/forms';
 import { NgIcon } from '@ng-icons/core';
@@ -6,6 +14,10 @@ import { type Contact } from 'src/app/core/models/contact.model';
 import { type Called } from 'src/app/core/services/called.service';
 import { type CalledMessage } from 'src/app/core/services/called-message.service';
 import { ButtonComponent, IconButtonComponent } from 'src/app/shared/components/buttons';
+import { AfAlertComponent } from 'src/app/shared/components/alert/alert';
+import { AfBadgeComponent } from 'src/app/shared/components/badge/badge';
+import { AfSheetComponent } from 'src/app/shared/components/sheet/sheet';
+import { AfSpinnerComponent } from 'src/app/shared/components/spinner/spinner';
 import { ContactSectionComponent } from '../../chat-sidebar/contact-section/contact-section';
 import { CRMSectionComponent } from '../../chat-sidebar/crm-section/crm-section';
 import { UserChat } from '../user-chat/user-chat';
@@ -21,6 +33,10 @@ import { UserChat } from '../user-chat/user-chat';
     NgIcon,
     ButtonComponent,
     IconButtonComponent,
+    AfAlertComponent,
+    AfBadgeComponent,
+    AfSheetComponent,
+    AfSpinnerComponent,
     UserChat,
     ContactSectionComponent,
     CRMSectionComponent,
@@ -30,7 +46,8 @@ import { UserChat } from '../user-chat/user-chat';
 })
 export class ChatConversationComponent {
   @ViewChild(UserChat) private readonly userChatRef?: UserChat;
-  @ViewChild('messageTextarea') private readonly messageTextareaRef?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('messageTextarea')
+  private readonly messageTextareaRef?: ElementRef<HTMLTextAreaElement>;
 
   constructor() {
     effect(() => {
@@ -58,7 +75,11 @@ export class ChatConversationComponent {
   readonly isRecordingPaused = input.required<boolean>();
   readonly recordingDuration = input.required<number>();
   readonly isSendingAudio = input.required<boolean>();
+  readonly isMobile = input.required<boolean>();
   readonly isAttachmentMenuOpen = input.required<boolean>();
+  readonly attachmentErrorMessage = input<string | null>(null);
+  readonly pendingQueueCount = input(0);
+  readonly isQueueFlushing = input(false);
   readonly messageControl = input.required<FormControl<string>>();
   readonly isSendingMessage = input.required<boolean>();
 
@@ -73,7 +94,10 @@ export class ChatConversationComponent {
   readonly sendRecording = output<void>();
   readonly toggleAttachmentMenu = output<void>();
   readonly closeAttachmentMenu = output<void>();
-  readonly selectAttachmentType = output<'document' | 'image' | 'video' | 'location'>();
+  readonly clearAttachmentError = output<void>();
+  readonly selectAttachmentType = output<
+    'document' | 'image' | 'video' | 'location' | 'camera' | 'gallery' | 'file'
+  >();
   readonly messageKeydown = output<KeyboardEvent>();
   readonly messageInput = output<Event>();
   readonly startRecording = output<void>();

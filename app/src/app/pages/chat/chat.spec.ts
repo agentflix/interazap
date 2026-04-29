@@ -16,6 +16,9 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { CalledMessageService } from 'src/app/core/services/called-message.service';
 import { ChatPresenceService } from 'src/app/core/services/chat-presence.service';
 import { ChatMediaBatchService } from 'src/app/core/services/chat-media-batch.service';
+import { NativeBridgeService } from 'src/app/core/services/platform/native-bridge.service';
+import { PlatformService } from 'src/app/core/services/platform/platform.service';
+import { MessageSendService } from './services/message-send.service';
 
 class AppShellServiceStub {
   hideFooter = vi.fn();
@@ -94,6 +97,37 @@ class ActivatedRouteStub {
   snapshot = { paramMap: convertToParamMap({}) };
 }
 
+class NativeBridgeServiceStub {
+  capturePhoto = vi.fn();
+  pickPhotoFromGallery = vi.fn();
+}
+
+class PlatformServiceStub {
+  get isMobile(): boolean {
+    return false;
+  }
+}
+
+class MessageSendServiceStub {
+  initialize = vi.fn(async () => undefined);
+  pendingCountForTicket = vi.fn().mockReturnValue(0);
+  queueDelivered$ = new Subject<{
+    queueId: string;
+    calledId: string;
+    clientMessageId: string;
+    message: { id: string; direction?: 'incoming' | 'outgoing'; status?: string };
+  }>();
+  queueFailed$ = new Subject<{ queueId: string; calledId: string; clientMessageId: string }>();
+  isFlushing = signal(false);
+  sendText = vi.fn().mockReturnValue(
+    of({
+      status: 'sent',
+      clientMessageId: 'temp-1',
+      message: { id: 'msg-1', direction: 'outgoing', status: 'sent' },
+    }),
+  );
+}
+
 describe('Chat', () => {
   let component: Chat;
   let quickAnswerService: ChatQuickAnswerServiceStub;
@@ -121,6 +155,9 @@ describe('Chat', () => {
         { provide: ChatRecorderService, useClass: ChatRecorderServiceStub },
         { provide: RealtimeService, useClass: RealtimeServiceStub },
         { provide: ActivatedRoute, useClass: ActivatedRouteStub },
+        { provide: NativeBridgeService, useClass: NativeBridgeServiceStub },
+        { provide: PlatformService, useClass: PlatformServiceStub },
+        { provide: MessageSendService, useClass: MessageSendServiceStub },
       ],
     });
 

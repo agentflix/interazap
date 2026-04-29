@@ -13,9 +13,7 @@ import { WsSessionService } from './services/ws-session.service';
 import { WebChatProxyService } from './services/webchat-proxy.service';
 
 @Module({
-  imports: [
-    MulterModule.register({ limits: { fileSize: 50 * 1024 * 1024 } }),
-  ],
+  imports: [MulterModule.register({ limits: { fileSize: 50 * 1024 * 1024 } })],
   controllers: [InternalBroadcastController, WebChatController],
   providers: [
     EventsGateway,

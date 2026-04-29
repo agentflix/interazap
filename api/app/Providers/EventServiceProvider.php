@@ -16,6 +16,7 @@ use Domain\Ai\Listeners\AutopilotRunDispatcherListener;
 use Domain\Chat\Events\MessagePersisted;
 use Domain\Chat\Listeners\AiResponseListener;
 use Domain\Chat\Listeners\MessagePersistorListener;
+use Domain\Chat\Listeners\RevokeInvalidPushTokenListener;
 use Domain\Configuration\Events\AiEscalationRequiredEvent;
 use Domain\Configuration\Events\AiHotLeadDetectedEvent;
 use Domain\Configuration\Events\BillingInvoiceCreatedEvent;
@@ -37,6 +38,7 @@ use Domain\Platform\Console\Listeners\WorkerGracefulShutdownListener;
 use Domain\Shared\Listeners\AuthEventSubscriber;
 use Domain\Shared\Listeners\SecurityEventSubscriber;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Notifications\Events\NotificationFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Queue\Events\Looping;
@@ -109,6 +111,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         AiResponseReceived::class => [
             AiResponseListener::class,
+        ],
+        NotificationFailed::class => [
+            RevokeInvalidPushTokenListener::class,
         ],
     ];
 

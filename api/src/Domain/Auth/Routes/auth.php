@@ -8,6 +8,7 @@ use Domain\Auth\Http\Controllers\AuthProfileController;
 use Domain\Auth\Http\Controllers\AuthRoleController;
 use Domain\Auth\Http\Controllers\AuthTwoFactorController;
 use Domain\Auth\Http\Controllers\AuthUserController;
+use Domain\Auth\Http\Controllers\DeviceTokenController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,4 +68,10 @@ Route::middleware(['auth:sanctum'])
         Route::post('/users/{id}/toggle', [AuthUserController::class, 'toggle']);
         Route::post('/users/{id}/avatar', [AuthUserController::class, 'uploadAvatar']);
         Route::delete('/users/{id}/avatar', [AuthUserController::class, 'deleteAvatar']);
+    });
+
+Route::middleware(['auth:sanctum'])
+    ->group(function (): void {
+        Route::post('/devices/register', [DeviceTokenController::class, 'register']);
+        Route::delete('/devices/{id}', [DeviceTokenController::class, 'destroy']);
     });

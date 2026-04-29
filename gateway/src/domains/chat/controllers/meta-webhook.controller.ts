@@ -105,7 +105,9 @@ export class MetaWebhookController {
 
     if (!phoneNumberId) {
       this.logger.warn('Webhook payload missing phone_number_id for routing');
-      throw new BadRequestException('Invalid payload: missing metadata.phone_number_id');
+      throw new BadRequestException(
+        'Invalid payload: missing metadata.phone_number_id',
+      );
     }
 
     // 6. Build webhook event

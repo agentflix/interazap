@@ -88,7 +88,9 @@ export class WebChatController {
   @Post('sessions')
   createSession(@Body() body: CreateSessionDto): Promise<unknown> {
     this.logger.log(`Creating webchat session for tenant ${body.tenant_id}`);
-    return this.webchatProxy.createSession(body as unknown as Record<string, unknown>);
+    return this.webchatProxy.createSession(
+      body as unknown as Record<string, unknown>,
+    );
   }
 
   /**
@@ -111,7 +113,9 @@ export class WebChatController {
   @Post('messages')
   sendMessage(@Body() body: SendMessageDto): Promise<unknown> {
     this.logger.log('Sending webchat message');
-    return this.webchatProxy.sendMessage(body as unknown as Record<string, unknown>);
+    return this.webchatProxy.sendMessage(
+      body as unknown as Record<string, unknown>,
+    );
   }
 
   /**
@@ -135,6 +139,8 @@ export class WebChatController {
   @Post('close')
   closeTicket(@Body() body: CloseTicketDto): Promise<unknown> {
     this.logger.log('Closing webchat ticket');
-    return this.webchatProxy.closeTicket(body as unknown as Record<string, unknown>);
+    return this.webchatProxy.closeTicket(
+      body as unknown as Record<string, unknown>,
+    );
   }
 }

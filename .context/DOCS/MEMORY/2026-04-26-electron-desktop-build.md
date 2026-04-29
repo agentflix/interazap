@@ -35,6 +35,9 @@ Usuário pediu: gerar `.dmg` e `.exe` sem code signing, usando o logo (raio teal
 - ⚠️ **`icon.icns` antigo no repo era PNG renomeado** (`file` mostrava `PNG image data`). electron-builder aceita por sorte, mas o ideal é `.icns` real gerado por `iconutil`.
 - 📚 **electron-builder respeita `identity: null`** explicitamente para pular signing macOS sem warnings ruidosos. Apenas `CSC_IDENTITY_AUTO_DISCOVERY=false` não é suficiente quando há `.p12` no keychain.
 - 📚 **`compression: maximum`** reduziu o EXE de ~110MB esperados para 81MB (custou ~30s a mais no build).
+- ⚠️ **`identity: null` causa erro "danificado" no macOS** (pior que "desenvolvedor não identificado"). Apps sem qualquer assinatura baixados da internet recebem o atributo `com.apple.quarantine` e o macOS exibe "está danificado" sem oferecer bypass via GUI. A solução correta é `identity: "-"` (ad-hoc signing) + `hardenedRuntime: false` + `gatekeeperAssess: false` — isso muda o erro para "desenvolvedor não identificado" que tem bypass via Configurações do Sistema > Privacidade e Segurança > Abrir Mesmo Assim.
+- ⚠️ **`CSC_IDENTITY_AUTO_DISCOVERY: false` interfere com ad-hoc signing** — remover esse env var do CI quando usar `identity: "-"`.
+- 📚 **Workaround imediato para usuário com DMG já baixado:** `xattr -cr "/Applications/InteraZap Desktop.app"` remove o atributo de quarentena e o app abre sem erro.
 
 ---
 

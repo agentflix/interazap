@@ -16,8 +16,10 @@ export class WebChatProxyService {
   private readonly timeoutMs: number;
 
   constructor(private readonly configService: ConfigService) {
-    this.apiUrl = this.configService.get<string>('api.url') ?? 'http://localhost:8000';
-    this.timeoutMs = this.configService.get<number>('api.authTimeoutMs') ?? 10000;
+    this.apiUrl =
+      this.configService.get<string>('api.url') ?? 'http://localhost:8000';
+    this.timeoutMs =
+      this.configService.get<number>('api.authTimeoutMs') ?? 10000;
   }
 
   /**
@@ -51,13 +53,19 @@ export class WebChatProxyService {
     const formData = new FormData();
     formData.append('token', token);
 
-    const blob = new Blob([new Uint8Array(file.buffer)], { type: file.mimetype });
+    const blob = new Blob([new Uint8Array(file.buffer)], {
+      type: file.mimetype,
+    });
     formData.append('file', blob, file.originalname);
 
     try {
-      const response = await axios.post(`${this.apiUrl}/api/webchat/media`, formData, {
-        timeout: this.timeoutMs,
-      });
+      const response = await axios.post(
+        `${this.apiUrl}/api/webchat/media`,
+        formData,
+        {
+          timeout: this.timeoutMs,
+        },
+      );
       return response.data;
     } catch (error: unknown) {
       this.handleProxyError('POST /api/webchat/media', error);
@@ -89,13 +97,19 @@ export class WebChatProxyService {
       );
       return response.data;
     } catch (error: unknown) {
-      this.handleProxyError(`GET /api/webchat/sessions/${sessionId}/messages`, error);
+      this.handleProxyError(
+        `GET /api/webchat/sessions/${sessionId}/messages`,
+        error,
+      );
     }
   }
 
   // ─── Private helpers ────────────────────────────────────────────────────────
 
-  private async post(path: string, body: Record<string, unknown>): Promise<unknown> {
+  private async post(
+    path: string,
+    body: Record<string, unknown>,
+  ): Promise<unknown> {
     try {
       const response = await axios.post(`${this.apiUrl}${path}`, body, {
         headers: { 'Content-Type': 'application/json' },
@@ -116,7 +130,9 @@ export class WebChatProxyService {
         axiosError.message ??
         'Erro ao comunicar com a API';
 
-      this.logger.error(`Proxy error on ${context}: HTTP ${status} - ${message}`);
+      this.logger.error(
+        `Proxy error on ${context}: HTTP ${status} - ${message}`,
+      );
       throw new HttpException(message, status);
     }
 

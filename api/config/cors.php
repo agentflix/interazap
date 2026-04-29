@@ -28,10 +28,18 @@ $envOrigins = array_values(array_filter(array_map(
     explode(',', (string) env('CORS_ALLOWED_ORIGINS', ''))
 )));
 
+// Mobile origins (Capacitor) — required for native iOS/Android shells.
+// Allowed in ALL environments (including production) because the Capacitor
+// runtime emits these origins from the app bundle, not from a public host.
+$mobileOrigins = [
+    'capacitor://localhost',
+    'http://localhost',
+];
+
 // Combine origins based on environment
 $allowedOrigins = match (env('APP_ENV', 'production')) {
-    'local', 'testing' => array_merge($productionOrigins, $developmentOrigins, $envOrigins),
-    default => array_merge($productionOrigins, $envOrigins),
+    'local', 'testing' => array_merge($productionOrigins, $developmentOrigins, $mobileOrigins, $envOrigins),
+    default => array_merge($productionOrigins, $mobileOrigins, $envOrigins),
 };
 
 return [

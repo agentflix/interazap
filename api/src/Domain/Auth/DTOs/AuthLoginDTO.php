@@ -17,6 +17,7 @@ final readonly class AuthLoginDTO
         public string $email,
         public string $password,
         public bool $remember,
+        public ?string $deviceName = null,
     ) {}
 
     /**
@@ -24,7 +25,7 @@ final readonly class AuthLoginDTO
      */
     public static function fromRequest(Request $request): self
     {
-        return self::fromArray($request->only(['email', 'password', 'remember']));
+        return self::fromArray($request->only(['email', 'password', 'remember', 'device_name']));
     }
 
     /**
@@ -32,15 +33,18 @@ final readonly class AuthLoginDTO
      */
     public static function fromArray(array $payload): self
     {
+        $deviceName = $payload['device_name'] ?? null;
+
         return new self(
             email: $payload['email'],
             password: $payload['password'],
             remember: $payload['remember'] ?? false,
+            deviceName: is_string($deviceName) && $deviceName !== '' ? $deviceName : null,
         );
     }
 
     /**
-     * @return array{email:string,password:string,remember:bool}
+     * @return array{email:string,password:string,remember:bool,device_name:?string}
      */
     public function toArray(): array
     {
@@ -48,6 +52,7 @@ final readonly class AuthLoginDTO
             'email' => $this->email,
             'password' => $this->password,
             'remember' => $this->remember,
+            'device_name' => $this->deviceName,
         ];
     }
 }

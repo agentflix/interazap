@@ -1,7 +1,7 @@
 .update-banner {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        bottom: calc(20px + var(--safe-area-bottom, 0px));
+        right: calc(20px + var(--safe-area-right, 0px));
         background: var(--bg-tertiary, #2a2a2a);
         border: 1px solid var(--border-color, #404040);
         border-radius: 8px;

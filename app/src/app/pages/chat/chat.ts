@@ -90,8 +90,10 @@ import { ChatListComponent } from './components/chat-list-component/chat-list-co
 import { ChatConversationComponent } from './components/chat-conversation-component/chat-conversation-component';
 import { ChatSidebarComponent } from './components/chat-sidebar-component/chat-sidebar-component';
 import { type Contact } from 'src/app/core/models/contact.model';
-import { OptimisticUpdateService } from './services/optimistic-update.service';
 import { ChatMessageCacheService } from 'src/app/core/services/chat-message-cache.service';
+import { NativeBridgeService } from 'src/app/core/services/platform/native-bridge.service';
+import { PlatformService } from 'src/app/core/services/platform/platform.service';
+import { MessageSendService } from './services/message-send.service';
 
 const CHAT_NOTIFICATION_SOUND_URL = '/assets/audio/chat-notification.mp3';
 const MESSAGE_RECEIVED_EVENT = 'message.received';
@@ -191,11 +193,13 @@ export class Chat implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly optimisticUpdate = inject(OptimisticUpdateService);
   private readonly cacheService = inject(ChatMessageCacheService);
   private readonly chatRecorder = inject(ChatRecorderService);
   private readonly ticketList = inject(ChatTicketListService);
   private readonly chatStore = inject(ChatStore);
+  private readonly nativeBridge = inject(NativeBridgeService);
+  private readonly platform = inject(PlatformService);
+  private readonly messageSend = inject(MessageSendService);
 
   /** Timestamp da última notificação para evitar repetições rápidas. */
   private lastNotificationAt = 0;
@@ -252,6 +256,12 @@ export class Chat implements OnInit, OnDestroy {
 
   /** Whether the attachment dropdown is open. */
   readonly isAttachmentMenuOpen = signal(false);
+  readonly isMobile = this.platform.isMobile;
+  readonly attachmentErrorMessage = signal<string | null>(null);
+  readonly pendingQueueCount = computed(() =>
+    this.messageSend.pendingCountForTicket(this.selectedTicketId()),
+  );
+  readonly isQueueFlushing = this.messageSend.isFlushing;
 
   /** Whether the drag-over visual state is active. */
   readonly isDragOver = signal(false);
@@ -282,6 +292,8 @@ export class Chat implements OnInit, OnDestroy {
   private fileAccept = '';
 
   constructor() {
+    void this.messageSend.initialize();
+
     this.searchQueryControl.valueChanges
       .pipe(debounceTime(250), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
@@ -300,6 +312,22 @@ export class Chat implements OnInit, OnDestroy {
     this.chatRecorder.recordingCompleted$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ blob }) => this.handleRecordingCompleted(blob));
+
+    this.messageSend.queueDelivered$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        this.cacheService.replace(event.calledId, event.clientMessageId, event.message);
+        if (this.selectedTicketId() === event.calledId) {
+          this.conversationRef?.replaceMessage(event.clientMessageId, event.message);
+        }
+      });
+
+    this.messageSend.queueFailed$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
+      this.cacheService.updateStatus(event.calledId, {
+        external_id: event.clientMessageId,
+        status: 'failed',
+      });
+    });
 
     this.setupRealtimeListeners();
   }
@@ -515,22 +543,6 @@ export class Chat implements OnInit, OnDestroy {
 
     this.cacheService.append(ticketId, optimisticMessage);
 
-    const updateId = this.optimisticUpdate.apply({
-      type: 'message',
-      entityId: tempId,
-      previousState: null,
-      optimisticState: optimisticMessage,
-      onApply: () => {},
-      onRollback: () => {
-        this.cacheService.updateStatus(ticketId, {
-          message_id: tempId,
-          status: 'failed',
-        });
-        this.isSendingMessage.set(false);
-      },
-      timeout: 10000,
-    });
-
     this.isSendingMessage.set(true);
 
     // Limpa o campo e foca antecipadamente para melhor UX
@@ -540,17 +552,23 @@ export class Chat implements OnInit, OnDestroy {
       this.conversationRef?.focusMessageInput();
     }, 10);
 
-    this.calledMessageService
-      .send(ticketId, content, 'text', undefined, undefined, tempId)
+    this.messageSend
+      .sendText(ticketId, content, tempId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response) => {
-          this.conversationRef?.replaceMessage(tempId, response.data);
-          this.optimisticUpdate.confirm(updateId);
+        next: (result) => {
+          if (result.status === 'sent') {
+            this.conversationRef?.replaceMessage(tempId, result.message);
+          } else {
+            toast.info('Sem conexao no momento. Mensagem enfileirada para envio automatico.');
+          }
           this.isSendingMessage.set(false);
         },
         error: () => {
-          this.optimisticUpdate.rollback(updateId, 'HTTP error');
+          this.cacheService.updateStatus(ticketId, {
+            external_id: tempId,
+            status: 'failed',
+          });
           this.isSendingMessage.set(false);
         },
       });
@@ -965,15 +983,64 @@ export class Chat implements OnInit, OnDestroy {
   }
 
   /** Seleciona um tipo de anexo e abre o seletor de arquivos. */
-  selectAttachmentType(type: 'document' | 'image' | 'video' | 'location'): void {
+  selectAttachmentType(
+    type: 'document' | 'image' | 'video' | 'location' | 'camera' | 'gallery' | 'file',
+  ): void {
     this.isAttachmentMenuOpen.set(false);
+    this.attachmentErrorMessage.set(null);
 
     if (type === 'location') {
       this.sendCurrentLocation();
       return;
     }
 
-    this.fileAccept = this.mimeTypesByType[type] ?? '';
+    if (type === 'camera') {
+      void this.handleNativePhotoSelection('camera');
+      return;
+    }
+
+    if (type === 'gallery') {
+      void this.handleNativePhotoSelection('gallery');
+      return;
+    }
+
+    if (type === 'file') {
+      this.openFileSelector('*/*');
+      return;
+    }
+
+    this.openFileSelector(this.mimeTypesByType[type] ?? '');
+  }
+
+  clearAttachmentError(): void {
+    this.attachmentErrorMessage.set(null);
+  }
+
+  private async handleNativePhotoSelection(source: 'camera' | 'gallery'): Promise<void> {
+    const result =
+      source === 'camera'
+        ? await this.nativeBridge.capturePhoto()
+        : await this.nativeBridge.pickPhotoFromGallery();
+
+    if (result.status === 'success') {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(result.file);
+      this.stageFiles(dataTransfer.files);
+      return;
+    }
+
+    if (result.status === 'permission-denied' || result.status === 'unavailable') {
+      this.attachmentErrorMessage.set(result.message);
+      this.openFileSelector('image/*');
+      return;
+    }
+
+    // Cancelamento intencional pelo usuário: mantém a UI sem erro.
+  }
+
+  private openFileSelector(accept: string): void {
+    this.fileAccept = accept;
+
     const input = this.fileInputRef()?.nativeElement;
     if (input) {
       input.accept = this.fileAccept;
@@ -985,6 +1052,7 @@ export class Chat implements OnInit, OnDestroy {
   onFileInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
+    this.attachmentErrorMessage.set(null);
     this.stageFiles(input.files);
     input.value = '';
   }

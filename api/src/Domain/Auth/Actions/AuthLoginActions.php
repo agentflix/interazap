@@ -96,7 +96,7 @@ final class AuthLoginActions
             return new AuthTwoFactorChallengeDTO($user->email);
         }
 
-        $session = $this->createSession($user, includeToken: true);
+        $session = $this->createSession($user, includeToken: true, deviceName: $dto->deviceName);
 
         Log::info('auth.login.success', [
             'user_id' => $user->id,
@@ -250,9 +250,10 @@ final class AuthLoginActions
     /**
      * Criar o objeto de sessão padronizado.
      */
-    private function createSession(AuthUser $user, bool $includeToken): AuthSessionDTO
+    private function createSession(AuthUser $user, bool $includeToken, ?string $deviceName = null): AuthSessionDTO
     {
-        $token = $includeToken ? $user->createToken('auth-token')->plainTextToken : null;
+        $tokenName = $deviceName ?? 'auth-token';
+        $token = $includeToken ? $user->createToken($tokenName)->plainTextToken : null;
         $permissions = $this->resolvePermissions($user);
         $tenantPlan = null;
 
