@@ -14,7 +14,11 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
 import { environment } from '@env/environment';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SelectInputComponent, TextInputComponent, type SelectOption } from '@shared/components/inputs';
+import {
+  SelectInputComponent,
+  TextInputComponent,
+  type SelectOption,
+} from '@shared/components/inputs';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
@@ -77,12 +81,7 @@ export interface TemplateSelectedEvent {
 @Component({
   selector: 'app-template-selector',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    SelectInputComponent,
-    TextInputComponent,
-    LucideAngularModule,
-  ],
+  imports: [ReactiveFormsModule, SelectInputComponent, TextInputComponent, LucideAngularModule],
   templateUrl: './template-selector.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -92,6 +91,9 @@ export class TemplateSelectorComponent {
 
   /** The channel ID to load templates from. */
   readonly channelId = input.required<string>();
+
+  /** Visual presentation mode. Affects layout/density only. */
+  readonly mode = input<'popover' | 'sheet' | 'modal'>('popover');
 
   /** Event emitted when a template is selected with its parameters. */
   readonly templateSelected = output<TemplateSelectedEvent>();
@@ -187,9 +189,7 @@ export class TemplateSelectorComponent {
         }),
       )
       .subscribe((response) => {
-        const approved = (response.data ?? []).filter(
-          (t) => t.status === 'APPROVED',
-        );
+        const approved = (response.data ?? []).filter((t) => t.status === 'APPROVED');
         this.templates.set(approved);
         this.isLoading.set(false);
 

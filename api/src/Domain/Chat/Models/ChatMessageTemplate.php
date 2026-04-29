@@ -48,15 +48,25 @@ class ChatMessageTemplate extends Model
     protected $fillable = [
         'id',
         'tenant_id',
+        'chat_instance_id',
+        'provider',
+        'external_id',
         'name',
         'shortcut',
         'content',
+        'language',
+        'status',
+        'rejected_reason',
+        'components_json',
         'category',
         'is_active',
+        'last_synced_at',
     ];
 
     protected $casts = [
         'is_active' => 'bool',
+        'components_json' => 'array',
+        'last_synced_at' => 'datetime',
     ];
 
     protected static function booted(): void

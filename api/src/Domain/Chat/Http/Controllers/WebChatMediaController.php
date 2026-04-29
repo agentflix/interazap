@@ -27,8 +27,8 @@ final class WebChatMediaController extends BaseController
         }
 
         $sessionId = $payload['session_id'] ?? null;
-        $tenantId  = $payload['tenant_id'] ?? null;
-        $ticketId  = $payload['ticket_id'] ?? null;
+        $tenantId = $payload['tenant_id'] ?? null;
+        $ticketId = $payload['ticket_id'] ?? null;
 
         if (! $sessionId || ! $tenantId || ! $ticketId) {
             return $this->unauthorized('Token inválido: claims incompletas');
@@ -44,24 +44,24 @@ final class WebChatMediaController extends BaseController
             return $this->notFound('Sessão não encontrada ou inativa');
         }
 
-        $file      = $request->file('file');
+        $file = $request->file('file');
         $extension = $file->getClientOriginalExtension();
-        $mimeType  = $file->getMimeType() ?? $file->getClientMimeType();
-        $size      = $file->getSize();
-        $fileName  = $file->getClientOriginalName();
-        $uuid      = (string) Str::orderedUuid();
+        $mimeType = $file->getMimeType() ?? $file->getClientMimeType();
+        $size = $file->getSize();
+        $fileName = $file->getClientOriginalName();
+        $uuid = (string) Str::orderedUuid();
         $directory = "chat/webchat/{$tenantId}";
-        $storedAs  = "{$uuid}.{$extension}";
+        $storedAs = "{$uuid}.{$extension}";
 
         $path = Storage::disk('public')->putFileAs($directory, $file, $storedAs);
 
         $url = Storage::disk('public')->url($path);
 
         return $this->created([
-            'url'       => $url,
+            'url' => $url,
             'file_name' => $fileName,
             'mime_type' => $mimeType,
-            'size'      => $size,
+            'size' => $size,
         ], 'Arquivo enviado com sucesso');
     }
 }

@@ -157,7 +157,7 @@ export class AsaasClient extends AbstractHttpClient {
    * @param payload - Product payload (kept for API stability)
    * @returns Stub response with `id: null`
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   async createProduct(
     _payload: AsaasProductPayload,
   ): Promise<AsaasProductResponse> {
@@ -173,7 +173,7 @@ export class AsaasClient extends AbstractHttpClient {
    * @param productId - Product ID (kept for API stability)
    * @param payload - Product payload (kept for API stability)
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   async updateProduct(
     _productId: string,
     _payload: AsaasProductPayload,

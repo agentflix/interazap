@@ -22,7 +22,7 @@ final readonly class LookupInstanceByPhoneNumberAction
      * Resolve phone_number_id para dados da ChatInstance.
      *
      * @param  string  $phoneNumberId  Phone Number ID da Meta.
-     * @return InstanceLookupDTO|null  DTO com dados da instância ou null se não encontrada.
+     * @return InstanceLookupDTO|null DTO com dados da instância ou null se não encontrada.
      */
     public function execute(string $phoneNumberId): ?InstanceLookupDTO
     {

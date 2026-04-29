@@ -408,7 +408,7 @@ class ChatTicket extends Model
     /**
      * Scope: Adicionar contador agrupado por status.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      */
     public function scopeWithStatusCounts(Builder $query): void
     {
@@ -418,7 +418,7 @@ class ChatTicket extends Model
     /**
      * Scope: Aplicar função de particionamento (window function) de dedup por contato.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      */
     public function scopeWithContactDeduplicationRank(Builder $query): void
     {

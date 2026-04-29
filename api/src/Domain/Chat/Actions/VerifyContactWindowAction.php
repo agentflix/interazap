@@ -28,7 +28,7 @@ final readonly class VerifyContactWindowAction
      *
      * @param  string  $tenantId  UUID do tenant.
      * @param  string  $contactId  UUID do contato.
-     * @return ContactWindowStatusDTO  Status da janela com canSendFreeText e lastMessageAt.
+     * @return ContactWindowStatusDTO Status da janela com canSendFreeText e lastMessageAt.
      */
     public function execute(string $tenantId, string $contactId): ContactWindowStatusDTO
     {

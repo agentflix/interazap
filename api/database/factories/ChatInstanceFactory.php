@@ -21,7 +21,7 @@ class ChatInstanceFactory extends Factory
             'id' => (string) Str::orderedUuid(),
             'tenant_id' => (string) Str::orderedUuid(),
             'provider' => 'uazapi',
-            'name' => 'instance-' . Str::random(6),
+            'name' => 'instance-'.Str::random(6),
             'mode' => 'production',
             'status' => 'connected',
             'webhook_token' => (string) Str::uuid(),

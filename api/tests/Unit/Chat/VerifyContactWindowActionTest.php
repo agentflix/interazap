@@ -31,7 +31,7 @@ class VerifyContactWindowActionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->action = new VerifyContactWindowAction();
+        $this->action = new VerifyContactWindowAction;
     }
 
     public function test_contact_with_message_23h59m_ago_can_send_free_text(): void

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Models;
 
+use Database\Factories\ChatSessionFactory;
 use Domain\CRM\Models\CRMContact;
 use Domain\Shared\Concerns\BelongsToTenant;
-use Database\Factories\ChatSessionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -25,8 +25,6 @@ final class AiResponseListener
 
     /**
      * Handle the AI response received event.
-     *
-     * @param  AiResponseReceived  $event
      */
     public function handle(AiResponseReceived $event): void
     {

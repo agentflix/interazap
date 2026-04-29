@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Domain\Chat\Http\Controllers;
 
 use Domain\Chat\Actions\ProcessChatMessageAction;
-use Domain\Chat\DTOs\ChatMessageDTO;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatSession;
 use Domain\Chat\Services\ChatAutopilotResponder;
@@ -37,7 +36,6 @@ final class WebChatMessageController extends BaseController
      *
      * POST /api/webchat/messages
      *
-     * @param  Request  $request
      * @return JsonResponse{messageId: string}
      */
     public function store(Request $request): JsonResponse
@@ -166,7 +164,7 @@ final class WebChatMessageController extends BaseController
             $type = $request->input('type');
             $allowedTypes = ['image', 'video', 'audio', 'document'];
             if (! is_string($type) || ! in_array($type, $allowedTypes, true)) {
-                abort(400, 'type inválido. Valores permitidos: ' . implode(', ', $allowedTypes));
+                abort(400, 'type inválido. Valores permitidos: '.implode(', ', $allowedTypes));
             }
 
             $fileName = $request->input('file_name');
@@ -175,12 +173,12 @@ final class WebChatMessageController extends BaseController
             }
 
             return [
-                'token'             => $token,
-                'content'           => '',
-                'file_url'          => $fileUrl,
-                'file_name'         => $fileName,
-                'mime_type'         => $mimeType,
-                'type'              => $type,
+                'token' => $token,
+                'content' => '',
+                'file_url' => $fileUrl,
+                'file_name' => $fileName,
+                'mime_type' => $mimeType,
+                'type' => $type,
                 'client_message_id' => $request->input('client_message_id'),
             ];
         }
@@ -192,12 +190,12 @@ final class WebChatMessageController extends BaseController
         }
 
         return [
-            'token'             => $token,
-            'content'           => trim($content),
-            'file_url'          => null,
-            'file_name'         => null,
-            'mime_type'         => null,
-            'type'              => 'text',
+            'token' => $token,
+            'content' => trim($content),
+            'file_url' => null,
+            'file_name' => null,
+            'mime_type' => null,
+            'type' => 'text',
             'client_message_id' => $request->input('client_message_id'),
         ];
     }

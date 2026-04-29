@@ -17,6 +17,7 @@ parameters:
     - bootstrap/cache
     - storage
     - vendor
+    - src/Domain/Ai/Jobs/AiRunExecutionJob.php
   universalObjectCratesClasses:
     - Illuminate\Database\Eloquent\Model
     - Illuminate\Database\Eloquent\Collection

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../../../../infrastructure/redis/redis.service';
 import { MetaClient } from './meta.client';
 import { MetaProvider } from './meta.provider';
+import type { MetaTemplateCreatePayload } from './meta.dto';
 import { MetaLookupService } from '../../http/meta-lookup.service';
 import {
   MetaWhatsAppProvider,
@@ -101,14 +102,20 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   }
 
   /**
-   * Lista templates aprovados da conta Business.
+   * Lista templates da conta Business.
    * Utiliza cache Redis com TTL de 15 minutos.
    *
    * @param instanceToken - Token da instancia (access token)
-   * @returns Lista de templates APPROVED
+   * @param includeAll - Se true, retorna todos os status; se false, apenas APPROVED
+   * @returns Lista de templates
    */
-  async listTemplates(instanceToken: string): Promise<MetaTemplate[]> {
-    const cacheKey = `meta:templates:${instanceToken}`;
+  async listTemplates(
+    instanceToken: string,
+    includeAll = false,
+  ): Promise<MetaTemplate[]> {
+    const cacheKey = includeAll
+      ? `meta:templates:all:${instanceToken}`
+      : `meta:templates:approved:${instanceToken}`;
 
     // Check cache first
     try {
@@ -123,12 +130,12 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       );
     }
 
-    // Fetch from Meta API - only APPROVED templates
+    // Fetch from Meta API
     this.logger.debug(
       `Fetching templates from Meta API for instance ${instanceToken}`,
     );
     const templates = await this.client.getTemplates(instanceToken, {
-      status: 'APPROVED',
+      status: includeAll ? undefined : 'APPROVED',
     });
 
     // Cache for 15 minutes
@@ -197,8 +204,88 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   }
 
   /**
+   * Invalida cache de templates para um token de instancia.
+   *
+   * @param instanceToken - Token da instancia
+   */
+  async invalidateTemplatesCache(instanceToken: string): Promise<void> {
+    try {
+      await this.redisService
+        .getClient()
+        .del(
+          `meta:templates:approved:${instanceToken}`,
+          `meta:templates:all:${instanceToken}`,
+        );
+    } catch (error) {
+      this.logger.warn(
+        `Failed to invalidate templates cache: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Cria um novo template de mensagem na conta Business.
+   *
+   * @param wabaToken - Token no formato wabaId:accessToken
+   * @param payload - Dados do template a criar
+   * @returns ID e status do template criado
+   */
+  async createTemplate(
+    wabaToken: string,
+    payload: MetaTemplateCreatePayload,
+  ): Promise<{ id: string; status: string }> {
+    const { phoneNumberId: wabaId, accessToken } =
+      this.parseWabaToken(wabaToken);
+
+    const result = await this.client.createTemplate(
+      wabaId,
+      accessToken,
+      payload,
+    );
+    await this.invalidateTemplatesCache(wabaToken);
+    return result;
+  }
+
+  /**
+   * Remove um template de mensagem da conta Business.
+   *
+   * @param wabaToken - Token no formato wabaId:accessToken
+   * @param name - Nome do template a remover
+   * @returns Sucesso da operacao
+   */
+  async deleteTemplate(
+    wabaToken: string,
+    name: string,
+  ): Promise<{ success: boolean }> {
+    const { phoneNumberId: wabaId, accessToken } =
+      this.parseWabaToken(wabaToken);
+
+    await this.client.deleteTemplate(wabaId, accessToken, name);
+    await this.invalidateTemplatesCache(wabaToken);
+    return { success: true };
+  }
+
+  /**
+   * Parse waba token to extract waba_id and access_token.
+   * Expected format: wabaId:accessToken
+   */
+  private parseWabaToken(wabaToken: string): {
+    phoneNumberId: string;
+    accessToken: string;
+  } {
+    const parts = wabaToken.split(':');
+    if (parts.length !== 2 || !parts[0]) {
+      throw new Error('Invalid instance token format');
+    }
+    return { phoneNumberId: parts[0], accessToken: parts[1] };
+  }
+
+  /**
    * Normaliza payload do webhook da Meta.
    * Metodo ASSINCRONO que resolve phone_number_id via HTTP para o Backend.
+   *
+   * Eventos `message_template_status_update` NÃO trazem phone_number_id;
+   * são roteados pelo `entry.id` (WABA ID) via `MetaLookupService.resolveWabaId`.
    *
    * @param webhookToken - Token do webhook da instancia
    * @param rawPayload - Payload bruto do webhook
@@ -209,10 +296,45 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     rawPayload: unknown,
   ): Promise<NormalizedWebhookEvent> {
     const payload = rawPayload as MetaWebhookPayload;
+    const entry = payload.entry?.[0];
+    const change = entry?.changes?.[0];
+    const field = change?.field ?? 'messages';
 
-    // Extract phone_number_id from payload
-    const phoneNumberId =
-      payload.entry[0]?.changes[0]?.value?.metadata?.phone_number_id ?? '';
+    // Branch: template_status_update — sem phone_number_id, lookup por waba_id
+    if (field === 'message_template_status_update') {
+      const wabaId = entry?.id ?? '';
+      if (!wabaId) {
+        throw new Error(
+          'waba_id (entry.id) not found in template_status_update payload',
+        );
+      }
+
+      const wabaInstance = await this.lookupService.resolveWabaId(wabaId);
+      if (!wabaInstance) {
+        throw new Error(`Instance not found for waba_id: ${wabaId}`);
+      }
+
+      const normalized = this.provider.normalize(payload);
+
+      return {
+        tenantId: wabaInstance.tenantId,
+        instanceId: wabaInstance.instanceId,
+        instanceWebhookToken: webhookToken,
+        provider: 'meta',
+        eventType: normalized.event_type,
+        direction: 'template_status',
+        template: normalized.template,
+        rawPayload: payload as unknown as Record<string, unknown>,
+        idempotencyKey: this.buildTemplateIdempotencyKey(
+          wabaId,
+          normalized.template,
+        ),
+        receivedAt: new Date(),
+      };
+    }
+
+    // Default branch: messages / statuses — usa phone_number_id
+    const phoneNumberId = change?.value?.metadata?.phone_number_id ?? '';
 
     if (!phoneNumberId) {
       throw new Error('phone_number_id not found in webhook payload');
@@ -259,6 +381,20 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       idempotencyKey: `${webhookToken}:${payload.entry[0]?.id ?? 'unknown'}:${Date.now()}`,
       receivedAt: new Date(),
     };
+  }
+
+  /**
+   * Constrói a chave de idempotência para um evento de template.
+   * Usa external_id + status (event) para garantir que cada transição vire um evento único,
+   * sem depender de timestamp (que mudaria entre tentativas de retry da Meta).
+   */
+  private buildTemplateIdempotencyKey(
+    wabaId: string,
+    template: NormalizedWebhookEvent['template'],
+  ): string {
+    const externalId = template?.external_id ?? 'unknown';
+    const event = template?.event ?? 'unknown';
+    return `meta:template:${wabaId}:${externalId}:${event}`;
   }
 
   /**

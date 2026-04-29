@@ -35,12 +35,21 @@ class ChatMessageTemplateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isUpdate = $this->isMethod('PUT');
+        $required = $isUpdate ? 'sometimes' : 'required';
+
         return [
+            'chat_instance_id' => ['nullable', 'string', 'uuid', 'exists:chat_instances,id'],
             'name' => ['required', 'string', 'max:255'],
-            'shortcut' => ['nullable', 'string', 'max:50'],
-            'content' => ['required', 'string'],
+            'content' => [$required, 'string'],
+            'language' => [$required, 'string', 'max:10'],
             'category' => ['nullable', 'string', 'max:255'],
+            'components' => ['nullable', 'array'],
+            'components.*.type' => ['required_with:components', 'string', 'in:HEADER,BODY,FOOTER,BUTTONS'],
+            'components.*.text' => ['nullable', 'string'],
+            'shortcut' => ['nullable', 'string', 'max:50'],
             'is_active' => ['boolean'],
+            'provider' => ['nullable', 'string', 'in:local,meta'],
         ];
     }
 }

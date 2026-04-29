@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Listeners;
 
-use Domain\Auth\Models\AuthUser;
 use Domain\Ai\Services\AiConversationSummaryService;
+use Domain\Auth\Models\AuthUser;
 use Domain\Chat\Events\MessagePersisted;
 use Domain\Chat\Jobs\ConversationResolverJob;
 use Domain\Chat\Notifications\NewMessageNotification;

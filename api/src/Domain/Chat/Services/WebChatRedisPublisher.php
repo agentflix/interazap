@@ -60,7 +60,7 @@ class WebChatRedisPublisher
      * Publicar mensagem do atendente para o cliente webchat.
      *
      * @param  string  $sessionId  ID da sessão webchat.
-     * @param  string  $tenantId   ID do tenant.
+     * @param  string  $tenantId  ID do tenant.
      * @param  array<string, mixed>  $message  Payload da mensagem do atendente.
      */
     public function publishAgentMessage(string $sessionId, string $tenantId, array $message): void
@@ -97,8 +97,8 @@ class WebChatRedisPublisher
      * permitindo que a UI atualize o estado e ofereça opção de novo chamado.
      *
      * @param  string  $sessionId  ID da sessão webchat.
-     * @param  string  $tenantId   ID do tenant.
-     * @param  string  $ticketId   ID do ticket encerrado.
+     * @param  string  $tenantId  ID do tenant.
+     * @param  string  $ticketId  ID do ticket encerrado.
      */
     public function publishTicketClosed(string $sessionId, string $tenantId, string $ticketId): void
     {

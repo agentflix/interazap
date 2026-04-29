@@ -62,9 +62,9 @@ return new class extends Migration
                 ->map(fn (string $v) => "'{$v}'")
                 ->implode(', ');
 
-            DB::statement("
+            DB::statement('
                 ALTER TABLE chat_tickets
-                ADD CONSTRAINT " . self::CONSTRAINT_NAME . "
+                ADD CONSTRAINT '.self::CONSTRAINT_NAME."
                 CHECK (channel::text = ANY (ARRAY[{$values}]::text[]))
             ");
         }
@@ -86,16 +86,16 @@ return new class extends Migration
             JOIN pg_class rel ON rel.oid = con.conrelid
             JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
             WHERE rel.relname = 'chat_tickets'
-              AND con.conname = '" . self::CONSTRAINT_NAME . "'
+              AND con.conname = '".self::CONSTRAINT_NAME."'
             LIMIT 1
         ");
 
         if ($constraint) {
             // Remove the constraint we added (restoring original state — no constraint)
-            DB::statement("ALTER TABLE chat_tickets DROP CONSTRAINT " . self::CONSTRAINT_NAME);
+            DB::statement('ALTER TABLE chat_tickets DROP CONSTRAINT '.self::CONSTRAINT_NAME);
         }
 
         // Restore original column comment (no channel list)
-        DB::statement("COMMENT ON COLUMN chat_tickets.channel IS NULL");
+        DB::statement('COMMENT ON COLUMN chat_tickets.channel IS NULL');
     }
 };

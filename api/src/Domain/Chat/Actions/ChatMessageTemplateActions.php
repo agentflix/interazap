@@ -17,17 +17,41 @@ use Illuminate\Pagination\LengthAwarePaginator;
 final class ChatMessageTemplateActions
 {
     /**
-     * Listar todos os templates do tenant com paginação.
+     * Listar todos os templates do tenant com paginação e filtros.
      *
      * @param  string  $tenantId  Identificador do tenant.
+     * @param  array<string, mixed>  $filters  Critérios de busca.
      * @return LengthAwarePaginator Paginador com registros de templates.
      */
-    public function list(string $tenantId): LengthAwarePaginator
+    public function list(string $tenantId, array $filters = []): LengthAwarePaginator
     {
-        return ChatMessageTemplate::query()
-            ->where('tenant_id', $tenantId)
-            ->latest()
-            ->paginate();
+        $query = ChatMessageTemplate::query()->where('tenant_id', $tenantId);
+
+        if (! empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search): void {
+                $q->where('name', 'ilike', '%'.$search.'%')
+                    ->orWhere('shortcut', 'ilike', '%'.$search.'%');
+            });
+        }
+
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (! empty($filters['chat_instance_id'])) {
+            $query->where('chat_instance_id', $filters['chat_instance_id']);
+        }
+
+        if (isset($filters['provider'])) {
+            $query->where('provider', $filters['provider']);
+        }
+
+        if (isset($filters['is_active'])) {
+            $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOLEAN));
+        }
+
+        return $query->latest()->paginate($filters['per_page'] ?? 15);
     }
 
     /**

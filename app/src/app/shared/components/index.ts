@@ -21,6 +21,15 @@ export { AfSkeletonComponent } from './skeleton/skeleton';
 export { AfTooltipComponent } from './tooltip/tooltip';
 export { AfDividerComponent } from './divider/divider';
 
+// ─── Templates / WhatsApp ────────────────────────────────────────────
+export {
+  TemplateSelectorComponent,
+  type MetaTemplate,
+  type MetaTemplateComponent,
+  type MetaTemplateParameter,
+  type TemplateSelectedEvent,
+} from '../../pages/chat/components/new-conversation-modal/components/template-selector/template-selector';
+
 // ─── Form Primitives & Modals ────────────────────────────────────────
 export { AfFormLabelComponent } from './form-label/form-label';
 export { AfFormErrorComponent } from './form-error/form-error';

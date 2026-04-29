@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Http\Controllers;
 
-use Domain\Chat\DTOs\ChatMessageDTO;
-use Domain\Chat\DTOs\ChatTicketDTO;
-use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatSession;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatActivityBroadcastService;
@@ -38,7 +35,6 @@ final class WebChatSessionController extends BaseController
      *
      * POST /api/webchat/sessions
      *
-     * @param  Request  $request
      * @return JsonResponse{token: string, sessionId: string, ticketId: string}
      */
     public function store(Request $request): JsonResponse
@@ -126,9 +122,7 @@ final class WebChatSessionController extends BaseController
      *
      * GET /api/webchat/sessions/{id}
      *
-     * @param  Request  $request
      * @param  string  $id  UUID da sessão
-     * @return JsonResponse
      */
     public function show(Request $request, string $id): JsonResponse
     {

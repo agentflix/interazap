@@ -82,7 +82,7 @@ final class AutopilotRunDispatcherListenerTest extends TestCase
             sourceId: $sourceId,
         ));
 
-        Bus::assertDispatched(DispatchAutopilotRunJob::class, function (DispatchAutopilotRunJob $job) use ($tenantId, $ticketId, $messageId, $instanceId, $sourceId, $body, $context): bool {
+        Bus::assertDispatched(DispatchAutopilotRunJob::class, function (DispatchAutopilotRunJob $job) use ($tenantId, $ticketId, $messageId, $instanceId, $sourceId, $body): bool {
             return $job->tenantId === $tenantId
                 && $job->triggerType === AutopilotTriggerType::INBOUND_MESSAGE
                 && ($job->context['ticket_id'] ?? '') === $ticketId

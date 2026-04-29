@@ -91,11 +91,31 @@ export interface InstanceLookupResult {
 }
 
 /**
+ * Resultado do lookup de WABA ID via Backend.
+ * Usado para eventos de template (`message_template_status_update`)
+ * que não trazem `phone_number_id` no payload.
+ */
+export interface WabaLookupResult {
+  tenantId: string;
+  instanceId: string;
+}
+
+/**
  * Filtros para busca de templates na API Graph.
  */
 export interface ListTemplatesFilters {
   status?: 'APPROVED' | 'PENDING' | 'REJECTED';
   limit?: number;
+}
+
+/**
+ * Payload para criacao de template na API Graph da Meta.
+ */
+export interface MetaTemplateCreatePayload {
+  name: string;
+  language: string;
+  category: string;
+  components: unknown[];
 }
 
 /**

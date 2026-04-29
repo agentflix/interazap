@@ -352,14 +352,17 @@ export class ChatWebhookEventNormalizer {
       outbound: 'outgoing',
       status: 'status',
       connection: 'connection',
+      template_status: 'template_status',
     };
 
     const eventType =
       normalized.direction === 'connection'
         ? 'connection'
-        : normalized.eventType === 'message'
-          ? 'messages'
-          : normalized.eventType;
+        : normalized.direction === 'template_status'
+          ? 'meta.template.status_updated'
+          : normalized.eventType === 'message'
+            ? 'messages'
+            : normalized.eventType;
 
     const basePayload: ZapiStreamPayload = {
       provider: 'zapi',
@@ -370,6 +373,10 @@ export class ChatWebhookEventNormalizer {
       instance_id: normalized.instanceId,
       raw: normalized.rawPayload,
     };
+
+    if (normalized.template) {
+      basePayload.template = normalized.template;
+    }
 
     if (normalized.message) {
       basePayload.message = {

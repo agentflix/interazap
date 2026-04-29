@@ -14,7 +14,7 @@ final class WebChatJwtServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new WebChatJwtService();
+        $this->service = new WebChatJwtService;
     }
 
     public function test_generates_valid_token_with_correct_claims(): void
@@ -31,7 +31,7 @@ final class WebChatJwtServiceTest extends TestCase
         $this->assertEquals(2, substr_count($token, '.'));
     }
 
-    public function test_validateToken_returns_payload_for_valid_token(): void
+    public function test_validate_token_returns_payload_for_valid_token(): void
     {
         $sessionId = '550e8400-e29b-41d4-a716-446655440000';
         $tenantId = '660e8400-e29b-41d4-a716-446655440001';
@@ -50,14 +50,14 @@ final class WebChatJwtServiceTest extends TestCase
         $this->assertEquals('webchat', $payload['type']);
     }
 
-    public function test_validateToken_returns_null_for_invalid_token(): void
+    public function test_validate_token_returns_null_for_invalid_token(): void
     {
         $payload = $this->service->validateToken('invalid.token.here');
 
         $this->assertNull($payload);
     }
 
-    public function test_validateToken_returns_null_for_tampered_token(): void
+    public function test_validate_token_returns_null_for_tampered_token(): void
     {
         $token = $this->service->generateToken(
             'session-1',
@@ -77,12 +77,12 @@ final class WebChatJwtServiceTest extends TestCase
         $this->assertNull($payload);
     }
 
-    public function test_validateToken_returns_null_for_empty_token(): void
+    public function test_validate_token_returns_null_for_empty_token(): void
     {
         $this->assertNull($this->service->validateToken(''));
     }
 
-    public function test_validateToken_returns_null_for_malformed_token(): void
+    public function test_validate_token_returns_null_for_malformed_token(): void
     {
         $this->assertNull($this->service->validateToken('not-a-jwt'));
         $this->assertNull($this->service->validateToken('only.two'));

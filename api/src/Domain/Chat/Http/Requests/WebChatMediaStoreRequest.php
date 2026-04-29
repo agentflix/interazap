@@ -31,7 +31,7 @@ final class WebChatMediaStoreRequest extends FormRequest
     {
         return [
             'token' => ['required', 'string'],
-            'file'  => [
+            'file' => [
                 'required',
                 'file',
                 'max:5120',
@@ -47,11 +47,11 @@ final class WebChatMediaStoreRequest extends FormRequest
     {
         return [
             'token.required' => 'O token de sessão é obrigatório.',
-            'token.string'   => 'O token deve ser uma string válida.',
-            'file.required'  => 'O arquivo é obrigatório.',
-            'file.file'      => 'O campo enviado deve ser um arquivo.',
-            'file.max'       => 'O arquivo não pode ser maior que 5 MB.',
-            'file.mimes'     => 'Tipo de arquivo não permitido. Formatos aceitos: jpg, jpeg, png, gif, webp, mp4, mov, avi, mp3, ogg, wav, pdf, doc, docx, xls, xlsx.',
+            'token.string' => 'O token deve ser uma string válida.',
+            'file.required' => 'O arquivo é obrigatório.',
+            'file.file' => 'O campo enviado deve ser um arquivo.',
+            'file.max' => 'O arquivo não pode ser maior que 5 MB.',
+            'file.mimes' => 'Tipo de arquivo não permitido. Formatos aceitos: jpg, jpeg, png, gif, webp, mp4, mov, avi, mp3, ogg, wav, pdf, doc, docx, xls, xlsx.',
         ];
     }
 }

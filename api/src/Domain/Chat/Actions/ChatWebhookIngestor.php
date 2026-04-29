@@ -10,6 +10,7 @@ use Domain\Chat\Actions\WebhookHandlers\ChatWebhookReactionHandler;
 use Domain\Chat\DTOs\ChatMessageDTO;
 use Domain\Chat\DTOs\ChatTicketDTO;
 use Domain\Chat\Events\MessagePersisted;
+use Domain\Chat\Events\MetaTemplateStatusUpdated;
 use Domain\Chat\Jobs\ChatMediaDownloadJob;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
@@ -70,6 +71,19 @@ final class ChatWebhookIngestor
             'tenant_id' => $tenantId,
             'payload_keys' => array_keys($payload),
         ]);
+
+        // Eventos de status de template Meta vêm pelo stream chat-events
+        // (gateway publica após webhook `message_template_status_update`).
+        // Direction normalizada pelo gateway = 'template_status'.
+        $direction = isset($payload['direction']) && is_string($payload['direction'])
+            ? strtolower($payload['direction'])
+            : null;
+
+        if ($eventType === 'meta.template.status_updated' || $direction === 'template_status') {
+            $this->dispatchMetaTemplateStatusUpdated($tenantId, $payload);
+
+            return;
+        }
 
         // Detectar eventos de conexão (connection, connection.update, etc.)
         $isConnectionEvent = str_starts_with($eventType, 'connection');
@@ -883,5 +897,81 @@ final class ChatWebhookIngestor
         ];
 
         return $map[$mimeType] ?? '';
+    }
+
+    /**
+     * Despacha {@see MetaTemplateStatusUpdated} a partir do payload normalizado
+     * pelo Gateway (event_type='meta.template.status_updated').
+     *
+     * Aceita campos no nível raiz ou aninhados em `template.*` para tolerar
+     * pequenas variações entre versões do normalizer do Gateway. Quando o
+     * payload não traz `instance_id` (lookup falhou no Gateway), apenas loga
+     * e retorna — sem disparar evento incompleto.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function dispatchMetaTemplateStatusUpdated(string $tenantId, array $payload): void
+    {
+        $template = is_array($payload['template'] ?? null) ? $payload['template'] : [];
+
+        $instanceId = $this->stringOrEmpty($payload['instance_id'] ?? null);
+        $name = $this->stringOrEmpty($template['name'] ?? $payload['name'] ?? null);
+        $language = $this->stringOrEmpty($template['language'] ?? $payload['language'] ?? null);
+        $status = $this->stringOrEmpty(
+            $template['status']
+            ?? $payload['status']
+            ?? $template['event']
+            ?? $payload['event']
+            ?? null
+        );
+
+        if ($instanceId === '' || $name === '' || $language === '' || $status === '') {
+            logger()->warning('[ChatWebhookIngestor] meta.template.status_updated payload incompleto', [
+                'tenant_id' => $tenantId,
+                'has_instance_id' => $instanceId !== '',
+                'has_name' => $name !== '',
+                'has_language' => $language !== '',
+                'has_status' => $status !== '',
+            ]);
+
+            return;
+        }
+
+        $rejectedReason = $this->stringOrNull($template['reason'] ?? $payload['reason'] ?? null);
+        $externalId = $this->stringOrNull($template['external_id'] ?? $payload['external_id'] ?? null);
+
+        event(new MetaTemplateStatusUpdated(
+            tenantId: $tenantId,
+            instanceId: $instanceId,
+            templateName: $name,
+            language: $language,
+            status: $status,
+            rejectedReason: $rejectedReason,
+            externalId: $externalId,
+        ));
+    }
+
+    private function stringOrEmpty(mixed $value): string
+    {
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+
+        return '';
+    }
+
+    private function stringOrNull(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $string = $this->stringOrEmpty($value);
+
+        return $string === '' ? null : $string;
     }
 }

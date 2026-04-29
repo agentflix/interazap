@@ -116,13 +116,34 @@ export interface WhatsAppProvider {
   ): Promise<NormalizedWebhookEvent>;
 }
 
+/**
+ * Status normalizado de um template Meta (evento `message_template_status_update`).
+ *
+ * `event` preserva o valor cru recebido da Meta (APPROVED/REJECTED/PENDING/DISABLED).
+ * `status` é a forma minúscula esperada pelo Backend.
+ */
+export interface NormalizedTemplateStatusPayload {
+  external_id: string;
+  name: string;
+  language: string;
+  event: string;
+  status: 'approved' | 'rejected' | 'pending' | 'disabled' | 'unknown';
+  reason: string | null;
+  mmlite_status: string | null;
+}
+
 export interface NormalizedWebhookEvent {
   tenantId: string;
   instanceId: string;
   instanceWebhookToken: string;
   provider: 'uazapi' | 'zapi' | 'meta';
   eventType: string;
-  direction: 'inbound' | 'outbound' | 'status' | 'connection';
+  direction:
+    | 'inbound'
+    | 'outbound'
+    | 'status'
+    | 'connection'
+    | 'template_status';
   message?: MessagePayload;
   status?: StatusPayload;
   connection?: {
@@ -131,6 +152,12 @@ export interface NormalizedWebhookEvent {
     qrCode?: string;
     pairCode?: string;
   };
+  /**
+   * Presente apenas para eventos da Meta `message_template_status_update`.
+   * Quando definido, `direction === 'template_status'` e
+   * `eventType === 'meta.template.status_updated'`.
+   */
+  template?: NormalizedTemplateStatusPayload;
   rawPayload: Record<string, unknown>;
   idempotencyKey: string;
   receivedAt: Date;
