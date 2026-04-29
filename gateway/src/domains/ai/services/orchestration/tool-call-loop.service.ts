@@ -23,7 +23,7 @@ export class ToolCallLoopService {
    */
   parseToolCalls(
     content: string,
-  ): Array<{ name: string | undefined; arguments: unknown }> {
+  ): Array<{ name: string; arguments: unknown }> {
     try {
       const parsed = JSON.parse(content) as unknown;
       const items =
@@ -58,8 +58,10 @@ export class ToolCallLoopService {
           };
         })
         .filter(
-          (item): item is { name: string | undefined; arguments: unknown } =>
-            item !== null,
+          (item): item is { name: string; arguments: unknown } =>
+            item !== null &&
+            typeof item.name === 'string' &&
+            item.name.length > 0,
         );
     } catch {
       return [];

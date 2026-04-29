@@ -4,6 +4,7 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { UazapiClient } from '../src/domains/chat/providers/uazapi/uazapi.client';
 import { RedisService } from '../src/infrastructure/redis/redis.service';
+import { InternalApiKeyGuard } from '../src/domains/realtime/guards/internal-api-key.guard';
 
 const getRequestTarget = (
   application: INestApplication,
@@ -46,6 +47,8 @@ describe('Uazapi Instances (e2e)', () => {
       })
       .overrideProvider(UazapiClient)
       .useValue(clientMock)
+      .overrideGuard(InternalApiKeyGuard)
+      .useValue({ canActivate: () => true })
       .compile();
 
     app = moduleFixture.createNestApplication();

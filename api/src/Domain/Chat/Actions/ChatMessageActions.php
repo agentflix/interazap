@@ -8,6 +8,7 @@ use Domain\Chat\DTOs\ChatMessageDTO;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Services\ChatActivityBroadcastService;
 use Domain\Chat\Services\ChatGatewayService;
+use Domain\Chat\Services\WebChatRedisPublisher;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -31,7 +32,13 @@ final readonly class ChatMessageActions
     ) {
         $processAction = new ProcessChatMessageAction($activityBroadcast);
         $this->listAction = new ListChatMessagesAction;
-        $this->sendAction = new SendChatMessageAction($gateway, $ticketActions, $processAction);
+        $this->sendAction = new SendChatMessageAction(
+            $gateway,
+            $ticketActions,
+            $processAction,
+            app(WebChatRedisPublisher::class),
+            app(VerifyContactWindowAction::class),
+        );
     }
 
     /**
