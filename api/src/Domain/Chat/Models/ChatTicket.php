@@ -72,6 +72,7 @@ class ChatTicket extends Model
         'category',
         'is_group',
         'is_bot_active',
+        'current_ai_agent_id',
         'started_at',
         'first_response_at',
         'last_message_at',

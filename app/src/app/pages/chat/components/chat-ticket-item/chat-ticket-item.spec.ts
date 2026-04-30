@@ -91,14 +91,30 @@ describe('ChatTicketItemComponent', () => {
       expect(img.src).toContain('cdn.com/pic.jpg');
     });
 
-    it('shows IA badge when is_bot_active is true', () => {
+    it('shows Chatbot badge when is_bot_active is true without AI agent', () => {
       const el = render(buildTicket({ is_bot_active: true }));
-      expect(el.textContent).toContain('IA');
+      expect(el.textContent).toContain('Chatbot');
+      expect(el.textContent).not.toContain('IA');
     });
 
-    it('does not show IA badge when is_bot_active is falsy', () => {
-      const el = render(buildTicket({ is_bot_active: false }));
+    it('shows IA badge when is_bot_active is true with current_ai_agent_id', () => {
+      const el = render(buildTicket({ is_bot_active: true, current_ai_agent_id: 'agent-123' }));
+      expect(el.textContent).toContain('IA');
+      expect(el.textContent).not.toContain('Chatbot');
+    });
+
+    it('shows Humano badge when status is in_progress', () => {
+      const el = render(buildTicket({ status: 'in_progress', is_bot_active: true, current_ai_agent_id: 'agent-123' }));
+      expect(el.textContent).toContain('Humano');
       expect(el.textContent).not.toContain('IA');
+      expect(el.textContent).not.toContain('Chatbot');
+    });
+
+    it('does not show bot badge when is_bot_active is falsy and not in_progress', () => {
+      const el = render(buildTicket({ is_bot_active: false, status: 'open' }));
+      expect(el.textContent).not.toContain('IA');
+      expect(el.textContent).not.toContain('Chatbot');
+      expect(el.textContent).not.toContain('Humano');
     });
 
     it('shows assigned_user badge', () => {

@@ -52,6 +52,7 @@ export interface Called {
   profile_picture_url?: string | null;
   status: CalledStatus;
   is_bot_active?: boolean | null;
+  current_ai_agent_id?: string | null;
   channel: CalledChannel;
   subject?: string | null;
   notes?: string | null;

@@ -41,19 +41,26 @@
 
     <!-- Badges: IA + Usuário/Departamento (independentes) -->
     <div class="mt-1 flex items-center flex-wrap gap-1">
-      @if (ticket().is_bot_active && ticket().status !== 'in_progress') {
+      @if (ticket().status === 'in_progress') {
+        <div
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5"
+        >
+          <ng-icon name="lucideUser" size="10" class="text-neutral-500 shrink-0"></ng-icon>
+          <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium">Humano</span>
+        </div>
+      } @else if (ticket().is_bot_active && ticket().current_ai_agent_id) {
         <div
           class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5"
         >
           <ng-icon name="lucideBot" size="10" class="text-neutral-500 shrink-0"></ng-icon>
           <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium">IA</span>
         </div>
-      } @else if (ticket().status === 'in_progress') {
+      } @else if (ticket().is_bot_active) {
         <div
           class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5"
         >
-          <ng-icon name="lucideUser" size="10" class="text-neutral-500 shrink-0"></ng-icon>
-          <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium">Humano</span>
+          <ng-icon name="lucideBot" size="10" class="text-neutral-500 shrink-0"></ng-icon>
+          <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium">Chatbot</span>
         </div>
       }
 
