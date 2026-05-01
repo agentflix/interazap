@@ -7,90 +7,91 @@
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <!-- Roteamento automático (Round Robin)                                -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
-  @if (loading()) {
-    <div
-      class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 space-y-6"
-    >
-      <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
-      <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
-      <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+  <section
+    class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+  >
+    <div class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800">
+      <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+        Roteamento automático
+      </h3>
     </div>
-  } @else if (error()) {
-    <af-empty-state title="Erro ao carregar configurações" [description]="error()!">
-      <af-button variant="outline" size="sm" (click)="retryLoad()"> Tentar novamente </af-button>
-    </af-empty-state>
-  } @else {
-    <!-- Card 1: Configuração da fila -->
-    <section
-      class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
-    >
-      <div class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800">
-        <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
-          Configuração da fila
-        </h3>
-      </div>
-      <div class="p-5 space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Ativar rodízio</p>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">
-              Distribui conversas automaticamente entre os agentes configurados.
-            </p>
+
+    <div class="p-5">
+      @if (loading()) {
+        <div class="space-y-4">
+          <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+          <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+          <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+        </div>
+      } @else if (error()) {
+        <div class="space-y-3">
+          <p class="text-sm text-red-500">{{ error() }}</p>
+          <af-button variant="outline" size="sm" (click)="retryLoad()"> Tentar novamente </af-button>
+        </div>
+      } @else {
+        <!-- Configuração da fila -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                Ativar rodízio
+              </p>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                Distribui conversas automaticamente entre os agentes configurados.
+              </p>
+            </div>
+            <af-switch-input
+              [checked]="queue()?.is_enabled ?? false"
+              (toggled)="toggleEnabled()"
+              ariaLabel="Ativar rodízio"
+            />
           </div>
-          <af-switch-input
-            [checked]="queue()?.is_enabled ?? false"
-            (toggled)="toggleEnabled()"
-            ariaLabel="Ativar rodízio"
+
+          <af-select-input
+            [control]="strategyControl"
+            label="Estratégia de distribuição"
+            [options]="strategyOptions"
+            helpText="Round Robin distribui as conversas em ordem cíclica. Outras estratégias estarão disponíveis em breve."
+            dataTest="routing-strategy"
           />
         </div>
 
-        <af-select-input
-          [control]="strategyControl"
-          label="Estratégia de distribuição"
-          [options]="strategyOptions"
-          helpText="Round Robin distribui as conversas em ordem cíclica. Outras estratégias estarão disponíveis em breve."
-          dataTest="routing-strategy"
-        />
-      </div>
-    </section>
+        <!-- Agentes da fila -->
+        <div class="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+              Agentes da fila
+            </h4>
+            <af-button variant="outline" size="sm" (click)="showAddForm.set(!showAddForm())">
+              {{ showAddForm() ? 'Cancelar' : '+ Adicionar agente' }}
+            </af-button>
+          </div>
 
-    <!-- Card 2: Agentes da fila -->
-    <section
-      class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
-    >
-      <div
-        class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between"
-      >
-        <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Agentes da fila</h3>
-        <af-button variant="outline" size="sm" (click)="showAddForm.set(!showAddForm())">
-          {{ showAddForm() ? 'Cancelar' : '+ Adicionar agente' }}
-        </af-button>
-      </div>
-      <div class="p-5 space-y-4">
-        @if (showAddForm()) {
-          <app-routing-agent-form
-            [users]="users()"
-            [agents]="agents()"
-            (addAgent)="onAddAgent($event.userId, $event.position)"
-          />
-        }
+          @if (showAddForm()) {
+            <app-routing-agent-form
+              [users]="users()"
+              [agents]="agents()"
+              (addAgent)="onAddAgent($event.userId, $event.position)"
+            />
+          }
 
-        @if (agents().length === 0) {
-          <af-empty-state
-            title="Nenhum agente na fila"
-            description="Adicione agentes para começar a distribuir atendimentos."
-          />
-        } @else {
-          <app-routing-agent-list
-            [agents]="agents()"
-            (reorder)="onReorder($event)"
-            (toggleActive)="onToggleActive($event.userId, $event.isActive)"
-            (remove)="onRemoveAgent($event)"
-          />
-        }
-      </div>
-    </section>
-  }
+          @if (agents().length === 0) {
+            <af-empty-state
+              title="Nenhum agente na fila"
+              description="Adicione agentes para começar a distribuir atendimentos."
+            />
+          } @else {
+            <app-routing-agent-list
+              [agents]="agents()"
+              (reorder)="onReorder($event)"
+              (toggleActive)="onToggleActive($event.userId, $event.isActive)"
+              (remove)="onRemoveAgent($event)"
+            />
+          }
+        </div>
+      }
+    </div>
+  </section>
 
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <!-- Auto-fechamento por inatividade                                    -->
@@ -134,7 +135,6 @@
         <!-- Campos condicionais -->
         @if (isAutoCloseEnabled()) {
           <div class="flex flex-col gap-6 pl-6 border-l-2 border-accent-500/30">
-            <!-- Tempo de inatividade -->
             <div class="max-w-xs">
               <af-select-input
                 [control]="chatForm.controls.auto_close_inactivity_minutes"
@@ -145,7 +145,6 @@
               />
             </div>
 
-            <!-- Target -->
             <div class="max-w-lg">
               <af-radio-input
                 [control]="chatForm.controls.auto_close_inactivity_target"
@@ -157,7 +156,6 @@
               />
             </div>
 
-            <!-- Mensagem ao encerrar -->
             <div class="max-w-lg">
               <af-textarea-input
                 [control]="chatForm.controls.auto_close_inactivity_message"
@@ -176,7 +174,6 @@
           </div>
         }
 
-        <!-- Save button -->
         <div class="flex justify-end mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
           <af-loading-button
             variant="primary"
