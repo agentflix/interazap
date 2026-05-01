@@ -363,3 +363,343 @@ Cenários:
 | `app/src/app/app.routes.ts` | Rota `chat/configuration` com guard de permissão |
 | `app/src/app/layout/components/sidenav/menu-config.ts` | Item "Configuração" com `requiredPermission` |
 | `app/src/app/pages/chat/channel/channel.html` | Botão de rodízio por canal (visível para `chat.routing.manage`) |
+
+---
+
+## Tasks T.A.C.E — Fase 1 (Round Robin)
+
+> Escopo: `feature/FEAT-052-routing-round-robin`
+> Agente responsável indicado em cada task.
+
+---
+
+### TASK-052-01 — Migrations (DBA)
+
+**T — Tarefa:** Criar migrations para `chat_routing_queues` e `chat_routing_queue_agents`.
+
+**A — Arquivos:**
+```
+api/database/migrations/2026_05_XX_000001_create_chat_routing_queues_table.php
+api/database/migrations/2026_05_XX_000002_create_chat_routing_queue_agents_table.php
+```
+
+**C — Comportamento:**
+- Antes: tabelas inexistentes
+- Depois:
+  - `chat_routing_queues`: `id`, `tenant_id` (FK→tenants), `instance_id` (UUID nullable FK→chat_instances), `name`, `is_enabled` (bool default false), `strategy` (enum round_robin|least_busy|skill_based default round_robin), `max_open_tickets_per_agent` (int nullable), timestamps. UNIQUE parciais + índices conforme spec.
+  - `chat_routing_queue_agents`: `id`, `queue_id` (FK→chat_routing_queues onDelete cascade), `user_id` (FK→auth_users), `position` (int NOT NULL default 0), `last_assigned_at` (timestamp nullable), `is_active` (bool NOT NULL default true), timestamps. UNIQUE(queue_id, user_id). Índice composto `(queue_id, is_active, last_assigned_at)`.
+
+**E — Evidência:**
+- `php artisan migrate` sem erros
+- `php artisan migrate:rollback` e re-migrate sem erros
+- Constraints UNIQUE e índices verificados via `\d chat_routing_queues` no psql
+
+---
+
+### TASK-052-02 — Models Eloquent (BACKEND)
+
+**T — Tarefa:** Criar `ChatRoutingQueue` e `ChatRoutingQueueAgent` com relacionamentos e casts.
+
+**A — Arquivos:**
+```
+api/src/Domain/Chat/Models/ChatRoutingQueue.php
+api/src/Domain/Chat/Models/ChatRoutingQueueAgent.php
+```
+
+**C — Comportamento:**
+- Antes: modelos inexistentes
+- Depois:
+  - `ChatRoutingQueue`: `BelongsToTenant`, `$fillable` completo, cast `is_enabled→boolean`, cast `strategy→string`, relacionamento `hasMany(ChatRoutingQueueAgent)`, relacionamento `belongsTo(ChatInstance, 'instance_id')` nullable, scope `forInstance(string $instanceId)`, scope `global()`.
+  - `ChatRoutingQueueAgent`: `$fillable` completo, cast `is_active→boolean`, cast `last_assigned_at→datetime`, relacionamento `belongsTo(ChatRoutingQueue)`, relacionamento `belongsTo(AuthUser, 'user_id')`.
+
+**E — Evidência:**
+- `ChatRoutingQueue::global()->first()` retorna fila com `instance_id IS NULL`
+- `ChatRoutingQueue::forInstance($id)->first()` retorna fila do canal
+- Relacionamentos resolvem sem N+1 em eager load
+
+---
+
+### TASK-052-03 — ChatRoutingService (BACKEND)
+
+**T — Tarefa:** Implementar `ChatRoutingService` com métodos `route()` e `roundRobin()`.
+
+**A — Arquivo:**
+```
+api/src/Domain/Chat/Services/ChatRoutingService.php
+```
+
+**C — Comportamento:**
+- Antes: serviço inexistente
+- Depois:
+  - `route(ChatTicket $ticket): ?string` — resolve fila (canal → global → null) e despacha para a estratégia configurada
+  - `roundRobin(ChatRoutingQueue $queue): ?string` — executa `SELECT ... FOR UPDATE SKIP LOCKED LIMIT 1` ordenado por `last_assigned_at ASC NULLS FIRST, position ASC`; atualiza `last_assigned_at = now()`; retorna `user_id` ou `null` se nenhum agente ativo disponível
+  - Toda a operação de `roundRobin()` ocorre dentro de uma transação de banco
+
+**E — Evidência:**
+- Testes unitários do `ChatRoutingServiceTest` passando (ver seção Testes do spec)
+- Teste de concorrência (10 coroutines, 5 agentes) → sem duplicatas
+- `route()` retorna `null` quando `is_enabled=false`
+
+---
+
+### TASK-052-04 — Policy de Autorização (BACKEND)
+
+**T — Tarefa:** Criar `ChatRoutingQueuePolicy` com gates de permissão.
+
+**A — Arquivo:**
+```
+api/src/Domain/Chat/Policies/ChatRoutingQueuePolicy.php
+```
+
+**C — Comportamento:**
+- Antes: política inexistente — qualquer usuário autenticado poderia chamar os endpoints
+- Depois:
+  - `view()`: requer `chat.routing.view`
+  - `manage()`: requer `chat.routing.manage`
+  - Validação cross-tenant: `user_id` de agente deve pertencer ao mesmo `tenant_id` da fila → aborta 403
+  - Policy registrada em `AuthServiceProvider`
+
+**E — Evidência:**
+- Request com agente de outro tenant → 403
+- Request com role sem `chat.routing.manage` → 403 no POST/PUT/DELETE
+- Request com role com permissão → 200/201
+
+---
+
+### TASK-052-05 — Controller, Request e Resource (BACKEND)
+
+**T — Tarefa:** Criar camada HTTP para a API de routing queue.
+
+**A — Arquivos:**
+```
+api/src/Domain/Chat/Http/Controllers/ChatRoutingQueueController.php
+api/src/Domain/Chat/Http/Requests/ChatRoutingQueueRequest.php
+api/src/Domain/Chat/Http/Resources/ChatRoutingQueueResource.php
+```
+
+**C — Comportamento:**
+- Antes: endpoints inexistentes
+- Depois: controller com métodos `showChannel`, `storeChannel`, `updateChannel`, `showGlobal`, `storeGlobal`, `updateGlobal`, `indexAgents`, `storeAgent`, `destroyAgent`, `reorderAgents`
+- `ChatRoutingQueueRequest` valida: `name` (string max 100), `strategy` (in: round_robin,least_busy,skill_based), `is_enabled` (bool), `max_open_tickets_per_agent` (int nullable min 1), `user_id` (uuid exists:auth_users), `agents` (array), `agents.*.user_id` (uuid), `agents.*.position` (int min 0)
+- `ChatRoutingQueueResource` serializa fila + agentes em array ordenado por `position`
+
+**E — Evidência:**
+- `GET /chat/channels/{id}/routing-queue` → 200 com estrutura correta ou 404 se não existe
+- `POST /chat/routing-queue/global` → 201 com fila criada
+- `PUT /chat/routing-queue/global/agents/reorder` → 200, positions atualizadas na ordem enviada
+- Testes HTTP do `ChatRoutingQueueControllerTest` passando
+
+---
+
+### TASK-052-06 — Rotas (BACKEND)
+
+**T — Tarefa:** Registrar os novos endpoints em `chat.php`.
+
+**A — Arquivo:**
+```
+api/src/Domain/Chat/Routes/chat.php
+```
+
+**C — Comportamento:**
+- Antes: sem rotas de routing queue
+- Depois: dois grupos adicionados dentro do middleware `auth:sanctum`:
+  - Grupo 1: `Route::prefix('channels/{id}/routing-queue')` — endpoints por canal
+  - Grupo 2: `Route::prefix('routing-queue/global')` — endpoints globais (fora do prefix `channels`)
+  - Ambos protegidos pelo middleware de policy `ChatRoutingQueuePolicy`
+
+**E — Evidência:**
+- `php artisan route:list | grep routing-queue` lista todos os endpoints esperados
+- Nenhuma rota existente quebrada
+
+---
+
+### TASK-052-07 — Hook em CreateChatTicketAction (BACKEND)
+
+**T — Tarefa:** Adicionar chamada ao `ChatRoutingService` após criação do ticket.
+
+**A — Arquivo:**
+```
+api/src/Domain/Chat/Actions/CreateChatTicketAction.php
+```
+
+**C — Comportamento:**
+- Antes: ticket criado sem atribuição automática
+- Depois: após `$ticket = $this->createTicket($dto)`, executa bloco try/catch com `DB::transaction()` que chama `ChatRoutingService::route($ticket)` e, se retornar `user_id`, chama `AssignChatTicketAction::transfer($ticket, $userId, null)`
+- Falha no routing → loga erro, ticket permanece sem `assigned_to`, fluxo não interrompido
+- `ChatRoutingService` e `AssignChatTicketAction` injetados via construtor
+
+**E — Evidência:**
+- Ticket criado com fila ativa → `assigned_to` preenchido no banco
+- Ticket criado sem fila → `assigned_to` null, sem exceção
+- Testes de `CreateChatTicketActionTest` passando
+
+---
+
+### TASK-052-08 — ChatRoutingQueueService Angular (FRONTEND)
+
+**T — Tarefa:** Criar service Angular para consumir a API de routing queue.
+
+**A — Arquivo:**
+```
+app/src/app/pages/chat/services/chat-routing-queue.service.ts
+```
+
+**C — Comportamento:**
+- Antes: service inexistente
+- Depois: injectable com signals `queue`, `agents`, `loading`, `error`. Métodos:
+  - `loadGlobal()` → GET `/chat/routing-queue/global`
+  - `loadForChannel(id: string)` → GET `/chat/channels/{id}/routing-queue`
+  - `save(scope, data)` → POST ou PUT conforme existência
+  - `addAgent(scope, userId, position?)` → POST `.../agents`
+  - `removeAgent(scope, userId)` → DELETE `.../agents/{user}`
+  - `reorder(scope, agents)` → PUT `.../agents/reorder`
+- Cada chamada bem-sucedida atualiza os signals correspondentes
+
+**E — Evidência:**
+- Testes Vitest do service passando (ver spec)
+- `loadGlobal()` → signal `queue` atualizado com resposta da API
+- `addAgent()` → signal `agents` contém o novo agente
+
+---
+
+### TASK-052-09 — Página `chat/configuration` (FRONTEND)
+
+**T — Tarefa:** Criar página de configuração global de rodízio.
+
+**A — Arquivos:**
+```
+app/src/app/pages/chat/configuration/chat-configuration.ts
+app/src/app/pages/chat/configuration/chat-configuration.html
+app/src/app/pages/chat/configuration/components/routing-agent-list/
+app/src/app/pages/chat/configuration/components/routing-agent-form/
+```
+
+**C — Comportamento:**
+- Antes: página inexistente
+- Depois: página com `af-page-title` + seção de rodízio contendo:
+  - Toggle `is_enabled` com auto-save
+  - Seletor de `strategy` (round_robin ativo; least_busy e skill_based desabilitados com tooltip "Em breve")
+  - Lista de agentes com drag-and-drop para reordenar (`position`), toggle `is_active` inline, botão remover
+  - Botão "+ Adicionar agente" → dropdown de usuários do tenant (excluindo já adicionados)
+- Padrão visual idêntico a `media-transcription` (`space-y-6`, cards com borda)
+
+**E — Evidência:**
+- Rota `/chat/configuration` carrega sem erro
+- Toggle ativar → PATCH para API → feedback visual
+- Arrastar agente → PUT reorder → nova posição persistida
+- Usuário sem `chat.routing.manage` → redirect (guard ativo)
+
+---
+
+### TASK-052-10 — Componente `channel-routing` (FRONTEND)
+
+**T — Tarefa:** Criar modal de override de rodízio por canal.
+
+**A — Arquivos:**
+```
+app/src/app/pages/chat/channel/components/channel-routing/channel-routing.ts
+app/src/app/pages/chat/channel/components/channel-routing/channel-routing.html
+```
+
+**C — Comportamento:**
+- Antes: modal inexistente
+- Depois: modal disparado pelo botão `users-round` na tabela de canais
+  - Toggle "Sobrepor configuração global para este canal"
+  - Quando `false`: badge "Usando configuração global", campos ocultos
+  - Quando `true`: exibe mesmos campos da página global (strategy + lista de agentes), mas com escopo do canal
+  - Ao fechar sem salvar: sem side effects
+
+**E — Evidência:**
+- Botão `users-round` visível na lista de canais para role com `chat.routing.manage`
+- Toggle OFF → badge exibido, campos ocultos
+- Toggle ON → campos visíveis, salvar → fila do canal criada/atualizada
+- Testes Vitest do `ChannelRoutingComponent` passando
+
+---
+
+### TASK-052-11 — Rota e Menu Angular (FRONTEND)
+
+**T — Tarefa:** Registrar rota `chat/configuration` e item de menu.
+
+**A — Arquivos:**
+```
+app/src/app/app.routes.ts
+app/src/app/layout/components/sidenav/menu-config.ts
+```
+
+**C — Comportamento:**
+- `app.routes.ts`: nova entrada com `path: 'chat/configuration'`, `loadComponent` apontando para `ChatConfigurationComponent`, `data: { title: 'Configuração', permission: 'chat.routing.manage' }`
+- `menu-config.ts`: novo item `{ type: 'item', label: 'Configuração', link: '/chat/configuration', iconName: 'settings', requiredPermission: 'chat.routing.manage' }` no grupo Chat, após "Canais"
+
+**E — Evidência:**
+- Item "Configuração" aparece no sidebar para admin/gestor
+- Item ausente para role sem `chat.routing.manage`
+- Navegação direta via URL → guard redireciona usuário sem permissão
+
+---
+
+### TASK-052-12 — Testes Backend (QA)
+
+**T — Tarefa:** Implementar suíte de testes Pest para o backend de rodízio.
+
+**A — Arquivos:**
+```
+api/tests/Feature/Chat/ChatRoutingServiceTest.php
+api/tests/Feature/Chat/CreateChatTicketActionRoutingTest.php
+api/tests/Feature/Chat/ChatRoutingQueueControllerTest.php
+```
+
+**C — Comportamento:**
+- Antes: sem testes para routing
+- Depois: cobertura completa dos cenários da seção Testes do spec
+- `ChatRoutingServiceTest` marcado com `@group integration` (requer PostgreSQL real para SKIP LOCKED)
+- Demais testes rodam com banco de testes padrão do projeto
+
+**E — Evidência:**
+- `./vendor/bin/pest --group=integration` → todos passando
+- `./vendor/bin/pest` → zero regressão em testes existentes
+- Coverage de `ChatRoutingService` ≥ 80%
+
+---
+
+### TASK-052-13 — Testes Frontend (QA)
+
+**T — Tarefa:** Implementar testes Vitest para o service e componentes de routing.
+
+**A — Arquivos:**
+```
+app/src/app/pages/chat/services/chat-routing-queue.service.spec.ts
+app/src/app/pages/chat/channel/components/channel-routing/channel-routing.spec.ts
+```
+
+**C — Comportamento:**
+- Antes: sem testes para routing no frontend
+- Depois: testes com `vi.spyOn` para HTTP e signal assertions
+- Cenários: ver seção "Frontend (Vitest)" do spec
+
+**E — Evidência:**
+- `pnpm run gate:test` → todos passando, zero regressão
+- Coverage dos novos componentes ≥ 70%
+
+---
+
+### TASK-052-14 — CHANGELOG e MEMORY (DOC)
+
+**T — Tarefa:** Registrar a conclusão da Fase 1 no CHANGELOG e decisões relevantes na MEMORY.
+
+**A — Arquivos:**
+```
+.context/DOCS/CHANGELOG/2026-05-XX.md
+.context/DOCS/MEMORY/2026-05-XX-rodizio-atendimentos-decisoes.md
+.context/ARCHITECTURE/project-state.yaml
+```
+
+**C — Comportamento:**
+- CHANGELOG: o que mudou (tabelas criadas, arquivos novos, endpoints, frontend), quais arquivos afetados
+- MEMORY: decisões tomadas (SKIP LOCKED vs lockForUpdate, scope via instance_id nullable, config global + override por canal, transação única para routing+assign)
+- `project-state.yaml`: incrementar `features_completed`, atualizar status do módulo `Chat`
+
+**E — Evidência:**
+- Arquivo de CHANGELOG criado com data correta e conteúdo factual
+- Arquivo de MEMORY criado com alternativas e motivos das decisões
+- `project-state.yaml` reflete FEAT-052 Fase 1 como concluída
