@@ -23,6 +23,18 @@ const mockSettings: TenantSettingsResponse = {
   },
 };
 
+const mockSettingsWithChat: TenantSettingsResponse = {
+  data: {
+    ...mockSettings.data,
+    settings_chat: {
+      auto_close_inactivity_enabled: true,
+      auto_close_inactivity_minutes: 15,
+      auto_close_inactivity_target: 'both',
+      auto_close_inactivity_message: 'Mensagem customizada de encerramento.',
+    },
+  },
+};
+
 describe('TenantSettingsComponent', () => {
   let component: TenantSettingsComponent;
   let fixture: ComponentFixture<TenantSettingsComponent>;
@@ -86,6 +98,25 @@ describe('TenantSettingsComponent', () => {
       expect(component.privacyForm.value.notificationPreview).toBe(false);
     });
 
+    it('should seed chat form with data when settings_chat is present', () => {
+      settingsService.getSettings.mockReturnValue(of(mockSettingsWithChat));
+      fixture.detectChanges();
+      expect(component.chatForm.value.auto_close_inactivity_enabled).toBe(true);
+      expect(component.chatForm.value.auto_close_inactivity_minutes).toBe(15);
+      expect(component.chatForm.value.auto_close_inactivity_target).toBe('both');
+      expect(component.chatForm.value.auto_close_inactivity_message).toBe(
+        'Mensagem customizada de encerramento.',
+      );
+    });
+
+    it('should keep chat form defaults when settings_chat is absent', () => {
+      fixture.detectChanges();
+      expect(component.chatForm.value.auto_close_inactivity_enabled).toBe(false);
+      expect(component.chatForm.value.auto_close_inactivity_minutes).toBe(30);
+      expect(component.chatForm.value.auto_close_inactivity_target).toBe('both');
+      expect(component.chatForm.value.auto_close_inactivity_message).toContain('encerrado automaticamente');
+    });
+
     it('should reset isLoading to false after successful load', () => {
       fixture.detectChanges();
       expect(component.isLoading()).toBe(false);
@@ -147,6 +178,64 @@ describe('TenantSettingsComponent', () => {
       component.isSaving.set(true);
       component.save();
       expect(settingsService.updateSettings).not.toHaveBeenCalled();
+    });
+
+    it('should include settings_chat in save payload', () => {
+      settingsService.getSettings.mockReturnValue(of(mockSettingsWithChat));
+      component.loadSettings();
+      component.save();
+      expect(settingsService.updateSettings).toHaveBeenCalledWith(
+        'tenant-uuid-123',
+        expect.objectContaining({
+          settings_chat: expect.objectContaining({
+            auto_close_inactivity_enabled: true,
+            auto_close_inactivity_minutes: 15,
+            auto_close_inactivity_target: 'both',
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('chat auto-close', () => {
+    describe('isAutoCloseEnabled', () => {
+      it('should be false by default', () => {
+        fixture.detectChanges();
+        expect(component.isAutoCloseEnabled()).toBe(false);
+      });
+
+      it('should be true when toggle is enabled via API', () => {
+        settingsService.getSettings.mockReturnValue(of(mockSettingsWithChat));
+        component.loadSettings();
+        expect(component.isAutoCloseEnabled()).toBe(true);
+      });
+
+      it('should react to form toggle changes', () => {
+        fixture.detectChanges();
+        component.chatForm.controls.auto_close_inactivity_enabled.setValue(true);
+        fixture.detectChanges();
+        expect(component.isAutoCloseEnabled()).toBe(true);
+      });
+    });
+
+    describe('conditional validation on save', () => {
+      it('should not block save when auto-close is disabled (even with invalid chat form)', () => {
+        fixture.detectChanges();
+        // Simulate invalid state: enabled is false so validation should be skipped
+        component.chatForm.controls.auto_close_inactivity_enabled.setValue(false);
+        component.chatForm.controls.auto_close_inactivity_minutes.setValue(0 as never);
+        component.save();
+        expect(settingsService.updateSettings).toHaveBeenCalled();
+      });
+
+      it('should block save when auto-close is enabled and minutes is empty/invalid', () => {
+        fixture.detectChanges();
+        settingsService.updateSettings.mockClear();
+        component.chatForm.controls.auto_close_inactivity_enabled.setValue(true);
+        component.chatForm.controls.auto_close_inactivity_minutes.setValue(null as never);
+        component.save();
+        expect(settingsService.updateSettings).not.toHaveBeenCalled();
+      });
     });
   });
 });

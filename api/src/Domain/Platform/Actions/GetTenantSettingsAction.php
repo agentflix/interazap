@@ -24,6 +24,12 @@ final class GetTenantSettingsAction
             'readReceipt' => true,
             'notificationPreview' => true,
         ],
+        'settings_chat' => [
+            'auto_close_inactivity_enabled' => false,
+            'auto_close_inactivity_minutes' => 30,
+            'auto_close_inactivity_target' => 'both',
+            'auto_close_inactivity_message' => 'Este atendimento foi encerrado automaticamente por inatividade. Caso precise de mais ajuda, por favor inicie um novo atendimento.',
+        ],
     ];
 
     /**
@@ -35,13 +41,16 @@ final class GetTenantSettingsAction
     {
         $storedLocalization = $tenant->settings_localization ?? [];
         $storedPrivacy = $tenant->settings_privacy ?? [];
+        $storedChat = $tenant->settings_chat ?? [];
 
         $mergedLocalization = $this->deepMerge(self::DEFAULTS['settings_localization'], $storedLocalization);
         $mergedPrivacy = $this->deepMerge(self::DEFAULTS['settings_privacy'], $storedPrivacy);
+        $mergedChat = $this->deepMerge(self::DEFAULTS['settings_chat'], $storedChat);
 
         return TenantSettingDTO::fromArray([
             'settings_localization' => $mergedLocalization,
             'settings_privacy' => $mergedPrivacy,
+            'settings_chat' => $mergedChat,
         ]);
     }
 

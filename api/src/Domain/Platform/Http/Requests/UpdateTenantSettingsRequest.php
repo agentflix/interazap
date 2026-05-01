@@ -68,6 +68,21 @@ final class UpdateTenantSettingsRequest extends FormRequest
             ],
             'settings_privacy.readReceipt' => ['sometimes', 'boolean'],
             'settings_privacy.notificationPreview' => ['sometimes', 'boolean'],
+
+            // Chat (Auto-close by inactivity)
+            'settings_chat' => ['sometimes', 'array'],
+            'settings_chat.auto_close_inactivity_enabled' => ['sometimes', 'boolean'],
+            'settings_chat.auto_close_inactivity_minutes' => [
+                'sometimes',
+                'integer',
+                Rule::in([5, 10, 15, 30, 45, 60, 120]),
+            ],
+            'settings_chat.auto_close_inactivity_target' => [
+                'sometimes',
+                'string',
+                Rule::in(['both', 'client', 'agent']),
+            ],
+            'settings_chat.auto_close_inactivity_message' => ['nullable', 'string', 'max:2000'],
         ];
     }
 

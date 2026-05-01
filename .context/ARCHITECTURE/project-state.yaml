@@ -3,7 +3,7 @@
 
 version: '1.0'
 project: 'InteraZap'
-last_updated: '2026-04-30'
+last_updated: '2026-05-01'
 
 stack:
     backend:
@@ -23,11 +23,11 @@ stack:
         e2e: 'Playwright'
 
 metrics:
-    total_features: 7
-    features_completed: 6 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050, FEAT-051
-    features_in_progress: 0
-    total_tasks: 100 # 88 anteriores + 12 (FEAT-051)
-    tasks_completed: 100
+    total_features: 8
+    features_completed: 7 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050, FEAT-051, FEAT-053
+    features_in_progress: 1 # FEAT-052
+    total_tasks: 117 # 100 anteriores + 17 (16 TASK-053 + 1 TASK-052-04)
+    tasks_completed: 117
     tasks_in_progress: 0
     tasks_pending: 0
     tasks_pending_new: 0
@@ -47,8 +47,8 @@ modules_status:
         last_change: '2026-04-11'
     'Chat':
         status: 'active'
-        completion: '100% FEAT-040/041/042/050 concluídas + FEAT-043 em andamento'
-        last_change: '2026-04-29'
+        completion: 'FEAT-040/041/042/050/053 concluídas; FEAT-053: auto-fechamento de tickets por inatividade (batch SQL + config tenant/canal + UI); FEAT-052 Fase 1 em andamento (ChatRoutingQueuePolicy criada)'
+        last_change: '2026-05-01'
     'Configuration':
         status: 'active'
         completion: 'unknown'

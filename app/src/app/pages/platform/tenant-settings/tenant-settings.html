@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-6">
-  <af-page-title title="Configurações do Inquilino" subtitle="Localização e privacidade" />
+  <af-page-title title="Configurações do Inquilino" subtitle="Localização, privacidade e auto-fechamento" />
 
   <!-- ── Loading state ─────────────────────────────────────────────── -->
   @if (isLoading()) {
@@ -98,6 +98,71 @@
           dataTest="tenant-notifpreview"
         />
       </div>
+    </section>
+
+    <!-- ── Auto-fechamento ────────────────────────────────────────── -->
+    <section
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+    >
+      <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-6">
+        Auto-fechamento de atendimentos
+      </h2>
+
+      <!-- Toggle principal -->
+      <div class="mb-6">
+        <af-switch-input
+          [control]="chatForm.controls.auto_close_inactivity_enabled"
+          label="Ativar fechamento automático por inatividade"
+          dataTest="tenant-auto-close-enabled"
+        />
+        <p class="text-xs text-neutral-400 mt-1">
+          Encerra automaticamente atendimentos que ficarem inativos por mais de X minutos
+        </p>
+      </div>
+
+      <!-- Campos condicionais: visíveis apenas quando toggle ON -->
+      @if (isAutoCloseEnabled()) {
+        <div class="flex flex-col gap-6 pl-6 border-l-2 border-accent-500/30">
+          <!-- Tempo de inatividade -->
+          <div class="max-w-xs">
+            <af-select-input
+              [control]="chatForm.controls.auto_close_inactivity_minutes"
+              [options]="inactivityMinutesOptions"
+              label="Tempo de inatividade"
+              placeholder="Após 30 minutos"
+              dataTest="tenant-auto-close-minutes"
+            />
+          </div>
+
+          <!-- Target: quem considerar inativo -->
+          <div class="max-w-lg">
+            <af-radio-input
+              [control]="chatForm.controls.auto_close_inactivity_target"
+              [options]="inactivityTargetOptions"
+              name="autoCloseTarget"
+              label="Considerar inatividade de"
+              orientation="vertical"
+              dataTest="tenant-auto-close-target"
+            />
+          </div>
+
+          <!-- Mensagem ao encerrar -->
+          <div class="max-w-lg">
+            <af-textarea-input
+              [control]="chatForm.controls.auto_close_inactivity_message"
+              label="Mensagem ao encerrar"
+              placeholder="Mensagem enviada ao fechar o atendimento automaticamente..."
+              [maxLength]="2000"
+              [rows]="3"
+              resize="vertical"
+              dataTest="tenant-auto-close-message"
+            />
+            <p class="text-xs text-neutral-400 mt-1">
+              Máximo de 2000 caracteres. Será enviada ao cliente quando o atendimento for encerrado.
+            </p>
+          </div>
+        </div>
+      }
     </section>
 
     <!-- ── Save / Reset actions ────────────────────────────────────── -->

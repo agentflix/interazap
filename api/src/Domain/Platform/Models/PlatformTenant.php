@@ -98,6 +98,7 @@ final class PlatformTenant extends Model
         'media_transcription_video_max_seconds',
         'settings_localization',
         'settings_privacy',
+        'settings_chat',
     ];
 
     /**
@@ -119,6 +120,7 @@ final class PlatformTenant extends Model
         'media_transcription_video_max_seconds' => 'integer',
         'settings_localization' => 'array',
         'settings_privacy' => 'array',
+        'settings_chat' => 'array',
     ];
 
     protected static function booted(): void

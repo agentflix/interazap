@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
   DestroyRef,
@@ -9,7 +10,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith } from 'rxjs';
 import { toast } from 'ngx-sonner';
@@ -18,10 +19,14 @@ import {
   type Integration,
   IntegrationService,
 } from 'src/app/core/services/integration.service';
+import { AuthStoreService } from '@core/services/auth-store.service';
+import { TenantSettingsService } from '@core/services/tenant-settings.service';
+import type { TenantChatAutoCloseSettings } from '@shared/models/tenant-settings.model';
 import {
   COUNTRIES,
   type Country,
   PhoneInputComponent,
+  RadioInputComponent,
   type SelectOption,
   SelectInputComponent,
   SwitchInputComponent,
@@ -54,6 +59,7 @@ import {
     PhoneInputComponent,
     SelectInputComponent,
     SwitchInputComponent,
+    RadioInputComponent,
   ],
   templateUrl: './channel-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,7 +67,10 @@ import {
 export class ChannelFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly integrationService = inject(IntegrationService);
+  private readonly authStore = inject(AuthStoreService);
+  private readonly tenantSettingsService = inject(TenantSettingsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly lastLoadedIntegrationId = signal<string | null>(null);
   private readonly unresolvedCellphone = signal<string | null>(null);
   private readonly loadedCellphoneSnapshot = signal<{
@@ -74,6 +83,8 @@ export class ChannelFormComponent {
   readonly cancelled = output<void>();
 
   readonly isSaving = signal(false);
+  readonly activeTab = signal<'general' | 'autoClose'>('general');
+  readonly tenantChatSettings = signal<TenantChatAutoCloseSettings | null>(null);
 
   private readonly supportedCountries: Country[] = [...COUNTRIES].sort(
     (left, right) => right.code.length - left.code.length,
@@ -116,7 +127,42 @@ export class ChannelFormComponent {
       Validators.min(1),
       Validators.max(5),
     ]),
+    auto_close_enabled: this.fb.control<boolean | null>(null),
+    auto_close_after_minutes: this.fb.control<number | null>(null),
+    auto_close_target: this.fb.control<'both' | 'client' | 'agent' | null>(null),
+    auto_close_message: this.fb.control<string | null>(null),
   });
+
+  // ── Auto-fechamento ──────────────────────────────────────────────────────
+
+  /** Toggle que controla se o canal herda a configuracao global do tenant */
+  readonly useGlobalToggle = new FormControl<boolean>(false, { nonNullable: true });
+
+  /** Indica se todos os campos de auto-close estao null (usando config global) */
+  readonly isUsingGlobalConfig = computed(() => {
+    return (
+      this.form.controls.auto_close_enabled.value === null &&
+      this.form.controls.auto_close_after_minutes.value === null &&
+      this.form.controls.auto_close_target.value === null &&
+      this.form.controls.auto_close_message.value === null
+    );
+  });
+
+  readonly timeOptions: SelectOption[] = [
+    { value: 5, label: 'Após 5 minutos' },
+    { value: 10, label: 'Após 10 minutos' },
+    { value: 15, label: 'Após 15 minutos' },
+    { value: 30, label: 'Após 30 minutos' },
+    { value: 45, label: 'Após 45 minutos' },
+    { value: 60, label: 'Após 1 hora' },
+    { value: 120, label: 'Após 2 horas' },
+  ];
+
+  readonly targetOptions = [
+    { value: 'both', label: 'Ambos (atendente e cliente)' },
+    { value: 'client', label: 'Apenas cliente' },
+    { value: 'agent', label: 'Apenas atendente' },
+  ];
 
   readonly isZapi = toSignal(
     this.form.controls.provider.valueChanges.pipe(
@@ -234,13 +280,19 @@ export class ChannelFormComponent {
           channel_fallback_message: integration.settings?.channel_fallback_message ?? '',
           evaluation_enabled: integration.evaluation_enabled ?? false,
           evaluation_cutoff_score: integration.evaluation_cutoff_score ?? 3,
+          auto_close_enabled: integration.settings?.auto_close_enabled ?? null,
+          auto_close_after_minutes: integration.settings?.auto_close_after_minutes ?? null,
+          auto_close_target: integration.settings?.auto_close_target ?? null,
+          auto_close_message: integration.settings?.auto_close_message ?? null,
         });
 
         this.form.enable({ emitEvent: false });
+        this.syncGlobalToggle();
         this.updateTokenValidators(integration.provider || 'uazapi');
         this.updateMetaFieldValidators(integration.provider || 'uazapi');
         this.updateTelegramFieldValidators(integration.provider || 'uazapi');
         this.applyConnectionLock(integration);
+        this.fetchTenantSettings();
       } else {
         this.lastLoadedIntegrationId.set(null);
         this.resetForm();
@@ -251,12 +303,73 @@ export class ChannelFormComponent {
       }
     });
 
+    this.useGlobalToggle.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((useGlobal) => {
+        if (useGlobal) {
+          this.form.patchValue(
+            {
+              auto_close_enabled: null,
+              auto_close_after_minutes: null,
+              auto_close_target: null,
+              auto_close_message: null,
+            },
+            { emitEvent: false },
+          );
+        } else {
+          this.form.patchValue(
+            {
+              auto_close_enabled: false,
+              auto_close_after_minutes: 30,
+              auto_close_target: 'both',
+              auto_close_message: '',
+            },
+            { emitEvent: false },
+          );
+        }
+
+        this.cdr.markForCheck();
+      });
+
     this.form.controls.provider.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((provider) => {
         this.updateTokenValidators(provider ?? 'uazapi');
         this.updateMetaFieldValidators(provider ?? 'uazapi');
         this.updateTelegramFieldValidators(provider ?? 'uazapi');
+      });
+  }
+
+  /** Sincroniza o toggle "Usar configuracao global" com o estado atual dos campos */
+  private syncGlobalToggle(): void {
+    const allNull =
+      this.form.controls.auto_close_enabled.value === null &&
+      this.form.controls.auto_close_after_minutes.value === null &&
+      this.form.controls.auto_close_target.value === null &&
+      this.form.controls.auto_close_message.value === null;
+
+    this.useGlobalToggle.setValue(allNull, { emitEvent: false });
+  }
+
+  /** Busca as configuracoes de auto-fechamento do tenant para exibir os valores herdados */
+  private fetchTenantSettings(): void {
+    const tenantId = this.authStore.user()?.tenant_id;
+    if (!tenantId) {
+      return;
+    }
+
+    this.tenantSettingsService
+      .getSettings(String(tenantId))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.tenantChatSettings.set(response.data.settings_chat ?? null);
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.tenantChatSettings.set(null);
+          this.cdr.markForCheck();
+        },
       });
   }
 
@@ -341,6 +454,10 @@ export class ChannelFormComponent {
       send_end_service_message: formValue.send_end_service_message ?? false,
       end_service_message: formValue.end_service_message || undefined,
       channel_fallback_message: formValue.channel_fallback_message || undefined,
+      auto_close_enabled: formValue.auto_close_enabled ?? undefined,
+      auto_close_after_minutes: formValue.auto_close_after_minutes ?? undefined,
+      auto_close_target: formValue.auto_close_target ?? undefined,
+      auto_close_message: formValue.auto_close_message ?? undefined,
     };
 
     const payload: Partial<Integration> = {
@@ -410,8 +527,13 @@ export class ChannelFormComponent {
       channel_fallback_message: '',
       evaluation_enabled: false,
       evaluation_cutoff_score: 3,
+      auto_close_enabled: null,
+      auto_close_after_minutes: null,
+      auto_close_target: null,
+      auto_close_message: null,
     });
 
+    this.useGlobalToggle.setValue(true, { emitEvent: false });
     this.updateTokenValidators('uazapi');
   }
 

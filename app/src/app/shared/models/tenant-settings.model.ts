@@ -1,7 +1,7 @@
 /**
  * Tenant settings model.
- * Mirrors the backend `settings_localization` and `settings_privacy` JSONB columns
- * stored in `platform_tenants`.
+ * Mirrors the backend `settings_localization`, `settings_privacy`, and `settings_chat`
+ * JSONB columns stored in `platform_tenants`.
  */
 
 /**
@@ -24,11 +24,22 @@ export interface TenantPrivacySettings {
 }
 
 /**
+ * Chat auto-close settings — automatically close tickets after inactivity.
+ */
+export interface TenantChatAutoCloseSettings {
+  auto_close_inactivity_enabled: boolean;
+  auto_close_inactivity_minutes: number;
+  auto_close_inactivity_target: 'both' | 'client' | 'agent';
+  auto_close_inactivity_message: string;
+}
+
+/**
  * Complete tenant settings structure persisted in the backend.
  */
 export interface TenantSettings {
   settings_localization: TenantLocalizationSettings;
   settings_privacy: TenantPrivacySettings;
+  settings_chat?: TenantChatAutoCloseSettings;
 }
 
 /**

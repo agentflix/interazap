@@ -397,6 +397,7 @@ final class ChatWebhookIngestor
                     'message_id' => (string) $createdMessage->id,
                     'message_type' => (string) ($type ?: 'text'),
                     'is_first_interaction' => $isFirstInteraction,
+                    'direction' => 'incoming',
                 ],
             );
         }

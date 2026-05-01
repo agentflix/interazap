@@ -89,6 +89,12 @@ class ChatInstanceRequest extends FormRequest
             'settings.channel_fallback_message' => ['nullable', 'string', 'max:2000'],
             'settings.phone_number_id' => ['nullable', 'string', 'max:255'],
             'settings.access_token' => ['nullable', 'string', 'max:500'],
+
+            // Auto-close by inactivity (nullable = herda do tenant)
+            'auto_close_enabled' => ['nullable', 'boolean'],
+            'auto_close_after_minutes' => ['nullable', 'integer', 'min:1'],
+            'auto_close_target' => ['nullable', 'string', Rule::in(['both', 'client', 'agent'])],
+            'auto_close_message' => ['nullable', 'string', 'max:2000'],
         ];
     }
 }

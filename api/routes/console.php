@@ -1,3 +1,5 @@
 <?php
 
-// Console routes can be added here if needed. Commands are registered in bootstrap/app.php.
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('chat:close-inactive-tickets')->everyFiveMinutes();

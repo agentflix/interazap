@@ -17,6 +17,7 @@ use Domain\Chat\Events\MessagePersisted;
 use Domain\Chat\Listeners\AiResponseListener;
 use Domain\Chat\Listeners\MessagePersistorListener;
 use Domain\Chat\Listeners\RevokeInvalidPushTokenListener;
+use Domain\Chat\Listeners\UpdateTicketActivityTimestampsListener;
 use Domain\Configuration\Events\AiEscalationRequiredEvent;
 use Domain\Configuration\Events\AiHotLeadDetectedEvent;
 use Domain\Configuration\Events\BillingInvoiceCreatedEvent;
@@ -96,6 +97,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         MessagePersisted::class => [
             MessagePersistorListener::class,
+            UpdateTicketActivityTimestampsListener::class,
         ],
         AiRunRequested::class => [
             AiGateKeeperListener::class,
