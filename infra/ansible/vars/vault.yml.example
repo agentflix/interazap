@@ -5,25 +5,19 @@
 # Autor: DevOps InteraZap
 # =====================================================
 #
-# Criar novo vault:
-#   ansible-vault create vars/vault.yml
+# Criptografar após preencher:
+# ansible-vault encrypt vars/vault.yml
 #
-# Editar vault existente:
-#   ansible-vault edit vars/vault.yml
-#
-# Descriptografar para edição manual:
-#   ansible-vault decrypt vars/vault.yml
-#
-# Criptografar após edição manual:
-#   ansible-vault encrypt vars/vault.yml
+# Editar:
+# ansible-vault edit vars/vault.yml
 #
 
 # =====================================================
 # USUÁRIOS
 # =====================================================
 
-# Senha do usuário deploy (texto puro — Ansible aplica hash sha512)
-interazap_password: ''
+# Senha do usuário agentflix (hash SHA512)
+agentflix_password: ''
 
 # =====================================================
 # POSTGRESQL
@@ -32,32 +26,31 @@ interazap_password: ''
 # Senha do superusuário postgres
 postgres_root_password: ''
 
-# Senha do usuário da aplicação (agentflix_app)
+# Senha do usuário da aplicação
 postgres_app_password: ''
 
 # =====================================================
 # REDIS
 # =====================================================
 
-# Senha do Redis (gerar com: openssl rand -hex 24)
+# Senha do Redis (obrigatória)
 redis_password: ''
 
 # =====================================================
 # LARAVEL API
 # =====================================================
 
-# APP_KEY - PRODUÇÃO (gerar com: php artisan key:generate --show)
+# APP_KEY do Laravel - PRODUÇÃO (gerar com: php artisan key:generate --show)
 agentflix_secret_key_production: ''
 
-# APP_KEY - STAGING (chave separada da produção)
+# APP_KEY do Laravel - STAGING (chave separada da produção)
 agentflix_secret_key_staging: ''
 
 # =====================================================
-# GATEWAY (NestJS)
+# GATEWAY
 # =====================================================
 
 # Chave API interna - PRODUÇÃO (gerar com: uuidgen)
-# Deve ser igual em: API.GATEWAY_INTERNAL_API_KEY e Gateway.INTERNAL_API_KEY
 gateway_internal_api_key_production: ''
 
 # Chave API interna - STAGING (gerar com: uuidgen)
@@ -69,22 +62,20 @@ gateway_jwt_secret_production: ''
 # JWT Secret - STAGING (gerar com: openssl rand -hex 32)
 gateway_jwt_secret_staging: ''
 
-# WebChat JWT Secret — segredo compartilhado entre API e Gateway para tokens do chat público
-# Deve ser IGUAL nos dois serviços (api e gateway) em cada ambiente
-# Gerar com: openssl rand -hex 32
+# WebChat JWT Secret - PRODUÇÃO (gerar com: openssl rand -hex 32)
 webchat_jwt_secret_production: ''
+
+# WebChat JWT Secret - STAGING (gerar com: openssl rand -hex 32)
 webchat_jwt_secret_staging: ''
 
 # =====================================================
 # REVERB (WebSockets)
 # =====================================================
 
-# PRODUÇÃO
 reverb_app_id_production: 'interazap-prod'
 reverb_app_key_production: ''
 reverb_app_secret_production: ''
 
-# STAGING
 reverb_app_id_staging: 'interazap-stage'
 reverb_app_key_staging: ''
 reverb_app_secret_staging: ''
@@ -93,29 +84,24 @@ reverb_app_secret_staging: ''
 # AI PROVIDERS
 # =====================================================
 
-# OpenAI — obrigatório
+# OpenAI (obrigatório)
 openai_api_key: ''
 
-# Google Gemini — opcional
+# OpenAI Fallback (opcional - usado em caso de rate limit)
+openai_api_key_fallback: ''
+
+# Google Gemini (opcional)
 google_ai_api_key: ''
 
-# MiniMax — opcional
+# MiniMax (opcional)
 minimax_api_key: ''
 
 # =====================================================
 # UAZAPI (WhatsApp Provider)
 # =====================================================
 
-# URL base da instância Uazapi (ex: https://interazap.uazapi.com)
-uazapi_base_url: ''
-
-# Token admin da instância Uazapi
+uazapi_base_url: 'https://free.uazapi.com'
 uazapi_admin_token: ''
-
-# URL base de webhook para auto-configuração no initInstance (opcional)
-# Formato: https://api.interazap.com.br (sem trailing slash, sem path)
-# Deixar vazio se a configuração de webhook for feita exclusivamente pela API
-uazapi_webhook_url: ''
 
 # =====================================================
 # TENANT
@@ -134,11 +120,20 @@ asaas_api_key: ''
 # MAIL
 # =====================================================
 
-mail_host: ''
+mail_host: 'smtp.exemplo.com'
 mail_port: '587'
 mail_username: ''
 mail_password: ''
 mail_from_address: 'noreply@interazap.com.br'
+
+# =====================================================
+# AWS / S3 (opcional - necessário se FILESYSTEM_DISK=s3)
+# =====================================================
+
+aws_access_key_id: ''
+aws_secret_access_key: ''
+aws_default_region: 'us-east-1'
+aws_bucket: ''
 
 # =====================================================
 # OBSERVABILIDADE (opcionais)
@@ -146,6 +141,7 @@ mail_from_address: 'noreply@interazap.com.br'
 
 sentry_dsn: ''
 horizon_notification_email: ''
+horizon_slack_webhook: ''
 
 # =====================================================
 # SSH
