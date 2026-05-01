@@ -35,6 +35,11 @@ final class RolePermissionSeeder extends Seeder
             // Channels
             'chat.channel.view',
             'chat.channel.manage',
+            // Routing
+            'chat.routing.view',
+            'chat.routing.manage',
+            // Templates
+            'chat.templates.manage',
             // CRM
             'crm.contact.view',
             'crm.company.view',
@@ -94,6 +99,10 @@ final class RolePermissionSeeder extends Seeder
             'chat.transmission_lists.delete',
             // Channels
             'chat.channel.view',
+            // Routing
+            'chat.routing.view',
+            // Templates
+            'chat.templates.manage',
             // CRM
             'crm.contact.view',
             'crm.company.view',

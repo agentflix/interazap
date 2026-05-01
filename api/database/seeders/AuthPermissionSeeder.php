@@ -77,6 +77,9 @@ class AuthPermissionSeeder extends Seeder
         'chat.transmission_lists.create',
         'chat.transmission_lists.update',
         'chat.transmission_lists.delete',
+        'chat.routing.view',
+        'chat.routing.manage',
+        'chat.templates.manage',
     ];
 
     public function run(): void
