@@ -224,11 +224,12 @@
       <div footer class="flex justify-end gap-3">
         <af-button variant="outline" (click)="closeCreateModal()">Cancelar</af-button>
         <af-loading-button
-          label="Criar Fatura"
           [loading]="isCreating()"
           [disabled]="!isCreateFormValid()"
           (click)="submitCreate()"
-        />
+        >
+          Criar Fatura
+        </af-loading-button>
       </div>
     </af-modal>
 
@@ -241,6 +242,6 @@
       variant="danger"
       [isLoading]="isCancelling()"
       (confirmed)="confirmCancel()"
-      (closed)="closeCancelModal()"
+      (cancelled)="closeCancelModal()"
     />
   

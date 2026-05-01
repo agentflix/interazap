@@ -95,6 +95,7 @@ final class WebChatMessagesController extends BaseController
                 'status' => (string) ($msg->status ?? 'sent'),
                 'fileUrl' => $msg->file_url,
                 'mimeType' => $msg->mime_type,
+                'fileName' => $msg->file_name,
                 'createdAt' => $msg->created_at?->toIso8601String(),
                 'sessionId' => $sessionId,
             ]);

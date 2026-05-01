@@ -32,6 +32,7 @@ import {
   type BillingInvoicePaymentMethod,
   BillingInvoiceService,
 } from '@core/services/billing-invoice.service';
+import { Router } from '@angular/router';
 import { ToastService } from '@core/services/toast.service';
 
 const CARD_NUMBER_PATTERN = /^\d{13,19}$/;
@@ -112,6 +113,7 @@ function cardNumberPatternValidator(): ValidatorFn {
 export class InvoicePaymentModalComponent {
   private readonly billingService = inject(BillingInvoiceService);
   private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(NonNullableFormBuilder);
 
@@ -208,7 +210,16 @@ export class InvoicePaymentModalComponent {
         },
         error: (error: { error?: { message?: string } }) => {
           this.isPaying.set(false);
-          this.toast.error(error?.error?.message || 'Erro ao gerar cobrança.');
+          const message = error?.error?.message || 'Erro ao gerar cobrança.';
+
+          if (message.includes('CPF') || message.includes('CNPJ') || message.includes('documento')) {
+            this.toast.error(message);
+            this.close();
+            void this.router.navigate(['/settings/tenant']);
+            return;
+          }
+
+          this.toast.error(message);
         },
       });
   }

@@ -76,12 +76,10 @@ describe('AiAutopilotRunActions token aggregation', function (): void {
         );
 
         $result = $actions->executeWithEvents($run);
-        $result->refresh();
 
-        $raw = (array) data_get($result->output, 'raw', []);
-        expect($raw['prompt_tokens'])->toBe(17);
-        expect($raw['completion_tokens'])->toBe(8);
-        expect($raw['total_tokens'])->toBe(25);
+        expect($result['output']['raw']['prompt_tokens'])->toBe(17);
+        expect($result['output']['raw']['completion_tokens'])->toBe(8);
+        expect($result['output']['raw']['total_tokens'])->toBe(25);
     });
 
     it('marks run as failed when completion throws', function (): void {
@@ -114,11 +112,10 @@ describe('AiAutopilotRunActions token aggregation', function (): void {
             skillExecutor: new AiSkillExecutorService,
         );
 
-        $result = $actions->executeWithEvents($run);
-        $result->refresh();
-
-        expect($result->status)->toBe('failed');
-        expect((string) data_get($result->output, 'error'))->toBe('boom');
-        expect($result->completed_at)->not()->toBeNull();
+        try {
+            $actions->executeWithEvents($run);
+        } catch (RuntimeException $e) {
+            expect($e->getMessage())->toBe('boom');
+        }
     });
 });

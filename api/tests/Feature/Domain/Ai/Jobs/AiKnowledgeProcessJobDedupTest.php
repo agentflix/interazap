@@ -139,6 +139,7 @@ describe('AiKnowledgeProcessJob deduplication', function (): void {
 
         AiKnowledgeChunkRef::create([
             'document_id' => $document->id,
+            'tenant_id' => $document->tenant_id,
             'chunk_id' => $existingChunk->id,
             'chunk_index' => 0,
         ]);

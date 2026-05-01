@@ -47,7 +47,7 @@ class BillingGatewayService
 
         $document = $tenant->document ?? null;
         if (empty($document)) {
-            $this->lastError = 'tenant sem documento para criar customer';
+            $this->lastError = 'É necessário cadastrar o CPF ou CNPJ da empresa para gerar cobranças. Acesse Configurações > Empresa > Dados Cadastrais.';
 
             Log::warning('Gateway Billing: Tenant sem documento, não é possível criar cliente', [
                 'tenant_id' => $tenant->id,

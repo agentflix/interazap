@@ -41,6 +41,7 @@ class AiKnowledgeChunkRef extends Model
     protected $fillable = [
         'id',
         'document_id',
+        'tenant_id',
         'chunk_id',
         'chunk_index',
         'created_at',

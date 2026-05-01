@@ -158,6 +158,7 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
                         $refRows[] = [
                             'id' => (string) Str::orderedUuid(),
                             'document_id' => $document->id,
+                            'tenant_id' => $document->tenant_id,
                             'chunk_id' => $existingChunkId,
                             'chunk_index' => $chunk->index,
                         ];
@@ -209,15 +210,16 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
                     $bindings = [];
 
                     foreach ($batchRows as $row) {
-                        $placeholders[] = '(?, ?, ?, ?, NOW())';
+                        $placeholders[] = '(?, ?, ?, ?, ?, NOW())';
                         $bindings[] = $row['id'];
                         $bindings[] = $row['document_id'];
+                        $bindings[] = $row['tenant_id'];
                         $bindings[] = $row['chunk_id'];
                         $bindings[] = $row['chunk_index'];
                     }
 
                     DB::insert(
-                        'INSERT INTO ai_knowledge_chunk_refs (id, document_id, chunk_id, chunk_index, created_at) VALUES '.implode(', ', $placeholders),
+                        'INSERT INTO ai_knowledge_chunk_refs (id, document_id, tenant_id, chunk_id, chunk_index, created_at) VALUES '.implode(', ', $placeholders),
                         $bindings,
                     );
                 }

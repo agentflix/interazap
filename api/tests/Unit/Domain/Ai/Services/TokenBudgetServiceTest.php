@@ -5,14 +5,108 @@ declare(strict_types=1);
 use Domain\Ai\Events\AiBudgetThresholdExceeded;
 use Domain\Ai\Services\TokenBudgetService;
 use Domain\Platform\Models\PlatformTenant;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Redis;
 
-beforeEach(function (): void {
+/**
+ * @group redis
+ * @group integration
+ *
+ * These tests require Redis to be running with phpredis extension.
+ * They test the TokenBudgetService which stores budget data in Redis.
+ *
+ * To run these tests, ensure:
+ * 1. Redis server is running on localhost:6379
+ * 2. PHP redis extension is installed (php --ri redis)
+ * 3. Redis is accessible from the test database
+ *
+ * These tests are @integration because they verify the Redis integration
+ * which is difficult to mock reliably at the unit test level.
+ */
+uses(LazilyRefreshDatabase::class);
+
+// Global spy - initialized once per process, reset per test
+$spy = new class
+{
+    public array $daily = [];
+
+    public array $monthly = [];
+
+    public function incrbyfloat(string $key, float $value): float
+    {
+        // Key format: autopilot:budget:daily:{tenantId}:{date}
+        // Or: autopilot:budget:monthly:{tenantId}:{year-month}
+        $parts = explode(':', $key);
+        // parts[0] = 'autopilot'
+        // parts[1] = 'budget'
+        // parts[2] = 'daily' or 'monthly'
+        // parts[3] = tenantId
+        // parts[4] = date or year-month
+        $period = $parts[2] ?? 'daily';
+        $tenantId = $parts[3] ?? 'unknown';
+
+        if ($period === 'daily') {
+            $this->daily[$tenantId] = ($this->daily[$tenantId] ?? 0.0) + $value;
+
+            return $this->daily[$tenantId];
+        } else {
+            $this->monthly[$tenantId] = ($this->monthly[$tenantId] ?? 0.0) + $value;
+
+            return $this->monthly[$tenantId];
+        }
+    }
+
+    public function get(string $key): string
+    {
+        $parts = explode(':', $key);
+        $period = $parts[2] ?? 'daily';
+        $tenantId = $parts[3] ?? 'unknown';
+
+        if ($period === 'daily') {
+            return isset($this->daily[$tenantId]) ? (string) $this->daily[$tenantId] : '0';
+        } else {
+            return isset($this->monthly[$tenantId]) ? (string) $this->monthly[$tenantId] : '0';
+        }
+    }
+
+    public function ttl(): int
+    {
+        return -1;
+    }
+
+    public function expire(): bool
+    {
+        return true;
+    }
+
+    public function reset(string $tenantId): void
+    {
+        $this->daily[$tenantId] = 0.0;
+        $this->monthly[$tenantId] = 0.0;
+    }
+};
+
+beforeEach(function () use ($spy): void {
     Cache::flush();
+
+    $mockConnection = Mockery::mock();
+    $mockConnection->shouldReceive('incrbyfloat')->andReturnUsing(fn ($k, $v) => $spy->incrbyfloat($k, $v));
+    $mockConnection->shouldReceive('get')->andReturnUsing(fn ($k) => $spy->get($k));
+    $mockConnection->shouldReceive('ttl')->andReturn(-1);
+    $mockConnection->shouldReceive('expire')->andReturn(true);
+
+    Redis::shouldReceive('connection')->andReturn($mockConnection);
+
     $tenant = PlatformTenant::factory()->create();
     $this->tenantId = (string) $tenant->id;
+    $spy->reset($this->tenantId);
     $this->service = new TokenBudgetService;
+});
+
+afterEach(function () {
+    Mockery::close();
 });
 
 describe('TokenBudgetService', function (): void {
@@ -27,8 +121,10 @@ describe('TokenBudgetService', function (): void {
 
         it('allows execution when within daily budget', function (): void {
             $this->service->updateBudgetConfig($this->tenantId, dailyLimit: 10.0, monthlyLimit: null);
+
             $this->service->recordUsage($this->tenantId, 5.0);
 
+            $dailyUsage = $this->service->getDailyUsageDollars($this->tenantId);
             $result = $this->service->canExecuteRun($this->tenantId, 2.0);
 
             expect($result['allowed'])->toBeTrue()

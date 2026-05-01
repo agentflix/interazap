@@ -189,9 +189,8 @@ final class BillingInvoiceActions
 
         if (! $customerId) {
             $gatewayReason = $this->gatewayService->getLastError();
-            $details = $gatewayReason ? " Motivo: {$gatewayReason}." : '';
 
-            throw new \DomainException('Não foi possível criar o cliente no Asaas. Verifique o documento do tenant.'.$details);
+            throw new \DomainException($gatewayReason ?: 'Não foi possível processar o pagamento. Entre em contato com o suporte.');
         }
 
         $method = strtoupper($paymentDto->method);

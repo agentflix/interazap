@@ -109,7 +109,7 @@ export class AfChatBubbleComponent {
     const content = this.message()?.trim();
     if (!content) return false;
     if (/^https?:\/\//i.test(content)) return false;
-    if (content.length > 40 && /^[0-9a-f]+$/i.test(content)) return false;
+    if (content.length > 40 && /^[0-9a-f]+(\.[a-z0-9]{1,5})?$/i.test(content)) return false;
     return true;
   });
 

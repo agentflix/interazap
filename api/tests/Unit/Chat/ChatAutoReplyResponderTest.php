@@ -51,7 +51,7 @@ class ChatAutoReplyResponderTest extends TestCase
         $processAction = new ProcessChatMessageAction($activityBroadcast);
         $webChatPublisher = Mockery::mock(WebChatRedisPublisher::class);
         $webChatPublisher->shouldIgnoreMissing();
-        $verifyWindowAction = new VerifyContactWindowAction();
+        $verifyWindowAction = new VerifyContactWindowAction;
 
         return new SendChatMessageAction(
             $gateway,
