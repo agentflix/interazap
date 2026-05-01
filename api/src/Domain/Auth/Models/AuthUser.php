@@ -10,6 +10,7 @@ use Domain\Shared\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -113,6 +114,32 @@ final class AuthUser extends Authenticatable implements AuditableContract
     }
 
     /**
+     * Tokens de dispositivos registrados para push notifications.
+     *
+     * @return HasMany<AuthDeviceToken, $this>
+     */
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(AuthDeviceToken::class, 'user_id');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function routeNotificationForApn(object $notification): array
+    {
+        return $this->activeDeviceTokensByPlatform('ios');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function routeNotificationForFcm(object $notification): array
+    {
+        return $this->activeDeviceTokensByPlatform('android');
+    }
+
+    /**
      * Criar uma nova instância da Factory para testes.
      *
      * @return AuthUserFactory Instância configurada da fábrica.
@@ -151,5 +178,24 @@ final class AuthUser extends Authenticatable implements AuditableContract
         }
 
         return $this->tokenCan($permission) || $this->tokenCan('*');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function activeDeviceTokensByPlatform(string $platform): array
+    {
+        $tokens = $this->relationLoaded('deviceTokens')
+            ? $this->deviceTokens
+            : $this->deviceTokens()->whereNull('revoked_at')->get();
+
+        return $tokens
+            ->where('platform', $platform)
+            ->whereNull('revoked_at')
+            ->pluck('token')
+            ->filter(static fn (mixed $token): bool => is_string($token) && $token !== '')
+            ->unique()
+            ->values()
+            ->all();
     }
 }

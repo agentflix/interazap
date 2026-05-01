@@ -7,6 +7,7 @@ namespace Tests\Unit\Chat;
 use Domain\Chat\Actions\ChatTicketActions;
 use Domain\Chat\Actions\ProcessChatMessageAction;
 use Domain\Chat\Actions\SendChatMessageAction;
+use Domain\Chat\Actions\VerifyContactWindowAction;
 use Domain\Chat\Models\ChatAutoReplyCooldown;
 use Domain\Chat\Models\ChatAutoReplyRule;
 use Domain\Chat\Models\ChatInstance;
@@ -16,6 +17,7 @@ use Domain\Chat\Services\ChatActivityBroadcastService;
 use Domain\Chat\Services\ChatAutoReplyResponder;
 use Domain\Chat\Services\ChatBroadcastService;
 use Domain\Chat\Services\ChatGatewayService;
+use Domain\Chat\Services\WebChatRedisPublisher;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Platform\Services\UazapiGatewayService;
 use Domain\Shared\Infrastructure\Gateway\GatewayHttpClient;
@@ -47,11 +49,16 @@ class ChatAutoReplyResponderTest extends TestCase
     private function makeMessageActions(ChatGatewayService $gateway, ChatTicketActions $ticketActions, ChatActivityBroadcastService $activityBroadcast): SendChatMessageAction
     {
         $processAction = new ProcessChatMessageAction($activityBroadcast);
+        $webChatPublisher = Mockery::mock(WebChatRedisPublisher::class);
+        $webChatPublisher->shouldIgnoreMissing();
+        $verifyWindowAction = new VerifyContactWindowAction;
 
         return new SendChatMessageAction(
             $gateway,
             $ticketActions,
             $processAction,
+            $webChatPublisher,
+            $verifyWindowAction,
         );
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Database\Seeders\AuthPermissionSeeder;
+use Database\Seeders\RolePermissionSeeder;
 use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthRole;
 use Domain\Auth\Models\AuthUser;
@@ -169,5 +170,61 @@ class AuthRbacTest extends TestCase
 
         $this->assertFalse($user->hasRole('reporter'));
         $this->assertFalse($user->can('reports.view'));
+    }
+
+    public function test_auth_permission_seeder_includes_transmission_list_permissions(): void
+    {
+        Artisan::call('db:seed', ['--class' => AuthPermissionSeeder::class]);
+
+        $this->assertDatabaseHas('auth_permissions', [
+            'name' => 'chat.transmission_lists.view',
+            'guard_name' => 'sanctum',
+        ]);
+        $this->assertDatabaseHas('auth_permissions', [
+            'name' => 'chat.transmission_lists.create',
+            'guard_name' => 'sanctum',
+        ]);
+        $this->assertDatabaseHas('auth_permissions', [
+            'name' => 'chat.transmission_lists.update',
+            'guard_name' => 'sanctum',
+        ]);
+        $this->assertDatabaseHas('auth_permissions', [
+            'name' => 'chat.transmission_lists.delete',
+            'guard_name' => 'sanctum',
+        ]);
+    }
+
+    public function test_role_permission_seeder_grants_transmission_list_permissions_to_admin_roles(): void
+    {
+        Artisan::call('db:seed', ['--class' => AuthPermissionSeeder::class]);
+
+        AuthRole::query()->firstOrCreate(
+            ['name' => 'inquilino', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        AuthRole::query()->firstOrCreate(
+            ['name' => 'gerente', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+        AuthRole::query()->firstOrCreate(
+            ['name' => 'atendente', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+
+        Artisan::call('db:seed', ['--class' => RolePermissionSeeder::class]);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $inquilino = AuthRole::query()->where('name', 'inquilino')->firstOrFail();
+        $gerente = AuthRole::query()->where('name', 'gerente')->firstOrFail();
+
+        foreach ([
+            'chat.transmission_lists.view',
+            'chat.transmission_lists.create',
+            'chat.transmission_lists.update',
+            'chat.transmission_lists.delete',
+        ] as $permission) {
+            $this->assertTrue($inquilino->hasPermissionTo($permission, 'sanctum'));
+            $this->assertTrue($gerente->hasPermissionTo($permission, 'sanctum'));
+        }
     }
 }

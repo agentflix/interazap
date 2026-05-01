@@ -6,8 +6,18 @@ import {
   CalledMessageService,
 } from 'src/app/core/services/called-message.service';
 import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
+import { InstanceService } from 'src/app/core/services/instance.service';
 import { toast } from 'ngx-sonner';
 import { type Contact } from 'src/app/core/models/contact.model';
+import { type WindowStatus } from 'src/app/core/models/window-status.model';
+
+/**
+ * Modo do composer de mensagens.
+ * - `free`: texto livre (canal não-Meta ou dentro da janela 24h)
+ * - `mixed`: Meta dentro da janela — permite texto + template
+ * - `template-only`: Meta fora da janela — só template aprovado
+ */
+export type ComposerMode = 'free' | 'mixed' | 'template-only';
 
 /**
  * Interface representing the chat state for managing selected called/ticket information.
@@ -39,6 +49,7 @@ export class ChatStore {
   private readonly calledService = inject(CalledService);
   private readonly messageService = inject(CalledMessageService);
   private readonly chatRefresh = inject(ChatRefreshService);
+  private readonly instanceService = inject(InstanceService);
 
   // State Signals
   readonly selectedCalledId = signal<string | null>(null);
@@ -48,11 +59,67 @@ export class ChatStore {
   readonly replyingTo = signal<CalledMessage | null>(null);
   readonly isMediaBatchSending = signal(false);
 
+  /** Mapa de instâncias carregadas (instance_id → provider). */
+  readonly instanceProviders = signal<Record<string, string>>({});
+
+  /** Status da janela 24h para o contato do ticket selecionado. */
+  readonly windowStatus = signal<WindowStatus | null>(null);
+
   // Computed Selectors
   readonly hasSelection = computed(() => Boolean(this.selectedCalledId()));
   readonly canSendMessage = computed(() => this.selectedCalled()?.status === 'in_progress');
   readonly selectedContact = computed(() => this.selectedCalled()?.contact ?? null);
   readonly selectedSentiment = computed(() => this.selectedCalled()?.sentiment ?? null);
+
+  /**
+   * Modo do composer baseado no provider da instância + status da janela 24h.
+   *
+   * - `free`: canal não-Meta ou Meta sem restrição de janela
+   * - `mixed`: Meta dentro da janela 24h (pode enviar texto + template)
+   * - `template-only`: Meta fora da janela 24h (só template)
+   */
+  readonly composerMode = computed<ComposerMode>(() => {
+    const ticket = this.selectedCalled();
+    const instanceId = ticket?.instance_id ? String(ticket.instance_id) : null;
+    if (!instanceId) {
+      return 'free';
+    }
+    const provider = this.instanceProviders()[instanceId];
+    if (provider !== 'meta') {
+      return 'free';
+    }
+    const ws = this.windowStatus();
+    if (ws?.canSendFreeText) {
+      return 'mixed';
+    }
+    return 'template-only';
+  });
+
+  constructor() {
+    this.loadInstanceProviders();
+  }
+
+  /**
+   * Carrega a lista de instâncias e constrói o mapa instance_id → provider.
+   */
+  private loadInstanceProviders(): void {
+    this.instanceService
+      .list({ is_active: true, per_page: 100 })
+      .subscribe({
+        next: (res) => {
+          const map: Record<string, string> = {};
+          for (const inst of res.data ?? []) {
+            if (inst.id !== undefined && inst.id !== null) {
+              map[String(inst.id)] = inst.provider ?? '';
+            }
+          }
+          this.instanceProviders.set(map);
+        },
+        error: () => {
+          // Silencioso — o fallback é tratar como 'free'
+        },
+      });
+  }
 
   // Actions
 
@@ -149,5 +216,21 @@ export class ChatStore {
     if (current) {
       this.selectedCalled.set({ ...current, contact });
     }
+  }
+
+  /**
+   * Define o status da janela 24h para o ticket atual.
+   *
+   * @param status - WindowStatus ou null para limpar
+   */
+  setWindowStatus(status: WindowStatus | null): void {
+    this.windowStatus.set(status);
+  }
+
+  /**
+   * Limpa o status da janela 24h (ex: ao trocar de ticket).
+   */
+  clearWindowStatus(): void {
+    this.windowStatus.set(null);
   }
 }

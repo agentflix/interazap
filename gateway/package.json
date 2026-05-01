@@ -83,7 +83,8 @@
     "testRegex": ".*\\.(spec|e2e-spec)\\.ts$",
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/dist/"
+      "/dist/",
+      "\\.real\\.e2e-spec\\.ts$"
     ],
     "transform": {
       "^.+\\.(t|j)s$": [

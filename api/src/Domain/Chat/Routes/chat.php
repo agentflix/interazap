@@ -23,6 +23,7 @@ use Domain\Chat\Http\Controllers\ChatTicketTransferController;
 use Domain\Chat\Http\Controllers\ChatTransmissionListController;
 use Domain\Chat\Http\Controllers\ChatWebhookController;
 use Domain\Chat\Http\Controllers\ChatWindowController;
+use Domain\Chat\Http\Controllers\Internal\InternalChannelLookupController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,6 +50,10 @@ Route::middleware(['gateway.secret'])->prefix('chat')->group(function (): void {
     Route::get('instances/by-phone-number/{phoneNumberId}', [ChatWindowController::class, 'lookupByPhoneNumber']);
 });
 
+Route::middleware(['gateway.secret'])->prefix('internal/chat')->group(function (): void {
+    Route::get('instances/by-waba/{wabaId}', [InternalChannelLookupController::class, 'byWaba']);
+});
+
 Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttle:api')->group(function (): void {
     Route::prefix('chat')->group(function (): void {
         Route::get('init', [ChatTicketController::class, 'init']);
@@ -71,6 +76,7 @@ Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttl
         Route::delete('tickets/{ticketId}/messages/{messageId}', [ChatMessageController::class, 'destroy']);
         Route::post('tickets/{ticketId}/messages/contact', [ChatMessageController::class, 'sendContact']);
         Route::post('tickets/{ticketId}/messages/location', [ChatMessageController::class, 'sendLocation']);
+        Route::post('tickets/{ticketId}/messages/template', [ChatMessageController::class, 'sendTemplate']);
         Route::post('tickets/{ticketId}/presence', [ChatPresenceController::class, 'store']);
         Route::get('tickets/{ticketId}/evaluations', [ChatTicketEvaluationController::class, 'index']);
         Route::post('tickets/{ticketId}/evaluations', [ChatTicketEvaluationController::class, 'store']);
@@ -80,6 +86,10 @@ Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttl
 
         Route::get('message-templates', [ChatMessageTemplateController::class, 'index']);
         Route::post('message-templates', [ChatMessageTemplateController::class, 'store']);
+        Route::post('message-templates/sync', [ChatMessageTemplateController::class, 'sync']);
+        Route::get('message-templates/{id}', [ChatMessageTemplateController::class, 'show']);
+        Route::put('message-templates/{id}', [ChatMessageTemplateController::class, 'update']);
+        Route::delete('message-templates/{id}', [ChatMessageTemplateController::class, 'destroy']);
 
         Route::get('quick-answers', [ChatQuickAnswerController::class, 'index']);
         Route::get('quick-answers/all', [ChatQuickAnswerController::class, 'all']);

@@ -19,7 +19,7 @@ import { CreateAsaasPaymentDto } from '../dto/asaas-payment.dto';
  * Endpoints internos para operações de billing via API Asaas.
  * Gerencia clientes, pagamentos e geração de QR Codes PIX.
  */
-@Controller({ path: 'internal/billing', version: '1' })
+@Controller({ path: 'internal/billing' })
 @UseGuards(InternalApiKeyGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class BillingController {

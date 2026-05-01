@@ -6,6 +6,7 @@ import {
   MetaSendTemplatePayload,
   MetaSendTemplateResponse,
   ListTemplatesFilters,
+  MetaTemplateCreatePayload,
 } from './meta.dto';
 import {
   MetaTemplate,
@@ -191,6 +192,74 @@ export class MetaClient {
         error: errorMessage,
       };
     }
+  }
+
+  /**
+   * Cria um novo template de mensagem na conta Business da Meta.
+   *
+   * @param wabaId - ID da conta WhatsApp Business
+   * @param accessToken - Token de acesso da aplicacao Meta
+   * @param payload - Dados do template a criar
+   * @returns ID e status do template criado
+   */
+  async createTemplate(
+    wabaId: string,
+    accessToken: string,
+    payload: MetaTemplateCreatePayload,
+  ): Promise<{ id: string; status: string }> {
+    try {
+      const response = await this.http.post<{ id: string; status: string }>(
+        `/${wabaId}/message_templates`,
+        payload,
+        {
+          params: { access_token: accessToken },
+        },
+      );
+
+      return response.data;
+    } catch (error) {
+      throw this.extractError(error);
+    }
+  }
+
+  /**
+   * Remove um template de mensagem da conta Business da Meta.
+   *
+   * @param wabaId - ID da conta WhatsApp Business
+   * @param accessToken - Token de acesso da aplicacao Meta
+   * @param name - Nome do template a remover
+   */
+  async deleteTemplate(
+    wabaId: string,
+    accessToken: string,
+    name: string,
+  ): Promise<{ success: boolean }> {
+    try {
+      await this.http.delete(`/${wabaId}/message_templates`, {
+        params: { access_token: accessToken, name },
+      });
+      return { success: true };
+    } catch (error) {
+      throw this.extractError(error);
+    }
+  }
+
+  /**
+   * Extrai mensagem de erro da resposta da Meta API.
+   */
+  private extractError(error: unknown): Error {
+    const axiosError = error as AxiosError;
+    const metaMessage =
+      axiosError.response?.data &&
+      typeof axiosError.response.data === 'object' &&
+      'error' in axiosError.response.data &&
+      axiosError.response.data.error &&
+      typeof axiosError.response.data.error === 'object' &&
+      'message' in axiosError.response.data.error
+        ? String(axiosError.response.data.error.message)
+        : axiosError.message;
+
+    return new Error(metaMessage);
   }
 
   /**

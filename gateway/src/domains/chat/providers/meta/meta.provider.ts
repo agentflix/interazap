@@ -12,12 +12,31 @@ type MetaWebhookMessage = NonNullable<
 >[0];
 
 /**
+ * Payload normalizado para eventos de mudança de status de template (Meta).
+ * Campos baseados em https://developers.facebook.com/docs/whatsapp/embedded-signup/webhooks#message-template-status-update
+ */
+export interface NormalizedMetaTemplateStatus {
+  external_id: string;
+  name: string;
+  language: string;
+  event: string;
+  status: 'approved' | 'rejected' | 'pending' | 'disabled' | 'unknown';
+  reason: string | null;
+  mmlite_status: string | null;
+}
+
+/**
  * Resultado da normalizacao de um webhook da Meta.
  */
 export interface NormalizedMetaEvent {
   provider: 'meta';
   event_type: string;
-  direction: 'inbound' | 'outbound' | 'status' | 'connection';
+  direction:
+    | 'inbound'
+    | 'outbound'
+    | 'status'
+    | 'connection'
+    | 'template_status';
   phone_number_id: string;
   display_phone_number: string;
   message?: MessagePayload;
@@ -26,6 +45,7 @@ export interface NormalizedMetaEvent {
     status: string;
     timestamp: Date;
   };
+  template?: NormalizedMetaTemplateStatus;
   raw: MetaWebhookPayload;
 }
 
@@ -48,6 +68,20 @@ export class MetaProvider {
     const change = entry?.changes?.[0];
     const value = change?.value;
     const field = change?.field ?? 'messages';
+
+    // Branch: message_template_status_update — não tem metadata.phone_number_id
+    if (field === 'message_template_status_update') {
+      const template = this.extractTemplate(value);
+      return {
+        provider: 'meta',
+        event_type: 'meta.template.status_updated',
+        direction: 'template_status',
+        phone_number_id: '',
+        display_phone_number: '',
+        template,
+        raw: payload,
+      };
+    }
 
     const metadata = value?.metadata;
     const phoneNumberId = metadata?.phone_number_id ?? '';
@@ -195,5 +229,70 @@ export class MetaProvider {
     if (msg.audio) return msg.audio.mime_type;
     if (msg.document) return msg.document.mime_type;
     return undefined;
+  }
+
+  /**
+   * Extrai payload normalizado de evento `message_template_status_update`.
+   * O `value` desse evento NÃO segue o shape padrão (sem `metadata`); leitura
+   * defensiva via runtime checks.
+   */
+  private extractTemplate(value: unknown): NormalizedMetaTemplateStatus {
+    const v = (value ?? {}) as Record<string, unknown>;
+
+    const externalId =
+      typeof v.message_template_id === 'string'
+        ? v.message_template_id
+        : typeof v.message_template_id === 'number'
+          ? String(v.message_template_id)
+          : '';
+    const name =
+      typeof v.message_template_name === 'string'
+        ? v.message_template_name
+        : '';
+    const language =
+      typeof v.message_template_language === 'string'
+        ? v.message_template_language
+        : '';
+    const event = typeof v.event === 'string' ? v.event : '';
+    const reason =
+      typeof v.reason === 'string' && v.reason.length > 0 ? v.reason : null;
+    const mmliteStatus =
+      typeof v.mmlite_status === 'string' && v.mmlite_status.length > 0
+        ? v.mmlite_status
+        : null;
+
+    return {
+      external_id: externalId,
+      name,
+      language,
+      event,
+      status: this.mapTemplateStatus(event),
+      reason,
+      mmlite_status: mmliteStatus,
+    };
+  }
+
+  /**
+   * Mapeia o `event` da Meta para o status normalizado.
+   */
+  private mapTemplateStatus(
+    event: string,
+  ): NormalizedMetaTemplateStatus['status'] {
+    switch (event.toUpperCase()) {
+      case 'APPROVED':
+        return 'approved';
+      case 'REJECTED':
+        return 'rejected';
+      case 'PENDING':
+      case 'IN_APPEAL':
+      case 'PENDING_DELETION':
+        return 'pending';
+      case 'DISABLED':
+      case 'PAUSED':
+      case 'FLAGGED':
+        return 'disabled';
+      default:
+        return 'unknown';
+    }
   }
 }

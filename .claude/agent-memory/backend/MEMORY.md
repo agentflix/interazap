@@ -16,3 +16,11 @@ Persistent notes for Laravel/PHP backend work in InteraZap.
 ## Honeypot pattern for public lead/contact endpoints
 
 When exposing a public `POST` form endpoint, accept an extra optional field (e.g. `website`) in the FormRequest as `nullable|string`. In the Action, if the field is non-empty, return a fake unsaved model (silent drop) — do NOT 422, do NOT persist, do NOT dispatch events. Bots get a 201 and never know they were rejected.
+
+## Sanctum custom PAT model
+
+This project uses `Domain\Auth\Models\AuthPersonalAccessToken` (table `auth_personal_access_tokens`), configured via `config/sanctum.php` (`personal_access_token_model`) and `Sanctum::usePersonalAccessTokenModel()` in `AppServiceProvider`. Tests doing direct token lookup MUST use `AuthPersonalAccessToken::findToken()` — `Laravel\Sanctum\PersonalAccessToken::findToken()` throws `relation "personal_access_tokens" does not exist`.
+
+## Bearer-token tests + AuthManager cache pitfall
+
+In Sanctum's `Guard::__invoke`, the resolver tries `config('sanctum.guard', 'web')` BEFORE reading the `Authorization: Bearer` header. Within a single Pest TestCase, the `AuthManager` caches the resolved user across `getJson` calls, so a second `withToken($otherToken)->getJson(...)` may return the FIRST user. This does not affect production (each HTTP request gets a fresh container scope). Workarounds (in order of preference): (1) split into two test methods with one token each; (2) avoid `$this->app['auth']->forgetGuards()` — caused SEGFAULT here on PHP 8.3. (3) `$this->refreshApplication()` works but breaks `LazilyRefreshDatabase` transactions.

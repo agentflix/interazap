@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  mobile: false,
   apiUrl: '/api',
   gateway: {
     url: '',

@@ -79,6 +79,10 @@ final class BillingAsaasWebhookAction
             $invoiceUpdated = $this->handlePaymentOverdue($tenant, $dto) || $invoiceUpdated;
         }
 
+        if ($this->isPaymentReversalEvent($dto->eventType)) {
+            $invoiceUpdated = $this->handlePaymentReversed($tenant, $dto) || $invoiceUpdated;
+        }
+
         // Dispara evento interno para outros listeners
         Event::dispatch('billing.webhook_received', [
             'tenant_id' => $tenant->id,
@@ -98,6 +102,22 @@ final class BillingAsaasWebhookAction
         return in_array($eventType, [
             BillingEventType::PAYMENT_RECEIVED->value,
             BillingEventType::PAYMENT_CONFIRMED->value,
+        ], true);
+    }
+
+    /**
+     * Verifica se o evento implica reversão de um pagamento previamente confirmado
+     * (refund, chargeback, exclusão ou estorno).
+     */
+    private function isPaymentReversalEvent(string $eventType): bool
+    {
+        return in_array($eventType, [
+            BillingEventType::PAYMENT_REFUNDED->value,
+            BillingEventType::PAYMENT_CHARGEBACK_REQUESTED->value,
+            BillingEventType::PAYMENT_CHARGEBACK_DISPUTE->value,
+            BillingEventType::PAYMENT_AWAITING_CHARGEBACK_REVERSAL->value,
+            BillingEventType::PAYMENT_REVERSED->value,
+            BillingEventType::PAYMENT_DELETED->value,
         ], true);
     }
 
@@ -246,6 +266,99 @@ final class BillingAsaasWebhookAction
         );
 
         return true;
+    }
+
+    /**
+     * Reverte uma fatura previamente paga após refund/chargeback/exclusão.
+     *
+     * - Marca o pagamento confirmado correspondente como REFUNDED.
+     * - Se não restar nenhum pagamento confirmado, devolve a fatura ao estado
+     *   apropriado (OVERDUE se já passou do vencimento; caso contrário PENDING).
+     */
+    private function handlePaymentReversed(PlatformTenant $tenant, BillingWebhookDTO $dto): bool
+    {
+        $paymentData = $dto->payload['payment'] ?? $dto->payload;
+        $externalReference = $paymentData['externalReference'] ?? null;
+        $asaasPaymentId = $paymentData['id'] ?? null;
+        $hasExternalReference = is_string($externalReference) && $externalReference !== '';
+        $hasAsaasPaymentId = is_string($asaasPaymentId) && $asaasPaymentId !== '';
+
+        if (! $hasExternalReference && ! $hasAsaasPaymentId) {
+            Log::warning('Asaas webhook: reversão sem referência para identificar fatura', [
+                'tenant_id' => $tenant->id,
+                'event_type' => $dto->eventType,
+                'payload' => $dto->payload,
+            ]);
+
+            return false;
+        }
+
+        $invoice = BillingInvoice::query()
+            ->where('tenant_id', $tenant->id)
+            ->when($hasExternalReference, fn ($q) => $q->where('id', $externalReference))
+            ->when(! $hasExternalReference, fn ($q) => $q->where('asaas_payment_id', $asaasPaymentId))
+            ->first();
+
+        if (! $invoice) {
+            Log::warning('Asaas webhook: reversão — fatura não encontrada', [
+                'tenant_id' => $tenant->id,
+                'event_type' => $dto->eventType,
+                'external_reference' => $externalReference,
+                'asaas_payment_id' => $asaasPaymentId,
+            ]);
+
+            return false;
+        }
+
+        return DB::transaction(function () use ($invoice, $paymentData, $hasAsaasPaymentId, $asaasPaymentId, $dto) {
+            $providerPaymentId = $hasAsaasPaymentId ? (string) $asaasPaymentId : null;
+
+            $paymentQuery = BillingPayment::query()
+                ->where('invoice_id', $invoice->id)
+                ->where('status', BillingPaymentStatus::CONFIRMED);
+
+            if ($providerPaymentId !== null) {
+                $paymentQuery->where('provider_payment_id', $providerPaymentId);
+            }
+
+            $payment = $paymentQuery->first();
+
+            if ($payment !== null) {
+                $payment->update([
+                    'status' => BillingPaymentStatus::REFUNDED,
+                    'metadata' => array_merge((array) ($payment->metadata ?? []), [
+                        'reversal_event' => $dto->eventType,
+                        'reversal_payload' => $paymentData,
+                        'reversed_at' => now()->toISOString(),
+                    ]),
+                ]);
+            }
+
+            $hasOtherConfirmed = BillingPayment::query()
+                ->where('invoice_id', $invoice->id)
+                ->where('status', BillingPaymentStatus::CONFIRMED)
+                ->exists();
+
+            if (! $hasOtherConfirmed) {
+                $newStatus = $invoice->due_date !== null && $invoice->due_date->isPast()
+                    ? BillingInvoiceStatus::OVERDUE
+                    : BillingInvoiceStatus::PENDING;
+
+                $invoice->update([
+                    'status' => $newStatus,
+                    'paid_at' => null,
+                ]);
+            }
+
+            Log::info('Asaas webhook: pagamento revertido', [
+                'invoice_id' => $invoice->id,
+                'tenant_id' => $invoice->tenant_id,
+                'event_type' => $dto->eventType,
+                'provider_payment_id' => $providerPaymentId,
+            ]);
+
+            return true;
+        });
     }
 
     /**

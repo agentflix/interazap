@@ -48,6 +48,24 @@ export class AfChatBubbleComponent {
   /** MIME type of the media (e.g. 'image/jpeg', 'video/mp4') */
   readonly mimeType = input<string | undefined>(undefined);
 
+  /** Original file name (for file/document messages) */
+  readonly fileName = input<string | undefined>(undefined);
+
+  /** Display name for the file — uses fileName input, falls back to message content or URL basename */
+  protected readonly displayFileName = computed(() => {
+    const name = this.fileName()?.trim() || this.message()?.trim();
+    if (name) return name;
+    const url = this.fileUrl();
+    if (url) {
+      try {
+        return url.split('/').pop() || 'Arquivo';
+      } catch {
+        return 'Arquivo';
+      }
+    }
+    return 'Arquivo';
+  });
+
   /** True when this bubble contains an image to render */
   protected readonly isImage = computed(() => this.type() === 'image');
 
@@ -77,10 +95,22 @@ export class AfChatBubbleComponent {
 
   /** Bubble styling varies by direction */
   protected readonly bubbleClasses = computed(() => {
-    const base = 'px-3.5 py-2 rounded-2xl max-w-[85%]';
+    const base = 'px-3.5 py-2 rounded-2xl max-w-[95%] overflow-hidden';
     return this.direction() === 'out'
       ? `${base} bg-accent-500 text-white rounded-br-md`
       : `${base} bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 rounded-bl-md`;
+  });
+
+  /**
+   * True when the message content is a readable caption (not a URL or hex hash).
+   * Prevents raw URLs / file hashes from appearing below images/videos.
+   */
+  protected readonly hasReadableCaption = computed(() => {
+    const content = this.message()?.trim();
+    if (!content) return false;
+    if (/^https?:\/\//i.test(content)) return false;
+    if (content.length > 40 && /^[0-9a-f]+(\.[a-z0-9]{1,5})?$/i.test(content)) return false;
+    return true;
   });
 
   /** Opens a URL in a new tab (used when clicking an image to view full-size) */

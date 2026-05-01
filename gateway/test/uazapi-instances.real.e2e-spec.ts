@@ -19,12 +19,14 @@ const getRequestTarget = (
  * Requer variáveis de ambiente:
  * - UAZAPI_BASE_URL
  * - UAZAPI_ADMIN_TOKEN
+ * - INTERNAL_API_KEY
  */
 describe('Uazapi Instances (real e2e)', () => {
   let app: INestApplication;
   let createdToken: string | undefined;
   const adminConfigured =
     !!process.env.UAZAPI_BASE_URL && !!process.env.UAZAPI_ADMIN_TOKEN;
+  const apiKey = (): string => process.env.INTERNAL_API_KEY ?? '';
 
   beforeAll(async () => {
     if (!adminConfigured) {
@@ -67,6 +69,7 @@ describe('Uazapi Instances (real e2e)', () => {
     const name = `test-${Date.now()}`;
     const res = await request(getRequestTarget(app))
       .post('/uazapi/instances')
+      .set('x-api-key', apiKey())
       .send({ name })
       .expect(201);
 
@@ -82,6 +85,7 @@ describe('Uazapi Instances (real e2e)', () => {
 
     const res = await request(getRequestTarget(app))
       .get(`/uazapi/instances/${createdToken}/status`)
+      .set('x-api-key', apiKey())
       .expect(200);
 
     expect(res.body).toHaveProperty('instance');
@@ -94,6 +98,7 @@ describe('Uazapi Instances (real e2e)', () => {
 
     await request(getRequestTarget(app))
       .post(`/uazapi/instances/${createdToken}/delete`)
+      .set('x-api-key', apiKey())
       .expect(201);
   });
 });

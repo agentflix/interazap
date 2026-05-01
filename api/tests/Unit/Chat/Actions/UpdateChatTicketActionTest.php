@@ -10,6 +10,7 @@ use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatActivityBroadcastService;
 use Domain\Chat\Services\ChatBroadcastService;
 use Domain\Chat\Services\ChatGatewayService;
+use Domain\Chat\Services\WebChatRedisPublisher;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Shared\Services\GatewayBroadcastService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -28,12 +29,15 @@ beforeEach(function (): void {
 
     $this->messageAction = new SendTicketMessageAction($this->gateway);
     $this->evaluateAction = new EvaluateTicketCsatAction($this->gateway);
+    $this->webChatPublisher = \Mockery::mock(WebChatRedisPublisher::class);
+    $this->webChatPublisher->shouldIgnoreMissing();
 
     $this->action = new UpdateChatTicketAction(
         $this->gateway,
         $this->activityBroadcast,
         $this->messageAction,
         $this->evaluateAction,
+        $this->webChatPublisher,
     );
 });
 

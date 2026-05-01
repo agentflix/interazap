@@ -226,9 +226,10 @@ Presentation (Controllers, Middleware, Requests)
 - **Coverage:** `coverage.xml`
 
 ### Frontend (App)
-- **Framework:** Jasmine/Karma
-- **Command:** `npm run gate:test`
-- **Coverage:** `coverage/lcov.info`
+- **Framework:** Vitest (via `@analogjs/vitest-angular` + `@analogjs/vite-plugin-angular`, jsdom)
+- **Command:** `pnpm run gate:test` (executa `ng test --watch=false`)
+- **Specs:** usar `vitest` API (`vi.spyOn`, `vi.fn`, `describe/it/expect`) — **não** Jasmine
+- **Coverage:** `coverage/` (provider `@vitest/coverage-v8`)
 
 ---
 

@@ -348,7 +348,7 @@ describe('CircuitBreakerService', () => {
       jest.spyOn((jitterService as any).logger, 'log').mockImplementation();
 
       const realNow = Date.now;
-      let currentTime = 1_000_000;
+      const currentTime = 1_000_000;
       Date.now = jest.fn(() => currentTime);
 
       // Collect multiple backoff values by tripping and checking exception

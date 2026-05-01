@@ -438,7 +438,7 @@ class ChatMessage extends Model
     /**
      * Scope: Filtrar por hash md5 do conteudo.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      */
     public function scopeWhereContentHash(Builder $query, string $hash): void
     {

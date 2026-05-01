@@ -1,203 +1,323 @@
-
-    <section class="flex flex-col h-full bg-neutral-50 dark:bg-neutral-950 min-h-0 overflow-hidden">
-      @if (activeTab() === 'chat') {
-        @if (selectedTicketId()) {
-          <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
-            <header
-              class="shrink-0 flex items-center justify-between gap-3 px-5 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900"
-            >
-              <div class="flex gap-3 items-center min-w-0">
-                <div
-                  class="relative rounded-full size-10 bg-neutral-100 dark:bg-neutral-800 overflow-hidden flex items-center justify-center text-sm font-semibold text-neutral-600 dark:text-neutral-300 shrink-0"
-                >
-                  {{ selectedTicketInitials() }}
-                  @if (selectedTicketProfilePicture(); as src) {
-                    <img
-                      [src]="src"
-                      [alt]="'Foto de ' + (selectedTicket()?.contact?.name ?? '')"
-                      class="absolute inset-0 size-full object-cover"
-                      (error)="profilePictureError.emit($event)"
-                    />
-                  }
-                </div>
-
-                <div class="min-w-0">
-                  <h6
-                    class="text-neutral-900 dark:text-neutral-100 font-bold text-sm truncate mb-0.5"
-                  >
-                    {{
-                      selectedTicket()?.contact?.name ||
-                        selectedTicket()?.contact?.phone ||
-                        'Atendimento'
-                    }}
-                  </h6>
-                  <div class="flex items-center gap-1.5 text-xs text-neutral-500">
-                    @if (selectedTicket()?.contact?.phone) {
-                      <span class="truncate">{{ selectedTicket()?.contact?.phone }}</span>
-                      <span>|</span>
-                    }
-                    @if (selectedTicket()?.protocol) {
-                      <button
-                        type="button"
-                        class="inline-flex items-center gap-0.5 font-medium hover:text-primary transition-colors group cursor-pointer"
-                        [title]="'Copiar protocolo ' + selectedTicket()!.protocol"
-                        (click)="copyProtocol(selectedTicket()!.protocol!)"
-                      >
-                        #{{ selectedTicket()?.protocol }}
-                      </button>
-                      <span>|</span>
-                    }
-                    @if (selectedTicket()?.status; as status) {
-                      <span
-                        class="rounded-full px-2 py-0.5 text-[10px] font-semibold shrink-0"
-                        [class.bg-yellow-100]="status === 'pending'"
-                        [class.text-yellow-700]="status === 'pending'"
-                        [class.bg-green-100]="status === 'in_progress' || status === 'open'"
-                        [class.text-green-700]="status === 'in_progress' || status === 'open'"
-                        [class.bg-neutral-100]="status === 'closed'"
-                        [class.text-neutral-600]="status === 'closed'"
-                      >
-                        @if (status === 'pending') {
-                          Aguardando início
-                        } @else if (status === 'in_progress' || status === 'open') {
-                          Em andamento
-                        } @else if (status === 'closed') {
-                          Encerrado
-                        }
-                      </span>
-                    }
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex gap-1 items-center shrink-0">
-                <app-icon-button
-                  icon="lucideLogOut"
-                  variant="ghost"
-                  size="sm"
-                  ariaLabel="Fechar conversa"
-                  (clicked)="closeSelectedTicket.emit()"
-                />
-                <app-icon-button
-                  icon="lucideArrowRightLeft"
-                  variant="ghost"
-                  size="sm"
-                  ariaLabel="Transferir atendimento"
-                  [disabled]="selectedTicket()?.status === 'closed' || isTransferLoading()"
-                  (clicked)="openTransferModal.emit()"
-                />
-                <app-icon-button
-                  icon="lucideX"
-                  variant="danger"
-                  size="sm"
-                  ariaLabel="Fechar atendimento"
-                  [disabled]="selectedTicket()?.status === 'closed' || isClosingTicket()"
-                  (clicked)="openCloseTicketConfirm.emit()"
-                />
-              </div>
-            </header>
-
+<section class="flex flex-col h-full bg-neutral-50 dark:bg-neutral-950 min-h-0 overflow-hidden">
+  @if (activeTab() === 'chat') {
+    @if (selectedTicketId()) {
+      <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <header
+          class="shrink-0 flex items-center justify-between gap-3 px-5 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900"
+        >
+          <div class="flex gap-3 items-center min-w-0">
             <div
-              class="flex-1 min-h-0 overflow-hidden border-x border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950"
+              class="relative rounded-full size-10 bg-neutral-100 dark:bg-neutral-800 overflow-hidden flex items-center justify-center text-sm font-semibold text-neutral-600 dark:text-neutral-300 shrink-0"
             >
-              <app-user-chat
-                class="block h-full overflow-hidden"
-                [ticketId]="selectedTicketId()"
-                [allowStartConversation]="false"
-                [canLoadMessages]="true"
-              />
+              {{ selectedTicketInitials() }}
+              @if (selectedTicketProfilePicture(); as src) {
+                <img
+                  [src]="src"
+                  [alt]="'Foto de ' + (selectedTicket()?.contact?.name ?? '')"
+                  class="absolute inset-0 size-full object-cover"
+                  (error)="profilePictureError.emit($event)"
+                />
+              }
             </div>
 
-            <footer
-              class="shrink-0 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-x border-t border-neutral-200 dark:border-neutral-800"
-            >
-              @if (isSelectedTicketStarted()) {
-                @if (isRecording()) {
-                  <div class="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      class="shrink-0 size-10 inline-flex items-center justify-center rounded-full transition-colors text-danger hover:bg-danger/10"
-                      aria-label="Cancelar gravação"
-                      [disabled]="isSendingAudio()"
-                      (click)="cancelRecording.emit()"
-                    >
-                      <ng-icon name="lucideTrash2" size="20"></ng-icon>
-                    </button>
+            <div class="min-w-0">
+              <h6 class="text-neutral-900 dark:text-neutral-100 font-bold text-sm truncate mb-0.5">
+                {{
+                  selectedTicket()?.contact?.name ||
+                    selectedTicket()?.contact?.phone ||
+                    'Atendimento'
+                }}
+              </h6>
+              <div class="flex items-center gap-1.5 text-xs text-neutral-500">
+                @if (selectedTicket()?.contact?.phone) {
+                  <span class="truncate">{{ selectedTicket()?.contact?.phone }}</span>
+                  <span>|</span>
+                }
+                @if (selectedTicket()?.protocol) {
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-0.5 font-medium hover:text-primary transition-colors group cursor-pointer"
+                    [title]="'Copiar protocolo ' + selectedTicket()!.protocol"
+                    (click)="copyProtocol(selectedTicket()!.protocol!)"
+                  >
+                    #{{ selectedTicket()?.protocol }}
+                  </button>
+                  <span>|</span>
+                }
+                @if (selectedTicket()?.status; as status) {
+                  <span
+                    class="rounded-full px-2 py-0.5 text-[10px] font-semibold shrink-0"
+                    [class.bg-yellow-100]="status === 'pending'"
+                    [class.text-yellow-700]="status === 'pending'"
+                    [class.bg-green-100]="status === 'in_progress' || status === 'open'"
+                    [class.text-green-700]="status === 'in_progress' || status === 'open'"
+                    [class.bg-neutral-100]="status === 'closed'"
+                    [class.text-neutral-600]="status === 'closed'"
+                  >
+                    @if (status === 'pending') {
+                      Aguardando início
+                    } @else if (status === 'in_progress' || status === 'open') {
+                      Em andamento
+                    } @else if (status === 'closed') {
+                      Encerrado
+                    }
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
 
-                    <div
-                      class="grow flex items-center gap-3 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 min-h-10"
-                    >
-                      @if (!isRecordingPaused()) {
-                        <span class="size-2.5 rounded-full bg-danger animate-pulse shrink-0"></span>
-                      } @else {
-                        <span class="size-2.5 rounded-full bg-neutral-400 shrink-0"></span>
-                      }
+          <div class="flex gap-1 items-center shrink-0">
+            <app-icon-button
+              icon="lucideLogOut"
+              variant="ghost"
+              size="sm"
+              ariaLabel="Fechar conversa"
+              (clicked)="closeSelectedTicket.emit()"
+            />
+            <app-icon-button
+              icon="lucideArrowRightLeft"
+              variant="ghost"
+              size="sm"
+              ariaLabel="Transferir atendimento"
+              [disabled]="selectedTicket()?.status === 'closed' || isTransferLoading()"
+              (clicked)="openTransferModal.emit()"
+            />
+            <app-icon-button
+              icon="lucideX"
+              variant="danger"
+              size="sm"
+              ariaLabel="Fechar atendimento"
+              [disabled]="selectedTicket()?.status === 'closed' || isClosingTicket()"
+              (clicked)="openCloseTicketConfirm.emit()"
+            />
+          </div>
+        </header>
 
-                      <div class="flex items-center gap-0.5 grow">
-                        @for (bar of bars; track bar) {
-                          <span
-                            class="w-0.5 rounded-full transition-all duration-150"
-                            [class.bg-danger]="!isRecordingPaused()"
-                            [class.bg-neutral-300]="isRecordingPaused()"
-                            [class.dark:bg-neutral-600]="isRecordingPaused()"
-                            [class.animate-pulse]="!isRecordingPaused()"
-                            [class.h-1]="isRecordingPaused()"
-                            [class.h-2]="!isRecordingPaused() && bar % 3 === 0"
-                            [class.h-3]="!isRecordingPaused() && bar % 3 === 1"
-                            [class.h-4]="!isRecordingPaused() && bar % 3 === 2"
-                          ></span>
-                        }
-                      </div>
+        <div
+          class="flex-1 min-h-0 overflow-hidden border-x border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950"
+        >
+          <app-user-chat
+            class="block h-full overflow-hidden"
+            [ticketId]="selectedTicketId()"
+            [allowStartConversation]="false"
+            [canLoadMessages]="true"
+          />
+        </div>
 
+        <footer
+          class="shrink-0 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-x border-t border-neutral-200 dark:border-neutral-800"
+        >
+          @if (isSelectedTicketStarted()) {
+            @if (attachmentErrorMessage(); as attachmentError) {
+              <div class="mb-2">
+                <af-alert
+                  variant="warning"
+                  title="Nao foi possivel abrir o anexo"
+                  [message]="attachmentError"
+                  [dismissible]="true"
+                  (dismissed)="clearAttachmentError.emit()"
+                />
+              </div>
+            }
+
+            @if (pendingQueueCount() > 0 || isQueueFlushing()) {
+              <div
+                class="mb-2 flex items-center justify-between rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-3 py-2"
+              >
+                <div class="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-300">
+                  @if (isQueueFlushing()) {
+                    <af-spinner size="xs" />
+                    <span>Enviando pendencias...</span>
+                  } @else {
+                    <span>Mensagens aguardando conexao</span>
+                  }
+                </div>
+                <af-badge variant="warning" size="sm" [dot]="true">
+                  {{ pendingQueueCount() }} pendente(s)
+                </af-badge>
+              </div>
+            }
+
+            @if (isRecording()) {
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  class="shrink-0 size-10 inline-flex items-center justify-center rounded-full transition-colors text-danger hover:bg-danger/10"
+                  aria-label="Cancelar gravação"
+                  [disabled]="isSendingAudio()"
+                  (click)="cancelRecording.emit()"
+                >
+                  <ng-icon name="lucideTrash2" size="20"></ng-icon>
+                </button>
+
+                <div
+                  class="grow flex items-center gap-3 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 min-h-10"
+                >
+                  @if (!isRecordingPaused()) {
+                    <span class="size-2.5 rounded-full bg-danger animate-pulse shrink-0"></span>
+                  } @else {
+                    <span class="size-2.5 rounded-full bg-neutral-400 shrink-0"></span>
+                  }
+
+                  <div class="flex items-center gap-0.5 grow">
+                    @for (bar of bars; track bar) {
                       <span
-                        class="text-sm font-mono tabular-nums shrink-0"
-                        [class.text-danger]="!isRecordingPaused()"
-                        [class.text-neutral-500]="isRecordingPaused()"
-                      >
-                        {{ formatRecordingTime(recordingDuration()) }}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      class="shrink-0 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                      [attr.aria-label]="
-                        isRecordingPaused() ? 'Retomar gravação' : 'Pausar gravação'
-                      "
-                      [disabled]="isSendingAudio()"
-                      (click)="isRecordingPaused() ? resumeRecording.emit() : pauseRecording.emit()"
-                    >
-                      @if (isRecordingPaused()) {
-                        <ng-icon name="lucideMic" size="20"></ng-icon>
-                      } @else {
-                        <ng-icon name="lucidePause" size="20"></ng-icon>
-                      }
-                    </button>
-
-                    <button
-                      type="button"
-                      class="shrink-0 size-10 inline-flex items-center justify-center rounded-full bg-accent-500 text-white transition-colors hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Enviar áudio"
-                      [disabled]="isSendingAudio()"
-                      (click)="sendRecording.emit()"
-                    >
-                      <ng-icon name="lucideSend" size="18"></ng-icon>
-                    </button>
+                        class="w-0.5 rounded-full transition-all duration-150"
+                        [class.bg-danger]="!isRecordingPaused()"
+                        [class.bg-neutral-300]="isRecordingPaused()"
+                        [class.dark:bg-neutral-600]="isRecordingPaused()"
+                        [class.animate-pulse]="!isRecordingPaused()"
+                        [class.h-1]="isRecordingPaused()"
+                        [class.h-2]="!isRecordingPaused() && bar % 3 === 0"
+                        [class.h-3]="!isRecordingPaused() && bar % 3 === 1"
+                        [class.h-4]="!isRecordingPaused() && bar % 3 === 2"
+                      ></span>
+                    }
                   </div>
-                } @else {
-                  <div class="flex items-end gap-1.5">
-                    <div class="relative shrink-0 mb-0.5">
-                      <button
-                        type="button"
-                        class="size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200"
-                        [class.bg-neutral-200]="isAttachmentMenuOpen()"
-                        [class.dark:bg-neutral-700]="isAttachmentMenuOpen()"
-                        aria-label="Anexar arquivo"
-                        (click)="toggleAttachmentMenu.emit()"
-                      >
-                        <ng-icon name="lucidePlus" size="22"></ng-icon>
-                      </button>
 
+                  <span
+                    class="text-sm font-mono tabular-nums shrink-0"
+                    [class.text-danger]="!isRecordingPaused()"
+                    [class.text-neutral-500]="isRecordingPaused()"
+                  >
+                    {{ formatRecordingTime(recordingDuration()) }}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  class="shrink-0 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                  [attr.aria-label]="isRecordingPaused() ? 'Retomar gravação' : 'Pausar gravação'"
+                  [disabled]="isSendingAudio()"
+                  (click)="isRecordingPaused() ? resumeRecording.emit() : pauseRecording.emit()"
+                >
+                  @if (isRecordingPaused()) {
+                    <ng-icon name="lucideMic" size="20"></ng-icon>
+                  } @else {
+                    <ng-icon name="lucidePause" size="20"></ng-icon>
+                  }
+                </button>
+
+                <button
+                  type="button"
+                  class="shrink-0 size-10 inline-flex items-center justify-center rounded-full bg-accent-500 text-white transition-colors hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Enviar áudio"
+                  [disabled]="isSendingAudio()"
+                  (click)="sendRecording.emit()"
+                >
+                  <ng-icon name="lucideSend" size="18"></ng-icon>
+                </button>
+              </div>
+            } @else {
+              @if (composerMode() === 'template-only') {
+                <!-- Modo template-only: janela 24h expirada -->
+                <div class="space-y-3">
+                  <af-banner
+                    variant="warning"
+                    message="Janela de 24h expirada. O cliente não responde há mais de 24h. Para reabrir a conversa, envie um template aprovado pela Meta."
+                  />
+
+                  <div class="m-3 p-4 rounded-lg border border-warning/20 bg-warning/5">
+                    <app-button
+                      variant="primary"
+                      size="md"
+                      class="w-full"
+                      (clicked)="isTemplateModalOpen.set(true)"
+                    >
+                      <ng-icon name="lucideMessageSquareText" size="18" class="mr-2"></ng-icon>
+                      Selecionar template
+                    </app-button>
+                  </div>
+                </div>
+
+                <af-modal
+                  [isOpen]="isTemplateModalOpen()"
+                  title="Enviar template aprovado"
+                  size="md"
+                  (closed)="isTemplateModalOpen.set(false)"
+                >
+                  <div modal-body>
+                    @if (chatInstanceId()) {
+                      <app-template-selector
+                        [channelId]="chatInstanceId()!"
+                        (templateSelected)="
+                          templateSelected.emit($event);
+                          isTemplateModalOpen.set(false);
+                        "
+                      />
+                    }
+                  </div>
+                </af-modal>
+              } @else {
+                <!-- Modos free e mixed -->
+                @if (selectedTemplate(); as tpl) {
+                  <!-- Chip de template selecionado (mixed) -->
+                  <div class="flex items-center gap-2 mb-2">
+                    <af-badge variant="info" size="sm">
+                      Template: {{ tpl.templateName }}
+                    </af-badge>
+                    <app-button variant="ghost" size="xs" (clicked)="clearTemplateSelected.emit()">
+                      Cancelar
+                    </app-button>
+                    <app-button
+                      variant="primary"
+                      size="xs"
+                      [disabled]="isSendingMessage()"
+                      (clicked)="sendMessage.emit()"
+                    >
+                      Enviar
+                    </app-button>
+                  </div>
+                }
+
+                <div class="flex items-end gap-1.5">
+                  <div class="relative shrink-0 mb-0.5">
+                    <button
+                      type="button"
+                      class="size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200"
+                      [class.bg-neutral-200]="isAttachmentMenuOpen()"
+                      [class.dark:bg-neutral-700]="isAttachmentMenuOpen()"
+                      aria-label="Anexar arquivo"
+                      (click)="toggleAttachmentMenu.emit()"
+                    >
+                      <ng-icon name="lucidePlus" size="22"></ng-icon>
+                    </button>
+
+                    @if (isMobile()) {
+                      <af-sheet
+                        [open]="isAttachmentMenuOpen()"
+                        title="Anexar"
+                        (closed)="closeAttachmentMenu.emit()"
+                      >
+                        <div class="space-y-2">
+                          <app-button
+                            variant="ghost"
+                            size="sm"
+                            class="w-full justify-start"
+                            (clicked)="selectAttachmentType.emit('camera')"
+                          >
+                            Tirar foto
+                          </app-button>
+                          <app-button
+                            variant="ghost"
+                            size="sm"
+                            class="w-full justify-start"
+                            (clicked)="selectAttachmentType.emit('gallery')"
+                          >
+                            Galeria
+                          </app-button>
+                          <app-button
+                            variant="ghost"
+                            size="sm"
+                            class="w-full justify-start"
+                            (clicked)="selectAttachmentType.emit('file')"
+                          >
+                            Arquivo
+                          </app-button>
+                        </div>
+                      </af-sheet>
+                    } @else {
                       @if (isAttachmentMenuOpen()) {
                         <button
                           type="button"
@@ -259,122 +379,144 @@
                           </button>
                         </div>
                       }
-                    </div>
+                    }
+                  </div>
 
-                    <div
-                      class="grow flex items-center rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 overflow-hidden min-h-10"
-                    >
+                  @if (composerMode() === 'mixed' && !selectedTemplate()) {
+                    <af-popover align="end">
                       <button
+                        trigger
                         type="button"
-                        class="shrink-0 inline-flex h-full items-center justify-center pl-3 pr-1 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
-                        aria-label="Emoji"
+                        class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200"
+                        aria-label="Enviar template aprovado"
+                        title="Enviar template aprovado"
                       >
-                        <ng-icon name="lucideSmile" size="20"></ng-icon>
+                        <ng-icon name="lucideMessageSquareText" size="20"></ng-icon>
                       </button>
-                      <textarea
-                        #messageTextarea
-                        [formControl]="messageControl()"
-                        placeholder="Digite uma mensagem..."
-                        rows="1"
-                        class="grow resize-none border-0 bg-transparent py-2 pr-3 text-sm text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-0 max-h-32 leading-5"
-                        (keydown)="messageKeydown.emit($event)"
-                        (input)="messageInput.emit($event)"
-                      ></textarea>
-                    </div>
 
-                    <button
-                      type="button"
-                      class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                      aria-label="Gravar áudio"
-                      (click)="startRecording.emit()"
-                    >
-                      <ng-icon name="lucideMic" size="20"></ng-icon>
-                    </button>
+                      <div content class="w-[380px]">
+                        @if (chatInstanceId()) {
+                          <app-template-selector
+                            [channelId]="chatInstanceId()!"
+                            (templateSelected)="templateSelected.emit($event)"
+                          />
+                        }
+                      </div>
+                    </af-popover>
+                  }
 
-                    <button
-                      type="button"
-                      class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full bg-accent-500 text-white transition-colors hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                      [disabled]="isSendingMessage() || !messageControl().value.trim()"
-                      aria-label="Enviar mensagem"
-                      (click)="sendMessage.emit()"
-                    >
-                      <ng-icon name="lucideSend" size="18"></ng-icon>
-                    </button>
-                  </div>
-                }
-              } @else if (selectedTicket()?.status === 'pending') {
-                <div class="flex items-center justify-center">
-                  <app-button
-                    variant="primary"
-                    size="sm"
-                    [disabled]="isStartingTicket()"
-                    (clicked)="startSelectedTicket.emit()"
-                  >
-                    {{ isStartingTicket() ? 'Iniciando...' : 'Iniciar atendimento' }}
-                  </app-button>
-                </div>
-              } @else if (selectedTicket()?.status === 'closed') {
-                <div
-                  class="flex items-center justify-center gap-2 text-neutral-500 dark:text-neutral-400"
-                >
                   <div
-                    class="size-6 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shrink-0"
+                    class="grow flex items-center rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 overflow-hidden min-h-10"
                   >
-                    <ng-icon name="lucideLogOut" size="14"></ng-icon>
+                    <button
+                      type="button"
+                      class="shrink-0 inline-flex h-full items-center justify-center pl-3 pr-1 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                      aria-label="Emoji"
+                    >
+                      <ng-icon name="lucideSmile" size="20"></ng-icon>
+                    </button>
+                    <textarea
+                      #messageTextarea
+                      [formControl]="messageControl()"
+                      placeholder="Digite uma mensagem..."
+                      rows="1"
+                      class="grow resize-none border-0 bg-transparent py-2 pr-3 text-sm text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-0 max-h-32 leading-5"
+                      (keydown)="messageKeydown.emit($event)"
+                      (input)="messageInput.emit($event)"
+                    ></textarea>
                   </div>
-                  <span class="text-sm font-medium">Este chamado foi encerrado.</span>
+
+                  <button
+                    type="button"
+                    class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                    aria-label="Gravar áudio"
+                    (click)="startRecording.emit()"
+                  >
+                    <ng-icon name="lucideMic" size="20"></ng-icon>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full bg-accent-500 text-white transition-colors hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    [disabled]="isSendingMessage() || (!messageControl().value.trim() && !selectedTemplate())"
+                    aria-label="Enviar mensagem"
+                    (click)="sendMessage.emit()"
+                  >
+                    <ng-icon name="lucideSend" size="18"></ng-icon>
+                  </button>
                 </div>
               }
-            </footer>
-          </div>
-        } @else {
-          <div class="flex-1 flex flex-col items-center justify-center gap-4">
-            <div class="text-center space-y-1">
-              <ng-icon
-                name="lucideMessagesSquare"
-                size="40"
-                class="text-neutral-300 dark:text-neutral-600 mx-auto"
-              ></ng-icon>
-              <p class="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Selecione um chamado para iniciar
-              </p>
-              <p class="text-xs text-neutral-400 dark:text-neutral-500">
-                ou abra um novo atendimento
-              </p>
-            </div>
-            <app-button variant="primary" size="sm" (clicked)="openNewConversationModal.emit()">
-              Abrir novo chamado
-            </app-button>
-          </div>
-        }
-      } @else if (activeTab() === 'contact') {
-        <div class="flex-1 overflow-y-auto">
-          <app-chat-contact-section
-            [contact]="selectedTicket()?.contact ?? null"
-            [ticketId]="selectedTicketId() ?? undefined"
-            (contactUpdated)="contactUpdated.emit($event)"
-          />
-        </div>
-      } @else {
-        <div class="flex-1 overflow-y-auto">
-          @if (selectedContactId()) {
-            <app-crm-section [contactId]="selectedContactId()!" />
-          } @else {
-            <div class="flex-1 flex flex-col items-center justify-center h-full p-4 text-center">
-              <div
-                class="mx-auto mb-2 flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary"
+            }
+          } @else if (selectedTicket()?.status === 'pending') {
+            <div class="flex items-center justify-center">
+              <app-button
+                variant="primary"
+                size="sm"
+                [disabled]="isStartingTicket()"
+                (clicked)="startSelectedTicket.emit()"
               >
-                <ng-icon name="lucideHandshake" size="18"></ng-icon>
+                {{ isStartingTicket() ? 'Iniciando...' : 'Iniciar atendimento' }}
+              </app-button>
+            </div>
+          } @else if (selectedTicket()?.status === 'closed') {
+            <div
+              class="flex items-center justify-center gap-2 text-neutral-500 dark:text-neutral-400"
+            >
+              <div
+                class="size-6 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shrink-0"
+              >
+                <ng-icon name="lucideLogOut" size="14"></ng-icon>
               </div>
-              <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
-                Nenhum contato vinculado
-              </p>
-              <p class="text-xs text-neutral-500 dark:text-neutral-400">
-                Selecione um atendimento para ver as negociações.
-              </p>
+              <span class="text-sm font-medium">Este chamado foi encerrado.</span>
             </div>
           }
+        </footer>
+      </div>
+    } @else {
+      <div class="flex-1 flex flex-col items-center justify-center gap-4">
+        <div class="text-center space-y-1">
+          <ng-icon
+            name="lucideMessagesSquare"
+            size="40"
+            class="text-neutral-300 dark:text-neutral-600 mx-auto"
+          ></ng-icon>
+          <p class="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            Selecione um chamado para iniciar
+          </p>
+          <p class="text-xs text-neutral-400 dark:text-neutral-500">ou abra um novo atendimento</p>
+        </div>
+        <app-button variant="primary" size="sm" (clicked)="openNewConversationModal.emit()">
+          Abrir novo chamado
+        </app-button>
+      </div>
+    }
+  } @else if (activeTab() === 'contact') {
+    <div class="flex-1 overflow-y-auto">
+      <app-chat-contact-section
+        [contact]="selectedTicket()?.contact ?? null"
+        [ticketId]="selectedTicketId() ?? undefined"
+        (contactUpdated)="contactUpdated.emit($event)"
+      />
+    </div>
+  } @else {
+    <div class="flex-1 overflow-y-auto">
+      @if (selectedContactId()) {
+        <app-crm-section [contactId]="selectedContactId()!" />
+      } @else {
+        <div class="flex-1 flex flex-col items-center justify-center h-full p-4 text-center">
+          <div
+            class="mx-auto mb-2 flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary"
+          >
+            <ng-icon name="lucideHandshake" size="18"></ng-icon>
+          </div>
+          <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            Nenhum contato vinculado
+          </p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">
+            Selecione um atendimento para ver as negociações.
+          </p>
         </div>
       }
-    </section>
-  
+    </div>
+  }
+</section>

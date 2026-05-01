@@ -385,9 +385,6 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         return (string) ($contactId ?? '');
     }
 
-    /**
-     * @return AiAutopilotRun
-     */
     private function createRunRecord(
         string $runId,
         AiAgent $agent,

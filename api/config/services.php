@@ -82,4 +82,17 @@ return [
         'receita_ws_url' => env('RECEITA_WS_URL', 'https://www.receitaws.com.br/v1/cnpj'),
     ],
 
+    'apn' => [
+        'key_id' => env('APN_KEY_ID'),
+        'team_id' => env('APN_TEAM_ID'),
+        'bundle_id' => env('APN_BUNDLE_ID'),
+        'private_key' => env('APN_PRIVATE_KEY'),
+        'private_key_secret' => env('APN_PRIVATE_SECRET'),
+        'production' => (bool) env('APN_PRODUCTION', false),
+    ],
+
+    'fcm' => [
+        'credentials_json' => env('FCM_CREDENTIALS_JSON'),
+    ],
+
 ];

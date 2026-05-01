@@ -81,6 +81,58 @@
     --spacing-topbar-height: 70px;
     --spacing-sidenav-width: 260px;
     --spacing-sidenav-width-sm: 68px;
+
+    /* ── Safe area insets (notch iPhone, gesture bars Android) ───────────────
+     * Resolvem para 0px em browsers desktop graças ao fallback do env().
+     * Requer <meta name="viewport" content="...viewport-fit=cover"> no index.html.
+     * Use estas variáveis em todo elemento com position: fixed/sticky que
+     * encoste em topo/base/laterais da viewport (header, footer, FAB, drawers).
+     * ──────────────────────────────────────────────────────────────────────── */
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* Utility classes para uso direto em templates (Tailwind não gera utilities
+   * a partir de variáveis @layer base, então definimos explicitamente). */
+  .pt-safe {
+    padding-top: var(--safe-area-top);
+  }
+  .pb-safe {
+    padding-bottom: var(--safe-area-bottom);
+  }
+  .pl-safe {
+    padding-left: var(--safe-area-left);
+  }
+  .pr-safe {
+    padding-right: var(--safe-area-right);
+  }
+  .px-safe {
+    padding-left: var(--safe-area-left);
+    padding-right: var(--safe-area-right);
+  }
+  .py-safe {
+    padding-top: var(--safe-area-top);
+    padding-bottom: var(--safe-area-bottom);
+  }
+  .top-safe {
+    top: var(--safe-area-top);
+  }
+  .bottom-safe {
+    bottom: var(--safe-area-bottom);
+  }
+  .mt-safe {
+    margin-top: var(--safe-area-top);
+  }
+  .mb-safe {
+    margin-bottom: var(--safe-area-bottom);
+  }
+  .ml-safe {
+    margin-left: var(--safe-area-left);
+  }
+  .mr-safe {
+    margin-right: var(--safe-area-right);
   }
 
   .card {

@@ -47,4 +47,11 @@ return [
             ? (float) env('AI_BUDGET_MONTHLY_LIMIT')
             : null,
     ],
+    'rag' => [
+        'ef_search' => (int) env('RAG_EF_SEARCH', 100),
+        'vector_weight' => (float) env('RAG_VECTOR_WEIGHT', 0.6),
+        'keyword_weight' => (float) env('RAG_KEYWORD_WEIGHT', 0.4),
+        'expand_neighbors' => (bool) env('RAG_EXPAND_NEIGHBORS', true),
+        'neighbor_window' => (int) env('RAG_NEIGHBOR_WINDOW', 1),
+    ],
 ];

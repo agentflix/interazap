@@ -31,8 +31,10 @@ final class KnowledgeSearchResultResource extends JsonResource
             'document_name' => $dto->documentName,
             'content' => $dto->content,
             'chunk_index' => $dto->chunkIndex,
-            'score' => round($dto->score, 4),
-            'relevance_percent' => round($dto->score * 100, 1),
+            'score' => $dto->score !== null ? round($dto->score, 4) : null,
+            'relevance_percent' => $dto->score !== null ? round($dto->score * 100, 1) : null,
+            'is_neighbor' => $dto->isNeighbor,
+            'neighbor_of_chunk_id' => $dto->neighborOfChunkId,
         ];
     }
 }

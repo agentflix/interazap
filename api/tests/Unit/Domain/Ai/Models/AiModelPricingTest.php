@@ -6,6 +6,7 @@ namespace Tests\Unit\Domain\Ai\Models;
 
 use Domain\Ai\Models\AiModelPricing;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -71,12 +72,23 @@ class AiModelPricingTest extends TestCase
 
     public function test_it_scopes_active_models(): void
     {
-        AiModelPricing::factory()->create(['is_active' => true]);
-        AiModelPricing::factory()->create(['is_active' => false]);
+        $activeModel = AiModelPricing::factory()->create([
+            'model_name' => 'test-active-scope-'.Str::random(8),
+            'is_active' => true,
+        ]);
+        $inactiveModel = AiModelPricing::factory()->create([
+            'model_name' => 'test-inactive-scope-'.Str::random(8),
+            'is_active' => false,
+        ]);
 
-        $active = AiModelPricing::active()->get();
+        // Verify the scope works by querying only our created models
+        $activeModels = AiModelPricing::query()
+            ->whereIn('id', [$activeModel->id, $inactiveModel->id])
+            ->active()
+            ->get();
 
-        expect($active)->toHaveCount(1);
+        expect($activeModels)->toHaveCount(1);
+        expect($activeModels->first()->id)->toBe($activeModel->id);
     }
 
     public function test_it_finds_by_model_name(): void

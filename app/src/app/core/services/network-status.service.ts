@@ -1,6 +1,8 @@
 import { Injectable, inject, signal, NgZone } from '@angular/core';
-import { fromEvent, merge } from 'rxjs';
+import { Network } from '@capacitor/network';
+import { Subject, Subscription, fromEvent, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { PlatformService } from './platform/platform.service';
 
 /**
  * Service for monitoring network connectivity status.
@@ -20,10 +22,17 @@ import { map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class NetworkStatusService {
-  private ngZone = inject(NgZone);
+  private readonly ngZone = inject(NgZone);
+  private readonly platform = inject(PlatformService);
 
   private isOnline = signal(navigator.onLine);
   private checkInterval: ReturnType<typeof setInterval> | null = null;
+  private browserEventsSubscription: Subscription | null = null;
+  private nativeListenerHandle: { remove: () => Promise<void> } | null = null;
+  private monitoringStarted = false;
+
+  private readonly statusChangesSubject = new Subject<boolean>();
+  readonly statusChanges$ = this.statusChangesSubject.asObservable();
 
   /**
    * Synchronously returns current online status.
@@ -40,15 +49,24 @@ export class NetworkStatusService {
    * Runs callbacks outside Angular zone to avoid unnecessary change detection.
    */
   startMonitoring(): void {
+    if (this.monitoringStarted) {
+      return;
+    }
+    this.monitoringStarted = true;
+
     // Use RxJS merge for cross-browser compatibility
     const online$ = fromEvent(window, 'online').pipe(map(() => true));
     const offline$ = fromEvent(window, 'offline').pipe(map(() => false));
 
-    merge(online$, offline$).subscribe((online) => {
+    this.browserEventsSubscription = merge(online$, offline$).subscribe((online) => {
       this.ngZone.run(() => {
-        this.isOnline.set(online);
+        this.setOnlineState(online);
       });
     });
+
+    if (this.platform.isMobile) {
+      void this.bindNativeListener();
+    }
 
     // Heartbeat check every 30 seconds
     this.checkInterval = setInterval(() => {
@@ -60,9 +78,19 @@ export class NetworkStatusService {
    * Stops periodic network health checks and clears the interval.
    */
   stopMonitoring(): void {
+    this.monitoringStarted = false;
+
     if (this.checkInterval !== null) {
       clearInterval(this.checkInterval);
       this.checkInterval = null;
+    }
+
+    this.browserEventsSubscription?.unsubscribe();
+    this.browserEventsSubscription = null;
+
+    if (this.nativeListenerHandle !== null) {
+      void this.nativeListenerHandle.remove();
+      this.nativeListenerHandle = null;
     }
   }
 
@@ -76,9 +104,9 @@ export class NetworkStatusService {
         method: 'HEAD',
         cache: 'no-store',
       });
-      this.isOnline.set(response.ok);
+      this.setOnlineState(response.ok);
     } catch {
-      this.isOnline.set(false);
+      this.setOnlineState(false);
     }
   }
 
@@ -91,5 +119,37 @@ export class NetworkStatusService {
     return new Promise((resolve) => {
       resolve(this.isOnline());
     });
+  }
+
+  markOnline(): void {
+    this.setOnlineState(true);
+  }
+
+  markOffline(): void {
+    this.setOnlineState(false);
+  }
+
+  private async bindNativeListener(): Promise<void> {
+    try {
+      const status = await Network.getStatus();
+      this.setOnlineState(status.connected);
+
+      this.nativeListenerHandle = await Network.addListener('networkStatusChange', (status) => {
+        this.ngZone.run(() => {
+          this.setOnlineState(status.connected);
+        });
+      });
+    } catch {
+      // Capacitor Network pode não estar disponível em alguns ambientes de teste
+    }
+  }
+
+  private setOnlineState(online: boolean): void {
+    if (this.isOnline() === online) {
+      return;
+    }
+
+    this.isOnline.set(online);
+    this.statusChangesSubject.next(online);
   }
 }

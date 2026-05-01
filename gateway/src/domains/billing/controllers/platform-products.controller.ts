@@ -19,7 +19,7 @@ import {
  *
  * Gerencia produtos/planos no gateway de pagamentos Asaas.
  */
-@Controller({ path: 'internal/platform/products', version: '1' })
+@Controller({ path: 'internal/platform/products' })
 @UseGuards(InternalApiKeyGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class PlatformProductsController {

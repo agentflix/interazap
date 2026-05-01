@@ -14,8 +14,10 @@ use Domain\Ai\Policies\AiPromptMasterPolicy;
 use Domain\Ai\Policies\AiPromptPlanPolicy;
 use Domain\Ai\Policies\AiPromptSegmentPolicy;
 use Domain\Ai\Policies\AiPromptTenantPolicy;
+use Domain\Auth\Models\AuthDeviceToken;
 use Domain\Auth\Models\AuthRole;
 use Domain\Auth\Models\AuthUser;
+use Domain\Auth\Policies\AuthDeviceTokenPolicy;
 use Domain\Auth\Policies\AuthRolePolicy;
 use Domain\Auth\Policies\AuthUserPolicy;
 use Domain\Billing\Models\BillingInvoice;
@@ -83,6 +85,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         // Auth
+        AuthDeviceToken::class => AuthDeviceTokenPolicy::class,
         AuthRole::class => AuthRolePolicy::class,
         AuthUser::class => AuthUserPolicy::class,
 

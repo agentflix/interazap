@@ -73,6 +73,10 @@ class AuthPermissionSeeder extends Seeder
         'chat.tickets.manage',
         'chat.messages.update',
         'chat.messages.delete',
+        'chat.transmission_lists.view',
+        'chat.transmission_lists.create',
+        'chat.transmission_lists.update',
+        'chat.transmission_lists.delete',
     ];
 
     public function run(): void

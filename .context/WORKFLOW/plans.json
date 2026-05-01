@@ -1,0 +1,13 @@
+{
+  "active": [
+    {
+      "slug": "feat-047-fase-5-push",
+      "path": "plans/feat-047-fase-5-push.md",
+      "title": "Plano FEAT-047 Fase 5 - Push Notifications",
+      "linkedAt": "2026-04-27T02:36:43.873Z",
+      "status": "active"
+    }
+  ],
+  "completed": [],
+  "primary": "feat-047-fase-5-push"
+}

@@ -1,0 +1,161 @@
+<div class="px-4 sm:px-6 lg:px-8 py-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        (click)="cancel()"
+        class="text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+        aria-label="Voltar"
+      >
+        <lucide-icon name="arrow-left" [size]="20" />
+      </button>
+      <div>
+        <h1 class="text-xl font-semibold text-neutral-900 dark:text-white">
+          {{ isEditMode() ? 'Editar template' : 'Novo template' }}
+        </h1>
+        <p class="text-sm text-neutral-500">WhatsApp Business — Meta</p>
+      </div>
+    </div>
+    @if (currentTemplate(); as tpl) {
+      <af-badge variant="info">{{ tpl.status }}</af-badge>
+    }
+  </div>
+
+  @if (isMetaLocked()) {
+    <af-alert
+      variant="warning"
+      title="Template Meta — apenas leitura"
+      message="Templates aprovados ou em aprovação na Meta não podem ter conteúdo alterado. Apenas atalho e ativação ficam editáveis."
+    />
+  } @else if (!isEditMode()) {
+    <af-alert
+      variant="info"
+      title="Aprovação obrigatória"
+      message="Após salvar, o template será enviado para a Meta. A aprovação leva alguns minutos."
+    />
+  }
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 mt-4"
+  >
+    <!-- ── FORM COLUMN ── -->
+    <div
+      class="space-y-4 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800 p-6"
+    >
+      <af-select-input
+        [control]="form.controls.chat_instance_id"
+        [options]="chatInstanceOptions()"
+        label="Canal WhatsApp"
+        placeholder="Selecione um canal..."
+        [required]="true"
+      />
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <af-text-input
+          [control]="form.controls.name"
+          label="Nome do template"
+          placeholder="ex.: confirmacao_pedido"
+          [required]="true"
+          errorMessage="Use apenas letras minúsculas, números e _ (até 512 caracteres)."
+        />
+        <af-select-input
+          [control]="form.controls.language"
+          [options]="languageOptions"
+          label="Idioma"
+          [required]="true"
+        />
+      </div>
+
+      <af-select-input
+        [control]="form.controls.category"
+        [options]="categoryOptions"
+        label="Categoria"
+        [required]="true"
+      />
+
+      <div class="border-t border-neutral-200 dark:border-neutral-800 pt-4 space-y-4">
+        <h2 class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Conteúdo</h2>
+
+        <af-text-input
+          [control]="form.controls.header_text"
+          label="Cabeçalho (opcional)"
+          placeholder="Texto do cabeçalho"
+        />
+
+        <af-textarea-input
+          [control]="form.controls.body_text"
+          label="Corpo da mensagem"
+          placeholder="Olá {{ '{{1}}' }}, seu pedido foi confirmado!"
+          [rows]="5"
+          [required]="true"
+          [maxLength]="1024"
+        />
+
+        <af-text-input
+          [control]="form.controls.footer_text"
+          label="Rodapé (opcional)"
+          placeholder="Texto do rodapé"
+        />
+      </div>
+
+      <div
+        class="border-t border-neutral-200 dark:border-neutral-800 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 items-end"
+      >
+        <af-text-input
+          [control]="form.controls.shortcut"
+          label="Atalho (opcional)"
+          placeholder="ex.: /confirmacao"
+        />
+        <af-switch-input [control]="form.controls.is_active" label="Ativo" />
+      </div>
+
+      @if (serverError(); as msg) {
+        <af-alert variant="danger" [title]="'Erro ao salvar'" [message]="msg" />
+      }
+
+      <div
+        class="flex items-center justify-end gap-2 pt-2 border-t border-neutral-200 dark:border-neutral-800"
+      >
+        <af-button variant="ghost" type="button" (click)="cancel()">Cancelar</af-button>
+        <af-loading-button
+          variant="primary"
+          [loading]="isSubmitting()"
+          [disabled]="isLoading()"
+          (click)="submit()"
+        >
+          {{
+            isMetaLocked()
+              ? 'Salvar alterações'
+              : isEditMode()
+                ? 'Salvar alterações'
+                : 'Enviar para aprovação Meta'
+          }}
+        </af-loading-button>
+      </div>
+    </div>
+
+    <!-- ── PREVIEW COLUMN ── -->
+    <aside class="lg:sticky lg:top-4 self-start">
+      <div class="text-xs uppercase tracking-wide text-neutral-500 mb-2">Pré-visualização</div>
+      <div class="bg-[#e5ddd5] dark:bg-neutral-800 rounded-xl p-4">
+        <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-sm p-3 max-w-xs">
+          @if (previewHeader()) {
+            <div class="font-semibold text-sm text-neutral-900 dark:text-white mb-1">
+              {{ previewHeader() }}
+            </div>
+          }
+          <div class="text-sm text-neutral-700 dark:text-neutral-200 whitespace-pre-wrap">
+            {{ previewBody() || 'Conteúdo do template aparecerá aqui...' }}
+          </div>
+          @if (previewFooter()) {
+            <div class="text-xs text-neutral-400 mt-2">{{ previewFooter() }}</div>
+          }
+          <div class="text-[10px] text-neutral-400 text-right mt-1">10:42</div>
+        </div>
+      </div>
+    </aside>
+  </form>
+</div>

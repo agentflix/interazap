@@ -202,7 +202,10 @@ final class ProcessPaymentJob implements ShouldQueue
             );
 
             if (empty($result['id'])) {
-                throw new \RuntimeException('Failed to create payment: no ID returned');
+                $gatewayReason = $gateway->getLastError();
+                $details = $gatewayReason ? " ({$gatewayReason})" : '';
+
+                throw new \RuntimeException('Failed to create payment: no ID returned'.$details);
             }
 
             $this->updateInvoiceStatus($invoice, 'processing', [

@@ -8,15 +8,11 @@ use Domain\Ai\Enums\AutopilotTriggerType;
 use Domain\Ai\Events\AutopilotTriggerFired;
 use Domain\Ai\Jobs\DispatchAutopilotRunJob;
 use Domain\Ai\Listeners\AutopilotRunDispatcherListener;
-use Domain\Ai\Models\AiAgent;
-use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Bus\Queue;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
-use Mockery;
 use Tests\TestCase;
 
 /**

@@ -57,7 +57,7 @@ final class ChatSessionTest extends TestCase
         $this->assertEquals($ticket->id, $found->ticket_id);
     }
 
-    public function test_updates_last_activity_at_via_touchLastActivity(): void
+    public function test_updates_last_activity_at_via_touch_last_activity(): void
     {
         $ticket = ChatTicket::factory()->create(['tenant_id' => $this->tenantId]);
 

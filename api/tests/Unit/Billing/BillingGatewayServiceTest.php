@@ -83,6 +83,7 @@ class BillingGatewayServiceTest extends TestCase
         $result = $service->createPayment('cust-1', 10.0, '2026-01-10', 'Invoice', 'ext-1', 'PIX');
 
         $this->assertSame(['id' => null, 'invoiceUrl' => null, 'status' => null], $result);
+        $this->assertNotNull($service->getLastError());
     }
 
     public function test_create_payment_returns_values_on_success(): void
@@ -101,6 +102,7 @@ class BillingGatewayServiceTest extends TestCase
         $this->assertSame('pay-1', $result['id']);
         $this->assertSame('http://asaas.test/invoice/1', $result['invoiceUrl']);
         $this->assertSame('PENDING', $result['status']);
+        $this->assertNull($service->getLastError());
     }
 
     public function test_get_pix_qrcode_returns_payload(): void

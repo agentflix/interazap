@@ -47,10 +47,12 @@ export interface Called {
   company_id: string | number;
   user_id?: string | number | null;
   contact_id?: string | number | null;
+  instance_id?: string | number | null;
   protocol?: string | null;
   profile_picture_url?: string | null;
   status: CalledStatus;
   is_bot_active?: boolean | null;
+  current_ai_agent_id?: string | null;
   channel: CalledChannel;
   subject?: string | null;
   notes?: string | null;

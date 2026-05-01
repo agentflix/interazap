@@ -12,6 +12,7 @@ use Tests\TestCase;
 final class WebChatRedisPublisherTest extends TestCase
 {
     private $mockBroadcastService;
+
     private WebChatRedisPublisher $service;
 
     protected function setUp(): void
@@ -21,7 +22,7 @@ final class WebChatRedisPublisherTest extends TestCase
         $this->service = new WebChatRedisPublisher($this->mockBroadcastService);
     }
 
-    public function test_publishes_AI_response_to_Redis_with_correct_event_and_room(): void
+    public function test_publishes_a_i_response_to_redis_with_correct_event_and_room(): void
     {
         $sessionId = 'session-123';
         $message = [

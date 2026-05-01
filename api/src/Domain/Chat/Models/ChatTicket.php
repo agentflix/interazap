@@ -72,6 +72,7 @@ class ChatTicket extends Model
         'category',
         'is_group',
         'is_bot_active',
+        'current_ai_agent_id',
         'started_at',
         'first_response_at',
         'last_message_at',
@@ -408,7 +409,7 @@ class ChatTicket extends Model
     /**
      * Scope: Adicionar contador agrupado por status.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      */
     public function scopeWithStatusCounts(Builder $query): void
     {
@@ -418,7 +419,7 @@ class ChatTicket extends Model
     /**
      * Scope: Aplicar função de particionamento (window function) de dedup por contato.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      */
     public function scopeWithContactDeduplicationRank(Builder $query): void
     {

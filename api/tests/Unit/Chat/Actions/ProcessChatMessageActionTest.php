@@ -6,10 +6,8 @@ namespace Tests\Unit\Chat\Actions;
 
 use Domain\Chat\Actions\ProcessChatMessageAction;
 use Domain\Chat\Models\ChatMessage;
-use Domain\Chat\Models\ChatMessageExtended;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatActivityBroadcastService;
-use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Mockery;
 use Mockery\MockInterface;
@@ -20,6 +18,7 @@ final class ProcessChatMessageActionTest extends TestCase
     use LazilyRefreshDatabase;
 
     private ProcessChatMessageAction $action;
+
     private MockInterface $mockActivityBroadcast;
 
     protected function setUp(): void
@@ -35,7 +34,7 @@ final class ProcessChatMessageActionTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_emitNewMessageEvent_broadcasts_text_message(): void
+    public function test_emit_new_message_event_broadcasts_text_message(): void
     {
         $ticket = ChatTicket::factory()->create();
         $message = ChatMessage::factory()->create([
@@ -59,7 +58,7 @@ final class ProcessChatMessageActionTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function test_emitNewMessageEvent_broadcasts_media_message_with_file_fields(): void
+    public function test_emit_new_message_event_broadcasts_media_message_with_file_fields(): void
     {
         $ticket = ChatTicket::factory()->create();
         $message = ChatMessage::factory()->create([
@@ -95,7 +94,7 @@ final class ProcessChatMessageActionTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function test_emitNewMessageEvent_without_ticket_does_not_fail(): void
+    public function test_emit_new_message_event_without_ticket_does_not_fail(): void
     {
         $ticket = ChatTicket::factory()->create();
         $message = ChatMessage::factory()->create([
@@ -108,8 +107,7 @@ final class ProcessChatMessageActionTest extends TestCase
         $this->mockActivityBroadcast
             ->shouldReceive('emitMessageReceived')
             ->once()
-            ->withArgs(fn ($chatId, $payload, $ticketData): bool =>
-                $chatId === (string) $message->ticket_id
+            ->withArgs(fn ($chatId, $payload, $ticketData): bool => $chatId === (string) $message->ticket_id
                     && $ticketData === null
                     && ($payload['message']['id'] ?? null) === (string) $message->id
             );

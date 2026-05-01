@@ -80,7 +80,7 @@ describe('AiKnowledgeProcessJob', function (): void {
         $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldReceive('chunk')
             ->once()
-            ->with('name: John Doe, email: john@example.com')
+            ->with('name: John Doe, email: john@example.com', \Mockery::any())
             ->andReturn([
                 new ChunkDTO(0, 'row', 2),
             ]);
@@ -117,7 +117,7 @@ describe('AiKnowledgeProcessJob', function (): void {
         $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldReceive('chunk')
             ->once()
-            ->with("1 2\n3 4")
+            ->with("1 2\n3 4", \Mockery::any())
             ->andReturn([
                 new ChunkDTO(0, 'row', 2),
             ]);
@@ -164,7 +164,7 @@ describe('AiKnowledgeProcessJob', function (): void {
         $chunkingService->shouldReceive('chunk')
             ->once()
             ->with(\Mockery::on(fn (string $content): bool => str_contains($content, 'user.name: Jane')
-                && str_contains($content, 'user.age: 32')))
+                && str_contains($content, 'user.age: 32')), \Mockery::any())
             ->andReturn([
                 new ChunkDTO(0, 'json', 3),
             ]);
@@ -212,7 +212,7 @@ describe('AiKnowledgeProcessJob', function (): void {
         $chunkingService = \Mockery::mock(AiChunkingServiceInterface::class);
         $chunkingService->shouldReceive('chunk')
             ->once()
-            ->with('Conteúdo PDF extraído')
+            ->with('Conteúdo PDF extraído', \Mockery::any())
             ->andReturn([
                 new ChunkDTO(0, 'pdf', 2),
             ]);

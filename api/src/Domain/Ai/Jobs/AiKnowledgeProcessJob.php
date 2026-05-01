@@ -10,6 +10,7 @@ use Domain\Ai\Enums\AiDocumentType;
 use Domain\Ai\Enums\AiEmbeddingStatus;
 use Domain\Ai\Events\AiKnowledgeDocumentProcessed;
 use Domain\Ai\Models\AiKnowledgeChunk;
+use Domain\Ai\Models\AiKnowledgeChunkRef;
 use Domain\Ai\Models\AiKnowledgeDocument;
 use Domain\Shared\Services\GatewayBroadcastService;
 use Illuminate\Bus\Queueable;
@@ -118,13 +119,14 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
             }
 
             // Chunk the content
-            $chunks = $chunkingService->chunk($content);
+            $chunks = $chunkingService->chunk($content, $document->file_type);
 
             if (empty($chunks)) {
                 throw new \RuntimeException('No chunks generated from content');
             }
 
-            // Delete existing chunks (for reindex)
+            // Delete existing chunks and refs (for reindex)
+            AiKnowledgeChunkRef::where('document_id', $document->id)->delete();
             AiKnowledgeChunk::where('document_id', $document->id)->delete();
 
             // Process chunks in batches for embedding
@@ -137,44 +139,87 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
                 $allEmbeddings = array_merge($allEmbeddings, $embeddings);
             }
 
-            // Save chunks with embeddings
+            // Save chunks with embeddings (with deduplication)
             DB::transaction(function () use ($document, $chunks, $allEmbeddings): void {
-                $rows = [];
+                $newChunkRows = [];
+                $refRows = [];
 
                 foreach ($chunks as $i => $chunk) {
-                    $embedding = $allEmbeddings[$i] ?? null;
-                    $normalizedEmbedding = is_array($embedding)
-                        ? $this->normalizeEmbeddingDimensions($embedding)
-                        : null;
+                    $contentHash = hash('sha256', $chunk->content);
 
-                    $rows[] = [
-                        'id' => (string) Str::orderedUuid(),
-                        'document_id' => $document->id,
-                        'tenant_id' => $document->tenant_id,
-                        'chunk_index' => $chunk->index,
-                        'content' => $chunk->content,
-                        'token_count' => $chunk->tokenCount,
-                        'embedding' => $normalizedEmbedding ? '['.implode(',', $normalizedEmbedding).']' : null,
-                    ];
+                    // Check for existing chunk with same content hash in this tenant
+                    $existingChunkId = DB::scalar(
+                        'SELECT id FROM ai_knowledge_chunks WHERE tenant_id = ? AND content_hash = ? LIMIT 1',
+                        [$document->tenant_id, $contentHash]
+                    );
+
+                    if ($existingChunkId !== null) {
+                        // Reuse existing chunk via ref
+                        $refRows[] = [
+                            'id' => (string) Str::orderedUuid(),
+                            'document_id' => $document->id,
+                            'tenant_id' => $document->tenant_id,
+                            'chunk_id' => $existingChunkId,
+                            'chunk_index' => $chunk->index,
+                        ];
+                    } else {
+                        $embedding = $allEmbeddings[$i] ?? null;
+                        $normalizedEmbedding = is_array($embedding)
+                            ? $this->normalizeEmbeddingDimensions($embedding)
+                            : null;
+
+                        $newChunkRows[] = [
+                            'id' => (string) Str::orderedUuid(),
+                            'document_id' => $document->id,
+                            'tenant_id' => $document->tenant_id,
+                            'chunk_index' => $chunk->index,
+                            'content' => $chunk->content,
+                            'token_count' => $chunk->tokenCount,
+                            'content_hash' => $contentHash,
+                            'embedding' => $normalizedEmbedding ? '['.implode(',', $normalizedEmbedding).']' : null,
+                        ];
+                    }
                 }
 
-                foreach (array_chunk($rows, self::BATCH_INSERT_SIZE) as $batchRows) {
+                // Batch insert new chunks
+                foreach (array_chunk($newChunkRows, self::BATCH_INSERT_SIZE) as $batchRows) {
                     $placeholders = [];
                     $bindings = [];
 
                     foreach ($batchRows as $row) {
-                        $placeholders[] = '(?, ?, ?, ?, ?, ?, ?::vector, NOW())';
+                        $placeholders[] = '(?, ?, ?, ?, ?, ?, ?, ?::vector, NOW())';
                         $bindings[] = $row['id'];
                         $bindings[] = $row['document_id'];
                         $bindings[] = $row['tenant_id'];
                         $bindings[] = $row['chunk_index'];
                         $bindings[] = $row['content'];
                         $bindings[] = $row['token_count'];
+                        $bindings[] = $row['content_hash'];
                         $bindings[] = $row['embedding'];
                     }
 
                     DB::insert(
-                        'INSERT INTO ai_knowledge_chunks (id, document_id, tenant_id, chunk_index, content, token_count, embedding, created_at) VALUES '.implode(', ', $placeholders),
+                        'INSERT INTO ai_knowledge_chunks (id, document_id, tenant_id, chunk_index, content, token_count, content_hash, embedding, created_at) VALUES '.implode(', ', $placeholders),
+                        $bindings,
+                    );
+                }
+
+                // Batch insert chunk refs for deduplicated chunks
+                foreach (array_chunk($refRows, self::BATCH_INSERT_SIZE) as $batchRows) {
+                    $placeholders = [];
+                    $bindings = [];
+
+                    foreach ($batchRows as $row) {
+                        $placeholders[] = '(?, ?, ?, ?, ?, NOW())';
+                        $bindings[] = $row['id'];
+                        $bindings[] = $row['document_id'];
+                        $bindings[] = $row['tenant_id'];
+                        $bindings[] = $row['chunk_id'];
+                        $bindings[] = $row['chunk_index'];
+                    }
+
+                    DB::insert(
+                        'INSERT INTO ai_knowledge_chunk_refs (id, document_id, tenant_id, chunk_id, chunk_index, created_at) VALUES '.implode(', ', $placeholders),
                         $bindings,
                     );
                 }

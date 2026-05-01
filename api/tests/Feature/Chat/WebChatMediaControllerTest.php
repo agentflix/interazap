@@ -19,6 +19,7 @@ final class WebChatMediaControllerTest extends TestCase
     use LazilyRefreshDatabase;
 
     private string $tenantId;
+
     private WebChatJwtService $jwtService;
 
     protected function setUp(): void
@@ -34,7 +35,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $ticket = ChatTicket::factory()->create([
             'tenant_id' => $this->tenantId,
-            'channel'   => 'web',
+            'channel' => 'web',
         ]);
         $session = ChatSession::factory()->create([
             'tenant_id' => $this->tenantId,
@@ -52,7 +53,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $response = $this->postJson('/api/webchat/media', [
             'token' => $token,
-            'file'  => $file,
+            'file' => $file,
         ]);
 
         $response->assertStatus(201)
@@ -80,7 +81,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $response = $this->postJson('/api/webchat/media', [
             'token' => 'token.invalido.assinatura',
-            'file'  => $file,
+            'file' => $file,
         ]);
 
         $response->assertStatus(401);
@@ -92,7 +93,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $ticket = ChatTicket::factory()->create([
             'tenant_id' => $this->tenantId,
-            'channel'   => 'web',
+            'channel' => 'web',
         ]);
         $session = ChatSession::factory()->create([
             'tenant_id' => $this->tenantId,
@@ -110,7 +111,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $response = $this->postJson('/api/webchat/media', [
             'token' => $expiredToken,
-            'file'  => $file,
+            'file' => $file,
         ]);
 
         $response->assertStatus(401);
@@ -121,7 +122,7 @@ final class WebChatMediaControllerTest extends TestCase
         Storage::fake('public');
 
         $nonExistentSessionId = (string) \Illuminate\Support\Str::orderedUuid();
-        $nonExistentTicketId  = (string) \Illuminate\Support\Str::orderedUuid();
+        $nonExistentTicketId = (string) \Illuminate\Support\Str::orderedUuid();
 
         $token = $this->jwtService->generateToken(
             $nonExistentSessionId,
@@ -134,7 +135,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $response = $this->postJson('/api/webchat/media', [
             'token' => $token,
-            'file'  => $file,
+            'file' => $file,
         ]);
 
         $response->assertStatus(404);
@@ -146,7 +147,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $ticket = ChatTicket::factory()->create([
             'tenant_id' => $this->tenantId,
-            'channel'   => 'web',
+            'channel' => 'web',
         ]);
         $session = ChatSession::factory()->create([
             'tenant_id' => $this->tenantId,
@@ -165,7 +166,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $response = $this->postJson('/api/webchat/media', [
             'token' => $token,
-            'file'  => $file,
+            'file' => $file,
         ]);
 
         $response->assertStatus(422)
@@ -178,7 +179,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $ticket = ChatTicket::factory()->create([
             'tenant_id' => $this->tenantId,
-            'channel'   => 'web',
+            'channel' => 'web',
         ]);
         $session = ChatSession::factory()->create([
             'tenant_id' => $this->tenantId,
@@ -196,7 +197,7 @@ final class WebChatMediaControllerTest extends TestCase
 
         $response = $this->postJson('/api/webchat/media', [
             'token' => $token,
-            'file'  => $file,
+            'file' => $file,
         ]);
 
         $response->assertStatus(422)
@@ -207,7 +208,7 @@ final class WebChatMediaControllerTest extends TestCase
     {
         $ticket = ChatTicket::factory()->create([
             'tenant_id' => $this->tenantId,
-            'channel'   => 'web',
+            'channel' => 'web',
         ]);
         $session = ChatSession::factory()->create([
             'tenant_id' => $this->tenantId,
@@ -259,22 +260,22 @@ final class WebChatMediaControllerTest extends TestCase
             return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
         };
 
-        $header  = json_encode(['alg' => 'HS256', 'typ' => 'JWT'], JSON_THROW_ON_ERROR);
+        $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT'], JSON_THROW_ON_ERROR);
         $payload = json_encode([
-            'sub'        => $sessionId,
-            'iss'        => $issuer,
-            'iat'        => time() - 7200,
-            'exp'        => time() - 3600, // expirado há 1 hora
+            'sub' => $sessionId,
+            'iss' => $issuer,
+            'iat' => time() - 7200,
+            'exp' => time() - 3600, // expirado há 1 hora
             'session_id' => $sessionId,
-            'tenant_id'  => $tenantId,
+            'tenant_id' => $tenantId,
             'contact_id' => $contactId,
-            'ticket_id'  => $ticketId,
-            'type'       => 'webchat',
+            'ticket_id' => $ticketId,
+            'type' => 'webchat',
         ], JSON_THROW_ON_ERROR);
 
-        $headerEncoded  = $encode($header);
+        $headerEncoded = $encode($header);
         $payloadEncoded = $encode($payload);
-        $signature      = hash_hmac('sha256', $headerEncoded.'.'.$payloadEncoded, $secret, true);
+        $signature = hash_hmac('sha256', $headerEncoded.'.'.$payloadEncoded, $secret, true);
 
         return $headerEncoded.'.'.$payloadEncoded.'.'.$encode($signature);
     }

@@ -20,11 +20,18 @@ class BillingGatewayService
 
     private int $timeout;
 
+    private ?string $lastError = null;
+
     public function __construct()
     {
         $this->gatewayUrl = rtrim((string) config('services.gateway.url', 'http://gateway:3000'), '/');
         $this->apiKey = config('services.gateway.api_key');
         $this->timeout = (int) config('services.gateway.timeout', 5);
+    }
+
+    public function getLastError(): ?string
+    {
+        return $this->lastError;
     }
 
     /**
@@ -33,11 +40,15 @@ class BillingGatewayService
     public function ensureCustomer(PlatformTenant $tenant): ?string
     {
         if (! empty($tenant->asaas_customer_id)) {
+            $this->lastError = null;
+
             return $tenant->asaas_customer_id;
         }
 
         $document = $tenant->document ?? null;
         if (empty($document)) {
+            $this->lastError = 'É necessário cadastrar o CPF ou CNPJ da empresa para gerar cobranças. Acesse Configurações > Empresa > Dados Cadastrais.';
+
             Log::warning('Gateway Billing: Tenant sem documento, não é possível criar cliente', [
                 'tenant_id' => $tenant->id,
             ]);
@@ -55,6 +66,8 @@ class BillingGatewayService
                 ]);
 
             if ($response->failed()) {
+                $this->lastError = 'falha HTTP ao criar customer: '.$response->status().' '.$this->safeResponseBody($response->body());
+
                 Log::error('Gateway Billing: Falha ao criar cliente', [
                     'tenant_id' => $tenant->id,
                     'status' => $response->status(),
@@ -68,10 +81,17 @@ class BillingGatewayService
 
             if ($customerId) {
                 $tenant->forceFill(['asaas_customer_id' => $customerId])->save();
+                $this->lastError = null;
+
+                return $customerId;
             }
 
-            return $customerId;
+            $this->lastError = 'gateway respondeu sem id de customer';
+
+            return null;
         } catch (\Throwable $e) {
+            $this->lastError = 'exceção ao criar customer: '.$e->getMessage();
+
             Log::error('Gateway Billing: Exceção ao criar cliente', [
                 'tenant_id' => $tenant->id,
                 'error' => $e->getMessage(),
@@ -128,6 +148,8 @@ class BillingGatewayService
                 ->post("{$this->gatewayUrl}/internal/billing/payments", $payload);
 
             if ($response->failed()) {
+                $this->lastError = 'falha HTTP ao criar cobrança: '.$response->status().' '.$this->safeResponseBody($response->body());
+
                 Log::error('Gateway Billing: Falha ao criar cobrança', [
                     'customer_id' => $customerId,
                     'status' => $response->status(),
@@ -137,12 +159,22 @@ class BillingGatewayService
                 return ['id' => null, 'invoiceUrl' => null, 'status' => null];
             }
 
-            return [
+            $result = [
                 'id' => $response->json('id'),
                 'invoiceUrl' => $response->json('invoiceUrl'),
                 'status' => $response->json('status'),
             ];
+
+            if (empty($result['id'])) {
+                $this->lastError = 'gateway respondeu sem id de cobrança';
+            } else {
+                $this->lastError = null;
+            }
+
+            return $result;
         } catch (\Throwable $e) {
+            $this->lastError = 'exceção ao criar cobrança: '.$e->getMessage();
+
             Log::error('Gateway Billing: Exceção ao criar cobrança', [
                 'customer_id' => $customerId,
                 'error' => $e->getMessage(),
@@ -162,6 +194,8 @@ class BillingGatewayService
                 ->get("{$this->gatewayUrl}/internal/billing/payments/{$paymentId}/pix");
 
             if ($response->failed()) {
+                $this->lastError = 'falha HTTP ao obter PIX: '.$response->status().' '.$this->safeResponseBody($response->body());
+
                 Log::error('Gateway Billing: Falha ao obter QR Code PIX', [
                     'payment_id' => $paymentId,
                     'status' => $response->status(),
@@ -171,12 +205,16 @@ class BillingGatewayService
                 return ['payload' => null, 'encodedImage' => null, 'expirationDate' => null];
             }
 
+            $this->lastError = null;
+
             return [
                 'payload' => $response->json('payload'),
                 'encodedImage' => $response->json('encodedImage'),
                 'expirationDate' => $response->json('expirationDate'),
             ];
         } catch (\Throwable $e) {
+            $this->lastError = 'exceção ao obter PIX: '.$e->getMessage();
+
             Log::error('Gateway Billing: Exceção ao obter QR Code PIX', [
                 'payment_id' => $paymentId,
                 'error' => $e->getMessage(),
@@ -196,8 +234,12 @@ class BillingGatewayService
                 ->get("{$this->gatewayUrl}/internal/billing/payments/{$paymentId}/status");
 
             if ($response->failed()) {
+                $this->lastError = 'falha HTTP ao consultar status: '.$response->status().' '.$this->safeResponseBody($response->body());
+
                 return ['status' => null, 'value' => null, 'confirmedDate' => null];
             }
+
+            $this->lastError = null;
 
             return [
                 'status' => $response->json('status'),
@@ -205,6 +247,8 @@ class BillingGatewayService
                 'confirmedDate' => $response->json('confirmedDate'),
             ];
         } catch (\Throwable $e) {
+            $this->lastError = 'exceção ao consultar status: '.$e->getMessage();
+
             Log::error('Gateway Billing: Exceção ao consultar status', [
                 'payment_id' => $paymentId,
                 'error' => $e->getMessage(),
@@ -336,5 +380,12 @@ class BillingGatewayService
     {
         return Http::timeout($this->timeout)
             ->withHeaders($this->apiKey ? ['X-API-Key' => $this->apiKey] : []);
+    }
+
+    private function safeResponseBody(string $body): string
+    {
+        $sanitized = trim(preg_replace('/\s+/', ' ', $body) ?? '');
+
+        return substr($sanitized, 0, 240);
     }
 }

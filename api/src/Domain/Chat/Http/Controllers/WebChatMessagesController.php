@@ -34,9 +34,7 @@ final class WebChatMessagesController extends BaseController
      *  - mensagens internas (internal_note)
      *  - mensagens deletadas
      *
-     * @param  Request  $request
      * @param  string  $id  UUID da sessão
-     * @return JsonResponse
      */
     public function index(Request $request, string $id): JsonResponse
     {
@@ -86,17 +84,18 @@ final class WebChatMessagesController extends BaseController
             ->orderBy('created_at', 'asc')
             ->get()
             ->map(fn (ChatMessage $msg) => [
-                'id'        => (string) $msg->id,
-                'content'   => (string) ($msg->content ?? ''),
+                'id' => (string) $msg->id,
+                'content' => (string) ($msg->content ?? ''),
                 // Perspectiva do frontend (visitante): inverte a direção do banco.
                 // DB 'incoming' = plataforma recebeu do visitante → 'outgoing' no widget.
                 // DB 'outgoing' = plataforma enviou ao visitante  → 'incoming' no widget.
                 'direction' => $msg->direction === 'incoming' ? 'outgoing' : 'incoming',
-                'source'    => (string) ($msg->source ?? 'ai'),
-                'type'      => $this->resolveType($msg->type),
-                'status'    => (string) ($msg->status ?? 'sent'),
-                'fileUrl'   => $msg->file_url,
-                'mimeType'  => $msg->mime_type,
+                'source' => (string) ($msg->source ?? 'ai'),
+                'type' => $this->resolveType($msg->type),
+                'status' => (string) ($msg->status ?? 'sent'),
+                'fileUrl' => $msg->file_url,
+                'mimeType' => $msg->mime_type,
+                'fileName' => $msg->file_name,
                 'createdAt' => $msg->created_at?->toIso8601String(),
                 'sessionId' => $sessionId,
             ]);
@@ -110,11 +109,11 @@ final class WebChatMessagesController extends BaseController
     private function resolveType(string $type): string
     {
         return match ($type) {
-            'image'                  => 'image',
-            'video'                  => 'video',
-            'audio', 'ptt'           => 'audio',
-            'document', 'file'       => 'file',
-            default                  => 'text',
+            'image' => 'image',
+            'video' => 'video',
+            'audio', 'ptt' => 'audio',
+            'document', 'file' => 'file',
+            default => 'text',
         };
     }
 }

@@ -101,9 +101,21 @@ export const SIDEBAR_MENU: SidebarMenuItem[] = [
         iconName: 'bot',
         requiresAiDisabled: true,
       },
-      { type: 'item', label: 'Listas de Transmissão', link: '/chat/transmission-list', iconName: 'megaphone' },
+      {
+        type: 'item',
+        label: 'Listas de Transmissão',
+        link: '/chat/transmission-list',
+        iconName: 'megaphone',
+      },
       { type: 'item', label: 'Respostas Rápidas', link: '/chat/quick-answers', iconName: 'zap' },
       { type: 'item', label: 'Canais', link: '/chat/channel', iconName: 'cable' },
+      {
+        type: 'item',
+        label: 'Templates',
+        link: '/chat/templates',
+        iconName: 'message-square-text',
+        requiredPermission: 'chat.templates.manage',
+      },
     ],
   },
   {

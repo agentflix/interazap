@@ -4,6 +4,7 @@ import { type Contact } from 'src/app/core/models/contact.model';
 import { type Called, CalledService } from 'src/app/core/services/called.service';
 import { CalledMessageService } from 'src/app/core/services/called-message.service';
 import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
+import { InstanceService } from 'src/app/core/services/instance.service';
 import { ChatStore } from './chat.store';
 
 describe('ChatStore', () => {
@@ -15,6 +16,9 @@ describe('ChatStore', () => {
   let messageServiceSpy: Record<string, never>;
   let chatRefreshSpy: {
     request: ReturnType<typeof vi.fn>;
+  };
+  let instanceServiceSpy: {
+    list: ReturnType<typeof vi.fn>;
   };
 
   const createCalled = (overrides: Partial<Called> = {}): Called => ({
@@ -34,6 +38,9 @@ describe('ChatStore', () => {
     chatRefreshSpy = {
       request: vi.fn(),
     };
+    instanceServiceSpy = {
+      list: vi.fn().mockReturnValue(of({ data: [] })),
+    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -41,6 +48,7 @@ describe('ChatStore', () => {
         { provide: CalledService, useValue: calledServiceSpy },
         { provide: CalledMessageService, useValue: messageServiceSpy },
         { provide: ChatRefreshService, useValue: chatRefreshSpy },
+        { provide: InstanceService, useValue: instanceServiceSpy },
       ],
     });
 
@@ -138,5 +146,47 @@ describe('ChatStore', () => {
     store.updateContact(newContact);
 
     expect(store.selectedCalled()?.contact).toEqual(newContact);
+  });
+
+  describe('composerMode', () => {
+    it('returns "free" when ticket has no instance_id', () => {
+      store.instanceProviders.set({});
+      calledServiceSpy.get.mockReturnValue(of({ data: createCalled({ id: '1' }) }));
+      store.selectCalled('1');
+      expect(store.composerMode()).toBe('free');
+    });
+
+    it('returns "free" when instance provider is not meta', () => {
+      store.instanceProviders.set({ i1: 'uazapi' });
+      calledServiceSpy.get.mockReturnValue(of({ data: createCalled({ id: '1', instance_id: 'i1' }) }));
+      store.selectCalled('1');
+      expect(store.composerMode()).toBe('free');
+    });
+
+    it('returns "mixed" when meta provider and window is open', () => {
+      store.instanceProviders.set({ i1: 'meta' });
+      calledServiceSpy.get.mockReturnValue(of({ data: createCalled({ id: '1', instance_id: 'i1' }) }));
+      store.selectCalled('1');
+      store.setWindowStatus({ canSendFreeText: true, lastMessageAt: new Date() });
+      expect(store.composerMode()).toBe('mixed');
+    });
+
+    it('returns "template-only" when meta provider and window is expired', () => {
+      store.instanceProviders.set({ i1: 'meta' });
+      calledServiceSpy.get.mockReturnValue(of({ data: createCalled({ id: '1', instance_id: 'i1' }) }));
+      store.selectCalled('1');
+      store.setWindowStatus({ canSendFreeText: false, lastMessageAt: null });
+      expect(store.composerMode()).toBe('template-only');
+    });
+  });
+
+  describe('windowStatus', () => {
+    it('sets and clears window status', () => {
+      store.setWindowStatus({ canSendFreeText: true, lastMessageAt: new Date() });
+      expect(store.windowStatus()?.canSendFreeText).toBe(true);
+
+      store.clearWindowStatus();
+      expect(store.windowStatus()).toBeNull();
+    });
   });
 });

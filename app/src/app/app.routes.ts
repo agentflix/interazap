@@ -347,6 +347,33 @@ export const routes: Routes = [
         data: { title: 'Canais', permission: 'chat.channel.view' },
       },
       {
+        path: 'chat/templates',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./pages/chat/templates/templates-page/templates-page').then(
+            (m) => m.TemplatesPageComponent,
+          ),
+        data: { title: 'Templates de Mensagens', permission: 'chat.templates.manage' },
+      },
+      {
+        path: 'chat/templates/new',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./pages/chat/templates/template-form-page/template-form-page').then(
+            (m) => m.TemplateFormPageComponent,
+          ),
+        data: { title: 'Novo Template', permission: 'chat.templates.manage' },
+      },
+      {
+        path: 'chat/templates/:id/edit',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./pages/chat/templates/template-form-page/template-form-page').then(
+            (m) => m.TemplateFormPageComponent,
+          ),
+        data: { title: 'Editar Template', permission: 'chat.templates.manage' },
+      },
+      {
         path: 'chat',
         canActivate: [permissionGuard],
         loadComponent: () => import('./pages/chat/chat').then((m) => m.Chat),

@@ -41,3 +41,14 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Capacitor — iOS build artifacts (keep boilerplate, ignore generated)
+/ios/App/Pods/
+/ios/App/build/
+/ios/App/App.xcworkspace/xcuserdata/
+
+# Capacitor — Android build artifacts (keep boilerplate, ignore generated)
+/android/.gradle/
+/android/app/build/
+/android/build/
+/android/local.properties

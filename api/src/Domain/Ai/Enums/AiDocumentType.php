@@ -104,6 +104,16 @@ enum AiDocumentType: string
     }
 
     /**
+     * Retorna todos os valores do enum.
+     *
+     * @return list<string>
+     */
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
+
+    /**
      * Retorna todos os tipos MIME aceitos pelo sistema.
      *
      * @return list<string>

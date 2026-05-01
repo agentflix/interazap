@@ -43,7 +43,15 @@ describe('WebChatPageComponent', () => {
       imports: [WebChatPageComponent],
       providers: [
         { provide: WebChatService, useValue: mockWebChatService },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'test-tenant' } } } },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: { get: () => 'test-tenant' },
+              queryParamMap: { get: () => null },
+            },
+          },
+        },
       ],
     });
 

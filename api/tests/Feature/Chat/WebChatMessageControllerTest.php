@@ -19,6 +19,7 @@ final class WebChatMessageControllerTest extends TestCase
     use LazilyRefreshDatabase;
 
     private string $tenantId;
+
     private WebChatJwtService $jwtService;
 
     protected function setUp(): void

@@ -22,7 +22,6 @@ import {
  */
 @Controller({
   path: 'billing/webhooks/:provider/instances/:instance_webhook_token',
-  version: '1',
 })
 @UseGuards(IdempotentWebhookGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))

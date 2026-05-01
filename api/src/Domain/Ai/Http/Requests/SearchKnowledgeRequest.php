@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Domain\Ai\Http\Requests;
 
+use Domain\Ai\Enums\AiDocumentType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
  * Request validation for RAG search.
@@ -49,6 +51,32 @@ class SearchKnowledgeRequest extends FormRequest
                 'nullable',
                 'string',
                 'in:vector,hybrid',
+            ],
+            'document_ids' => [
+                'nullable',
+                'array',
+            ],
+            'document_ids.*' => [
+                'uuid',
+                Rule::exists('ai_knowledge_documents', 'id')->where(function ($query): void {
+                    $query->where('tenant_id', $this->user()?->tenant_id);
+                }),
+            ],
+            'file_types' => [
+                'nullable',
+                'array',
+            ],
+            'file_types.*' => [
+                'string',
+                Rule::in(AiDocumentType::values()),
+            ],
+            'created_after' => [
+                'nullable',
+                'date_format:Y-m-d\TH:i:sP',
+            ],
+            'created_before' => [
+                'nullable',
+                'date_format:Y-m-d\TH:i:sP',
             ],
         ];
     }

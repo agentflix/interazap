@@ -1,5 +1,6 @@
 import { WebhookEventDto } from '../dto/webhook-event.dto';
 import { UazapiProvider } from '../providers/uazapi/uazapi.provider';
+import { NormalizedTemplateStatusPayload } from '../contracts/provider.interface';
 
 export type StreamPayloadBase = {
   instance_id?: string | null;
@@ -44,6 +45,11 @@ export type ZapiStreamPayload = StreamPayloadBase & {
     status?: string;
     connected?: boolean;
   };
+  /**
+   * Presente apenas para eventos `meta.template.status_updated`.
+   * Propaga o status do template para o Backend consumir via stream.
+   */
+  template?: NormalizedTemplateStatusPayload;
   raw?: Record<string, unknown>;
 };
 

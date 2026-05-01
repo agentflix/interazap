@@ -7,6 +7,10 @@ namespace Tests\Feature;
 use Domain\Billing\Console\Commands\BillingWebhookConsumer;
 use Domain\Billing\DTOs\BillingWebhookDTO;
 use Domain\Billing\Enums\BillingEventType;
+use Domain\Billing\Enums\BillingInvoiceStatus;
+use Domain\Billing\Enums\BillingPaymentStatus;
+use Domain\Billing\Models\BillingInvoice;
+use Domain\Billing\Models\BillingPayment;
 use Domain\Billing\Models\BillingWebhookEvent;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Shared\Events\RealtimeBroadcastEvent;
@@ -75,6 +79,55 @@ class StreamsBillingCommandTest extends TestCase
             'domain' => 'billing',
             'provider_event_id' => $payload['provider_event_id'],
         ]);
+    }
+
+    public function test_consumer_marks_invoice_paid_and_creates_payment_record(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+
+        $invoice = BillingInvoice::factory()->create([
+            'tenant_id' => $tenant->id,
+            'status' => BillingInvoiceStatus::PENDING,
+            'amount' => 120.50,
+        ]);
+
+        $providerEventId = 'pay_flow_123';
+        $payload = [
+            'payment' => [
+                'id' => $providerEventId,
+                'value' => 120.50,
+                'billingType' => 'PIX',
+                'externalReference' => (string) $invoice->id,
+            ],
+        ];
+
+        $streamName = (string) config('billing.streams.payment_received.name', 'billing.payment_received');
+
+        $this->mockGatewayConnection([
+            $streamName => [
+                '1-0' => [
+                    'tenant_id' => $tenant->id,
+                    'provider' => 'ASAAS',
+                    'event_type' => BillingEventType::PAYMENT_RECEIVED->value,
+                    'provider_event_id' => $providerEventId,
+                    'idempotency_key' => hash('sha256', 'asaas|PAYMENT_RECEIVED|'.$providerEventId),
+                    'payload' => json_encode($payload, JSON_THROW_ON_ERROR),
+                ],
+            ],
+        ]);
+
+        Artisan::call(BillingWebhookConsumer::class, ['--once' => true]);
+
+        $invoice->refresh();
+
+        $this->assertSame(BillingInvoiceStatus::PAID, $invoice->status);
+
+        $payment = BillingPayment::query()->where('invoice_id', $invoice->id)->first();
+
+        $this->assertNotNull($payment);
+        $this->assertSame(BillingPaymentStatus::CONFIRMED, $payment?->status);
+        $this->assertSame('asaas', $payment?->provider);
+        $this->assertSame($providerEventId, $payment?->provider_payment_id);
     }
 
     public function test_skips_duplicate_billing_event(): void

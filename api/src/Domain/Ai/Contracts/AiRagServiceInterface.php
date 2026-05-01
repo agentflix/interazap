@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Ai\Contracts;
 
+use Domain\Ai\DTOs\KnowledgeSearchFiltersDTO;
 use Domain\Ai\Enums\AiRagSearchModeEnum;
 
 /**
@@ -22,6 +23,7 @@ interface AiRagServiceInterface
         int $limit = 5,
         float $minScore = 0.30,
         AiRagSearchModeEnum $mode = AiRagSearchModeEnum::VECTOR,
+        ?KnowledgeSearchFiltersDTO $filters = null,
     ): array;
 
     /**

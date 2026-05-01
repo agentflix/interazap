@@ -24,17 +24,22 @@ final class ChatMessageTemplatePolicy
 
     public function create(AuthUser $user): bool
     {
-        return (string) $user->tenant_id !== '';
+        return (string) $user->tenant_id !== '' && $user->hasPermissionTo('chat.templates.manage');
     }
 
     public function update(AuthUser $user, ChatMessageTemplate $template): bool
     {
-        return $this->belongsToTenant($user, $template);
+        return $this->belongsToTenant($user, $template) && $user->hasPermissionTo('chat.templates.manage');
     }
 
     public function delete(AuthUser $user, ChatMessageTemplate $template): bool
     {
-        return $this->belongsToTenant($user, $template);
+        return $this->belongsToTenant($user, $template) && $user->hasPermissionTo('chat.templates.manage');
+    }
+
+    public function sync(AuthUser $user): bool
+    {
+        return $this->create($user);
     }
 
     private function belongsToTenant(AuthUser $user, ChatMessageTemplate $template): bool

@@ -57,6 +57,7 @@ class ChatTicketResource extends BaseJsonResource
             'subject' => $this->subject,
             'is_group' => $this->is_group,
             'is_bot_active' => $this->is_bot_active,
+            'current_ai_agent_id' => $this->current_ai_agent_id,
             'queued_at' => $this->iso($this->created_at),
             'started_at' => $this->iso($this->started_at),
             'first_response_at' => $this->iso($this->first_response_at),

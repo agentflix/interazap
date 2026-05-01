@@ -3,11 +3,11 @@
 
 version: '1.0'
 project: 'InteraZap'
-last_updated: '2026-04-21'
+last_updated: '2026-04-30'
 
 stack:
     backend:
-        language: 'PHP 8.2+'
+        language: 'PHP 8.3'
         framework: 'Laravel 12'
         version: '12.x'
     frontend:
@@ -19,36 +19,36 @@ stack:
         version: '16'
     testing:
         backend: 'Pest'
-        frontend: 'Jasmine/Karma'
+        frontend: 'Vitest'
         e2e: 'Playwright'
 
 metrics:
-    total_features: 5
-    features_completed: 4 # FEAT-039, FEAT-040, FEAT-041, FEAT-042
-    features_in_progress: 1 # FEAT-043 (WebSocket Realtime Fix)
-    total_tasks: 57 # 17 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041) + 7 (FEAT-042) + 6 (FEAT-043)
-    tasks_completed: 50 # 16 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041) + 7 (FEAT-042)
+    total_features: 7
+    features_completed: 6 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050, FEAT-051
+    features_in_progress: 0
+    total_tasks: 100 # 88 anteriores + 12 (FEAT-051)
+    tasks_completed: 100
     tasks_in_progress: 0
-    tasks_pending: 7 # TASK-039.17 E2E + FEAT-043 tasks
+    tasks_pending: 0
     tasks_pending_new: 0
 
 modules_status:
     'AI':
         status: 'active'
-        completion: 'unknown'
-        last_change: '2026-04-11'
+        completion: 'FEAT-051 complete (RAG Quality Improvements: observability, tuning, chunking, dedup, filters, stats)'
+        last_change: '2026-04-30'
     'Auth':
         status: 'active'
         completion: 'unknown'
-        last_change: '2026-04-11'
+        last_change: '2026-04-27'
     'Billing':
         status: 'active'
         completion: 'unknown'
         last_change: '2026-04-11'
     'Chat':
         status: 'active'
-        completion: '100% FEAT-040/041/042 concluídas + FEAT-043 (WebSocket Realtime) em andamento'
-        last_change: '2026-04-21'
+        completion: '100% FEAT-040/041/042/050 concluídas + FEAT-043 em andamento'
+        last_change: '2026-04-29'
     'Configuration':
         status: 'active'
         completion: 'unknown'
@@ -63,8 +63,8 @@ modules_status:
         last_change: '2026-04-11'
     'Gateway':
         status: 'active'
-        completion: 'unknown'
-        last_change: '2026-04-11'
+        completion: 'FEAT-050 completa (endpoints Meta templates + webhook status update) + FEAT-047 Fase 5 corrigida (push notifications: DeviceTokenRegistrationTest 4 passed, NewMessageNotificationTest 4 passed, GatewayBroadcastServiceTest 9 passed)'
+        last_change: '2026-04-29'
     'Platform':
         status: 'active'
         completion: 'unknown'
@@ -79,7 +79,7 @@ modules_status:
         last_change: '2026-04-11'
 
 quality:
-    test_coverage_backend: 'unknown'
-    test_coverage_frontend: 'unknown'
-    lint_status: 'unknown'
-    last_validation: '2026-04-21'
+    test_coverage_backend: '>=80% nos paths Domain/Chat/Actions, Http, Listeners, Jobs; >=82.5% nos arquivos alvo de FEAT-051'
+    test_coverage_frontend: 'Testes unitários passando para chat.store, chat-conversation-component, template-selector'
+    lint_status: 'ESLint 0 erros / 0 warnings nos arquivos FEAT-050'
+    last_validation: '2026-04-30'

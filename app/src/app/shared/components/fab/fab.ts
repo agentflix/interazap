@@ -54,9 +54,9 @@ export class AfFabComponent {
         'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-600/50',
     };
     const positions: Record<string, string> = {
-      'bottom-right': 'fixed bottom-6 right-6',
-      'bottom-left': 'fixed bottom-6 left-6',
-      'bottom-center': 'fixed bottom-6 left-1/2 -translate-x-1/2',
+      'bottom-right': 'fixed bottom-6 right-6 mb-safe mr-safe',
+      'bottom-left': 'fixed bottom-6 left-6 mb-safe ml-safe',
+      'bottom-center': 'fixed bottom-6 left-1/2 -translate-x-1/2 mb-safe',
     };
     return [
       'inline-flex items-center justify-center rounded-full shadow-lg',

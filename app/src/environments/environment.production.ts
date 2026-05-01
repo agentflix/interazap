@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  mobile: false,
   apiUrl: 'https://api.interazap.com.br/api',
   gateway: {
     url: 'https://gateway.interazap.com.br',

@@ -7,8 +7,8 @@ declare(strict_types=1);
  *
  * Endpoints públicos para visitantes webchat (sem autenticação Sanctum).
  */
-use Domain\Chat\Http\Controllers\WebChatHealthController;
 use Domain\Chat\Http\Controllers\WebChatCloseController;
+use Domain\Chat\Http\Controllers\WebChatHealthController;
 use Domain\Chat\Http\Controllers\WebChatMediaController;
 use Domain\Chat\Http\Controllers\WebChatMessageController;
 use Domain\Chat\Http\Controllers\WebChatMessagesController;

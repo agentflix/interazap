@@ -7,7 +7,6 @@ namespace Tests\Unit\Chat\Listeners;
 use Domain\Ai\Events\AiResponseReceived;
 use Domain\Chat\Listeners\AiResponseListener;
 use Domain\Chat\Models\ChatMessage;
-use Domain\Chat\Models\ChatMessageExtended;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\WebChatRedisPublisher;
 use Domain\Platform\Models\PlatformTenant;
@@ -22,7 +21,9 @@ final class AiResponseListenerTest extends TestCase
     use LazilyRefreshDatabase;
 
     private MockInterface $mockPublisher;
+
     private AiResponseListener $listener;
+
     private string $tenantId;
 
     protected function setUp(): void
@@ -33,7 +34,7 @@ final class AiResponseListenerTest extends TestCase
         $this->tenantId = (string) PlatformTenant::factory()->create()->id;
     }
 
-    public function test_publishes_AI_response_to_Redis_when_session_id_is_in_context(): void
+    public function test_publishes_a_i_response_to_redis_when_session_id_is_in_context(): void
     {
         $ticket = ChatTicket::factory()->create(['tenant_id' => $this->tenantId]);
         $message = ChatMessage::factory()->create([
