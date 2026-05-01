@@ -21,6 +21,11 @@ Route::middleware(['auth:sanctum'])->prefix('ai/knowledge')->group(function (): 
     // Get statistics
     Route::get('/stats', [AiKnowledgeController::class, 'stats'])->name('ai.knowledge.stats');
 
+    // Get RAG query statistics
+    Route::get('/rag-stats', [AiKnowledgeController::class, 'ragStats'])
+        ->middleware('throttle:30')
+        ->name('ai.knowledge.rag-stats');
+
     // Search (POST for longer queries)
     Route::post('/search', [AiKnowledgeController::class, 'search'])->name('ai.knowledge.search');
     Route::post('/url', [AiKnowledgeController::class, 'ingestUrl'])->name('ai.knowledge.url.store');

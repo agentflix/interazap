@@ -3,7 +3,7 @@
 
 version: '1.0'
 project: 'InteraZap'
-last_updated: '2026-04-29'
+last_updated: '2026-04-30'
 
 stack:
     backend:
@@ -23,20 +23,20 @@ stack:
         e2e: 'Playwright'
 
 metrics:
-    total_features: 6
-    features_completed: 5 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050
-    features_in_progress: 1 # FEAT-043 (WebSocket Realtime Fix)
-    total_tasks: 88 # 17 (FEAT-039) + 22 (FEAT-040) + 5 (FEAT-041) + 7 (FEAT-042) + 6 (FEAT-043) + 31 (FEAT-050)
-    tasks_completed: 88 # FEAT-050 completa (+20 tasks dos Sprints 1-5)
+    total_features: 7
+    features_completed: 6 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050, FEAT-051
+    features_in_progress: 0
+    total_tasks: 100 # 88 anteriores + 12 (FEAT-051)
+    tasks_completed: 100
     tasks_in_progress: 0
-    tasks_pending: 6 # Apenas FEAT-043 restante
+    tasks_pending: 0
     tasks_pending_new: 0
 
 modules_status:
     'AI':
         status: 'active'
-        completion: 'unknown'
-        last_change: '2026-04-11'
+        completion: 'FEAT-051 complete (RAG Quality Improvements: observability, tuning, chunking, dedup, filters, stats)'
+        last_change: '2026-04-30'
     'Auth':
         status: 'active'
         completion: 'unknown'
@@ -63,7 +63,7 @@ modules_status:
         last_change: '2026-04-11'
     'Gateway':
         status: 'active'
-        completion: 'FEAT-050 completa (endpoints Meta templates + webhook status update)'
+        completion: 'FEAT-050 completa (endpoints Meta templates + webhook status update) + FEAT-047 Fase 5 corrigida (push notifications: DeviceTokenRegistrationTest 4 passed, NewMessageNotificationTest 4 passed, GatewayBroadcastServiceTest 9 passed)'
         last_change: '2026-04-29'
     'Platform':
         status: 'active'
@@ -79,7 +79,7 @@ modules_status:
         last_change: '2026-04-11'
 
 quality:
-    test_coverage_backend: '>=80% nos paths Domain/Chat/Actions, Http, Listeners, Jobs'
+    test_coverage_backend: '>=80% nos paths Domain/Chat/Actions, Http, Listeners, Jobs; >=82.5% nos arquivos alvo de FEAT-051'
     test_coverage_frontend: 'Testes unitários passando para chat.store, chat-conversation-component, template-selector'
     lint_status: 'ESLint 0 erros / 0 warnings nos arquivos FEAT-050'
-    last_validation: '2026-04-29'
+    last_validation: '2026-04-30'

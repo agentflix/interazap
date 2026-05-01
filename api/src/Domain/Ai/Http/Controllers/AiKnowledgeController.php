@@ -6,10 +6,13 @@ namespace Domain\Ai\Http\Controllers;
 
 use Domain\Ai\Actions\Rag\DeleteDocumentAction;
 use Domain\Ai\Actions\Rag\GetKnowledgeStatsAction;
+use Domain\Ai\Actions\Rag\GetRagStatsAction;
 use Domain\Ai\Actions\Rag\IngestUrlAction;
 use Domain\Ai\Actions\Rag\ReindexDocumentAction;
 use Domain\Ai\Actions\Rag\UploadDocumentAction;
 use Domain\Ai\Contracts\AiRagServiceInterface;
+use Domain\Ai\DTOs\KnowledgeSearchFiltersDTO;
+use Domain\Ai\Enums\AiDocumentType;
 use Domain\Ai\Enums\AiRagSearchModeEnum;
 use Domain\Ai\Exceptions\StorageLimitExceededException;
 use Domain\Ai\Http\Requests\AiKnowledgeBulkDeleteRequest;
@@ -21,6 +24,7 @@ use Domain\Ai\Http\Resources\KnowledgeChunkResource;
 use Domain\Ai\Http\Resources\KnowledgeDocumentResource;
 use Domain\Ai\Http\Resources\KnowledgeSearchResultResource;
 use Domain\Ai\Http\Resources\KnowledgeStatsResource;
+use Domain\Ai\Http\Resources\RagStatsResource;
 use Domain\Ai\Models\AiKnowledgeChunk;
 use Domain\Ai\Models\AiKnowledgeDocument;
 use Domain\Platform\Models\PlatformTenant;
@@ -244,11 +248,63 @@ final class AiKnowledgeController extends BaseController
         $minScore = (float) $request->input('min_score', 0.30);
         $mode = AiRagSearchModeEnum::from((string) $request->input('mode', AiRagSearchModeEnum::VECTOR->value));
 
-        $results = $ragService->search($query, $tenantId, $limit, $minScore, $mode);
+        $filters = $this->buildSearchFilters($request);
+
+        $results = $ragService->search($query, $tenantId, $limit, $minScore, $mode, $filters);
 
         return response()->json([
             'success' => true,
             'data' => KnowledgeSearchResultResource::collection($results),
+        ]);
+    }
+
+    /**
+     * Build search filters DTO from request.
+     */
+    private function buildSearchFilters(SearchKnowledgeRequest $request): ?KnowledgeSearchFiltersDTO
+    {
+        $documentIds = $request->input('document_ids');
+        $fileTypesInput = $request->input('file_types');
+        $createdAfter = $request->input('created_after');
+        $createdBefore = $request->input('created_before');
+
+        if ($documentIds === null && $fileTypesInput === null && $createdAfter === null && $createdBefore === null) {
+            return null;
+        }
+
+        $fileTypes = null;
+        if ($fileTypesInput !== null) {
+            $fileTypes = array_filter(array_map(
+                static fn (string $value): ?AiDocumentType => AiDocumentType::tryFrom($value),
+                $fileTypesInput
+            ));
+        }
+
+        return new KnowledgeSearchFiltersDTO(
+            documentIds: $documentIds !== null ? array_values($documentIds) : null,
+            fileTypes: $fileTypes !== null && $fileTypes !== [] ? array_values($fileTypes) : null,
+            createdAfter: $createdAfter !== null ? \Illuminate\Support\Carbon::parse($createdAfter) : null,
+            createdBefore: $createdBefore !== null ? \Illuminate\Support\Carbon::parse($createdBefore) : null,
+        );
+    }
+
+    /**
+     * Get RAG query statistics.
+     */
+    public function ragStats(
+        Request $request,
+        GetRagStatsAction $action,
+    ): JsonResponse {
+        $this->authorize('ai.autopilots.manage');
+        $tenantId = $this->tenantId($request);
+
+        $days = max(1, min(90, (int) $request->input('days', 7)));
+
+        $stats = $action->execute($tenantId, $days);
+
+        return response()->json([
+            'success' => true,
+            'data' => new RagStatsResource($stats),
         ]);
     }
 

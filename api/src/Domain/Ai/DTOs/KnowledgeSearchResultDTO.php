@@ -17,7 +17,9 @@ final readonly class KnowledgeSearchResultDTO
      * @param  string  $documentName  Document name for display
      * @param  string  $content  Chunk content
      * @param  int  $chunkIndex  Chunk index within document
-     * @param  float  $score  Similarity score (0-1, higher is more similar)
+     * @param  float|null  $score  Similarity score (0-1, higher is more similar)
+     * @param  bool  $isNeighbor  Whether this chunk is a neighbor expansion
+     * @param  string|null  $neighborOfChunkId  Original chunk ID that triggered this neighbor
      */
     public function __construct(
         public string $chunkId,
@@ -25,7 +27,9 @@ final readonly class KnowledgeSearchResultDTO
         public string $documentName,
         public string $content,
         public int $chunkIndex,
-        public float $score,
+        public ?float $score = null,
+        public bool $isNeighbor = false,
+        public ?string $neighborOfChunkId = null,
     ) {}
 
     /**
@@ -39,7 +43,9 @@ final readonly class KnowledgeSearchResultDTO
             'document_name' => $this->documentName,
             'content' => $this->content,
             'chunk_index' => $this->chunkIndex,
-            'score' => round($this->score, 4),
+            'score' => $this->score !== null ? round($this->score, 4) : null,
+            'is_neighbor' => $this->isNeighbor,
+            'neighbor_of_chunk_id' => $this->neighborOfChunkId,
         ];
     }
 }

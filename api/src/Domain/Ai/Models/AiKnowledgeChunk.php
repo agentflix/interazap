@@ -53,6 +53,7 @@ class AiKnowledgeChunk extends Model
         'chunk_index',
         'content',
         'token_count',
+        'content_hash',
         'embedding',
         'created_at',
     ];
@@ -63,6 +64,7 @@ class AiKnowledgeChunk extends Model
     protected $casts = [
         'chunk_index' => 'integer',
         'token_count' => 'integer',
+        'content_hash' => 'string',
         'created_at' => 'datetime',
     ];
 
