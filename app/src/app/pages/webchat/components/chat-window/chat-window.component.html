@@ -1,9 +1,9 @@
-<div class="flex flex-col h-screen bg-white dark:bg-neutral-950 overflow-hidden">
+<div class="flex flex-col h-[100dvh] bg-white dark:bg-neutral-950 overflow-hidden">
   <!-- Header -->
   <header
-    class="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shrink-0"
+    class="flex items-center justify-between gap-2 px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shrink-0"
   >
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 min-w-0 flex-1">
       <!-- Chat icon -->
       <div class="w-8 h-8 rounded-full bg-accent-500 flex items-center justify-center shrink-0">
         <svg
@@ -21,11 +21,11 @@
           />
         </svg>
       </div>
-      <div>
+      <div class="min-w-0 flex-1">
         <!-- Row 1: name + protocol badge -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
           @if (visitorName() && visitorName() !== 'Visitante') {
-            <h1 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-tight">
+            <h1 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-tight truncate">
               {{ visitorName() }}
             </h1>
           } @else {
@@ -35,30 +35,30 @@
           }
           @if (protocol()) {
             <span
-              class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 leading-none"
+              class="inline-flex shrink-0 items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 leading-none"
             >
               #{{ protocol() }}
             </span>
           }
         </div>
         <!-- Row 2: service label · phone · connection status -->
-        <div class="flex items-center gap-1.5 mt-0.5">
+        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
           @if (visitorName() && visitorName() !== 'Visitante') {
-            <span class="text-xs text-neutral-400 dark:text-neutral-500">Atendimento Web</span>
+            <span class="text-xs text-neutral-400 dark:text-neutral-500 shrink-0">Atendimento Web</span>
             @if (visitorPhone()) {
-              <span class="text-neutral-300 dark:text-neutral-700" aria-hidden="true">·</span>
+              <span class="text-neutral-300 dark:text-neutral-700 shrink-0" aria-hidden="true">·</span>
             }
           }
           @if (visitorPhone()) {
-            <span class="text-xs text-neutral-400 dark:text-neutral-500">{{ visitorPhone() }}</span>
-            <span class="text-neutral-300 dark:text-neutral-700" aria-hidden="true">·</span>
+            <span class="text-xs text-neutral-400 dark:text-neutral-500 shrink-0">{{ visitorPhone() }}</span>
+            <span class="text-neutral-300 dark:text-neutral-700 shrink-0" aria-hidden="true">·</span>
           }
           <span
             [class]="connectionStatusDot()"
             class="w-1.5 h-1.5 rounded-full shrink-0"
             aria-hidden="true"
           ></span>
-          <span class="text-xs text-neutral-500 dark:text-neutral-400">{{
+          <span class="text-xs text-neutral-500 dark:text-neutral-400 shrink-0">{{
             connectionLabel()
           }}</span>
         </div>
@@ -66,9 +66,11 @@
     </div>
 
     @if (!isClosed()) {
-      <af-button variant="outline" size="sm" [disabled]="isClosing()" (clicked)="openCloseModal()">
-        Encerrar chamado
-      </af-button>
+      <div class="shrink-0">
+        <af-button variant="outline" size="sm" [disabled]="isClosing()" (clicked)="openCloseModal()">
+          Encerrar chamado
+        </af-button>
+      </div>
     }
   </header>
 
