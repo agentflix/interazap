@@ -8,6 +8,7 @@ use Domain\Chat\DTOs\ChatTicketDTO;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Models\ChatTicketSequence;
 use Domain\Chat\Services\ChatActivityBroadcastService;
+use Domain\Chat\Services\ChatRoutingService;
 use Domain\Configuration\Events\TicketCreatedEvent;
 use Domain\CRM\Models\CRMContact;
 use Illuminate\Support\Facades\Cache;
@@ -32,12 +33,38 @@ final class CreateChatTicketAction
 
     public function __construct(
         private readonly ChatActivityBroadcastService $activityBroadcast,
+        private readonly ChatRoutingService $routingService,
+        private readonly AssignChatTicketAction $assignAction,
     ) {}
 
     /**
      * Criar um novo ticket manual.
      */
     public function create(string $tenantId, ChatTicketDTO $dto): ChatTicket
+    {
+        $ticket = $this->createTicket($tenantId, $dto);
+
+        try {
+            DB::transaction(function () use ($ticket): void {
+                $userId = $this->routingService->route($ticket);
+                if ($userId !== null && $userId !== '') {
+                    $this->assignAction->transfer($ticket, $userId, null);
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::error('[Routing] Falha ao rotear ticket', [
+                'ticket_id' => (string) $ticket->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return $ticket;
+    }
+
+    /**
+     * Persistir o ticket no banco e emitir eventos.
+     */
+    private function createTicket(string $tenantId, ChatTicketDTO $dto): ChatTicket
     {
         return DB::transaction(function () use ($tenantId, $dto): ChatTicket {
             $ticketNumber = ChatTicketSequence::next($tenantId, 'TK-');

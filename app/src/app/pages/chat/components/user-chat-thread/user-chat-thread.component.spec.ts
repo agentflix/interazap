@@ -120,13 +120,6 @@ describe('UserChatThreadComponent — scroll indicator', () => {
     mockMessagesSignal.set([]);
     mockCalledIdSignal.set('ticket-1');
 
-    // ResizeObserver não existe em jsdom; mock necessário antes do primeiro detectChanges
-    (global as any).ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
-
     await TestBed.configureTestingModule({
       imports: [UserChatThreadComponent],
       providers: [
@@ -171,6 +164,7 @@ describe('UserChatThreadComponent — scroll indicator', () => {
   it('botao aparece quando usuario esta scrollado para cima e nova mensagem chega', () => {
     (component as any).wasNearBottom = false;
     (component as any).prevMessageCount = 0;
+    (component as any).pendingScrollToBottom = false;
     // Substitui scrollElement pelo mock após ngAfterViewInit já ter rodado
     (component as any).scrollElement = makeScrollEl({ scrollTop: 0, clientHeight: 500, scrollHeight: 2000 });
 

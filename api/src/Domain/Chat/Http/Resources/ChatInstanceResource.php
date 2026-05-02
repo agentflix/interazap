@@ -56,6 +56,10 @@ final class ChatInstanceResource extends JsonResource
             'connection_status' => $connectionStatus,
             'is_connected' => $isConnected,
             'last_status_at' => $this->last_status_at?->toIso8601String(),
+            'auto_close_enabled' => $this->auto_close_enabled,
+            'auto_close_after_minutes' => $this->auto_close_after_minutes,
+            'auto_close_target' => $this->auto_close_target,
+            'auto_close_message' => $this->auto_close_message,
             'created_at' => $this->created_at->toIso8601String(),
             'updated_at' => $this->updated_at->toIso8601String(),
         ];

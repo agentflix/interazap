@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Domain\Chat\Models;
 
 use Database\Factories\ChatInstanceFactory;
+use Domain\Platform\Models\PlatformTenant;
 use Domain\Shared\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -58,6 +59,10 @@ class ChatInstance extends Model
         'webhook_token',
         'settings_json',
         'last_status_at',
+        'auto_close_enabled',
+        'auto_close_after_minutes',
+        'auto_close_target',
+        'auto_close_message',
     ];
 
     protected $casts = [
@@ -66,6 +71,12 @@ class ChatInstance extends Model
         'evaluation_cutoff_score' => 'integer',
         'settings_json' => 'array',
         'last_status_at' => 'datetime',
+        // auto_close_enabled and auto_close_after_minutes are NOT cast —
+        // they must preserve null to support "herdar do tenant".
+        // Nullable boolean/integer cast converters (bool) null → false, (int) null → 0,
+        // destroying the null semantics needed by getEffectiveAutoCloseConfig().
+        'auto_close_target' => 'string',
+        'auto_close_message' => 'string',
     ];
 
     protected static function booted(): void
@@ -75,6 +86,23 @@ class ChatInstance extends Model
                 $instance->id = (string) \Illuminate\Support\Str::orderedUuid();
             }
         });
+    }
+
+    /**
+     * Resolve a configuração efetiva de auto-fechamento, resolvendo null → tenant.
+     *
+     * @return array{enabled: bool, minutes: int, target: string, message: string}
+     */
+    public function getEffectiveAutoCloseConfig(PlatformTenant $tenant): array
+    {
+        $chatSettings = $tenant->settings_chat ?? [];
+
+        return [
+            'enabled' => $this->auto_close_enabled ?? $chatSettings['auto_close_inactivity_enabled'] ?? false,
+            'minutes' => $this->auto_close_after_minutes ?? $chatSettings['auto_close_inactivity_minutes'] ?? 30,
+            'target' => $this->auto_close_target ?? $chatSettings['auto_close_inactivity_target'] ?? 'both',
+            'message' => $this->auto_close_message ?? $chatSettings['auto_close_inactivity_message'] ?? 'Este atendimento foi encerrado automaticamente por inatividade. Caso precise de mais ajuda, por favor inicie um novo atendimento.',
+        ];
     }
 
     protected static function newFactory(): ChatInstanceFactory

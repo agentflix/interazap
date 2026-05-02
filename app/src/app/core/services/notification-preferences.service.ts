@@ -8,16 +8,10 @@ import type {
   NotificationPreferencesBulkPayload,
 } from '@shared/models/preferences.model';
 
-/**
- * Service for managing per-user notification preferences.
- * Wraps the `GET /configuration/notifications/preferences` and
- * `PUT /configuration/notifications/preferences` endpoints of
- * `ConfigurationNotificationController`.
- */
 @Injectable({ providedIn: 'root' })
 export class NotificationPreferencesService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/configuration/notifications/preferences`;
+  private readonly baseUrl = `${environment.apiUrl}/notifications/preferences`;
 
   /**
    * Fetch the current user's notification preferences for all types and channels.

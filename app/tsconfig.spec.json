@@ -34,6 +34,7 @@
     "src/**/*.d.ts",
     "src/app/pages/crm/contacts/**/*.ts",
     "src/app/pages/crm/negotiations/**/*.ts",
-    "src/app/pages/crm/negotiation-show/**/*.ts"
+    "src/app/pages/crm/negotiation-show/**/*.ts",
+    "src/app/pages/chat/configuration/**/*.ts"
   ]
 }

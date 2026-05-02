@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Console\Commands\ConsumeChatStreamCommand::class,
         Domain\Billing\Console\Commands\BillingWebhookConsumer::class,
         App\Console\Commands\ChatAutoCloseTicketsCommand::class,
+        App\Console\Commands\CloseInactiveTicketsCommand::class,
         App\Console\Commands\ChatSlaRecalcCommand::class,
         App\Console\Commands\ChatUazapiSendMediaCommand::class,
         Domain\Platform\Console\Commands\QueueHealthCommand::class,

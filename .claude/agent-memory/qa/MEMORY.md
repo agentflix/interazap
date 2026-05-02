@@ -82,6 +82,21 @@
 - `app/src/app/pages/settings/platform-settings/platform-settings.ts`
 - `app/src/app/pages/crm/dashboard/dashboard.ts`
 
+## FEAT-052 — Rodízio Automático de Atendimentos (QA Findings)
+
+**Arquivo detalhado:** `FEAT-052-findings.md`
+
+### Bugs de produção encontrados (não corrigidos por QA)
+
+1. **Middleware `can:` nas rotas de routing queue quebra para usuários normais** — o Laravel cria instância vazia de `ChatRoutingQueue` (sem `tenant_id`), fazendo a policy `view`/`manage` retornar `false` para qualquer usuário não-super-admin.
+2. **Parâmetro `{id}` do prefixo `channels/{id}/routing-queue` não propaga para `storeAgent`** quando combinado com `defaults('scope', 'channel')`, causando 404 na adição de agentes a filas de canal.
+3. **`ChatRoutingService` é `final class`** — impossibilita mock com Mockery, limitando testes de resiliência a exceções.
+4. **`last_assigned_at` trunca para segundos no PostgreSQL** — em alta carga, round robin pode ser não-determinístico.
+
+### Veredicto QA
+- 26 testes novos passando, coverage do service 91.2%, zero regressão em ChatTicket existentes.
+- Grupo `integration` (PostgreSQL real) passando.
+
 ## Audit Report Validation Checklist
 
 1. Every finding must have: ID + Severity + Category + exact File + exact Line(s) + Effort + Pattern + Rule

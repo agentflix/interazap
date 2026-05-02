@@ -95,6 +95,11 @@ final class ChatTicketNotificationListener
 
     private function handleClosed(TicketClosedEvent $event): void
     {
+        // Não notificar fechamentos automáticos por inatividade (evita spam)
+        if ($event->closedMode === 'auto_inactivity') {
+            return;
+        }
+
         if (! $event->assignedUserId) {
             return;
         }

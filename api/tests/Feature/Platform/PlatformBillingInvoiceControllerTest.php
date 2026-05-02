@@ -189,6 +189,35 @@ class PlatformBillingInvoiceControllerTest extends TestCase
         $response->assertJsonValidationErrors(['tenant_id']);
     }
 
+    public function test_duplicate_reference_month_returns_422(): void
+    {
+        $admin = $this->makeAdmin();
+        Sanctum::actingAs($admin, abilities: ['*']);
+
+        $tenant = PlatformTenant::factory()->create();
+        $plan = PlatformPlan::factory()->create();
+
+        BillingInvoice::factory()->create([
+            'tenant_id' => $tenant->id,
+            'reference_month' => '2026-06',
+        ]);
+
+        $payload = [
+            'tenant_id' => $tenant->id,
+            'plan_id' => $plan->id,
+            'reference_month' => '2026-06',
+            'amount' => 299.90,
+            'due_date' => '2026-06-10',
+            'status' => 'draft',
+        ];
+
+        $response = $this->postJson('/api/platform/billing/invoices', $payload);
+
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['errors', 'message']);
+        $this->assertStringContainsString('Já existe uma fatura', $response->json('message'));
+    }
+
     public function test_platform_admin_can_cancel_pending_invoice(): void
     {
         $admin = $this->makeAdmin();

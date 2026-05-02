@@ -27,6 +27,7 @@ use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatMessageTemplate;
 use Domain\Chat\Models\ChatQuickAnswer;
+use Domain\Chat\Models\ChatRoutingQueue;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Models\ChatTransmissionList;
 use Domain\Chat\Policies\ChatAutoReplyRulePolicy;
@@ -34,6 +35,7 @@ use Domain\Chat\Policies\ChatInstancePolicy;
 use Domain\Chat\Policies\ChatMessagePolicy;
 use Domain\Chat\Policies\ChatMessageTemplatePolicy;
 use Domain\Chat\Policies\ChatQuickAnswerPolicy;
+use Domain\Chat\Policies\ChatRoutingQueuePolicy;
 use Domain\Chat\Policies\ChatTicketPolicy;
 use Domain\Chat\Policies\ChatTransmissionListPolicy;
 use Domain\Configuration\Models\ConfigurationNotificationPreference;
@@ -100,6 +102,7 @@ class AuthServiceProvider extends ServiceProvider
         ChatAutoReplyRule::class => ChatAutoReplyRulePolicy::class,
         ChatTransmissionList::class => ChatTransmissionListPolicy::class,
         ChatInstance::class => ChatInstancePolicy::class,
+        ChatRoutingQueue::class => ChatRoutingQueuePolicy::class,
 
         // Configuration
         ConfigurationNotificationPreference::class => ConfigurationNotificationPreferencePolicy::class,

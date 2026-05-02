@@ -1,0 +1,210 @@
+<div class="space-y-6">
+  <af-page-title
+    title="Configuração"
+    subtitle="Configure o rodízio automático de atendimentos e o auto-fechamento por inatividade."
+  />
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- Roteamento automático (Round Robin)                                -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section
+    class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+  >
+    <div class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800">
+      <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+        Roteamento automático
+      </h3>
+    </div>
+
+    <div class="p-5">
+      @if (loading()) {
+        <div class="space-y-4">
+          <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+          <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+          <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+        </div>
+      } @else if (error()) {
+        <div class="space-y-3">
+          <p class="text-sm text-red-500">{{ error() }}</p>
+          <af-button variant="outline" size="sm" (click)="retryLoad()"> Tentar novamente </af-button>
+        </div>
+      } @else {
+        <!-- Toggle principal -->
+        <div class="mb-6">
+          <af-switch-input
+            [control]="routingEnabledControl"
+            label="Ativar rodízio"
+            dataTest="routing-enabled"
+          />
+          <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+            Distribui conversas automaticamente entre os agentes configurados.
+          </p>
+        </div>
+
+        <!-- Campos condicionais -->
+        @if (routingEnabledControl.value) {
+          <af-select-input
+            [control]="strategyControl"
+            label="Estratégia de distribuição"
+            [options]="strategyOptions"
+            helpText="Round Robin distribui as conversas em ordem cíclica. Menor Carga envia para o agente com menos atendimentos abertos. Por Habilidade envia para o agente cuja skill bate com a categoria do ticket."
+            dataTest="routing-strategy"
+          />
+
+          @if (strategyControl.value === 'least_busy') {
+            <div class="max-w-xs">
+              <af-text-input
+                type="number"
+                [control]="maxOpenTicketsControl"
+                label="Máximo de tickets por agente"
+                placeholder="Ilimitado"
+                helpText="Deixe em branco para ilimitado. Mínimo: 1."
+                dataTest="routing-max-open"
+              />
+            </div>
+          }
+
+          @if (strategyControl.value === 'skill_based') {
+            <div class="rounded-md bg-blue-50 dark:bg-blue-950/30 px-3 py-2">
+              <p class="text-xs text-blue-700 dark:text-blue-300">
+                Configure as habilidades de cada agente abaixo. O sistema distribuirá tickets para o agente cuja skill bater com a categoria do ticket.
+              </p>
+            </div>
+          }
+
+          <!-- Agentes da fila -->
+          <div class="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                Agentes da fila
+              </h4>
+              <af-button variant="outline" size="sm" (click)="showAddForm.set(!showAddForm())">
+                {{ showAddForm() ? 'Cancelar' : '+ Adicionar agente' }}
+              </af-button>
+            </div>
+
+            @if (showAddForm()) {
+              <app-routing-agent-form
+                [users]="users()"
+                [agents]="agents()"
+                (addAgent)="onAddAgent($event.userId, $event.position)"
+              />
+            }
+
+            @if (agents().length === 0) {
+              <af-empty-state
+                title="Nenhum agente na fila"
+                description="Adicione agentes para começar a distribuir atendimentos."
+              />
+            } @else {
+              <app-routing-agent-list
+                [agents]="agents()"
+                [strategy]="strategyControl.value"
+                (reorder)="onReorder($event)"
+                (toggleActive)="onToggleActive($event.userId, $event.isActive)"
+                (remove)="onRemoveAgent($event)"
+                (addSkill)="onAddSkill($event.userId, $event.skill)"
+                (removeSkill)="onRemoveSkill($event.userId, $event.skill)"
+              />
+            }
+          </div>
+        }
+      }
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- Auto-fechamento por inatividade                                    -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section
+    class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+  >
+    <div class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800">
+      <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+        Auto-fechamento por inatividade
+      </h3>
+    </div>
+
+    <div class="p-5">
+      @if (isAutoCloseLoading()) {
+        <div class="space-y-4">
+          <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+          <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+          <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+        </div>
+      } @else if (autoCloseError()) {
+        <div class="space-y-3">
+          <p class="text-sm text-red-500">{{ autoCloseError() }}</p>
+          <af-button variant="outline" size="sm" (click)="loadAutoCloseSettings()">
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else {
+        <!-- Toggle principal -->
+        <div class="mb-6">
+          <af-switch-input
+            [control]="chatForm.controls.auto_close_inactivity_enabled"
+            label="Ativar fechamento automático por inatividade"
+            dataTest="chat-config-auto-close-enabled"
+          />
+          <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+            Encerra automaticamente atendimentos que ficarem inativos por mais de X minutos
+          </p>
+        </div>
+
+        <!-- Campos condicionais -->
+        @if (isAutoCloseEnabled()) {
+          <div class="flex flex-col gap-6 pl-6 border-l-2 border-accent-500/30">
+            <div class="max-w-xs">
+              <af-select-input
+                [control]="chatForm.controls.auto_close_inactivity_minutes"
+                [options]="inactivityMinutesOptions"
+                label="Tempo de inatividade"
+                placeholder="Após 30 minutos"
+                dataTest="chat-config-auto-close-minutes"
+              />
+            </div>
+
+            <div class="max-w-lg">
+              <af-radio-input
+                [control]="chatForm.controls.auto_close_inactivity_target"
+                [options]="inactivityTargetOptions"
+                name="autoCloseTargetConfig"
+                label="Considerar inatividade de"
+                orientation="vertical"
+                dataTest="chat-config-auto-close-target"
+              />
+            </div>
+
+            <div class="max-w-lg">
+              <af-textarea-input
+                [control]="chatForm.controls.auto_close_inactivity_message"
+                label="Mensagem ao encerrar"
+                placeholder="Mensagem enviada ao fechar o atendimento automaticamente..."
+                [maxLength]="2000"
+                [rows]="3"
+                resize="vertical"
+                dataTest="chat-config-auto-close-message"
+              />
+              <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                Máximo de 2000 caracteres. Será enviada ao cliente quando o atendimento for
+                encerrado.
+              </p>
+            </div>
+          </div>
+        }
+
+        <div class="flex justify-end mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+          <af-loading-button
+            variant="primary"
+            [loading]="isAutoCloseSaving()"
+            (click)="saveAutoClose()"
+            dataTest="chat-config-auto-close-save"
+          >
+            Salvar auto-fechamento
+          </af-loading-button>
+        </div>
+      }
+    </div>
+  </section>
+</div>

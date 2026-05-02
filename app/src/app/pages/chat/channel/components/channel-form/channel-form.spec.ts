@@ -3,10 +3,36 @@ import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ChannelFormComponent } from './channel-form';
 import { IntegrationService, type Integration } from 'src/app/core/services/integration.service';
+import { AuthStoreService } from '@core/services/auth-store.service';
+import { TenantSettingsService } from '@core/services/tenant-settings.service';
 
 describe('ChannelFormComponent', () => {
   let component: ChannelFormComponent;
   let fixture: ComponentFixture<ChannelFormComponent>;
+
+  const authStoreMock = {
+    user: vi.fn().mockReturnValue({ tenant_id: 'test-tenant-id' }),
+  };
+
+  const tenantSettingsMock = {
+    getSettings: vi.fn().mockReturnValue(
+      of({
+        data: {
+          settings_localization: {
+            timezone: 'America/Sao_Paulo',
+            dateFormat: 'DD/MM/YYYY' as const,
+            timeFormat: '24h' as const,
+            currencyFormat: 'BRL' as const,
+          },
+          settings_privacy: {
+            presence: 'all' as const,
+            readReceipt: true,
+            notificationPreview: true,
+          },
+        },
+      }),
+    ),
+  };
 
   const integrationServiceMock = {
     create: vi.fn().mockReturnValue(
@@ -42,10 +68,16 @@ describe('ChannelFormComponent', () => {
   beforeEach(async () => {
     integrationServiceMock.create.mockClear();
     integrationServiceMock.update.mockClear();
+    authStoreMock.user.mockClear();
+    tenantSettingsMock.getSettings.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [ChannelFormComponent],
-      providers: [{ provide: IntegrationService, useValue: integrationServiceMock }],
+      providers: [
+        { provide: IntegrationService, useValue: integrationServiceMock },
+        { provide: AuthStoreService, useValue: authStoreMock },
+        { provide: TenantSettingsService, useValue: tenantSettingsMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChannelFormComponent);
@@ -58,7 +90,7 @@ describe('ChannelFormComponent', () => {
     expect(component.isTokenRequired()).toBe(true);
   });
 
-  it('keeps token required for uazapi editions even when integration already has token', async () => {
+  it('token is optional for uazapi editions when integration already has token', async () => {
     fixture.componentRef.setInput('integration', {
       id: 'integration-1',
       name: 'Integração existente',
@@ -74,8 +106,8 @@ describe('ChannelFormComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.isTokenRequired()).toBe(true);
-    expect(component.form.controls.token.hasError('required')).toBe(true);
+    expect(component.isTokenRequired()).toBe(false);
+    expect(component.form.controls.token.hasError('required')).toBe(false);
     expect(component.form.controls.token.disabled).toBe(false);
   });
 

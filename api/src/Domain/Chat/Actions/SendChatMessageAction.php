@@ -6,6 +6,7 @@ namespace Domain\Chat\Actions;
 
 use Domain\Auth\Models\AuthUser;
 use Domain\Chat\DTOs\ChatMessageDTO;
+use Domain\Chat\Events\MessagePersisted;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatSession;
@@ -117,6 +118,23 @@ final readonly class SendChatMessageAction
                 } else {
                     $this->sendToGateway($message, $ticket);
                 }
+            }
+
+            // Dispatch MessagePersisted for outgoing direction to trigger
+            // activity-tracking listeners (last_agent_message_at, last_message_at).
+            if ($dto->direction === 'outgoing') {
+                MessagePersisted::dispatch(
+                    $tenantId,
+                    (string) $ticket->id,
+                    $dto->content,
+                    [
+                        'instance_id' => (string) $ticket->instance_id,
+                        'message_id' => (string) $message->id,
+                        'message_type' => $dto->type,
+                        'is_first_interaction' => false,
+                        'direction' => 'outgoing',
+                    ],
+                );
             }
         }
 

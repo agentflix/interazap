@@ -23,10 +23,11 @@ final class ProviderTypeWebTest extends TestCase
     {
         $cases = ProviderType::cases();
 
-        $this->assertCount(4, $cases);
+        $this->assertCount(5, $cases);
         $this->assertContains(ProviderType::UAZAPI, $cases);
         $this->assertContains(ProviderType::ZAPI, $cases);
         $this->assertContains(ProviderType::META, $cases);
         $this->assertContains(ProviderType::WEB, $cases);
+        $this->assertContains(ProviderType::TELEGRAM, $cases);
     }
 }

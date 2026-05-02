@@ -10,18 +10,18 @@ declare(strict_types=1);
 use Domain\Chat\Models\ChatTicket;
 use Illuminate\Support\Str;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 e2e_group('01 · Chat Tools');
 
-$ctx = require __DIR__ . '/setup.php';
+$ctx = require __DIR__.'/setup.php';
 
 // ── send_message ─────────────────────────────────────────────────────────────
 
 e2e_run('send_message: envia mensagem em ticket aberto', function () use ($ctx): void {
     $r = e2e_dispatch('send_message', [
         'ticket_id' => $ctx['ticket_id'],
-        'content'   => '[E2E] Mensagem de teste do autopilot',
+        'content' => '[E2E] Mensagem de teste do autopilot',
     ], $ctx['agent_ctx']);
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
@@ -32,7 +32,7 @@ e2e_run('send_message: envia mensagem em ticket aberto', function () use ($ctx):
 e2e_run('send_message: falha com content vazio', function () use ($ctx): void {
     $r = e2e_dispatch('send_message', [
         'ticket_id' => $ctx['ticket_id'],
-        'content'   => '',
+        'content' => '',
     ], $ctx['agent_ctx']);
 
     e2e_assert(! $r->success, 'success=false para content vazio');
@@ -41,7 +41,7 @@ e2e_run('send_message: falha com content vazio', function () use ($ctx): void {
 e2e_run('send_message: falha com ticket inexistente', function () use ($ctx): void {
     $r = e2e_dispatch('send_message', [
         'ticket_id' => '00000000-0000-0000-0000-000000000000',
-        'content'   => 'X',
+        'content' => 'X',
     ], $ctx['agent_ctx']);
 
     e2e_assert(! $r->success, 'success=false para ticket inválido');
@@ -76,7 +76,7 @@ e2e_run('transfer_to_human: desativa bot e registra takeover', function () use (
 
     $r = e2e_dispatch('transfer_to_human', [
         'ticket_id' => $ctx['ticket_id'],
-        'reason'    => 'Transferência E2E',
+        'reason' => 'Transferência E2E',
     ], $ctx['agent_ctx']);
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
@@ -90,23 +90,23 @@ e2e_run('transfer_to_human: desativa bot e registra takeover', function () use (
 e2e_run('close_ticket: fecha ticket aberto', function () use ($ctx): void {
     // Cria ticket específico para fechar (evita conflito com outros testes)
     $closeTicket = ChatTicket::query()->create([
-        'id'          => (string) Str::orderedUuid(),
-        'tenant_id'   => $ctx['tenant_id'],
-        'contact_id'  => $ctx['contact_id'],
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $ctx['tenant_id'],
+        'contact_id' => $ctx['contact_id'],
         'instance_id' => $ctx['instance_id'],
-        'channel'     => 'whatsapp',
-        'phone'       => '+5511900000099',
-        'phone_e164'  => '+5511900000099',
-        'remote_jid'  => '5511900000099@s.whatsapp.net',
-        'push_name'   => 'Ticket Close E2E',
-        'status'      => 'open',
-        'priority'    => 'normal',
+        'channel' => 'whatsapp',
+        'phone' => '+5511900000099',
+        'phone_e164' => '+5511900000099',
+        'remote_jid' => '5511900000099@s.whatsapp.net',
+        'push_name' => 'Ticket Close E2E',
+        'status' => 'open',
+        'priority' => 'normal',
         'is_bot_active' => false,
     ]);
 
     $r = e2e_dispatch('close_ticket', [
         'ticket_id' => $closeTicket->id,
-        'reason'    => 'Fechado pelo E2E',
+        'reason' => 'Fechado pelo E2E',
     ], $ctx['agent_ctx']);
 
     e2e_assert($r->success, "success=true (got: {$r->message})");

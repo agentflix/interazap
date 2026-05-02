@@ -1,0 +1,29 @@
+<form (ngSubmit)="onSubmit()" class="flex items-end gap-3">
+  <div class="flex-1 min-w-0">
+    <af-select-input
+      [control]="form.controls.userId"
+      label="Usuário"
+      [options]="availableUsers()"
+      placeholder="Selecione um usuário"
+      dataTest="add-agent-user"
+    />
+  </div>
+  <af-text-input
+    type="number"
+    [control]="form.controls.position"
+    label="Posição (opcional)"
+    placeholder="Auto"
+    classContainer="w-32"
+    dataTest="add-agent-position"
+  />
+  <af-button
+    type="submit"
+    variant="primary"
+    size="sm"
+    [disabled]="form.invalid"
+    dataTest="add-agent-submit"
+  >
+    <lucide-icon name="plus" [size]="16" />
+    Adicionar
+  </af-button>
+</form>

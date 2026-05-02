@@ -1,5 +1,8 @@
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChatConversationComponent } from './chat-conversation-component';
 import { type TemplateSelectedEvent } from '@shared/components/template-selector/template-selector';
@@ -11,6 +14,7 @@ describe('ChatConversationComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ChatConversationComponent, ReactiveFormsModule],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChatConversationComponent);

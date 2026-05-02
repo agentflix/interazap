@@ -83,6 +83,22 @@ window.getComputedStyle = ((element: Element, pseudoElt?: string | null) => {
   return originalGetComputedStyle(element);
 }) as typeof window.getComputedStyle;
 
+if (!('ResizeObserver' in globalThis)) {
+  class MockResizeObserver implements ResizeObserver {
+    observe(_target: Element): void {}
+
+    unobserve(_target: Element): void {}
+
+    disconnect(): void {}
+  }
+
+  Object.defineProperty(globalThis, 'ResizeObserver', {
+    writable: true,
+    configurable: true,
+    value: MockResizeObserver,
+  });
+}
+
 if (!('IntersectionObserver' in globalThis)) {
   class MockIntersectionObserver implements IntersectionObserver {
     readonly root = null;

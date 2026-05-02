@@ -21,6 +21,8 @@ final class PlatformTenantResource extends BaseJsonResource
             ->filter(fn (mixed $part): bool => is_string($part) && $part !== '')
             ->implode(', ');
 
+        $settingsChat = $this->settings_chat ?? [];
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -44,6 +46,13 @@ final class PlatformTenantResource extends BaseJsonResource
             'created_at' => $this->iso($this->created_at),
             'updated_at' => $this->iso($this->updated_at),
             'deleted_at' => $this->iso($this->deleted_at),
+            'settings_chat' => [
+                'auto_close_inactivity_enabled' => $settingsChat['auto_close_inactivity_enabled'] ?? false,
+                'auto_close_inactivity_minutes' => $settingsChat['auto_close_inactivity_minutes'] ?? 30,
+                'auto_close_inactivity_target' => $settingsChat['auto_close_inactivity_target'] ?? 'both',
+                'auto_close_inactivity_message' => $settingsChat['auto_close_inactivity_message']
+                    ?? 'Este atendimento foi encerrado automaticamente por inatividade. Caso precise de mais ajuda, por favor inicie um novo atendimento.',
+            ],
         ];
     }
 }

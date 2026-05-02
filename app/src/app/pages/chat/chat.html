@@ -1,6 +1,8 @@
-<main class="h-[calc(100dvh-var(--spacing-topbar-height))] w-full relative min-h-0">
-  <section class="h-full w-full min-h-0 grid grid-cols-[320px_minmax(0,1fr)_56px] grid-rows-1">
+<main class="h-full w-full relative min-h-0 overflow-hidden">
+  <section class="h-full w-full min-h-0 grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)_56px] grid-rows-1 overflow-hidden">
     <app-chat-page-list
+      class="min-h-0 overflow-hidden lg:block"
+      [class.hidden]="selectedTicketId()"
       [isSoundMuted]="isSoundMuted()"
       [isRefreshing]="isRefreshing()"
       [searchTerm]="searchTerm()"
@@ -24,6 +26,8 @@
     ></app-chat-page-list>
 
     <app-chat-conversation
+      class="min-h-0 overflow-hidden lg:block"
+      [class.hidden]="!selectedTicketId()"
       [activeTab]="activeTab()"
       [selectedTicketId]="selectedTicketId()"
       [selectedTicket]="selectedTicket()"
@@ -72,6 +76,7 @@
     ></app-chat-conversation>
 
     <app-chat-page-sidebar
+      class="hidden min-h-0 overflow-hidden lg:block"
       [activeTab]="activeTab()"
       (setTab)="setTab($event)"
     ></app-chat-page-sidebar>

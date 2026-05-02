@@ -28,6 +28,7 @@ final class UpdateTenantSettingsAction
 
             $settingsLocalization = $tenant->settings_localization ?? [];
             $settingsPrivacy = $tenant->settings_privacy ?? [];
+            $settingsChat = $tenant->settings_chat ?? [];
 
             if (array_key_exists('settings_localization', $payload)) {
                 $settingsLocalization = $this->deepMerge(
@@ -43,14 +44,23 @@ final class UpdateTenantSettingsAction
                 );
             }
 
+            if (array_key_exists('settings_chat', $payload)) {
+                $settingsChat = $this->deepMerge(
+                    $settingsChat,
+                    $payload['settings_chat']
+                );
+            }
+
             $tenant->update([
                 'settings_localization' => $settingsLocalization,
                 'settings_privacy' => $settingsPrivacy,
+                'settings_chat' => $settingsChat,
             ]);
 
             return [
                 'settings_localization' => $settingsLocalization,
                 'settings_privacy' => $settingsPrivacy,
+                'settings_chat' => $settingsChat,
             ];
         });
 

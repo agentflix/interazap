@@ -7,14 +7,14 @@
 
 declare(strict_types=1);
 
-use Domain\CRM\Models\CRMNote;
 use Domain\CRM\Models\CRMNegotiationTask;
+use Domain\CRM\Models\CRMNote;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 e2e_group('08 · Task & Note Tools');
 
-$ctx = require __DIR__ . '/setup.php';
+$ctx = require __DIR__.'/setup.php';
 
 $taskId = null;
 $noteId = null;
@@ -23,10 +23,10 @@ $noteId = null;
 
 e2e_run('create_task: cria tarefa em negociação', function () use ($ctx, &$taskId): void {
     $r = e2e_dispatch('create_task', [
-        'title'          => 'Tarefa E2E — Ligar para cliente',
+        'title' => 'Tarefa E2E — Ligar para cliente',
         'negotiation_id' => $ctx['negotiation_id'],
-        'due_date'       => '2030-12-15',
-        'description'    => 'Criado pelo teste E2E',
+        'due_date' => '2030-12-15',
+        'description' => 'Criado pelo teste E2E',
     ], $ctx['agent_ctx']);
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
@@ -49,7 +49,7 @@ e2e_run('create_task: falha sem title', function () use ($ctx): void {
 
 e2e_run('create_task: falha com negotiation inexistente', function () use ($ctx): void {
     $r = e2e_dispatch('create_task', [
-        'title'          => 'Tarefa Inválida',
+        'title' => 'Tarefa Inválida',
         'negotiation_id' => '00000000-0000-0000-0000-000000000000',
     ], $ctx['agent_ctx']);
 
@@ -61,8 +61,8 @@ e2e_run('create_task: falha com negotiation inexistente', function () use ($ctx)
 e2e_run('create_note: cria nota em negociação', function () use ($ctx, &$noteId): void {
     $r = e2e_dispatch('create_note', [
         'entity_type' => 'negotiation',
-        'entity_id'   => $ctx['negotiation_id'],
-        'content'     => 'Nota criada pelo teste E2E do autopilot.',
+        'entity_id' => $ctx['negotiation_id'],
+        'content' => 'Nota criada pelo teste E2E do autopilot.',
     ], $ctx['agent_ctx']);
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
@@ -77,8 +77,8 @@ e2e_run('create_note: cria nota em negociação', function () use ($ctx, &$noteI
 e2e_run('create_note: cria nota em contato', function () use ($ctx): void {
     $r = e2e_dispatch('create_note', [
         'entity_type' => 'contact',
-        'entity_id'   => $ctx['contact_id'],
-        'content'     => 'Nota de contato pelo E2E.',
+        'entity_id' => $ctx['contact_id'],
+        'content' => 'Nota de contato pelo E2E.',
     ], $ctx['agent_ctx']);
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
@@ -93,8 +93,8 @@ e2e_run('create_note: cria nota em contato', function () use ($ctx): void {
 e2e_run('create_note: falha com entity_type inválido', function () use ($ctx): void {
     $r = e2e_dispatch('create_note', [
         'entity_type' => 'invalid_type',
-        'entity_id'   => $ctx['negotiation_id'],
-        'content'     => 'X',
+        'entity_id' => $ctx['negotiation_id'],
+        'content' => 'X',
     ], $ctx['agent_ctx']);
 
     e2e_assert(! $r->success, 'success=false para entity_type inválido');
@@ -103,8 +103,8 @@ e2e_run('create_note: falha com entity_type inválido', function () use ($ctx): 
 e2e_run('create_note: falha com content vazio', function () use ($ctx): void {
     $r = e2e_dispatch('create_note', [
         'entity_type' => 'negotiation',
-        'entity_id'   => $ctx['negotiation_id'],
-        'content'     => '',
+        'entity_id' => $ctx['negotiation_id'],
+        'content' => '',
     ], $ctx['agent_ctx']);
 
     e2e_assert(! $r->success, 'success=false para content vazio');

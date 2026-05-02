@@ -37,7 +37,7 @@ final class WebChatRedisPublisherTest extends TestCase
             ->shouldReceive('broadcastEvent')
             ->once()
             ->withArgs(function ($event, $data, $room) use ($sessionId, $message): bool {
-                return $event === 'webchat.ai_response'
+                return $event === 'webchat:ai_response'
                     && $data['session_id'] === $sessionId
                     && $data['tenant_id'] === $message['tenant_id']
                     && $data['message'] === $message
@@ -51,7 +51,7 @@ final class WebChatRedisPublisherTest extends TestCase
         $this->mockBroadcastService
             ->shouldHaveReceived('broadcastEvent')
             ->withArgs(function ($event, $data, $room) use ($sessionId, $message): bool {
-                return $event === 'webchat.ai_response'
+                return $event === 'webchat:ai_response'
                     && $data['session_id'] === $sessionId
                     && $data['tenant_id'] === $message['tenant_id']
                     && $data['message'] === $message

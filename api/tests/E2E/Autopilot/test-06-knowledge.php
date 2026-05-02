@@ -11,20 +11,20 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 e2e_group('06 · Knowledge Tools');
 
-$ctx = require __DIR__ . '/setup.php';
+$ctx = require __DIR__.'/setup.php';
 
 // ── search_knowledge ──────────────────────────────────────────────────────────
 
 e2e_run('search_knowledge: executa busca e retorna estrutura correta', function () use ($ctx): void {
     $r = e2e_dispatch('search_knowledge', [
-        'query'     => 'autopilot teste E2E',
-        'limit'     => 5,
+        'query' => 'autopilot teste E2E',
+        'limit' => 5,
         'min_score' => 0.1,
-        'mode'      => 'vector',
+        'mode' => 'vector',
     ], $ctx['agent_ctx']);
 
     // Sem embeddings reais, pode retornar success=true com 0 resultados
@@ -50,7 +50,7 @@ e2e_run('search_knowledge: falha com query vazia', function () use ($ctx): void 
 e2e_run('search_knowledge: executa em modo hybrid sem exceção', function () use ($ctx): void {
     $r = e2e_dispatch('search_knowledge', [
         'query' => 'documento E2E',
-        'mode'  => 'hybrid',
+        'mode' => 'hybrid',
         'limit' => 3,
     ], $ctx['agent_ctx']);
 

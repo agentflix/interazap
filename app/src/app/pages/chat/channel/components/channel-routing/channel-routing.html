@@ -1,0 +1,153 @@
+<af-modal
+  [open]="true"
+  [title]="'Configuração de Rodízio — ' + channelName()"
+  size="lg"
+  (closed)="onClose()"
+>
+  <div class="space-y-6">
+    @if (loading()) {
+      <div
+        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 space-y-6"
+      >
+        <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
+        <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+        <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+      </div>
+    } @else if (error()) {
+      <af-alert variant="danger" title="Erro ao carregar" [message]="error()!" />
+      <div class="mt-4">
+        <af-button variant="outline" size="sm" (click)="retryLoad()"> Tentar novamente </af-button>
+      </div>
+    } @else {
+      <!-- Override toggle -->
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+            Sobrepor configuração global para este canal
+          </p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">
+            Ative para definir uma fila de atendimento exclusiva para este canal.
+          </p>
+        </div>
+        <af-switch-input
+          [checked]="overrideEnabled()"
+          (toggled)="toggleOverride()"
+          ariaLabel="Sobrepor configuração global para este canal"
+        />
+      </div>
+
+      @if (!overrideEnabled()) {
+        <div class="flex items-center gap-2">
+          <span
+            class="inline-flex items-center rounded-md bg-neutral-100 dark:bg-neutral-800 px-2 py-1 text-xs font-medium text-neutral-600 dark:text-neutral-300"
+          >
+            Usando configuração global
+          </span>
+        </div>
+      } @else {
+        <!-- Queue settings -->
+        <section
+          class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+        >
+          <div class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800">
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Configuração da fila
+            </h3>
+          </div>
+          <div class="p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                  Ativar rodízio
+                </p>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                  Distribui conversas automaticamente entre os agentes configurados.
+                </p>
+              </div>
+              <af-switch-input
+                [checked]="isEnabledLocal()"
+                (toggled)="toggleEnabled()"
+                ariaLabel="Ativar rodízio"
+              />
+            </div>
+
+            <af-select-input
+              [control]="strategyControl"
+              label="Estratégia de distribuição"
+              [options]="strategyOptions"
+              helpText="Round Robin distribui as conversas em ordem cíclica. Menor Carga envia para o agente com menos atendimentos abertos. Por Habilidade envia para o agente cuja skill bate com a categoria do ticket."
+              dataTest="routing-strategy"
+            />
+
+            @if (strategyControl.value === 'least_busy') {
+              <div class="max-w-xs">
+                <af-text-input
+                  type="number"
+                  [control]="maxOpenTicketsControl"
+                  label="Máximo de tickets por agente"
+                  placeholder="Ilimitado"
+                  helpText="Deixe em branco para ilimitado. Mínimo: 1."
+                  dataTest="routing-max-open"
+                />
+              </div>
+            }
+
+            @if (strategyControl.value === 'skill_based') {
+              <div class="rounded-md bg-blue-50 dark:bg-blue-950/30 px-3 py-2">
+                <p class="text-xs text-blue-700 dark:text-blue-300">
+                  Configure as habilidades de cada agente abaixo. O sistema distribuirá tickets para o agente cuja skill bater com a categoria do ticket.
+                </p>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- Agents -->
+        <section
+          class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+        >
+          <div
+            class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between"
+          >
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Agentes da fila
+            </h3>
+            <af-button variant="outline" size="sm" (click)="showAddForm.set(!showAddForm())">
+              {{ showAddForm() ? 'Cancelar' : '+ Adicionar agente' }}
+            </af-button>
+          </div>
+          <div class="p-5 space-y-4">
+            @if (showAddForm()) {
+              <app-routing-agent-form
+                [users]="users()"
+                [agents]="agents()"
+                (addAgent)="onAddAgent($event.userId, $event.position)"
+              />
+            }
+
+            @if (agents().length === 0) {
+              <p class="text-sm text-neutral-500 dark:text-neutral-400 text-center py-4">
+                Nenhum agente configurado.
+              </p>
+            } @else {
+              <app-routing-agent-list
+                [agents]="agents()"
+                [strategy]="strategyControl.value"
+                (reorder)="onReorder($event)"
+                (toggleActive)="onToggleActive($event.userId, $event.isActive)"
+                (remove)="onRemoveAgent($event)"
+                (addSkill)="onAddSkill($event.userId, $event.skill)"
+                (removeSkill)="onRemoveSkill($event.userId, $event.skill)"
+              />
+            }
+          </div>
+        </section>
+      }
+    }
+  </div>
+
+  <div footer class="flex justify-end gap-2">
+    <af-button variant="ghost" (click)="onClose()"> Cancelar </af-button>
+    <af-loading-button [loading]="isSaving()" (click)="onSave()"> Salvar </af-loading-button>
+  </div>
+</af-modal>

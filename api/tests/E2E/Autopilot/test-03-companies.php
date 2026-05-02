@@ -10,11 +10,11 @@ declare(strict_types=1);
 use Domain\CRM\Models\CRMCompany;
 use Illuminate\Support\Str;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 e2e_group('03 · Company Tools');
 
-$ctx = require __DIR__ . '/setup.php';
+$ctx = require __DIR__.'/setup.php';
 
 $companyId = null;
 
@@ -22,7 +22,7 @@ $companyId = null;
 
 e2e_run('create_company: cria empresa com nome', function () use ($ctx, &$companyId): void {
     $r = e2e_dispatch('create_company', [
-        'name'    => 'Empresa E2E LTDA',
+        'name' => 'Empresa E2E LTDA',
         'website' => 'https://e2e.interazap.test',
         'industry' => 'Tecnologia',
     ], $ctx['agent_ctx']);
@@ -45,16 +45,16 @@ e2e_run('update_company: atualiza telefone da empresa', function () use ($ctx, &
     if (! $companyId) {
         // Cria empresa fallback se create falhou
         $company = CRMCompany::query()->create([
-            'id'        => (string) Str::orderedUuid(),
+            'id' => (string) Str::orderedUuid(),
             'tenant_id' => $ctx['tenant_id'],
-            'name'      => 'Empresa Update Fallback E2E',
+            'name' => 'Empresa Update Fallback E2E',
         ]);
         $companyId = $company->id;
     }
 
     $r = e2e_dispatch('update_company', [
         'company_id' => $companyId,
-        'phone'      => '+5511999990001',
+        'phone' => '+5511999990001',
     ], $ctx['agent_ctx']);
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
@@ -66,7 +66,7 @@ e2e_run('update_company: atualiza telefone da empresa', function () use ($ctx, &
 e2e_run('update_company: falha com ID inexistente', function () use ($ctx): void {
     $r = e2e_dispatch('update_company', [
         'company_id' => '00000000-0000-0000-0000-000000000000',
-        'phone'      => '+5511999990001',
+        'phone' => '+5511999990001',
     ], $ctx['agent_ctx']);
 
     e2e_assert(! $r->success, 'success=false para company inválida');

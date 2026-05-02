@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Domain\Chat\Actions;
 
 use Domain\Chat\Jobs\SyncReadReceiptJob;
+use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatSession;
 use Domain\Chat\Models\ChatTicket;
@@ -13,6 +14,7 @@ use Domain\Chat\Services\ChatGatewayService;
 use Domain\Chat\Services\WebChatRedisPublisher;
 use Domain\Configuration\Events\TicketAssignedEvent;
 use Domain\Configuration\Events\TicketClosedEvent;
+use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
@@ -63,12 +65,16 @@ final class UpdateChatTicketAction
         $ticket->save();
         Cache::forget("chat_counts:{$ticket->tenant_id}");
         if ($status === 'closed' && ! $isForced) {
-            $this->messageAction->sendConfiguredSystemMessage(
-                $ticket,
-                'send_end_service_message',
-                'end_service_message',
-                'end_service_message'
-            );
+            if ($mode === 'auto_inactivity') {
+                $this->sendAutoCloseMessage($ticket);
+            } else {
+                $this->messageAction->sendConfiguredSystemMessage(
+                    $ticket,
+                    'send_end_service_message',
+                    'end_service_message',
+                    'end_service_message'
+                );
+            }
         }
         if ($status === 'closed') {
             $this->dispatchFinalSentimentAnalysis($ticket);
@@ -76,6 +82,7 @@ final class UpdateChatTicketAction
                 (string) $ticket->tenant_id,
                 (string) $ticket->id,
                 $ticket->assigned_to ? (string) $ticket->assigned_to : null,
+                $ticket->closed_mode ?? null,
             );
 
             $ticket->load(['latestMessage', 'contact', 'user']);
@@ -271,5 +278,101 @@ final class UpdateChatTicketAction
         }
 
         return $instance->webhook_token !== '' ? $instance->webhook_token : null;
+    }
+
+    /**
+     * Envia mensagem de auto-fechamento por inatividade, substituindo
+     * a end_service_message padrão para evitar spam duplicado.
+     */
+    private function sendAutoCloseMessage(ChatTicket $ticket): void
+    {
+        if (! $ticket->instance_id) {
+            return;
+        }
+
+        $instance = ChatInstance::query()
+            ->select(['id', 'tenant_id', 'auto_close_enabled', 'auto_close_after_minutes', 'auto_close_target', 'auto_close_message', 'provider', 'webhook_token', 'settings_json'])
+            ->where('tenant_id', $ticket->tenant_id)
+            ->find($ticket->instance_id);
+
+        if (! $instance) {
+            return;
+        }
+
+        $tenant = PlatformTenant::query()->find($ticket->tenant_id);
+
+        if (! $tenant) {
+            return;
+        }
+
+        $config = $instance->getEffectiveAutoCloseConfig($tenant);
+        $message = trim((string) ($config['message'] ?? ''));
+
+        if ($message === '') {
+            return;
+        }
+
+        // Enviar diretamente, sem depender de settings_json
+        $phone = $this->resolveContactPhone($ticket);
+        $token = $this->resolveGatewayToken($instance);
+
+        if (! $phone || ! $token) {
+            return;
+        }
+
+        $chatMessage = ChatMessage::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $ticket->tenant_id,
+            'ticket_id' => (string) $ticket->id,
+            'user_id' => $ticket->assigned_to,
+            'contact_id' => $ticket->contact_id,
+            'content' => $message,
+            'type' => 'text',
+            'direction' => 'outgoing',
+            'is_from_contact' => false,
+            'source' => 'system',
+            'status' => 'pending',
+            'metadata' => [
+                'kind' => 'auto_close_inactivity',
+            ],
+        ]);
+
+        try {
+            if ($instance->provider === 'zapi') {
+                $response = $this->gateway->sendOutboundMessage(
+                    'zapi',
+                    (string) $token,
+                    (string) $ticket->tenant_id,
+                    (string) $instance->id,
+                    [
+                        'type' => 'text',
+                        'to' => $phone,
+                        'text' => $message,
+                    ]
+                );
+            } else {
+                $response = $this->gateway->sendText((string) $token, [
+                    'number' => $phone,
+                    'text' => $message,
+                ]);
+            }
+
+            $chatMessage->status = 'sent';
+            $chatMessage->sent_at = now();
+            $chatMessage->external_id = $response['messageid'] ?? $response['id'] ?? null;
+            $chatMessage->metadata = array_merge($chatMessage->metadata ?? [], ['gateway_response' => $response]);
+            $chatMessage->save();
+        } catch (\Throwable $exception) {
+            $chatMessage->status = 'failed';
+            $chatMessage->error_message = $exception->getMessage();
+            $chatMessage->save();
+
+            \Illuminate\Support\Facades\Log::warning('chat.auto_close_message_send_failed', [
+                'tenant_id' => (string) $ticket->tenant_id,
+                'ticket_id' => (string) $ticket->id,
+                'instance_id' => (string) $instance->id,
+                'error' => $exception->getMessage(),
+            ]);
+        }
     }
 }

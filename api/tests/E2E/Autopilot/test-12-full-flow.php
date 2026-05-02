@@ -20,22 +20,22 @@ use Domain\Ai\Services\AutopilotRunSnapshotResolver;
 use Domain\Ai\Services\ToolDispatcherService;
 use Illuminate\Support\Str;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 e2e_group('12 · Full Autopilot Flow');
 
-$ctx = require __DIR__ . '/setup.php';
+$ctx = require __DIR__.'/setup.php';
 
 // ── Tool Catalog ──────────────────────────────────────────────────────────────
 
 e2e_run('ToolDispatcherService: catálogo retorna 29 tools para role=general', function (): void {
     $dispatcher = app(ToolDispatcherService::class);
-    $catalog    = $dispatcher->getCatalog('general');
+    $catalog = $dispatcher->getCatalog('general');
 
     e2e_assert(count($catalog) === 29, 'catálogo tem 29 tools (got: '.count($catalog).')');
 
     foreach ($catalog as $item) {
-        e2e_assert(isset($item['name']), "name presente em: ".json_encode($item));
+        e2e_assert(isset($item['name']), 'name presente em: '.json_encode($item));
         e2e_assert(isset($item['handler_class']), "handler_class presente em: {$item['name']}");
         e2e_assert(class_exists($item['handler_class']), "classe existe: {$item['handler_class']}");
     }
@@ -45,7 +45,7 @@ e2e_run('ToolDispatcherService: catálogo retorna 29 tools para role=general', f
 
 e2e_run('ToolDispatcherService: getToolDefinitions retorna schema OpenAI para todas as roles', function () use ($ctx): void {
     $dispatcher = app(ToolDispatcherService::class);
-    $roles      = ['general', 'sales_qualifier', 'support_l1', 'cs_retention', 'post_sales', 'appointment'];
+    $roles = ['general', 'sales_qualifier', 'support_l1', 'cs_retention', 'post_sales', 'appointment'];
 
     foreach ($roles as $role) {
         $definitions = $dispatcher->getToolDefinitions($ctx['tenant_id'], $role);
@@ -54,7 +54,7 @@ e2e_run('ToolDispatcherService: getToolDefinitions retorna schema OpenAI para to
 
         foreach ($definitions as $def) {
             e2e_assert($def['type'] === 'function', "type=function para {$def['function']['name']}");
-            e2e_assert(isset($def['function']['name']), "function.name presente");
+            e2e_assert(isset($def['function']['name']), 'function.name presente');
             e2e_assert(isset($def['function']['description']), "function.description presente em {$def['function']['name']}");
             e2e_assert(isset($def['function']['parameters']), "function.parameters presente em {$def['function']['name']}");
         }
@@ -97,7 +97,7 @@ e2e_run('Todas as 29 tool classes instanciam sem exceção via app()', function 
 
 e2e_run('AutopilotRunSnapshotResolver: resolve snapshot sem exceção', function () use ($ctx): void {
     $resolver = app(AutopilotRunSnapshotResolver::class);
-    $agent    = AiAgent::find($ctx['agent_id']);
+    $agent = AiAgent::find($ctx['agent_id']);
 
     e2e_assert($agent !== null, 'agente E2E encontrado');
 
@@ -122,10 +122,10 @@ e2e_run('AiAutopilotRun: persiste e recupera model com campos corretos', functio
     $runId = (string) Str::orderedUuid();
 
     $run = AiAutopilotRun::query()->create([
-        'id'            => $runId,
-        'tenant_id'     => $ctx['tenant_id'],
-        'playbook_id'   => $ctx['playbook_id'],
-        'status'        => 'queued',
+        'id' => $runId,
+        'tenant_id' => $ctx['tenant_id'],
+        'playbook_id' => $ctx['playbook_id'],
+        'status' => 'queued',
         'input_context' => ['messages' => [], 'ticket_id' => $ctx['ticket_id']],
     ]);
 
@@ -143,12 +143,12 @@ e2e_run('AiAutopilotRun: persiste e recupera model com campos corretos', functio
 
     // Atualiza → completed com output
     $run->update([
-        'status'       => 'completed',
+        'status' => 'completed',
         'completed_at' => now(),
-        'output'       => [
-            'response'   => 'Olá, como posso ajudar?',
+        'output' => [
+            'response' => 'Olá, como posso ajudar?',
             'tool_trace' => [],
-            'tokens'     => ['input' => 100, 'output' => 50, 'total' => 150],
+            'tokens' => ['input' => 100, 'output' => 50, 'total' => 150],
         ],
     ]);
     $run->refresh();
@@ -176,7 +176,7 @@ e2e_run('AiPermissionMatrixService: todas as roles retornam lista não-vazia', f
 
 e2e_run('AiPermissionMatrixService: general tem 29 tools (máximo)', function (): void {
     $service = app(\Domain\Ai\Services\AiPermissionMatrixService::class);
-    $tools   = $service->getAvailableTools(AiAgentRole::GENERAL);
+    $tools = $service->getAvailableTools(AiAgentRole::GENERAL);
 
     e2e_assert(count($tools) === 29, '29 tools para role=general (got: '.count($tools).')');
 });

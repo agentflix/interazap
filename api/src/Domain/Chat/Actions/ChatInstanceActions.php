@@ -134,6 +134,22 @@ final class ChatInstanceActions
             $instance->evaluation_cutoff_score = max(1, min(5, (int) $data['evaluation_cutoff_score']));
         }
 
+        if (array_key_exists('auto_close_enabled', $data)) {
+            $instance->auto_close_enabled = $data['auto_close_enabled'];
+        }
+
+        if (array_key_exists('auto_close_after_minutes', $data)) {
+            $instance->auto_close_after_minutes = $data['auto_close_after_minutes'];
+        }
+
+        if (array_key_exists('auto_close_target', $data)) {
+            $instance->auto_close_target = $data['auto_close_target'];
+        }
+
+        if (array_key_exists('auto_close_message', $data)) {
+            $instance->auto_close_message = $data['auto_close_message'];
+        }
+
         if (isset($data['settings']) || isset($data['token'])) {
             $currentSettings = $instance->settings_json ?? [];
             $newSettings = $this->prepareSettings($data['settings'] ?? [], $token);

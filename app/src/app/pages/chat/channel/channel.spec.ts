@@ -180,7 +180,7 @@ describe('Integrations', () => {
     expect(component.showDeleteModal()).toBe(false);
     expect(component.integrationToDelete()).toBeNull();
     expect(toastErrorSpy).toHaveBeenCalledWith(
-      'Não é possível excluir uma integração conectada. Desconecte primeiro.',
+      'Não é possível excluir um canal conectado. Desconecte primeiro.',
     );
   });
 
@@ -234,7 +234,7 @@ describe('Integrations', () => {
     component.handleDeleteConfirmed();
 
     expect(toastErrorSpy).toHaveBeenCalledWith(
-      'Não é possível excluir uma integração conectada. Desconecte primeiro.',
+      'Não é possível excluir um canal conectado. Desconecte primeiro.',
     );
     expect(component.showDeleteModal()).toBe(false);
     expect(loadIntegrationsSpy).toHaveBeenCalledWith(3);
@@ -269,7 +269,7 @@ describe('Integrations', () => {
     component.showDeleteModal.set(true);
     component.handleDeleteConfirmed();
 
-    expect(toastErrorSpy).toHaveBeenCalledWith('Erro ao remover integração');
+    expect(toastErrorSpy).toHaveBeenCalledWith('Erro ao remover canal');
     expect(component.showDeleteModal()).toBe(true);
     expect(loadIntegrationsSpy).not.toHaveBeenCalled();
   });
