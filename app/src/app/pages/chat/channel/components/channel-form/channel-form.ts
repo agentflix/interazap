@@ -138,15 +138,11 @@ export class ChannelFormComponent {
   /** Toggle que controla se o canal herda a configuracao global do tenant */
   readonly useGlobalToggle = new FormControl<boolean>(false, { nonNullable: true });
 
-  /** Indica se todos os campos de auto-close estao null (usando config global) */
-  readonly isUsingGlobalConfig = computed(() => {
-    return (
-      this.form.controls.auto_close_enabled.value === null &&
-      this.form.controls.auto_close_after_minutes.value === null &&
-      this.form.controls.auto_close_target.value === null &&
-      this.form.controls.auto_close_message.value === null
-    );
-  });
+  /** Indica se o canal deve herdar a configuracao global do tenant */
+  readonly isUsingGlobalConfig = toSignal(
+    this.useGlobalToggle.valueChanges.pipe(startWith(this.useGlobalToggle.value)),
+    { initialValue: true },
+  );
 
   readonly timeOptions: SelectOption[] = [
     { value: 5, label: 'Após 5 minutos' },

@@ -347,6 +347,15 @@ export const routes: Routes = [
         data: { title: 'Canais', permission: 'chat.channel.view' },
       },
       {
+        path: 'chat/configuration',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./pages/chat/configuration/chat-configuration').then(
+            (m) => m.ChatConfigurationPage,
+          ),
+        data: { title: 'Configuração', permission: 'chat.routing.manage' },
+      },
+      {
         path: 'chat/templates',
         canActivate: [permissionGuard],
         loadComponent: () =>

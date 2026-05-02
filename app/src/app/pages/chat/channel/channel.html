@@ -95,6 +95,16 @@
                     <lucide-icon name="qr-code" [size]="16" />
                   </af-button>
                 }
+                @if (canManageRouting()) {
+                  <af-button
+                    variant="ghost"
+                    size="xs"
+                    (click)="openRouting(item)"
+                    title="Configurar roteamento"
+                  >
+                    <lucide-icon name="users-round" [size]="16" />
+                  </af-button>
+                }
                 <af-table-actions
                   [deleteDisabled]="isConnected(item)"
                   (edit)="openEdit(item)"
@@ -142,6 +152,15 @@
   (confirmed)="handleDeleteConfirmed()"
   (cancelled)="showDeleteModal.set(false)"
 />
+
+<!-- Channel Routing Modal -->
+@if (selectedRoutingChannel(); as channel) {
+  <app-channel-routing
+    [channelId]="channel.id"
+    [channelName]="channel.name"
+    (closed)="handleRoutingClosed()"
+  />
+}
 
 <!-- QR Code Modal -->
 <af-modal [open]="showQrModal()" title="Conectar WhatsApp" size="md" (closed)="closeQrModal()">

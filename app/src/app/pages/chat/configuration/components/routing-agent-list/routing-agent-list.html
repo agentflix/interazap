@@ -1,0 +1,39 @@
+<div class="space-y-2">
+  @if (agents().length === 0) {
+    <p class="text-sm text-neutral-500 dark:text-neutral-400 text-center py-4">
+      Nenhum agente configurado.
+    </p>
+  } @else {
+    <div cdkDropList class="space-y-2" (cdkDropListDropped)="onDrop($event)">
+      @for (agent of agents(); track agent.user_id; let i = $index) {
+        <div
+          cdkDrag
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 shadow-sm cursor-move"
+        >
+          <lucide-icon name="grip-vertical" [size]="16" class="text-neutral-400 shrink-0" />
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">
+              Agente #{{ agent.position }}
+            </p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">
+              {{ agent.user_id }}
+            </p>
+          </div>
+          <af-switch-input
+            [checked]="agent.is_active"
+            (toggled)="onToggleActive(agent)"
+            ariaLabel="Ativar agente"
+          />
+          <af-button
+            variant="ghost"
+            size="sm"
+            (click)="onRemove(agent.user_id)"
+            ariaLabel="Remover agente"
+          >
+            <lucide-icon name="trash-2" [size]="16" class="text-red-500" />
+          </af-button>
+        </div>
+      }
+    </div>
+  }
+</div>

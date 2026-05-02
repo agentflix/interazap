@@ -39,7 +39,9 @@ import {
   ChatRealtimeService,
   type IntegrationConnectionEvent,
 } from '@core/services/chat-realtime.service';
+import { AuthStoreService } from '@core/services/auth-store.service';
 import { ChannelFormComponent } from './components/channel-form/channel-form';
+import { ChannelRoutingComponent } from './components/channel-routing/channel-routing';
 import { ChannelRealtimeAdapter } from './channel-realtime.adapter';
 
 const PHONE_COUNTRIES: Country[] = [...COUNTRIES].sort(
@@ -63,6 +65,7 @@ const PHONE_COUNTRIES: Country[] = [...COUNTRIES].sort(
     AfConfirmModalComponent,
     AfAlertComponent,
     ChannelFormComponent,
+    ChannelRoutingComponent,
 /**
  * Channel page component for the Chat module.
  * @selector app-channel-page
@@ -76,6 +79,7 @@ export class ChannelPage implements OnInit {
   private readonly realtime = inject(ChatRealtimeService);
   private readonly _integrationRealtimeAdapter = inject(ChannelRealtimeAdapter);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authStore = inject(AuthStoreService);
 
   readonly integrationFormRef = viewChild<ChannelFormComponent>('integrationForm');
 
@@ -92,6 +96,10 @@ export class ChannelPage implements OnInit {
 
   readonly showDeleteModal = signal(false);
   readonly integrationToDelete = signal<Integration | null>(null);
+
+  // Routing Modal State
+  readonly selectedRoutingChannel = signal<Integration | null>(null);
+  readonly canManageRouting = computed(() => this.authStore.hasPermission('chat.routing.manage'));
 
   // QR Code State
   readonly showQrModal = signal(false);
@@ -189,6 +197,14 @@ export class ChannelPage implements OnInit {
 
   handleFormCancelled(): void {
     this.showFormModal.set(false);
+  }
+
+  openRouting(item: Integration): void {
+    this.selectedRoutingChannel.set(item);
+  }
+
+  handleRoutingClosed(): void {
+    this.selectedRoutingChannel.set(null);
   }
 
   handleDeleteConfirmed(): void {

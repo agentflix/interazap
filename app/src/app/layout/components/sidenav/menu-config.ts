@@ -111,6 +111,13 @@ export const SIDEBAR_MENU: SidebarMenuItem[] = [
       { type: 'item', label: 'Canais', link: '/chat/channel', iconName: 'cable' },
       {
         type: 'item',
+        label: 'Configuração',
+        link: '/chat/configuration',
+        iconName: 'settings',
+        requiredPermission: 'chat.routing.manage',
+      },
+      {
+        type: 'item',
         label: 'Templates',
         link: '/chat/templates',
         iconName: 'message-square-text',

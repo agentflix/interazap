@@ -24,7 +24,7 @@ stack:
 
 metrics:
     total_features: 8
-    features_completed: 7 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050, FEAT-051, FEAT-053
+    features_completed: 8 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050, FEAT-051, FEAT-052-F1, FEAT-053
     features_in_progress: 1 # FEAT-052
     total_tasks: 117 # 100 anteriores + 17 (16 TASK-053 + 1 TASK-052-04)
     tasks_completed: 117
@@ -47,7 +47,7 @@ modules_status:
         last_change: '2026-04-11'
     'Chat':
         status: 'active'
-        completion: 'FEAT-040/041/042/050/053 concluídas; FEAT-053: auto-fechamento de tickets por inatividade (batch SQL + config tenant/canal + UI); FEAT-052 Fase 1 em andamento (ChatRoutingQueuePolicy criada)'
+        completion: 'FEAT-040/041/042/050/052-F1/053 concluídas; FEAT-053: auto-fechamento de tickets por inatividade (batch SQL + config tenant/canal + UI); FEAT-052 Fase 1: rodízio automático de atendimentos (filas, round-robin, hook, policy, controller, service, frontend, tests)'
         last_change: '2026-05-01'
     'Configuration':
         status: 'active'
@@ -82,4 +82,4 @@ quality:
     test_coverage_backend: '>=80% nos paths Domain/Chat/Actions, Http, Listeners, Jobs; >=82.5% nos arquivos alvo de FEAT-051'
     test_coverage_frontend: 'Testes unitários passando para chat.store, chat-conversation-component, template-selector'
     lint_status: 'ESLint 0 erros / 0 warnings nos arquivos FEAT-050'
-    last_validation: '2026-04-30'
+    last_validation: '2026-05-01'
