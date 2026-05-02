@@ -8,8 +8,7 @@
             "Read(.claude/hooks/**)",
             "Read(.context/**)",
             "Read(AGENTS.md)",
-            "Read(CLAUDE.md)",
-            "Bash(node .claude/hooks/router.js)"
+            "Read(CLAUDE.md)"
         ],
         "deny": [
             "Bash(rm -rf *)",
@@ -17,20 +16,6 @@
             "Bash(git checkout main)",
             "Bash(npm publish)",
             "Bash(composer global *)"
-        ]
-    },
-    "hooks": {
-        "UserPromptSubmit": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "node .claude/hooks/router.js",
-                        "timeout": 30,
-                        "statusMessage": "Avaliando tarefa..."
-                    }
-                ]
-            }
         ]
     }
 }

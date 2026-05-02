@@ -152,6 +152,7 @@ describe('PreChatComponent', () => {
       expect(mockWebChatService.saveSession).toHaveBeenCalledWith(
         mockSessionResponse.token,
         mockSessionResponse.sessionId,
+        { contactName: undefined, contactPhone: undefined, protocol: undefined },
       );
       expect(mockWebChatService.connectWebSocket).toHaveBeenCalledWith(mockSessionResponse.token);
     });

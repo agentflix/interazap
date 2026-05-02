@@ -76,10 +76,15 @@ final class BillingInvoiceController extends BaseController
         $this->authorize('create', BillingInvoice::class);
 
         $tenantId = $request->user()?->tenant_id;
-        $invoice = $this->actions->create(
-            $tenantId,
-            BillingInvoiceDTO::fromRequest($request)
-        );
+
+        try {
+            $invoice = $this->actions->create(
+                $tenantId,
+                BillingInvoiceDTO::fromRequest($request)
+            );
+        } catch (\Illuminate\Database\UniqueConstraintViolationException) {
+            return $this->error('Já existe uma fatura para o mês informado.', 422);
+        }
 
         return $this->created(
             new BillingInvoiceResource($invoice),

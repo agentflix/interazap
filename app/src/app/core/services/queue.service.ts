@@ -167,9 +167,39 @@ export class QueueService {
    * @returns Observable com QueueOverview
    */
   getOverview(): Observable<QueueOverview> {
+    const healthUrl = `${environment.apiUrl}/health/queues`;
     return this.http.get<{ data: QueueOverview }>(`${this.baseUrl}/overview`).pipe(
       map((res) => res.data),
       tap((data) => this._overview.set(data)),
+      catchError(() =>
+        this.http
+          .get<{ healthy: boolean; queues: { name: string; size: number; delayed: number }[] }>(
+            healthUrl,
+          )
+          .pipe(
+            map((res) => {
+              const queues: QueueMetrics[] = res.queues.map((q) => ({
+                name: q.name,
+                waiting: q.size,
+                active: 0,
+                completed: 0,
+                failed: 0,
+                delayed: q.delayed,
+                paused: false,
+              }));
+              const overview: QueueOverview = {
+                queues,
+                totalJobs: queues.reduce((sum, q) => sum + q.waiting + q.delayed, 0),
+                totalFailed: 0,
+                totalCompleted: 0,
+                uptime: 0,
+                redis: { connected: true, memory: 'N/A' },
+              };
+              return overview;
+            }),
+            tap((data) => this._overview.set(data)),
+          ),
+      ),
     );
   }
 
@@ -180,9 +210,27 @@ export class QueueService {
    * @returns Observable com metricas da fila
    */
   getQueueMetrics(queueName: string): Observable<QueueMetrics> {
+    const fallbackUrl = `${environment.apiUrl}/health/queues/${queueName}`;
     return this.http
       .get<{ data: QueueMetrics }>(`${this.baseUrl}/${queueName}/metrics`)
-      .pipe(map((res) => res.data));
+      .pipe(
+        map((res) => res.data),
+        catchError(() =>
+          this.http
+            .get<{ name: string; size: number; delayed: number }>(fallbackUrl)
+            .pipe(
+              map((res) => ({
+                name: res.name,
+                waiting: res.size,
+                active: 0,
+                completed: 0,
+                failed: 0,
+                delayed: res.delayed,
+                paused: false,
+              })),
+            ),
+        ),
+      );
   }
 
   /**

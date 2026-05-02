@@ -90,7 +90,7 @@ describe('ChannelFormComponent', () => {
     expect(component.isTokenRequired()).toBe(true);
   });
 
-  it('keeps token required for uazapi editions even when integration already has token', async () => {
+  it('token is optional for uazapi editions when integration already has token', async () => {
     fixture.componentRef.setInput('integration', {
       id: 'integration-1',
       name: 'Integração existente',
@@ -106,8 +106,8 @@ describe('ChannelFormComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.isTokenRequired()).toBe(true);
-    expect(component.form.controls.token.hasError('required')).toBe(true);
+    expect(component.isTokenRequired()).toBe(false);
+    expect(component.form.controls.token.hasError('required')).toBe(false);
     expect(component.form.controls.token.disabled).toBe(false);
   });
 

@@ -143,7 +143,8 @@
             }
 
             /* Navbar scroll effect */
-            .navbar-scrolled {
+            .navbar-scrolled,
+            .navbar-menu-open {
                 background: rgba(26, 60, 52, 0.97) !important;
                 backdrop-filter: blur(12px);
                 box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
@@ -155,6 +156,9 @@
                 background: white;
                 border-radius: 16px;
                 overflow: hidden;
+            }
+            .pillar-card-dark {
+                background: linear-gradient(135deg, #15803d 0%, #064e3b 100%);
             }
             .pillar-card::before {
                 content: '';
@@ -245,7 +249,13 @@
                     </div>
 
                     <!-- Mobile menu button -->
-                    <button id="mobile-menu-btn" class="md:hidden text-white p-2" aria-label="Menu">
+                    <button
+                        id="mobile-menu-btn"
+                        class="md:hidden text-white p-2"
+                        aria-label="Menu"
+                        aria-expanded="false"
+                        aria-controls="mobile-menu"
+                    >
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
@@ -254,13 +264,15 @@
 
                 <!-- Mobile menu -->
                 <div id="mobile-menu" class="hidden md:hidden pb-4">
-                    <div class="flex flex-col gap-3">
-                        <a href="#solucao" class="text-white/80 hover:text-white text-sm font-medium py-2">Solução</a>
-                        <a href="#features" class="text-white/80 hover:text-white text-sm font-medium py-2">Recursos</a>
-                        <a href="#como-funciona" class="text-white/80 hover:text-white text-sm font-medium py-2"
+                    <div
+                        class="flex flex-col gap-1 rounded-2xl border border-white/10 bg-primary-light/95 p-3 shadow-2xl shadow-black/20 backdrop-blur-xl"
+                    >
+                        <a href="#solucao" class="text-white hover:text-white text-sm font-semibold px-3 py-2.5 rounded-xl hover:bg-white/10 transition">Solução</a>
+                        <a href="#features" class="text-white hover:text-white text-sm font-semibold px-3 py-2.5 rounded-xl hover:bg-white/10 transition">Recursos</a>
+                        <a href="#como-funciona" class="text-white hover:text-white text-sm font-semibold px-3 py-2.5 rounded-xl hover:bg-white/10 transition"
                             >Como funciona</a
                         >
-                        <a href="#precos" class="text-white/80 hover:text-white text-sm font-medium py-2">Preços</a>
+                        <a href="#precos" class="text-white hover:text-white text-sm font-semibold px-3 py-2.5 rounded-xl hover:bg-white/10 transition">Preços</a>
                         <a
                             href="#contato"
                             data-iz-demo-cta="true"
@@ -824,7 +836,7 @@
                     </div>
 
                     <!-- Pilar 3 — Autopilot com IA -->
-                    <div class="pillar-card p-8 shadow-lg card-hover reveal bg-gradient-to-br from-green-700 to-emerald-900">
+                    <div class="pillar-card pillar-card-dark p-8 shadow-lg card-hover reveal">
                         <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
                             <svg
                                 class="w-7 h-7 text-white"
@@ -1918,12 +1930,20 @@
             var menuBtn = document.getElementById('mobile-menu-btn');
             var mobileMenu = document.getElementById('mobile-menu');
             if (menuBtn && mobileMenu) {
+                function setMobileMenuOpen(isOpen) {
+                    mobileMenu.classList.toggle('hidden', !isOpen);
+                    menuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    if (navbar) {
+                        navbar.classList.toggle('navbar-menu-open', isOpen);
+                    }
+                }
+
                 menuBtn.addEventListener('click', function () {
-                    mobileMenu.classList.toggle('hidden');
+                    setMobileMenuOpen(mobileMenu.classList.contains('hidden'));
                 });
                 mobileMenu.querySelectorAll('a').forEach(function (link) {
                     link.addEventListener('click', function () {
-                        mobileMenu.classList.add('hidden');
+                        setMobileMenuOpen(false);
                     });
                 });
             }

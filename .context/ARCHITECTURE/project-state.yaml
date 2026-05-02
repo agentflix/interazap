@@ -47,7 +47,7 @@ modules_status:
         last_change: '2026-04-11'
     'Chat':
         status: 'active'
-        completion: 'FEAT-040/041/042/050/052-F1/052-F2/052-F3/053 concluídas; FEAT-053: auto-fechamento de tickets por inatividade; FEAT-052 Fase 1: rodízio round-robin; FEAT-052 Fase 2: rodízio least-busy com max_open_tickets_per_agent (subquery correlacionada + SKIP LOCKED); FEAT-052 Fase 3: skill-based routing (chat_routing_agent_skills, matching por category, SKIP LOCKED no grupo filtrado)'
+        completion: 'FEAT-040/041/042/050/052-F1/052-F2/052-F3/053 concluídas; FEAT-053: auto-fechamento de tickets por inatividade; FEAT-052 Fase 1: rodízio round-robin; FEAT-052 Fase 2: rodízio least-busy com max_open_tickets_per_agent (subquery correlacionada + SKIP LOCKED); FEAT-052 Fase 3: skill-based routing (chat_routing_agent_skills, matching por category, SKIP LOCKED no grupo filtrado); BUG auto-close override: validado que getEffectiveAutoCloseConfig() por canal já prevalece sobre global disabled; teste unitário CloseInactiveTicketsActionTest criado (6 cenários passando)'
         last_change: '2026-05-02'
     'Configuration':
         status: 'active'

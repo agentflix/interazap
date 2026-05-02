@@ -427,6 +427,7 @@ describe('WebChatService', () => {
         file_url: 'http://test/file.png',
         mime_type: 'image/png',
         type: 'image',
+        file_name: 'temp-123',
       });
 
       req.flush({ success: true, data: { messageId: 'msg-456' } });
