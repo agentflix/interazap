@@ -1,0 +1,41 @@
+# modules.yaml — Módulos do Projeto
+
+## API (Laravel 12)
+
+| Módulo | Descrição | Dependências |
+|--------|-----------|--------------|
+| Ai | Classificação e streaming AI | Shared |
+| Auth | Autenticação, Sanctum | Shared |
+| Billing | Assinaturas, pagamentos Asaas | Shared |
+| Chat | Mensagens, conversas | CRM, Shared |
+| Configuration | Configurações | Shared |
+| CRM | Contatos, empresas | Shared |
+| Dashboard | Métricas | Reports, Chat |
+| Gateway | Integrações externas | Chat |
+| Platform | Gerenciamento platform | Auth |
+| Reports | Relatórios | Chat, Billing |
+| Shared | Traits, DTOs, utilities | - |
+
+## Gateway (NestJS 11)
+
+| Módulo | Descrição | Dependências |
+|--------|-----------|--------------|
+| ai | OpenAI integration | common |
+| billing | Asaas integration | common |
+| chat | WhatsApp (UazAPI, Z-API) | common |
+| internal | APIs internas | common |
+| realtime | WebSocket/Socket.io | common |
+| webhooks | Recebimento webhooks | common |
+
+## App (Angular 19)
+
+| Módulo | Descrição |
+|--------|-----------|
+| app | Módulo principal Ionic |
+| environments | Configurações por ambiente |
+
+## Status
+
+- API: Ativa
+- Gateway: Ativa
+- App: Em desenvolvimento

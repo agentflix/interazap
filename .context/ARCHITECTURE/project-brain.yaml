@@ -1,0 +1,89 @@
+# project-brain.yaml — InteraZap
+
+nome: InteraZap
+descricao: Plataforma de automação de WhatsApp com CRM integrado, gateway de integrações, e AI para classificação e streaming de mensagens.
+tipo: SaaS B2B multi-tenant
+dominio: Comunicação / CRM / Pagamentos
+
+stack:
+  api:
+    framework: Laravel 12
+    php: "8.3"
+    banco: PostgreSQL 17
+    cache: Redis 7
+    features:
+      - pgvector (AI embeddings)
+      - Sanctum (auth)
+      - Spatie Permissions (RBAC)
+    arquitetura: DDD em src/Domain/{Domain}/
+    teste: Pest
+    analise: PHPStan L6 + Larastan + Rector
+
+  gateway:
+    framework: NestJS 11
+    typescript: "5.7"
+    filas: BullMQ
+    streams: Redis Streams
+    realtime: WebSocket (Socket.io)
+    teste: Jest
+    integracoes:
+      - UazAPI (WhatsApp)
+      - Z-API (WhatsApp)
+      - Asaas (pagamentos)
+      - OpenAI (AI)
+
+  app:
+    framework: Angular 19
+    mobile: Capacitor + Ionic
+    estado: unknown
+
+modulos_api:
+  - Ai (classificação, streaming)
+  - Auth (autenticação)
+  - Billing (assinaturas, pagamentos)
+  - Chat (mensagens, conversas)
+  - Configuration (configurações)
+  - CRM (contatos, empresas)
+  - Dashboard
+  - Gateway (integrações)
+  - Platform
+  - Reports
+  - Shared
+
+modulos_gateway:
+  - ai (OpenAI)
+  - billing (Asaas)
+  - chat (WhatsApp)
+  - internal
+  - realtime (WebSocket)
+  - webhooks
+
+convencoes_api:
+  - strict_types em todo arquivo
+  - phpDoc em classes e métodos públicos
+  - final class em Controllers, Actions, DTOs
+  - $fillable explícito (nunca $guarded = [])
+  - UUID como primary key
+  - Eager loading obrigatório (nunca N+1)
+  - BelongsToTenant em todos os models
+  - Controller → DTO → Action → Resource
+
+convencoes_gateway:
+  - ValidationPipe com whitelist: true
+  - Logger dedicado por controller/service
+  - Idempotência em webhook handlers (SETNX com TTL)
+  - Circuit breaker em chamadas HTTP externas
+  - Resposta de webhook < 150ms
+  - Nunca logar tokens ou chaves de API
+
+areas_sensiveis:
+  - Autenticação e autorização (Auth, Permissions)
+  - Pagamentos e billing (Asaas)
+  - Webhooks (validação, idempotência)
+  - Dados de chat e CRM
+
+integracoes_externas:
+  - UazAPI: provider WhatsApp
+  - Z-API: provider WhatsApp alternativo
+  - Asaas: gateway de pagamentos
+  - OpenAI: classificação e streaming de mensagens
