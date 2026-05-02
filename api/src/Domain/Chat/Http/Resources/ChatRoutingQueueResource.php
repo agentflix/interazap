@@ -33,6 +33,9 @@ final class ChatRoutingQueueResource extends BaseJsonResource
                 'position' => $agent->position,
                 'last_assigned_at' => $agent->last_assigned_at ? $agent->last_assigned_at->format(DATE_ATOM) : null,
                 'is_active' => $agent->is_active,
+                'skills' => $agent->relationLoaded('skills')
+                    ? $agent->skills->pluck('skill')->all()
+                    : [],
             ])),
             'created_at' => $this->iso($this->created_at),
             'updated_at' => $this->iso($this->updated_at),

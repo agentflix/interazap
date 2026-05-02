@@ -79,13 +79,14 @@ export class ChatConfigurationPage implements OnInit {
 
   readonly routingEnabledControl = new FormControl<boolean>(false, { nonNullable: true });
 
-  readonly strategyControl = new FormControl<'round_robin' | 'least_busy'>('round_robin', {
+  readonly strategyControl = new FormControl<'round_robin' | 'least_busy' | 'skill_based'>('round_robin', {
     nonNullable: true,
   });
 
   readonly strategyOptions = [
     { value: 'round_robin', label: 'Round Robin (Rodízio)' },
     { value: 'least_busy', label: 'Menor Carga' },
+    { value: 'skill_based', label: 'Por Habilidade' },
   ];
 
   readonly maxOpenTicketsControl = new FormControl<number | null>(null, {
@@ -146,7 +147,7 @@ export class ChatConfigurationPage implements OnInit {
       const q = this.queue();
       if (q) {
         this.routingEnabledControl.setValue(q.is_enabled, { emitEvent: false });
-        this.strategyControl.setValue(q.strategy as 'round_robin' | 'least_busy', { emitEvent: false });
+        this.strategyControl.setValue(q.strategy as 'round_robin' | 'least_busy' | 'skill_based', { emitEvent: false });
         this.maxOpenTicketsControl.setValue(q.max_open_tickets_per_agent, { emitEvent: false });
       }
     });
@@ -287,7 +288,7 @@ export class ChatConfigurationPage implements OnInit {
 
   protected onStrategyChange(strategy: string): void {
     const exists = this.queue() !== null;
-    const payload: Record<string, unknown> = { strategy: strategy as 'round_robin' | 'least_busy' };
+    const payload: Record<string, unknown> = { strategy: strategy as 'round_robin' | 'least_busy' | 'skill_based' };
     if (!exists) {
       payload['name'] = 'Global';
       payload['is_enabled'] = this.routingEnabledControl.value;
@@ -321,5 +322,13 @@ export class ChatConfigurationPage implements OnInit {
       a.user_id === userId ? { ...a, is_active: isActive } : a,
     );
     this.routingService.save('global', { agents: updatedAgents });
+  }
+
+  protected onAddSkill(userId: string, skill: string): void {
+    this.routingService.addAgentSkill('global', userId, skill);
+  }
+
+  protected onRemoveSkill(userId: string, skill: string): void {
+    this.routingService.removeAgentSkill('global', userId, skill);
   }
 }

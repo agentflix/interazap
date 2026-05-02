@@ -30,6 +30,7 @@ describe('ChannelRoutingComponent', () => {
         position: 1,
         last_assigned_at: null,
         is_active: true,
+        skills: [],
         created_at: '',
         updated_at: '',
       },
@@ -53,6 +54,8 @@ describe('ChannelRoutingComponent', () => {
     addAgent: vi.fn(),
     removeAgent: vi.fn(),
     reorder: vi.fn(),
+    addAgentSkill: vi.fn(),
+    removeAgentSkill: vi.fn(),
   };
 
   const userServiceMock = {
@@ -228,6 +231,7 @@ describe('ChannelRoutingComponent', () => {
         position: 1,
         last_assigned_at: null,
         is_active: true,
+        skills: [],
         created_at: '',
         updated_at: '',
       },
@@ -243,6 +247,16 @@ describe('ChannelRoutingComponent', () => {
       ],
       'channel-1',
     );
+  });
+
+  it('adiciona skill a agente do canal', () => {
+    component.onAddSkill('user-1', 'suporte_tecnico');
+    expect(serviceMock.addAgentSkill).toHaveBeenCalledWith('channel', 'user-1', 'suporte_tecnico', 'channel-1');
+  });
+
+  it('remove skill de agente do canal', () => {
+    component.onRemoveSkill('user-1', 'suporte_tecnico');
+    expect(serviceMock.removeAgentSkill).toHaveBeenCalledWith('channel', 'user-1', 'suporte_tecnico', 'channel-1');
   });
 
   it('toggles local enabled state without persisting', () => {

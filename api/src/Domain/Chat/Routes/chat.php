@@ -125,6 +125,10 @@ Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttl
         Route::delete('channels/{id}/routing-queue/agents/{userId}', [ChatRoutingQueueController::class, 'destroyAgent'])->defaults('scope', 'channel');
         Route::put('channels/{id}/routing-queue/agents/reorder', [ChatRoutingQueueController::class, 'reorderAgents'])->defaults('scope', 'channel');
 
+        Route::get('channels/{id}/routing-queue/agents/{userId}/skills', [ChatRoutingQueueController::class, 'indexSkills'])->defaults('scope', 'channel');
+        Route::post('channels/{id}/routing-queue/agents/{userId}/skills', [ChatRoutingQueueController::class, 'storeSkill'])->defaults('scope', 'channel');
+        Route::delete('channels/{id}/routing-queue/agents/{userId}/skills/{skill}', [ChatRoutingQueueController::class, 'destroySkill'])->defaults('scope', 'channel');
+
         Route::get('routing-queue/global', [ChatRoutingQueueController::class, 'showGlobal']);
         Route::post('routing-queue/global', [ChatRoutingQueueController::class, 'storeGlobal']);
         Route::put('routing-queue/global', [ChatRoutingQueueController::class, 'updateGlobal']);
@@ -133,6 +137,10 @@ Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttl
         Route::post('routing-queue/global/agents', [ChatRoutingQueueController::class, 'storeAgent'])->defaults('scope', 'global');
         Route::delete('routing-queue/global/agents/{userId}', [ChatRoutingQueueController::class, 'destroyAgent'])->defaults('scope', 'global');
         Route::put('routing-queue/global/agents/reorder', [ChatRoutingQueueController::class, 'reorderAgents'])->defaults('scope', 'global');
+
+        Route::get('routing-queue/global/agents/{userId}/skills', [ChatRoutingQueueController::class, 'indexSkills'])->defaults('scope', 'global');
+        Route::post('routing-queue/global/agents/{userId}/skills', [ChatRoutingQueueController::class, 'storeSkill'])->defaults('scope', 'global');
+        Route::delete('routing-queue/global/agents/{userId}/skills/{skill}', [ChatRoutingQueueController::class, 'destroySkill'])->defaults('scope', 'global');
     });
 
     Route::prefix('channels')->group(function (): void {

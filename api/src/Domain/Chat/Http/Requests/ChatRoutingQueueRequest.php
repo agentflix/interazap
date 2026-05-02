@@ -35,9 +35,10 @@ final class ChatRoutingQueueRequest extends FormRequest
      */
     public function rules(): array
     {
-        $isStoreQueue = $this->isMethod('POST') && ! $this->hasAny(['user_id', 'agents']);
-        $isStoreAgent = $this->has('user_id') && ! $this->has('agents');
+        $isStoreQueue = $this->isMethod('POST') && ! $this->hasAny(['user_id', 'agents', 'skill']);
+        $isStoreAgent = $this->has('user_id') && ! $this->hasAny(['agents', 'skill']);
         $isReorder = $this->has('agents');
+        $isStoreSkill = $this->has('skill');
 
         return [
             'name' => [$isStoreQueue ? 'required' : 'sometimes', 'string', 'max:100'],
@@ -48,6 +49,7 @@ final class ChatRoutingQueueRequest extends FormRequest
             'agents' => [$isReorder ? 'required' : 'sometimes', 'array'],
             'agents.*.user_id' => ['required_with:agents', 'uuid'],
             'agents.*.position' => ['required_with:agents', 'integer', 'min:0'],
+            'skill' => [$isStoreSkill ? 'required' : 'sometimes', 'string', 'max:100'],
         ];
     }
 }

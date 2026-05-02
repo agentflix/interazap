@@ -8,30 +8,70 @@
       @for (agent of agents(); track agent.user_id; let i = $index) {
         <div
           cdkDrag
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 shadow-sm cursor-move"
+          class="px-3 py-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 shadow-sm cursor-move"
         >
-          <lucide-icon name="grip-vertical" [size]="16" class="text-neutral-400 shrink-0" />
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">
-              Agente #{{ agent.position }}
-            </p>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">
-              {{ agent.user_id }}
-            </p>
+          <div class="flex items-center gap-3">
+            <lucide-icon name="grip-vertical" [size]="16" class="text-neutral-400 shrink-0" />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">
+                Agente #{{ agent.position }}
+              </p>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                {{ agent.user_id }}
+              </p>
+            </div>
+            <af-switch-input
+              [checked]="agent.is_active"
+              (toggled)="onToggleActive(agent)"
+              ariaLabel="Ativar agente"
+            />
+            <af-button
+              variant="ghost"
+              size="sm"
+              (click)="onRemove(agent.user_id)"
+              ariaLabel="Remover agente"
+            >
+              <lucide-icon name="trash-2" [size]="16" class="text-red-500" />
+            </af-button>
           </div>
-          <af-switch-input
-            [checked]="agent.is_active"
-            (toggled)="onToggleActive(agent)"
-            ariaLabel="Ativar agente"
-          />
-          <af-button
-            variant="ghost"
-            size="sm"
-            (click)="onRemove(agent.user_id)"
-            ariaLabel="Remover agente"
-          >
-            <lucide-icon name="trash-2" [size]="16" class="text-red-500" />
-          </af-button>
+
+          @if (strategy() === 'skill_based') {
+            <div class="mt-2 pl-7">
+              @if (agent.skills.length > 0) {
+                <div class="flex flex-wrap gap-1.5 mb-2">
+                  @for (skill of agent.skills; track skill) {
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 text-xs font-medium text-purple-700 dark:text-purple-300"
+                    >
+                      {{ skill }}
+                      <button
+                        type="button"
+                        class="text-purple-500 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-200"
+                        (click)="onRemoveSkill(agent, skill)"
+                      >
+                        <lucide-icon name="x" [size]="12" />
+                      </button>
+                    </span>
+                  }
+                </div>
+              }
+              <div class="flex items-center gap-2">
+                <div class="flex-1 min-w-0">
+                  <input
+                    type="text"
+                    class="w-full text-xs px-2 py-1 rounded border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    placeholder="Nova habilidade..."
+                    [value]="newSkillByAgent()[agent.user_id] ?? ''"
+                    (input)="onSkillInput(agent, $any($event.target).value)"
+                    (keydown.enter)="onAddSkill(agent)"
+                  />
+                </div>
+                <af-button variant="ghost" size="xs" (click)="onAddSkill(agent)">
+                  <lucide-icon name="plus" [size]="14" />
+                </af-button>
+              </div>
+            </div>
+          }
         </div>
       }
     </div>

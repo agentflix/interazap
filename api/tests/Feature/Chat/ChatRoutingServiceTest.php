@@ -273,3 +273,105 @@ it('least_busy unlimited when max_open_tickets_per_agent is null', function (): 
     // Unlimited → still gets assigned despite 5 open tickets
     expect($service->route($ticket))->toBe($agent->id);
 })->group('integration');
+
+// ── Skill Based ───────────────────────────────────────────────────────────
+
+it('selects agent with matching skill in skill_based', function (): void {
+    $queue = createRoutingQueue($this->tenantId, null, true, 'skill_based');
+    $agent1 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    $agent2 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    createRoutingAgent($queue->id, $agent1->id, 0);
+    createRoutingAgent($queue->id, $agent2->id, 1);
+
+    // agent1 has skill 'suporte', agent2 has skill 'vendas'
+    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+        'queue_id' => $queue->id,
+        'user_id' => $agent1->id,
+        'skill' => 'suporte',
+    ]);
+    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+        'queue_id' => $queue->id,
+        'user_id' => $agent2->id,
+        'skill' => 'vendas',
+    ]);
+
+    $service = app(ChatRoutingService::class);
+    $ticket = ChatTicket::factory()->forTenant($this->tenantId)->create([
+        'category' => 'suporte',
+    ]);
+
+    expect($service->route($ticket))->toBe($agent1->id);
+})->group('integration');
+
+it('returns null when no agent has matching skill', function (): void {
+    $queue = createRoutingQueue($this->tenantId, null, true, 'skill_based');
+    $agent = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    createRoutingAgent($queue->id, $agent->id, 0);
+
+    // agent has skill 'vendas', ticket category is 'suporte'
+    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+        'queue_id' => $queue->id,
+        'user_id' => $agent->id,
+        'skill' => 'vendas',
+    ]);
+
+    $service = app(ChatRoutingService::class);
+    $ticket = ChatTicket::factory()->forTenant($this->tenantId)->create([
+        'category' => 'suporte',
+    ]);
+
+    expect($service->route($ticket))->toBeNull();
+})->group('integration');
+
+it('returns null when ticket has no category in skill_based', function (): void {
+    $queue = createRoutingQueue($this->tenantId, null, true, 'skill_based');
+    $agent = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    createRoutingAgent($queue->id, $agent->id, 0);
+
+    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+        'queue_id' => $queue->id,
+        'user_id' => $agent->id,
+        'skill' => 'suporte',
+    ]);
+
+    $service = app(ChatRoutingService::class);
+    $ticket = ChatTicket::factory()->forTenant($this->tenantId)->create([
+        'category' => null,
+    ]);
+
+    expect($service->route($ticket))->toBeNull();
+})->group('integration');
+
+it('applies round robin among agents with same matching skill', function (): void {
+    $queue = createRoutingQueue($this->tenantId, null, true, 'skill_based');
+    $agent1 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    $agent2 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    createRoutingAgent($queue->id, $agent1->id, 0);
+    createRoutingAgent($queue->id, $agent2->id, 1);
+
+    // Both agents have skill 'suporte'
+    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+        'queue_id' => $queue->id,
+        'user_id' => $agent1->id,
+        'skill' => 'suporte',
+    ]);
+    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+        'queue_id' => $queue->id,
+        'user_id' => $agent2->id,
+        'skill' => 'suporte',
+    ]);
+
+    $service = app(ChatRoutingService::class);
+
+    // First ticket → agent1 (NULL last_assigned_at sorts first)
+    $ticket1 = ChatTicket::factory()->forTenant($this->tenantId)->create([
+        'category' => 'suporte',
+    ]);
+    expect($service->route($ticket1))->toBe($agent1->id);
+
+    // Second ticket → agent2 (agent1 now has last_assigned_at)
+    $ticket2 = ChatTicket::factory()->forTenant($this->tenantId)->create([
+        'category' => 'suporte',
+    ]);
+    expect($service->route($ticket2))->toBe($agent2->id);
+})->group('integration');

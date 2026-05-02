@@ -24,10 +24,10 @@ stack:
 
 metrics:
     total_features: 8
-    features_completed: 8 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050, FEAT-051, FEAT-052-F2, FEAT-053
-    features_in_progress: 1 # FEAT-052-F3 (Skill-Based)
-    total_tasks: 120 # 117 anteriores + 3 (Fase 2)
-    tasks_completed: 120
+    features_completed: 9 # FEAT-039, FEAT-040, FEAT-041, FEAT-042, FEAT-050, FEAT-051, FEAT-052-F1, FEAT-052-F2, FEAT-052-F3
+    features_in_progress: 0
+    total_tasks: 124 # 120 anteriores + 4 (Fase 3)
+    tasks_completed: 124
     tasks_in_progress: 0
     tasks_pending: 0
     tasks_pending_new: 0
@@ -47,7 +47,7 @@ modules_status:
         last_change: '2026-04-11'
     'Chat':
         status: 'active'
-        completion: 'FEAT-040/041/042/050/052-F1/052-F2/053 concluídas; FEAT-053: auto-fechamento de tickets por inatividade; FEAT-052 Fase 1: rodízio round-robin; FEAT-052 Fase 2: rodízio least-busy com max_open_tickets_per_agent (subquery correlacionada + SKIP LOCKED)'
+        completion: 'FEAT-040/041/042/050/052-F1/052-F2/052-F3/053 concluídas; FEAT-053: auto-fechamento de tickets por inatividade; FEAT-052 Fase 1: rodízio round-robin; FEAT-052 Fase 2: rodízio least-busy com max_open_tickets_per_agent (subquery correlacionada + SKIP LOCKED); FEAT-052 Fase 3: skill-based routing (chat_routing_agent_skills, matching por category, SKIP LOCKED no grupo filtrado)'
         last_change: '2026-05-02'
     'Configuration':
         status: 'active'
@@ -80,6 +80,6 @@ modules_status:
 
 quality:
     test_coverage_backend: '>=80% nos paths Domain/Chat/Actions, Http, Listeners, Jobs; >=82.5% nos arquivos alvo de FEAT-051'
-    test_coverage_frontend: 'Testes unitários passando para chat.store, chat-conversation-component, template-selector'
+    test_coverage_frontend: 'Testes unitários passando para chat.store, chat-conversation-component, template-selector, chat-configuration (13), channel-routing (18), routing-agent-list (4), routing-agent-form (4)'
     lint_status: 'ESLint 0 erros / 0 warnings nos arquivos FEAT-050'
-    last_validation: '2026-05-01'
+    last_validation: '2026-05-02'

@@ -94,13 +94,14 @@ export class ChannelRoutingComponent implements OnInit {
   /** Error state from the service */
   readonly error = this.service.error;
 
-  readonly strategyControl = new FormControl<'round_robin' | 'least_busy'>('round_robin', {
+  readonly strategyControl = new FormControl<'round_robin' | 'least_busy' | 'skill_based'>('round_robin', {
     nonNullable: true,
   });
 
   readonly strategyOptions = [
     { value: 'round_robin', label: 'Round Robin (Rodízio)' },
     { value: 'least_busy', label: 'Menor Carga' },
+    { value: 'skill_based', label: 'Por Habilidade' },
   ];
 
   readonly maxOpenTicketsControl = new FormControl<number | null>(null, {
@@ -113,7 +114,7 @@ export class ChannelRoutingComponent implements OnInit {
       if (q) {
         this.overrideEnabled.set(true);
         this.isEnabledLocal.set(q.is_enabled);
-        this.strategyControl.setValue(q.strategy as 'round_robin' | 'least_busy', { emitEvent: false });
+        this.strategyControl.setValue(q.strategy as 'round_robin' | 'least_busy' | 'skill_based', { emitEvent: false });
         this.maxOpenTicketsControl.setValue(q.max_open_tickets_per_agent, { emitEvent: false });
       } else {
         this.overrideEnabled.set(false);
@@ -219,6 +220,16 @@ export class ChannelRoutingComponent implements OnInit {
       a.user_id === userId ? { ...a, is_active: isActive } : a,
     );
     this.service.save('channel', { agents: updatedAgents }, this.channelId());
+  }
+
+  /** Add a skill to an agent in the channel queue */
+  onAddSkill(userId: string, skill: string): void {
+    this.service.addAgentSkill('channel', userId, skill, this.channelId());
+  }
+
+  /** Remove a skill from an agent in the channel queue */
+  onRemoveSkill(userId: string, skill: string): void {
+    this.service.removeAgentSkill('channel', userId, skill, this.channelId());
   }
 
   /** Close the modal without side effects */

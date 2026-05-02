@@ -7,6 +7,7 @@ namespace Domain\Chat\Models;
 use Domain\Auth\Models\AuthUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 /**
@@ -87,5 +88,16 @@ class ChatRoutingQueueAgent extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(AuthUser::class, 'user_id');
+    }
+
+    /**
+     * Relacionamento com as Skills do agente na fila.
+     *
+     * @return HasMany<ChatRoutingAgentSkill, $this>
+     */
+    public function skills(): HasMany
+    {
+        return $this->hasMany(ChatRoutingAgentSkill::class, 'user_id', 'user_id')
+            ->whereColumn('chat_routing_agent_skills.queue_id', 'chat_routing_queue_agents.queue_id');
     }
 }

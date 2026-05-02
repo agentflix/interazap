@@ -35,7 +35,7 @@ final class ChatRoutingService
         return match ($queue->strategy) {
             'round_robin' => $this->roundRobin($queue),
             'least_busy' => $this->leastBusy($queue),
-            'skill_based' => null,
+            'skill_based' => $this->skillBased($queue, $ticket),
             default => null,
         };
     }
@@ -166,5 +166,49 @@ final class ChatRoutingService
             ->orderBy('position', 'asc')
             ->lock('FOR UPDATE SKIP LOCKED')
             ->first();
+    }
+
+    /**
+     * Executa distribuição por habilidade (skill-based) entre agentes ativos.
+     *
+     * Filtra agentes cujas skills batem com a categoria do ticket.
+     * Aplica round-robin no grupo filtrado.
+     * Se nenhum agente tiver a skill, retorna null (sem atribuição automática).
+     *
+     * @return string|null UUID do agente selecionado, ou null.
+     */
+    public function skillBased(ChatRoutingQueue $queue, ChatTicket $ticket): ?string
+    {
+        $category = $ticket->category;
+
+        if ($category === null || $category === '') {
+            return null;
+        }
+
+        return DB::transaction(function () use ($queue, $category): ?string {
+            $agent = ChatRoutingQueueAgent::query()
+                ->where('queue_id', $queue->id)
+                ->where('is_active', true)
+                ->whereExists(function ($query) use ($queue, $category): void {
+                    $query->select(DB::raw(1))
+                        ->from('chat_routing_agent_skills')
+                        ->whereColumn('chat_routing_agent_skills.user_id', 'chat_routing_queue_agents.user_id')
+                        ->where('chat_routing_agent_skills.queue_id', $queue->id)
+                        ->where('chat_routing_agent_skills.skill', $category);
+                })
+                ->orderByRaw('last_assigned_at ASC NULLS FIRST')
+                ->orderBy('position', 'asc')
+                ->lock('FOR UPDATE SKIP LOCKED')
+                ->first();
+
+            if ($agent === null) {
+                return null;
+            }
+
+            $agent->last_assigned_at = now();
+            $agent->save();
+
+            return $agent->user_id;
+        });
     }
 }

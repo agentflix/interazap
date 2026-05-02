@@ -24,6 +24,7 @@ export interface ChatRoutingQueueAgent {
   position: number;
   last_assigned_at: string | null;
   is_active: boolean;
+  skills: string[];
   created_at: string;
   updated_at: string;
 }
@@ -238,6 +239,107 @@ export class ChatRoutingQueueService {
         error: () => {
           this._setLoading(false);
           this.error.set('Erro ao reordenar agentes da fila.');
+        },
+      });
+  }
+
+  /**
+   * Load skills for an agent.
+   * @param scope Whether to target the global queue or a channel queue.
+   * @param userId User identifier.
+   * @param channelId Required when scope is 'channel'.
+   */
+  loadAgentSkills(
+    scope: 'global' | 'channel',
+    userId: string,
+    channelId?: string,
+  ): void {
+    const url = `${this._getQueueUrl(scope, channelId)}/agents/${userId}/skills`;
+
+    this.http
+      .get<SingleEnvelope<{ id: string; skill: string }[]>>(url)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const skillNames = response.data.map((s) => s.skill);
+          this.agents.update((current) =>
+            current.map((a) =>
+              a.user_id === userId ? { ...a, skills: skillNames } : a,
+            ),
+          );
+        },
+        error: () => {
+          this.error.set('Erro ao carregar skills do agente.');
+        },
+      });
+  }
+
+  /**
+   * Add a skill to an agent.
+   * @param scope Whether to target the global queue or a channel queue.
+   * @param userId User identifier.
+   * @param skill Skill string to add.
+   * @param channelId Required when scope is 'channel'.
+   */
+  addAgentSkill(
+    scope: 'global' | 'channel',
+    userId: string,
+    skill: string,
+    channelId?: string,
+  ): void {
+    const url = `${this._getQueueUrl(scope, channelId)}/agents/${userId}/skills`;
+
+    this.http
+      .post<SingleEnvelope<{ id: string; skill: string }>>(url, { skill })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.agents.update((current) =>
+            current.map((a) =>
+              a.user_id === userId && !a.skills.includes(skill)
+                ? { ...a, skills: [...a.skills, skill] }
+                : a,
+            ),
+          );
+          this.error.set(null);
+        },
+        error: () => {
+          this.error.set('Erro ao adicionar skill ao agente.');
+        },
+      });
+  }
+
+  /**
+   * Remove a skill from an agent.
+   * @param scope Whether to target the global queue or a channel queue.
+   * @param userId User identifier.
+   * @param skill Skill string to remove.
+   * @param channelId Required when scope is 'channel'.
+   */
+  removeAgentSkill(
+    scope: 'global' | 'channel',
+    userId: string,
+    skill: string,
+    channelId?: string,
+  ): void {
+    const url = `${this._getQueueUrl(scope, channelId)}/agents/${userId}/skills/${skill}`;
+
+    this.http
+      .delete<void>(url)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.agents.update((current) =>
+            current.map((a) =>
+              a.user_id === userId
+                ? { ...a, skills: a.skills.filter((s) => s !== skill) }
+                : a,
+            ),
+          );
+          this.error.set(null);
+        },
+        error: () => {
+          this.error.set('Erro ao remover skill do agente.');
         },
       });
   }

@@ -29,6 +29,7 @@ function buildQueue(): ChatRoutingQueue {
         position: 1,
         last_assigned_at: null,
         is_active: true,
+        skills: [],
         created_at: '',
         updated_at: '',
       },
@@ -48,6 +49,8 @@ function buildServiceMock(): {
   addAgent: ReturnType<typeof vi.fn>;
   removeAgent: ReturnType<typeof vi.fn>;
   reorder: ReturnType<typeof vi.fn>;
+  addAgentSkill: ReturnType<typeof vi.fn>;
+  removeAgentSkill: ReturnType<typeof vi.fn>;
 } {
   return {
     queue: signal<ChatRoutingQueue | null>(buildQueue()),
@@ -59,6 +62,8 @@ function buildServiceMock(): {
     addAgent: vi.fn(),
     removeAgent: vi.fn(),
     reorder: vi.fn(),
+    addAgentSkill: vi.fn(),
+    removeAgentSkill: vi.fn(),
   };
 }
 
@@ -185,6 +190,22 @@ describe('ChatConfigurationPage', () => {
       { agents: ChatRoutingQueueAgent[] },
     ];
     expect(savedArgs[1].agents[0].is_active).toBe(false);
+  });
+
+  it('adiciona skill a agente', () => {
+    const view = component as unknown as {
+      onAddSkill: (userId: string, skill: string) => void;
+    };
+    view.onAddSkill('user-1', 'suporte_tecnico');
+    expect(serviceMock.addAgentSkill).toHaveBeenCalledWith('global', 'user-1', 'suporte_tecnico');
+  });
+
+  it('remove skill de agente', () => {
+    const view = component as unknown as {
+      onRemoveSkill: (userId: string, skill: string) => void;
+    };
+    view.onRemoveSkill('user-1', 'suporte_tecnico');
+    expect(serviceMock.removeAgentSkill).toHaveBeenCalledWith('global', 'user-1', 'suporte_tecnico');
   });
 
   it('exibe toast de erro quando falha ao carregar usuários', () => {

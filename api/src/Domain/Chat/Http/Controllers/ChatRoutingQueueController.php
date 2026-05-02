@@ -6,6 +6,7 @@ namespace Domain\Chat\Http\Controllers;
 
 use Domain\Chat\Http\Requests\ChatRoutingQueueRequest;
 use Domain\Chat\Http\Resources\ChatRoutingQueueResource;
+use Domain\Chat\Models\ChatRoutingAgentSkill;
 use Domain\Chat\Models\ChatRoutingQueue;
 use Domain\Chat\Models\ChatRoutingQueueAgent;
 use Domain\Shared\Http\Controllers\BaseController;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Controlador de Filas de Roteamento de Atendimentos.
@@ -33,7 +35,7 @@ final class ChatRoutingQueueController extends BaseController
      */
     public function showChannel(Request $request, string $id): JsonResponse
     {
-        $queue = ChatRoutingQueue::with('agents')->forInstance($id)->first();
+        $queue = ChatRoutingQueue::with(['agents.skills'])->forInstance($id)->first();
 
         if ($queue === null) {
             return $this->notFound('Fila de roteamento não encontrada');
@@ -76,7 +78,7 @@ final class ChatRoutingQueueController extends BaseController
      */
     public function updateChannel(ChatRoutingQueueRequest $request, string $id): JsonResponse
     {
-        $queue = ChatRoutingQueue::with('agents')->forInstance($id)->first();
+        $queue = ChatRoutingQueue::with(['agents.skills'])->forInstance($id)->first();
 
         if ($queue === null) {
             return $this->notFound('Fila de roteamento não encontrada');
@@ -102,7 +104,7 @@ final class ChatRoutingQueueController extends BaseController
      */
     public function showGlobal(Request $request): JsonResponse
     {
-        $queue = ChatRoutingQueue::with('agents')->global()->first();
+        $queue = ChatRoutingQueue::with(['agents.skills'])->global()->first();
 
         if ($queue === null) {
             return $this->notFound('Fila de roteamento global não encontrada');
@@ -143,7 +145,7 @@ final class ChatRoutingQueueController extends BaseController
      */
     public function updateGlobal(ChatRoutingQueueRequest $request): JsonResponse
     {
-        $queue = ChatRoutingQueue::with('agents')->global()->first();
+        $queue = ChatRoutingQueue::with(['agents.skills'])->global()->first();
 
         if ($queue === null) {
             return $this->notFound('Fila de roteamento global não encontrada');
@@ -269,6 +271,105 @@ final class ChatRoutingQueueController extends BaseController
     }
 
     /**
+     * Listar as skills de um agente na fila.
+     *
+     * @param  Request  $request  Solicitação HTTP.
+     * @param  string  $scope  Escopo: 'channel' ou 'global'.
+     * @param  string  $userId  Identificador UUID do agente.
+     * @param  string|null  $id  Identificador UUID da instância (canal).
+     * @return JsonResponse Lista de skills.
+     */
+    public function indexSkills(Request $request, string $scope, string $userId, ?string $id = null): JsonResponse
+    {
+        $queue = $this->resolveQueue($scope, $id);
+
+        if ($queue === null) {
+            return $this->notFound('Fila de roteamento não encontrada');
+        }
+
+        $this->authorize('view', $queue);
+
+        $skills = ChatRoutingAgentSkill::query()
+            ->where('queue_id', $queue->id)
+            ->where('user_id', $userId)
+            ->get();
+
+        return $this->success($skills->map(fn (ChatRoutingAgentSkill $skill): array => [
+            'id' => $skill->id,
+            'skill' => $skill->skill,
+        ]));
+    }
+
+    /**
+     * Adicionar uma skill a um agente na fila.
+     *
+     * @param  ChatRoutingQueueRequest  $request  Dados validados.
+     * @param  string  $scope  Escopo: 'channel' ou 'global'.
+     * @param  string  $userId  Identificador UUID do agente.
+     * @param  string|null  $id  Identificador UUID da instância (canal).
+     * @return JsonResponse Skill criada (201).
+     */
+    public function storeSkill(ChatRoutingQueueRequest $request, string $scope, string $userId, ?string $id = null): JsonResponse
+    {
+        $queue = $this->resolveQueue($scope, $id);
+
+        if ($queue === null) {
+            return $this->notFound('Fila de roteamento não encontrada');
+        }
+
+        $this->authorize('manage', $queue);
+
+        $skillValue = $request->input('skill');
+
+        $existing = ChatRoutingAgentSkill::query()
+            ->where('queue_id', $queue->id)
+            ->where('user_id', $userId)
+            ->where('skill', $skillValue)
+            ->first();
+
+        if ($existing !== null) {
+            return $this->success(['id' => $existing->id, 'skill' => $existing->skill]);
+        }
+
+        $skill = ChatRoutingAgentSkill::create([
+            'queue_id' => $queue->id,
+            'user_id' => $userId,
+            'skill' => $skillValue,
+        ]);
+
+        return $this->created(['id' => $skill->id, 'skill' => $skill->skill]);
+    }
+
+    /**
+     * Remover uma skill de um agente na fila.
+     *
+     * @param  Request  $request  Solicitação HTTP.
+     * @param  string  $scope  Escopo: 'channel' ou 'global'.
+     * @param  string  $userId  Identificador UUID do agente.
+     * @param  string  $skill  Skill a remover.
+     * @param  string|null  $id  Identificador UUID da instância (canal).
+     * @return JsonResponse Confirmação de remoção (204).
+     */
+    public function destroySkill(Request $request, string $scope, string $userId, string $skill, ?string $id = null): JsonResponse
+    {
+        $queue = $this->resolveQueue($scope, $id);
+
+        if ($queue === null) {
+            return $this->notFound('Fila de roteamento não encontrada');
+        }
+
+        $this->authorize('manage', $queue);
+
+        ChatRoutingAgentSkill::query()
+            ->where('queue_id', $queue->id)
+            ->where('user_id', $userId)
+            ->where('skill', $skill)
+            ->delete();
+
+        return $this->noContent();
+    }
+
+    /**
      * Resolver a fila de roteamento com base no escopo e ID de instância.
      *
      * @param  string  $scope  'channel' ou 'global'.
@@ -310,6 +411,9 @@ final class ChatRoutingQueueController extends BaseController
             'position' => $agent->position,
             'last_assigned_at' => $agent->last_assigned_at?->format(DATE_ATOM),
             'is_active' => $agent->is_active,
+            'skills' => $agent->relationLoaded('skills')
+                ? $agent->skills->pluck('skill')->all()
+                : [],
         ];
     }
 }

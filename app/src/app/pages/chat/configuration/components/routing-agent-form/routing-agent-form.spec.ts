@@ -21,6 +21,7 @@ describe('RoutingAgentFormComponent', () => {
       position: 1,
       last_assigned_at: null,
       is_active: true,
+      skills: [],
       created_at: '',
       updated_at: '',
     },
