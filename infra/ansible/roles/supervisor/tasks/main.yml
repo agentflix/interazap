@@ -30,6 +30,7 @@
       src: agentflix-production.conf.j2
       dest: /etc/supervisor/conf.d/interazap-production.conf
       mode: '0644'
+  when: app_environment == 'production'
   notify: 'Recarregar Supervisor'
 
 - name: 'Criar configuração de programas do InteraZap - Staging'
@@ -37,6 +38,7 @@
       src: agentflix-staging.conf.j2
       dest: /etc/supervisor/conf.d/interazap-staging.conf
       mode: '0644'
+  when: app_environment == 'staging'
   notify: 'Recarregar Supervisor'
 
 - name: 'Configurar logrotate para Supervisor'
