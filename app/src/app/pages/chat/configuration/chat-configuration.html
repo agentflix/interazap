@@ -30,20 +30,15 @@
         </div>
       } @else {
         <!-- Toggle principal -->
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
-              Ativar rodízio
-            </p>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-              Distribui conversas automaticamente entre os agentes configurados.
-            </p>
-          </div>
+        <div class="mb-6">
           <af-switch-input
             [control]="routingEnabledControl"
             label="Ativar rodízio"
-            ariaLabel="Ativar rodízio"
+            dataTest="routing-enabled"
           />
+          <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+            Distribui conversas automaticamente entre os agentes configurados.
+          </p>
         </div>
 
         <!-- Campos condicionais -->
