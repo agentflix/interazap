@@ -10,7 +10,13 @@
       >
         <af-topbar />
 
-        <main [class]="appShell.contentScrollable() ? 'flex-1 px-6 py-6' : 'flex-1 p-0'">
+        <main
+          [class]="
+            appShell.contentScrollable()
+              ? 'flex-1 min-h-0 px-6 py-6'
+              : 'flex-1 min-h-0 overflow-hidden p-0'
+          "
+        >
           <router-outlet />
         </main>
 

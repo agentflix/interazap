@@ -146,8 +146,8 @@ export class ThemeService {
   private loadTheme(): 'light' | 'dark' | 'system' {
     if (typeof window === 'undefined') return 'light';
     const stored = localStorage.getItem(ThemeService.STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
-    return 'system';
+    if (stored === 'light' || stored === 'dark') return stored;
+    return 'light';
   }
 
   private loadDensity(): 'compact' | 'normal' | 'expanded' {
