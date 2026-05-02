@@ -232,6 +232,7 @@
       VAULT_REVERB_APP_ID: "{{ reverb_app_id_staging | default('interazap-stage') if app_environment == 'staging' else reverb_app_id_production | default('interazap-prod') }}"
       VAULT_REVERB_APP_KEY: "{{ reverb_app_key_staging | default('interazap-stage-key') if app_environment == 'staging' else reverb_app_key_production | default('interazap-prod-key') }}"
       VAULT_REVERB_APP_SECRET: "{{ reverb_app_secret_staging | default('interazap-stage-secret') if app_environment == 'staging' else reverb_app_secret_production | default('interazap-prod-secret') }}"
+      VAULT_WEBCHAT_JWT_SECRET: "{{ (webchat_jwt_secret_production if app_environment == 'production' else webchat_jwt_secret_staging) | default((gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging), true) }}"
       VAULT_ASAAS_API_KEY: "{{ asaas_api_key | default('') }}"
       VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
       VAULT_SENTRY_DSN: "{{ sentry_dsn | default('') }}"
@@ -296,13 +297,13 @@
 
 - name: 'Reiniciar Octane via Supervisor'
   shell: |
-    /usr/bin/supervisorctl reread
-    /usr/bin/supervisorctl update
-    if /usr/bin/supervisorctl status {{ octane_supervisor_program }} | grep -qE 'RUNNING|STOPPED|FATAL|EXITED'; then
-      /usr/bin/supervisorctl restart {{ octane_supervisor_program }}
-    else
-      /usr/bin/supervisorctl start {{ octane_supervisor_program }}
-    fi
+      /usr/bin/supervisorctl reread
+      /usr/bin/supervisorctl update
+      if /usr/bin/supervisorctl status {{ octane_supervisor_program }} | grep -qE 'RUNNING|STOPPED|FATAL|EXITED'; then
+        /usr/bin/supervisorctl restart {{ octane_supervisor_program }}
+      else
+        /usr/bin/supervisorctl start {{ octane_supervisor_program }}
+      fi
   become: yes
 
 # =====================================================
@@ -351,13 +352,13 @@
 
 - name: 'Reiniciar Octane após rollback'
   shell: |
-    /usr/bin/supervisorctl reread
-    /usr/bin/supervisorctl update
-    if /usr/bin/supervisorctl status {{ octane_supervisor_program }} | grep -qE 'RUNNING|STOPPED|FATAL|EXITED'; then
-      /usr/bin/supervisorctl restart {{ octane_supervisor_program }}
-    else
-      /usr/bin/supervisorctl start {{ octane_supervisor_program }}
-    fi
+      /usr/bin/supervisorctl reread
+      /usr/bin/supervisorctl update
+      if /usr/bin/supervisorctl status {{ octane_supervisor_program }} | grep -qE 'RUNNING|STOPPED|FATAL|EXITED'; then
+        /usr/bin/supervisorctl restart {{ octane_supervisor_program }}
+      else
+        /usr/bin/supervisorctl start {{ octane_supervisor_program }}
+      fi
   become: yes
   when: (api_liveness_check.failed | default(false)) or (api_health_check.failed | default(false))
 
@@ -539,6 +540,7 @@
       VAULT_DB_PASSWORD: "{{ postgres_app_password | default('') }}"
       VAULT_REDIS_PASSWORD: "{{ redis_password | default('') }}"
       VAULT_JWT_SECRET: "{{ gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging | default('') }}"
+      VAULT_WEBCHAT_JWT_SECRET: "{{ (webchat_jwt_secret_production if app_environment == 'production' else webchat_jwt_secret_staging) | default((gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging), true) }}"
       VAULT_INTERNAL_API_KEY: "{{ gateway_internal_api_key_production if app_environment == 'production' else gateway_internal_api_key_staging | default('') }}"
       VAULT_OPENAI_API_KEY: "{{ openai_api_key | default('') }}"
       VAULT_GOOGLE_AI_API_KEY: "{{ google_ai_api_key | default('') }}"
@@ -569,21 +571,21 @@
 
 - name: 'Aplicar processo Gateway via PM2 (startOrRestart)'
   command: >
-      /home/deploy/.nvm/versions/node/v22.22.2/bin/pm2 startOrRestart
+      /home/deploy/.nvm/versions/node/v22/bin/pm2 startOrRestart
       /home/deploy/ecosystem.config.js
       --only {{ gateway_pm2_process }}
       --update-env
   become: yes
   become_user: deploy
   environment:
-      PATH: '/home/deploy/.nvm/versions/node/v22.22.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      PATH: '/home/deploy/.nvm/versions/node/v22/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
 - name: 'Salvar estado do PM2 Gateway'
-  command: '/home/deploy/.nvm/versions/node/v22.22.2/bin/pm2 save'
+  command: '/home/deploy/.nvm/versions/node/v22/bin/pm2 save'
   become: yes
   become_user: deploy
   environment:
-      PATH: '/home/deploy/.nvm/versions/node/v22.22.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      PATH: '/home/deploy/.nvm/versions/node/v22/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
 - name: 'Capturar logs iniciais do Gateway (5s após start)'
   shell: |
