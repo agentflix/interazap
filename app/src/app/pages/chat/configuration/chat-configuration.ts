@@ -143,7 +143,13 @@ export class ChatConfigurationPage implements OnInit {
     this.routingEnabledControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((enabled) => {
-        this.routingService.save('global', { is_enabled: enabled });
+        const exists = this.queue() !== null;
+        const payload: Record<string, unknown> = { is_enabled: enabled };
+        if (!exists) {
+          payload['name'] = 'Global';
+          payload['strategy'] = this.strategyControl.value;
+        }
+        this.routingService.save('global', payload);
       });
 
     this.strategyControl.valueChanges
@@ -250,7 +256,13 @@ export class ChatConfigurationPage implements OnInit {
   }
 
   protected onStrategyChange(strategy: string): void {
-    this.routingService.save('global', { strategy: strategy as 'round_robin' });
+    const exists = this.queue() !== null;
+    const payload: Record<string, unknown> = { strategy: strategy as 'round_robin' };
+    if (!exists) {
+      payload['name'] = 'Global';
+      payload['is_enabled'] = this.routingEnabledControl.value;
+    }
+    this.routingService.save('global', payload);
   }
 
   protected onAddAgent(userId: string, position?: number): void {
