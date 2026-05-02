@@ -156,6 +156,33 @@ describe('ChannelRoutingComponent', () => {
     );
   });
 
+  it('saves least_busy strategy with max_open_tickets_per_agent', () => {
+    component.overrideEnabled.set(true);
+    component.isEnabledLocal.set(true);
+    component.strategyControl.setValue('least_busy');
+    component.maxOpenTicketsControl.setValue(5);
+
+    component.onSave();
+
+    expect(serviceMock.save).toHaveBeenCalledWith(
+      'channel',
+      expect.objectContaining({
+        is_enabled: true,
+        strategy: 'least_busy',
+        max_open_tickets_per_agent: 5,
+      }),
+      'channel-1',
+    );
+  });
+
+  it('syncs max_open_tickets_per_agent when queue loads with least_busy', () => {
+    serviceMock.queue.set({ ...mockQueue, strategy: 'least_busy', max_open_tickets_per_agent: 3 });
+    fixture.detectChanges();
+
+    expect(component.strategyControl.value).toBe('least_busy');
+    expect(component.maxOpenTicketsControl.value).toBe(3);
+  });
+
   it('saves disabled state when override is turned off and queue exists', () => {
     component.overrideEnabled.set(false);
     serviceMock.queue.set(mockQueue);

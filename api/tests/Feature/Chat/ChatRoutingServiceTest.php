@@ -175,3 +175,101 @@ it('treats max_open_tickets_per_agent as unlimited when null', function (): void
 
     expect($service->route($ticket))->toBe($agent->id);
 })->group('integration');
+
+// ── Least Busy ────────────────────────────────────────────────────────────
+
+it('selects agent with fewest open tickets in least busy', function (): void {
+    $queue = createRoutingQueue($this->tenantId, null, true, 'least_busy');
+    $agent1 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    $agent2 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    createRoutingAgent($queue->id, $agent1->id, 0);
+    createRoutingAgent($queue->id, $agent2->id, 1);
+
+    // Assign 3 open tickets to agent1, 1 to agent2
+    foreach (range(1, 3) as $i) {
+        ChatTicket::factory()->forTenant($this->tenantId)->create([
+            'assigned_to' => $agent1->id,
+            'status' => 'open',
+        ]);
+    }
+    ChatTicket::factory()->forTenant($this->tenantId)->create([
+        'assigned_to' => $agent2->id,
+        'status' => 'open',
+    ]);
+
+    $service = app(ChatRoutingService::class);
+    $ticket = createRoutingTicket($this->tenantId);
+
+    expect($service->route($ticket))->toBe($agent2->id);
+})->group('integration');
+
+it('breaks least busy ties by last_assigned_at', function (): void {
+    $queue = createRoutingQueue($this->tenantId, null, true, 'least_busy');
+    $agent1 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    $agent2 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+
+    // Both have 0 open tickets; agent1 was assigned more recently
+    $agent1Model = createRoutingAgent($queue->id, $agent1->id, 0);
+    $agent1Model->last_assigned_at = now();
+    $agent1Model->save();
+
+    $agent2Model = createRoutingAgent($queue->id, $agent2->id, 1);
+    $agent2Model->last_assigned_at = null;
+    $agent2Model->save();
+
+    $service = app(ChatRoutingService::class);
+    $ticket = createRoutingTicket($this->tenantId);
+
+    // agent2 has NULL last_assigned_at (sorts first) and same ticket count
+    expect($service->route($ticket))->toBe($agent2->id);
+})->group('integration');
+
+it('respects max_open_tickets_per_agent in least busy', function (): void {
+    $queue = createRoutingQueue($this->tenantId, null, true, 'least_busy', 2);
+    $agent1 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    $agent2 = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    createRoutingAgent($queue->id, $agent1->id, 0);
+    createRoutingAgent($queue->id, $agent2->id, 1);
+
+    // agent1 already at limit (2 open tickets)
+    foreach (range(1, 2) as $i) {
+        ChatTicket::factory()->forTenant($this->tenantId)->create([
+            'assigned_to' => $agent1->id,
+            'status' => 'open',
+        ]);
+    }
+
+    // agent2 at limit as well (2 open tickets)
+    foreach (range(1, 2) as $i) {
+        ChatTicket::factory()->forTenant($this->tenantId)->create([
+            'assigned_to' => $agent2->id,
+            'status' => 'open',
+        ]);
+    }
+
+    $service = app(ChatRoutingService::class);
+    $ticket = createRoutingTicket($this->tenantId);
+
+    // Both at limit → no agent available
+    expect($service->route($ticket))->toBeNull();
+})->group('integration');
+
+it('least_busy unlimited when max_open_tickets_per_agent is null', function (): void {
+    $queue = createRoutingQueue($this->tenantId, null, true, 'least_busy', null);
+    $agent = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
+    createRoutingAgent($queue->id, $agent->id);
+
+    // Agent already has 5 open tickets
+    foreach (range(1, 5) as $i) {
+        ChatTicket::factory()->forTenant($this->tenantId)->create([
+            'assigned_to' => $agent->id,
+            'status' => 'open',
+        ]);
+    }
+
+    $service = app(ChatRoutingService::class);
+    $ticket = createRoutingTicket($this->tenantId);
+
+    // Unlimited → still gets assigned despite 5 open tickets
+    expect($service->route($ticket))->toBe($agent->id);
+})->group('integration');

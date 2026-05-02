@@ -34,7 +34,7 @@ final class ChatRoutingService
 
         return match ($queue->strategy) {
             'round_robin' => $this->roundRobin($queue),
-            'least_busy' => null,
+            'least_busy' => $this->leastBusy($queue),
             'skill_based' => null,
             default => null,
         };
@@ -94,5 +94,77 @@ final class ChatRoutingService
 
             return $agent->user_id;
         });
+    }
+
+    /**
+     * Executa distribuição por menor carga (least-busy) entre agentes ativos.
+     *
+     * Ordena agentes pelo número de tickets abertos (status pending/open).
+     * Respeita max_open_tickets_per_agent quando configurado (NULL = ilimitado).
+     * Desempata por last_assigned_at ASC NULLS FIRST, depois por position.
+     *
+     * @return string|null UUID do agente selecionado, ou null.
+     */
+    public function leastBusy(ChatRoutingQueue $queue): ?string
+    {
+        return DB::transaction(function () use ($queue): ?string {
+            $agent = $this->resolveLeastBusyAgent($queue);
+
+            if ($agent === null) {
+                return null;
+            }
+
+            $agent->last_assigned_at = now();
+            $agent->save();
+
+            return $agent->user_id;
+        });
+    }
+
+    /**
+     * Resolve o agente com menor carga de tickets abertos.
+     *
+     * Usa subquery correlacionada para contar tickets sem JOIN (evita lock
+     * em múltiplas tabelas com FOR UPDATE SKIP LOCKED).
+     *
+     * @return ChatRoutingQueueAgent|null
+     */
+    private function resolveLeastBusyAgent(ChatRoutingQueue $queue): ?ChatRoutingQueueAgent
+    {
+        $tenantId = $queue->tenant_id;
+        $maxOpen = $queue->max_open_tickets_per_agent;
+
+        $baseQuery = ChatRoutingQueueAgent::query()
+            ->where('queue_id', $queue->id)
+            ->where('is_active', true);
+
+        if ($maxOpen !== null) {
+            $baseQuery->whereRaw(
+                "(
+                    SELECT COUNT(*)
+                    FROM chat_tickets t
+                    WHERE t.assigned_to = chat_routing_queue_agents.user_id
+                      AND t.tenant_id = ?
+                      AND t.status IN ('pending', 'open')
+                ) < ?",
+                [$tenantId, $maxOpen]
+            );
+        }
+
+        return $baseQuery
+            ->orderByRaw(
+                "(
+                    SELECT COUNT(*)
+                    FROM chat_tickets t
+                    WHERE t.assigned_to = chat_routing_queue_agents.user_id
+                      AND t.tenant_id = ?
+                      AND t.status IN ('pending', 'open')
+                ) ASC",
+                [$tenantId]
+            )
+            ->orderByRaw('last_assigned_at ASC NULLS FIRST')
+            ->orderBy('position', 'asc')
+            ->lock('FOR UPDATE SKIP LOCKED')
+            ->first();
     }
 }

@@ -130,6 +130,26 @@ describe('ChatConfigurationPage', () => {
     expect(serviceMock.save).toHaveBeenCalledWith('global', { strategy: 'round_robin' });
   });
 
+  it('muda estratégia para least_busy e inclui max_open_tickets_per_agent', () => {
+    component.maxOpenTicketsControl.setValue(5);
+    const view = component as unknown as { onStrategyChange: (s: string) => void };
+    view.onStrategyChange('least_busy');
+    expect(serviceMock.save).toHaveBeenCalledWith(
+      'global',
+      expect.objectContaining({
+        strategy: 'least_busy',
+        max_open_tickets_per_agent: 5,
+      }),
+    );
+  });
+
+  it('sincroniza max_open_tickets_per_agent ao carregar fila', () => {
+    serviceMock.queue.set({ ...buildQueue(), strategy: 'least_busy', max_open_tickets_per_agent: 3 });
+    fixture.detectChanges();
+    expect(component.maxOpenTicketsControl.value).toBe(3);
+    expect(component.strategyControl.value).toBe('least_busy');
+  });
+
   it('adiciona agente e fecha formulário', () => {
     const view = component as unknown as {
       onAddAgent: (userId: string, position?: number) => void;

@@ -19,6 +19,7 @@ import {
   AfModalComponent,
   AfSelectInputComponent,
   AfSwitchInputComponent,
+  AfTextInputComponent,
 } from '@shared/components';
 import { UserService, type User } from '@core/services/user.service';
 import {
@@ -45,6 +46,7 @@ import { RoutingAgentFormComponent } from '../../../configuration/components/rou
     AfLoadingButtonComponent,
     AfSwitchInputComponent,
     AfSelectInputComponent,
+    AfTextInputComponent,
     RoutingAgentListComponent,
     RoutingAgentFormComponent,
   ],
@@ -92,11 +94,18 @@ export class ChannelRoutingComponent implements OnInit {
   /** Error state from the service */
   readonly error = this.service.error;
 
-  readonly strategyControl = new FormControl<'round_robin'>('round_robin', {
+  readonly strategyControl = new FormControl<'round_robin' | 'least_busy'>('round_robin', {
     nonNullable: true,
   });
 
-  readonly strategyOptions = [{ value: 'round_robin', label: 'Round Robin (Rodízio)' }];
+  readonly strategyOptions = [
+    { value: 'round_robin', label: 'Round Robin (Rodízio)' },
+    { value: 'least_busy', label: 'Menor Carga' },
+  ];
+
+  readonly maxOpenTicketsControl = new FormControl<number | null>(null, {
+    nonNullable: false,
+  });
 
   constructor() {
     effect(() => {
@@ -104,10 +113,12 @@ export class ChannelRoutingComponent implements OnInit {
       if (q) {
         this.overrideEnabled.set(true);
         this.isEnabledLocal.set(q.is_enabled);
-        this.strategyControl.setValue(q.strategy as 'round_robin', { emitEvent: false });
+        this.strategyControl.setValue(q.strategy as 'round_robin' | 'least_busy', { emitEvent: false });
+        this.maxOpenTicketsControl.setValue(q.max_open_tickets_per_agent, { emitEvent: false });
       } else {
         this.overrideEnabled.set(false);
         this.isEnabledLocal.set(false);
+        this.maxOpenTicketsControl.setValue(null, { emitEvent: false });
       }
     });
 
@@ -162,6 +173,9 @@ export class ChannelRoutingComponent implements OnInit {
         is_enabled: this.isEnabledLocal(),
         strategy: this.strategyControl.value,
       };
+      if (this.strategyControl.value === 'least_busy') {
+        data.max_open_tickets_per_agent = this.maxOpenTicketsControl.value;
+      }
       this.service.save('channel', data, id);
     } else {
       const current = this.queue();

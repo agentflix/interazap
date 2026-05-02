@@ -20,6 +20,7 @@ import {
   AfSelectInputComponent,
   AfSwitchInputComponent,
   AfTextareaInputComponent,
+  AfTextInputComponent,
 } from '@shared/components';
 import { AuthStoreService } from '@core/services/auth-store.service';
 import { TenantSettingsService } from '@core/services/tenant-settings.service';
@@ -47,6 +48,7 @@ import { RoutingAgentFormComponent } from './components/routing-agent-form/routi
     AfSelectInputComponent,
     AfRadioInputComponent,
     AfTextareaInputComponent,
+    AfTextInputComponent,
     RoutingAgentListComponent,
     RoutingAgentFormComponent,
   ],
@@ -77,11 +79,19 @@ export class ChatConfigurationPage implements OnInit {
 
   readonly routingEnabledControl = new FormControl<boolean>(false, { nonNullable: true });
 
-  readonly strategyControl = new FormControl<'round_robin'>('round_robin', {
+  readonly strategyControl = new FormControl<'round_robin' | 'least_busy'>('round_robin', {
     nonNullable: true,
   });
 
-  readonly strategyOptions = [{ value: 'round_robin', label: 'Round Robin (Rodízio)' }];
+  readonly strategyOptions = [
+    { value: 'round_robin', label: 'Round Robin (Rodízio)' },
+    { value: 'least_busy', label: 'Menor Carga' },
+  ];
+
+  readonly maxOpenTicketsControl = new FormControl<number | null>(null, {
+    nonNullable: false,
+    validators: [Validators.min(1)],
+  });
 
   // ── Auto-close state ─────────────────────────────────────────────────────
   readonly isAutoCloseLoading = signal(false);
@@ -131,12 +141,13 @@ export class ChatConfigurationPage implements OnInit {
 
   // ── Constructor ──────────────────────────────────────────────────────────
   constructor() {
-    // Sync routing toggle & strategy with API state
+    // Sync routing toggle, strategy & max_open with API state
     effect(() => {
       const q = this.queue();
       if (q) {
         this.routingEnabledControl.setValue(q.is_enabled, { emitEvent: false });
-        this.strategyControl.setValue(q.strategy as 'round_robin', { emitEvent: false });
+        this.strategyControl.setValue(q.strategy as 'round_robin' | 'least_busy', { emitEvent: false });
+        this.maxOpenTicketsControl.setValue(q.max_open_tickets_per_agent, { emitEvent: false });
       }
     });
 
@@ -148,6 +159,9 @@ export class ChatConfigurationPage implements OnInit {
         if (!exists) {
           payload['name'] = 'Global';
           payload['strategy'] = this.strategyControl.value;
+          if (this.strategyControl.value === 'least_busy' && this.maxOpenTicketsControl.value !== null) {
+            payload['max_open_tickets_per_agent'] = this.maxOpenTicketsControl.value;
+          }
         }
         this.routingService.save('global', payload);
       });
@@ -156,6 +170,22 @@ export class ChatConfigurationPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((strategy) => {
         this.onStrategyChange(strategy);
+      });
+
+    this.maxOpenTicketsControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (this.maxOpenTicketsControl.invalid) {
+          return;
+        }
+        const exists = this.queue() !== null;
+        const payload: Record<string, unknown> = { max_open_tickets_per_agent: value };
+        if (!exists) {
+          payload['name'] = 'Global';
+          payload['strategy'] = this.strategyControl.value;
+          payload['is_enabled'] = this.routingEnabledControl.value;
+        }
+        this.routingService.save('global', payload);
       });
   }
 
@@ -257,10 +287,13 @@ export class ChatConfigurationPage implements OnInit {
 
   protected onStrategyChange(strategy: string): void {
     const exists = this.queue() !== null;
-    const payload: Record<string, unknown> = { strategy: strategy as 'round_robin' };
+    const payload: Record<string, unknown> = { strategy: strategy as 'round_robin' | 'least_busy' };
     if (!exists) {
       payload['name'] = 'Global';
       payload['is_enabled'] = this.routingEnabledControl.value;
+    }
+    if (strategy === 'least_busy' && this.maxOpenTicketsControl.value !== null) {
+      payload['max_open_tickets_per_agent'] = this.maxOpenTicketsControl.value;
     }
     this.routingService.save('global', payload);
   }

@@ -75,9 +75,22 @@
               [control]="strategyControl"
               label="Estratégia de distribuição"
               [options]="strategyOptions"
-              helpText="Round Robin distribui as conversas em ordem cíclica. Outras estratégias estarão disponíveis em breve."
+              helpText="Round Robin distribui as conversas em ordem cíclica. Menor Carga envia para o agente com menos atendimentos abertos."
               dataTest="routing-strategy"
             />
+
+            @if (strategyControl.value === 'least_busy') {
+              <div class="max-w-xs">
+                <af-text-input
+                  type="number"
+                  [control]="maxOpenTicketsControl"
+                  label="Máximo de tickets por agente"
+                  placeholder="Ilimitado"
+                  helpText="Deixe em branco para ilimitado. Mínimo: 1."
+                  dataTest="routing-max-open"
+                />
+              </div>
+            }
           </div>
         </section>
 
