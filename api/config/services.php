@@ -47,6 +47,11 @@ return [
         'realtime_http_fallback_enabled' => (bool) env('REALTIME_HTTP_FALLBACK_ENABLED', true),
     ],
 
+    'webchat' => [
+        'jwt_secret' => env('WEBCHAT_JWT_SECRET'),
+        'fallback_jwt_secret' => env('JWT_SECRET'),
+    ],
+
     'channels' => [
         'webhook_base_url' => env('CHANNELS_WEBHOOK_BASE_URL', env('APP_URL', 'http://localhost:3000')),
     ],

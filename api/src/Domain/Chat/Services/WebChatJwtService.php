@@ -28,9 +28,9 @@ final class WebChatJwtService
 
     public function __construct()
     {
-        $sharedJwtSecret = env('WEBCHAT_JWT_SECRET')
-            ?: env('JWT_SECRET')
-            ?: env('DEFAULT_TENANT_ID');
+        $sharedJwtSecret = config('services.webchat.jwt_secret')
+            ?: config('services.webchat.fallback_jwt_secret')
+            ?: config('app.default_tenant_id');
 
         $this->secret = $sharedJwtSecret !== null && $sharedJwtSecret !== ''
             ? (string) $sharedJwtSecret
