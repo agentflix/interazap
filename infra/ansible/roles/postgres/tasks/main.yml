@@ -24,11 +24,30 @@
       filename: pgdg
   become: yes
 
+- name: 'Aguardar liberação do lock do apt'
+  shell: |
+      for i in $(seq 1 60); do
+        if ! fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock >/dev/null 2>&1; then
+          exit 0
+        fi
+        sleep 2
+      done
+      exit 1
+  args:
+      executable: /bin/bash
+  changed_when: false
+  become: yes
+
 - name: 'Atualizar cache do apt'
   apt:
       update_cache: yes
       cache_valid_time: 3600
+      lock_timeout: 300
   become: yes
+  retries: 3
+  delay: 10
+  register: apt_update_result
+  until: apt_update_result is succeeded
 
 - name: 'Instalar PostgreSQL 17'
   apt:
