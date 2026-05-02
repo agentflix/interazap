@@ -9,11 +9,11 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 e2e_group('11 · Permission Matrix');
 
-$ctx = require __DIR__ . '/setup.php';
+$ctx = require __DIR__.'/setup.php';
 
 /**
  * Monta contexto com role específico.
@@ -41,7 +41,7 @@ e2e_run('sales_qualifier: rejeitada ao usar close_ticket', function () use ($ctx
 e2e_run('support_l1: rejeitada ao usar update_lead_score', function () use ($ctx): void {
     $r = e2e_dispatch('update_lead_score', [
         'negotiation_id' => $ctx['negotiation_id'],
-        'score'          => 80,
+        'score' => 80,
     ], ctx_with_role($ctx['agent_ctx'], 'support_l1'));
 
     e2e_assert(! $r->success, 'success=false — update_lead_score bloqueada para support_l1');
@@ -52,7 +52,7 @@ e2e_run('support_l1: rejeitada ao usar update_lead_score', function () use ($ctx
 e2e_run('support_l1: rejeitada ao usar update_contact_tags', function () use ($ctx): void {
     $r = e2e_dispatch('update_contact_tags', [
         'contact_id' => $ctx['contact_id'],
-        'tags'       => ['tag-test'],
+        'tags' => ['tag-test'],
     ], ctx_with_role($ctx['agent_ctx'], 'support_l1'));
 
     e2e_assert(! $r->success, 'success=false — update_contact_tags bloqueada para support_l1');
@@ -63,7 +63,7 @@ e2e_run('support_l1: rejeitada ao usar update_contact_tags', function () use ($c
 e2e_run('support_l1: rejeitada ao usar move_pipeline', function () use ($ctx): void {
     $r = e2e_dispatch('move_pipeline', [
         'negotiation_id' => $ctx['negotiation_id'],
-        'step_id'        => $ctx['step_b_id'],
+        'step_id' => $ctx['step_b_id'],
     ], ctx_with_role($ctx['agent_ctx'], 'support_l1'));
 
     e2e_assert(! $r->success, 'success=false — move_pipeline bloqueada para support_l1');
@@ -83,7 +83,7 @@ e2e_run('appointment: rejeitada ao usar close_ticket', function () use ($ctx): v
 
 e2e_run('appointment: rejeitada ao usar create_negotiation', function () use ($ctx): void {
     $r = e2e_dispatch('create_negotiation', [
-        'title'   => 'Neg Bloqueada',
+        'title' => 'Neg Bloqueada',
         'step_id' => $ctx['step_a_id'],
     ], ctx_with_role($ctx['agent_ctx'], 'appointment'));
 
@@ -95,7 +95,7 @@ e2e_run('appointment: rejeitada ao usar create_negotiation', function () use ($c
 e2e_run('post_sales: rejeitada ao usar update_lead_score', function () use ($ctx): void {
     $r = e2e_dispatch('update_lead_score', [
         'negotiation_id' => $ctx['negotiation_id'],
-        'score'          => 70,
+        'score' => 70,
     ], ctx_with_role($ctx['agent_ctx'], 'post_sales'));
 
     e2e_assert(! $r->success, 'success=false — update_lead_score bloqueada para post_sales');
@@ -106,8 +106,8 @@ e2e_run('post_sales: rejeitada ao usar update_lead_score', function () use ($ctx
 e2e_run('post_sales: rejeitada ao usar create_proposal', function () use ($ctx): void {
     $r = e2e_dispatch('create_proposal', [
         'negotiation_id' => $ctx['negotiation_id'],
-        'title'          => 'Proposta Bloqueada',
-        'items'          => [['description' => 'X', 'quantity' => 1, 'unit_price' => 10]],
+        'title' => 'Proposta Bloqueada',
+        'items' => [['description' => 'X', 'quantity' => 1, 'unit_price' => 10]],
     ], ctx_with_role($ctx['agent_ctx'], 'post_sales'));
 
     e2e_assert(! $r->success, 'success=false — create_proposal bloqueada para post_sales');
@@ -119,7 +119,7 @@ foreach (['sales_qualifier', 'support_l1', 'cs_retention', 'post_sales', 'appoin
     e2e_run("$role: autorizada a usar send_message", function () use ($ctx, $role): void {
         $r = e2e_dispatch('send_message', [
             'ticket_id' => $ctx['ticket_id'],
-            'content'   => "[E2E] Teste de permissão para role {$role}",
+            'content' => "[E2E] Teste de permissão para role {$role}",
         ], ctx_with_role($ctx['agent_ctx'], $role));
 
         // Pode falhar por lógica da tool (ticket não acessível), mas NÃO por permissão
@@ -135,7 +135,7 @@ e2e_run('sem tenant_id: dispatch retorna failure sem exception', function () use
 
     $r = e2e_dispatch('send_message', [
         'ticket_id' => $ctx['ticket_id'],
-        'content'   => 'X',
+        'content' => 'X',
     ], $ctxSemTenant);
 
     e2e_assert(! $r->success, 'success=false sem tenant_id');

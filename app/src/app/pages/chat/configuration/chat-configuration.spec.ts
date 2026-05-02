@@ -9,6 +9,7 @@ import {
 } from '../services/chat-routing-queue.service';
 import { UserService, type User } from '@core/services/user.service';
 import { ToastService } from '@core/services/toast.service';
+import { TenantSettingsService } from '@core/services/tenant-settings.service';
 import { signal } from '@angular/core';
 
 function buildQueue(): ChatRoutingQueue {
@@ -79,6 +80,10 @@ describe('ChatConfigurationPage', () => {
   let serviceMock: ReturnType<typeof buildServiceMock>;
   let userServiceMock: ReturnType<typeof buildUserServiceMock>;
   const toastMock = { success: vi.fn(), error: vi.fn() };
+  const tenantSettingsMock = {
+    getSettings: vi.fn().mockReturnValue(of({ data: {} })),
+    updateSettings: vi.fn().mockReturnValue(of({ data: {} })),
+  };
 
   beforeEach(async () => {
     serviceMock = buildServiceMock();
@@ -90,6 +95,7 @@ describe('ChatConfigurationPage', () => {
         { provide: ChatRoutingQueueService, useValue: serviceMock },
         { provide: UserService, useValue: userServiceMock },
         { provide: ToastService, useValue: toastMock },
+        { provide: TenantSettingsService, useValue: tenantSettingsMock },
       ],
     }).compileComponents();
 
@@ -104,16 +110,18 @@ describe('ChatConfigurationPage', () => {
   });
 
   it('alterna is_enabled e chama save', () => {
-    const view = component as unknown as { toggleEnabled: () => void };
-    view.toggleEnabled();
+    component.routingEnabledControl.setValue(false);
     expect(serviceMock.save).toHaveBeenCalledWith('global', { is_enabled: false });
   });
 
-  it('não alterna quando fila é nula', () => {
+  it('cria fila quando fila é nula e toggle é alterado', () => {
     serviceMock.queue.set(null);
-    const view = component as unknown as { toggleEnabled: () => void };
-    view.toggleEnabled();
-    expect(serviceMock.save).not.toHaveBeenCalled();
+    component.routingEnabledControl.setValue(true);
+    expect(serviceMock.save).toHaveBeenCalledWith('global', expect.objectContaining({
+      name: 'Global',
+      is_enabled: true,
+      strategy: 'round_robin',
+    }));
   });
 
   it('muda estratégia e chama save', () => {

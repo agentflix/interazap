@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Models;
 
-use Domain\Auth\Models\AuthUser;
 use Domain\Shared\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -99,7 +98,7 @@ class ChatRoutingQueue extends Model
     /**
      * Scope: Filtrar filas por instância (canal).
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      */
     public function scopeForInstance(Builder $query, string $instanceId): void
     {
@@ -109,7 +108,7 @@ class ChatRoutingQueue extends Model
     /**
      * Scope: Filtrar apenas filas globais (sem instância vinculada).
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      */
     public function scopeGlobal(Builder $query): void
     {

@@ -9,11 +9,11 @@ declare(strict_types=1);
 
 use Domain\CRM\Models\CRMProposal;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 e2e_group('05 · Proposal & Product Tools');
 
-$ctx = require __DIR__ . '/setup.php';
+$ctx = require __DIR__.'/setup.php';
 
 // ── list_products ─────────────────────────────────────────────────────────────
 
@@ -53,13 +53,13 @@ $proposalId = null;
 e2e_run('create_proposal: cria proposta com produto', function () use ($ctx, &$proposalId): void {
     $r = e2e_dispatch('create_proposal', [
         'negotiation_id' => $ctx['negotiation_id'],
-        'title'          => 'Proposta E2E',
-        'items'          => [
+        'title' => 'Proposta E2E',
+        'items' => [
             [
-                'product_id'  => $ctx['product_id'],
-                'quantity'    => 1,
-                'unit_price'  => 99.90,
-                'discount'    => 0,
+                'product_id' => $ctx['product_id'],
+                'quantity' => 1,
+                'unit_price' => 99.90,
+                'discount' => 0,
                 'description' => 'Item E2E',
             ],
         ],
@@ -76,8 +76,8 @@ e2e_run('create_proposal: cria proposta com produto', function () use ($ctx, &$p
 e2e_run('create_proposal: falha sem items', function () use ($ctx): void {
     $r = e2e_dispatch('create_proposal', [
         'negotiation_id' => $ctx['negotiation_id'],
-        'title'          => 'Proposta Inválida',
-        'items'          => [],
+        'title' => 'Proposta Inválida',
+        'items' => [],
     ], $ctx['agent_ctx']);
 
     e2e_assert(! $r->success, 'success=false sem items');
@@ -86,8 +86,8 @@ e2e_run('create_proposal: falha sem items', function () use ($ctx): void {
 e2e_run('create_proposal: falha com negotiation inexistente', function () use ($ctx): void {
     $r = e2e_dispatch('create_proposal', [
         'negotiation_id' => '00000000-0000-0000-0000-000000000000',
-        'title'          => 'Proposta Inválida',
-        'items'          => [['description' => 'X', 'quantity' => 1, 'unit_price' => 10]],
+        'title' => 'Proposta Inválida',
+        'items' => [['description' => 'X', 'quantity' => 1, 'unit_price' => 10]],
     ], $ctx['agent_ctx']);
 
     e2e_assert(! $r->success, 'success=false para negotiation inválida');

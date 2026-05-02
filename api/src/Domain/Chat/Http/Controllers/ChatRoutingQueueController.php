@@ -300,7 +300,6 @@ final class ChatRoutingQueueController extends BaseController
     /**
      * Mapear um único agente para array padronizado.
      *
-     * @param  ChatRoutingQueueAgent  $agent
      * @return array<string, mixed>
      */
     private function mapAgent(ChatRoutingQueueAgent $agent): array

@@ -16,36 +16,36 @@ use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAutopilotRun;
 use Illuminate\Support\Str;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 e2e_group('10 · Delegation Tool');
 
-$ctx = require __DIR__ . '/setup.php';
+$ctx = require __DIR__.'/setup.php';
 
 // Cria agente target para delegação
 $targetAgent = AiAgent::query()->where('tenant_id', $ctx['tenant_id'])->where('name', 'Agente Target E2E')->first();
 if (! $targetAgent) {
     $targetAgent = AiAgent::query()->create([
-        'id'          => (string) Str::orderedUuid(),
-        'tenant_id'   => $ctx['tenant_id'],
-        'name'        => 'Agente Target E2E',
-        'type'        => 'general',
-        'model_id'    => 'claude-haiku-4-5-20251001',
-        'is_active'   => true,
-        'max_tokens'  => 800,
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $ctx['tenant_id'],
+        'name' => 'Agente Target E2E',
+        'type' => 'general',
+        'model_id' => 'claude-haiku-4-5-20251001',
+        'is_active' => true,
+        'max_tokens' => 800,
         'temperature' => 0.7,
-        'top_p'       => 1.0,
+        'top_p' => 1.0,
     ]);
 }
 
 // Cria parent run para o contexto de delegação
 $parentRun = AiAutopilotRun::query()->create([
-    'id'            => (string) Str::orderedUuid(),
-    'tenant_id'     => $ctx['tenant_id'],
-    'playbook_id'   => $ctx['playbook_id'],
-    'status'        => 'running',
+    'id' => (string) Str::orderedUuid(),
+    'tenant_id' => $ctx['tenant_id'],
+    'playbook_id' => $ctx['playbook_id'],
+    'status' => 'running',
     'input_context' => ['messages' => []],
-    'started_at'    => now(),
+    'started_at' => now(),
 ]);
 
 // Contexto com parent run ativo
@@ -55,11 +55,11 @@ $delegCtx = array_merge($ctx['agent_ctx'], [
 
 // ── delegate_to_agent ─────────────────────────────────────────────────────────
 
-e2e_run('delegate_to_agent: delega para agente target válido', function () use ($ctx, $targetAgent, $delegCtx): void {
+e2e_run('delegate_to_agent: delega para agente target válido', function () use ($targetAgent, $delegCtx): void {
     $r = e2e_dispatch('delegate_to_agent', [
         'target_agent_id' => $targetAgent->id,
-        'return_after'    => false,
-        'instructions'    => 'E2E: verificar disponibilidade do cliente.',
+        'return_after' => false,
+        'instructions' => 'E2E: verificar disponibilidade do cliente.',
     ], $delegCtx);
 
     // DelegateToAgentTool tenta criar child run + publicar no Redis Stream

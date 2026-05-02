@@ -12,11 +12,11 @@ use Domain\CRM\Models\CRMCompany;
 use Domain\CRM\Models\CRMContact;
 use Illuminate\Support\Str;
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 e2e_group('02 · Contact Tools');
 
-$ctx = require __DIR__ . '/setup.php';
+$ctx = require __DIR__.'/setup.php';
 
 // ── create_contact ────────────────────────────────────────────────────────────
 
@@ -24,7 +24,7 @@ $createdContactId = null;
 
 e2e_run('create_contact: cria contato com nome e telefone', function () use ($ctx, &$createdContactId): void {
     $r = e2e_dispatch('create_contact', [
-        'name'  => 'Novo Contato E2E',
+        'name' => 'Novo Contato E2E',
         'phone' => '+5511900000002',
         'email' => 'novo-e2e@test.com',
     ], $ctx['agent_ctx']);
@@ -69,7 +69,7 @@ e2e_run('get_contact_info: falha com ID inexistente', function () use ($ctx): vo
 e2e_run('update_contact: atualiza email do contato', function () use ($ctx): void {
     $r = e2e_dispatch('update_contact', [
         'contact_id' => $ctx['contact_id'],
-        'email'      => 'e2e-updated@test.com',
+        'email' => 'e2e-updated@test.com',
     ], $ctx['agent_ctx']);
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
@@ -83,7 +83,7 @@ e2e_run('update_contact: atualiza email do contato', function () use ($ctx): voi
 e2e_run('update_contact_tags: adiciona tags ao contato', function () use ($ctx): void {
     $r = e2e_dispatch('update_contact_tags', [
         'contact_id' => $ctx['contact_id'],
-        'tags'       => ['lead-e2e', 'qualificado'],
+        'tags' => ['lead-e2e', 'qualificado'],
     ], $ctx['agent_ctx']);
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
@@ -116,9 +116,9 @@ e2e_run('search_contacts: retorna lista vazia sem erro para query sem resultados
 
 e2e_run('link_contact_to_company: vincula contato a empresa', function () use ($ctx): void {
     $company = CRMCompany::query()->create([
-        'id'        => (string) Str::orderedUuid(),
+        'id' => (string) Str::orderedUuid(),
         'tenant_id' => $ctx['tenant_id'],
-        'name'      => 'Empresa Link E2E',
+        'name' => 'Empresa Link E2E',
     ]);
 
     $r = e2e_dispatch('link_contact_to_company', [
@@ -134,7 +134,7 @@ e2e_run('link_contact_to_company: vincula contato a empresa', function () use ($
 
 // ── Cleanup de contatos criados ───────────────────────────────────────────────
 
-e2e_run('cleanup: remove contatos criados neste grupo', function () use ($ctx, &$createdContactId): void {
+e2e_run('cleanup: remove contatos criados neste grupo', function () use (&$createdContactId): void {
     if ($createdContactId) {
         CRMContact::query()->where('id', $createdContactId)->delete();
     }

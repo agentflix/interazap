@@ -14,14 +14,14 @@ declare(strict_types=1);
 
 $startTime = microtime(true);
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 echo "\n";
 echo "\033[1;36m╔══════════════════════════════════════════════════════╗\033[0m\n";
 echo "\033[1;36m║     INTERAZAP — TRILHA E2E AUTOPILOT MODULE          ║\033[0m\n";
 echo "\033[1;36m╚══════════════════════════════════════════════════════╝\033[0m\n";
-echo "  Data: " . date('Y-m-d H:i:s') . "\n";
-echo "  Env:  " . (app()->environment()) . "\n";
+echo '  Data: '.date('Y-m-d H:i:s')."\n";
+echo '  Env:  '.(app()->environment())."\n";
 
 $scripts = [
     'test-01-chat',
@@ -39,11 +39,11 @@ $scripts = [
 ];
 
 foreach ($scripts as $script) {
-    require __DIR__ . "/{$script}.php";
+    require __DIR__."/{$script}.php";
 }
 
 // Teardown sempre executa, independente de falhas
-require __DIR__ . '/teardown.php';
+require __DIR__.'/teardown.php';
 
 // Sumário global
 e2e_global_summary();

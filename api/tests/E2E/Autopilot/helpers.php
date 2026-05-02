@@ -8,15 +8,14 @@
 
 declare(strict_types=1);
 
-use Domain\Ai\DTOs\ToolInputDTO;
 use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\Ai\Services\ToolDispatcherService;
 
 // ─── Estado global ─────────────────────────────────────────────────────────
 
 $E2E_RESULTS = [];
-$E2E_PASS    = 0;
-$E2E_FAIL    = 0;
+$E2E_PASS = 0;
+$E2E_FAIL = 0;
 
 // ─── Funções de execução ────────────────────────────────────────────────────
 
@@ -31,13 +30,13 @@ function e2e_run(string $label, Closure $fn): array
 
     try {
         $fn();
-        $ms      = round((microtime(true) - $start) * 1000);
-        $result  = ['label' => $label, 'pass' => true, 'error' => null, 'ms' => $ms];
+        $ms = round((microtime(true) - $start) * 1000);
+        $result = ['label' => $label, 'pass' => true, 'error' => null, 'ms' => $ms];
         $E2E_PASS++;
         echo "  \033[32m[PASS]\033[0m {$label} ({$ms}ms)\n";
     } catch (\Throwable $e) {
-        $ms      = round((microtime(true) - $start) * 1000);
-        $result  = ['label' => $label, 'pass' => false, 'error' => $e->getMessage(), 'ms' => $ms];
+        $ms = round((microtime(true) - $start) * 1000);
+        $result = ['label' => $label, 'pass' => false, 'error' => $e->getMessage(), 'ms' => $ms];
         $E2E_FAIL++;
         echo "  \033[31m[FAIL]\033[0m {$label} ({$ms}ms)\n";
         echo "         → {$e->getMessage()}\n";
@@ -95,11 +94,11 @@ function e2e_group(string $name): void
 function e2e_global_summary(): void
 {
     global $E2E_PASS, $E2E_FAIL;
-    $pass  = (int) $E2E_PASS;
-    $fail  = (int) $E2E_FAIL;
+    $pass = (int) $E2E_PASS;
+    $fail = (int) $E2E_FAIL;
     $total = $pass + $fail;
     echo "\n";
-    echo str_repeat('─', 50) . "\n";
+    echo str_repeat('─', 50)."\n";
 
     if ($fail === 0) {
         echo "\033[32m✓ TODOS OS TESTES PASSARAM: {$pass}/{$total}\033[0m\n";
@@ -107,5 +106,5 @@ function e2e_global_summary(): void
         echo "\033[31m✗ FALHAS: {$fail}/{$total} | PASSOU: {$pass}/{$total}\033[0m\n";
     }
 
-    echo str_repeat('─', 50) . "\n";
+    echo str_repeat('─', 50)."\n";
 }
