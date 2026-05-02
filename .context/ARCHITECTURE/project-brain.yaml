@@ -1,67 +1,89 @@
-# Cérebro do Projeto — Metadados para IA
-# Este arquivo ajuda a IA a entender o projeto rapidamente
+# project-brain.yaml — InteraZap
 
-version: "1.0"
-project: "InteraZap"
-last_updated: "2026-04-11"
+nome: InteraZap
+descricao: Plataforma de automação de WhatsApp com CRM integrado, gateway de integrações, e AI para classificação e streaming de mensagens.
+tipo: SaaS B2B multi-tenant
+dominio: Comunicação / CRM / Pagamentos
 
-identity:
-  name: "InteraZap"
-  description: "Plataforma de comunicação multicanal com IA integrada"
-  type: "SaaS Multi-tenant"
-  domain: "Comunicação empresarial, CRM, Chatbots com IA"
+stack:
+  api:
+    framework: Laravel 12
+    php: "8.3"
+    banco: PostgreSQL 17
+    cache: Redis 7
+    features:
+      - pgvector (AI embeddings)
+      - Sanctum (auth)
+      - Spatie Permissions (RBAC)
+    arquitetura: DDD em src/Domain/{Domain}/
+    teste: Pest
+    analise: PHPStan L6 + Larastan + Rector
 
-architecture:
-  pattern: "DDD (Domain-Driven Design)"
-  layers:
-    - "Domain (Entities, Value Objects, Services, Events, Policies)"
-    - "Application (Actions, DTOs)"
-    - "Presentation (Controllers, Middleware, Requests)"
-    - "Infrastructure (Jobs, Mail, Notifications, External Services)"
-  core_principles:
-    - "DDD - Domain é o centro"
-    - "Laravel 12 com autoload PSR-4"
-    - "Angular 20 com standalone components"
-    - "Multi-tenant com row-level isolation"
+  gateway:
+    framework: NestJS 11
+    typescript: "5.7"
+    filas: BullMQ
+    streams: Redis Streams
+    realtime: WebSocket (Socket.io)
+    teste: Jest
+    integracoes:
+      - UazAPI (WhatsApp)
+      - Z-API (WhatsApp)
+      - Asaas (pagamentos)
+      - OpenAI (AI)
 
-key_decisions:
-  - decision: "Arquitetura DDD com Laravel 12"
-    rationale: "Separação clara de responsabilidades, testabilidade, manutenibilidade"
-    date: "2026-01-01"
-    alternatives_rejected: "MVC tradicional, Transaction Script"
-  - decision: "Angular standalone components"
-    rationale: "Melhor tree-shaking, lazy loading nativo, redução de boilerplate"
-    date: "2026-01-01"
-    alternatives_rejected: "Modules tradicionais com NgModule"
-  - decision: "PostgreSQL como banco principal"
-    rationale: "Suporte a JSONB, full-text search, row-level security"
-    date: "2026-01-01"
-    alternatives_rejected: "MySQL, MongoDB"
+  app:
+    framework: Angular 19
+    mobile: Capacitor + Ionic
+    estado: unknown
 
-business_rules:
-  - "Multi-tenant: cada tenant tem isolation via tenant_id"
-  - "Chat: mensagens podem ser reescritas por IA antes do envio"
-  - "Billing: Planos com features gated por permissions"
-  - "Auth: Roles e Permissions via Spatie Laravel Permission"
+modulos_api:
+  - Ai (classificação, streaming)
+  - Auth (autenticação)
+  - Billing (assinaturas, pagamentos)
+  - Chat (mensagens, conversas)
+  - Configuration (configurações)
+  - CRM (contatos, empresas)
+  - Dashboard
+  - Gateway (integrações)
+  - Platform
+  - Reports
+  - Shared
 
-conventions:
-  file_naming: "kebab-case para arquivos (e.g., chat-message.ts)"
-  class_naming: "PascalCase (e.g., ChatMessage, AiService)"
-  function_naming: "camelCase (e.g., getById, sendMessage)"
-  constant_naming: "UPPER_SNAKE_CASE (e.g., MAX_RETRY_COUNT)"
-  commit_format: "Conventional Commits (pt-BR ou en)"
-  branch_format: "feature/FEAT-NNN-descricao | fix/FIX-NNN-descricao"
+modulos_gateway:
+  - ai (OpenAI)
+  - billing (Asaas)
+  - chat (WhatsApp)
+  - internal
+  - realtime (WebSocket)
+  - webhooks
 
-sensitive_areas:
-  - path: "api/src/Domain/Billing"
-    reason: "Lógica de pagamento e subscription - risco financeiro"
-    extra_care: "Testes obrigatórios, validação dupla"
-  - path: "api/src/Domain/Auth"
-    reason: "Autenticação e autorização - segurança crítica"
-    extra_care: "Audit logging, validação estrita"
-  - path: "api/src/Domain/Platform"
-    reason: "Gestão de tenants - isolamento multi-tenant"
-    extra_care: "Verificar tenant_id em todas as queries"
-  - path: "app/src/app/pages/chat"
-    reason: "Fluxo de mensagens em tempo real"
-    extra_care: "Testes E2E para edge cases"
+convencoes_api:
+  - strict_types em todo arquivo
+  - phpDoc em classes e métodos públicos
+  - final class em Controllers, Actions, DTOs
+  - $fillable explícito (nunca $guarded = [])
+  - UUID como primary key
+  - Eager loading obrigatório (nunca N+1)
+  - BelongsToTenant em todos os models
+  - Controller → DTO → Action → Resource
+
+convencoes_gateway:
+  - ValidationPipe com whitelist: true
+  - Logger dedicado por controller/service
+  - Idempotência em webhook handlers (SETNX com TTL)
+  - Circuit breaker em chamadas HTTP externas
+  - Resposta de webhook < 150ms
+  - Nunca logar tokens ou chaves de API
+
+areas_sensiveis:
+  - Autenticação e autorização (Auth, Permissions)
+  - Pagamentos e billing (Asaas)
+  - Webhooks (validação, idempotência)
+  - Dados de chat e CRM
+
+integracoes_externas:
+  - UazAPI: provider WhatsApp
+  - Z-API: provider WhatsApp alternativo
+  - Asaas: gateway de pagamentos
+  - OpenAI: classificação e streaming de mensagens

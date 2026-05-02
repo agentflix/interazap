@@ -1,146 +1,41 @@
-# Módulos do InteraZap
-# Gerado com base em: análise do código
+# modules.yaml — Módulos do Projeto
 
-version: "1.0"
-project: "InteraZap"
-architecture: "DDD (Domain-Driven Design)"
-generated_at: "2026-04-11"
+## API (Laravel 12)
 
-modules:
-  - name: "AI"
-    description: "Módulo de Inteligência Artificial - modelos, prompts, configurações de IA"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/Ai"
-    dependencies: []
-    exposes:
-      - "AiService"
-      - "PromptManagement"
-    database_tables:
-      - "ai_configs"
-      - "ai_conversations"
+| Módulo | Descrição | Dependências |
+|--------|-----------|--------------|
+| Ai | Classificação e streaming AI | Shared |
+| Auth | Autenticação, Sanctum | Shared |
+| Billing | Assinaturas, pagamentos Asaas | Shared |
+| Chat | Mensagens, conversas | CRM, Shared |
+| Configuration | Configurações | Shared |
+| CRM | Contatos, empresas | Shared |
+| Dashboard | Métricas | Reports, Chat |
+| Gateway | Integrações externas | Chat |
+| Platform | Gerenciamento platform | Auth |
+| Reports | Relatórios | Chat, Billing |
+| Shared | Traits, DTOs, utilities | - |
 
-  - name: "Auth"
-    description: "Autenticação e autorização - users, roles, permissions"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/Auth"
-    dependencies: []
-    exposes:
-      - "AuthService"
-      - "RoleManagement"
-    database_tables:
-      - "users"
-      - "roles"
-      - "permissions"
-      - "personal_access_tokens"
+## Gateway (NestJS 11)
 
-  - name: "Billing"
-    description: "Gestão de assinaturas, planos e pagamento"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/Billing"
-    dependencies: ["Auth"]
-    exposes:
-      - "SubscriptionService"
-      - "PaymentGateway"
-    database_tables:
-      - "subscriptions"
-      - "invoices"
-      - "plans"
+| Módulo | Descrição | Dependências |
+|--------|-----------|--------------|
+| ai | OpenAI integration | common |
+| billing | Asaas integration | common |
+| chat | WhatsApp (UazAPI, Z-API) | common |
+| internal | APIs internas | common |
+| realtime | WebSocket/Socket.io | common |
+| webhooks | Recebimento webhooks | common |
 
-  - name: "Chat"
-    description: "Módulo de chat - mensagens, tickets, conversas, webhooks"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/Chat"
-    dependencies: ["Auth"]
-    exposes:
-      - "ChatService"
-      - "TicketManagement"
-    database_tables:
-      - "chat_instances"
-      - "chat_messages"
-      - "chat_tickets"
-      - "chat_webhook_events"
-      - "chat_transmission_lists"
+## App (Angular 19)
 
-  - name: "Configuration"
-    description: "Configurações gerais da plataforma"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/Configuration"
-    dependencies: ["Auth"]
-    exposes:
-      - "ConfigService"
-    database_tables:
-      - "configurations"
+| Módulo | Descrição |
+|--------|-----------|
+| app | Módulo principal Ionic |
+| environments | Configurações por ambiente |
 
-  - name: "CRM"
-    description: "Gestão de relacionamento com clientes - companies, contacts"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/CRM"
-    dependencies: ["Auth"]
-    exposes:
-      - "CompanyService"
-      - "ContactManagement"
-    database_tables:
-      - "companies"
-      - "contacts"
+## Status
 
-  - name: "Dashboard"
-    description: "Dashboards e métricas"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/Dashboard"
-    dependencies: ["Chat", "Billing"]
-    exposes:
-      - "DashboardMetrics"
-    database_tables: []
-
-  - name: "Gateway"
-    description: "Gateway de integração com canais externos"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/Gateway"
-    dependencies: ["Chat"]
-    exposes:
-      - "ChannelConnector"
-      - "WebhookHandler"
-    database_tables:
-      - "channel_connections"
-      - "webhook_events"
-
-  - name: "Platform"
-    description: "Gestão de tenants e plataforma multi-tenant"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/Platform"
-    dependencies: []
-    exposes:
-      - "TenantManagement"
-    database_tables:
-      - "tenants"
-
-  - name: "Reports"
-    description: "Relatórios e analytics"
-    type: "bounded-context"
-    status: "active"
-    path: "api/src/Domain/Reports"
-    dependencies: ["Chat", "Billing", "CRM"]
-    exposes:
-      - "ReportGenerator"
-    database_tables: []
-
-  - name: "Shared"
-    description: "Kernel compartilhado entre módulos"
-    type: "shared-kernel"
-    status: "active"
-    path: "api/src/Domain/Shared"
-    dependencies: []
-    exposes:
-      - "BaseEntity"
-      - "ValueObjects"
-      - "CommonServices"
-    database_tables: []
+- API: Ativa
+- Gateway: Ativa
+- App: Em desenvolvimento

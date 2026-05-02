@@ -9,6 +9,10 @@ env:
     NODE_VERSION: '22'
     PHP_VERSION: '8.4'
 
+concurrency:
+    group: interazap-deploy-vps
+    cancel-in-progress: false
+
 jobs:
     # =====================================================
     # BUILD API
