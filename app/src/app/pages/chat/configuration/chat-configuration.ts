@@ -75,6 +75,8 @@ export class ChatConfigurationPage implements OnInit {
   readonly loading = this.routingService.loading;
   readonly error = this.routingService.error;
 
+  readonly routingEnabledControl = new FormControl<boolean>(false, { nonNullable: true });
+
   readonly strategyControl = new FormControl<'round_robin'>('round_robin', {
     nonNullable: true,
   });
@@ -129,12 +131,20 @@ export class ChatConfigurationPage implements OnInit {
 
   // ── Constructor ──────────────────────────────────────────────────────────
   constructor() {
+    // Sync routing toggle & strategy with API state
     effect(() => {
       const q = this.queue();
       if (q) {
+        this.routingEnabledControl.setValue(q.is_enabled, { emitEvent: false });
         this.strategyControl.setValue(q.strategy as 'round_robin', { emitEvent: false });
       }
     });
+
+    this.routingEnabledControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled) => {
+        this.routingService.save('global', { is_enabled: enabled });
+      });
 
     this.strategyControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -237,15 +247,6 @@ export class ChatConfigurationPage implements OnInit {
 
   protected retryLoad(): void {
     this.routingService.loadGlobal();
-  }
-
-  protected toggleEnabled(): void {
-    const current = this.queue();
-    if (!current) {
-      return;
-    }
-    const newValue = !current.is_enabled;
-    this.routingService.save('global', { is_enabled: newValue });
   }
 
   protected onStrategyChange(strategy: string): void {

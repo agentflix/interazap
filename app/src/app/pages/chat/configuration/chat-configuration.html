@@ -29,24 +29,25 @@
           <af-button variant="outline" size="sm" (click)="retryLoad()"> Tentar novamente </af-button>
         </div>
       } @else {
-        <!-- Configuração da fila -->
-        <div class="mb-6">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
-                Ativar rodízio
-              </p>
-              <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                Distribui conversas automaticamente entre os agentes configurados.
-              </p>
-            </div>
-            <af-switch-input
-              [checked]="queue()?.is_enabled ?? false"
-              (toggled)="toggleEnabled()"
-              ariaLabel="Ativar rodízio"
-            />
+        <!-- Toggle principal -->
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+              Ativar rodízio
+            </p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+              Distribui conversas automaticamente entre os agentes configurados.
+            </p>
           </div>
+          <af-switch-input
+            [control]="routingEnabledControl"
+            label="Ativar rodízio"
+            ariaLabel="Ativar rodízio"
+          />
+        </div>
 
+        <!-- Campos condicionais -->
+        @if (routingEnabledControl.value) {
           <af-select-input
             [control]="strategyControl"
             label="Estratégia de distribuição"
@@ -54,41 +55,41 @@
             helpText="Round Robin distribui as conversas em ordem cíclica. Outras estratégias estarão disponíveis em breve."
             dataTest="routing-strategy"
           />
-        </div>
 
-        <!-- Agentes da fila -->
-        <div class="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
-          <div class="flex items-center justify-between mb-4">
-            <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
-              Agentes da fila
-            </h4>
-            <af-button variant="outline" size="sm" (click)="showAddForm.set(!showAddForm())">
-              {{ showAddForm() ? 'Cancelar' : '+ Adicionar agente' }}
-            </af-button>
+          <!-- Agentes da fila -->
+          <div class="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                Agentes da fila
+              </h4>
+              <af-button variant="outline" size="sm" (click)="showAddForm.set(!showAddForm())">
+                {{ showAddForm() ? 'Cancelar' : '+ Adicionar agente' }}
+              </af-button>
+            </div>
+
+            @if (showAddForm()) {
+              <app-routing-agent-form
+                [users]="users()"
+                [agents]="agents()"
+                (addAgent)="onAddAgent($event.userId, $event.position)"
+              />
+            }
+
+            @if (agents().length === 0) {
+              <af-empty-state
+                title="Nenhum agente na fila"
+                description="Adicione agentes para começar a distribuir atendimentos."
+              />
+            } @else {
+              <app-routing-agent-list
+                [agents]="agents()"
+                (reorder)="onReorder($event)"
+                (toggleActive)="onToggleActive($event.userId, $event.isActive)"
+                (remove)="onRemoveAgent($event)"
+              />
+            }
           </div>
-
-          @if (showAddForm()) {
-            <app-routing-agent-form
-              [users]="users()"
-              [agents]="agents()"
-              (addAgent)="onAddAgent($event.userId, $event.position)"
-            />
-          }
-
-          @if (agents().length === 0) {
-            <af-empty-state
-              title="Nenhum agente na fila"
-              description="Adicione agentes para começar a distribuir atendimentos."
-            />
-          } @else {
-            <app-routing-agent-list
-              [agents]="agents()"
-              (reorder)="onReorder($event)"
-              (toggleActive)="onToggleActive($event.userId, $event.isActive)"
-              (remove)="onRemoveAgent($event)"
-            />
-          }
-        </div>
+        }
       }
     </div>
   </section>
