@@ -26,6 +26,7 @@ import {
 import { type Company, CompanyService } from '@core/services/company.service';
 import { type AddressData, type CnpjData, UtilsService } from '@core/services/utils.service';
 import { AiGovernanceService } from '@core/services/ai-governance.service';
+import { ToastService } from '@core/services/toast.service';
 import { buildAddressLine, digitsOnly, normalizeUf } from './tenant-form.utils';
 
 @Component({
@@ -55,6 +56,7 @@ export class TenantFormComponent {
   private readonly companyService = inject(CompanyService);
   private readonly utilsService = inject(UtilsService);
   private readonly aiGovernanceService = inject(AiGovernanceService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly lastLoadedId = signal<string | number | null>(null);
 
@@ -279,8 +281,10 @@ export class TenantFormComponent {
 
           this.saved.emit(response.data);
         },
-        error: () => {
-          // Handled by finalize
+        error: (error: { error?: { message?: string } }) => {
+          this.toast.error(
+            error.error?.message || 'Não foi possível salvar o inquilino. Tente novamente.',
+          );
         },
       });
   }
