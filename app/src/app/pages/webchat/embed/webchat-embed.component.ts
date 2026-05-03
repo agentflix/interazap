@@ -89,7 +89,7 @@ export class WebChatEmbedComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Attempts to restore a session from localStorage when embedded.
+   * Attempts to restore a session from sessionStorage when embedded.
    */
   private attemptSessionRestore(): void {
     const restored = this.webchatService.restoreSession();

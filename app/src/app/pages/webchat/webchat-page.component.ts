@@ -50,7 +50,7 @@ export class WebChatPageComponent implements OnInit, OnDestroy {
   /** Call protocol */
   readonly protocol = signal<string | undefined>(undefined);
 
-  /** Whether we are restoring a session from localStorage */
+  /** Whether we are restoring a session from sessionStorage */
   readonly isRestoring = signal(true);
 
   // ─── Computed ───────────────────────────────────────────────────────────────
@@ -99,15 +99,15 @@ export class WebChatPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Attempts to restore a session from localStorage.
+   * Attempts to restore a session from sessionStorage.
    * If found and valid, connects WebSocket and shows chat window.
    * Also fetches message history from the backend so messages are
-   * visible even if localStorage was cleared or the session is opened
+   * visible even if sessionStorage was cleared or the session is opened
    * on a different device/browser.
    */
   private attemptSessionRestore(): void {
     // Prefer sessionId from URL query param (?s=) so a bookmarked URL
-    // always opens the correct session even if localStorage was cleared.
+    // always opens the correct session even if sessionStorage was cleared.
     const sessionIdFromUrl = this.route.snapshot.queryParamMap.get('s') ?? undefined;
     const restored = this.webchatService.restoreSession(sessionIdFromUrl);
     if (restored) {
@@ -123,10 +123,10 @@ export class WebChatPageComponent implements OnInit, OnDestroy {
       this.pendingSessionId.set(restored.sessionId);
 
       // Busca histórico do banco para garantir que mensagens estejam completas,
-      // mesmo que localStorage esteja vazio ou seja de outro dispositivo.
+      // mesmo que sessionStorage esteja vazio ou seja de outro dispositivo.
       this.webchatService.fetchSessionMessages(restored.sessionId, restored.token).subscribe({
         error: () => {
-          /* silently ignored — mensagens do localStorage já carregadas */
+          /* silently ignored — mensagens do sessionStorage já carregadas */
         },
       });
     }

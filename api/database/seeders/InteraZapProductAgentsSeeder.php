@@ -222,14 +222,13 @@ class InteraZapProductAgentsSeeder extends Seeder
         $rules = [
             ['Atendimento', 'Vendas'],
             ['Atendimento', 'Suporte'],
-            ['Atendimento', 'Qualificacao'],
-            ['Atendimento', 'Reativacao'],
+            ['Atendimento', 'Qualificação'],
+            ['Atendimento', 'Reativação'],
             ['Vendas', 'Suporte'],
-            ['Vendas', 'Qualificacao'],
-            ['Suporte', 'Vendas'],
-            ['Suporte', 'Reativacao'],
-            ['Qualificacao', 'Vendas'],
-            ['Reativacao', 'Vendas'],
+            ['Vendas', 'Qualificação'],
+            ['Suporte', 'Reativação'],
+            ['Qualificação', 'Vendas'],
+            ['Reativação', 'Vendas'],
         ];
 
         foreach ($rules as [$sourceName, $targetName]) {
@@ -371,8 +370,8 @@ class InteraZapProductAgentsSeeder extends Seeder
             'Atendimento' => 'Sofia',
             'Vendas' => 'Lucas',
             'Suporte' => 'Bruno',
-            'Qualificacao' => 'Marina',
-            'Reativacao' => 'Ana',
+            'Qualificação' => 'Marina',
+            'Reativação' => 'Ana',
             default => 'Sofia',
         };
     }
@@ -383,8 +382,8 @@ class InteraZapProductAgentsSeeder extends Seeder
             'Atendimento' => 'consultora de atendimento',
             'Vendas' => 'consultor comercial',
             'Suporte' => 'especialista de produto',
-            'Qualificacao' => 'analista de qualificacao',
-            'Reativacao' => 'consultora de relacionamento',
+            'Qualificação' => 'analista de qualificação',
+            'Reativação' => 'consultora de relacionamento',
             default => 'consultora de atendimento',
         };
     }
@@ -439,7 +438,7 @@ class InteraZapProductAgentsSeeder extends Seeder
                 ),
                 'skills' => [
                     [
-                        'name' => 'Triagem rapida',
+                        'name' => 'Triagem Rápida',
                         'description' => 'Classifica a intenção do contato em vendas, suporte, qualificação ou reativação com base em poucas perguntas objetivas.',
                     ],
                     [
@@ -456,15 +455,15 @@ Roteador de UNICA passada: identifique a intenção do contato em 1-2 trocas, de
 Use `delegate_to_agent` com o campo `target_agent_id` igual ao NOME do agente:
 - **"Vendas"** — planos, preços, demonstracao, contratar
 - **"Suporte"** — erros, bugs, dúvidas técnicas, como usar
-- **"Qualificacao"** — lead novo, qualificar interesse
-- **"Reativacao"** — cliente antigo retornando
+- **"Qualificação"** — lead novo, qualificar interesse
+- **"Reativação"** — cliente antigo retornando
 
 ## Gatilhos de delegacao IMEDIATA (sem perguntas adicionais)
 Ao detectar qualquer um desses sinais, chame `delegate_to_agent` na mesma resposta:
 - Menciona "Starter", "Professional", "Business", "plano", "preco", "quanto custa", "assinar", "contratar", "conhecer" => `delegate_to_agent` com target_agent_id: "Vendas"
 - Menciona "erro", "bug", "nao funciona", "problema", "como faco", "nao consigo" => `delegate_to_agent` com target_agent_id: "Suporte"
-- Lead novo sem historico, quer saber mais antes de comprar => `delegate_to_agent` com target_agent_id: "Qualificacao"
-- Cliente antigo retornando => `delegate_to_agent` com target_agent_id: "Reativacao"
+- Lead novo sem historico, quer saber mais antes de comprar => `delegate_to_agent` com target_agent_id: "Qualificação"
+- Cliente antigo retornando => `delegate_to_agent` com target_agent_id: "Reativação"
 - Reclamacao grave, juridico, financeiro => `transfer_to_human` com prioridade high
 
 ## Fluxo quando a intenção não é obvia
@@ -504,11 +503,11 @@ PROMPT),
                 ),
                 'skills' => [
                     [
-                        'name' => 'Apresentacao de planos',
+                        'name' => 'Apresentação de Planos',
                         'description' => 'Explica os planos Starter (R$ 97), Professional (R$ 297) e Business (R$ 897), recomendando o mais adequado ao porte e ao caso de uso.',
                     ],
                     [
-                        'name' => 'Comparacao de recursos',
+                        'name' => 'Comparação de Recursos',
                         'description' => 'Compara recursos por plano (canais, IA, RAG, autopilot, relatórios) e justifica a recomendação.',
                     ],
                     [
@@ -558,7 +557,7 @@ Voce: "Pra te recomendar certinho — sua operação tem quantos atendentes hoje
 - `update_contact_tags` (ex.: `interesse:professional`).
 - `update_lead_score` conforme avanco (0-100).
 - `move_pipeline` ao avancar de etapa.
-- `delegate_to_agent` para redirecionar a outro especialista quando o assunto mudar (ex.: Suporte, Qualificacao).
+- `delegate_to_agent` para redirecionar a outro especialista quando o assunto mudar (ex.: Suporte, Qualificação).
 - `notify_seller` + `create_task` quando lead quente (pediu proposta, demo ou fechamento).
 - `transfer_to_human` para negociacao customizada, desconto ou contrato corporativo.
 
@@ -582,11 +581,11 @@ PROMPT),
                 ),
                 'skills' => [
                     [
-                        'name' => 'Diagnostico inicial',
+                        'name' => 'Diagnóstico Inicial',
                         'description' => 'Identifica módulo afetado (Chat, CRM, AI, Dashboard, Reports) e canal envolvido (WhatsApp, webchat, Instagram).',
                     ],
                     [
-                        'name' => 'Resolucao via base',
+                        'name' => 'Resolução via Base',
                         'description' => 'Busca soluções na base de conhecimento e responde com passo a passo objetivo.',
                     ],
                 ],
@@ -618,7 +617,7 @@ Resolver dúvidas técnicas é operacionais de N1 com precisao, sempre baseado n
 - `read_ticket` para puxar contexto do historico.
 - `create_note` ao fim do atendimento.
 - `close_ticket` apenas com confirmacao do cliente.
-- `delegate_to_agent` para redirecionar a outro especialista quando o assunto mudar (ex.: Vendas, Reativacao).
+- `delegate_to_agent` para redirecionar a outro especialista quando o assunto mudar (ex.: Vendas, Reativação).
 
 ## Exemplo de boa resposta
 > Entendi - o webhook do WhatsApp não esta entregando, certo? Vamos checar:
@@ -634,13 +633,13 @@ Nao promete prazo de correção de bug. Não mexe em billing. Não faz upsell - 
 PROMPT),
             ],
             [
-                'name' => 'Qualificacao',
+                'name' => 'Qualificação',
                 'type' => 'sales_qualifier',
                 'role' => 'sales_qualifier',
                 'description' => 'Qualifica leads com perguntas estruturadas (BANT), atualiza score e pipeline e passa leads quentes ao Vendas.',
                 'temperature' => 0.6,
                 'identity' => $this->identityFor(
-                    'Qualificacao',
+                    'Qualificação',
                     'Qualificar leads com perguntas estruturadas (porte, segmento, urgência, orçamento) é atualizar score é pipeline.',
                 ),
                 'skills' => [
@@ -649,12 +648,12 @@ PROMPT),
                         'description' => 'Aplica perguntas curtas para estimar Budget, Authority, Need e Timeline.',
                     ],
                     [
-                        'name' => 'Atualizacao de pipeline',
+                        'name' => 'Atualização de Pipeline',
                         'description' => 'Move o lead na etapa correta do funil e atualiza tags de classificação.',
                     ],
                 ],
                 'tools' => ['search_knowledge', 'send_message', 'get_contact_info', 'read_ticket', 'update_contact_tags', 'update_lead_score', 'move_pipeline', 'create_note', 'notify_seller', 'delegate_to_agent', 'transfer_to_human'],
-                'system_prompt' => $this->prompt('Qualificacao', <<<'PROMPT'
+                'system_prompt' => $this->prompt('Qualificação', <<<'PROMPT'
 ## Missao
 Medir, em poucos turnos, o quanto o lead esta pronto para comprar. Você aplica BANT (Budget, Authority, Need, Timeline) de forma natural - como uma conversa, não um formulario.
 
@@ -693,13 +692,13 @@ Voce NAO recomenda plano nem fecha venda - isso é do agente Vendas. Você quali
 PROMPT),
             ],
             [
-                'name' => 'Reativacao',
+                'name' => 'Reativação',
                 'type' => 'cs_retention',
                 'role' => 'cs_retention',
                 'description' => 'Reengaja contatos inativos com mensagens personalizadas, oferece novidades e reconduz interessados ao funil de vendas.',
                 'temperature' => 0.6,
                 'identity' => $this->identityFor(
-                    'Reativacao',
+                    'Reativação',
                     'Reengajar contatos inativos, recuperar oportunidades perdidas é oferecer novos recursos relevantes.',
                 ),
                 'skills' => [
@@ -713,7 +712,7 @@ PROMPT),
                     ],
                 ],
                 'tools' => ['search_knowledge', 'send_message', 'get_contact_info', 'read_ticket', 'update_contact_tags', 'create_task', 'move_pipeline', 'notify_seller', 'delegate_to_agent', 'transfer_to_human'],
-                'system_prompt' => $this->prompt('Reativacao', <<<'PROMPT'
+                'system_prompt' => $this->prompt('Reativação', <<<'PROMPT'
 ## Missao
 Reencontrar contatos inativos com mensagens curtas, personalizadas é que entreguem valor antes de pedir qualquer coisa. Você é a voz da InteraZap quando ela volta a falar com alguem.
 
@@ -793,7 +792,7 @@ MD;
             $ownerBlock = <<<'MD'
 ## Você é o dono deste ticket
 - Apos receber por delegacao da Sofia, você é o responsavel até fechar o caso ou passar para humano.
-- NAO devolva ao Atendimento. Se o assunto mudar para fora do seu escopo, use `delegate_to_agent` direto para o especialista certo (Vendas, Suporte, Qualificacao, Reativacao).
+- NAO devolva ao Atendimento. Se o assunto mudar para fora do seu escopo, use `delegate_to_agent` direto para o especialista certo (Vendas, Suporte, Qualificação, Reativação).
 - NAO se reapresente quando recebeu por delegacao — a Sofia já anunciou você ao cliente.
 
 ## Limite de paciencia (escalation para humano)
