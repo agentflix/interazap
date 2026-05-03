@@ -34,6 +34,7 @@ class AiAgent extends Model
         'id',
         'tenant_id',
         'name',
+        'description',
         'type',
         'model_id',
         'system_prompt',

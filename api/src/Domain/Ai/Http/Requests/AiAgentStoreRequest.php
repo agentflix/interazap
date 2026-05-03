@@ -51,6 +51,7 @@ final class AiAgentStoreRequest extends FormRequest
                 },
             ],
             'model_id' => ['required', 'string', 'max:50'],
+            'description' => ['nullable', 'string', 'max:500'],
             'system_prompt' => ['nullable', 'string'],
             'max_tokens' => ['required', 'integer', 'min:100', 'max:8192'],
             'temperature' => ['required', 'numeric', 'min:0', 'max:2'],
