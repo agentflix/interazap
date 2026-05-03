@@ -126,8 +126,6 @@ final class ChatRoutingService
      *
      * Usa subquery correlacionada para contar tickets sem JOIN (evita lock
      * em múltiplas tabelas com FOR UPDATE SKIP LOCKED).
-     *
-     * @return ChatRoutingQueueAgent|null
      */
     private function resolveLeastBusyAgent(ChatRoutingQueue $queue): ?ChatRoutingQueueAgent
     {

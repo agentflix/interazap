@@ -7,11 +7,13 @@ namespace App\Providers;
 use Domain\Ai\Events\AiBudgetThresholdExceeded;
 use Domain\Ai\Events\AiResponseReceived;
 use Domain\Ai\Events\AiRunCompleted;
+use Domain\Ai\Events\AiRunDelegated;
 use Domain\Ai\Events\AiRunRequested;
 use Domain\Ai\Events\AutopilotTriggerFired;
 use Domain\Ai\Listeners\AiBudgetThresholdNotificationListener;
 use Domain\Ai\Listeners\AiConversationSummaryListener;
 use Domain\Ai\Listeners\AiGateKeeperListener;
+use Domain\Ai\Listeners\AiRunDelegatedStickyAgentListener;
 use Domain\Ai\Listeners\AutopilotRunDispatcherListener;
 use Domain\Chat\Events\MessagePersisted;
 use Domain\Chat\Listeners\AiResponseListener;
@@ -110,6 +112,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         AutopilotTriggerFired::class => [
             AutopilotRunDispatcherListener::class,
+        ],
+        AiRunDelegated::class => [
+            AiRunDelegatedStickyAgentListener::class,
         ],
         AiResponseReceived::class => [
             AiResponseListener::class,

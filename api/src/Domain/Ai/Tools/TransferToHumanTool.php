@@ -46,6 +46,7 @@ class TransferToHumanTool implements AiToolInterface
 
         $ticket->loadMissing('extended');
         $ticket->is_bot_active = false;
+        $ticket->current_ai_agent_id = null;
         if ($ticket->human_takeover_at === null) {
             $ticket->human_takeover_at = now();
         }

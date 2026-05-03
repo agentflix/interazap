@@ -232,6 +232,23 @@ final class DispatchAutopilotRunJob implements ShouldQueue
      */
     private function resolveAgentAndTrigger(): array
     {
+        $ticketId = (string) ($this->context['ticket_id'] ?? '');
+
+        // Sticky agent: se há um especialista ativo no ticket, usá-lo diretamente
+        if ($this->triggerType === AutopilotTriggerType::INBOUND_MESSAGE && $ticketId !== '') {
+            $stickyAgent = $this->resolveStickyAgent($ticketId);
+
+            if ($stickyAgent instanceof AiAgent) {
+                Log::info('[DispatchAutopilotRunJob] Sticky agent resolved', [
+                    'tenant_id' => $this->tenantId,
+                    'ticket_id' => $ticketId,
+                    'agent_id' => (string) $stickyAgent->id,
+                ]);
+
+                return ['trigger' => null, 'agent' => $stickyAgent];
+            }
+        }
+
         $cacheKey = AiAgentTriggerObserver::cacheKey($this->tenantId);
         $triggers = Cache::remember($cacheKey, 3600, function () {
             return AiAgentTrigger::query()
@@ -273,6 +290,24 @@ final class DispatchAutopilotRunJob implements ShouldQueue
 
             return ['trigger' => null, 'agent' => $agent instanceof AiAgent ? $agent : null];
         });
+    }
+
+    private function resolveStickyAgent(string $ticketId): ?AiAgent
+    {
+        $stickyId = ChatTicket::query()
+            ->where('id', $ticketId)
+            ->where('tenant_id', $this->tenantId)
+            ->value('current_ai_agent_id');
+
+        if (! is_string($stickyId) || $stickyId === '') {
+            return null;
+        }
+
+        return AiAgent::query()
+            ->with(['files' => fn ($filesQuery) => $filesQuery->orderBy('slug')])
+            ->where('tenant_id', $this->tenantId)
+            ->where('is_active', true)
+            ->find($stickyId);
     }
 
     private function resolvePlaybookId(AiAgent $agent): string
