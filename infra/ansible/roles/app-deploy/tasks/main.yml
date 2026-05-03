@@ -54,6 +54,23 @@
       mode: '0755'
       state: directory
 
+- name: 'Resolver segredos efetivos por ambiente'
+  set_fact:
+      effective_gateway_internal_api_key: "{{ gateway_internal_api_key_production if app_environment == 'production' else gateway_internal_api_key_staging }}"
+      effective_gateway_jwt_secret: "{{ gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging }}"
+      effective_webchat_jwt_secret: "{{ (webchat_jwt_secret_production if app_environment == 'production' else webchat_jwt_secret_staging) | default((gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging), true) }}"
+      effective_app_key: "{{ agentflix_secret_key_staging if app_environment == 'staging' else agentflix_secret_key_production }}"
+      effective_uazapi_webhook_url: "{{ uazapi_webhook_url | default(('https://stage.gateway.interazap.com.br/webhook/uazapi' if app_environment == 'staging' else 'https://gateway.interazap.com.br/webhook/uazapi'), true) }}"
+
+- name: 'Validar segredos críticos antes de gerar .env'
+  assert:
+      that:
+          - effective_app_key | default('') | length > 0
+          - effective_gateway_internal_api_key | default('') | length > 0
+          - effective_gateway_jwt_secret | default('') | length > 0
+          - effective_webchat_jwt_secret | default('') | length > 0
+      fail_msg: 'Segredo crítico ausente no vault para {{ app_environment }} (APP_KEY, GATEWAY_INTERNAL_API_KEY, GATEWAY_JWT_SECRET ou WEBCHAT_JWT_SECRET).'
+
 # =====================================================
 # API DEPLOY (ATÔMICO)
 # =====================================================
@@ -549,6 +566,15 @@
       VAULT_UAZAPI_BASE_URL: "{{ uazapi_base_url | default('') }}"
       VAULT_UAZAPI_ADMIN_TOKEN: "{{ uazapi_admin_token | default('') }}"
       VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
+      VAULT_UAZAPI_WEBHOOK_URL: "{{ effective_uazapi_webhook_url }}"
+      VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
+
+- name: 'Validar .env Gateway crítico'
+  shell: |
+      grep -qE '^JWT_SECRET=.+$' {{ deploy_path }}/gateway/shared/.env
+      grep -qE '^WEBCHAT_JWT_SECRET=.+$' {{ deploy_path }}/gateway/shared/.env
+      grep -qE '^INTERNAL_API_KEY=.+$' {{ deploy_path }}/gateway/shared/.env
+      grep -qE '^UAZAPI_WEBHOOK_URL=.+$' {{ deploy_path }}/gateway/shared/.env
 
 - name: 'Linkar .env Gateway'
   file:
