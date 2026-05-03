@@ -340,6 +340,7 @@ export class NegotiationFormComponent {
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.isSaving.set(false);
+        this.resetForm();
         this.saved.emit(response.data.negotiation);
       },
       error: () => {
