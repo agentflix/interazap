@@ -71,6 +71,10 @@ final class PlatformTenantActions
             unset($payload['is_active']);
         }
 
+        if (empty($payload['plan_id'])) {
+            $payload['plan_id'] = $this->resolveDefaultPlanId();
+        }
+
         return PlatformTenant::query()->create($payload);
     }
 
@@ -157,6 +161,24 @@ final class PlatformTenantActions
     private function sanitizePerPage(int $perPage): int
     {
         return min(max($perPage, 1), 100);
+    }
+
+    private function resolveDefaultPlanId(): ?string
+    {
+        $starterPlan = \Domain\Platform\Models\PlatformPlan::query()
+            ->where('slug', 'starter')
+            ->where('is_active', true)
+            ->first();
+
+        if ($starterPlan instanceof \Domain\Platform\Models\PlatformPlan) {
+            return $starterPlan->id;
+        }
+
+        $anyPlan = \Domain\Platform\Models\PlatformPlan::query()
+            ->where('is_active', true)
+            ->first();
+
+        return $anyPlan instanceof \Domain\Platform\Models\PlatformPlan ? $anyPlan->id : null;
     }
 
     private function generateTenantCode(): string
