@@ -54,6 +54,22 @@
       mode: '0755'
       state: directory
 
+- name: 'Resolver segredos efetivos por ambiente'
+  set_fact:
+      effective_gateway_internal_api_key: "{{ gateway_internal_api_key_production if app_environment == 'production' else gateway_internal_api_key_staging }}"
+      effective_gateway_jwt_secret: "{{ gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging }}"
+      effective_webchat_jwt_secret: "{{ (webchat_jwt_secret_production if app_environment == 'production' else webchat_jwt_secret_staging) | default((gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging), true) }}"
+      effective_app_key: "{{ agentflix_secret_key_staging if app_environment == 'staging' else agentflix_secret_key_production }}"
+
+- name: 'Validar segredos críticos antes de gerar .env'
+  assert:
+      that:
+          - effective_app_key | default('') | length > 0
+          - effective_gateway_internal_api_key | default('') | length > 0
+          - effective_gateway_jwt_secret | default('') | length > 0
+          - effective_webchat_jwt_secret | default('') | length > 0
+      fail_msg: 'Segredo crítico ausente no vault para {{ app_environment }} (APP_KEY, GATEWAY_INTERNAL_API_KEY, GATEWAY_JWT_SECRET ou WEBCHAT_JWT_SECRET).'
+
 # =====================================================
 # API DEPLOY (ATÔMICO)
 # =====================================================
@@ -179,6 +195,7 @@
       ASAAS_API_KEY=${VAULT_ASAAS_API_KEY}
       DEFAULT_TENANT_ID=${VAULT_DEFAULT_TENANT_ID}
       SANCTUM_EXPIRATION=1440
+      WEBCHAT_JWT_SECRET=${VAULT_WEBCHAT_JWT_SECRET}
 
       HORIZON_NAME={{ 'interazap-staging' if app_environment == 'staging' else 'interazap-prod' }}
       HORIZON_MAX_PROCESSES=10
@@ -225,14 +242,14 @@
       chown www-data:www-data {{ deploy_path }}/api/shared/.env
       chmod 640 {{ deploy_path }}/api/shared/.env
   environment:
-      VAULT_APP_KEY: "{{ agentflix_secret_key_staging | default('') if app_environment == 'staging' else agentflix_secret_key_production | default('') }}"
+      VAULT_APP_KEY: "{{ effective_app_key }}"
       VAULT_DB_PASSWORD: "{{ postgres_app_password | default('') }}"
       VAULT_REDIS_PASSWORD: "{{ redis_password | default('') }}"
-      VAULT_INTERNAL_API_KEY: "{{ gateway_internal_api_key_production if app_environment == 'production' else gateway_internal_api_key_staging | default('') }}"
+      VAULT_INTERNAL_API_KEY: "{{ effective_gateway_internal_api_key }}"
       VAULT_REVERB_APP_ID: "{{ reverb_app_id_staging | default('interazap-stage') if app_environment == 'staging' else reverb_app_id_production | default('interazap-prod') }}"
       VAULT_REVERB_APP_KEY: "{{ reverb_app_key_staging | default('interazap-stage-key') if app_environment == 'staging' else reverb_app_key_production | default('interazap-prod-key') }}"
       VAULT_REVERB_APP_SECRET: "{{ reverb_app_secret_staging | default('interazap-stage-secret') if app_environment == 'staging' else reverb_app_secret_production | default('interazap-prod-secret') }}"
-      VAULT_WEBCHAT_JWT_SECRET: "{{ (webchat_jwt_secret_production if app_environment == 'production' else webchat_jwt_secret_staging) | default((gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging), true) }}"
+      VAULT_WEBCHAT_JWT_SECRET: "{{ effective_webchat_jwt_secret }}"
       VAULT_ASAAS_API_KEY: "{{ asaas_api_key | default('') }}"
       VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
       VAULT_SENTRY_DSN: "{{ sentry_dsn | default('') }}"
@@ -242,6 +259,12 @@
       VAULT_MAIL_USERNAME: "{{ mail_username | default('') }}"
       VAULT_MAIL_PASSWORD: "{{ mail_password | default('') }}"
       VAULT_MAIL_FROM_ADDRESS: "{{ mail_from_address | default('noreply@interazap.com.br') }}"
+
+- name: 'Validar .env API crítico'
+  shell: |
+      grep -qE '^APP_KEY=.+$' {{ deploy_path }}/api/shared/.env
+      grep -qE '^GATEWAY_INTERNAL_API_KEY=.+$' {{ deploy_path }}/api/shared/.env
+      grep -qE '^WEBCHAT_JWT_SECRET=.+$' {{ deploy_path }}/api/shared/.env
 
 - name: 'Linkar pastas compartilhadas (Storage/Logs)'
   file:
@@ -280,6 +303,15 @@
 
 - name: 'Executar migrations e seeds'
   command: '/usr/bin/php8.4 artisan migrate --force --seed'
+  args:
+      chdir: '{{ deploy_path }}/api/releases/{{ deploy_timestamp }}/api'
+  become: yes
+  become_user: www-data
+
+- name: 'Executar seeders de configuração críticos'
+  shell: |
+      /usr/bin/php8.4 artisan db:seed --class=AiPromptSegmentSeeder --force
+      /usr/bin/php8.4 artisan db:seed --class=AiCatalogSeeder --force
   args:
       chdir: '{{ deploy_path }}/api/releases/{{ deploy_timestamp }}/api'
   become: yes
@@ -502,6 +534,7 @@
       API_URL=http://127.0.0.1:{{ octane_port | default(9501) }}
       JWT_SECRET=${VAULT_JWT_SECRET}
       JWT_ALGORITHM=HS256
+      WEBCHAT_JWT_SECRET=${VAULT_WEBCHAT_JWT_SECRET}
       INTERNAL_API_KEY=${VAULT_INTERNAL_API_KEY}
       CORS_ORIGINS=https://{{ domain_app }}
       LOG_LEVEL={{ 'debug' if app_environment == 'staging' else 'info' }}
@@ -517,6 +550,10 @@
       ASAAS_API_KEY=${VAULT_ASAAS_API_KEY}
       UAZAPI_BASE_URL=${VAULT_UAZAPI_BASE_URL}
       UAZAPI_ADMIN_TOKEN=${VAULT_UAZAPI_ADMIN_TOKEN}
+      UAZAPI_WEBHOOK_URL=${VAULT_UAZAPI_WEBHOOK_URL}
+      UAZAPI_WEBHOOK_EVENTS=connection,messages,messages_update
+      UAZAPI_WEBHOOK_EXCLUDE_MESSAGES=wasSentByApi,isGroupYes
+      UAZAPI_WEBHOOK_RETRIES=3
       DEFAULT_TENANT_ID=${VAULT_DEFAULT_TENANT_ID}
       AI_CONSUMER_GROUP=gateway-ai
       AI_CONSUMER_NAME=consumer-1
@@ -539,16 +576,23 @@
   environment:
       VAULT_DB_PASSWORD: "{{ postgres_app_password | default('') }}"
       VAULT_REDIS_PASSWORD: "{{ redis_password | default('') }}"
-      VAULT_JWT_SECRET: "{{ gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging | default('') }}"
-      VAULT_WEBCHAT_JWT_SECRET: "{{ (webchat_jwt_secret_production if app_environment == 'production' else webchat_jwt_secret_staging) | default((gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging), true) }}"
-      VAULT_INTERNAL_API_KEY: "{{ gateway_internal_api_key_production if app_environment == 'production' else gateway_internal_api_key_staging | default('') }}"
+      VAULT_JWT_SECRET: "{{ effective_gateway_jwt_secret }}"
+      VAULT_WEBCHAT_JWT_SECRET: "{{ effective_webchat_jwt_secret }}"
+      VAULT_INTERNAL_API_KEY: "{{ effective_gateway_internal_api_key }}"
       VAULT_OPENAI_API_KEY: "{{ openai_api_key | default('') }}"
       VAULT_GOOGLE_AI_API_KEY: "{{ google_ai_api_key | default('') }}"
       VAULT_MINIMAX_API_KEY: "{{ minimax_api_key | default('') }}"
       VAULT_ASAAS_API_KEY: "{{ asaas_api_key | default('') }}"
       VAULT_UAZAPI_BASE_URL: "{{ uazapi_base_url | default('') }}"
       VAULT_UAZAPI_ADMIN_TOKEN: "{{ uazapi_admin_token | default('') }}"
+      VAULT_UAZAPI_WEBHOOK_URL: "{{ uazapi_webhook_url | default('') }}"
       VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
+
+- name: 'Validar .env Gateway crítico'
+  shell: |
+      grep -qE '^JWT_SECRET=.+$' {{ deploy_path }}/gateway/shared/.env
+      grep -qE '^WEBCHAT_JWT_SECRET=.+$' {{ deploy_path }}/gateway/shared/.env
+      grep -qE '^INTERNAL_API_KEY=.+$' {{ deploy_path }}/gateway/shared/.env
 
 - name: 'Linkar .env Gateway'
   file:
