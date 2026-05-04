@@ -147,23 +147,37 @@ export class AfSelectInputComponent implements OnDestroy {
 
     const sizeClasses = this.size() === 'sm' ? 'h-8 px-3 text-xs' : 'h-10 px-3 text-sm';
 
+    const disabledClasses = this.isDisabled()
+      ? 'opacity-50 cursor-not-allowed pointer-events-none'
+      : '';
+
     return [
       'w-full rounded-md border',
       sizeClasses,
       'bg-white dark:bg-neutral-900',
       'flex items-center justify-between gap-2',
-      'cursor-pointer transition-colors',
+      'transition-colors',
+      this.isDisabled() ? '' : 'cursor-pointer',
       'focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500',
       borderColor,
       this.classSelect(),
+      disabledClasses,
     ].join(' ');
   });
 
   /** Whether to show error */
   protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
 
+  /** Whether the control is disabled */
+  protected readonly isDisabled = computed(() => this.control()?.disabled ?? false);
+
   /** Toggle dropdown */
   protected toggle(event: Event): void {
+    if (this.isDisabled()) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     event.stopPropagation();
     this.isOpen.update((v) => !v);
     if (this.isOpen()) {

@@ -10,6 +10,7 @@
           [id]="inputId"
           type="button"
           [class]="triggerClasses()"
+          [disabled]="isDisabled()"
           (click)="toggle($event)"
           [attr.aria-expanded]="isOpen()"
           [attr.aria-label]="ariaLabel() || label() || null"

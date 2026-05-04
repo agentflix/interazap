@@ -31,6 +31,18 @@ final class PlatformTenantUpdateRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('state')) {
+            $this->merge([
+                'state' => strtoupper((string) $this->input('state')),
+            ]);
+        }
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -44,6 +56,7 @@ final class PlatformTenantUpdateRequest extends FormRequest
             'document' => ['nullable', 'string', 'max:32'],
             'is_active' => ['sometimes', 'boolean'],
             'segment_id' => ['nullable', 'uuid', 'exists:ai_prompt_segments,id'],
+            'plan_id' => ['nullable', 'uuid', 'exists:platform_plans,id'],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:255'],
             'street' => ['nullable', 'string', 'max:255'],
@@ -51,7 +64,7 @@ final class PlatformTenantUpdateRequest extends FormRequest
             'complement' => ['nullable', 'string', 'max:120'],
             'district' => ['nullable', 'string', 'max:120'],
             'city' => ['nullable', 'string', 'max:120'],
-            'state' => ['nullable', 'string', 'size:2', 'regex:/^[A-Za-z]{2}$/'],
+            'state' => ['nullable', 'string', 'size:2', Rule::in(['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'])],
             'zip' => ['nullable', 'string', 'max:20'],
             'zip_code' => ['nullable', 'string', 'max:20'],
             'zipcode' => ['nullable', 'string', 'max:20'],

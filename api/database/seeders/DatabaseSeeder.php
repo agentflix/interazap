@@ -92,6 +92,25 @@ class DatabaseSeeder extends Seeder
 
         $admin->assignRole($superAdminRole);
 
+        $rosa = AuthUser::query()->withTrashed()->firstOrNew([
+            'email' => 'rosa@interazap.com.br',
+        ]);
+
+        $rosa->fill([
+            'tenant_id' => $tenant->id,
+            'name' => 'Rosa Lopes Pontes',
+            'password' => Hash::make('password'),
+            'is_active' => true,
+        ]);
+
+        $rosa->save();
+
+        if ($rosa->trashed()) {
+            $rosa->restore();
+        }
+
+        $rosa->assignRole($superAdminRole);
+
         $reportPermissions = AuthPermission::query()
             ->where('guard_name', 'sanctum')
             ->whereIn('name', [

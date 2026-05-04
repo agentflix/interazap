@@ -24,6 +24,7 @@ import {
   type AfSelectOption,
 } from '@shared/components';
 import { type Company, CompanyService } from '@core/services/company.service';
+import { PlatformPlanService } from '@platform/services/platform-plan.service';
 import { type AddressData, type CnpjData, UtilsService } from '@core/services/utils.service';
 import { AiGovernanceService } from '@core/services/ai-governance.service';
 import { ToastService } from '@core/services/toast.service';
@@ -54,6 +55,7 @@ import { buildAddressLine, digitsOnly, normalizeUf } from './tenant-form.utils';
 export class TenantFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly companyService = inject(CompanyService);
+  private readonly platformPlanService = inject(PlatformPlanService);
   private readonly utilsService = inject(UtilsService);
   private readonly aiGovernanceService = inject(AiGovernanceService);
   private readonly toast = inject(ToastService);
@@ -69,6 +71,36 @@ export class TenantFormComponent {
   readonly isSearchingCep = signal(false);
   readonly lookupFeedback = signal<string | null>(null);
   readonly segmentOptions = signal<AfSelectOption[]>([]);
+  readonly planOptions = signal<AfSelectOption[]>([]);
+  readonly stateOptions = signal<AfSelectOption[]>([
+    { value: 'AC', label: 'Acre' },
+    { value: 'AL', label: 'Alagoas' },
+    { value: 'AP', label: 'Amapá' },
+    { value: 'AM', label: 'Amazonas' },
+    { value: 'BA', label: 'Bahia' },
+    { value: 'CE', label: 'Ceará' },
+    { value: 'DF', label: 'Distrito Federal' },
+    { value: 'ES', label: 'Espírito Santo' },
+    { value: 'GO', label: 'Goiás' },
+    { value: 'MA', label: 'Maranhão' },
+    { value: 'MT', label: 'Mato Grosso' },
+    { value: 'MS', label: 'Mato Grosso do Sul' },
+    { value: 'MG', label: 'Minas Gerais' },
+    { value: 'PA', label: 'Pará' },
+    { value: 'PB', label: 'Paraíba' },
+    { value: 'PR', label: 'Paraná' },
+    { value: 'PE', label: 'Pernambuco' },
+    { value: 'PI', label: 'Piauí' },
+    { value: 'RJ', label: 'Rio de Janeiro' },
+    { value: 'RN', label: 'Rio Grande do Norte' },
+    { value: 'RS', label: 'Rio Grande do Sul' },
+    { value: 'RO', label: 'Rondônia' },
+    { value: 'RR', label: 'Roraima' },
+    { value: 'SC', label: 'Santa Catarina' },
+    { value: 'SP', label: 'São Paulo' },
+    { value: 'SE', label: 'Sergipe' },
+    { value: 'TO', label: 'Tocantins' },
+  ]);
   readonly hasBasicValidData = signal(false);
 
   private readonly lastAutoLookupCnpj = signal<string | null>(null);
@@ -97,15 +129,13 @@ export class TenantFormComponent {
     complement: this.fb.control('', { nonNullable: true }),
     district: this.fb.control('', { nonNullable: true }),
     city: this.fb.control('', { nonNullable: true }),
-    state: this.fb.control('', {
-      nonNullable: true,
-      validators: [Validators.pattern(/^[A-Za-z]{2}$/)],
-    }),
+    state: this.fb.control('', { nonNullable: true }),
     zip_code: this.fb.control('', {
       nonNullable: true,
       validators: [Validators.pattern(/^\d{8}$/)],
     }),
     segment_id: this.fb.control('', { nonNullable: true }),
+    plan_id: this.fb.control('', { nonNullable: true }),
     is_active: this.fb.control(true, { nonNullable: true }),
   });
 
@@ -161,9 +191,11 @@ export class TenantFormComponent {
         state: item.state ?? '',
         zip_code: item.zip ?? item.zip_code ?? item.zipcode ?? '',
         segment_id: item.segment_id ?? '',
+        plan_id: item.plan_id ?? '',
         is_active: item.is_active,
       });
 
+      this.form.controls.plan_id.disable();
       this.resetAutofillState();
       this.form.markAsPristine();
     });
@@ -180,6 +212,20 @@ export class TenantFormComponent {
           );
         },
         error: () => this.segmentOptions.set([]),
+      });
+
+    this.platformPlanService
+      .list({ per_page: 100 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.planOptions.set(
+            response.data
+              .filter((plan) => plan.is_active)
+              .map((plan) => ({ value: plan.id, label: plan.name })),
+          );
+        },
+        error: () => this.planOptions.set([]),
       });
   }
 
@@ -211,12 +257,6 @@ export class TenantFormComponent {
       });
   }
 
-  onStateBlur(): void {
-    this.form.controls.state.setValue(normalizeUf(this.form.controls.state.value), {
-      emitEvent: false,
-    });
-  }
-
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -224,6 +264,8 @@ export class TenantFormComponent {
     }
 
     const formValue = this.form.getRawValue();
+    const editing = this.tenant();
+
     const payload = {
       name: formValue.name,
       document: digitsOnly(formValue.document) || undefined,
@@ -247,9 +289,9 @@ export class TenantFormComponent {
           district: formValue.district,
         }) ?? undefined,
       is_active: formValue.is_active,
+      ...(editing ? {} : { plan_id: formValue.plan_id || undefined }),
     };
 
-    const editing = this.tenant();
     this.isSaving.set(true);
 
     const request = editing
@@ -403,9 +445,11 @@ export class TenantFormComponent {
       state: '',
       zip_code: '',
       segment_id: '',
+      plan_id: '',
       is_active: true,
     });
 
+    this.form.controls.plan_id.enable();
     this.resetAutofillState();
     this.form.markAsPristine();
   }

@@ -21,6 +21,7 @@ export interface Company {
   zip?: string;
   zip_code?: string;
   zipcode?: string;
+  plan_id?: string | null;
   is_active: boolean;
   tenant_code?: string;
   primary_email?: string;
