@@ -17,9 +17,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('platform_uazapi_instances', function (Blueprint $table): void {
-            $table->jsonb('config')->default('{}')->after('webhook_url');
-        });
+        if (! Schema::hasColumn('platform_uazapi_instances', 'admin_field_01')) {
+            return;
+        }
+
+        if (! Schema::hasColumn('platform_uazapi_instances', 'config')) {
+            Schema::table('platform_uazapi_instances', function (Blueprint $table): void {
+                $table->jsonb('config')->default('{}')->after('webhook_url');
+            });
+        }
 
         DB::statement("
             UPDATE platform_uazapi_instances

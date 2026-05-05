@@ -4,151 +4,121 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * AI Domain Prompt Tables - Consolidated Migration
+ * Cria as tabelas de prompt management do contexto AI.
  *
- * Creates prompt management infrastructure:
- * - ai_prompt_masters: Master prompt templates
- * - ai_prompt_segments: Industry/segment specific prompts
- * - ai_prompt_plans: Plan-specific prompt overrides
- * - ai_prompt_tenants: Tenant-specific prompt customizations
+ * Tabelas criadas:
+ * - ai_prompt_masters: Prompts base globais (cross-tenant)
+ * - ai_prompt_segments: Segmentos de negócio vinculados a masters
+ * - ai_prompt_plans: Prompts e regras específicas por plano
+ * - ai_prompt_tenants: Customização de prompt por tenant
  */
 return new class extends Migration
 {
     public function up(): void
     {
-        // Create enum type for validation status (if not exists)
-        DB::statement("
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ai_prompt_validation_status') THEN
-                    CREATE TYPE ai_prompt_validation_status AS ENUM ('pending', 'approved', 'rejected', 'quarantine');
-                END IF;
-            END
-            $$
-        ");
+        if (Schema::hasTable('ai_prompt_masters')) {
+            return;
+        }
 
-        // =====================================================================
-        // AI_PROMPT_MASTERS - Base prompt templates (no tenant)
-        // =====================================================================
-        Schema::create('ai_prompt_masters', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->string('name');
-            $table->text('content');
-            $table->integer('version')->default(1);
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-
-            $table->index('is_active');
-        });
-
-        // =====================================================================
-        // AI_PROMPT_SEGMENTS - Industry/segment specific prompts
-        // =====================================================================
-        Schema::create('ai_prompt_segments', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('master_id')->nullable();
-            $table->string('code', 50)->unique();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->text('content');
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-
-            $table->foreign('master_id')
-                ->references('id')
-                ->on('ai_prompt_masters')
-                ->nullOnDelete();
-
-            $table->index('is_active');
-        });
-
-        // Add FK from platform_tenants to ai_prompt_segments
-        Schema::table('platform_tenants', function (Blueprint $table): void {
-            $table->foreign('segment_id')
-                ->references('id')
-                ->on('ai_prompt_segments')
-                ->nullOnDelete();
-        });
-
-        // =====================================================================
-        // AI_PROMPT_PLANS - Plan-specific prompt configurations
-        // =====================================================================
-        Schema::create('ai_prompt_plans', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('plan_id')->unique();
-            $table->text('content');
-            $table->jsonb('mandatory_rules')->nullable();
-            $table->integer('token_limit_monthly')->nullable();
-            $table->boolean('allow_overage')->default(false);
-            $table->decimal('overage_price_per_1k', 10, 6)->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-
-            $table->foreign('plan_id')
-                ->references('id')
-                ->on('platform_plans')
-                ->cascadeOnDelete();
-
-            $table->index('is_active');
-        });
-
-        // =====================================================================
-        // AI_PROMPT_TENANTS - Tenant-specific customizations with validation
-        // =====================================================================
-        Schema::create('ai_prompt_tenants', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id')->unique();
-            $table->uuid('segment_id');
-            $table->text('content');
-            $table->text('previous_content')->nullable();
-            $table->integer('version')->default(1);
-            $table->text('validation_status')->default('pending'); // Using text, will add constraint
-            $table->string('validated_hash', 64)->nullable();
-            $table->timestamp('validated_at')->nullable();
-            $table->text('guardian_analysis')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
-
-            $table->foreign('segment_id')
-                ->references('id')
-                ->on('ai_prompt_segments')
-                ->restrictOnDelete();
-
-            $table->index('validation_status');
-            $table->index('is_active');
-        });
-
-        // Add check constraint for validation_status
-        DB::statement("
-            ALTER TABLE ai_prompt_tenants
-            ADD CONSTRAINT chk_ai_prompt_tenants_validation_status
-            CHECK (validation_status IN ('pending', 'approved', 'rejected', 'quarantine'))
-        ");
+        $this->createPromptMasters();
+        $this->createPromptSegments();
+        $this->createPromptPlans();
+        $this->createPromptTenants();
     }
 
     public function down(): void
     {
         Schema::dropIfExists('ai_prompt_tenants');
         Schema::dropIfExists('ai_prompt_plans');
-
-        // Remove FK from platform_tenants
-        Schema::table('platform_tenants', function (Blueprint $table): void {
-            $table->dropForeign(['segment_id']);
-        });
-
         Schema::dropIfExists('ai_prompt_segments');
         Schema::dropIfExists('ai_prompt_masters');
+    }
 
-        // Drop enum type
-        DB::statement('DROP TYPE IF EXISTS ai_prompt_validation_status');
+    private function createPromptMasters(): void
+    {
+        Schema::create('ai_prompt_masters', function (Blueprint $table): void {
+            $table->uuid('id')->primary()->comment('Identificador único do prompt master (UUID)');
+            $table->string('name', 255)->comment('Nome do prompt master');
+            $table->text('content')->comment('Conteúdo base do prompt');
+            $table->integer('version')->default(1)->comment('Versão do prompt master');
+            $table->boolean('is_active')->default(true)->comment('Indica se o prompt master está ativo');
+            $table->timestamps();
+
+            $table->index(['is_active'], 'idx_ai_prompt_masters_is_active');
+            $table->index(['name'], 'idx_ai_prompt_masters_name');
+        });
+    }
+
+    private function createPromptSegments(): void
+    {
+        Schema::create('ai_prompt_segments', function (Blueprint $table): void {
+            $table->uuid('id')->primary()->comment('Identificador único do segmento (UUID)');
+            $table->uuid('master_id')->nullable()->comment('Prompt master vinculado');
+            $table->string('code', 100)->unique()->comment('Código único do segmento de negócio');
+            $table->string('name', 255)->comment('Nome do segmento');
+            $table->text('description')->nullable()->comment('Descrição do segmento de negócio');
+            $table->text('content')->comment('Conteúdo do prompt para este segmento');
+            $table->boolean('is_active')->default(true)->comment('Indica se o segmento está ativo');
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('master_id', 'fk_ai_prompt_segments_master_id')
+                ->references('id')
+                ->on('ai_prompt_masters');
+            $table->index(['master_id'], 'idx_ai_prompt_segments_master_id');
+            $table->index(['code'], 'idx_ai_prompt_segments_code');
+            $table->index(['is_active'], 'idx_ai_prompt_segments_is_active');
+        });
+    }
+
+    private function createPromptPlans(): void
+    {
+        Schema::create('ai_prompt_plans', function (Blueprint $table): void {
+            $table->uuid('id')->primary()->comment('Identificador único do plano de prompt (UUID)');
+            $table->uuid('plan_id')->comment('Plano da plataforma vinculado');
+            $table->text('content')->comment('Prompt específico do plano');
+            $table->jsonb('mandatory_rules')->nullable()->comment('Regras obrigatórias do plano');
+            $table->integer('token_limit_monthly')->nullable()->comment('Limite mensal de tokens');
+            $table->boolean('allow_overage')->default(false)->comment('Permite excedente de tokens');
+            $table->decimal('overage_price_per_1k', 10, 6)->nullable()->comment('Preço por 1K tokens excedente');
+            $table->boolean('is_active')->default(true)->comment('Indica se o plano de prompt está ativo');
+            $table->timestamps();
+
+            $table->foreign('plan_id', 'fk_ai_prompt_plans_plan_id')
+                ->references('id')
+                ->on('platform_plans');
+            $table->index(['plan_id'], 'idx_ai_prompt_plans_plan_id');
+            $table->index(['is_active'], 'idx_ai_prompt_plans_is_active');
+        });
+    }
+
+    private function createPromptTenants(): void
+    {
+        Schema::create('ai_prompt_tenants', function (Blueprint $table): void {
+            $table->uuid('id')->primary()->comment('Identificador único da customização (UUID)');
+            $table->uuid('tenant_id')->comment('Tenant dono da customização');
+            $table->uuid('segment_id')->comment('Segmento de negócio vinculado');
+            $table->text('content')->comment('Conteúdo do prompt');
+            $table->text('previous_content')->nullable()->comment('Conteúdo anterior do prompt');
+            $table->integer('version')->default(1)->comment('Versão do prompt');
+            $table->text('validation_status')->default('pending')->comment('Status de validação');
+            $table->string('validated_hash', 64)->nullable()->comment('Hash validado');
+            $table->timestamp('validated_at', 0)->nullable()->comment('Data de validação');
+            $table->text('guardian_analysis')->nullable()->comment('Análise do guardian');
+            $table->boolean('is_active')->default(true)->comment('Indica se está ativo');
+            $table->timestamps(0);
+
+            $table->foreign('tenant_id', 'fk_ai_prompt_tenants_tenant_id')
+                ->references('id')
+                ->on('platform_tenants');
+            $table->foreign('segment_id', 'fk_ai_prompt_tenants_segment_id')
+                ->references('id')
+                ->on('ai_prompt_segments');
+            $table->index(['tenant_id', 'segment_id'], 'idx_ai_prompt_tenants_tenant_segment');
+            $table->unique(['tenant_id', 'segment_id'], 'uniq_ai_prompt_tenants_tenant_segment');
+        });
     }
 };

@@ -20,6 +20,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('chat_tickets_extended') || ! Schema::hasColumn('chat_tickets', 'subject')) {
+            return;
+        }
+
         Schema::create('chat_tickets_extended', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('ticket_id')->unique();

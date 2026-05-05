@@ -13,6 +13,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('platform_tenants', 'plan_id')) {
+            return;
+        }
+
         Schema::table('platform_tenants', function (Blueprint $table): void {
             $table->uuid('plan_id')->nullable()->after('segment_id');
 

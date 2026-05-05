@@ -4,328 +4,218 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * CRM Domain Extended Tables - Consolidated Migration
- *
- * Creates extended CRM entities:
- * - crm_proposals: Sales proposals
- * - crm_proposal_items: Proposal line items
- * - crm_custom_fields: Custom field definitions
- * - crm_custom_field_values: Custom field values
- * - crm_notes: Polymorphic notes
- * - crm_negotiation_files: File attachments
- * - crm_events: Calendar events
- * - crm_event_links: Event-entity links
- * - crm_event_participants: Event participants
- * - crm_event_reminders: Event reminders
+ * Cria as tabelas estendidas do módulo CRM: propostas, itens de proposta,
+ * campos customizados, anotações, arquivos de negociação, eventos,
+ * participantes, lembretes e vínculos de eventos a entidades.
  */
 return new class extends Migration
 {
     public function up(): void
     {
-        // =====================================================================
-        // CRM_PROPOSALS
-        // =====================================================================
-        Schema::create('crm_proposals', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_negotiation_id');
-            $table->string('title');
-            $table->integer('number')->nullable();
-            $table->decimal('total', 12, 2)->default(0);
-            $table->string('status', 20)->default('draft'); // draft, sent, viewed, accepted, rejected
-            $table->date('valid_until')->nullable();
-            $table->string('public_token')->nullable()->unique();
-            $table->text('notes')->nullable();
-            $table->timestamp('sent_at')->nullable();
-            $table->timestamp('viewed_at')->nullable();
-            $table->timestamp('accepted_at')->nullable();
-            $table->timestamp('rejected_at')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('crm_proposals')) {
+            Schema::create('crm_proposals', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único da proposta');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a proposta pertence');
+                $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations')->comment('Negociação vinculada');
+                $table->string('title', 255)->comment('Título da proposta');
+                $table->integer('number')->nullable()->comment('Número da proposta');
+                $table->decimal('total', 12, 2)->default(0)->comment('Valor total da proposta');
+                $table->string('status', 20)->default('draft')->comment('Status: draft, sent, viewed, accepted, rejected');
+                $table->date('valid_until')->nullable()->comment('Validade da proposta');
+                $table->string('public_token', 255)->nullable()->comment('Token para acesso público');
+                $table->text('notes')->nullable()->comment('Observações');
+                $table->timestamp('sent_at')->nullable()->comment('Quando foi enviada');
+                $table->timestamp('viewed_at')->nullable()->comment('Quando foi visualizada');
+                $table->timestamp('accepted_at')->nullable()->comment('Quando foi aceita');
+                $table->timestamp('rejected_at')->nullable()->comment('Quando foi rejeitada');
+                $table->timestamps();
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
+                $table->index('tenant_id', 'idx_crm_proposals_tenant_id');
+                $table->index('crm_negotiation_id', 'idx_crm_proposals_negotiation_id');
+                $table->index('status', 'idx_crm_proposals_status');
+                $table->index('public_token', 'idx_crm_proposals_public_token');
+            });
+        }
 
-            $table->foreign('crm_negotiation_id')
-                ->references('id')
-                ->on('crm_negotiations')
-                ->cascadeOnDelete();
-        });
+        if (!Schema::hasTable('crm_proposal_items')) {
+            Schema::create('crm_proposal_items', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do item da proposta');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o item pertence');
+                $table->foreignUuid('crm_proposal_id')->constrained('crm_proposals')->comment('Proposta vinculada');
+                $table->foreignUuid('crm_product_id')->nullable()->constrained('crm_products')->comment('Produto de origem');
+                $table->string('name', 255)->comment('Nome do item');
+                $table->integer('quantity')->comment('Quantidade');
+                $table->decimal('unit_price', 12, 2)->comment('Preço unitário');
+                $table->decimal('discount', 12, 2)->default(0)->comment('Desconto aplicado');
+                $table->decimal('total', 12, 2)->comment('Total do item');
+                $table->integer('position')->default(0)->comment('Ordenação do item');
+                $table->timestamps();
 
-        // =====================================================================
-        // CRM_PROPOSAL_ITEMS
-        // =====================================================================
-        Schema::create('crm_proposal_items', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_proposal_id');
-            $table->uuid('crm_product_id')->nullable();
-            $table->string('name');
-            $table->integer('quantity')->default(1);
-            $table->decimal('unit_price', 12, 2)->default(0);
-            $table->decimal('discount', 12, 2)->default(0);
-            $table->decimal('total', 12, 2)->default(0);
-            $table->integer('position')->default(0);
-            $table->timestamps();
+                $table->index('tenant_id', 'idx_crm_proposal_items_tenant_id');
+                $table->index('crm_proposal_id', 'idx_crm_proposal_items_proposal_id');
+                $table->index('crm_product_id', 'idx_crm_proposal_items_product_id');
+            });
+        }
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
+        if (!Schema::hasTable('crm_custom_fields')) {
+            Schema::create('crm_custom_fields', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do campo customizado');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o campo pertence');
+                $table->string('name', 255)->comment('Nome do campo');
+                $table->string('type', 50)->comment('Tipo: text, number, date, select, multiselect');
+                $table->string('entity', 50)->default('contact')->comment('Entidade alvo: company, contact, negotiation');
+                $table->jsonb('options')->nullable()->comment('Opções para select ou multiselect');
+                $table->boolean('is_required')->default(false)->comment('Se é obrigatório');
+                $table->timestamps();
 
-            $table->foreign('crm_proposal_id')
-                ->references('id')
-                ->on('crm_proposals')
-                ->cascadeOnDelete();
+                $table->index('tenant_id', 'idx_crm_custom_fields_tenant_id');
+                $table->index('entity', 'idx_crm_custom_fields_entity');
+            });
 
-            $table->foreign('crm_product_id')
-                ->references('id')
-                ->on('crm_products')
-                ->nullOnDelete();
-        });
+            DB::statement("ALTER TABLE crm_custom_fields ALTER COLUMN options TYPE json");
+        }
 
-        // =====================================================================
-        // CRM_CUSTOM_FIELDS
-        // =====================================================================
-        Schema::create('crm_custom_fields', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->string('name');
-            $table->string('type', 50); // text, number, date, select, etc.
-            $table->string('entity', 50)->default('contact'); // contact, company, negotiation
-            $table->json('options')->nullable();
-            $table->boolean('is_required')->default(false);
-            $table->timestamps();
+        if (!Schema::hasTable('crm_custom_field_values')) {
+            Schema::create('crm_custom_field_values', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do valor de campo customizado');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o valor pertence');
+                $table->foreignUuid('crm_custom_field_id')->constrained('crm_custom_fields')->comment('Campo customizado de origem');
+                $table->string('entity_type', 100)->comment('Tipo da entidade alvo (Morph)');
+                $table->uuid('entity_id')->comment('ID da entidade alvo (Morph)');
+                $table->text('value')->nullable()->comment('Valor armazenado');
+                $table->timestamps();
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
+                $table->index('tenant_id', 'idx_crm_custom_field_values_tenant_id');
+                $table->index('crm_custom_field_id', 'idx_crm_custom_field_values_field_id');
+                $table->index(['entity_type', 'entity_id'], 'idx_crm_custom_field_values_morph');
+            });
+        }
 
-            $table->unique(['tenant_id', 'name', 'entity']);
-        });
+        if (!Schema::hasTable('crm_notes')) {
+            Schema::create('crm_notes', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único da nota');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a nota pertence');
+                $table->string('entity_type', 100)->comment('Tipo da entidade anotada (Morph)');
+                $table->uuid('entity_id')->comment('ID da entidade anotada (Morph)');
+                $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users')->comment('Autor da nota');
+                $table->text('content')->comment('Conteúdo da nota');
+                $table->timestamps();
 
-        // =====================================================================
-        // CRM_CUSTOM_FIELD_VALUES
-        // =====================================================================
-        Schema::create('crm_custom_field_values', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_custom_field_id');
-            $table->string('entity_type');
-            $table->uuid('entity_id');
-            $table->text('value')->nullable();
-            $table->timestamps();
+                $table->index('tenant_id', 'idx_crm_notes_tenant_id');
+                $table->index('auth_user_id', 'idx_crm_notes_user_id');
+                $table->index(['entity_type', 'entity_id'], 'idx_crm_notes_morph');
+            });
+        }
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
+        if (!Schema::hasTable('crm_negotiation_files')) {
+            Schema::create('crm_negotiation_files', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do arquivo');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o arquivo pertence');
+                $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations')->comment('Negociação vinculada');
+                $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users')->comment('Usuário que enviou o arquivo');
+                $table->string('name', 255)->comment('Nome original do arquivo');
+                $table->string('path', 500)->comment('Caminho de armazenamento');
+                $table->bigInteger('size')->comment('Tamanho em bytes');
+                $table->string('mime_type', 100)->nullable()->comment('Tipo MIME do arquivo');
+                $table->timestamps();
 
-            $table->foreign('crm_custom_field_id')
-                ->references('id')
-                ->on('crm_custom_fields')
-                ->cascadeOnDelete();
+                $table->index('tenant_id', 'idx_crm_negotiation_files_tenant_id');
+                $table->index('crm_negotiation_id', 'idx_crm_negotiation_files_negotiation_id');
+                $table->index('auth_user_id', 'idx_crm_negotiation_files_user_id');
+            });
+        }
 
-            $table->unique(
-                ['tenant_id', 'crm_custom_field_id', 'entity_type', 'entity_id'],
-                'crm_custom_values_unique'
-            );
-            $table->index(['entity_type', 'entity_id']);
-            $table->index('crm_custom_field_id');
-        });
+        if (!Schema::hasTable('crm_events')) {
+            Schema::create('crm_events', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do evento');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o evento pertence');
+                $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users')->comment('Criador do evento');
+                $table->string('title', 255)->comment('Título do evento');
+                $table->string('type', 50)->default('meeting')->comment('Tipo: meeting, call, task, reminder');
+                $table->string('status', 20)->default('scheduled')->comment('Status do evento');
+                $table->text('description')->nullable()->comment('Descrição do evento');
+                $table->string('location', 255)->nullable()->comment('Local ou link do evento');
+                $table->timestamp('starts_at')->comment('Início do evento');
+                $table->timestamp('ends_at')->nullable()->comment('Término do evento');
+                $table->boolean('is_all_day')->default(false)->comment('Se é evento de dia inteiro');
+                $table->string('recurrence', 50)->default('none')->comment('Frequência de recorrência');
+                $table->timestamp('recurrence_ends_at')->nullable()->comment('Fim da recorrência');
+                $table->string('color', 7)->nullable()->comment('Cor no calendário');
+                $table->timestamps();
+                $table->softDeletes();
 
-        // =====================================================================
-        // CRM_NOTES - Polymorphic notes (auth_user_id nullable for AI notes)
-        // =====================================================================
-        Schema::create('crm_notes', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->string('entity_type');
-            $table->uuid('entity_id');
-            $table->uuid('auth_user_id')->nullable(); // Nullable for AI-generated notes
-            $table->text('content');
-            $table->timestamps();
+                $table->index('tenant_id', 'idx_crm_events_tenant_id');
+                $table->index('auth_user_id', 'idx_crm_events_user_id');
+                $table->index('type', 'idx_crm_events_type');
+                $table->index('status', 'idx_crm_events_status');
+                $table->index('starts_at', 'idx_crm_events_starts_at');
+            });
+        }
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
+        if (!Schema::hasTable('crm_event_links')) {
+            Schema::create('crm_event_links', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do vínculo de evento');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o vínculo pertence');
+                $table->foreignUuid('crm_event_id')->constrained('crm_events')->comment('Evento vinculado');
+                $table->string('linkable_type', 100)->comment('Tipo da entidade vinculada (Morph)');
+                $table->uuid('linkable_id')->comment('ID da entidade vinculada (Morph)');
+                $table->timestamps();
 
-            $table->foreign('auth_user_id')
-                ->references('id')
-                ->on('auth_users')
-                ->nullOnDelete();
+                $table->index('tenant_id', 'idx_crm_event_links_tenant_id');
+                $table->index('crm_event_id', 'idx_crm_event_links_event_id');
+                $table->index(['linkable_type', 'linkable_id'], 'idx_crm_event_links_morph');
+            });
+        }
 
-            $table->index(['entity_type', 'entity_id']);
-        });
+        if (!Schema::hasTable('crm_event_participants')) {
+            Schema::create('crm_event_participants', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do participante');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o participante pertence');
+                $table->foreignUuid('crm_event_id')->constrained('crm_events')->comment('Evento vinculado');
+                $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users')->comment('Usuário interno participante');
+                $table->foreignUuid('crm_contact_id')->nullable()->constrained('crm_contacts')->comment('Contato externo participante');
+                $table->string('name', 255)->nullable()->comment('Nome do participante se não vinculado');
+                $table->string('email', 255)->nullable()->comment('E-mail do participante');
+                $table->string('status', 20)->default('pending')->comment('Status de confirmação');
+                $table->boolean('is_organizer')->default(false)->comment('Se é organizador do evento');
+                $table->timestamps();
 
-        // =====================================================================
-        // CRM_NEGOTIATION_FILES
-        // =====================================================================
-        Schema::create('crm_negotiation_files', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_negotiation_id');
-            $table->uuid('auth_user_id')->nullable();
-            $table->string('name');
-            $table->string('path');
-            $table->unsignedBigInteger('size')->default(0);
-            $table->string('mime_type', 100)->nullable();
-            $table->timestamps();
+                $table->index('tenant_id', 'idx_crm_event_participants_tenant_id');
+                $table->index('crm_event_id', 'idx_crm_event_participants_event_id');
+                $table->index('auth_user_id', 'idx_crm_event_participants_user_id');
+                $table->index('crm_contact_id', 'idx_crm_event_participants_contact_id');
+            });
+        }
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
+        if (!Schema::hasTable('crm_event_reminders')) {
+            Schema::create('crm_event_reminders', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do lembrete');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o lembrete pertence');
+                $table->foreignUuid('crm_event_id')->constrained('crm_events')->comment('Evento vinculado');
+                $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users')->comment('Destinatário do lembrete');
+                $table->string('type', 20)->default('notification')->comment('Tipo de lembrete');
+                $table->integer('minutes_before')->default(0)->comment('Minutos antes do evento');
+                $table->boolean('notify_ui')->default(true)->comment('Se notifica na interface');
+                $table->boolean('notify_email')->default(false)->comment('Se notifica por e-mail');
+                $table->boolean('notify_push')->default(false)->comment('Se notifica por push');
+                $table->boolean('notify_whatsapp')->default(false)->comment('Se notifica por WhatsApp');
+                $table->boolean('notify_webhook')->default(false)->comment('Se notifica por webhook');
+                $table->timestamp('scheduled_at', 0)->nullable()->comment('Quando deve ser enviado');
+                $table->boolean('is_sent')->default(false)->comment('Se já foi enviado');
+                $table->timestamp('sent_at', 0)->nullable()->comment('Quando foi enviado');
+                $table->timestamps(0);
 
-            $table->foreign('crm_negotiation_id')
-                ->references('id')
-                ->on('crm_negotiations')
-                ->cascadeOnDelete();
-
-            $table->foreign('auth_user_id')
-                ->references('id')
-                ->on('auth_users')
-                ->nullOnDelete();
-
-            $table->index(['tenant_id', 'crm_negotiation_id']);
-        });
-
-        // =====================================================================
-        // CRM_EVENTS - Calendar events
-        // =====================================================================
-        Schema::create('crm_events', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('auth_user_id')->nullable();
-            $table->string('title');
-            $table->string('type', 50)->default('meeting'); // meeting, call, task, reminder
-            $table->string('status', 20)->default('scheduled'); // scheduled, in_progress, completed, cancelled
-            $table->text('description')->nullable();
-            $table->string('location')->nullable();
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at')->nullable();
-            $table->boolean('is_all_day')->default(false);
-            $table->string('recurrence', 20)->default('none'); // none, daily, weekly, monthly
-            $table->timestamp('recurrence_ends_at')->nullable();
-            $table->string('color', 7)->nullable();
-            $table->softDeletes();
-            $table->timestamps();
-
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
-
-            $table->foreign('auth_user_id')
-                ->references('id')
-                ->on('auth_users')
-                ->nullOnDelete();
-
-            $table->index(['tenant_id', 'starts_at']);
-            $table->index(['tenant_id', 'status']);
-        });
-
-        // =====================================================================
-        // CRM_EVENT_LINKS - Polymorphic links to entities
-        // =====================================================================
-        Schema::create('crm_event_links', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_event_id');
-            $table->string('linkable_type');
-            $table->uuid('linkable_id');
-            $table->timestamps();
-
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
-
-            $table->foreign('crm_event_id')
-                ->references('id')
-                ->on('crm_events')
-                ->cascadeOnDelete();
-
-            $table->index(['linkable_type', 'linkable_id']);
-        });
-
-        // =====================================================================
-        // CRM_EVENT_PARTICIPANTS
-        // =====================================================================
-        Schema::create('crm_event_participants', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_event_id');
-            $table->uuid('auth_user_id')->nullable();
-            $table->uuid('crm_contact_id')->nullable();
-            $table->string('name')->nullable();
-            $table->string('email')->nullable();
-            $table->string('status', 20)->default('pending'); // pending, accepted, declined, tentative
-            $table->boolean('is_organizer')->default(false);
-            $table->timestamps();
-
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
-
-            $table->foreign('crm_event_id')
-                ->references('id')
-                ->on('crm_events')
-                ->cascadeOnDelete();
-
-            $table->foreign('auth_user_id')
-                ->references('id')
-                ->on('auth_users')
-                ->nullOnDelete();
-
-            $table->foreign('crm_contact_id')
-                ->references('id')
-                ->on('crm_contacts')
-                ->nullOnDelete();
-        });
-
-        // =====================================================================
-        // CRM_EVENT_REMINDERS
-        // =====================================================================
-        Schema::create('crm_event_reminders', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_event_id');
-            $table->uuid('auth_user_id')->nullable();
-            $table->string('type', 20)->default('notification'); // notification, email, sms
-            $table->integer('minutes_before')->default(0);
-            $table->boolean('notify_ui')->default(true);
-            $table->boolean('notify_email')->default(false);
-            $table->boolean('notify_push')->default(false);
-            $table->boolean('notify_whatsapp')->default(false);
-            $table->boolean('notify_webhook')->default(false);
-            $table->timestamp('scheduled_at')->nullable();
-            $table->boolean('is_sent')->default(false);
-            $table->timestamp('sent_at')->nullable();
-            $table->timestamps();
-
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
-
-            $table->foreign('crm_event_id')
-                ->references('id')
-                ->on('crm_events')
-                ->cascadeOnDelete();
-
-            $table->foreign('auth_user_id')
-                ->references('id')
-                ->on('auth_users')
-                ->nullOnDelete();
-        });
+                $table->index('tenant_id', 'idx_crm_event_reminders_tenant_id');
+                $table->index('crm_event_id', 'idx_crm_event_reminders_event_id');
+                $table->index('auth_user_id', 'idx_crm_event_reminders_user_id');
+                $table->index('is_sent', 'idx_crm_event_reminders_is_sent');
+                $table->index('scheduled_at', 'idx_crm_event_reminders_scheduled_at');
+            });
+        }
     }
 
     public function down(): void

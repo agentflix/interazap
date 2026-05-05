@@ -4,229 +4,131 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * CRM Domain Funnel Tables - Consolidated Migration
- *
- * Creates sales funnel entities:
- * - crm_negotiation_funnels: Funnel definitions
- * - crm_negotiation_funnel_steps: Funnel stages
- * - crm_negotiations: Deal/opportunity records
- * - crm_negotiation_tasks: Tasks linked to negotiations
- * - crm_negotiation_products: Products in negotiations
- * - crm_negotiation_tags: Tag pivot
+ * Cria as tabelas de funil e negociação do módulo CRM: funis, etapas,
+ * negociações, tarefas, produtos vinculados e tags de negociação.
  */
 return new class extends Migration
 {
     public function up(): void
     {
-        // =====================================================================
-        // CRM_NEGOTIATION_FUNNELS
-        // =====================================================================
-        Schema::create('crm_negotiation_funnels', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->string('name');
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
+        if (!Schema::hasTable('crm_negotiation_funnels')) {
+            Schema::create('crm_negotiation_funnels', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do funil');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o funil pertence');
+                $table->string('name', 255)->comment('Nome do funil');
+                $table->text('description')->nullable()->comment('Descrição do funil de vendas');
+                $table->boolean('is_active')->default(true)->comment('Se o funil está ativo');
+                $table->timestamps();
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
+                $table->index('tenant_id', 'idx_crm_negotiation_funnels_tenant_id');
+                $table->index('name', 'idx_crm_negotiation_funnels_name');
+            });
+        }
 
-            $table->unique(['tenant_id', 'name']);
-        });
+        if (!Schema::hasTable('crm_negotiation_funnel_steps')) {
+            Schema::create('crm_negotiation_funnel_steps', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único da etapa do funil');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a etapa pertence');
+                $table->foreignUuid('crm_negotiation_funnel_id')->constrained('crm_negotiation_funnels')->comment('Funil dono da etapa');
+                $table->string('name', 255)->comment('Nome da etapa');
+                $table->string('color', 7)->nullable()->comment('Cor da etapa');
+                $table->boolean('is_active')->default(true)->comment('Se a etapa está ativa');
+                $table->integer('order')->default(0)->comment('Ordem da etapa no funil');
+                $table->timestamps();
 
-        // =====================================================================
-        // CRM_NEGOTIATION_FUNNEL_STEPS
-        // =====================================================================
-        Schema::create('crm_negotiation_funnel_steps', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_negotiation_funnel_id');
-            $table->string('name');
-            $table->string('color', 7)->nullable(); // #RRGGBB
-            $table->boolean('is_active')->default(true);
-            $table->unsignedInteger('order');
-            $table->timestamps();
+                $table->index('tenant_id', 'idx_crm_negotiation_funnel_steps_tenant_id');
+                $table->index('crm_negotiation_funnel_id', 'idx_crm_funnel_steps_funnel_id');
+                $table->index('order', 'idx_crm_negotiation_funnel_steps_order');
+            });
+        }
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
+        if (!Schema::hasTable('crm_negotiations')) {
+            Schema::create('crm_negotiations', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único da negociação');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a negociação pertence');
+                $table->foreignUuid('crm_company_id')->nullable()->constrained('crm_companies')->comment('Empresa vinculada');
+                $table->foreignUuid('crm_contact_id')->constrained('crm_contacts')->comment('Contato vinculado');
+                $table->foreignUuid('crm_negotiation_funnel_id')->constrained('crm_negotiation_funnels')->comment('Funil de vendas');
+                $table->foreignUuid('crm_negotiation_funnel_step_id')->constrained('crm_negotiation_funnel_steps')->comment('Etapa atual no funil');
+                $table->foreignUuid('crm_reason_loss_id')->nullable()->constrained('crm_reason_losses')->comment('Motivo de perda (se perdida)');
+                $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users')->comment('Responsável pela negociação');
+                $table->string('title', 255)->comment('Título da negociação');
+                $table->decimal('amount', 12, 2)->default(0)->comment('Valor estimado');
+                $table->string('status', 20)->default('open')->comment('Status: open, won, lost, paused');
+                $table->smallInteger('lead_score')->default(0)->comment('Score do lead (0-100)');
+                $table->integer('position')->default(0)->comment('Posição no Kanban');
+                $table->date('expected_close')->nullable()->comment('Data prevista de fechamento');
+                $table->timestamp('closed_at', 0)->nullable()->comment('Quando foi fechada');
+                $table->text('notes')->nullable()->comment('Observações da negociação');
+                $table->timestamps(0);
+                $table->softDeletes();
 
-            $table->foreign('crm_negotiation_funnel_id')
-                ->references('id')
-                ->on('crm_negotiation_funnels')
-                ->cascadeOnDelete();
+                $table->index('tenant_id', 'idx_crm_negotiations_tenant_id');
+                $table->index('crm_company_id', 'idx_crm_negotiations_company_id');
+                $table->index('crm_contact_id', 'idx_crm_negotiations_contact_id');
+                $table->index('crm_negotiation_funnel_id', 'idx_crm_negotiations_funnel_id');
+                $table->index('crm_negotiation_funnel_step_id', 'idx_crm_negotiations_step_id');
+                $table->index('auth_user_id', 'idx_crm_negotiations_user_id');
+                $table->index('status', 'idx_crm_negotiations_status');
+                $table->index('expected_close', 'idx_crm_negotiations_expected_close');
+            });
+        }
 
-            $table->unique(
-                ['tenant_id', 'crm_negotiation_funnel_id', 'order'],
-                'crm_funnel_steps_order_unique'
-            );
-            $table->unique(
-                ['id', 'crm_negotiation_funnel_id'],
-                'crm_funnel_steps_id_funnel_unique'
-            );
-        });
+        if (!Schema::hasTable('crm_negotiation_tasks')) {
+            Schema::create('crm_negotiation_tasks', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único da tarefa');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a tarefa pertence');
+                $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations')->comment('Negociação vinculada');
+                $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users')->comment('Responsável pela tarefa');
+                $table->string('title', 255)->comment('Título da tarefa');
+                $table->text('description')->nullable()->comment('Descrição da tarefa');
+                $table->timestamp('due_date')->nullable()->comment('Data de vencimento');
+                $table->string('status', 20)->default('open')->comment('Status: pending, done, overdue');
+                $table->timestamps();
 
-        // =====================================================================
-        // CRM_NEGOTIATIONS
-        // =====================================================================
-        Schema::create('crm_negotiations', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_company_id')->nullable();
-            $table->uuid('crm_contact_id');
-            $table->uuid('crm_negotiation_funnel_id');
-            $table->uuid('crm_negotiation_funnel_step_id');
-            $table->uuid('crm_reason_loss_id')->nullable();
-            $table->string('title');
-            $table->decimal('amount', 12, 2)->default(0);
-            $table->string('status', 20)->default('open'); // open, won, lost
-            $table->unsignedTinyInteger('lead_score')->default(0);
-            $table->integer('position')->default(0);
-            $table->date('expected_close')->nullable();
-            $table->timestamp('closed_at')->nullable();
-            $table->softDeletes();
-            $table->timestamps();
+                $table->index('tenant_id', 'idx_crm_negotiation_tasks_tenant_id');
+                $table->index('crm_negotiation_id', 'idx_crm_negotiation_tasks_negotiation_id');
+                $table->index('auth_user_id', 'idx_crm_negotiation_tasks_user_id');
+                $table->index('due_date', 'idx_crm_negotiation_tasks_due_date');
+                $table->index('status', 'idx_crm_negotiation_tasks_status');
+            });
+        }
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
+        if (!Schema::hasTable('crm_negotiation_products')) {
+            Schema::create('crm_negotiation_products', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único do produto na negociação');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o registro pertence');
+                $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations')->comment('Negociação vinculada');
+                $table->foreignUuid('crm_product_id')->nullable()->constrained('crm_products')->comment('Produto de origem');
+                $table->string('name', 255)->comment('Nome do produto no momento da venda');
+                $table->integer('quantity')->comment('Quantidade');
+                $table->decimal('unit_price', 12, 2)->comment('Preço unitário');
+                $table->decimal('total', 12, 2)->comment('Total (quantity * unit_price)');
+                $table->timestamps();
 
-            $table->foreign('crm_company_id')
-                ->references('id')
-                ->on('crm_companies')
-                ->nullOnDelete();
+                $table->index('tenant_id', 'idx_crm_negotiation_products_tenant_id');
+                $table->index('crm_negotiation_id', 'idx_crm_negotiation_products_negotiation_id');
+                $table->index('crm_product_id', 'idx_crm_negotiation_products_product_id');
+            });
+        }
 
-            $table->foreign('crm_contact_id')
-                ->references('id')
-                ->on('crm_contacts')
-                ->cascadeOnDelete();
+        if (!Schema::hasTable('crm_negotiation_tags')) {
+            Schema::create('crm_negotiation_tags', function (Blueprint $table): void {
+                $table->uuid('id')->primary()->comment('Identificador único da relação negociação-tag');
+                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a relação pertence');
+                $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations')->comment('Negociação vinculada');
+                $table->foreignUuid('crm_tag_id')->constrained('crm_tags')->comment('Tag vinculada');
+                $table->timestamps();
 
-            $table->foreign('crm_negotiation_funnel_id')
-                ->references('id')
-                ->on('crm_negotiation_funnels')
-                ->cascadeOnDelete();
-
-            $table->foreign(['crm_negotiation_funnel_step_id', 'crm_negotiation_funnel_id'])
-                ->references(['id', 'crm_negotiation_funnel_id'])
-                ->on('crm_negotiation_funnel_steps')
-                ->cascadeOnDelete();
-
-            $table->foreign('crm_reason_loss_id')
-                ->references('id')
-                ->on('crm_reason_losses')
-                ->nullOnDelete();
-
-            // Performance indexes
-            $table->index(['tenant_id', 'status']);
-            $table->index(['tenant_id', 'crm_negotiation_funnel_step_id'], 'idx_negotiations_tenant_step');
-            $table->index(['tenant_id', 'crm_contact_id']);
-            $table->index(['tenant_id', 'status', 'position']);
-        });
-
-        // Check constraint for positive amount
-        DB::statement('ALTER TABLE crm_negotiations ADD CONSTRAINT chk_crm_negotiations_amount_positive CHECK (amount >= 0)');
-
-        // =====================================================================
-        // CRM_NEGOTIATION_TASKS
-        // =====================================================================
-        Schema::create('crm_negotiation_tasks', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_negotiation_id');
-            $table->uuid('auth_user_id')->nullable();
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->dateTime('due_date')->nullable();
-            $table->string('status', 20)->default('open'); // open, done
-            $table->timestamps();
-
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
-
-            $table->foreign('crm_negotiation_id')
-                ->references('id')
-                ->on('crm_negotiations')
-                ->cascadeOnDelete();
-
-            $table->foreign('auth_user_id')
-                ->references('id')
-                ->on('auth_users')
-                ->nullOnDelete();
-
-            $table->index('auth_user_id');
-            $table->index(['tenant_id', 'status']);
-            $table->index(['tenant_id', 'due_date']);
-        });
-
-        // =====================================================================
-        // CRM_NEGOTIATION_PRODUCTS
-        // =====================================================================
-        Schema::create('crm_negotiation_products', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_negotiation_id');
-            $table->uuid('crm_product_id')->nullable();
-            $table->string('name');
-            $table->integer('quantity');
-            $table->decimal('unit_price', 12, 2);
-            $table->decimal('total', 12, 2);
-            $table->timestamps();
-
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
-
-            $table->foreign('crm_negotiation_id')
-                ->references('id')
-                ->on('crm_negotiations')
-                ->cascadeOnDelete();
-
-            $table->foreign('crm_product_id')
-                ->references('id')
-                ->on('crm_products')
-                ->nullOnDelete();
-
-            $table->index(['tenant_id', 'crm_negotiation_id']);
-        });
-
-        // =====================================================================
-        // CRM_NEGOTIATION_TAGS
-        // =====================================================================
-        Schema::create('crm_negotiation_tags', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->uuid('tenant_id');
-            $table->uuid('crm_negotiation_id');
-            $table->uuid('crm_tag_id');
-            $table->timestamps();
-
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('platform_tenants')
-                ->cascadeOnDelete();
-
-            $table->foreign('crm_negotiation_id')
-                ->references('id')
-                ->on('crm_negotiations')
-                ->cascadeOnDelete();
-
-            $table->foreign('crm_tag_id')
-                ->references('id')
-                ->on('crm_tags')
-                ->cascadeOnDelete();
-
-            $table->unique(['tenant_id', 'crm_negotiation_id', 'crm_tag_id']);
-        });
+                $table->unique(['tenant_id', 'crm_negotiation_id', 'crm_tag_id'], 'uq_crm_negotiation_tags');
+                $table->index('tenant_id', 'idx_crm_negotiation_tags_tenant_id');
+                $table->index('crm_negotiation_id', 'idx_crm_negotiation_tags_negotiation_id');
+                $table->index('crm_tag_id', 'idx_crm_negotiation_tags_tag_id');
+            });
+        }
     }
 
     public function down(): void
