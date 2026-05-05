@@ -15,6 +15,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Casos de uso relacionados ao gerenciamento de usuários do tenant.
@@ -169,6 +170,36 @@ final class AuthUserActions
     }
 
     /**
+     * Remover uma role específica de um usuário.
+     *
+     * @param  string  $userId  UUID do usuário.
+     * @param  string  $roleName  Nome da role a remover.
+     * @return AuthUser Usuário atualizado.
+     *
+     * @throws HttpException Quando tenta remover role de super-admin ou a última role.
+     */
+    public function removeRole(string $userId, string $roleName): AuthUser
+    {
+        $user = $this->authUserRepository->findOrFail($userId, ['roles']);
+
+        if ($user->isSuperAdmin()) {
+            throw new HttpException(422, 'Não é permitido alterar as roles de um usuário super-admin.');
+        }
+
+        $currentRoleNames = $user->roles->pluck('name')->toArray();
+        $remainingRoles = array_values(array_diff($currentRoleNames, [$roleName]));
+
+        if ($remainingRoles === []) {
+            throw new HttpException(422, 'Não é possível remover a última role do usuário.');
+        }
+
+        $this->guardSuperAdminRoles($remainingRoles);
+        $user->syncRoles($remainingRoles);
+
+        return $user->fresh(['roles', 'tenant']);
+    }
+
+    /**
      * Remover usuário (soft-delete).
      *
      * @param  string  $id  UUID do usuário.
@@ -192,14 +223,14 @@ final class AuthUserActions
      * @param  string  $id  UUID do usuário.
      * @return AuthUser Usuário com status atualizado.
      *
-     * @throws AuthorizationException Quando o usuário é super-admin.
+     * @throws HttpException Quando o usuário é super-admin.
      */
     public function toggleActive(string $id): AuthUser
     {
         $user = $this->authUserRepository->findOrFail($id);
 
         if ($user->isSuperAdmin()) {
-            throw new AuthorizationException('Não é permitido alterar o status de um usuário super-admin.');
+            throw new HttpException(422, 'Não é permitido alterar o status de um usuário super-admin.');
         }
 
         $user->is_active = ! $user->is_active;

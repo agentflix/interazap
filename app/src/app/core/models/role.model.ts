@@ -52,3 +52,32 @@ export interface RolePayload {
   name: string;
   permissions: string[];
 }
+
+/**
+ * Represents a user listed within a role context.
+ * Contains user metadata and their assigned roles.
+ */
+export interface RoleUser {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  avatar_url?: string;
+  is_active: boolean;
+  roles: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Paginated response for role users listing.
+ */
+export interface PaginatedRoleUsers {
+  data: RoleUser[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}

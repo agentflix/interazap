@@ -281,4 +281,85 @@ class AuthRoleControllerTest extends TestCase
             ->assertOk()
             ->assertJsonFragment(['name' => AuthRole::ADMINISTRADOR_NAME]);
     }
+
+    public function test_users_endpoint_returns_paginated_users_for_role(): void
+    {
+        $admin = $this->createSuperAdminUser();
+        $this->seedPermissions();
+
+        $role = AuthRole::create([
+            'id' => (string) Str::orderedUuid(),
+            'name' => 'test-role-for-users',
+            'guard_name' => 'sanctum',
+        ]);
+
+        $user1 = AuthUser::factory()->create(['name' => 'Alice', 'tenant_id' => $admin->tenant_id]);
+        $user2 = AuthUser::factory()->create(['name' => 'Bob', 'tenant_id' => $admin->tenant_id]);
+        $user1->assignRole($role->name);
+        $user2->assignRole($role->name);
+
+        $response = $this->actingAs($admin, 'sanctum')
+            ->getJson("/api/auth/roles/{$role->id}/users");
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [['id', 'name', 'email', 'is_active', 'roles']],
+                'meta' => ['current_page', 'total', 'per_page', 'last_page'],
+            ]);
+
+        $this->assertEquals(2, $response->json('meta.total'));
+    }
+
+    public function test_users_endpoint_supports_search_filter(): void
+    {
+        $admin = $this->createSuperAdminUser();
+        $this->seedPermissions();
+
+        $role = AuthRole::create([
+            'id' => (string) Str::orderedUuid(),
+            'name' => 'searchable-role',
+            'guard_name' => 'sanctum',
+        ]);
+
+        AuthUser::factory()->create(['name' => 'Alice', 'email' => 'alice@test.com', 'tenant_id' => $admin->tenant_id])->assignRole($role->name);
+        AuthUser::factory()->create(['name' => 'Bob', 'email' => 'bob@test.com', 'tenant_id' => $admin->tenant_id])->assignRole($role->name);
+
+        $response = $this->actingAs($admin, 'sanctum')
+            ->getJson("/api/auth/roles/{$role->id}/users?search=alice")
+            ->assertOk();
+
+        $data = $response->json('data');
+        $this->assertTrue(
+            collect($data)->contains(fn ($item): bool => $item['name'] === 'Alice')
+        );
+        $this->assertFalse(
+            collect($data)->contains(fn ($item): bool => $item['name'] === 'Bob')
+        );
+    }
+
+    public function test_users_endpoint_returns_404_for_non_existent_role(): void
+    {
+        $admin = $this->createSuperAdminUser();
+        $this->seedPermissions();
+
+        $this->actingAs($admin, 'sanctum')
+            ->getJson('/api/auth/roles/00000000-0000-0000-0000-000000000000/users')
+            ->assertNotFound();
+    }
+
+    public function test_users_endpoint_forbidden_without_permission(): void
+    {
+        $this->seedPermissions();
+        $user = AuthUser::factory()->create();
+
+        $role = AuthRole::create([
+            'id' => (string) Str::orderedUuid(),
+            'name' => 'forbidden-test-role',
+            'guard_name' => 'sanctum',
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson("/api/auth/roles/{$role->id}/users")
+            ->assertForbidden();
+    }
 }

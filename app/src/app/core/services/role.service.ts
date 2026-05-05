@@ -2,9 +2,15 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { type GroupedPermissions, type Role } from '../models/role.model';
+import { type GroupedPermissions, type Role, type PaginatedRoleUsers } from '../models/role.model';
 
 interface RoleFilters {
+  search?: string;
+  page?: number;
+  per_page?: number;
+}
+
+interface RoleUsersFilters {
   search?: string;
   page?: number;
   per_page?: number;
@@ -106,5 +112,20 @@ export class RoleService {
    */
   listAll(): Observable<PaginatedRoles> {
     return this.list({ per_page: 100 });
+  }
+
+  /**
+   * Lista usuários que possuem uma role específica.
+   *
+   * @param roleId - UUID da role
+   * @param filters - Filtros opcionais (search, page, per_page)
+   * @returns Observable com lista paginada de usuários da role
+   */
+  listUsersByRole(roleId: string, filters: RoleUsersFilters = {}): Observable<PaginatedRoleUsers> {
+    let params = new HttpParams();
+    if (filters.search) params = params.set('search', filters.search);
+    if (filters.page) params = params.set('page', String(filters.page));
+    if (filters.per_page) params = params.set('per_page', String(filters.per_page));
+    return this.http.get<PaginatedRoleUsers>(`${this.baseUrl}/${roleId}/users`, { params });
   }
 }

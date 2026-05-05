@@ -41,6 +41,11 @@ final class AuthRolePolicy
         return $this->isSuperAdmin($user);
     }
 
+    public function viewUsers(AuthUser $user, AuthRole $role): bool
+    {
+        return $this->viewAny($user);
+    }
+
     private function isSuperAdmin(AuthUser $user): bool
     {
         return $user->hasRoleId(AuthRole::ADMINISTRADOR_ID);

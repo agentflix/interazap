@@ -6,8 +6,10 @@ namespace Domain\Auth\Actions;
 
 use Domain\Auth\DTOs\AuthRoleDTO;
 use Domain\Auth\DTOs\AuthRoleFiltersDTO;
+use Domain\Auth\DTOs\AuthUserFiltersDTO;
 use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthRole;
+use Domain\Auth\Models\AuthUser;
 use Domain\Shared\Support\SearchSanitizer;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -127,5 +129,33 @@ final class AuthRoleActions
             ->orderBy('name')
             ->pluck('name')
             ->groupBy(fn (string $name) => explode('.', $name)[0]);
+    }
+
+    /**
+     * Lista usuários que possuem uma role específica.
+     *
+     * @param  string  $roleId  UUID da role.
+     * @param  AuthUserFiltersDTO  $filters  Filtros de busca e paginação.
+     * @return LengthAwarePaginator<int, AuthUser>
+     */
+    public function listUsersByRole(string $roleId, AuthUserFiltersDTO $filters): LengthAwarePaginator
+    {
+        $role = AuthRole::findOrFail($roleId);
+
+        $query = AuthUser::query()
+            ->whereHas('roles', fn ($q) => $q->where('id', $role->id))
+            ->with(['roles', 'tenant']);
+
+        if ($filters->search !== null && $filters->search !== '') {
+            $search = $filters->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', SearchSanitizer::likeContains($search))
+                    ->orWhere('email', 'ilike', SearchSanitizer::likeContains($search));
+            });
+        }
+
+        return $query
+            ->orderBy($filters->sanitizedSortBy(), $filters->sanitizedSortDirection())
+            ->paginate($filters->sanitizedPerPage());
     }
 }
