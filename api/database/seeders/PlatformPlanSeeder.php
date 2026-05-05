@@ -82,7 +82,6 @@ class PlatformPlanSeeder extends Seeder
                 ]
             );
 
-            $this->command->info("Plan '{$plan->name}' (slug: {$plan->slug}) upserted — AI: {$plan->ai_enabled}, Reports: {$plan->reports_mode->value}");
         }
     }
 }

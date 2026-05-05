@@ -229,6 +229,5 @@ class AiModelPricingSeeder extends Seeder
             }
         }
 
-        $this->command->info('AI Model Pricing seeded: '.count($models).' models');
     }
 }

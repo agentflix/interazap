@@ -74,6 +74,6 @@ class AiPromptPlanSeeder extends Seeder
             $count++;
         }
 
-        $this->command->info(sprintf('AI Prompt Plans seeded: %d', $count));
+
     }
 }

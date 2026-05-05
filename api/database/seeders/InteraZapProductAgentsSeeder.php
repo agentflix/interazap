@@ -72,7 +72,7 @@ class InteraZapProductAgentsSeeder extends Seeder
             $this->syncKnowledgeDocument($tenant->id);
         });
 
-        $this->command?->info('InteraZap product-expert agents seeded.');
+
     }
 
     private function ensureToolsExist(string $tenantId): void

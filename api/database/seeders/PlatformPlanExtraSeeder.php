@@ -20,6 +20,6 @@ class PlatformPlanExtraSeeder extends Seeder
         // All plan tiers (Starter, Professional, Business) are defined
         // in PlatformPlanSeeder. This seeder is kept as a no-op for backward
         // compatibility with any code that calls it explicitly.
-        $this->command->info('PlatformPlanExtraSeeder: no extra plans (all tiers live in PlatformPlanSeeder)');
+
     }
 }

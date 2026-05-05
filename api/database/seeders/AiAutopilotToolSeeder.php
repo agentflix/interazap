@@ -598,6 +598,6 @@ class AiAutopilotToolSeeder extends Seeder
             }
         }
 
-        $this->command->info(sprintf('AI Autopilot Tools seeded: %d', $created));
+
     }
 }

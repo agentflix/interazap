@@ -72,6 +72,6 @@ TEXT,
             );
         }
 
-        $this->command->info(sprintf('AI Prompt Masters seeded: %d', count($masters)));
+
     }
 }

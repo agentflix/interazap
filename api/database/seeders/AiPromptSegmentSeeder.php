@@ -107,6 +107,6 @@ class AiPromptSegmentSeeder extends Seeder
             );
         }
 
-        $this->command->info(sprintf('AI Prompt Segments seeded: %d', count($segments)));
+
     }
 }
