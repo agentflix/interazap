@@ -82,4 +82,5 @@ Route::middleware(['auth:sanctum'])
         Route::post('/users/{id}/toggle', [PlatformUserController::class, 'toggle']);
         Route::post('/users/{id}/avatar', [PlatformUserController::class, 'uploadAvatar']);
         Route::delete('/users/{id}/avatar', [PlatformUserController::class, 'deleteAvatar']);
+        Route::post('/users/{id}/impersonate', [PlatformUserController::class, 'impersonate']);
     });

@@ -11,8 +11,11 @@ use Domain\Auth\Http\Requests\AuthUserStoreRequest;
 use Domain\Auth\Http\Requests\AuthUserUpdateRequest;
 use Domain\Auth\Http\Resources\AuthUserResource;
 use Domain\Auth\Models\AuthUser;
+use Domain\Platform\Actions\PlatformUserImpersonateAction;
+use Domain\Platform\Http\Requests\PlatformTenantImpersonateRequest;
 use Domain\Platform\Services\PlatformUserService;
 use Domain\Shared\Http\Controllers\BaseController;
+use Domain\Shared\Scopes\TenantScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,9 +28,11 @@ final class PlatformUserController extends BaseController
 {
     /**
      * @param  PlatformUserService  $service  Serviço de gestão de usuários.
+     * @param  PlatformUserImpersonateAction  $impersonateAction  Ação de impersonação.
      */
     public function __construct(
         private readonly PlatformUserService $service,
+        private readonly PlatformUserImpersonateAction $impersonateAction,
     ) {}
 
     /**
@@ -153,5 +158,35 @@ final class PlatformUserController extends BaseController
         $payload = $this->service->deleteAvatarForAnyTenant($id);
 
         return $this->success($payload, 'Avatar removido');
+    }
+
+    /**
+     * Impersonar um usuário como super admin.
+     *
+     * Solicita a senha do super admin e retorna uma sessão autenticada
+     * em nome do usuário especificado.
+     *
+     * @param  PlatformTenantImpersonateRequest  $request  Requisição com senha do super admin.
+     * @param  string  $id  ID do usuário.
+     * @return JsonResponse Sessão do usuário com metadados de impersonação.
+     */
+    public function impersonate(PlatformTenantImpersonateRequest $request, string $id): JsonResponse
+    {
+        $targetUser = AuthUser::query()
+            ->withoutGlobalScope(TenantScope::class)
+            ->with('tenant')
+            ->findOrFail($id);
+        $this->authorize('impersonate', $targetUser);
+
+        /** @var \Domain\Auth\Models\AuthUser $superAdmin */
+        $superAdmin = $request->user();
+
+        $session = $this->impersonateAction->execute(
+            $targetUser,
+            $superAdmin,
+            $request->validated('password'),
+        );
+
+        return $this->success($session, 'Impersonação realizada com sucesso');
     }
 }

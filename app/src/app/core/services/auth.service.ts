@@ -177,6 +177,23 @@ export class AuthService {
   }
 
   /**
+   * Impersona um usuário específico como super admin.
+   *
+   * @param userId - ID do usuário a ser impersonado
+   * @param password - Senha do super admin para validação
+   * @returns Observable com dados da sessão do usuário target
+   */
+  impersonateUser(userId: string, password: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(
+        `${this.baseUrl}/platform/users/${userId}/impersonate`,
+        { password },
+        { withCredentials: true },
+      )
+      .pipe(switchMap((response) => this.persistToken(response)));
+  }
+
+  /**
    * Encerra a impersonacao e retorna a sessao do super admin original.
    *
    * @returns Observable com dados da sessao original
