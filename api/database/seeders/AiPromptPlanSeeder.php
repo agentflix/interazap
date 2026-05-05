@@ -51,19 +51,6 @@ class AiPromptPlanSeeder extends Seeder
                 ['plan_id' => $plan->id],
                 [
                     'content' => $content,
-                    'mandatory_rules' => [
-                        ['rule' => 'respect_lgpd', 'required' => true],
-                        [
-                            'rule' => 'max_answer_words',
-                            'value' => match ($plan->slug) {
-                                'starter', 'basic' => 80,
-                                'medium' => 150,
-                                'pro', 'professional' => 300,
-                                default => null,
-                            },
-                        ],
-                        ['rule' => 'always_pt_br', 'required' => true],
-                    ],
                     'token_limit_monthly' => $tokenLimit,
                     'allow_overage' => $allowOverage,
                     'overage_price_per_1k' => $allowOverage ? 0.005 : null,

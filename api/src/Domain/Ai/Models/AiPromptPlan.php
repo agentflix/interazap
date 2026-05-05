@@ -21,7 +21,6 @@ use Illuminate\Support\Str;
  * @property string $id
  * @property string $plan_id
  * @property string $content
- * @property array<string, mixed>|null $mandatory_rules
  * @property int|null $token_limit_monthly
  * @property bool $allow_overage
  * @property float|null $overage_price_per_1k
@@ -47,7 +46,6 @@ class AiPromptPlan extends Model
         'id',
         'plan_id',
         'content',
-        'mandatory_rules',
         'token_limit_monthly',
         'allow_overage',
         'overage_price_per_1k',
@@ -58,7 +56,6 @@ class AiPromptPlan extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'mandatory_rules' => 'array',
         'token_limit_monthly' => 'integer',
         'allow_overage' => 'boolean',
         'overage_price_per_1k' => 'decimal:6',
