@@ -18,7 +18,6 @@ use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -40,10 +39,10 @@ class PlatformPlanEnforcementTest extends TestCase
     {
         $admin = AuthUser::factory()->create(['tenant_id' => $tenant->id]);
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
-        $admin->assignRole($role);
+        $admin->assignRole(AuthRole::INQUILINO_ID);
 
         return $admin->refresh();
     }

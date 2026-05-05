@@ -80,8 +80,8 @@ class BillingSubscriptionTest extends TestCase
         ]);
 
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
         foreach (['billing.view', 'billing.plan.manage'] as $permission) {

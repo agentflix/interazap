@@ -163,7 +163,7 @@ final class AuthUserActions
             return;
         }
 
-        if (in_array(AuthRole::SUPER_ADMIN, $rolesToAssign, true)) {
+        if (in_array(AuthRole::ADMINISTRADOR_NAME, $rolesToAssign, true)) {
             throw new AuthorizationException('Não é permitido atribuir o perfil super-admin.');
         }
     }

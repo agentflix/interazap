@@ -30,11 +30,11 @@ return new class extends Migration
                   AND constraint_type = 'FOREIGN KEY'
             ");
             if (! $constraintExists) {
-                DB::statement("
+                DB::statement('
                     ALTER TABLE platform_tenants
                     ADD CONSTRAINT platform_tenants_segment_id_foreign
                     FOREIGN KEY (segment_id) REFERENCES ai_prompt_segments(id) ON DELETE SET NULL
-                ");
+                ');
             }
         }
 
@@ -47,11 +47,11 @@ return new class extends Migration
                   AND constraint_type = 'FOREIGN KEY'
             ");
             if (! $constraintExists) {
-                DB::statement("
+                DB::statement('
                     ALTER TABLE chat_tickets
                     ADD CONSTRAINT fk_chat_tickets_current_ai_agent_id
                     FOREIGN KEY (current_ai_agent_id) REFERENCES ai_agents(id) ON DELETE SET NULL
-                ");
+                ');
             }
         }
 
@@ -67,11 +67,11 @@ return new class extends Migration
                   AND constraint_type = 'FOREIGN KEY'
             ");
             if (! $constraintExists) {
-                DB::statement("
+                DB::statement('
                     ALTER TABLE ai_autopilot_runs
                     ADD CONSTRAINT fk_ai_autopilot_runs_parent_run_id
                     FOREIGN KEY (parent_run_id) REFERENCES ai_autopilot_runs(id) ON DELETE SET NULL
-                ");
+                ');
             }
         }
 
@@ -84,11 +84,11 @@ return new class extends Migration
                   AND constraint_type = 'FOREIGN KEY'
             ");
             if (! $constraintExists) {
-                DB::statement("
+                DB::statement('
                     ALTER TABLE ai_agents
                     ADD CONSTRAINT fk_ai_agents_parent_agent_id
                     FOREIGN KEY (parent_agent_id) REFERENCES ai_agents(id) ON DELETE SET NULL
-                ");
+                ');
             }
         }
     }

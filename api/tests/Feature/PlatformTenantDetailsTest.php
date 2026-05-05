@@ -7,18 +7,17 @@ use Domain\Auth\Models\AuthUser;
 use Domain\Billing\Models\BillingInvoice;
 use Domain\Platform\Models\PlatformPlan;
 use Domain\Platform\Models\PlatformTenant;
-use Illuminate\Support\Str;
 
 beforeEach(function (): void {
     $this->tenant = PlatformTenant::factory()->create();
 
     $adminRole = AuthRole::query()->firstOrCreate(
-        ['name' => 'admin', 'guard_name' => 'sanctum'],
-        ['id' => (string) Str::orderedUuid()]
+        ['id' => AuthRole::INQUILINO_ID],
+        ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
     );
 
     $this->user = AuthUser::factory()->create(['tenant_id' => $this->tenant->id]);
-    $this->user->assignRole($adminRole);
+    $this->user->assignRole(AuthRole::INQUILINO_ID);
     $this->actingAs($this->user);
 });
 

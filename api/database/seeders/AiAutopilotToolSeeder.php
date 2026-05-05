@@ -598,6 +598,5 @@ class AiAutopilotToolSeeder extends Seeder
             }
         }
 
-
     }
 }

@@ -16,15 +16,15 @@ uses(LazilyRefreshDatabase::class);
 beforeEach(function (): void {
     $this->tenant = PlatformTenant::factory()->create();
 
-    $adminRole = AuthRole::query()->firstOrCreate(
-        ['name' => 'admin', 'guard_name' => 'sanctum'],
-        ['id' => (string) Str::orderedUuid()]
+    $adminRole = AuthRole::firstOrCreate(
+        ['id' => AuthRole::INQUILINO_ID],
+        ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
     );
 
     $this->superAdmin = AuthUser::factory()->create([
         'tenant_id' => $this->tenant->id,
     ]);
-    $this->superAdmin->assignRole($adminRole);
+    $this->superAdmin->assignRole(AuthRole::INQUILINO_ID);
 });
 
 describe('PUT /api/platform/tenants/{tenant}/segment', function (): void {

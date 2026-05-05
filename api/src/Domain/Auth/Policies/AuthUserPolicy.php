@@ -105,7 +105,7 @@ final class AuthUserPolicy
     private function canManageUsers(AuthUser $user): bool
     {
         return $user->isSuperAdmin()
-            || $user->hasRole('admin', 'sanctum')
+            || $user->isInquilino()
             || $this->hasPermission($user, self::PERMISSION_MANAGE);
     }
 

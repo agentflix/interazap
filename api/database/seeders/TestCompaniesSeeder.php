@@ -21,7 +21,7 @@ class TestCompaniesSeeder extends Seeder
     public function run(): void
     {
         $managerRole = AuthRole::firstOrCreate(
-            ['name' => AuthRole::MANAGER, 'guard_name' => 'sanctum'],
+            ['id' => AuthRole::GERENTE_ID, 'name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum'],
             ['id' => (string) Str::orderedUuid()]
         );
 

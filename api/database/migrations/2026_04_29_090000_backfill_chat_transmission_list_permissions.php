@@ -24,11 +24,10 @@ return new class extends Migration
     /**
      * @var list<string>
      */
-    private const ADMIN_ROLES = [
-        'super-admin',
-        'admin',
-        'inquilino',
-        'gerente',
+    private const ADMIN_ROLE_IDS = [
+        AuthRole::ADMINISTRADOR_ID,
+        AuthRole::INQUILINO_ID,
+        AuthRole::GERENTE_ID,
     ];
 
     public function up(): void
@@ -51,7 +50,7 @@ return new class extends Migration
 
         $roles = AuthRole::query()
             ->where('guard_name', self::GUARD)
-            ->whereIn('name', self::ADMIN_ROLES)
+            ->whereIn('id', self::ADMIN_ROLE_IDS)
             ->get();
 
         foreach ($roles as $role) {

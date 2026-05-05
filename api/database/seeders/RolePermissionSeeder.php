@@ -10,16 +10,16 @@ use Illuminate\Database\Seeder;
 /**
  * Assigns default permissions to tenant-scoped roles.
  *
- * Roles: inquilino (master), gerente (manager), atendente (agent).
+ * Roles: Inquilino (master/owner), Gerente (manager), Atendente (agent).
  * This seeder is idempotent — safe to run multiple times.
  */
 final class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        $inquilino = AuthRole::query()->where('name', 'inquilino')->first();
-        $gerente = AuthRole::query()->where('name', 'gerente')->first();
-        $atendente = AuthRole::query()->where('name', 'atendente')->first();
+        $inquilino = AuthRole::query()->where('id', AuthRole::INQUILINO_ID)->first();
+        $gerente = AuthRole::query()->where('id', AuthRole::GERENTE_ID)->first();
+        $atendente = AuthRole::query()->where('id', AuthRole::ATENDENTE_ID)->first();
 
         // ── inquilino — master / owner of the tenant ──────────────────
         $inquilino->syncPermissions([

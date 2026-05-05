@@ -8,12 +8,11 @@ use Domain\Platform\Actions\PlatformTenantActions;
 use Domain\Platform\Actions\PlatformTenantBootstrapAction;
 use Domain\Platform\DTOs\PlatformTenantDTO;
 use Domain\Platform\Models\PlatformTenant;
-use Illuminate\Support\Str;
 
 test('reproduce tenant creation error via actions', function (): void {
     $role = AuthRole::firstOrCreate(
-        ['name' => 'super-admin', 'guard_name' => 'sanctum'],
-        ['id' => (string) Str::orderedUuid()]
+        ['id' => AuthRole::ADMINISTRADOR_ID],
+        ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
     );
 
     $tenant = PlatformTenant::factory()->create();
@@ -21,7 +20,7 @@ test('reproduce tenant creation error via actions', function (): void {
     $user = AuthUser::factory()->create([
         'tenant_id' => $tenant->id,
     ]);
-    $user->assignRole($role);
+    $user->assignRole(AuthRole::ADMINISTRADOR_ID);
 
     $actions = app(PlatformTenantActions::class);
     $bootstrap = app(PlatformTenantBootstrapAction::class);

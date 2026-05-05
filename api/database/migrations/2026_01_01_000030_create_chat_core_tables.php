@@ -346,7 +346,7 @@ return new class extends Migration
                     ->onDelete('set null');
             });
 
-            DB::statement("ALTER TABLE chat_message_interactions ALTER COLUMN data TYPE json");
+            DB::statement('ALTER TABLE chat_message_interactions ALTER COLUMN data TYPE json');
         }
 
         if (! Schema::hasTable('chat_sessions')) {
@@ -375,7 +375,7 @@ return new class extends Migration
                     ->onDelete('set null');
             });
 
-            DB::statement("ALTER TABLE chat_sessions ALTER COLUMN client_info TYPE json");
+            DB::statement('ALTER TABLE chat_sessions ALTER COLUMN client_info TYPE json');
         }
     }
 

@@ -41,8 +41,8 @@ class AuthRbacTest extends TestCase
 
         $user->givePermissionTo($permission);
         $adminRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         $user->assignRole($adminRole);
         app(PermissionRegistrar::class)->forgetCachedPermissions();
@@ -61,18 +61,18 @@ class AuthRbacTest extends TestCase
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'manager', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::GERENTE_ID],
+            ['name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum']
         );
 
         $user = AuthUser::factory()->create();
 
-        $this->assertFalse($user->hasRole('manager'));
+        $this->assertFalse($user->hasRole(AuthRole::GERENTE_ID));
 
         $user->assignRole($role);
         $user->refresh();
 
-        $this->assertTrue($user->hasRole('manager'));
+        $this->assertTrue($user->hasRole(AuthRole::GERENTE_ID));
     }
 
     public function test_should_check_permission_correctly(): void
@@ -199,23 +199,23 @@ class AuthRbacTest extends TestCase
         Artisan::call('db:seed', ['--class' => AuthPermissionSeeder::class]);
 
         AuthRole::query()->firstOrCreate(
-            ['name' => 'inquilino', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         AuthRole::query()->firstOrCreate(
-            ['name' => 'gerente', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::GERENTE_ID],
+            ['name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum']
         );
         AuthRole::query()->firstOrCreate(
-            ['name' => 'atendente', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::ATENDENTE_ID],
+            ['name' => AuthRole::ATENDENTE_NAME, 'guard_name' => 'sanctum']
         );
 
         Artisan::call('db:seed', ['--class' => RolePermissionSeeder::class]);
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $inquilino = AuthRole::query()->where('name', 'inquilino')->firstOrFail();
-        $gerente = AuthRole::query()->where('name', 'gerente')->firstOrFail();
+        $inquilino = AuthRole::query()->where('id', AuthRole::INQUILINO_ID)->firstOrFail();
+        $gerente = AuthRole::query()->where('id', AuthRole::GERENTE_ID)->firstOrFail();
 
         foreach ([
             'chat.transmission_lists.view',

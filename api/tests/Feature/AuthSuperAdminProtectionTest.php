@@ -42,13 +42,13 @@ class AuthSuperAdminProtectionTest extends TestCase
         $tenant = PlatformTenant::factory()->create();
 
         $adminRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
         $superRole = AuthRole::query()->firstOrCreate(
-            ['name' => AuthRole::SUPER_ADMIN, 'guard_name' => 'sanctum'],
-            ['id' => AuthRole::SUPER_ADMIN_ID]
+            ['id' => AuthRole::ADMINISTRADOR_ID],
+            ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
         );
 
         $manageUsers = AuthPermission::query()->firstOrCreate(

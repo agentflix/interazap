@@ -26,6 +26,7 @@ class AuthUserFactory extends Factory
             'password' => bcrypt('password'),
             'is_active' => true,
             'two_factor_enabled' => false,
+            'preferences' => [],
         ];
     }
 

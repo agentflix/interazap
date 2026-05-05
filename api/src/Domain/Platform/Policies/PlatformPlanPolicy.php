@@ -44,7 +44,7 @@ final class PlatformPlanPolicy
 
     private function isGlobalAdmin(AuthUser $user): bool
     {
-        return $user->isSuperAdmin() || $user->hasRole('admin', self::GUARD);
+        return $user->isSuperAdmin() || $user->isInquilino();
     }
 
     private function hasManagePermission(AuthUser $user): bool

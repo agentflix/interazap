@@ -12,11 +12,11 @@ uses()->group('platform', 'impersonation');
 
 beforeEach(function (): void {
     $this->superAdminRole = AuthRole::firstOrCreate(
-        ['name' => AuthRole::SUPER_ADMIN, 'guard_name' => 'sanctum']
+        ['id' => AuthRole::ADMINISTRADOR_ID, 'name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
     );
 
     $this->managerRole = AuthRole::firstOrCreate(
-        ['name' => AuthRole::MANAGER, 'guard_name' => 'sanctum'],
+        ['id' => AuthRole::GERENTE_ID, 'name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum'],
         ['id' => (string) \Illuminate\Support\Str::orderedUuid()]
     );
 

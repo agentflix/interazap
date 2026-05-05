@@ -16,7 +16,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('crm_proposals')) {
+        if (! Schema::hasTable('crm_proposals')) {
             Schema::create('crm_proposals', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da proposta');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a proposta pertence');
@@ -41,7 +41,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_proposal_items')) {
+        if (! Schema::hasTable('crm_proposal_items')) {
             Schema::create('crm_proposal_items', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do item da proposta');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o item pertence');
@@ -61,7 +61,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_custom_fields')) {
+        if (! Schema::hasTable('crm_custom_fields')) {
             Schema::create('crm_custom_fields', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do campo customizado');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o campo pertence');
@@ -76,10 +76,10 @@ return new class extends Migration
                 $table->index('entity', 'idx_crm_custom_fields_entity');
             });
 
-            DB::statement("ALTER TABLE crm_custom_fields ALTER COLUMN options TYPE json");
+            DB::statement('ALTER TABLE crm_custom_fields ALTER COLUMN options TYPE json');
         }
 
-        if (!Schema::hasTable('crm_custom_field_values')) {
+        if (! Schema::hasTable('crm_custom_field_values')) {
             Schema::create('crm_custom_field_values', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do valor de campo customizado');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o valor pertence');
@@ -95,7 +95,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_notes')) {
+        if (! Schema::hasTable('crm_notes')) {
             Schema::create('crm_notes', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da nota');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a nota pertence');
@@ -111,7 +111,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_negotiation_files')) {
+        if (! Schema::hasTable('crm_negotiation_files')) {
             Schema::create('crm_negotiation_files', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do arquivo');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o arquivo pertence');
@@ -129,7 +129,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_events')) {
+        if (! Schema::hasTable('crm_events')) {
             Schema::create('crm_events', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do evento');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o evento pertence');
@@ -156,7 +156,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_event_links')) {
+        if (! Schema::hasTable('crm_event_links')) {
             Schema::create('crm_event_links', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do vínculo de evento');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o vínculo pertence');
@@ -171,7 +171,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_event_participants')) {
+        if (! Schema::hasTable('crm_event_participants')) {
             Schema::create('crm_event_participants', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do participante');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o participante pertence');
@@ -191,7 +191,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_event_reminders')) {
+        if (! Schema::hasTable('crm_event_reminders')) {
             Schema::create('crm_event_reminders', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do lembrete');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o lembrete pertence');

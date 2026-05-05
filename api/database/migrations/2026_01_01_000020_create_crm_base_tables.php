@@ -14,7 +14,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('crm_companies')) {
+        if (! Schema::hasTable('crm_companies')) {
             Schema::create('crm_companies', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da empresa');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a empresa pertence');
@@ -36,7 +36,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_contacts')) {
+        if (! Schema::hasTable('crm_contacts')) {
             Schema::create('crm_contacts', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do contato');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o contato pertence');
@@ -60,7 +60,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_contact_phones')) {
+        if (! Schema::hasTable('crm_contact_phones')) {
             Schema::create('crm_contact_phones', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do telefone');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o telefone pertence');
@@ -78,7 +78,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_company_contacts')) {
+        if (! Schema::hasTable('crm_company_contacts')) {
             Schema::create('crm_company_contacts', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da relação empresa-contato');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a relação pertence');
@@ -93,7 +93,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_tags')) {
+        if (! Schema::hasTable('crm_tags')) {
             Schema::create('crm_tags', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da tag');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a tag pertence');
@@ -108,7 +108,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_products')) {
+        if (! Schema::hasTable('crm_products')) {
             Schema::create('crm_products', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do produto');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o produto pertence');
@@ -133,7 +133,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_reason_losses')) {
+        if (! Schema::hasTable('crm_reason_losses')) {
             Schema::create('crm_reason_losses', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do motivo de perda');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o motivo pertence');
@@ -150,7 +150,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_departments')) {
+        if (! Schema::hasTable('crm_departments')) {
             Schema::create('crm_departments', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do departamento');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o departamento pertence');
@@ -164,7 +164,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_contact_tags')) {
+        if (! Schema::hasTable('crm_contact_tags')) {
             Schema::create('crm_contact_tags', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da relação contato-tag');
                 $table->foreignUuid('tenant_id')->nullable()->constrained('platform_tenants')->comment('Tenant ao qual a relação pertence');
@@ -179,7 +179,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_company_tags')) {
+        if (! Schema::hasTable('crm_company_tags')) {
             Schema::create('crm_company_tags', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da relação empresa-tag');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a relação pertence');

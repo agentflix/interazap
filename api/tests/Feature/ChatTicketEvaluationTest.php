@@ -124,8 +124,8 @@ class ChatTicketEvaluationTest extends TestCase
         ]);
 
         $managerRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'manager', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::GERENTE_ID],
+            ['name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum']
         );
         $manager->assignRole($managerRole);
 
@@ -172,8 +172,8 @@ class ChatTicketEvaluationTest extends TestCase
         ]);
 
         $adminRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         $admin->assignRole($adminRole);
 

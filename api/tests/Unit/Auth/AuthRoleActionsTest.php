@@ -113,11 +113,11 @@ class AuthRoleActionsTest extends TestCase
     public function test_delete_admin_role_is_blocked(): void
     {
         AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
-        $adminRole = \Domain\Auth\Models\AuthRole::query()->where('name', 'admin')->first();
+        $adminRole = \Domain\Auth\Models\AuthRole::query()->where('id', AuthRole::INQUILINO_ID)->first();
         $actions = new AuthRoleActions;
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
@@ -127,8 +127,8 @@ class AuthRoleActionsTest extends TestCase
     public function test_list_returns_paginated_roles(): void
     {
         AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
         AuthRole::create([

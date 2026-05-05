@@ -74,6 +74,5 @@ class AiPromptPlanSeeder extends Seeder
             $count++;
         }
 
-
     }
 }

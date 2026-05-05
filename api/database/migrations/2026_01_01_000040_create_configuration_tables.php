@@ -71,7 +71,7 @@ return new class extends Migration
                     ->onDelete('cascade');
             });
 
-            DB::statement("ALTER TABLE configuration_notification_preferences ALTER COLUMN channels TYPE json");
+            DB::statement('ALTER TABLE configuration_notification_preferences ALTER COLUMN channels TYPE json');
         }
 
         if (! Schema::hasTable('configuration_notifications')) {
@@ -108,7 +108,7 @@ return new class extends Migration
                     ->onDelete('cascade');
             });
 
-            DB::statement("ALTER TABLE configuration_notifications ALTER COLUMN data TYPE json");
+            DB::statement('ALTER TABLE configuration_notifications ALTER COLUMN data TYPE json');
         }
 
         if (! Schema::hasTable('configuration_notification_webhooks')) {
@@ -137,7 +137,7 @@ return new class extends Migration
                     ->onDelete('cascade');
             });
 
-            DB::statement("ALTER TABLE configuration_notification_webhooks ALTER COLUMN event_types TYPE json");
+            DB::statement('ALTER TABLE configuration_notification_webhooks ALTER COLUMN event_types TYPE json');
         }
 
         if (! Schema::hasTable('configuration_push_subscriptions')) {

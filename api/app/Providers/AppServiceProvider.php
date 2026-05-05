@@ -117,7 +117,7 @@ class AppServiceProvider extends ServiceProvider
         Sanctum::usePersonalAccessTokenModel(AuthPersonalAccessToken::class);
 
         Gate::before(static function ($user): ?bool {
-            if (is_object($user) && method_exists($user, 'hasRole') && $user->hasRole('admin')) {
+            if (is_object($user) && method_exists($user, 'isInquilino') && $user->isInquilino()) {
                 return true;
             }
 

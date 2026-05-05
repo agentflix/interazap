@@ -20,6 +20,16 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 final class AuthRoleActions
 {
     /**
+     * UUIDs das roles de sistema que não podem ser excluídas.
+     */
+    private const SYSTEM_ROLE_IDS = [
+        AuthRole::ADMINISTRADOR_ID,
+        AuthRole::INQUILINO_ID,
+        AuthRole::GERENTE_ID,
+        AuthRole::ATENDENTE_ID,
+    ];
+
+    /**
      * @return LengthAwarePaginator<int, AuthRole>
      */
     public function list(AuthRoleFiltersDTO $filters, bool $excludeSuperAdmin = false): LengthAwarePaginator
@@ -33,7 +43,7 @@ final class AuthRoleActions
         }
 
         if ($excludeSuperAdmin) {
-            $query->where('name', '!=', AuthRole::SUPER_ADMIN);
+            $query->whereNotIn('id', self::SYSTEM_ROLE_IDS);
         }
 
         return $query
@@ -90,7 +100,7 @@ final class AuthRoleActions
     {
         $resolvedRole = $this->resolveRole($role);
 
-        if (in_array($resolvedRole->name, [AuthRole::SUPER_ADMIN, 'admin'], true)) {
+        if (in_array($resolvedRole->id, self::SYSTEM_ROLE_IDS, true)) {
             throw new HttpException(403, 'Perfis protegidos não podem ser excluídos.');
         }
 

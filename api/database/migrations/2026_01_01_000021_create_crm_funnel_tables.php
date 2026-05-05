@@ -14,7 +14,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('crm_negotiation_funnels')) {
+        if (! Schema::hasTable('crm_negotiation_funnels')) {
             Schema::create('crm_negotiation_funnels', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do funil');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o funil pertence');
@@ -28,7 +28,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_negotiation_funnel_steps')) {
+        if (! Schema::hasTable('crm_negotiation_funnel_steps')) {
             Schema::create('crm_negotiation_funnel_steps', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da etapa do funil');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a etapa pertence');
@@ -45,7 +45,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_negotiations')) {
+        if (! Schema::hasTable('crm_negotiations')) {
             Schema::create('crm_negotiations', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da negociação');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a negociação pertence');
@@ -77,7 +77,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_negotiation_tasks')) {
+        if (! Schema::hasTable('crm_negotiation_tasks')) {
             Schema::create('crm_negotiation_tasks', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da tarefa');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a tarefa pertence');
@@ -97,7 +97,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_negotiation_products')) {
+        if (! Schema::hasTable('crm_negotiation_products')) {
             Schema::create('crm_negotiation_products', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do produto na negociação');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o registro pertence');
@@ -115,7 +115,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('crm_negotiation_tags')) {
+        if (! Schema::hasTable('crm_negotiation_tags')) {
             Schema::create('crm_negotiation_tags', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da relação negociação-tag');
                 $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a relação pertence');

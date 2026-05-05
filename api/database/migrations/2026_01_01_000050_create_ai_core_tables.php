@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Cria as tabelas core do contexto AI (Autopilot, Agents, Usage, Notifications).
@@ -426,7 +426,7 @@ return new class extends Migration
             $table->index(['agent_id', 'is_active'], 'idx_ai_agent_skills_agent_active');
         });
 
-        DB::statement("ALTER TABLE ai_agent_skills ALTER COLUMN metadata TYPE json");
+        DB::statement('ALTER TABLE ai_agent_skills ALTER COLUMN metadata TYPE json');
     }
 
     private function createAgentDelegations(): void
@@ -436,7 +436,7 @@ return new class extends Migration
             $table->uuid('tenant_id')->comment('Tenant dono da regra');
             $table->uuid('source_agent_id')->comment('Agente que delega');
             $table->uuid('target_agent_id')->comment('Agente que recebe a delegação');
-                $table->smallInteger('max_depth')->default(1)->comment('Profundidade máxima de delegação');
+            $table->smallInteger('max_depth')->default(1)->comment('Profundidade máxima de delegação');
             $table->boolean('is_active')->default(true)->comment('Indica se a delegação está ativa');
             $table->jsonb('metadata')->nullable()->comment('Metadados adicionais');
             $table->timestamps();
@@ -455,7 +455,7 @@ return new class extends Migration
             $table->index(['target_agent_id'], 'idx_ai_agent_delegations_target_agent');
         });
 
-        DB::statement("ALTER TABLE ai_agent_delegations ALTER COLUMN metadata TYPE json");
+        DB::statement('ALTER TABLE ai_agent_delegations ALTER COLUMN metadata TYPE json');
     }
 
     private function createAgentFiles(): void
@@ -515,7 +515,7 @@ return new class extends Migration
             $table->uuid('tenant_id')->comment('Tenant dono do gatilho');
             $table->uuid('agent_id')->comment('Agente vinculado');
             $table->string('type', 50)->comment('Tipo de gatilho (keyword/schedule/webhook)');
-                $table->jsonb('config')->nullable()->comment('Configuração do gatilho em JSON');
+            $table->jsonb('config')->nullable()->comment('Configuração do gatilho em JSON');
             $table->string('status', 20)->default('active')->comment('Status do gatilho');
             $table->timestamp('last_run_at')->nullable()->comment('Última execução do gatilho');
             $table->timestamps();
@@ -531,7 +531,7 @@ return new class extends Migration
             $table->index(['last_run_at'], 'idx_ai_agent_triggers_last_run_at');
         });
 
-        DB::statement("ALTER TABLE ai_agent_triggers ALTER COLUMN config TYPE json");
+        DB::statement('ALTER TABLE ai_agent_triggers ALTER COLUMN config TYPE json');
     }
 
     private function createConversationSummaries(): void
@@ -580,6 +580,6 @@ return new class extends Migration
             $table->index(['channel', 'is_active'], 'idx_ai_agent_channels_channel_active');
         });
 
-        DB::statement("ALTER TABLE ai_agent_channels ALTER COLUMN metadata TYPE json");
+        DB::statement('ALTER TABLE ai_agent_channels ALTER COLUMN metadata TYPE json');
     }
 };

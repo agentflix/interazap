@@ -74,7 +74,7 @@ class TenantSettingsTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $superAdmin = AuthUser::factory()->create();
-        $superAdmin->assignRole('super-admin');
+        $superAdmin->assignRole(\Domain\Auth\Models\AuthRole::ADMINISTRADOR_ID);
 
         $this->actingAs($superAdmin, 'sanctum')
             ->getJson('/api/platform/tenants/{tenant->id}/settings')

@@ -18,7 +18,7 @@ final class PlatformBillingInvoicePolicy
      */
     public function view(AuthUser $user): bool
     {
-        return $user->isSuperAdmin() || $user->hasRole('admin', self::GUARD);
+        return $user->isSuperAdmin() || $user->isInquilino();
     }
 
     /**
@@ -26,7 +26,7 @@ final class PlatformBillingInvoicePolicy
      */
     public function create(AuthUser $user): bool
     {
-        return $user->isSuperAdmin() || $user->hasRole('admin', self::GUARD);
+        return $user->isSuperAdmin() || $user->isInquilino();
     }
 
     /**
@@ -34,6 +34,6 @@ final class PlatformBillingInvoicePolicy
      */
     public function delete(AuthUser $user): bool
     {
-        return $user->isSuperAdmin() || $user->hasRole('admin', self::GUARD);
+        return $user->isSuperAdmin() || $user->isInquilino();
     }
 }

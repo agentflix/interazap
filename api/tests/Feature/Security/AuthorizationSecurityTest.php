@@ -33,8 +33,8 @@ describe('Privilege Escalation Prevention', function (): void {
 
         // Grant admin role
         $adminRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         $this->adminUser->assignRole($adminRole);
     });
@@ -65,7 +65,7 @@ describe('Privilege Escalation Prevention', function (): void {
 
         // Attempt to update own user with admin role
         $response = $this->patchJson("/api/auth/users/{$this->regularUser->id}", [
-            'roles' => ['admin'],
+            'roles' => [AuthRole::INQUILINO_NAME],
         ]);
 
         // Should not be successful (200) - any non-success is acceptable
@@ -75,7 +75,7 @@ describe('Privilege Escalation Prevention', function (): void {
 
         // Verify user still doesn't have admin role
         $this->regularUser->refresh();
-        expect($this->regularUser->hasRole('admin'))->toBeFalse();
+        expect($this->regularUser->hasRole(AuthRole::INQUILINO_ID))->toBeFalse();
     });
 
     it('prevents user from granting permissions they do not have', function (): void {
@@ -108,15 +108,15 @@ describe('Privilege Escalation Prevention', function (): void {
         $response = $this->patchJson('/api/auth/profile', [
             'name' => 'Updated Name',
             'is_admin' => true,
-            'role' => 'admin',
-            'roles' => ['admin', 'super-admin'],
+            'role' => AuthRole::INQUILINO_NAME,
+            'roles' => [AuthRole::INQUILINO_NAME, AuthRole::ADMINISTRADOR_NAME],
         ]);
 
         // Profile update might succeed for valid fields
         // But admin privileges should not be granted
         $this->regularUser->refresh();
-        expect($this->regularUser->hasRole('admin'))->toBeFalse();
-        expect($this->regularUser->hasRole('super-admin'))->toBeFalse();
+        expect($this->regularUser->hasRole(AuthRole::INQUILINO_ID))->toBeFalse();
+        expect($this->regularUser->hasRole(AuthRole::ADMINISTRADOR_ID))->toBeFalse();
     });
 
     it('prevents direct database ID manipulation for privilege escalation', function (): void {

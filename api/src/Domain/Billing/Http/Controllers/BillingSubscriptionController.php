@@ -226,7 +226,7 @@ final class BillingSubscriptionController extends BaseController
             abort(403, 'Forbidden');
         }
 
-        if ($user->isSuperAdmin() || $user->hasRole('admin', 'sanctum')) {
+        if ($user->isSuperAdmin() || $user->isInquilino()) {
             return;
         }
 

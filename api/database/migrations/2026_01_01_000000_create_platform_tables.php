@@ -21,8 +21,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('platform_plans')) {
-            DB::statement("DROP TYPE IF EXISTS platform_reports_mode");
+        if (! Schema::hasTable('platform_plans')) {
+            DB::statement('DROP TYPE IF EXISTS platform_reports_mode');
             DB::statement("CREATE TYPE platform_reports_mode AS ENUM ('BASIC', 'ADVANCED', 'FULL')");
 
             Schema::create('platform_plans', function (Blueprint $table): void {
@@ -47,12 +47,12 @@ return new class extends Migration
                 $table->index('is_active', 'idx_platform_plans_is_active');
             });
 
-            DB::statement("ALTER TABLE platform_plans ALTER COLUMN reports_mode DROP DEFAULT");
-            DB::statement("ALTER TABLE platform_plans ALTER COLUMN reports_mode TYPE platform_reports_mode USING UPPER(reports_mode)::platform_reports_mode");
+            DB::statement('ALTER TABLE platform_plans ALTER COLUMN reports_mode DROP DEFAULT');
+            DB::statement('ALTER TABLE platform_plans ALTER COLUMN reports_mode TYPE platform_reports_mode USING UPPER(reports_mode)::platform_reports_mode');
             DB::statement("ALTER TABLE platform_plans ALTER COLUMN reports_mode SET DEFAULT 'BASIC'");
         }
 
-        if (!Schema::hasTable('platform_tenants')) {
+        if (! Schema::hasTable('platform_tenants')) {
             Schema::create('platform_tenants', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do tenant (UUID v7)');
                 $table->string('name', 255)->comment('Nome fantasia do tenant');
@@ -102,7 +102,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('platform_uazapi_instances')) {
+        if (! Schema::hasTable('platform_uazapi_instances')) {
             Schema::create('platform_uazapi_instances', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da instância UazAPI');
                 $table->uuid('tenant_id')->comment('Tenant proprietário da instância (FK -> platform_tenants)');
@@ -122,10 +122,10 @@ return new class extends Migration
                 $table->foreign('tenant_id')->references('id')->on('platform_tenants')->onDelete('cascade');
             });
 
-            DB::statement("ALTER TABLE platform_uazapi_instances ALTER COLUMN metadata TYPE json");
+            DB::statement('ALTER TABLE platform_uazapi_instances ALTER COLUMN metadata TYPE json');
         }
 
-        if (!Schema::hasTable('platform_leads')) {
+        if (! Schema::hasTable('platform_leads')) {
             Schema::create('platform_leads', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do lead');
                 $table->string('name', 255)->comment('Nome completo do lead');
@@ -149,7 +149,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('platform_tenant_bootstrap_catalogs')) {
+        if (! Schema::hasTable('platform_tenant_bootstrap_catalogs')) {
             Schema::create('platform_tenant_bootstrap_catalogs', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do catálogo de bootstrap');
                 $table->string('segment_code', 50)->comment('Código do segmento de negócio');

@@ -107,7 +107,7 @@ return new class extends Migration
                     ->onDelete('set null');
             });
 
-            DB::statement("ALTER TABLE chat_transmission_lists ALTER COLUMN metadata TYPE json");
+            DB::statement('ALTER TABLE chat_transmission_lists ALTER COLUMN metadata TYPE json');
         }
 
         if (! Schema::hasTable('chat_transmission_list_contacts')) {

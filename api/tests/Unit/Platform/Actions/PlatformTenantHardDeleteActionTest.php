@@ -99,10 +99,10 @@ class PlatformTenantHardDeleteActionTest extends TestCase
         ]);
 
         $superAdminRole = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(
-            ['name' => 'super-admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) \Illuminate\Support\Str::orderedUuid()]
+            ['id' => \Domain\Auth\Models\AuthRole::ADMINISTRADOR_ID],
+            ['name' => \Domain\Auth\Models\AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
         );
-        $superAdmin->assignRole($superAdminRole);
+        $superAdmin->assignRole(\Domain\Auth\Models\AuthRole::ADMINISTRADOR_ID);
 
         $actor = AuthUser::factory()->create([
             'password' => Hash::make('correct-password'),

@@ -113,7 +113,7 @@ final class PlatformTenantImpersonateAction
             ->where('tenant_id', $tenant->id)
             ->where('is_active', true)
             ->whereHas('roles', function ($query): void {
-                $query->whereRaw('LOWER(name) = LOWER(?)', [AuthRole::MANAGER]);
+                $query->where('id', AuthRole::GERENTE_ID);
             })
             ->first();
     }

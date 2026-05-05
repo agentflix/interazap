@@ -12,8 +12,6 @@ use Domain\Auth\Models\AuthUser;
  */
 final class AuthRolePolicy
 {
-    private const GUARD = 'sanctum';
-
     public function viewAny(AuthUser $user): bool
     {
         return $this->isSuperAdmin($user);
@@ -36,7 +34,7 @@ final class AuthRolePolicy
 
     public function delete(AuthUser $user, AuthRole $role): bool
     {
-        if ($role->name === AuthRole::SUPER_ADMIN) {
+        if ($role->id === AuthRole::ADMINISTRADOR_ID) {
             return false;
         }
 
@@ -45,6 +43,6 @@ final class AuthRolePolicy
 
     private function isSuperAdmin(AuthUser $user): bool
     {
-        return $user->hasRole(AuthRole::SUPER_ADMIN, self::GUARD);
+        return $user->hasRoleId(AuthRole::ADMINISTRADOR_ID);
     }
 }

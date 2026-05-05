@@ -30,7 +30,7 @@ final class BillingChangePlanRequest extends FormRequest
             return false;
         }
 
-        return $user->isSuperAdmin() || $user->hasRole('admin', 'sanctum');
+        return $user->isSuperAdmin() || $user->isInquilino();
     }
 
     /**

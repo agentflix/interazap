@@ -10,21 +10,20 @@ use Domain\Chat\Models\ChatInstance;
 use Domain\CRM\Models\CRMContact;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 beforeEach(function (): void {
     $this->actorTenant = PlatformTenant::factory()->create();
 
     $adminRole = AuthRole::query()->firstOrCreate(
-        ['name' => 'admin', 'guard_name' => 'sanctum'],
-        ['id' => (string) Str::orderedUuid()]
+        ['id' => AuthRole::INQUILINO_ID],
+        ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
     );
 
     $this->actor = AuthUser::factory()->create([
         'tenant_id' => $this->actorTenant->id,
         'password' => Hash::make('correct-password'),
     ]);
-    $this->actor->assignRole($adminRole);
+    $this->actor->assignRole(AuthRole::INQUILINO_ID);
     $this->actingAs($this->actor);
 });
 
@@ -138,10 +137,10 @@ test('purge tenant blocked by super admin user', function (): void {
     $targetTenant = PlatformTenant::factory()->create();
     $superAdmin = AuthUser::factory()->create(['tenant_id' => $targetTenant->id]);
     $superAdminRole = AuthRole::query()->firstOrCreate(
-        ['name' => 'super-admin', 'guard_name' => 'sanctum'],
-        ['id' => (string) Str::orderedUuid()]
+        ['id' => AuthRole::ADMINISTRADOR_ID],
+        ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
     );
-    $superAdmin->assignRole($superAdminRole);
+    $superAdmin->assignRole(AuthRole::ADMINISTRADOR_ID);
 
     $response = $this->deleteJson("/api/platform/tenants/{$targetTenant->id}/purge", [
         'password' => 'correct-password',

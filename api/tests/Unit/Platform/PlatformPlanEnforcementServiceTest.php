@@ -42,9 +42,9 @@ class PlatformPlanEnforcementServiceTest extends TestCase
         $tenant = PlatformTenant::factory()->create();
         $this->tenantId = $tenant->id;
 
-        // Ensure 'admin' role exists for guard 'sanctum'
-        if (! AuthRole::query()->where('name', 'admin')->where('guard_name', 'sanctum')->exists()) {
-            AuthRole::create(['name' => 'admin', 'guard_name' => 'sanctum']);
+        // Ensure 'Inquilino' role exists for guard 'sanctum'
+        if (! AuthRole::query()->where('id', AuthRole::INQUILINO_ID)->where('guard_name', 'sanctum')->exists()) {
+            AuthRole::create(['id' => AuthRole::INQUILINO_ID, 'name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
         }
 
         Storage::fake('public');
@@ -511,7 +511,7 @@ class PlatformPlanEnforcementServiceTest extends TestCase
         $this->createPaidInvoice($plan);
 
         $admin = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-        $admin->assignRole('admin');
+        $admin->assignRole(AuthRole::INQUILINO_ID);
 
         $this->actingAs($admin, 'sanctum');
 
@@ -539,7 +539,7 @@ class PlatformPlanEnforcementServiceTest extends TestCase
     public function test_is_admin_returns_true_for_admin_role(): void
     {
         $admin = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-        $admin->assignRole('admin');
+        $admin->assignRole(AuthRole::INQUILINO_ID);
 
         $this->assertTrue($this->service->isAdmin($admin));
     }

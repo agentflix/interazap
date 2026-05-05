@@ -19,8 +19,8 @@ class AuthRoleControllerTest extends TestCase
     private function createSuperAdminUser(): AuthUser
     {
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'super-admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::ADMINISTRADOR_ID],
+            ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
         );
 
         $permission = AuthPermission::query()->firstOrCreate(
@@ -137,11 +137,11 @@ class AuthRoleControllerTest extends TestCase
         $this->seedPermissions();
 
         AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
-        $adminRole = \Domain\Auth\Models\AuthRole::query()->where('name', 'admin')->first();
+        $adminRole = \Domain\Auth\Models\AuthRole::query()->where('id', AuthRole::INQUILINO_ID)->first();
 
         $this->actingAs($admin, 'sanctum')
             ->deleteJson("/api/auth/roles/{$adminRole->id}")
@@ -224,8 +224,8 @@ class AuthRoleControllerTest extends TestCase
     public function test_admin_can_view_roles(): void
     {
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         // Ensure permission exists
         $permission = AuthPermission::query()->firstOrCreate(
@@ -259,8 +259,8 @@ class AuthRoleControllerTest extends TestCase
 
         // Create a non-super-admin role and user
         $tenantRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'inquilino', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         $tenantUser = AuthUser::factory()->create();
         $tenantUser->assignRole($tenantRole);
@@ -268,7 +268,7 @@ class AuthRoleControllerTest extends TestCase
         $this->actingAs($tenantUser, 'sanctum')
             ->getJson('/api/auth/roles')
             ->assertOk()
-            ->assertJsonMissing(['name' => 'super-admin']);
+            ->assertJsonMissing(['name' => AuthRole::ADMINISTRADOR_NAME]);
     }
 
     public function test_index_includes_super_admin_role_for_super_admin_user(): void
@@ -279,6 +279,6 @@ class AuthRoleControllerTest extends TestCase
         $this->actingAs($admin, 'sanctum')
             ->getJson('/api/auth/roles')
             ->assertOk()
-            ->assertJsonFragment(['name' => 'super-admin']);
+            ->assertJsonFragment(['name' => AuthRole::ADMINISTRADOR_NAME]);
     }
 }

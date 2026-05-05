@@ -19,7 +19,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('billing_invoices')) {
+        if (! Schema::hasTable('billing_invoices')) {
             Schema::create('billing_invoices', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da fatura');
                 $table->uuid('tenant_id')->comment('Tenant faturado (FK -> platform_tenants)');
@@ -48,7 +48,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('billing_payments')) {
+        if (! Schema::hasTable('billing_payments')) {
             Schema::create('billing_payments', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do pagamento');
                 $table->uuid('tenant_id')->comment('Tenant pagador (FK -> platform_tenants)');
@@ -72,7 +72,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('billing_collection_logs')) {
+        if (! Schema::hasTable('billing_collection_logs')) {
             Schema::create('billing_collection_logs', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do log de cobrança');
                 $table->uuid('tenant_id')->comment('Tenant cobrado (FK -> platform_tenants)');
@@ -95,7 +95,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('billing_purge_reports')) {
+        if (! Schema::hasTable('billing_purge_reports')) {
             Schema::create('billing_purge_reports', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do relatório de purge');
                 $table->uuid('tenant_id')->comment('Tenant purgado (FK -> platform_tenants)');

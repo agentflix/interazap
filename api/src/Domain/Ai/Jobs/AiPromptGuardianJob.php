@@ -108,7 +108,7 @@ class AiPromptGuardianJob implements ShouldQueue
         $admins = AuthUser::query()
             ->whereHas('roles', static function ($query): void {
                 $query->where('guard_name', 'sanctum')
-                    ->whereIn('name', [AuthRole::SUPER_ADMIN, 'admin']);
+                    ->whereIn('id', [AuthRole::ADMINISTRADOR_ID]);
             })
             ->get();
 

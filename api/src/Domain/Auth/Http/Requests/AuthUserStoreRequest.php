@@ -56,7 +56,7 @@ final class AuthUserStoreRequest extends FormRequest
         // Security: prevent non-super-admin from assigning super-admin role.
         if (! $user->isSuperAdmin()) {
             $rolesToAssign = $this->input('roles', []) ?: ($this->input('role') ? [$this->input('role')] : []);
-            if (in_array(AuthRole::SUPER_ADMIN, $rolesToAssign, true)) {
+            if (in_array(AuthRole::ADMINISTRADOR_NAME, $rolesToAssign, true)) {
                 throw new AuthorizationException('Não é permitido atribuir o perfil super-admin.');
             }
         }

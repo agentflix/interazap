@@ -28,12 +28,12 @@ final class AiBudgetThresholdNotificationListener
                 $query->where('tenant_id', $event->tenantId)
                     ->whereHas('roles', static function ($roleQuery): void {
                         $roleQuery->where('guard_name', 'sanctum')
-                            ->whereIn('name', ['admin', 'owner']);
+                            ->whereIn('id', [AuthRole::INQUILINO_ID]);
                     });
             })
             ->orWhereHas('roles', static function ($roleQuery): void {
                 $roleQuery->where('guard_name', 'sanctum')
-                    ->where('name', AuthRole::SUPER_ADMIN);
+                    ->where('id', AuthRole::ADMINISTRADOR_ID);
             })
             ->get();
 

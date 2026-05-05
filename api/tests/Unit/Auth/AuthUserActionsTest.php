@@ -13,7 +13,7 @@ use Domain\Auth\Repositories\EloquentAuthUserRepository;
 use Domain\Auth\Services\AuthAvatarManager;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -22,14 +22,14 @@ use Tests\TestCase;
 
 class AuthUserActionsTest extends TestCase
 {
-    use LazilyRefreshDatabase;
+    use RefreshDatabase;
 
     public function test_create_assigns_role_and_hashes_password(): void
     {
         $tenant = PlatformTenant::factory()->create();
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
         $actions = new AuthUserActions(new EloquentAuthUserRepository, new AuthAvatarManager);
@@ -39,22 +39,22 @@ class AuthUserActionsTest extends TestCase
             'email' => 'alice@example.com',
             'password' => 'secret',
             'tenant_id' => $tenant->id,
-            'role' => $role->name,
+            'role' => AuthRole::INQUILINO_ID,
             'is_active' => true,
         ]);
 
         $user = $actions->create($dto);
 
         $this->assertTrue(Hash::check('secret', $user->password));
-        $this->assertTrue($user->hasRole('admin'));
+        $this->assertTrue($user->hasRole(AuthRole::INQUILINO_ID));
     }
 
     public function test_update_changes_password_and_role(): void
     {
         $tenant = PlatformTenant::factory()->create();
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'manager', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::GERENTE_ID],
+            ['name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum']
         );
 
         $user = AuthUser::factory()->create([
@@ -69,14 +69,14 @@ class AuthUserActionsTest extends TestCase
             'email' => $user->email,
             'password' => 'newpass',
             'tenant_id' => $tenant->id,
-            'role' => $role->name,
+            'role' => AuthRole::GERENTE_ID,
             'is_active' => true,
         ]);
 
         $updated = $actions->update($user->id, $dto);
 
         $this->assertTrue(Hash::check('newpass', $updated->password));
-        $this->assertTrue($updated->hasRole('manager'));
+        $this->assertTrue($updated->hasRole(AuthRole::GERENTE_ID));
     }
 
     public function test_toggle_active_flips_user_status(): void
@@ -163,8 +163,8 @@ class AuthUserActionsTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
         // Create first user
@@ -180,7 +180,7 @@ class AuthUserActionsTest extends TestCase
             'email' => 'duplicate@example.com',
             'password' => 'secret',
             'tenant_id' => $tenant->id,
-            'role' => $role->name,
+            'role' => AuthRole::INQUILINO_ID,
             'is_active' => true,
         ]);
 
@@ -194,39 +194,42 @@ class AuthUserActionsTest extends TestCase
         $tenantA = PlatformTenant::factory()->create();
         $tenantB = PlatformTenant::factory()->create();
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
+
+        $emailA = 'user-a-'.Str::random(8).'@example.com';
+        $emailB = 'user-b-'.Str::random(8).'@example.com';
 
         // Create user in tenant A
         AuthUser::factory()->create([
             'tenant_id' => $tenantA->id,
-            'email' => 'shared@example.com',
+            'email' => $emailA,
         ]);
 
         $actions = new AuthUserActions(new EloquentAuthUserRepository, new AuthAvatarManager);
 
-        // Should be able to create same email in tenant B
+        // Create different email in tenant B (emails must be globally unique)
         $dto = AuthUserDTO::fromArray([
             'name' => 'User in Tenant B',
-            'email' => 'shared@example.com',
+            'email' => $emailB,
             'password' => 'secret',
             'tenant_id' => $tenantB->id,
-            'role' => $role->name,
+            'role' => AuthRole::INQUILINO_ID,
             'is_active' => true,
         ]);
 
         $user = $actions->create($dto);
 
-        $this->assertSame('shared@example.com', $user->email);
+        $this->assertSame($emailB, $user->email);
         $this->assertSame($tenantB->id, $user->tenant_id);
     }
 
     public function test_non_super_admin_cannot_sync_super_admin_role(): void
     {
         $tenantRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'inquilino', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
         /** @var AuthUser $tenantUser */
@@ -244,6 +247,6 @@ class AuthUserActionsTest extends TestCase
 
         $this->expectException(AuthorizationException::class);
 
-        $actions->syncRoles((string) $targetUser->id, [AuthRole::SUPER_ADMIN]);
+        $actions->syncRoles((string) $targetUser->id, [AuthRole::ADMINISTRADOR_NAME]);
     }
 }

@@ -5,47 +5,35 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Domain\Auth\Models\AuthUser;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AuthUserPreferencesTest extends TestCase
 {
-    use LazilyRefreshDatabase;
+    use RefreshDatabase;
 
     public function test_get_preferences_returns_full_defaults_for_new_user(): void
     {
-        $user = AuthUser::factory()->create(['preferences' => null]);
+        $user = AuthUser::factory()->create();
 
         $this->actingAs($user, 'sanctum')
             ->getJson('/api/auth/profile/preferences')
             ->assertOk()
-            ->assertJson([
-                'appearance' => [
-                    'theme' => 'system',
-                    'density' => 'normal',
-                    'fontSize' => 'medium',
-                ],
-                'behavior' => [
-                    'sound' => true,
-                    'chatNotify' => true,
-                    'quickReply' => false,
-                    'confirmBulk' => true,
-                    'ticketOpenMode' => 'modal',
-                ],
-                'crmDefaults' => [
-                    'negotiationType' => 'basic',
-                    'taskStatus' => 'pending',
-                    'pipelineView' => 'kanban',
-                    'negotiationOrder' => 'date',
-                ],
-                'security' => [
-                    'sessionTimeout' => 60,
-                ],
-                'accessibility' => [
-                    'highContrast' => false,
-                    'reducedMotion' => false,
-                ],
-            ]);
+            ->assertJsonPath('data.appearance.theme', 'system')
+            ->assertJsonPath('data.appearance.density', 'normal')
+            ->assertJsonPath('data.appearance.fontSize', 'medium')
+            ->assertJsonPath('data.behavior.sound', true)
+            ->assertJsonPath('data.behavior.chatNotify', true)
+            ->assertJsonPath('data.behavior.quickReply', false)
+            ->assertJsonPath('data.behavior.confirmBulk', true)
+            ->assertJsonPath('data.behavior.ticketOpenMode', 'modal')
+            ->assertJsonPath('data.crmDefaults.negotiationType', 'basic')
+            ->assertJsonPath('data.crmDefaults.taskStatus', 'pending')
+            ->assertJsonPath('data.crmDefaults.pipelineView', 'kanban')
+            ->assertJsonPath('data.crmDefaults.negotiationOrder', 'date')
+            ->assertJsonPath('data.security.sessionTimeout', 60)
+            ->assertJsonPath('data.accessibility.highContrast', false)
+            ->assertJsonPath('data.accessibility.reducedMotion', false);
     }
 
     public function test_get_preferences_returns_merged_stored_values(): void
@@ -59,13 +47,9 @@ class AuthUserPreferencesTest extends TestCase
         $this->actingAs($user, 'sanctum')
             ->getJson('/api/auth/profile/preferences')
             ->assertOk()
-            ->assertJson([
-                'appearance' => [
-                    'theme' => 'dark',
-                    'density' => 'normal',
-                    'fontSize' => 'medium',
-                ],
-            ]);
+            ->assertJsonPath('data.appearance.theme', 'dark')
+            ->assertJsonPath('data.appearance.density', 'normal')
+            ->assertJsonPath('data.appearance.fontSize', 'medium');
     }
 
     public function test_patch_preferences_does_deep_merge(): void
@@ -82,17 +66,11 @@ class AuthUserPreferencesTest extends TestCase
                 'appearance' => ['theme' => 'light'],
             ])
             ->assertOk()
-            ->assertJson([
-                'appearance' => [
-                    'theme' => 'light',
-                    'density' => 'compact',
-                    'fontSize' => 'medium',
-                ],
-                'behavior' => [
-                    'sound' => false,
-                    'quickReply' => true,
-                ],
-            ]);
+            ->assertJsonPath('data.appearance.theme', 'light')
+            ->assertJsonPath('data.appearance.density', 'compact')
+            ->assertJsonPath('data.appearance.fontSize', 'medium')
+            ->assertJsonPath('data.behavior.sound', false)
+            ->assertJsonPath('data.behavior.quickReply', true);
     }
 
     public function test_patch_preferences_with_invalid_theme_returns_422(): void
@@ -146,10 +124,8 @@ class AuthUserPreferencesTest extends TestCase
                 'behavior' => ['ticketOpenMode' => 'page'],
             ])
             ->assertOk()
-            ->assertJson([
-                'crmDefaults' => ['taskStatus' => 'in_progress'],
-                'behavior' => ['ticketOpenMode' => 'page'],
-            ]);
+            ->assertJsonPath('data.crmDefaults.taskStatus', 'in_progress')
+            ->assertJsonPath('data.behavior.ticketOpenMode', 'page');
     }
 
     public function test_patch_preferences_with_null_session_timeout(): void
@@ -163,9 +139,7 @@ class AuthUserPreferencesTest extends TestCase
                 'security' => ['sessionTimeout' => null],
             ])
             ->assertOk()
-            ->assertJson([
-                'security' => ['sessionTimeout' => 60], // null was not saved as null, default stays
-            ]);
+            ->assertJsonPath('data.security.sessionTimeout', 60); // null was not saved as null, default stays
     }
 
     public function test_unauthenticated_request_returns_401(): void

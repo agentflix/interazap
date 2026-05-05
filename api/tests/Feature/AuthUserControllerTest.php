@@ -9,7 +9,6 @@ use Domain\Auth\Models\AuthUser;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class AuthUserControllerTest extends TestCase
@@ -19,8 +18,8 @@ class AuthUserControllerTest extends TestCase
     private function createAdminUser(): AuthUser
     {
         $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
         $user = AuthUser::factory()->create();
@@ -46,7 +45,7 @@ class AuthUserControllerTest extends TestCase
                 'name' => 'User A',
                 'email' => 'usera@example.com',
                 'password' => 'password',
-                'role' => 'admin',
+                'role' => AuthRole::INQUILINO_NAME,
             ])
             ->assertCreated()
             ->assertJsonFragment(['email' => 'usera@example.com']);
@@ -57,7 +56,7 @@ class AuthUserControllerTest extends TestCase
             ->putJson("/api/auth/users/{$user->id}", [
                 'name' => 'User B',
                 'tenant_id' => $tenantId,
-                'role' => 'admin',
+                'role' => AuthRole::INQUILINO_NAME,
             ])
             ->assertOk()
             ->assertJsonFragment(['name' => 'User B']);
@@ -85,8 +84,8 @@ class AuthUserControllerTest extends TestCase
     public function test_non_super_admin_cannot_assign_super_admin_role_on_create(): void
     {
         $tenantRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'inquilino', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         $tenantUser = AuthUser::factory()->create();
         $tenantUser->assignRole($tenantRole);
@@ -97,7 +96,7 @@ class AuthUserControllerTest extends TestCase
                 'name' => 'Malicious User',
                 'email' => 'malicious@example.com',
                 'password' => 'password',
-                'roles' => ['super-admin'],
+                'roles' => [AuthRole::ADMINISTRADOR_NAME],
             ])
             ->assertForbidden();
     }
@@ -105,8 +104,8 @@ class AuthUserControllerTest extends TestCase
     public function test_non_super_admin_cannot_assign_super_admin_role_on_update(): void
     {
         $tenantRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'inquilino', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         $tenantUser = AuthUser::factory()->create();
         $tenantId = (string) $tenantUser->tenant_id;
@@ -116,7 +115,7 @@ class AuthUserControllerTest extends TestCase
 
         $this->actingAs($tenantUser, 'sanctum')
             ->putJson("/api/auth/users/{$targetUser->id}", [
-                'roles' => ['super-admin'],
+                'roles' => [AuthRole::ADMINISTRADOR_NAME],
             ])
             ->assertForbidden();
     }
@@ -124,8 +123,8 @@ class AuthUserControllerTest extends TestCase
     public function test_super_admin_can_assign_super_admin_role(): void
     {
         $superAdminRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'super-admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::ADMINISTRADOR_ID],
+            ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
         );
         $superAdmin = AuthUser::factory()->create();
         $superAdmin->assignRole($superAdminRole);
@@ -138,7 +137,7 @@ class AuthUserControllerTest extends TestCase
                 'name' => 'Another Super Admin',
                 'email' => 'supertest@example.com',
                 'password' => 'password',
-                'roles' => ['super-admin'],
+                'roles' => [AuthRole::ADMINISTRADOR_NAME],
             ])
             ->assertCreated();
     }
@@ -146,8 +145,8 @@ class AuthUserControllerTest extends TestCase
     public function test_non_super_admin_cannot_assign_super_admin_via_singular_role_field_on_create(): void
     {
         $tenantRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'inquilino', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         $tenantUser = AuthUser::factory()->create();
         $tenantUser->assignRole($tenantRole);
@@ -158,7 +157,7 @@ class AuthUserControllerTest extends TestCase
                 'name' => 'Malicious User',
                 'email' => 'malicious2@example.com',
                 'password' => 'password',
-                'role' => 'super-admin',
+                'role' => AuthRole::ADMINISTRADOR_NAME,
             ])
             ->assertForbidden();
     }
@@ -166,8 +165,8 @@ class AuthUserControllerTest extends TestCase
     public function test_non_super_admin_cannot_assign_super_admin_via_singular_role_field_on_update(): void
     {
         $tenantRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'inquilino', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
         $tenantUser = AuthUser::factory()->create();
         $tenantId = (string) $tenantUser->tenant_id;
@@ -177,7 +176,7 @@ class AuthUserControllerTest extends TestCase
 
         $this->actingAs($tenantUser, 'sanctum')
             ->putJson("/api/auth/users/{$targetUser->id}", [
-                'role' => 'super-admin',
+                'role' => AuthRole::ADMINISTRADOR_NAME,
             ])
             ->assertForbidden();
     }

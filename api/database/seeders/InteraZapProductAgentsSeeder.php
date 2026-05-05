@@ -72,7 +72,6 @@ class InteraZapProductAgentsSeeder extends Seeder
             $this->syncKnowledgeDocument($tenant->id);
         });
 
-
     }
 
     private function ensureToolsExist(string $tenantId): void

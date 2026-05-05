@@ -40,8 +40,8 @@ class ReportsPolicyTest extends TestCase
         $tenant = PlatformTenant::factory()->create();
         $this->tenantId = $tenant->id;
 
-        if (! AuthRole::query()->where('name', 'admin')->where('guard_name', 'sanctum')->exists()) {
-            AuthRole::create(['name' => 'admin', 'guard_name' => 'sanctum']);
+        if (! AuthRole::query()->where('id', AuthRole::INQUILINO_ID)->where('guard_name', 'sanctum')->exists()) {
+            AuthRole::create(['id' => AuthRole::INQUILINO_ID, 'name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
         }
     }
 
@@ -83,7 +83,7 @@ class ReportsPolicyTest extends TestCase
         $this->createPaidInvoice($plan);
 
         $admin = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-        $admin->assignRole('admin');
+        $admin->assignRole(AuthRole::INQUILINO_ID);
         $this->actingAs($admin, 'sanctum');
 
         $this->assertTrue($this->policy->viewCrm($admin));
@@ -118,7 +118,7 @@ class ReportsPolicyTest extends TestCase
         $this->createPaidInvoice($plan);
 
         $admin = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-        $admin->assignRole('admin');
+        $admin->assignRole(AuthRole::INQUILINO_ID);
         $this->actingAs($admin, 'sanctum');
 
         $this->assertTrue($this->policy->viewChat($admin));
@@ -163,7 +163,7 @@ class ReportsPolicyTest extends TestCase
         $this->createPaidInvoice($plan);
 
         $admin = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-        $admin->assignRole('admin');
+        $admin->assignRole(AuthRole::INQUILINO_ID);
         $this->actingAs($admin, 'sanctum');
 
         $this->assertTrue($this->policy->viewAi($admin));
@@ -188,7 +188,7 @@ class ReportsPolicyTest extends TestCase
         $this->createPaidInvoice($plan);
 
         $admin = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-        $admin->assignRole('admin');
+        $admin->assignRole(AuthRole::INQUILINO_ID);
         $this->actingAs($admin, 'sanctum');
 
         $this->assertTrue($this->policy->viewBilling($admin));
@@ -200,7 +200,7 @@ class ReportsPolicyTest extends TestCase
         $this->createPaidInvoice($plan);
 
         $admin = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-        $admin->assignRole('admin');
+        $admin->assignRole(AuthRole::INQUILINO_ID);
         $this->actingAs($admin, 'sanctum');
 
         // Admin override in canViewReport
@@ -219,7 +219,7 @@ class ReportsPolicyTest extends TestCase
     public function test_view_admin_returns_true_for_admin(): void
     {
         $admin = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-        $admin->assignRole('admin');
+        $admin->assignRole(AuthRole::INQUILINO_ID);
         $this->actingAs($admin, 'sanctum');
 
         $this->assertTrue($this->policy->viewAdmin($admin));
@@ -264,7 +264,7 @@ class ReportsPolicyTest extends TestCase
         $this->createPaidInvoice($plan);
 
         $admin = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-        $admin->assignRole('admin');
+        $admin->assignRole(AuthRole::INQUILINO_ID);
         $this->actingAs($admin, 'sanctum');
 
         $this->assertTrue($this->policy->export($admin));

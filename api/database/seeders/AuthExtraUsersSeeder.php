@@ -12,15 +12,22 @@ use Illuminate\Support\Str;
 
 class AuthExtraUsersSeeder extends Seeder
 {
+    /**
+     * @var array<string, string>
+     */
+    private const ROLE_MAP = [
+        AuthRole::ADMINISTRADOR_ID => AuthRole::ADMINISTRADOR_NAME,
+        AuthRole::GERENTE_ID => AuthRole::GERENTE_NAME,
+        AuthRole::ATENDENTE_ID => AuthRole::ATENDENTE_NAME,
+    ];
+
     public function run(): void
     {
-        $defaultRoles = [AuthRole::SUPER_ADMIN, 'gerente', 'atendente'];
-
         $roles = collect();
-        foreach ($defaultRoles as $roleName) {
+        foreach (self::ROLE_MAP as $roleId => $roleName) {
             $roles->push(AuthRole::query()->firstOrCreate(
-                ['name' => $roleName, 'guard_name' => 'sanctum'],
-                ['id' => (string) Str::uuid()]
+                ['id' => $roleId],
+                ['name' => $roleName, 'guard_name' => 'sanctum']
             ));
         }
 
@@ -47,7 +54,7 @@ class AuthExtraUsersSeeder extends Seeder
                         ]
                     );
 
-                    if (! $user->hasRole($role->name)) {
+                    if (! $user->roles()->where('id', $role->id)->exists()) {
                         $user->assignRole($role);
                     }
                 }

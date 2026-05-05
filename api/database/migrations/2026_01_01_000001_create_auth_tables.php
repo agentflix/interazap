@@ -25,7 +25,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('auth_permissions')) {
+        if (! Schema::hasTable('auth_permissions')) {
             Schema::create('auth_permissions', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da permissão');
                 $table->string('name', 255)->unique()->comment('Nome canônico da permissão (ex: users.create)');
@@ -36,7 +36,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('auth_roles')) {
+        if (! Schema::hasTable('auth_roles')) {
             Schema::create('auth_roles', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da role');
                 $table->string('name', 255)->unique()->comment('Nome canônico da role (ex: admin, manager)');
@@ -47,24 +47,24 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('auth_users')) {
+        if (! Schema::hasTable('auth_users')) {
             Schema::create('auth_users', function (Blueprint $table): void {
-            $table->uuid('id')->primary()->comment('Identificador único do usuário');
-            $table->uuid('tenant_id')->comment('Tenant ao qual o usuário pertence');
-            $table->string('name', 255)->comment('Nome completo do usuário');
-            $table->string('email', 255)->unique()->comment('E-mail único para login');
-            $table->string('phone', 255)->nullable()->comment('Telefone de contato');
-            $table->string('avatar_url', 255)->nullable()->comment('URL pública do avatar do usuário');
-            $table->timestamp('email_verified_at', 0)->nullable()->comment('Quando o e-mail foi verificado');
-            $table->string('password', 255)->comment('Hash da senha');
-            $table->string('remember_token', 100)->nullable()->comment('Token para lembrar sessão');
-            $table->boolean('is_active')->default(true)->comment('Se o usuário pode acessar a plataforma');
-            $table->boolean('two_factor_enabled')->default(false)->comment('Se o 2FA está habilitado');
-            $table->text('two_factor_secret')->nullable()->comment('Segredo TOTP para 2FA');
-            $table->text('two_factor_recovery_codes')->nullable()->comment('Códigos de recuperação do 2FA');
-            $table->jsonb('preferences')->default('{}')->comment('Preferências do usuário (tema, notificações, etc.)');
-            $table->timestamps(0);
-            $table->softDeletes();
+                $table->uuid('id')->primary()->comment('Identificador único do usuário');
+                $table->uuid('tenant_id')->comment('Tenant ao qual o usuário pertence');
+                $table->string('name', 255)->comment('Nome completo do usuário');
+                $table->string('email', 255)->unique()->comment('E-mail único para login');
+                $table->string('phone', 255)->nullable()->comment('Telefone de contato');
+                $table->string('avatar_url', 255)->nullable()->comment('URL pública do avatar do usuário');
+                $table->timestamp('email_verified_at', 0)->nullable()->comment('Quando o e-mail foi verificado');
+                $table->string('password', 255)->comment('Hash da senha');
+                $table->string('remember_token', 100)->nullable()->comment('Token para lembrar sessão');
+                $table->boolean('is_active')->default(true)->comment('Se o usuário pode acessar a plataforma');
+                $table->boolean('two_factor_enabled')->default(false)->comment('Se o 2FA está habilitado');
+                $table->text('two_factor_secret')->nullable()->comment('Segredo TOTP para 2FA');
+                $table->text('two_factor_recovery_codes')->nullable()->comment('Códigos de recuperação do 2FA');
+                $table->jsonb('preferences')->default('{}')->comment('Preferências do usuário (tema, notificações, etc.)');
+                $table->timestamps(0);
+                $table->softDeletes();
 
                 $table->index('tenant_id', 'idx_auth_users_tenant_id');
                 $table->index('email', 'idx_auth_users_email');
@@ -74,7 +74,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('auth_password_reset_tokens')) {
+        if (! Schema::hasTable('auth_password_reset_tokens')) {
             Schema::create('auth_password_reset_tokens', function (Blueprint $table): void {
                 $table->string('email', 255)->primary()->comment('E-mail para o qual o token de reset foi emitido');
                 $table->string('token', 255)->comment('Token criptografado de reset de senha');
@@ -82,7 +82,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('auth_sessions')) {
+        if (! Schema::hasTable('auth_sessions')) {
             Schema::create('auth_sessions', function (Blueprint $table): void {
                 $table->string('id', 128)->primary()->comment('ID único da sessão');
                 $table->uuid('user_id')->nullable()->comment('Usuário dono da sessão (FK -> auth_users)');
@@ -93,7 +93,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('auth_personal_access_tokens')) {
+        if (! Schema::hasTable('auth_personal_access_tokens')) {
             Schema::create('auth_personal_access_tokens', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador sequencial do token');
                 $table->string('tokenable_type', 255)->comment('Tipo do modelo dono do token (polymorphic)');
@@ -109,7 +109,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('auth_model_has_permissions')) {
+        if (! Schema::hasTable('auth_model_has_permissions')) {
             Schema::create('auth_model_has_permissions', function (Blueprint $table): void {
                 $table->uuid('permission_id')->comment('Permissão atribuída (FK -> auth_permissions)');
                 $table->string('model_type', 255)->comment('Tipo do modelo (classe PHP)');
@@ -124,7 +124,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('auth_model_has_roles')) {
+        if (! Schema::hasTable('auth_model_has_roles')) {
             Schema::create('auth_model_has_roles', function (Blueprint $table): void {
                 $table->uuid('role_id')->comment('Role atribuída (FK -> auth_roles)');
                 $table->string('model_type', 255)->comment('Tipo do modelo (classe PHP)');
@@ -139,7 +139,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('auth_role_has_permissions')) {
+        if (! Schema::hasTable('auth_role_has_permissions')) {
             Schema::create('auth_role_has_permissions', function (Blueprint $table): void {
                 $table->uuid('permission_id')->comment('Permissão vinculada (FK -> auth_permissions)');
                 $table->uuid('role_id')->comment('Role dona da permissão (FK -> auth_roles)');
@@ -152,7 +152,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('auth_device_tokens')) {
+        if (! Schema::hasTable('auth_device_tokens')) {
             Schema::create('auth_device_tokens', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do token de dispositivo');
                 $table->uuid('tenant_id')->comment('Tenant de origem (FK -> platform_tenants)');

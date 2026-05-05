@@ -7,19 +7,18 @@ use Domain\Auth\Models\AuthRole;
 use Domain\Auth\Models\AuthUser;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Str;
 
 uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     // Criar roles necessárias
-    $adminRole = AuthRole::query()->firstOrCreate(
-        ['name' => 'admin', 'guard_name' => 'sanctum'],
-        ['id' => (string) Str::orderedUuid()]
+    $adminRole = AuthRole::firstOrCreate(
+        ['id' => AuthRole::INQUILINO_ID],
+        ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
     );
-    $userRole = AuthRole::query()->firstOrCreate(
-        ['name' => 'user', 'guard_name' => 'sanctum'],
-        ['id' => (string) Str::orderedUuid()]
+    $userRole = AuthRole::firstOrCreate(
+        ['id' => AuthRole::ATENDENTE_ID],
+        ['name' => AuthRole::ATENDENTE_NAME, 'guard_name' => 'sanctum']
     );
 
     $this->tenant = PlatformTenant::factory()->create();
@@ -27,12 +26,12 @@ beforeEach(function (): void {
     $this->superAdmin = AuthUser::factory()->create([
         'tenant_id' => $this->tenant->id,
     ]);
-    $this->superAdmin->assignRole($adminRole);
+    $this->superAdmin->assignRole(AuthRole::INQUILINO_ID);
 
     $this->regularUser = AuthUser::factory()->create([
         'tenant_id' => $this->tenant->id,
     ]);
-    $this->regularUser->assignRole($userRole);
+    $this->regularUser->assignRole(AuthRole::ATENDENTE_ID);
 });
 
 describe('GET /api/platform/ai/prompts/masters', function (): void {
