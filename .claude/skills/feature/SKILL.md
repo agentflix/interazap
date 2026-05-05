@@ -59,3 +59,16 @@ FEATURE-XXX.md em .context/DOCS/FEATURES/
 ## Critério de qualidade
 
 Feature doc deve ser executável por outro agente sem precisar reler conversa.
+
+## Entrega
+
+Sempre criar o documento `FEATURE-XXX.md` em `.context/DOCS/FEATURES/` usando a tool `Write`.
+
+**Formato de entrega:**
+```markdown
+## Output
+
+[Feature doc completo em markdown]
+```
+
+O documento deve ser escrito no filesystem ANTES de mostrar o resumo para o usuário.

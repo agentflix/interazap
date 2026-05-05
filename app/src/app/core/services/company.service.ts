@@ -91,6 +91,12 @@ export class CompanyService {
     return this.http.delete<null>(`${this.baseUrl}/${id}/force`);
   }
 
+  purge(id: string | number, password: string): Observable<null> {
+    return this.http.delete<null>(`${this.baseUrl}/${id}/purge`, {
+      body: { password },
+    });
+  }
+
   /**
    * Fetch detailed tenant info: company data, contracted plan & resource usage.
    */

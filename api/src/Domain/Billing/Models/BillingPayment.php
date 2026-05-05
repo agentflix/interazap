@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Billing\Models;
 
+use Database\Factories\BillingPaymentFactory;
 use Domain\Billing\Enums\BillingPaymentStatus;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Shared\Concerns\BelongsToTenant;
@@ -74,6 +75,14 @@ class BillingPayment extends Model
                 $payment->id = (string) Str::orderedUuid();
             }
         });
+    }
+
+    /**
+     * Criar uma nova instância da Factory para testes.
+     */
+    protected static function newFactory(): BillingPaymentFactory
+    {
+        return BillingPaymentFactory::new();
     }
 
     /**

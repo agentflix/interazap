@@ -28,6 +28,10 @@ final class MessagePersistorListener
         $this->summaryService->invalidateSummary($event->ticketId);
         $this->dispatchNewMessagePush($event);
 
+        if (($event->context['direction'] ?? '') === 'outgoing') {
+            return;
+        }
+
         ConversationResolverJob::dispatch(
             tenantId: $event->tenantId,
             ticketId: $event->ticketId,

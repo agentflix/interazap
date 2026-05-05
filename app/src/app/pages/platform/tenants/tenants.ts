@@ -23,6 +23,7 @@ import {
   AfIconButtonComponent,
   AfLoadingButtonComponent,
   AfModalComponent,
+  AfPasswordInputComponent,
   AfScrollAreaComponent,
   AfSelectInputComponent,
   AfSortableHeaderComponent,
@@ -34,6 +35,9 @@ import {
 import { type Company, CompanyService } from '@core/services/company.service';
 import { type TenantDetails } from '@shared/models/tenant-details.model';
 import { ToastService } from '@core/services/toast.service';
+import { AuthService } from '@core/services/auth.service';
+import { AuthStoreService, type AuthUser } from '@core/services/auth-store.service';
+import { Router } from '@angular/router';
 import { TenantExportComponent } from './components/tenant-export/tenant-export';
 import { TenantFormComponent } from './components/tenant-form/tenant-form';
 
@@ -60,6 +64,7 @@ type TenantSortField = 'name' | 'document' | 'is_active' | 'created_at';
     AfStatusBadgeComponent,
     AfTableActionsComponent,
     AfAlertComponent,
+    AfPasswordInputComponent,
     TenantExportComponent,
     TenantFormComponent,
   ],
@@ -69,7 +74,12 @@ type TenantSortField = 'name' | 'document' | 'is_active' | 'created_at';
 export class Tenants implements OnInit {
   private readonly service = inject(CompanyService);
   private readonly toast = inject(ToastService);
+  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStoreService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly isSuperAdmin = computed(() => this.authStore.hasPermission('platform.tenants.manage'));
 
   readonly tenantFormRef = viewChild<TenantFormComponent>('tenantForm');
   readonly isFormSaving = computed(() => this.tenantFormRef()?.isSaving() ?? false);
@@ -121,12 +131,20 @@ export class Tenants implements OnInit {
 
   readonly showForceDeleteModal = signal(false);
   readonly tenantToForceDelete = signal<Company | null>(null);
+  readonly isForceDeleting = signal(false);
   readonly forceDeleteMessage = computed(() => {
     const tenant = this.tenantToForceDelete();
     return tenant
       ? `Tem certeza que deseja excluir permanentemente o inquilino "${tenant.name}"?`
       : 'Tem certeza que deseja excluir permanentemente este inquilino?';
   });
+
+  readonly showImpersonateModal = signal(false);
+  readonly tenantToImpersonate = signal<Company | null>(null);
+  readonly isImpersonating = signal(false);
+  readonly impersonatePasswordControl = new FormControl<string>('', { nonNullable: true });
+
+  readonly adminPasswordControl = new FormControl<string>('', { nonNullable: true });
 
   // ─── Details panel ─────────────────────────────────────────────────────────
   readonly isDetailsOpen = signal(false);
@@ -241,7 +259,50 @@ export class Tenants implements OnInit {
 
   openForceDelete(tenant: Company): void {
     this.tenantToForceDelete.set(tenant);
+    this.adminPasswordControl.setValue('', { emitEvent: false });
     this.showForceDeleteModal.set(true);
+  }
+
+  openImpersonate(tenant: Company): void {
+    this.tenantToImpersonate.set(tenant);
+    this.impersonatePasswordControl.setValue('', { emitEvent: false });
+    this.showImpersonateModal.set(true);
+  }
+
+  handleImpersonateConfirmed(): void {
+    const tenant = this.tenantToImpersonate();
+    if (!tenant || this.isImpersonating()) return;
+
+    const password = this.impersonatePasswordControl.value;
+    if (!password || password.trim().length === 0) return;
+
+    this.isImpersonating.set(true);
+
+    this.authService
+      .impersonateTenant(String(tenant.id), password.trim())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.isImpersonating.set(false);
+          this.showImpersonateModal.set(false);
+          this.tenantToImpersonate.set(null);
+          this.impersonatePasswordControl.setValue('', { emitEvent: false });
+
+          const user = response.data?.user;
+          const token = response.data?.token;
+          if (user && token) {
+            this.authStore.startImpersonation(user as unknown as AuthUser, token);
+          }
+
+          this.toast.success(`Você entrou como ${tenant.name}.`);
+          void this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.isImpersonating.set(false);
+          const msg = err?.error?.message || 'Erro ao impersonar. Verifique a senha e tente novamente.';
+          this.toast.error(msg);
+        },
+      });
   }
 
   handleFormSaved(_tenant: Company): void {
@@ -302,20 +363,29 @@ export class Tenants implements OnInit {
 
   handleForceDeleteConfirmed(): void {
     const target = this.tenantToForceDelete();
-    if (!target) return;
+    if (!target || this.isForceDeleting()) return;
+
+    const password = this.adminPasswordControl.value;
+    if (!password || password.trim().length === 0) return;
+
+    this.isForceDeleting.set(true);
 
     this.service
-      .forceDelete(target.id)
+      .purge(target.id, password.trim())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
+          this.isForceDeleting.set(false);
           this.showForceDeleteModal.set(false);
           this.tenantToForceDelete.set(null);
+          this.adminPasswordControl.setValue('', { emitEvent: false });
           this.toast.success('Inquilino excluído permanentemente com sucesso.');
           this.loadTenants();
         },
-        error: () => {
-          this.showForceDeleteModal.set(false);
+        error: (err) => {
+          this.isForceDeleting.set(false);
+          const msg = err?.error?.message || 'Erro ao excluir permanentemente. Verifique a senha e tente novamente.';
+          this.toast.error(msg);
         },
       });
   }

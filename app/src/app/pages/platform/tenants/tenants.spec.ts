@@ -19,6 +19,7 @@ describe('Tenants', () => {
     delete: ReturnType<typeof vi.fn>;
     restore: ReturnType<typeof vi.fn>;
     forceDelete: ReturnType<typeof vi.fn>;
+    purge: ReturnType<typeof vi.fn>;
   };
 
   const mockTenants = [
@@ -93,6 +94,7 @@ describe('Tenants', () => {
       delete: vi.fn().mockReturnValue(of(void 0)),
       restore: vi.fn().mockReturnValue(of({ data: mockTenants[0] })),
       forceDelete: vi.fn().mockReturnValue(of(void 0)),
+      purge: vi.fn().mockReturnValue(of(void 0)),
     };
 
     await TestBed.configureTestingModule({

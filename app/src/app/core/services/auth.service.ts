@@ -160,6 +160,34 @@ export class AuthService {
   }
 
   /**
+   * Impersona um tenant como super admin.
+   *
+   * @param tenantId - ID do tenant a ser impersonado
+   * @param password - Senha do super admin para validacao
+   * @returns Observable com dados da sessao do usuario admin do tenant
+   */
+  impersonateTenant(tenantId: string, password: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(
+        `${this.baseUrl}/platform/tenants/${tenantId}/impersonate`,
+        { password },
+        { withCredentials: true },
+      )
+      .pipe(switchMap((response) => this.persistToken(response)));
+  }
+
+  /**
+   * Encerra a impersonacao e retorna a sessao do super admin original.
+   *
+   * @returns Observable com dados da sessao original
+   */
+  stopImpersonating(): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.baseUrl}/auth/stop-impersonating`, {}, { withCredentials: true })
+      .pipe(switchMap((response) => this.persistToken(response)));
+  }
+
+  /**
    * Envia email de recuperacao de senha.
    *
    * @param email - Email do usuario que esqueceu a senha

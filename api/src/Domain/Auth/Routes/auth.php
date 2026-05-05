@@ -34,6 +34,7 @@ Route::middleware(['auth:sanctum'])
         Route::post('/logout', [AuthLoginController::class, 'logout']);
         Route::get('/get-menu', [AuthLoginController::class, 'getMenu']);
         Route::post('/refresh', [AuthLoginController::class, 'refresh']);
+        Route::post('/stop-impersonating', [AuthLoginController::class, 'stopImpersonating']);
 
         // Perfil
         Route::get('/profile', [AuthProfileController::class, 'show']);

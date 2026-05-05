@@ -35,6 +35,7 @@ interface StoredAuth {
 
 const STORAGE_KEY = 'auth-storage';
 const TOKEN_KEY = 'token';
+const IMPERSONATION_ORIGINAL_TOKEN_KEY = 'impersonation_original_token';
 
 /**
  * Service for managing authentication state as signals.
@@ -65,6 +66,14 @@ export class AuthStoreService {
   isAuthenticated = computed(() => Boolean(this.tokenSignal()));
   /** Whether the service has restored state from localStorage */
   hasHydrated = computed(() => this.hydratedSignal());
+  /** Whether the current session is an impersonation */
+  isImpersonating = computed(() => Boolean(this.userSignal()?.['is_impersonating' as keyof AuthUser]));
+  /** Name of the impersonated tenant */
+  impersonatedTenantName = computed(() => {
+    const user = this.userSignal();
+    if (!user || !('impersonated_tenant' in user)) return null;
+    return (user as unknown as Record<string, unknown>)['impersonated_tenant'] as { name: string } | undefined;
+  });
 
   private readonly preferencesService = inject(PreferencesService, { optional: true });
   private readonly themeService = inject(ThemeService, { optional: true });
@@ -96,6 +105,36 @@ export class AuthStoreService {
     this.tokenSignal.set(token);
     this.persist({ user, token });
     this.loadUserPreferences();
+  }
+
+  /**
+   * Start impersonation by saving the original token and setting the impersonated session.
+   */
+  startImpersonation(user: AuthUser, token: string): void {
+    const currentToken = this.tokenSignal();
+    if (currentToken) {
+      this.saveOriginalToken(currentToken);
+    }
+    this.userSignal.set(user);
+    this.tokenSignal.set(token);
+    this.persist({ user, token });
+  }
+
+  /**
+   * Stop impersonation and restore the original super admin session.
+   */
+  stopImpersonation(user: AuthUser, token: string): void {
+    this.clearOriginalToken();
+    this.userSignal.set(user);
+    this.tokenSignal.set(token);
+    this.persist({ user, token });
+  }
+
+  /**
+   * Check if an original token exists (indicates we were impersonating before a page reload).
+   */
+  hasOriginalToken(): boolean {
+    return this.readOriginalToken() !== null;
   }
 
   /**
@@ -197,5 +236,27 @@ export class AuthStoreService {
     }
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(IMPERSONATION_ORIGINAL_TOKEN_KEY);
+  }
+
+  private saveOriginalToken(token: string): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    localStorage.setItem(IMPERSONATION_ORIGINAL_TOKEN_KEY, token);
+  }
+
+  private readOriginalToken(): string | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+    return localStorage.getItem(IMPERSONATION_ORIGINAL_TOKEN_KEY);
+  }
+
+  private clearOriginalToken(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    localStorage.removeItem(IMPERSONATION_ORIGINAL_TOKEN_KEY);
   }
 }

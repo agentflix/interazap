@@ -231,6 +231,38 @@ final class AuthLoginActions
     }
 
     /**
+     * Encerrar a impersonação e retornar à sessão do super admin original.
+     *
+     * Identifica se o token atual é de impersonação, revoga-o e cria
+     * uma nova sessão para o super admin original.
+     *
+     * @param  AuthUser  $user  O usuário autenticado (super admin original).
+     * @return AuthSessionDTO Nova sessão do super admin original.
+     *
+     * @throws ValidationException Caso o token atual não seja de impersonação.
+     */
+    public function stopImpersonating(AuthUser $user): AuthSessionDTO
+    {
+        /** @var \Laravel\Sanctum\PersonalAccessToken|null $token */
+        $token = $user->currentAccessToken();
+
+        if ($token === null || ! str_starts_with((string) $token->name, 'impersonation')) {
+            throw ValidationException::withMessages([
+                'session' => ['Você não está em uma sessão de impersonação.'],
+            ]);
+        }
+
+        $token->delete();
+
+        Log::info('auth.impersonate.stop', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+        ]);
+
+        return $this->createSession($user, includeToken: true);
+    }
+
+    /**
      * Construir o menu de navegação do usuário.
      *
      * Gera a árvore de menus e filtra os itens baseado nas permissões
@@ -250,7 +282,7 @@ final class AuthLoginActions
     /**
      * Criar o objeto de sessão padronizado.
      */
-    private function createSession(AuthUser $user, bool $includeToken, ?string $deviceName = null): AuthSessionDTO
+    public function createSession(AuthUser $user, bool $includeToken, ?string $deviceName = null): AuthSessionDTO
     {
         $tokenName = $deviceName ?? 'auth-token';
         $token = $includeToken ? $user->createToken($tokenName)->plainTextToken : null;

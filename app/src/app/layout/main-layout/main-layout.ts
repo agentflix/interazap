@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { SidenavComponent } from '../components/sidenav/sidenav';
 import { TopbarComponent } from '../components/topbar/topbar';
 import { FooterComponent } from '../components/footer/footer';
+import { ImpersonationBannerComponent } from '../components/impersonation-banner/impersonation-banner';
 import { AppShellService } from '../../core/services/app-shell.service';
 import { SearchSpotlightComponent } from '../../shared/components/search-spotlight/search-spotlight';
 
@@ -28,6 +29,7 @@ import { SearchSpotlightComponent } from '../../shared/components/search-spotlig
     SidenavComponent,
     TopbarComponent,
     FooterComponent,
+    ImpersonationBannerComponent,
     SearchSpotlightComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
