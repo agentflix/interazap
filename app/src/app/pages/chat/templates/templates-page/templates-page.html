@@ -1,7 +1,7 @@
 <af-crud-page
-  title="Templates de mensagens"
+  title="Templates Meta"
   subtitle="WhatsApp Business — Meta"
-  createLabel="Novo template"
+  createLabel="Novo Template Meta"
   searchPlaceholder="Buscar por nome..."
   [loading]="isLoading()"
   [empty]="isEmpty()"
@@ -24,7 +24,6 @@
         [control]="chatInstanceControl"
         [options]="chatInstanceOptions()"
         size="sm"
-        label="Canal"
         [spacing]="false"
       />
     </div>
@@ -33,7 +32,6 @@
         [control]="statusControl"
         [options]="statusOptions"
         size="sm"
-        label="Status"
         [spacing]="false"
       />
     </div>
@@ -42,6 +40,7 @@
       size="sm"
       [disabled]="!canSync() || isSyncing()"
       (click)="syncNow()"
+      class="self-end"
     >
       <lucide-icon name="refresh-cw" [size]="16" class="block" />
       {{ isSyncing() ? 'Sincronizando...' : 'Sincronizar com Meta' }}
