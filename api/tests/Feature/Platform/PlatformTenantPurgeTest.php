@@ -55,6 +55,50 @@ test('purge tenant with incorrect password returns 403', function (): void {
     $this->assertDatabaseHas('platform_tenants', ['id' => $targetTenant->id]);
 });
 
+test('delete protected default tenant returns 403', function (): void {
+    $targetTenant = PlatformTenant::factory()->create();
+    config(['app.default_tenant_id' => (string) $targetTenant->id]);
+
+    $response = $this->deleteJson("/api/platform/tenants/{$targetTenant->id}");
+
+    $response->assertForbidden()
+        ->assertJsonPath('message', 'Empresa principal InteraZap não pode ser excluída.');
+    $this->assertDatabaseHas('platform_tenants', [
+        'id' => $targetTenant->id,
+        'deleted_at' => null,
+    ]);
+});
+
+test('force delete protected default tenant returns 403', function (): void {
+    $targetTenant = PlatformTenant::factory()->create();
+    config(['app.default_tenant_id' => (string) $targetTenant->id]);
+
+    $response = $this->deleteJson("/api/platform/tenants/{$targetTenant->id}/force");
+
+    $response->assertForbidden()
+        ->assertJsonPath('message', 'Empresa principal InteraZap não pode ser excluída.');
+    $this->assertDatabaseHas('platform_tenants', [
+        'id' => $targetTenant->id,
+        'deleted_at' => null,
+    ]);
+});
+
+test('purge protected default tenant returns 403', function (): void {
+    $targetTenant = PlatformTenant::factory()->create();
+    config(['app.default_tenant_id' => (string) $targetTenant->id]);
+
+    $response = $this->deleteJson("/api/platform/tenants/{$targetTenant->id}/purge", [
+        'password' => 'correct-password',
+    ]);
+
+    $response->assertForbidden()
+        ->assertJsonPath('message', 'Empresa principal InteraZap não pode ser excluída.');
+    $this->assertDatabaseHas('platform_tenants', [
+        'id' => $targetTenant->id,
+        'deleted_at' => null,
+    ]);
+});
+
 test('purge tenant without authentication returns 401', function (): void {
     $this->app['auth']->forgetGuards();
     $targetTenant = PlatformTenant::factory()->create();

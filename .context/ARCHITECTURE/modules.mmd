@@ -1,0 +1,54 @@
+graph LR
+    subgraph API["API (Laravel 12 - DDD)"]
+        SHARED["Shared (Kernel)"]
+        PLAT["Platform (Tenants)"]
+        AUTH["Auth"]
+        CHAT["Chat"]
+        CRM["CRM"]
+        AI["Ai"]
+        BILL["Billing"]
+        CFG["Configuration"]
+        DASH["Dashboard"]
+        REP["Reports"]
+        GW["Gateway (bridge)"]
+    end
+
+    subgraph Services["Services / Frontends"]
+        GWN["Gateway-NestJS"]
+        APP["App (Angular 19)"]
+        ELE["Electron 33"]
+    end
+
+    AUTH --> SHARED
+    AUTH --> PLAT
+    PLAT --> SHARED
+    CHAT --> SHARED
+    CHAT --> PLAT
+    CHAT --> CRM
+    CRM --> SHARED
+    CRM --> PLAT
+    CRM --> CHAT
+    AI --> SHARED
+    AI --> CHAT
+    BILL --> SHARED
+    BILL --> PLAT
+    CFG --> SHARED
+    CFG --> PLAT
+    DASH --> CHAT
+    DASH --> CRM
+    DASH --> REP
+    REP --> CHAT
+    REP --> CRM
+    GW --> CHAT
+    GW --> SHARED
+
+    GWN <-.->|Redis Streams| GW
+    APP -->|HTTP| AUTH
+    APP -->|HTTP| CHAT
+    APP <-.->|WebSocket| GWN
+    ELE -->|HTTP| AUTH
+    ELE -->|HTTP| CHAT
+    ELE <-.->|WebSocket| GWN
+
+    style SHARED fill:#FFF9C4,stroke:#F9A825
+    style PLAT fill:#E8F5E9,stroke:#4CAF50

@@ -227,4 +227,14 @@ final class PlatformTenant extends Model
     {
         return $this->billing_status === BillingTenantStatus::PENDING_PURGE;
     }
+
+    /**
+     * Verifica se o tenant é a empresa principal protegida da plataforma.
+     */
+    public function isProtectedDefaultTenant(): bool
+    {
+        $defaultTenantId = (string) config('app.default_tenant_id', '');
+
+        return $defaultTenantId !== '' && (string) $this->id === $defaultTenantId;
+    }
 }

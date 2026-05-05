@@ -1,89 +1,97 @@
-# project-brain.yaml — InteraZap
+version: "1.0"
+project: "InteraZap"
+last_updated: "2026-05-04"
 
-nome: InteraZap
-descricao: Plataforma de automação de WhatsApp com CRM integrado, gateway de integrações, e AI para classificação e streaming de mensagens.
-tipo: SaaS B2B multi-tenant
-dominio: Comunicação / CRM / Pagamentos
+identity:
+  name: "InteraZap"
+  description: "Plataforma SaaS multi-tenant de automacao de WhatsApp com CRM integrado, gateway de integracoes e IA para classificacao e streaming de mensagens"
+  type: "SaaS multi-tenant - Monorepo (API + Gateway + App + Electron + Landing)"
+  domain: "WhatsApp Business automation, CRM, atendimento omnichannel"
 
-stack:
-  api:
-    framework: Laravel 12
-    php: "8.3"
-    banco: PostgreSQL 17
-    cache: Redis 7
-    features:
-      - pgvector (AI embeddings)
-      - Sanctum (auth)
-      - Spatie Permissions (RBAC)
-    arquitetura: DDD em src/Domain/{Domain}/
-    teste: Pest
-    analise: PHPStan L6 + Larastan + Rector
+architecture:
+  pattern: "DDD (Controller -> DTO -> Action -> Resource) por bounded context"
+  layers:
+    - "Presentation (Http/Controllers, Requests, Resources, Policies)"
+    - "Application (Actions, DTOs)"
+    - "Domain (Models, Value Objects, Events) - PHP puro"
+    - "Infrastructure (Eloquent, Redis, Filesystem, Horizon)"
+  core_principles:
+    - "Multi-tenancy com isolamento via trait BelongsToTenant"
+    - "UUID primary keys (nunca auto-increment)"
+    - "Strict types em todos arquivos PHP (declare(strict_types=1))"
+    - "phpDoc obrigatorio em classes e metodos publicos"
+    - "final class em Controllers, Actions, DTOs"
+    - "Eager loading sempre - proibido N+1"
+    - "fillable explicito - nunca guarded = []"
+    - "Idempotencia em webhooks (Redis-based)"
+    - "Comunicacao API <-> Gateway via Redis Streams (com ack)"
+    - "RBAC obrigatorio em todo Action"
 
-  gateway:
-    framework: NestJS 11
-    typescript: "5.7"
-    filas: BullMQ
-    streams: Redis Streams
-    realtime: WebSocket (Socket.io)
-    teste: Jest
-    integracoes:
-      - UazAPI (WhatsApp)
-      - Z-API (WhatsApp)
-      - Asaas (pagamentos)
-      - OpenAI (AI)
+key_decisions:
+  - decision: "Adocao de DDD com bounded contexts em src/Domain/{Context}"
+    rationale: "Clareza de responsabilidades, isolamento de regras de negocio por contexto"
+    date: "Setup inicial do projeto"
+    alternatives_rejected: "MVC tradicional, separacao por tipo de arquivo"
 
-  app:
-    framework: Angular 19
-    mobile: Capacitor + Ionic
-    estado: unknown
+  - decision: "Multi-tenant via trait BelongsToTenant + scope global"
+    rationale: "Isolamento automatico em queries, dificil de esquecer; row-level seguranca"
+    date: "Setup inicial"
+    alternatives_rejected: "Schema-per-tenant (custo de migracoes), DB-per-tenant (custo operacional)"
 
-modulos_api:
-  - Ai (classificação, streaming)
-  - Auth (autenticação)
-  - Billing (assinaturas, pagamentos)
-  - Chat (mensagens, conversas)
-  - Configuration (configurações)
-  - CRM (contatos, empresas)
-  - Dashboard
-  - Gateway (integrações)
-  - Platform
-  - Reports
-  - Shared
+  - decision: "Gateway separado em NestJS (TypeScript) ao inves de jobs Laravel"
+    rationale: "Isolar integracoes externas (OpenAI, Asaas, providers WhatsApp); permitir reboot independente; usar BullMQ + Redis Streams"
+    date: "Setup inicial"
+    alternatives_rejected: "Tudo dentro do Laravel (acoplamento), microservico em Go (curva de aprendizado)"
 
-modulos_gateway:
-  - ai (OpenAI)
-  - billing (Asaas)
-  - chat (WhatsApp)
-  - internal
-  - realtime (WebSocket)
-  - webhooks
+  - decision: "Frontends multiplos com mesma codebase Angular (App + Electron)"
+    rationale: "Reuso de componentes; experiencia consistente web/mobile/desktop"
+    date: "Setup inicial"
+    alternatives_rejected: "App nativo separado por plataforma"
 
-convencoes_api:
-  - strict_types em todo arquivo
-  - phpDoc em classes e métodos públicos
-  - final class em Controllers, Actions, DTOs
-  - $fillable explícito (nunca $guarded = [])
-  - UUID como primary key
-  - Eager loading obrigatório (nunca N+1)
-  - BelongsToTenant em todos os models
-  - Controller → DTO → Action → Resource
+  - decision: "pgvector no PostgreSQL para embeddings IA"
+    rationale: "Evita Pinecone/Weaviate adicional; mantem tudo em um DB"
+    date: "Setup inicial"
+    alternatives_rejected: "Pinecone, Weaviate, Qdrant"
 
-convencoes_gateway:
-  - ValidationPipe com whitelist: true
-  - Logger dedicado por controller/service
-  - Idempotência em webhook handlers (SETNX com TTL)
-  - Circuit breaker em chamadas HTTP externas
-  - Resposta de webhook < 150ms
-  - Nunca logar tokens ou chaves de API
+business_rules:
+  - "Todo dado (mensagem, contato, deal) PERTENCE a um tenant - isolamento absoluto"
+  - "Webhooks WhatsApp (UazAPI/Z-API) sao autenticados via HMAC e idempotentes"
+  - "Mensagens recebidas sao classificadas por IA (intent + sentiment) antes de notificar atendentes"
+  - "Atendentes so veem leads/conversas atribuidos (RBAC com Spatie)"
+  - "Pagamentos via Asaas - webhook obrigatorio para confirmacao"
+  - "Auditoria com owen-it/laravel-auditing em modelos sensiveis (users, billing)"
+  - "Tenant em hard-delete (purge) requer confirmacao dupla e remove tudo cascading"
 
-areas_sensiveis:
-  - Autenticação e autorização (Auth, Permissions)
-  - Pagamentos e billing (Asaas)
-  - Webhooks (validação, idempotência)
-  - Dados de chat e CRM
+conventions:
+  file_naming: "Domain/{Context}/{Tipo}/{Context}{Entity}{Tipo}.php"
+  class_naming: "PascalCase com sufixo do tipo (ex: ChatMessageAction, ChatMessageDTO)"
+  function_naming: "camelCase (PHP) / camelCase (TS)"
+  constant_naming: "UPPER_SNAKE_CASE"
+  commit_format: "Conventional Commits (pt-BR aceito): feat: / fix: / refactor: / chore: / docs: / test:"
+  branch_format: "feature/FEAT-NNN-descricao | fix/BUG-NNN-descricao"
+  test_naming: "tests/Feature/{Context}/{Entity}Test.php (Pest) / *.spec.ts (Vitest)"
 
-integracoes_externas:
-  - UazAPI: provider WhatsApp
-  - Z-API: provider WhatsApp alternativo
-  - Asaas: gateway de pagamentos
-  - OpenAI: classificação e streaming de mensagens
+sensitive_areas:
+  - path: "api/src/Domain/Auth"
+    reason: "Autenticacao e gestao de tokens - exposicao critica"
+    extra_care: "Nunca logar tokens; rate limiting; testes de seguranca"
+
+  - path: "api/src/Domain/Billing"
+    reason: "Cobranca financeira via Asaas - erros = perda de receita"
+    extra_care: "Webhooks idempotentes; auditoria; nao apagar registros"
+
+  - path: "api/src/Domain/Platform"
+    reason: "Multi-tenancy - vazamento entre tenants seria catastrofico"
+    extra_care: "Toda query DEVE passar por BelongsToTenant; testes de isolamento obrigatorios"
+
+  - path: "gateway/src/domains/whatsapp"
+    reason: "Integracao com providers externos - falhas afetam comunicacao"
+    extra_care: "Circuit breaker + retry exponencial; logs estruturados; idempotencia"
+
+  - path: "gateway/src/domains/ai"
+    reason: "Custo OpenAI - chamadas indevidas geram conta alta"
+    extra_care: "Rate limiting; cache de embeddings; budget alerts"
+
+  - path: "api/src/Domain/Chat"
+    reason: "Volume alto de mensagens - performance critica"
+    extra_care: "Eager loading; indices; particionamento futuro; queue jobs para tarefas pesadas"

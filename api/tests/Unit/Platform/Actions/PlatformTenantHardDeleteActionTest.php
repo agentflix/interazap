@@ -56,6 +56,21 @@ class PlatformTenantHardDeleteActionTest extends TestCase
         app(PlatformTenantHardDeleteAction::class)->execute($tenant, 'wrong-password', $actor);
     }
 
+    public function test_throws_on_protected_default_tenant(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        config(['app.default_tenant_id' => (string) $tenant->id]);
+
+        $actor = AuthUser::factory()->create([
+            'password' => Hash::make('correct-password'),
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Empresa principal InteraZap não pode ser excluída.');
+
+        app(PlatformTenantHardDeleteAction::class)->execute($tenant, 'correct-password', $actor);
+    }
+
     public function test_throws_on_recent_payment(): void
     {
         $tenant = PlatformTenant::factory()->create();

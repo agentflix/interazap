@@ -13,12 +13,15 @@ use Domain\Shared\Support\SearchSanitizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 /**
  * Acoes para gerenciamento de tenants da plataforma.
  */
 final class PlatformTenantActions
 {
+    private const PROTECTED_TENANT_DELETE_MESSAGE = 'Empresa principal InteraZap não pode ser excluída.';
+
     /**
      * @param  array<string, mixed>  $filters
      */
@@ -121,6 +124,8 @@ final class PlatformTenantActions
 
     public function delete(PlatformTenant $tenant): void
     {
+        $this->assertTenantCanBeDeleted($tenant);
+
         $tenant->delete();
     }
 
@@ -135,7 +140,16 @@ final class PlatformTenantActions
     public function forceDelete(string $id): void
     {
         $tenant = $this->find($id, true);
+        $this->assertTenantCanBeDeleted($tenant);
+
         $tenant->forceDelete();
+    }
+
+    private function assertTenantCanBeDeleted(PlatformTenant $tenant): void
+    {
+        if ($tenant->isProtectedDefaultTenant()) {
+            throw new RuntimeException(self::PROTECTED_TENANT_DELETE_MESSAGE);
+        }
     }
 
     public function toggleActive(string $id): PlatformTenant

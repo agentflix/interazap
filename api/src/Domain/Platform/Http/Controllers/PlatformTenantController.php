@@ -155,7 +155,11 @@ final class PlatformTenantController extends BaseController
         $tenant = $this->actions->find($id);
         $this->authorize('delete', $tenant);
 
-        $this->actions->delete($tenant);
+        try {
+            $this->actions->delete($tenant);
+        } catch (\RuntimeException $exception) {
+            return $this->error($exception->getMessage(), 403);
+        }
 
         return $this->noContent();
     }
@@ -185,7 +189,11 @@ final class PlatformTenantController extends BaseController
         $tenant = $this->actions->find($id, true);
         $this->authorize('delete', $tenant);
 
-        $this->actions->forceDelete($id);
+        try {
+            $this->actions->forceDelete($id);
+        } catch (\RuntimeException $exception) {
+            return $this->error($exception->getMessage(), 403);
+        }
 
         return $this->noContent();
     }

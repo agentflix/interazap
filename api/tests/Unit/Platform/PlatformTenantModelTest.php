@@ -28,4 +28,12 @@ class PlatformTenantModelTest extends TestCase
         $this->assertNotEmpty($tenant->id);
         $this->assertNotEmpty($tenant->billing_webhook_token);
     }
+
+    public function test_identifies_protected_default_tenant(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        config(['app.default_tenant_id' => (string) $tenant->id]);
+
+        $this->assertTrue($tenant->isProtectedDefaultTenant());
+    }
 }

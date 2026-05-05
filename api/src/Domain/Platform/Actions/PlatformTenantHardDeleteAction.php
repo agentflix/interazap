@@ -20,6 +20,8 @@ use RuntimeException;
  */
 final class PlatformTenantHardDeleteAction
 {
+    private const PROTECTED_TENANT_DELETE_MESSAGE = 'Empresa principal InteraZap não pode ser excluída.';
+
     /**
      * @return array{tenant_id:string,purged:bool}
      */
@@ -56,6 +58,10 @@ final class PlatformTenantHardDeleteAction
 
     private function assertSafetyChecks(PlatformTenant $tenant): void
     {
+        if ($tenant->isProtectedDefaultTenant()) {
+            throw new RuntimeException(self::PROTECTED_TENANT_DELETE_MESSAGE);
+        }
+
         $recentPayment = BillingPayment::query()
             ->withoutGlobalScopes()
             ->where('tenant_id', $tenant->id)
