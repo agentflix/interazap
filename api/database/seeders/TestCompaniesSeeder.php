@@ -65,7 +65,7 @@ class TestCompaniesSeeder extends Seeder
                     $user->assignRole($adminRole);
                 }
 
-                $this->command->info("  - Usuário: {$userName} ({$userEmail}) - " . ($i === 1 ? 'Gerente' : 'Admin'));
+                $this->command->info("  - Usuário: {$userName} ({$userEmail}) - ".($i === 1 ? 'Gerente' : 'Admin'));
             }
         }
 
@@ -92,6 +92,7 @@ class TestCompaniesSeeder extends Seeder
     private function getUserEmail(int $companyIndex, int $userIndex): string
     {
         $domains = ['techsolutions.com.br', 'digitalmark.com.br', 'consultoria.com.br'];
-        return strtolower(str_replace(' ', '.', $this->getUserName($companyIndex, $userIndex))) . '@' . $domains[$companyIndex];
+
+        return strtolower(str_replace(' ', '.', $this->getUserName($companyIndex, $userIndex))).'@'.$domains[$companyIndex];
     }
 }

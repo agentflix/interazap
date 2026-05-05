@@ -88,6 +88,17 @@ final class PlatformTenantImpersonateAction
                 'tenant' => ['Não é possível impersonar um tenant inativo.'],
             ]);
         }
+
+        $hasUsers = AuthUser::query()
+            ->withoutGlobalScope(TenantScope::class)
+            ->where('tenant_id', $tenant->id)
+            ->exists();
+
+        if (! $hasUsers) {
+            throw ValidationException::withMessages([
+                'tenant' => ['Esta empresa não possui usuários. Impossível impersonar.'],
+            ]);
+        }
     }
 
     /**
