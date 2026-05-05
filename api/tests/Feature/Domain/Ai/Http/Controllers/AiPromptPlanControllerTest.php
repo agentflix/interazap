@@ -66,8 +66,6 @@ class AiPromptPlanControllerTest extends TestCase
 
         $payload = [
             'content' => 'New System Prompt',
-            'token_limit_monthly' => 1000,
-            'allow_overage' => true,
         ];
 
         $response = $this->actingAs($this->admin)->putJson(route('platform.ai.plans.update', $plan->id), $payload);

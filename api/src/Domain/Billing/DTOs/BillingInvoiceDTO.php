@@ -13,6 +13,9 @@ use Illuminate\Http\Request;
  */
 final readonly class BillingInvoiceDTO
 {
+    /**
+     * @param  array<string, mixed>|null  $metadata
+     */
     public function __construct(
         public ?string $planId,
         public string $referenceMonth,
@@ -20,6 +23,7 @@ final readonly class BillingInvoiceDTO
         public string $status,
         public string $dueDate,
         public ?string $paymentMethod = null,
+        public ?array $metadata = null,
     ) {}
 
     /**
@@ -36,6 +40,7 @@ final readonly class BillingInvoiceDTO
             status: $data['status'] ?? 'draft',
             dueDate: $data['due_date'],
             paymentMethod: $data['payment_method'] ?? null,
+            metadata: $data['metadata'] ?? null,
         );
     }
 
@@ -53,6 +58,7 @@ final readonly class BillingInvoiceDTO
             status: $data['status'] ?? 'draft',
             dueDate: $data['due_date'],
             paymentMethod: $data['payment_method'] ?? null,
+            metadata: $data['metadata'] ?? null,
         );
     }
 
@@ -70,6 +76,7 @@ final readonly class BillingInvoiceDTO
             'status' => $this->status,
             'due_date' => $this->dueDate,
             'payment_method' => $this->paymentMethod,
+            'metadata' => $this->metadata,
         ];
     }
 }

@@ -29,16 +29,6 @@ class AiPromptPlanSeeder extends Seeder
         $count = 0;
 
         foreach ($plans as $plan) {
-            $allowOverage = (float) ($plan->price_monthly ?? 0) > 0.0;
-            $tokenLimit = match ($plan->slug) {
-                'starter', 'basic' => 150000,
-                'medium' => 350000,
-                'pro', 'professional' => 600000,
-                'master' => 1200000,
-                'enterprise' => 2500000,
-                default => 300000,
-            };
-
             $content = match ($plan->slug) {
                 'starter', 'basic' => 'REGRAS DO PLANO STARTER/BASIC: mantenha respostas muito curtas com no máximo 80 palavras, linguagem simples e direta, sem tabelas, sem formatação rica e sem exemplos extensos. Priorize uma orientação objetiva e um próximo passo único por resposta.',
                 'medium' => 'REGRAS DO PLANO MÉDIO — COMPORTAMENTO DE RESPOSTA: máximo 150 palavras por resposta. Estruture em problema, solução e próximo passo. Use listas curtas com até 5 itens, evite contexto excessivo e priorize objetividade. Se necessário, ofereça resumo e pergunte se o cliente deseja aprofundar.',
@@ -51,9 +41,6 @@ class AiPromptPlanSeeder extends Seeder
                 ['plan_id' => $plan->id],
                 [
                     'content' => $content,
-                    'token_limit_monthly' => $tokenLimit,
-                    'allow_overage' => $allowOverage,
-                    'overage_price_per_1k' => $allowOverage ? 0.005 : null,
                     'is_active' => true,
                 ]
             );

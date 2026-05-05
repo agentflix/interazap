@@ -46,6 +46,9 @@ final class PlatformPlanStoreRequest extends FormRequest
                 Rule::requiredIf(fn () => $this->input('storage_mode') === PlatformStorageMode::LIMITED->value),
             ],
             'ai_enabled' => ['required', 'boolean'],
+            'token_limit_monthly' => ['nullable', 'integer', 'min:0'],
+            'allow_overage' => ['sometimes', 'boolean'],
+            'overage_price_per_1k' => ['nullable', 'numeric', 'min:0'],
             'chat_channels_limit' => ['required', 'integer', 'min:0'],
             'negotiations_mode' => ['required', 'string', Rule::in(array_map(fn ($c) => $c->value, PlatformNegotiationsMode::cases()))],
             'negotiations_limit' => [

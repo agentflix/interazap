@@ -24,9 +24,6 @@ final class PlanPromptResource extends JsonResource
             'id' => $this->id,
             'plan_id' => $this->plan_id,
             'content' => $this->content,
-            'token_limit_monthly' => $this->token_limit_monthly,
-            'allow_overage' => $this->allow_overage,
-            'overage_price_per_1k' => $this->overage_price_per_1k,
             'is_active' => $this->is_active,
             'plan' => $this->whenLoaded('plan', fn () => [
                 'id' => $this->plan->id,

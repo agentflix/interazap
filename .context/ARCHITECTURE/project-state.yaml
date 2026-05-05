@@ -1,6 +1,6 @@
 version: "1.0"
 project: "InteraZap"
-last_updated: "2026-05-04"
+last_updated: "2026-05-05"
 
 stack:
   backend:
@@ -60,13 +60,13 @@ stack:
     observability: "Prometheus client (PHP)"
 
 metrics:
-  total_features: 0
-  features_completed: 0
-  features_in_progress: 0
-  total_tasks: 0
-  tasks_completed: 0
+  total_features: 3
+  features_completed: 2
+  features_in_progress: 1
+  total_tasks: 20
+  tasks_completed: 19
   tasks_in_progress: 0
-  tasks_pending: 0
+  tasks_pending: 1
 
 modules_status:
   Shared:
@@ -75,8 +75,8 @@ modules_status:
     last_change: "2026-05-04"
   Platform:
     status: "in_progress"
-    completion: "85%"
-    last_change: "2026-05-04"
+    completion: "90%"
+    last_change: "2026-05-05"
   Auth:
     status: "active"
     completion: "95%"
@@ -91,12 +91,12 @@ modules_status:
     last_change: "2026-05-02"
   Ai:
     status: "active"
-    completion: "60%"
-    last_change: "2026-05-02"
+    completion: "65%"
+    last_change: "2026-05-05"
   Billing:
     status: "active"
-    completion: "65%"
-    last_change: "2026-05-01"
+    completion: "75%"
+    last_change: "2026-05-05"
   Configuration:
     status: "active"
     completion: "70%"
@@ -119,8 +119,8 @@ modules_status:
     last_change: "2026-05-03"
   App:
     status: "active"
-    completion: "65%"
-    last_change: "2026-05-02"
+    completion: "70%"
+    last_change: "2026-05-05"
   Electron:
     status: "active"
     completion: "60%"
@@ -129,5 +129,5 @@ modules_status:
 quality:
   test_coverage_backend: "indefinido (medir com pest --coverage)"
   test_coverage_frontend: "indefinido"
-  lint_status: "verificar com composer gate:all (api) e pnpm lint (workspaces)"
-  last_validation: "2026-05-04"
+  lint_status: "app build OK; composer analyse bloqueado por erros preexistentes fora da FEAT-003"
+  last_validation: "2026-05-05"

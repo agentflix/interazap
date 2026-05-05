@@ -18,8 +18,6 @@ import {
   AfIconButtonComponent,
   AfLoadingButtonComponent,
   AfModalComponent,
-  AfNumberInputComponent,
-  AfSwitchInputComponent,
   AfTextareaInputComponent,
 } from '@shared/components';
 import { type PlanPrompt } from '@ai/models/ai.model';
@@ -42,8 +40,6 @@ import { AiGovernanceService } from '@core/services/ai-governance.service';
     AfIconButtonComponent,
     AfLoadingButtonComponent,
     AfTextareaInputComponent,
-    AfNumberInputComponent,
-    AfSwitchInputComponent,
     AfAlertComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,8 +65,6 @@ export class PromptPlans implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     content: ['', [Validators.required, Validators.minLength(10)]],
-    token_limit_monthly: [0],
-    allow_overage: [false],
   });
 
   private searchTerm = signal('');
@@ -85,8 +79,6 @@ export class PromptPlans implements OnInit {
     this.currentItem.set(item);
     this.form.reset({
       content: item.content,
-      token_limit_monthly: item.token_limit_monthly ?? 0,
-      allow_overage: item.allow_overage,
     });
     this.editModalOpen.set(true);
   }
@@ -110,8 +102,6 @@ export class PromptPlans implements OnInit {
     this.governanceService
       .updatePlan(current.plan_id, {
         content: this.form.controls.content.value,
-        token_limit_monthly: this.form.controls.token_limit_monthly.value || null,
-        allow_overage: this.form.controls.allow_overage.value,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

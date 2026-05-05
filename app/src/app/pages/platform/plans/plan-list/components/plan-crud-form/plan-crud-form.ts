@@ -76,6 +76,9 @@ export class PlanCrudFormComponent {
     }),
     storage_limit_gb: this.fb.control<number | null>(5),
     ai_enabled: this.fb.control('false', { nonNullable: true, validators: [Validators.required] }),
+    token_limit_monthly: this.fb.control<number | null>(50000, [Validators.min(0)]),
+    allow_overage: this.fb.control(false, { nonNullable: true }),
+    overage_price_per_1k: this.fb.control<number | null>(null, [Validators.min(0)]),
     whatsapp_integrations_limit: this.fb.control<number | null>(1, [
       Validators.required,
       Validators.min(0),
@@ -103,6 +106,10 @@ export class PlanCrudFormComponent {
           storage_mode: item.storage_mode,
           storage_limit_gb: item.storage_limit_gb ?? this.toGb(item.storage_limit_bytes),
           ai_enabled: item.ai_enabled ? 'true' : 'false',
+          token_limit_monthly: item.token_limit_monthly ?? null,
+          allow_overage: item.allow_overage,
+          overage_price_per_1k:
+            item.overage_price_per_1k !== null ? Number(item.overage_price_per_1k) : null,
           whatsapp_integrations_limit: item.whatsapp_integrations_limit,
           negotiations_mode: item.negotiations_mode,
           negotiations_limit: item.negotiations_limit ?? 0,
@@ -139,6 +146,13 @@ export class PlanCrudFormComponent {
       .subscribe((mode) => {
         if (mode === 'LIMITED') this.form.controls.negotiations_limit.enable({ emitEvent: false });
         else this.form.controls.negotiations_limit.disable({ emitEvent: false });
+      });
+
+    this.form.controls.allow_overage.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled) => {
+        if (enabled) this.form.controls.overage_price_per_1k.enable({ emitEvent: false });
+        else this.form.controls.overage_price_per_1k.disable({ emitEvent: false });
       });
   }
 
@@ -184,6 +198,11 @@ export class PlanCrudFormComponent {
       storage_mode: values.storage_mode,
       storage_limit_bytes: storageLimitBytes,
       ai_enabled: values.ai_enabled === 'true',
+      token_limit_monthly: values.token_limit_monthly !== null ? Number(values.token_limit_monthly) : null,
+      allow_overage: Boolean(values.allow_overage),
+      overage_price_per_1k: values.allow_overage
+        ? Number(values.overage_price_per_1k ?? 0)
+        : null,
       whatsapp_integrations_limit: Number(values.whatsapp_integrations_limit ?? 0),
       negotiations_mode: values.negotiations_mode,
       negotiations_limit:
@@ -201,6 +220,9 @@ export class PlanCrudFormComponent {
       storage_mode: 'LIMITED',
       storage_limit_gb: 5,
       ai_enabled: 'false',
+      token_limit_monthly: 50000,
+      allow_overage: false,
+      overage_price_per_1k: null,
       whatsapp_integrations_limit: 1,
       negotiations_mode: 'LIMITED',
       negotiations_limit: 100,

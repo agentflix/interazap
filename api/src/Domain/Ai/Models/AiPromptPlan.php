@@ -15,15 +15,11 @@ use Illuminate\Support\Str;
 /**
  * Plan Prompt - Nível 3 da hierarquia de prompts.
  *
- * Define regras mandatórias por plano de assinatura, incluindo
- * limites de tokens e configurações de overage.
+ * Define regras mandatórias por plano de assinatura.
  *
  * @property string $id
  * @property string $plan_id
  * @property string $content
- * @property int|null $token_limit_monthly
- * @property bool $allow_overage
- * @property float|null $overage_price_per_1k
  * @property bool $is_active
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -46,9 +42,6 @@ class AiPromptPlan extends Model
         'id',
         'plan_id',
         'content',
-        'token_limit_monthly',
-        'allow_overage',
-        'overage_price_per_1k',
         'is_active',
     ];
 
@@ -56,9 +49,6 @@ class AiPromptPlan extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'token_limit_monthly' => 'integer',
-        'allow_overage' => 'boolean',
-        'overage_price_per_1k' => 'decimal:6',
         'is_active' => 'boolean',
     ];
 
@@ -90,14 +80,6 @@ class AiPromptPlan extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
-    }
-
-    /**
-     * Verifica se permite uso além do limite (overage).
-     */
-    public function allowsOverage(): bool
-    {
-        return $this->allow_overage && $this->overage_price_per_1k !== null;
     }
 
     /**

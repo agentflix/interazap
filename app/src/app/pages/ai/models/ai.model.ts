@@ -631,9 +631,6 @@ export interface PlanPrompt {
   id: string;
   plan_id: string;
   content: string;
-  token_limit_monthly: number | null;
-  allow_overage: boolean;
-  overage_price_per_1k: number | null;
   is_active: boolean;
   plan?: {
     id?: string;
@@ -649,9 +646,6 @@ export interface PlanPrompt {
  */
 export interface PlanPromptPayload {
   content: string;
-  token_limit_monthly?: number | null;
-  allow_overage?: boolean;
-  overage_price_per_1k?: number | null;
   is_active?: boolean;
 }
 

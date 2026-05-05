@@ -26,9 +26,6 @@ class UpdatePlanPromptRequest extends FormRequest
     {
         return [
             'content' => ['required', 'string'],
-            'token_limit_monthly' => ['nullable', 'integer', 'min:0'],
-            'allow_overage' => ['sometimes', 'boolean'],
-            'overage_price_per_1k' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

@@ -21,8 +21,6 @@ class UpdatePlanPromptActionTest extends TestCase
 
         $dto = new PlanPromptDTO(
             content: 'System Prompt Content',
-            tokenLimitMonthly: 1000,
-            allowOverage: true
         );
 
         $action = new UpdatePlanPromptAction;
@@ -32,8 +30,6 @@ class UpdatePlanPromptActionTest extends TestCase
         $this->assertDatabaseHas('ai_prompt_plans', [
             'plan_id' => $plan->id,
             'content' => 'System Prompt Content',
-            'token_limit_monthly' => 1000,
-            'allow_overage' => true,
         ]);
     }
 
@@ -44,26 +40,20 @@ class UpdatePlanPromptActionTest extends TestCase
         \Domain\Ai\Models\AiPromptPlan::query()->create([
             'plan_id' => $plan->id,
             'content' => 'Old Content',
-            'token_limit_monthly' => 500,
         ]);
 
         $dto = new PlanPromptDTO(
             content: 'New Content',
-            tokenLimitMonthly: 2000,
-            allowOverage: false
         );
 
         $action = new UpdatePlanPromptAction;
         $result = $action->execute($plan, $dto);
 
         $this->assertEquals('New Content', $result->content);
-        $this->assertEquals(2000, $result->token_limit_monthly);
 
         $this->assertDatabaseHas('ai_prompt_plans', [
             'plan_id' => $plan->id,
             'content' => 'New Content',
-            'token_limit_monthly' => 2000,
-            'allow_overage' => false,
         ]);
 
         $this->assertCount(1, \Domain\Ai\Models\AiPromptPlan::query()->where('plan_id', $plan->id)->get());
