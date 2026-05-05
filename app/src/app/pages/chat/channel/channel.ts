@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { type HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideAngularModule } from 'lucide-angular';
 import { toast } from 'ngx-sonner';
@@ -26,6 +26,7 @@ import {
   AfModalComponent,
   AfConfirmModalComponent,
   AfAlertComponent,
+  AfTextInputComponent,
 } from '@shared/components';
 import {
   getIntegrationConnectionUiState,
@@ -64,6 +65,7 @@ const PHONE_COUNTRIES: Country[] = [...COUNTRIES].sort(
     AfModalComponent,
     AfConfirmModalComponent,
     AfAlertComponent,
+    AfTextInputComponent,
     ChannelFormComponent,
     ChannelRoutingComponent,
 /**
@@ -80,6 +82,7 @@ export class ChannelPage implements OnInit {
   private readonly _integrationRealtimeAdapter = inject(ChannelRealtimeAdapter);
   private readonly destroyRef = inject(DestroyRef);
   private readonly authStore = inject(AuthStoreService);
+  private readonly fb = inject(FormBuilder);
 
   readonly integrationFormRef = viewChild<ChannelFormComponent>('integrationForm');
 
@@ -103,8 +106,20 @@ export class ChannelPage implements OnInit {
 
   // QR Code State
   readonly showQrModal = signal(false);
-  readonly qrCodeLoading = signal(false);
   readonly qrCodeData = signal<string | null>(null);
+  readonly pairCodeData = signal<string | null>(null);
+  readonly connectExpiresAt = signal<string | null>(null);
+
+  readonly connectForm = this.fb.group({
+    mode: this.fb.control<'qr' | 'pair'>('qr', { nonNullable: true }),
+    phone: this.fb.control('', [Validators.pattern(/^[0-9+]*$/)]),
+  });
+
+  readonly connectActionLabel = computed(() =>
+    this.connectForm.controls.mode.value === 'qr' ? 'Gerar QR Code' : 'Gerar Pair Code',
+  );
+
+  readonly isConnectingInstance = signal(false);
 
   readonly isEmpty = computed(
     () => !this.isLoading() && !this.hasError() && this.integrations().length === 0,
@@ -242,9 +257,83 @@ export class ChannelPage implements OnInit {
       return;
     }
 
-    this.selectedIntegration.set(item); // Keep track of which item we are connecting
+    this.selectedIntegration.set(item);
     this.showQrModal.set(true);
-    this.requestQrCode(item);
+    this.qrCodeData.set(null);
+    this.pairCodeData.set(null);
+    this.connectExpiresAt.set(null);
+    this.connectForm.reset({ mode: 'qr', phone: '' });
+  }
+
+  closeQrModal(): void {
+    this.showQrModal.set(false);
+    this.qrCodeData.set(null);
+    this.pairCodeData.set(null);
+    this.connectExpiresAt.set(null);
+    this.loadIntegrations(this.meta().current_page);
+  }
+
+  submitConnect(): void {
+    const target = this.selectedIntegration();
+    if (!target || this.isConnectingInstance()) return;
+
+    if (this.connectForm.controls.mode.value === 'pair') {
+      this.connectForm.controls.phone.addValidators([Validators.required]);
+      this.connectForm.controls.phone.updateValueAndValidity({ emitEvent: false });
+    } else {
+      this.connectForm.controls.phone.removeValidators([Validators.required]);
+      this.connectForm.controls.phone.updateValueAndValidity({ emitEvent: false });
+    }
+
+    if (this.connectForm.invalid) {
+      this.connectForm.markAllAsTouched();
+      return;
+    }
+
+    this.isConnectingInstance.set(true);
+    this.qrCodeData.set(null);
+    this.pairCodeData.set(null);
+    this.connectExpiresAt.set(null);
+
+    this.integrationService
+      .connect(target.id, {
+        mode: this.connectForm.controls.mode.value,
+        phone: this.resolveConnectPhone(),
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.isConnectingInstance.set(false);
+          const connection = res.data.connection;
+
+          if (connection.mode === 'qr' && connection.qr_code) {
+            this.qrCodeData.set(this.normalizeQrCode(connection.qr_code));
+          } else if (connection.mode === 'pair' && connection.pair_code) {
+            this.pairCodeData.set(connection.pair_code);
+          }
+
+          if (connection.expires_at) {
+            this.connectExpiresAt.set(connection.expires_at);
+          }
+
+          if (this.connectForm.controls.mode.value === 'qr' && !this.qrCodeData()) {
+            toast.warning('QR Code não retornado. Tente novamente em alguns segundos.');
+          }
+
+          this.loadIntegrations(this.meta().current_page);
+        },
+        error: () => {
+          this.isConnectingInstance.set(false);
+          toast.error('Erro ao iniciar conexão');
+        },
+      });
+  }
+
+  private resolveConnectPhone(): string | null {
+    if (this.connectForm.controls.mode.value !== 'pair') return null;
+    const phoneValue = this.connectForm.controls.phone.value;
+    const sanitizedPhone = typeof phoneValue === 'string' ? phoneValue.trim() : '';
+    return sanitizedPhone.length > 0 ? sanitizedPhone : null;
   }
 
   canConnect(item: Integration): boolean {
@@ -272,40 +361,6 @@ export class ChannelPage implements OnInit {
       default:
         return 'Desconhecido';
     }
-  }
-
-  regenerateQrCode(): void {
-    const selected = this.selectedIntegration();
-    if (!selected || this.qrCodeLoading()) return;
-    this.requestQrCode(selected);
-  }
-
-  private requestQrCode(item: Integration): void {
-    this.qrCodeLoading.set(true);
-    this.qrCodeData.set(null);
-
-    this.integrationService
-      .connect(item.id, { mode: 'qr' })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.qrCodeLoading.set(false);
-          const qrCode = res.data.connection.qr_code;
-          if (typeof qrCode === 'string' && qrCode.length > 0) {
-            this.qrCodeData.set(this.normalizeQrCode(qrCode));
-          } else {
-            // If no QR code but success, maybe it's already connected or pairing code?
-            // For now assume QR code is returned.
-            toast.info('Conexão iniciada. Verifique o status.');
-          }
-          this.loadIntegrations(this.meta().current_page); // Update status in list
-        },
-        error: () => {
-          this.qrCodeLoading.set(false);
-          toast.error('Erro ao iniciar conexão');
-          this.showQrModal.set(false);
-        },
-      });
   }
 
   private applyRealtimeConnectionUpdate(event: IntegrationConnectionEvent): void {
@@ -344,14 +399,14 @@ export class ChannelPage implements OnInit {
     const selected = this.selectedIntegration();
     if (selected && this.matchesIntegrationEvent(selected, event)) {
       if (resolvedStatus === 'connected') {
-        this.qrCodeLoading.set(false);
+        this.isConnectingInstance.set(false);
         this.showQrModal.set(false);
         toast.success('WhatsApp conectado com sucesso');
       }
 
       const incomingQr = typeof event.qrcode === 'string' ? event.qrcode.trim() : '';
       if (incomingQr.length > 0) {
-        this.qrCodeLoading.set(false);
+        this.isConnectingInstance.set(false);
         this.qrCodeData.set(this.normalizeQrCode(incomingQr));
       }
     }
@@ -398,11 +453,6 @@ export class ChannelPage implements OnInit {
         },
         error: () => toast.error('Erro ao desconectar'),
       });
-  }
-
-  closeQrModal(): void {
-    this.showQrModal.set(false);
-    this.loadIntegrations(this.meta().current_page); // Refresh status
   }
 
   formatPhone(phone: string | undefined): string {
