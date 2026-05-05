@@ -30,6 +30,63 @@ class TestCompaniesSeeder extends Seeder
             ['id' => (string) Str::orderedUuid()]
         );
 
+        // Permissões básicas para usuários de tenant
+        $basicPermissions = [
+            'dashboard.view',
+            'chat.called.view',
+            'chat.channel.view',
+            'chat.channel.manage',
+            'chat.tickets.manage',
+            'chat.messages.update',
+            'chat.messages.delete',
+            'chat.routing.view',
+            'chat.routing.manage',
+            'chat.templates.manage',
+            'crm.contact.view',
+            'crm.negotiation.view',
+            'crm.company.view',
+            'crm.event.view',
+            'crm.event.manage',
+            'crm.funnel.view',
+            'crm.funnel.manage',
+            'crm.product.view',
+            'crm.product.manage',
+            'crm.proposal.view',
+            'crm.proposal.manage',
+            'crm.note.manage',
+            'crm.task.manage',
+            'crm.import.manage',
+            'reports.view',
+            'reports.crm.view',
+            'reports.chat.view',
+            'reports.ai.view',
+            'reports.billing.view',
+            'reports.export',
+            'billing.view',
+            'settings.general.view',
+            'departments.department.view',
+            'settings.tags.manage',
+            'ai.autopilot.view',
+            'ai.autopilot.manage',
+            'ai.knowledge.view',
+            'ai.knowledge.manage',
+            'ai.prompts.view',
+            'ai.prompts.manage',
+            'users.user.view',
+            'users.user.manage',
+            'users.role.view',
+        ];
+
+        foreach ($basicPermissions as $permissionName) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(
+                ['name' => $permissionName, 'guard_name' => 'sanctum'],
+                ['id' => (string) Str::orderedUuid()]
+            );
+        }
+
+        $managerRole->givePermissionTo($basicPermissions);
+        $adminRole->givePermissionTo($basicPermissions);
+
         $companies = [
             ['name' => 'Tech Solutions Ltda', 'email' => 'admin@techsolutions.com.br'],
             ['name' => 'Digital Marketing SA', 'email' => 'admin@digitalmark.com.br'],
