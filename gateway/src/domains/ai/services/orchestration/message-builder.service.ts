@@ -52,6 +52,16 @@ export class MessageBuilderService {
       ];
     }
 
+    const conversationHistory = this.readConversationHistory(context);
+    const contextWithoutHistory = this.omitConversationHistory(context);
+    const historyMessages = this.expandConversationHistory(conversationHistory);
+    const lastHistoryMessage = historyMessages[historyMessages.length - 1];
+    const shouldSkipInputText =
+      typeof request.inputText === 'string' &&
+      request.inputText.trim() !== '' &&
+      lastHistoryMessage?.role === 'user' &&
+      lastHistoryMessage.content.trim() === request.inputText.trim();
+
     const base: AICompletionMessage[] = [
       {
         role: 'system',
@@ -59,7 +69,7 @@ export class MessageBuilderService {
       },
       {
         role: 'system',
-        content: `context:${JSON.stringify(context)}`,
+        content: `context:${JSON.stringify(contextWithoutHistory)}`,
       },
       {
         role: 'system',
@@ -72,9 +82,10 @@ export class MessageBuilderService {
           return `${toolInstruction}\n\nAvailable tools: ${toolNames.join(', ')}`;
         })(),
       },
+      ...historyMessages,
     ];
 
-    if (request.inputText) {
+    if (request.inputText && !shouldSkipInputText) {
       base.push({
         role: 'user',
         content: request.inputText,
@@ -196,5 +207,37 @@ export class MessageBuilderService {
     }
 
     return undefined;
+  }
+
+  private readConversationHistory(context: Record<string, unknown>): string[] {
+    const history = context['conversation_history'];
+    if (!Array.isArray(history)) {
+      return [];
+    }
+
+    return history.filter((line): line is string => typeof line === 'string');
+  }
+
+  private omitConversationHistory(
+    context: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const { conversation_history: _conversationHistory, ...rest } = context;
+    return rest;
+  }
+
+  private expandConversationHistory(history: string[]): AICompletionMessage[] {
+    return history
+      .map((line) => {
+        if (line.startsWith('User: ')) {
+          return { role: 'user' as const, content: line.slice(6) };
+        }
+
+        if (line.startsWith('Agent: ')) {
+          return { role: 'assistant' as const, content: line.slice(7) };
+        }
+
+        return null;
+      })
+      .filter((message): message is AICompletionMessage => message !== null);
   }
 }

@@ -459,9 +459,9 @@ Use `delegate_to_agent` com o campo `target_agent_id` igual ao NOME do agente:
 
 ## Gatilhos de delegacao IMEDIATA (sem perguntas adicionais)
 Ao detectar qualquer um desses sinais, chame `delegate_to_agent` na mesma resposta:
-- Menciona "Starter", "Professional", "Business", "plano", "preco", "quanto custa", "assinar", "contratar", "conhecer" => `delegate_to_agent` com target_agent_id: "Vendas"
+- Menciona "Starter", "Professional", "Business", "plano", "preco", "valor", "valores", "quanto custa", "assinar", "contratar", "conhecer", "o que faz", "funcionalidades", "como funciona", "sistema", "produto" => `delegate_to_agent` com target_agent_id: "Vendas"
 - Menciona "erro", "bug", "nao funciona", "problema", "como faco", "nao consigo" => `delegate_to_agent` com target_agent_id: "Suporte"
-- Lead novo sem historico, quer saber mais antes de comprar => `delegate_to_agent` com target_agent_id: "Qualificação"
+- Lead novo sem historico, quer saber mais e menciona "mais informacoes", "saber mais", "conhecer melhor", "entender" antes de decidir => `delegate_to_agent` com target_agent_id: "Qualificação"
 - Cliente antigo retornando => `delegate_to_agent` com target_agent_id: "Reativação"
 - Reclamacao grave, juridico, financeiro => `transfer_to_human` com prioridade high
 
