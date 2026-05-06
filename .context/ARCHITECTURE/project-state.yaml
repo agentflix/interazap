@@ -130,4 +130,4 @@ quality:
   test_coverage_backend: "indefinido (medir com pest --coverage)"
   test_coverage_frontend: "indefinido"
   lint_status: "app build OK; composer analyse bloqueado por erros preexistentes fora da FEAT-003"
-  last_validation: "2026-05-05"
+  last_validation: "2026-05-06"
