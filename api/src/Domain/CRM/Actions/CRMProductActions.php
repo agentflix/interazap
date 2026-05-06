@@ -79,6 +79,13 @@ final class CRMProductActions
             $query->where('is_active', (bool) $isActive);
         }
 
+        if (array_key_exists('track_stock', $filters) && $filters['track_stock'] !== null) {
+            $trackStock = filter_var($filters['track_stock'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if ($trackStock !== null) {
+                $query->where('track_stock', $trackStock);
+            }
+        }
+
         $allowedSortBy = ['name', 'code', 'price', 'created_at', 'updated_at', 'is_active', 'type'];
         $sortBy = ListFilterNormalizer::normalizeSortBy($filters['sort_by'] ?? null, $allowedSortBy, 'name');
         $sortDir = ListFilterNormalizer::normalizeSortDirection($filters['sort_dir'] ?? null);
