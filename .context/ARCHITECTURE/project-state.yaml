@@ -60,11 +60,11 @@ stack:
     observability: "Prometheus client (PHP)"
 
 metrics:
-  total_features: 3
-  features_completed: 2
+  total_features: 4
+  features_completed: 3
   features_in_progress: 1
-  total_tasks: 20
-  tasks_completed: 19
+  total_tasks: 28
+  tasks_completed: 27
   tasks_in_progress: 0
   tasks_pending: 1
 
@@ -87,7 +87,7 @@ modules_status:
     last_change: "2026-05-03"
   CRM:
     status: "active"
-    completion: "70%"
+    completion: "72%"
     last_change: "2026-05-06"
   Ai:
     status: "active"
