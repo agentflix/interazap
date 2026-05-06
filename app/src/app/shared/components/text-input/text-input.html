@@ -12,6 +12,7 @@
         [placeholder]="placeholder()"
         [readonly]="disableAutofill()"
         [attr.maxlength]="maxLength() ?? null"
+        [attr.max]="max() ?? null"
         [attr.data-test]="dataTest()"
         [attr.role]="role() || null"
         [attr.aria-label]="ariaLabel() || label() || null"

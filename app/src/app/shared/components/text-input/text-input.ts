@@ -69,6 +69,9 @@ export class AfTextInputComponent {
   /** Maximum character length */
   readonly maxLength = input<number | null>(null);
 
+  /** Maximum value for number inputs */
+  readonly max = input<number | string | null>(null);
+
   /** data-test attribute for E2E tests */
   readonly dataTest = input<string>();
 
