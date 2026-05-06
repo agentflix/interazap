@@ -6,9 +6,11 @@ import {
   signal,
   inject,
   ElementRef,
+  effect,
   type OnDestroy,
 } from '@angular/core';
 import { type FormControl, ReactiveFormsModule } from '@angular/forms';
+import { merge } from 'rxjs';
 import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
 import { LucideAngularModule } from 'lucide-angular';
@@ -53,6 +55,9 @@ export * from './select-input.model';
   },
 })
 export class AfSelectInputComponent implements OnDestroy {
+  /** Força recomputações quando estado/valor do FormControl muda */
+  private readonly controlRevision = signal(0);
+
   /** FormControl for the selected value */
   readonly control = input.required<FormControl<string | number | null>>();
 
@@ -109,6 +114,7 @@ export class AfSelectInputComponent implements OnDestroy {
 
   /** Label of currently selected option */
   protected selectedLabel(): string {
+    this.controlRevision();
     const selectedValue = this.control().value;
     const selectedOption = this.options().find(
       (option) => String(option.value) === String(selectedValue),
@@ -169,7 +175,21 @@ export class AfSelectInputComponent implements OnDestroy {
   protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
 
   /** Whether the control is disabled */
-  protected readonly isDisabled = computed(() => this.control()?.disabled ?? false);
+  protected readonly isDisabled = computed(() => {
+    this.controlRevision();
+    return this.control()?.disabled ?? false;
+  });
+
+  constructor() {
+    effect((onCleanup) => {
+      const control = this.control();
+      const subscription = merge(control.statusChanges, control.valueChanges).subscribe(() => {
+        this.controlRevision.update((current) => current + 1);
+      });
+
+      onCleanup(() => subscription.unsubscribe());
+    });
+  }
 
   /** Toggle dropdown */
   protected toggle(event: Event): void {

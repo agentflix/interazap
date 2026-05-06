@@ -251,9 +251,9 @@ export class NegotiationFormComponent {
           return;
         }
 
-        const contact = this.allContacts().find(
-          (item) => String(item.id) === String(normalizedContactId),
-        );
+        const contact =
+          this.companyContacts().find((item) => String(item.id) === String(normalizedContactId)) ??
+          this.allContacts().find((item) => String(item.id) === String(normalizedContactId));
         const companyId = this.selectedCompanyId();
         if (!companyId || !contact) {
           this.form.controls.contact_id.setValue(null, { emitEvent: false });
@@ -441,10 +441,10 @@ export class NegotiationFormComponent {
 
     if (!companyId) {
       contactControl.setValue(null, { emitEvent: false });
-      contactControl.disable({ emitEvent: false });
+      contactControl.disable();
       return;
     }
 
-    contactControl.enable({ emitEvent: false });
+    contactControl.enable();
   }
 }

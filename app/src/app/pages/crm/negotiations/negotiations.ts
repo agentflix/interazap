@@ -592,6 +592,33 @@ export class Negotiations {
     return formatDate(value);
   }
 
+  getStepHeaderBackground(step: NegotiationKanbanStep): string {
+    const color = (step.color ?? '').trim();
+    if (!color) {
+      return '';
+    }
+
+    // Suporta #RGB e #RRGGBB para gerar um fundo bem sutil.
+    const hex = color.replace('#', '');
+    if (!/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(hex)) {
+      return '';
+    }
+
+    const normalized =
+      hex.length === 3
+        ? hex
+            .split('')
+            .map((char) => char + char)
+            .join('')
+        : hex;
+
+    const r = Number.parseInt(normalized.slice(0, 2), 16);
+    const g = Number.parseInt(normalized.slice(2, 4), 16);
+    const b = Number.parseInt(normalized.slice(4, 6), 16);
+
+    return `rgba(${r}, ${g}, ${b}, 0.09)`;
+  }
+
   /** Retorna true se a etapa está carregando mais negociações. */
   isStepLoading(stepId: string | number): boolean {
     return this.kanbanStepLoading()[String(stepId)] ?? false;
