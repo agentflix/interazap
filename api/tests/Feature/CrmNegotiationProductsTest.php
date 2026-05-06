@@ -163,4 +163,63 @@ class CRMNegotiationProductsTest extends TestCase
 
         $this->assertSame(7, $product->fresh()->stock);
     }
+
+    public function test_does_not_debit_stock_when_track_stock_disabled(): void
+    {
+        [$user, $tenantId] = $this->acting();
+        $negotiation = $this->createNegotiation($tenantId);
+        $product = CRMProduct::factory()->create([
+            'tenant_id' => $tenantId,
+            'track_stock' => false,
+            'stock' => 5,
+        ]);
+
+        $payload = [
+            'name' => 'Produto Infinito',
+            'quantity' => 10,
+            'unit_price' => 50,
+            'crm_product_id' => $product->id,
+        ];
+
+        $response = $this->postJson('/api/crm/negotiations/'.$negotiation->id.'/products', $payload)
+            ->assertStatus(201)
+            ->json('data');
+
+        $this->assertSame(10, $response['quantity']);
+        $this->assertSame(5, $product->fresh()->stock);
+
+        $this->deleteJson('/api/crm/negotiation-products/'.$response['id'])
+            ->assertStatus(204);
+
+        $this->assertSame(5, $product->fresh()->stock);
+    }
+
+    public function test_update_item_does_not_adjust_stock_when_track_stock_disabled(): void
+    {
+        [$user, $tenantId] = $this->acting();
+        $negotiation = $this->createNegotiation($tenantId);
+        $product = CRMProduct::factory()->create([
+            'tenant_id' => $tenantId,
+            'track_stock' => false,
+            'stock' => 5,
+        ]);
+
+        $itemId = $this->postJson('/api/crm/negotiations/'.$negotiation->id.'/products', [
+            'name' => 'Item',
+            'quantity' => 3,
+            'unit_price' => 20,
+            'crm_product_id' => $product->id,
+        ])->assertStatus(201)->json('data.id');
+
+        $this->assertSame(5, $product->fresh()->stock);
+
+        $this->putJson('/api/crm/negotiation-products/'.$itemId, [
+            'name' => 'Item',
+            'quantity' => 8,
+            'unit_price' => 25,
+            'crm_product_id' => $product->id,
+        ])->assertStatus(200);
+
+        $this->assertSame(5, $product->fresh()->stock);
+    }
 }

@@ -14,6 +14,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('ai_autopilot_actions', 'tenant_id')) {
+            return;
+        }
+
         Schema::table('ai_autopilot_actions', function (Blueprint $table): void {
             $table->uuid('tenant_id')->nullable()->after('id');
         });

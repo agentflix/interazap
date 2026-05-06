@@ -58,7 +58,7 @@ final class DelegateToAgentTool implements AiToolInterface
             'target_agent_id' => [
                 'type' => 'string',
                 'required' => true,
-                'description' => 'UUID of target agent.',
+                'description' => 'Name or UUID of the target agent (e.g. "Vendas", "Suporte", "Qualificacao", "Reativacao").',
             ],
             'target_playbook_id' => [
                 'type' => 'string',

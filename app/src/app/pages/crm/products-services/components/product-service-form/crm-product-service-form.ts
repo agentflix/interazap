@@ -15,6 +15,7 @@ import {
   AfAlertComponent,
   AfCheckboxInputComponent,
   AfCurrencyInputComponent,
+  AfNumberInputComponent,
   AfSelectInputComponent,
   AfSwitchInputComponent,
   AfTextInputComponent,
@@ -40,6 +41,7 @@ import {
     AfTextareaInputComponent,
     AfSelectInputComponent,
     AfCurrencyInputComponent,
+    AfNumberInputComponent,
     AfSwitchInputComponent,
     AfCheckboxInputComponent,
   ],
@@ -64,6 +66,26 @@ export class ProductServiceFormComponent {
     { label: 'Serviço', value: 'service' },
   ];
 
+  readonly unitOptions: AfSelectOption[] = [
+    { label: 'Selecione...', value: '' },
+    { label: 'un (unidade)', value: 'un' },
+    { label: 'pc (peça)', value: 'pc' },
+    { label: 'cx (caixa)', value: 'cx' },
+    { label: 'kg (quilograma)', value: 'kg' },
+    { label: 'g (grama)', value: 'g' },
+    { label: 'lt (litro)', value: 'lt' },
+    { label: 'ml (mililitro)', value: 'ml' },
+    { label: 'm (metro)', value: 'm' },
+    { label: 'm² (metro quadrado)', value: 'm²' },
+    { label: 'm³ (metro cúbico)', value: 'm³' },
+    { label: 'par', value: 'par' },
+    { label: 'kit', value: 'kit' },
+    { label: 'conj (conjunto)', value: 'conj' },
+    { label: 'rol (rolo)', value: 'rol' },
+    { label: 'sac (saco)', value: 'sac' },
+    { label: 'emb (embalagem)', value: 'emb' },
+  ];
+
   readonly form = this.fb.group({
     name: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
     code: this.fb.control('', { nonNullable: true }),
@@ -75,10 +97,11 @@ export class ProductServiceFormComponent {
     price: this.fb.control<number | null>(null),
     cost: this.fb.control<number | null>(null),
     unit: this.fb.control('', { nonNullable: true }),
-    stock_quantity: this.fb.control<number | null>(null),
-    min_stock: this.fb.control<number | null>(null),
+    stock_quantity: this.fb.control(0, { nonNullable: true }),
+    min_stock: this.fb.control(0, { nonNullable: true }),
     is_active: this.fb.control(true, { nonNullable: true }),
     is_featured: this.fb.control(false, { nonNullable: true }),
+    track_stock: this.fb.control(false, { nonNullable: true }),
   });
 
   readonly isProduct = computed(() => this.form.controls.type.value === 'product');
@@ -102,10 +125,11 @@ export class ProductServiceFormComponent {
           price: current.price ?? null,
           cost: current.cost ?? null,
           unit: current.unit ?? '',
-          stock_quantity: current.stock_quantity ?? null,
-          min_stock: current.min_stock ?? null,
+          stock_quantity: current.stock_quantity ?? 0,
+          min_stock: current.min_stock ?? 0,
           is_active: current.is_active,
           is_featured: current.is_featured ?? false,
+          track_stock: current.track_stock ?? false,
         });
       } else {
         this.lastLoadedId.set(null);
@@ -134,7 +158,7 @@ export class ProductServiceFormComponent {
       unit: fv.unit?.trim() || undefined,
       stock_quantity: isProduct ? stockQty : undefined,
       min_stock: isProduct ? (fv.min_stock ?? 0) : undefined,
-      track_stock: isProduct,
+      track_stock: isProduct ? fv.track_stock : false,
       stock: stockQty,
       is_active: fv.is_active,
       is_featured: fv.is_featured,
@@ -174,10 +198,11 @@ export class ProductServiceFormComponent {
       price: null,
       cost: null,
       unit: '',
-      stock_quantity: null,
-      min_stock: null,
+      stock_quantity: 0,
+      min_stock: 0,
       is_active: true,
       is_featured: false,
+      track_stock: false,
     });
     this.errorMessage.set(null);
   }

@@ -93,11 +93,22 @@
       [required]="true"
       placeholder="Selecione um item"
     />
+    @if (selectedProductStockInfo()) {
+      <div class="flex items-center gap-2">
+        <span
+          class="inline-flex items-center gap-x-1.5 py-0.5 px-2.5 rounded text-xs font-medium border"
+          [class]="getStockBadgeClass()"
+        >
+          {{ getStockBadgeLabel() }}
+        </span>
+      </div>
+    }
     <div class="grid gap-4 md:grid-cols-3">
       <app-text-input
         label="Quantidade"
         [control]="productForm.controls.quantity"
         type="number"
+        [max]="getQuantityMax()"
         dataTest="product-quantity"
       />
       <app-currency-input

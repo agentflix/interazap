@@ -140,6 +140,29 @@ class AiAutopilotToolSeeder extends Seeder
                 ],
             ],
             [
+                'handler_class' => 'DelegateToAgentTool',
+                'display_name' => 'Delegar para Agente',
+                'description' => 'Delegate execution to another AI agent',
+                'parameters_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'target_agent_id' => [
+                            'type' => 'string',
+                            'description' => 'Name or UUID of the target agent (e.g. "Vendas", "Suporte", "Qualificacao", "Reativacao")',
+                        ],
+                        'target_playbook_id' => [
+                            'type' => 'string',
+                            'description' => 'Optional target playbook UUID for child run',
+                        ],
+                        'return_after' => [
+                            'type' => 'boolean',
+                            'description' => 'If true, parent waits and consumes child result',
+                        ],
+                    ],
+                    'required' => ['target_agent_id'],
+                ],
+            ],
+            [
                 'handler_class' => 'NotifySellerTool',
                 'display_name' => 'Notificar Vendedor',
                 'description' => 'Notify seller about event',
@@ -575,6 +598,5 @@ class AiAutopilotToolSeeder extends Seeder
             }
         }
 
-        $this->command->info(sprintf('AI Autopilot Tools seeded: %d', $created));
     }
 }

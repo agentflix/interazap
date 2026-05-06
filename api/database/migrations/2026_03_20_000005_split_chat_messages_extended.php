@@ -19,6 +19,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('chat_messages_extended') || ! Schema::hasColumn('chat_messages', 'file_url')) {
+            return;
+        }
+
         Schema::create('chat_messages_extended', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('message_id')->unique();

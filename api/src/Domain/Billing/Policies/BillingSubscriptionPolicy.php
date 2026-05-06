@@ -17,7 +17,7 @@ final class BillingSubscriptionPolicy
             return false;
         }
 
-        return $user->isSuperAdmin() || $user->hasRole('admin', 'sanctum');
+        return $user->isSuperAdmin() || $user->isInquilino();
     }
 
     public function manage(AuthUser $user): bool

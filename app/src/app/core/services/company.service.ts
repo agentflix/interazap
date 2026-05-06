@@ -21,6 +21,7 @@ export interface Company {
   zip?: string;
   zip_code?: string;
   zipcode?: string;
+  plan_id?: string | null;
   is_active: boolean;
   tenant_code?: string;
   primary_email?: string;
@@ -88,6 +89,12 @@ export class CompanyService {
 
   forceDelete(id: string | number): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}/force`);
+  }
+
+  purge(id: string | number, password: string): Observable<null> {
+    return this.http.delete<null>(`${this.baseUrl}/${id}/purge`, {
+      body: { password },
+    });
   }
 
   /**

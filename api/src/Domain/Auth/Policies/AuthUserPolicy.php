@@ -94,10 +94,18 @@ final class AuthUserPolicy
         return $user->id === $model->id;
     }
 
+    /**
+     * Apenas super admins podem impersonar usuários.
+     */
+    public function impersonate(AuthUser $user): bool
+    {
+        return $user->isSuperAdmin();
+    }
+
     private function canManageUsers(AuthUser $user): bool
     {
         return $user->isSuperAdmin()
-            || $user->hasRole('admin', 'sanctum')
+            || $user->isInquilino()
             || $this->hasPermission($user, self::PERMISSION_MANAGE);
     }
 

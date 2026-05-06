@@ -61,12 +61,22 @@
         />
       </div>
 
-      <af-phone-input
-        [control]="form.controls.phone"
-        [countryControl]="form.controls.phone_country_code"
-        label="Telefone"
-        dataTest="tenant-form-phone"
-      />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <af-select-input
+          label="Plano"
+          [control]="form.controls.plan_id"
+          [options]="planOptions()"
+          placeholder="Selecione"
+          dataTest="tenant-form-plan"
+        />
+
+        <af-phone-input
+          [control]="form.controls.phone"
+          [countryControl]="form.controls.phone_country_code"
+          label="Telefone"
+          dataTest="tenant-form-phone"
+        />
+      </div>
 
       <div class="grid gap-4 md:grid-cols-4">
         <div>
@@ -121,13 +131,12 @@
             dataTest="tenant-form-city"
           />
         </div>
-        <af-text-input
+        <af-select-input
           label="UF"
           [control]="form.controls.state"
-          placeholder="Ex: SP"
-          [maxLength]="2"
+          [options]="stateOptions()"
+          placeholder="Selecione"
           dataTest="tenant-form-state"
-          (blur)="onStateBlur()"
         />
       </div>
 

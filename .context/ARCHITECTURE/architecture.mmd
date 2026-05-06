@@ -1,0 +1,76 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4CAF50'}}}%%
+graph TB
+    subgraph Clients["Clients"]
+        WEB["App Web/Mobile (Angular 19 + Ionic + Capacitor)"]
+        DESK["Desktop (Electron 33 + Angular 20)"]
+        LAND["Landing"]
+    end
+
+    subgraph API["API — Laravel 12 / PHP 8.3 (DDD)"]
+        subgraph Presentation["Presentation"]
+            CTRL["Controllers (Http/Controllers)"]
+            REQ["Form Requests"]
+            RES["Resources"]
+            POL["Policies"]
+        end
+
+        subgraph Application["Application"]
+            ACT["Actions (Domain/*/Actions)"]
+            DTO["DTOs (Domain/*/DTOs)"]
+        end
+
+        subgraph Domain["Domain — Pure PHP"]
+            ENT["Models / Entities"]
+            VO["Value Objects"]
+            EVT["Events"]
+            POLS["Domain Policies"]
+        end
+
+        subgraph Infra["Infrastructure"]
+            DB["PostgreSQL 17 + pgvector"]
+            REDIS["Redis 7 (cache, queues, sessions)"]
+            HORIZON["Horizon (queues)"]
+            REVERB["Reverb (realtime)"]
+            OCT["Octane"]
+        end
+    end
+
+    subgraph Gateway["Gateway — NestJS 11 / TS 5.7"]
+        AI["AI / OpenAI (chat, embeddings, classifier)"]
+        BILL["Billing / Asaas"]
+        WS["WebSocket (Socket.io)"]
+        STR["Redis Streams (idempotent acks)"]
+        WPP["WhatsApp Providers (UazAPI / Z-API)"]
+        BULL["BullMQ"]
+    end
+
+    WEB --> CTRL
+    DESK --> CTRL
+    LAND -.->|leads| CTRL
+    CTRL --> REQ
+    CTRL --> ACT
+    ACT --> DTO
+    ACT --> ENT
+    ENT --> DB
+    CTRL --> RES
+    CTRL --> POL
+
+    ACT -.->|publish| STR
+    Gateway -.->|publish| STR
+    STR --> ACT
+
+    Gateway --> WPP
+    WS <-->|broadcast| WEB
+    WS <-->|broadcast| DESK
+    AI --> Gateway
+    BILL --> Gateway
+
+    HORIZON --> REDIS
+    OCT --> CTRL
+    REVERB --> WS
+
+    style Domain fill:#E8F5E9,stroke:#4CAF50,stroke-width:3px
+    style Application fill:#E3F2FD,stroke:#2196F3,stroke-width:2px
+    style Presentation fill:#FFF3E0,stroke:#FF9800,stroke-width:2px
+    style Infra fill:#F3E5F5,stroke:#9C27B0,stroke-width:2px
+    style Gateway fill:#FFF9C4,stroke:#F9A825,stroke-width:2px

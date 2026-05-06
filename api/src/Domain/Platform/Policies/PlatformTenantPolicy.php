@@ -43,6 +43,14 @@ final class PlatformTenantPolicy
     }
 
     /**
+     * Apenas super admins podem impersonar tenants.
+     */
+    public function impersonate(AuthUser $user): bool
+    {
+        return $user->isSuperAdmin();
+    }
+
+    /**
      * Verifica se o usuário pode gerenciar as configurações do tenant.
      *
      * SuperAdmin pode gerenciar qualquer tenant.

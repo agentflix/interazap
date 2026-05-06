@@ -21,6 +21,9 @@ export interface PlatformPlan {
   storage_limit_bytes?: number | null;
   storage_limit_gb?: number | null;
   ai_enabled: boolean;
+  token_limit_monthly: number | null;
+  allow_overage: boolean;
+  overage_price_per_1k: string | null;
   whatsapp_integrations_limit: number;
   negotiations_mode: LimitMode;
   negotiations_limit?: number | null;
@@ -50,6 +53,9 @@ export interface PlatformPlanPayload {
   storage_mode: LimitMode;
   storage_limit_bytes?: number | null;
   ai_enabled: boolean;
+  token_limit_monthly?: number | null;
+  allow_overage: boolean;
+  overage_price_per_1k?: number | null;
   whatsapp_integrations_limit: number;
   negotiations_mode: LimitMode;
   negotiations_limit?: number | null;

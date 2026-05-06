@@ -48,8 +48,8 @@ final class CRMNegotiationFilterService
             $query->where('crm_contact_id', (string) $filters['contact_id']);
         }
 
-        if (! empty($filters['company_id'])) {
-            $query->where('crm_company_id', (string) $filters['company_id']);
+        if (! empty($filters['crm_company_id'])) {
+            $query->where('crm_company_id', (string) $filters['crm_company_id']);
         }
 
         if (! empty($filters['user_id'])) {
@@ -167,8 +167,8 @@ final class CRMNegotiationFilterService
             $query->where('crm_contact_id', (string) $filters['contact_id']);
         }
 
-        if (! empty($filters['company_id'])) {
-            $query->where('crm_company_id', (string) $filters['company_id']);
+        if (! empty($filters['crm_company_id'])) {
+            $query->where('crm_company_id', (string) $filters['crm_company_id']);
         }
 
         if (! empty($filters['reason_loss_id'])) {

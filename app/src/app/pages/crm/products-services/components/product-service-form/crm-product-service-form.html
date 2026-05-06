@@ -43,30 +43,65 @@
         <af-currency-input label="Custo" [control]="form.controls.cost" placeholder="0,00" />
       </div>
 
+      <!-- ════════════════════════════════════════════════════════════════════
+           SEÇÃO DE ESTOQUE — apenas para produtos
+           ════════════════════════════════════════════════════════════════════ -->
       @if (isProduct()) {
-        <div class="grid grid-cols-3 gap-4">
-          <af-text-input
-            label="Unidade"
-            [control]="form.controls.unit"
-            placeholder="Ex: un, kg"
-            dataTest="product-form-unit"
-          />
-          <af-text-input
-            label="Estoque"
-            [control]="form.controls.stock_quantity"
-            placeholder="0"
-            dataTest="product-form-stock"
-          />
-          <af-text-input
-            label="Estoque Mín."
-            [control]="form.controls.min_stock"
-            placeholder="0"
-            dataTest="product-form-min-stock"
+        <!-- Toggle principal -->
+        <div class="mt-4 mb-2">
+          <af-switch-input
+            label="Controlar estoque"
+            [control]="form.controls.track_stock"
+            helpText="Quando ativo, o sistema debita do estoque ao vincular este produto a uma negociação."
+            dataTest="product-form-track-stock"
           />
         </div>
+
+        <!-- Campos condicionais — indentados com borda lateral -->
+        @if (form.controls.track_stock.value) {
+          <div class="flex flex-col gap-4 pl-6 border-l-2 border-accent-500/30">
+            <div class="grid grid-cols-3 gap-4">
+              <af-select-input
+                label="Unidade"
+                [control]="form.controls.unit"
+                [options]="unitOptions"
+                placeholder="Selecione..."
+                dataTest="product-form-unit"
+              />
+              <af-number-input
+                label="Quantidade em estoque"
+                [control]="form.controls.stock_quantity"
+                [min]="0"
+                [step]="1"
+                helpText="Quantidade disponível no momento."
+                dataTest="product-form-stock"
+              />
+              <af-number-input
+                label="Estoque mínimo"
+                [control]="form.controls.min_stock"
+                [min]="0"
+                [step]="1"
+                helpText="Alerta quando o estoque estiver abaixo deste valor."
+                dataTest="product-form-min-stock"
+              />
+            </div>
+          </div>
+        }
+
+        <!-- Feedback quando inativo — produto ilimitado -->
+        @if (!form.controls.track_stock.value) {
+          <div class="pl-6 border-l-2 border-neutral-200 dark:border-neutral-700">
+            <div class="rounded-md bg-neutral-50 dark:bg-neutral-800/50 px-3 py-2">
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                Este produto está configurado como <strong>ilimitado</strong>.
+                Não há controle de estoque — pode ser adicionado a qualquer negociação sem restrição de quantidade.
+              </p>
+            </div>
+          </div>
+        }
       }
 
-      <div class="flex items-center gap-4 mt-4 mb-2">
+      <div class="flex items-center gap-4 mt-6 mb-2">
         <af-switch-input
           label="Ativo"
           [control]="form.controls.is_active"

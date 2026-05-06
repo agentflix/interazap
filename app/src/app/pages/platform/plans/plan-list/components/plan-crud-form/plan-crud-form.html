@@ -80,14 +80,43 @@
         <af-card>
           <div class="p-4 space-y-4">
             <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Recursos</h3>
-            <af-select-input
-              label="IA Autopilot"
-              [control]="form.controls.ai_enabled"
-              [options]="booleanOptions"
-              [spacing]="false"
-            />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <af-select-input
+                label="IA Autopilot"
+                [control]="form.controls.ai_enabled"
+                [options]="booleanOptions"
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </af-card>
+
+        <af-card>
+          <div class="p-4 space-y-4">
+            <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+              Limite de IA
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <af-text-input
+                label="Tokens mensais"
+                type="number"
+                [control]="form.controls.token_limit_monthly"
+                [spacing]="false"
+              />
+              <af-switch-input
+                label="Permitir excedente"
+                [control]="form.controls.allow_overage"
+                classContainer="pt-6"
+              />
+              @if (form.controls.allow_overage.value) {
+                <af-currency-input
+                  label="Preço por 1k tokens"
+                  [control]="form.controls.overage_price_per_1k"
+                  [spacing]="false"
+                />
+              }
+            </div>
           </div>
         </af-card>
       </div>
     </form>
-  

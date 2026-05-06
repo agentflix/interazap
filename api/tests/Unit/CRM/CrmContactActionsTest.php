@@ -61,6 +61,34 @@ describe('list', function (): void {
 
         expect($result->first()->name)->toBe('Alpha');
     });
+
+    it('filters contacts by crm_company_id', function (): void {
+        $companyA = CRMCompany::factory()->create([
+            'tenant_id' => $this->tenant->id,
+        ]);
+        $companyB = CRMCompany::factory()->create([
+            'tenant_id' => $this->tenant->id,
+        ]);
+
+        CRMContact::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'name' => 'Contato Empresa A',
+            'crm_company_id' => $companyA->id,
+        ]);
+        CRMContact::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'name' => 'Contato Empresa B',
+            'crm_company_id' => $companyB->id,
+        ]);
+
+        $result = $this->actions->list($this->tenant->id, [
+            'crm_company_id' => $companyA->id,
+        ]);
+
+        expect($result->total())->toBe(1)
+            ->and($result->first()->crm_company_id)->toBe($companyA->id)
+            ->and($result->first()->name)->toBe('Contato Empresa A');
+    });
 });
 
 describe('create', function (): void {

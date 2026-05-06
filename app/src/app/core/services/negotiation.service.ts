@@ -37,7 +37,6 @@ export interface Negotiation {
   notes?: string;
   contact_id?: string | number;
   crm_company_id?: string | number;
-  company_id?: string | number;
   funnel_id?: string | number;
   step_id?: string | number;
   user_id?: string | number;
@@ -70,7 +69,7 @@ export interface NegotiationFilters {
   status?: NegotiationStatus | string | null;
   funnel_id?: string | number | null;
   step_id?: string | number | null;
-  company_id?: string | number | null;
+  crm_company_id?: string | number | null;
   contact_id?: string | number | null;
   user_id?: string | number | null;
   date_from?: string;
@@ -107,7 +106,7 @@ export interface NegotiationKanbanFilters {
   search?: string;
   funnel_id?: string | number | null;
   step_id?: string | number | null;
-  company_id?: string | number | null;
+  crm_company_id?: string | number | null;
   contact_id?: string | number | null;
   user_id?: string | number | null;
   date_from?: string;
@@ -174,7 +173,7 @@ export class NegotiationService {
   /**
    * Lista negociacoes com filtros avancados e paginacao.
    *
-   * @param filters - Filtros: search, status, funnel_id, step_id, company_id,
+   * @param filters - Filtros: search, status, funnel_id, step_id, crm_company_id,
    *   contact_id, user_id, date_from, date_to, amount_min/max, tag_ids, etc.
    * @returns Observable com lista paginada de negociacoes
    */
@@ -391,7 +390,7 @@ export class NegotiationService {
     params = this.appendStatus(params, filters.status);
     params = this.appendScalar(params, 'funnel_id', filters.funnel_id);
     params = this.appendScalar(params, 'step_id', filters.step_id);
-    params = this.appendScalar(params, 'company_id', filters.company_id);
+    params = this.appendScalar(params, 'crm_company_id', filters.crm_company_id);
     params = this.appendScalar(params, 'contact_id', filters.contact_id);
     params = this.appendScalar(params, 'user_id', filters.user_id);
     params = this.appendTrimmedString(params, 'date_from', filters.date_from);

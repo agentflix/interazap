@@ -1,6 +1,5 @@
-<div class="px-4 sm:px-6 lg:px-8 py-6">
-  <!-- Header -->
-  <div class="flex items-center justify-between mb-6">
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-3">
       <button
         type="button"
@@ -12,7 +11,7 @@
       </button>
       <div>
         <h1 class="text-xl font-semibold text-neutral-900 dark:text-white">
-          {{ isEditMode() ? 'Editar template' : 'Novo template' }}
+          {{ isEditMode() ? 'Editar Template Meta' : 'Novo Template Meta' }}
         </h1>
         <p class="text-sm text-neutral-500">WhatsApp Business — Meta</p>
       </div>
@@ -23,23 +22,27 @@
   </div>
 
   @if (isMetaLocked()) {
-    <af-alert
-      variant="warning"
-      title="Template Meta — apenas leitura"
-      message="Templates aprovados ou em aprovação na Meta não podem ter conteúdo alterado. Apenas atalho e ativação ficam editáveis."
-    />
+    <div class="mb-4">
+      <af-alert
+        variant="warning"
+        title="Template Meta — apenas leitura"
+        message="Templates aprovados ou em aprovação na Meta não podem ter conteúdo alterado. Apenas atalho e ativação ficam editáveis."
+      />
+    </div>
   } @else if (!isEditMode()) {
-    <af-alert
-      variant="info"
-      title="Aprovação obrigatória"
-      message="Após salvar, o template será enviado para a Meta. A aprovação leva alguns minutos."
-    />
+    <div class="mb-4">
+      <af-alert
+        variant="info"
+        title="Aprovação obrigatória"
+        message="Após salvar, o template será enviado para a Meta. A aprovação leva alguns minutos."
+      />
+    </div>
   }
 
   <form
     [formGroup]="form"
     (ngSubmit)="submit()"
-    class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 mt-4"
+    class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6"
   >
     <!-- ── FORM COLUMN ── -->
     <div
@@ -158,4 +161,3 @@
       </div>
     </aside>
   </form>
-</div>

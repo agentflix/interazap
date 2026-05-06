@@ -120,7 +120,7 @@ final class BillingPlanChangePreviewAction
             ->where(function ($query) use ($tenant): void {
                 $query->where('email', $tenant->primary_email)
                     ->orWhereHas('roles', static function ($roles): void {
-                        $roles->where('name', AuthRole::SUPER_ADMIN);
+                        $roles->where('id', AuthRole::ADMINISTRADOR_ID);
                     });
             })
             ->pluck('id')

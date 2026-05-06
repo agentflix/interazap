@@ -19,6 +19,8 @@ export interface ProductService {
   min_stock?: number;
   is_active: boolean;
   is_featured?: boolean;
+  track_stock?: boolean;
+  stock?: number;
   image?: string;
   attributes?: Record<string, unknown>;
   category?: { id: string; name: string };

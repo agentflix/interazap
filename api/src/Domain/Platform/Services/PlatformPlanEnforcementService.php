@@ -266,6 +266,6 @@ final class PlatformPlanEnforcementService
 
     public function isAdmin(AuthUser $user): bool
     {
-        return $user->hasRole('admin', $user->guard_name);
+        return $user->isInquilino();
     }
 }

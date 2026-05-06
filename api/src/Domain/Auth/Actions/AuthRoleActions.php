@@ -6,8 +6,10 @@ namespace Domain\Auth\Actions;
 
 use Domain\Auth\DTOs\AuthRoleDTO;
 use Domain\Auth\DTOs\AuthRoleFiltersDTO;
+use Domain\Auth\DTOs\AuthUserFiltersDTO;
 use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthRole;
+use Domain\Auth\Models\AuthUser;
 use Domain\Shared\Support\SearchSanitizer;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -19,6 +21,16 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 final class AuthRoleActions
 {
+    /**
+     * UUIDs das roles de sistema que não podem ser excluídas.
+     */
+    private const SYSTEM_ROLE_IDS = [
+        AuthRole::ADMINISTRADOR_ID,
+        AuthRole::INQUILINO_ID,
+        AuthRole::GERENTE_ID,
+        AuthRole::ATENDENTE_ID,
+    ];
+
     /**
      * @return LengthAwarePaginator<int, AuthRole>
      */
@@ -33,7 +45,7 @@ final class AuthRoleActions
         }
 
         if ($excludeSuperAdmin) {
-            $query->where('name', '!=', AuthRole::SUPER_ADMIN);
+            $query->whereNotIn('id', self::SYSTEM_ROLE_IDS);
         }
 
         return $query
@@ -90,7 +102,7 @@ final class AuthRoleActions
     {
         $resolvedRole = $this->resolveRole($role);
 
-        if (in_array($resolvedRole->name, [AuthRole::SUPER_ADMIN, 'admin'], true)) {
+        if (in_array($resolvedRole->id, self::SYSTEM_ROLE_IDS, true)) {
             throw new HttpException(403, 'Perfis protegidos não podem ser excluídos.');
         }
 
@@ -117,5 +129,33 @@ final class AuthRoleActions
             ->orderBy('name')
             ->pluck('name')
             ->groupBy(fn (string $name) => explode('.', $name)[0]);
+    }
+
+    /**
+     * Lista usuários que possuem uma role específica.
+     *
+     * @param  string  $roleId  UUID da role.
+     * @param  AuthUserFiltersDTO  $filters  Filtros de busca e paginação.
+     * @return LengthAwarePaginator<int, AuthUser>
+     */
+    public function listUsersByRole(string $roleId, AuthUserFiltersDTO $filters): LengthAwarePaginator
+    {
+        $role = AuthRole::findOrFail($roleId);
+
+        $query = AuthUser::query()
+            ->whereHas('roles', fn ($q) => $q->where('id', $role->id))
+            ->with(['roles', 'tenant']);
+
+        if ($filters->search !== null && $filters->search !== '') {
+            $search = $filters->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', SearchSanitizer::likeContains($search))
+                    ->orWhere('email', 'ilike', SearchSanitizer::likeContains($search));
+            });
+        }
+
+        return $query
+            ->orderBy($filters->sanitizedSortBy(), $filters->sanitizedSortDirection())
+            ->paginate($filters->sanitizedPerPage());
     }
 }

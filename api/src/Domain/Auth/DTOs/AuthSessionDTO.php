@@ -20,6 +20,11 @@ final readonly class AuthSessionDTO
         public array $permissions,
         public ?array $tenantPlan = null,
         public ?string $token = null,
+        public bool $isImpersonating = false,
+        /** @var array<string, mixed>|null */
+        public ?array $impersonatedBy = null,
+        /** @var array<string, mixed>|null */
+        public ?array $impersonatedTenant = null,
     ) {}
 
     /**
@@ -32,6 +37,9 @@ final readonly class AuthSessionDTO
             'permissions' => $this->permissions,
             'tenant_plan' => $this->tenantPlan,
             'token' => $this->token,
+            'is_impersonating' => $this->isImpersonating,
+            'impersonated_by' => $this->impersonatedBy,
+            'impersonated_tenant' => $this->impersonatedTenant,
         ];
     }
 }

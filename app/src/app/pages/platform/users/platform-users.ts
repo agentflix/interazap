@@ -20,8 +20,10 @@ import {
   AfConfirmModalComponent,
   AfCrudPageComponent,
   AfDataTableComponent,
+  AfIconButtonComponent,
   AfLoadingButtonComponent,
   AfModalComponent,
+  AfPasswordInputComponent,
   AfStatusBadgeComponent,
   AfTableActionsComponent,
   type AfSelectOption,
@@ -31,8 +33,11 @@ import { CompanyService } from '@core/services/company.service';
 import { type PlatformUser, PlatformUserService } from '@core/services/platform-user.service';
 import { RoleService } from '@core/services/role.service';
 import { ToastService } from '@core/services/toast.service';
+import { AuthService } from '@core/services/auth.service';
+import { AuthStoreService, type AuthUser } from '@core/services/auth-store.service';
 import { PlatformUserFormComponent } from './components/platform-user-form/platform-user-form';
 import { getInitials } from '@shared/utils/string.utils';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-platform-users',
@@ -51,6 +56,8 @@ import { getInitials } from '@shared/utils/string.utils';
     AfStatusBadgeComponent,
     AfTableActionsComponent,
     AfAlertComponent,
+    AfIconButtonComponent,
+    AfPasswordInputComponent,
     PlatformUserFormComponent,
 /**
  * Platform users page component for the Platform module.
@@ -66,8 +73,13 @@ export class PlatformUsers implements OnInit {
   private readonly roleService = inject(RoleService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStoreService);
+  private readonly router = inject(Router);
 
   readonly userFormRef = viewChild<PlatformUserFormComponent>('userForm');
+
+  readonly isSuperAdmin = computed(() => this.authStore.hasPermission('platform.tenants.manage'));
 
   readonly users = signal<PlatformUser[]>([]);
   readonly meta = signal({ current_page: 1, last_page: 1, per_page: 15, total: 0 });
@@ -117,6 +129,11 @@ export class PlatformUsers implements OnInit {
     this.userToDelete() ? 'Excluir' : 'Excluir selecionados',
   );
 
+  readonly showImpersonateModal = signal(false);
+  readonly userToImpersonate = signal<PlatformUser | null>(null);
+  readonly impersonatePasswordControl = new FormControl<string>('', { nonNullable: true });
+  readonly isImpersonating = signal(false);
+
   private currentPage = 1;
   private searchTerm = '';
 
@@ -158,6 +175,49 @@ export class PlatformUsers implements OnInit {
     if (!this.hasSelection()) return;
     this.userToDelete.set(null);
     this.showDeleteModal.set(true);
+  }
+
+  openImpersonate(user: PlatformUser): void {
+    this.userToImpersonate.set(user);
+    this.impersonatePasswordControl.setValue('', { emitEvent: false });
+    this.showImpersonateModal.set(true);
+  }
+
+  handleImpersonateConfirmed(): void {
+    const user = this.userToImpersonate();
+    if (!user || this.isImpersonating()) return;
+
+    const password = this.impersonatePasswordControl.value;
+    if (!password || password.trim().length === 0) return;
+
+    this.isImpersonating.set(true);
+
+    this.authService
+      .impersonateUser(String(user.id), password.trim())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.isImpersonating.set(false);
+          this.showImpersonateModal.set(false);
+          this.userToImpersonate.set(null);
+          this.impersonatePasswordControl.setValue('', { emitEvent: false });
+
+          const userData = response.data?.user;
+          const token = response.data?.token;
+          if (userData && token) {
+            this.authStore.startImpersonation(userData as unknown as AuthUser, token);
+          }
+
+          const tenantName = user.tenant?.name ?? user.name;
+          this.toast.success(`Você entrou como ${tenantName}.`);
+          void this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.isImpersonating.set(false);
+          const msg = err?.error?.message || 'Erro ao impersonar. Verifique a senha e tente novamente.';
+          this.toast.error(msg);
+        },
+      });
   }
 
   handleFormSaved(_user: PlatformUser): void {

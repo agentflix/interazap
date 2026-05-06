@@ -125,6 +125,17 @@ export class UserService {
    * @returns Observable com o usuario com status alterado
    */
   toggleActive(id: string): Observable<{ data: User }> {
-    return this.http.patch<{ data: User }>(`${this.apiUrl}/${id}/toggle-active`, {});
+    return this.http.post<{ data: User }>(`${this.apiUrl}/${id}/toggle`, {});
+  }
+
+  /**
+   * Remove uma role específica de um usuário.
+   *
+   * @param id - Identificador do usuario
+   * @param roleName - Nome da role a remover
+   * @returns Observable com o usuario atualizado
+   */
+  removeRole(id: string, roleName: string): Observable<{ data: User }> {
+    return this.http.post<{ data: User }>(`${this.apiUrl}/${id}/roles/remove`, { role: roleName });
   }
 }

@@ -1,0 +1,133 @@
+version: "1.0"
+project: "InteraZap"
+last_updated: "2026-05-06"
+
+stack:
+  backend:
+    language: "PHP 8.3"
+    framework: "Laravel 12"
+    extras:
+      - "Sanctum 4.2 (auth)"
+      - "Spatie Permissions 6.24 (RBAC)"
+      - "Horizon 5.43 (queues)"
+      - "Octane 2.17 (HTTP runtime)"
+      - "Reverb 1.0 (websockets)"
+      - "Pest 4.3 (tests)"
+      - "PHPStan/Larastan (analise estatica)"
+      - "Pint (formatter)"
+      - "Rector (refactor)"
+      - "Telescope, Debugbar (dev)"
+      - "owen-it/laravel-auditing"
+  gateway:
+    language: "TypeScript 5.7"
+    framework: "NestJS 11"
+    extras:
+      - "BullMQ"
+      - "Redis Streams"
+      - "Socket.io"
+      - "OpenAI SDK"
+      - "Asaas (billing)"
+  frontend_app:
+    language: "TypeScript"
+    framework: "Angular 19"
+    extras:
+      - "Ionic"
+      - "Capacitor (Android/iOS)"
+      - "Vitest (tests)"
+  frontend_desktop:
+    language: "TypeScript"
+    framework: "Electron 33 + Angular 20"
+    extras:
+      - "electron-builder"
+      - "Auto-update via GitHub Releases"
+  database:
+    type: "PostgreSQL 17"
+    extras:
+      - "pgvector (embeddings IA)"
+  cache_queue:
+    type: "Redis 7"
+    extras:
+      - "Streams (Gateway <-> API)"
+      - "Sessions, cache, queues"
+  testing:
+    backend: "Pest 4 + PHPUnit 12"
+    frontend_app: "Vitest"
+    e2e: "Playwright (planejado)"
+  infra:
+    iac: "Ansible"
+    proxy: "nginx"
+    ci_cd: "GitHub Actions"
+    observability: "Prometheus client (PHP)"
+
+metrics:
+  total_features: 4
+  features_completed: 3
+  features_in_progress: 1
+  total_tasks: 28
+  tasks_completed: 27
+  tasks_in_progress: 0
+  tasks_pending: 1
+
+modules_status:
+  Shared:
+    status: "active"
+    completion: "100%"
+    last_change: "2026-05-06"
+  Platform:
+    status: "in_progress"
+    completion: "90%"
+    last_change: "2026-05-05"
+  Auth:
+    status: "active"
+    completion: "95%"
+    last_change: "2026-05-03"
+  Chat:
+    status: "active"
+    completion: "80%"
+    last_change: "2026-05-03"
+  CRM:
+    status: "active"
+    completion: "72%"
+    last_change: "2026-05-06"
+  Ai:
+    status: "active"
+    completion: "65%"
+    last_change: "2026-05-05"
+  Billing:
+    status: "active"
+    completion: "75%"
+    last_change: "2026-05-05"
+  Configuration:
+    status: "active"
+    completion: "70%"
+    last_change: "2026-05-01"
+  Dashboard:
+    status: "active"
+    completion: "55%"
+    last_change: "2026-04-28"
+  Reports:
+    status: "active"
+    completion: "40%"
+    last_change: "2026-04-28"
+  Gateway:
+    status: "active"
+    completion: "75%"
+    last_change: "2026-05-05"
+  Gateway-NestJS:
+    status: "active"
+    completion: "70%"
+    last_change: "2026-05-05"
+  App:
+    status: "active"
+    completion: "70%"
+    last_change: "2026-05-06"
+  Electron:
+    status: "active"
+    completion: "60%"
+    last_change: "2026-04-28"
+
+quality:
+  test_coverage_backend: "indefinido (medir com pest --coverage)"
+  test_coverage_frontend: "indefinido"
+  lint_status: "app build OK; composer analyse bloqueado por erros preexistentes fora da FEAT-003"
+  last_validation: "2026-05-05"

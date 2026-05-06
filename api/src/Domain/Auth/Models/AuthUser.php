@@ -55,7 +55,47 @@ final class AuthUser extends Authenticatable implements AuditableContract
 
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole(AuthRole::SUPER_ADMIN, $this->guard_name);
+        return $this->hasRoleId(AuthRole::ADMINISTRADOR_ID);
+    }
+
+    /**
+     * Verifica se o usuário possui uma role específica pelo UUID.
+     */
+    public function hasRoleId(string $roleId): bool
+    {
+        return $this->roles()->where('id', $roleId)->exists();
+    }
+
+    /**
+     * Verifica se o usuário é o dono/administrador do tenant (tenant owner).
+     */
+    public function isInquilino(): bool
+    {
+        return $this->hasRoleId(AuthRole::INQUILINO_ID);
+    }
+
+    /**
+     * Verifica se o usuário é gerente do tenant.
+     */
+    public function isManager(): bool
+    {
+        return $this->hasRoleId(AuthRole::GERENTE_ID);
+    }
+
+    /**
+     * Verifica se o usuário é atendente do tenant.
+     */
+    public function isAgent(): bool
+    {
+        return $this->hasRoleId(AuthRole::ATENDENTE_ID);
+    }
+
+    /**
+     * Verifica se o usuário é administrador de qualquer nível (platform ou tenant).
+     */
+    public function isAnyAdmin(): bool
+    {
+        return $this->isSuperAdmin() || $this->isInquilino();
     }
 
     /**

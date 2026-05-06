@@ -34,11 +34,9 @@
           <af-switch-input
             [control]="routingEnabledControl"
             label="Ativar rodízio"
+            helpText="Distribui conversas automaticamente entre os agentes configurados."
             dataTest="routing-enabled"
           />
-          <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-            Distribui conversas automaticamente entre os agentes configurados.
-          </p>
         </div>
 
         <!-- Campos condicionais -->
@@ -145,11 +143,9 @@
           <af-switch-input
             [control]="chatForm.controls.auto_close_inactivity_enabled"
             label="Ativar fechamento automático por inatividade"
+            helpText="Encerra automaticamente atendimentos que ficarem inativos por mais de X minutos."
             dataTest="chat-config-auto-close-enabled"
           />
-          <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-            Encerra automaticamente atendimentos que ficarem inativos por mais de X minutos
-          </p>
         </div>
 
         <!-- Campos condicionais -->
@@ -181,15 +177,12 @@
                 [control]="chatForm.controls.auto_close_inactivity_message"
                 label="Mensagem ao encerrar"
                 placeholder="Mensagem enviada ao fechar o atendimento automaticamente..."
+                helpText="Máximo de 2000 caracteres. Será enviada ao cliente quando o atendimento for encerrado."
                 [maxLength]="2000"
                 [rows]="3"
                 resize="vertical"
                 dataTest="chat-config-auto-close-message"
               />
-              <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                Máximo de 2000 caracteres. Será enviada ao cliente quando o atendimento for
-                encerrado.
-              </p>
             </div>
           </div>
         }

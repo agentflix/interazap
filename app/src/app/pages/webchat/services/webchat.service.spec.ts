@@ -239,7 +239,7 @@ describe('WebChatService', () => {
   });
 
   describe('session persistence', () => {
-    it('should save and restore session from localStorage', () => {
+    it('should save and restore session from sessionStorage', () => {
       service.saveSession('token-xyz', 'session-123');
 
       // Clear internal state to simulate fresh load
@@ -255,13 +255,13 @@ describe('WebChatService', () => {
         sessionId: 'old-session',
         expiresAt: Date.now() - 1000, // expired 1 second ago
       };
-      localStorage.setItem('webchat_session', JSON.stringify(expired));
+      sessionStorage.setItem('webchat_session', JSON.stringify(expired));
 
       const result = service.restoreSession();
       expect(result).toBeNull();
     });
 
-    it('should clear session from localStorage', () => {
+    it('should clear session from sessionStorage', () => {
       service.saveSession('token', 'session');
       service.clearSession();
 
@@ -270,14 +270,14 @@ describe('WebChatService', () => {
     });
 
     it('should return null and clear storage for malformed persisted session', () => {
-      localStorage.setItem(
+      sessionStorage.setItem(
         'webchat_session',
         JSON.stringify({ sessionId: 'session-123', expiresAt: Date.now() + 60000 }),
       );
 
       const result = service.restoreSession();
       expect(result).toBeNull();
-      expect(localStorage.getItem('webchat_session')).toBeNull();
+      expect(sessionStorage.getItem('webchat_session')).toBeNull();
     });
   });
 

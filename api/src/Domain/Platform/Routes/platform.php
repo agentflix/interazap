@@ -40,6 +40,8 @@ Route::middleware(['auth:sanctum'])
         Route::patch('/tenants/{id}/toggle-active', [PlatformTenantController::class, 'toggleActive']);
         Route::post('/tenants/{id}/restore', [PlatformTenantController::class, 'restore']);
         Route::delete('/tenants/{id}/force', [PlatformTenantController::class, 'forceDelete']);
+        Route::delete('/tenants/{id}/purge', [PlatformTenantController::class, 'purge']);
+        Route::post('/tenants/{id}/impersonate', [PlatformTenantController::class, 'impersonate']);
         Route::get('/tenants/{id}/settings', [PlatformTenantController::class, 'settings']);
         Route::patch('/tenants/{id}/settings', [PlatformTenantController::class, 'updateSettings']);
 
@@ -80,4 +82,5 @@ Route::middleware(['auth:sanctum'])
         Route::post('/users/{id}/toggle', [PlatformUserController::class, 'toggle']);
         Route::post('/users/{id}/avatar', [PlatformUserController::class, 'uploadAvatar']);
         Route::delete('/users/{id}/avatar', [PlatformUserController::class, 'deleteAvatar']);
+        Route::post('/users/{id}/impersonate', [PlatformUserController::class, 'impersonate']);
     });

@@ -37,39 +37,7 @@ class AiCatalogSeeder extends Seeder
     {
         $general = [
             'prompt_suffix' => 'Atue com foco em atendimento consultivo, segurança e geração de oportunidades qualificadas.',
-            'agents' => [
-                [
-                    'name' => 'Peggy',
-                    'type' => 'qualifier',
-                    'model_id' => 'gpt-4o-mini',
-                    'system_prompt' => 'Voce e Peggy, especialista em qualificacao consultiva de leads.',
-                    'classifier_model' => 'gpt-4o-mini',
-                    'max_tokens' => 2048,
-                    'temperature' => 0.6,
-                    'top_p' => 1.0,
-                    'token_budget_input' => 6000,
-                    'token_budget_output' => 3000,
-                    'fallback_message' => 'Posso direcionar voce para um especialista humano.',
-                    'skills' => [
-                        [
-                            'name' => 'Lead Qualification',
-                            'description' => 'Qualifica interesse, urgencia e potencial de compra.',
-                        ],
-                    ],
-                    'files' => [
-                        [
-                            'slug' => 'IDENTITY.md',
-                            'content' => '# Quem sou eu\n\nSou Peggy, especialista em qualificacao de leads.',
-                        ],
-                    ],
-                    'channels' => ['whatsapp'],
-                    'tools' => [
-                        AiToolEnum::SEARCH_KNOWLEDGE,
-                        AiToolEnum::SEND_MESSAGE,
-                        AiToolEnum::NOTIFY_SELLER,
-                    ],
-                ],
-            ],
+            'agents' => [],
             'funnels' => [
                 [
                     'name' => 'Vendas Padrão',

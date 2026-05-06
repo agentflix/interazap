@@ -53,6 +53,7 @@ final class CRMContactController extends BaseController
             fn (string $tenantId) => $this->actions->list($tenantId, [
                 'search' => $request->input('search'),
                 'is_active' => $isActive,
+                'crm_company_id' => $request->input('crm_company_id'),
                 'per_page' => $request->input('per_page'),
                 'sort_by' => $request->input('sort_by'),
                 'sort_dir' => $request->input('sort_dir'),

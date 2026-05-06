@@ -18,6 +18,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('shared_webhook_events')) {
+            return;
+        }
+
         Schema::create('shared_webhook_events', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('tenant_id')->nullable();
@@ -51,36 +55,39 @@ return new class extends Migration
             $table->index(['tenant_id', 'event_type', 'created_at'], 'idx_shared_webhook_event_type');
         });
 
-        // Migrate chat_webhook_events
-        DB::statement("
-            INSERT INTO shared_webhook_events (
-                id, tenant_id, domain, stream_id, idempotency_key,
-                provider, instance_webhook_token, event_type, direction,
-                payload, processed_at, created_at, updated_at
-            )
-            SELECT
-                id, tenant_id, 'chat', stream_id, idempotency_key,
-                provider, instance_webhook_token, event_type, direction,
-                payload, processed_at, created_at, updated_at
-            FROM chat_webhook_events
-        ");
+        // Migrate chat_webhook_events (if exists — legacy tables removed in unified schema)
+        if (Schema::hasTable('chat_webhook_events')) {
+            DB::statement("
+                INSERT INTO shared_webhook_events (
+                    id, tenant_id, domain, stream_id, idempotency_key,
+                    provider, instance_webhook_token, event_type, direction,
+                    payload, processed_at, created_at, updated_at
+                )
+                SELECT
+                    id, tenant_id, 'chat', stream_id, idempotency_key,
+                    provider, instance_webhook_token, event_type, direction,
+                    payload, processed_at, created_at, updated_at
+                FROM chat_webhook_events
+            ");
+            Schema::dropIfExists('chat_webhook_events');
+        }
 
-        // Migrate billing_webhook_events
-        DB::statement("
-            INSERT INTO shared_webhook_events (
-                id, tenant_id, domain, provider, instance_webhook_token,
-                provider_event_id, event_type, payload, payload_hash,
-                payload_json, received_at, processed_at, created_at, updated_at
-            )
-            SELECT
-                id, tenant_id, 'billing', provider, instance_webhook_token,
-                provider_event_id, event_type, payload, payload_hash,
-                payload_json, received_at, processed_at, created_at, updated_at
-            FROM billing_webhook_events
-        ");
-
-        Schema::dropIfExists('chat_webhook_events');
-        Schema::dropIfExists('billing_webhook_events');
+        // Migrate billing_webhook_events (if exists — legacy tables removed in unified schema)
+        if (Schema::hasTable('billing_webhook_events')) {
+            DB::statement("
+                INSERT INTO shared_webhook_events (
+                    id, tenant_id, domain, provider, instance_webhook_token,
+                    provider_event_id, event_type, payload, payload_hash,
+                    payload_json, received_at, processed_at, created_at, updated_at
+                )
+                SELECT
+                    id, tenant_id, 'billing', provider, instance_webhook_token,
+                    provider_event_id, event_type, payload, payload_hash,
+                    payload_json, received_at, processed_at, created_at, updated_at
+                FROM billing_webhook_events
+            ");
+            Schema::dropIfExists('billing_webhook_events');
+        }
     }
 
     public function down(): void

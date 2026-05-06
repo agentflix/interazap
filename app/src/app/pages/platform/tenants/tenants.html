@@ -144,6 +144,17 @@
                       >
                         <lucide-icon name="eye" [size]="14" />
                       </af-icon-button>
+                      @if (isSuperAdmin() && tenant.is_active && !tenant.deleted_at) {
+                        <af-icon-button
+                          label="Entrar como empresa"
+                          variant="ghost"
+                          size="sm"
+                          type="button"
+                          (click)="openImpersonate(tenant); $event.stopPropagation()"
+                        >
+                          <lucide-icon name="log-in" [size]="14" />
+                        </af-icon-button>
+                      }
                       <af-table-actions (edit)="openEdit(tenant)" (delete)="openDelete(tenant)" />
                     }
                   </div>
@@ -200,17 +211,101 @@
       (cancelled)="showDeleteModal.set(false)"
     />
 
-    <af-confirm-modal
+    <af-modal
       [open]="showForceDeleteModal()"
       title="Excluir inquilino permanentemente"
-      [message]="forceDeleteMessage()"
-      confirmLabel="Excluir permanentemente"
-      cancelLabel="Cancelar"
-      variant="danger"
-      iconName="alert-triangle"
-      (confirmed)="handleForceDeleteConfirmed()"
-      (cancelled)="showForceDeleteModal.set(false)"
-    />
+      size="sm"
+      [showClose]="false"
+      (closed)="showForceDeleteModal.set(false)"
+    >
+      <div class="space-y-4">
+        <!-- Icon -->
+        <div class="mx-auto flex items-center justify-center size-12 rounded-full mb-4 bg-red-100 dark:bg-red-900/30">
+          <span aria-hidden="true" class="text-xl font-semibold text-red-600 dark:text-red-400">!</span>
+        </div>
+
+        <!-- Message -->
+        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+          {{ forceDeleteMessage() }}
+        </p>
+
+        <!-- Password field -->
+        <af-password-input
+          [control]="adminPasswordControl"
+          label="Senha do administrador"
+          placeholder="Digite sua senha"
+          [required]="true"
+          errorMessage="A senha é obrigatória para confirmar."
+          dataTest="admin-password-input"
+        />
+      </div>
+
+      <!-- Footer -->
+      <div footer class="flex justify-end gap-3">
+        <af-button variant="ghost" size="sm" (click)="showForceDeleteModal.set(false)">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="danger"
+          size="sm"
+          [loading]="isForceDeleting()"
+          [disabled]="!adminPasswordControl.value || adminPasswordControl.value.trim().length === 0"
+          (click)="handleForceDeleteConfirmed()"
+        >
+          Excluir permanentemente
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- Impersonate Modal -->
+    <af-modal
+      [open]="showImpersonateModal()"
+      title="Entrar como empresa"
+      size="sm"
+      [showClose]="false"
+      (closed)="showImpersonateModal.set(false)"
+    >
+      <div class="space-y-4">
+        <!-- Icon -->
+        <div class="mx-auto flex items-center justify-center size-12 rounded-full mb-4 bg-amber-100 dark:bg-amber-900/30">
+          <lucide-icon name="log-in" [size]="20" class="text-amber-600 dark:text-amber-400" />
+        </div>
+
+        <!-- Message -->
+        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-center">
+          Você está prestes a impersonar o inquilino
+          <strong>{{ tenantToImpersonate()?.name }}</strong>.
+          Digite sua senha de super admin para continuar.
+        </p>
+
+        <!-- Password field -->
+        <af-password-input
+          [control]="impersonatePasswordControl"
+          label="Senha do super admin"
+          placeholder="Digite sua senha"
+          [required]="true"
+          autocomplete="new-password"
+          errorMessage="A senha é obrigatória para impersonar."
+          dataTest="impersonate-password-input"
+        />
+      </div>
+
+      <!-- Footer -->
+      <div footer class="flex justify-end gap-3">
+        <af-button variant="ghost" size="sm" (click)="showImpersonateModal.set(false)">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isImpersonating()"
+          [disabled]="!impersonatePasswordControl.value || impersonatePasswordControl.value.trim().length === 0"
+          (click)="handleImpersonateConfirmed()"
+        >
+          Entrar como empresa
+        </af-loading-button>
+      </div>
+    </af-modal>
 
     @if (isDetailsOpen()) {
       <div

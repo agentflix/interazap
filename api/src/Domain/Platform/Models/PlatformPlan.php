@@ -26,6 +26,9 @@ use Illuminate\Support\Str;
  * @property \Domain\Platform\Enums\PlatformStorageMode $storage_mode
  * @property int|null $storage_limit_bytes
  * @property bool $ai_enabled
+ * @property int|null $token_limit_monthly
+ * @property bool $allow_overage
+ * @property float|null $overage_price_per_1k
  * @property int|null $chat_channels_limit
  * @property \Domain\Platform\Enums\PlatformNegotiationsMode $negotiations_mode
  * @property int|null $negotiations_limit
@@ -56,6 +59,9 @@ final class PlatformPlan extends Model
         'storage_mode',
         'storage_limit_bytes',
         'ai_enabled',
+        'token_limit_monthly',
+        'allow_overage',
+        'overage_price_per_1k',
         'chat_channels_limit',
         'negotiations_mode',
         'negotiations_limit',
@@ -73,6 +79,9 @@ final class PlatformPlan extends Model
         'storage_mode' => PlatformStorageMode::class,
         'storage_limit_bytes' => 'integer',
         'ai_enabled' => 'boolean',
+        'token_limit_monthly' => 'integer',
+        'allow_overage' => 'boolean',
+        'overage_price_per_1k' => 'decimal:2',
         'chat_channels_limit' => 'integer',
         'negotiations_mode' => PlatformNegotiationsMode::class,
         'negotiations_limit' => 'integer',

@@ -11,6 +11,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('platform_tenants', 'billing_status')) {
+            return;
+        }
+
         Schema::table('platform_tenants', function (Blueprint $table): void {
             $table->string('billing_status', 20)->default('active')->after('is_active');
             $table->timestamp('billing_locked_at')->nullable()->after('billing_status');

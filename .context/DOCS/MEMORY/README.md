@@ -1,51 +1,37 @@
-# MEMORY — Conhecimento Relevante e Reutilizável
+# Memory — InteraZap
 
-> MEMORY não é log de ações. Guarda apenas conhecimento que evitará erros futuros.
+Memória persistente do projeto. Decisões, aprendizados e armadilhas.
+Consultado pela IA para NÃO repetir erros e manter consistência.
 
-## O que registrar
+## Tipos de Registro
 
-- Decisão técnica importante
-- Escolha entre alternativas
-- Regra de negócio não óbvia
-- Padrão de implementação reutilizável
-- Armadilha descoberta
-- Bug difícil com causa relevante
-- Integração com comportamento inesperado
-- Convenção importante do projeto
+| Tipo | Quando Registrar |
+|------|------------------|
+| Decisão | Quando uma decisão técnica ou de produto é tomada |
+| Aprendizado | Quando algo é descoberto que outros devem saber |
+| Armadilha | Quando algo deu errado e não deve se repetir |
+| Insight | Quando uma observação pode melhorar o projeto |
 
-## O que NÃO registrar
+## Convenções
+- Um arquivo por decisão/aprendizado: `YYYY-MM-DD-titulo-kebab.md`
+- Template: `_TEMPLATE.md`
+- Tags para facilitar busca
+- Sempre referenciar feature/task que gerou
 
-- Tasks concluídas
-- Alterações triviais
-- Logs operacionais
-- "Arquivo X foi alterado"
+## Quando Registrar
+- Fase CONFIRM do PREVC → decisões tomadas durante a feature
+- Após resolver um bug difícil → armadilha para não repetir
+- Após discussão técnica → decisão com alternativas descartadas
+- Quando descobrir algo não óbvio do código → aprendizado
 
-## Formato de cada memória
+## Como Consultar (IA)
+- Antes de implementar: `grep -r "[termo]" .context/DOCS/MEMORY/`
+- Antes de decidir: buscar decisões anteriores sobre o mesmo tema
+- Antes de refatorar: verificar armadilhas conhecidas
 
-```yaml
-titulo: Nome claro
-tipo: Decisão | Aprendizado | Armadilha | Padrão | Regra de negócio
-data: YYYY-MM-DD
-contexto: Situação que levou à decisão
-conhecimento: O que foi aprendido ou decidido
-alternativas: Alternativas consideradas (opcional)
-consequencias: Impacto da decisão
-quando_consultar: Quando voltar a consultar esta memória
-referencias: Arquivos, links, decisões relacionadas
-```
-
-## Como consultar
-
-Antes de mexer em área unfamiliar, check `.context/DOCS/MEMORY/` para evitar repetir erros.
-
-## Exemplo de memória
-
-```yaml
-titulo: Normalização de telefones deve usar E.164 por organização
-tipo: Decisão técnica / Regra de negócio
-data: 2024-XX-XX
-contexto: Chamados, conversas e contatos criavam duplicidades por variação de telefone
-conhecimento: Todo telefone deve ser normalizado antes de vincular crm_contacts, conversations e tickets
-consequencias: Evita duplicidade e garante que o botão editar contato sempre abra o contato real
-quando_consultar: Sempre que mexer em contatos, conversas, tickets, WhatsApp ou CRM
-```
+## Tópicos críticos do InteraZap
+- Multi-tenancy (`grep -ri "tenant" .context/DOCS/MEMORY/`)
+- Webhooks idempotentes (`grep -ri "webhook" .context/DOCS/MEMORY/`)
+- Integrações externas (UazAPI/Z-API/OpenAI/Asaas)
+- Performance de mensageria
+- WebSocket / Reverb / Socket.io

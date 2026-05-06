@@ -9,7 +9,6 @@ use Domain\Auth\Models\AuthUser;
 use Domain\Platform\Models\PlatformPlan;
 use Domain\Platform\Policies\PlatformPlanPolicy;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class PlatformPlanPolicyTest extends TestCase
@@ -29,11 +28,7 @@ class PlatformPlanPolicyTest extends TestCase
     public function test_policy_allows_admin(): void
     {
         $user = AuthUser::factory()->create();
-        $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
-        );
-        $user->assignRole($role);
+        $user->assignRole(AuthRole::INQUILINO_ID);
 
         $policy = new PlatformPlanPolicy;
         $plan = PlatformPlan::factory()->create();

@@ -87,11 +87,24 @@
                   </af-status-badge>
                 </td>
                 <td>
-                  <af-table-actions
-                    [showDelete]="!user.is_primary_tenant_user"
-                    (edit)="openEdit(user)"
-                    (delete)="openDelete(user)"
-                  />
+                  <div class="flex justify-end items-center gap-1">
+                    @if (isSuperAdmin() && user.is_active) {
+                      <af-icon-button
+                        label="Entrar como usuário"
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        (click)="openImpersonate(user); $event.stopPropagation()"
+                      >
+                        <lucide-icon name="log-in" [size]="14" />
+                      </af-icon-button>
+                    }
+                    <af-table-actions
+                      [showDelete]="!user.is_primary_tenant_user"
+                      (edit)="openEdit(user)"
+                      (delete)="openDelete(user)"
+                    />
+                  </div>
                 </td>
               </tr>
             }
@@ -140,4 +153,57 @@
       (confirmed)="handleDeleteConfirmed()"
       (cancelled)="showDeleteModal.set(false)"
     />
+
+    <!-- Impersonate Modal -->
+    <af-modal
+      [open]="showImpersonateModal()"
+      title="Entrar como usuário"
+      size="sm"
+      [showClose]="false"
+      (closed)="showImpersonateModal.set(false)"
+    >
+      <div class="space-y-4">
+        <!-- Icon -->
+        <div class="mx-auto flex items-center justify-center size-12 rounded-full mb-4 bg-amber-100 dark:bg-amber-900/30">
+          <lucide-icon name="log-in" [size]="20" class="text-amber-600 dark:text-amber-400" />
+        </div>
+
+        <!-- Message -->
+        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed text-center">
+          Você está prestes a impersonar o usuário
+          <strong>{{ userToImpersonate()?.name }}</strong>
+          @if (userToImpersonate()?.tenant) {
+            do tenant <strong>{{ userToImpersonate()?.tenant?.name }}</strong>.
+          }
+          Digite sua senha de super admin para continuar.
+        </p>
+
+        <!-- Password field -->
+        <af-password-input
+          [control]="impersonatePasswordControl"
+          label="Senha do super admin"
+          placeholder="Digite sua senha"
+          [required]="true"
+          autocomplete="new-password"
+          errorMessage="A senha é obrigatória para impersonar."
+          dataTest="impersonate-user-password-input"
+        />
+      </div>
+
+      <!-- Footer -->
+      <div footer class="flex justify-end gap-3">
+        <af-button variant="ghost" size="sm" (click)="showImpersonateModal.set(false)">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isImpersonating()"
+          [disabled]="!impersonatePasswordControl.value || impersonatePasswordControl.value.trim().length === 0"
+          (click)="handleImpersonateConfirmed()"
+        >
+          Entrar como usuário
+        </af-loading-button>
+      </div>
+    </af-modal>
   

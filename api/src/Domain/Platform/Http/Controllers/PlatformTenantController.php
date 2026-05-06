@@ -7,10 +7,14 @@ namespace Domain\Platform\Http\Controllers;
 use Domain\Platform\Actions\GetTenantSettingsAction;
 use Domain\Platform\Actions\PlatformTenantActions;
 use Domain\Platform\Actions\PlatformTenantBootstrapAction;
+use Domain\Platform\Actions\PlatformTenantHardDeleteAction;
+use Domain\Platform\Actions\PlatformTenantImpersonateAction;
 use Domain\Platform\Actions\UpdateTenantSettingsAction;
 use Domain\Platform\DTOs\PlatformTenantDTO;
+use Domain\Platform\Http\Requests\PlatformTenantImpersonateRequest;
 use Domain\Platform\Http\Requests\PlatformTenantStoreRequest;
 use Domain\Platform\Http\Requests\PlatformTenantUpdateRequest;
+use Domain\Platform\Http\Requests\PurgeTenantRequest;
 use Domain\Platform\Http\Requests\UpdateTenantSettingsRequest;
 use Domain\Platform\Http\Resources\PlatformTenantDetailsResource;
 use Domain\Platform\Http\Resources\PlatformTenantResource;
@@ -32,6 +36,7 @@ final class PlatformTenantController extends BaseController
     /**
      * @param  PlatformTenantActions  $actions  Ação de gestão de tenants.
      * @param  PlatformTenantBootstrapAction  $bootstrapAction  Ação de bootstrap inicial.
+     * @param  PlatformTenantHardDeleteAction  $hardDeleteAction  Ação de hard delete completo.
      * @param  GetTenantSettingsAction  $getTenantSettings  Ação de buscar configurações do tenant.
      * @param  UpdateTenantSettingsAction  $updateTenantSettings  Ação de atualizar configurações do tenant.
      * @param  DatabaseManager  $database  Gerenciador de banco de dados.
@@ -39,8 +44,10 @@ final class PlatformTenantController extends BaseController
     public function __construct(
         private readonly PlatformTenantActions $actions,
         private readonly PlatformTenantBootstrapAction $bootstrapAction,
+        private readonly PlatformTenantHardDeleteAction $hardDeleteAction,
         private readonly GetTenantSettingsAction $getTenantSettings,
         private readonly UpdateTenantSettingsAction $updateTenantSettings,
+        private readonly PlatformTenantImpersonateAction $impersonateAction,
         private readonly DatabaseManager $database,
     ) {}
 
@@ -148,7 +155,11 @@ final class PlatformTenantController extends BaseController
         $tenant = $this->actions->find($id);
         $this->authorize('delete', $tenant);
 
-        $this->actions->delete($tenant);
+        try {
+            $this->actions->delete($tenant);
+        } catch (\RuntimeException $exception) {
+            return $this->error($exception->getMessage(), 403);
+        }
 
         return $this->noContent();
     }
@@ -178,9 +189,65 @@ final class PlatformTenantController extends BaseController
         $tenant = $this->actions->find($id, true);
         $this->authorize('delete', $tenant);
 
-        $this->actions->forceDelete($id);
+        try {
+            $this->actions->forceDelete($id);
+        } catch (\RuntimeException $exception) {
+            return $this->error($exception->getMessage(), 403);
+        }
 
         return $this->noContent();
+    }
+
+    /**
+     * Purge completo de tenant (hard delete com validação de senha admin).
+     *
+     * @param  PurgeTenantRequest  $request  Requisição com senha admin.
+     * @param  string  $id  ID do tenant.
+     * @return JsonResponse Resposta sem conteúdo ou erro.
+     */
+    public function purge(PurgeTenantRequest $request, string $id): JsonResponse
+    {
+        $tenant = $this->actions->find($id, true);
+        $this->authorize('delete', $tenant);
+
+        try {
+            $this->hardDeleteAction->execute(
+                $tenant,
+                $request->validated('password'),
+                $request->user()
+            );
+        } catch (\RuntimeException $exception) {
+            return $this->error($exception->getMessage(), 403);
+        }
+
+        return $this->noContent();
+    }
+
+    /**
+     * Impersonar um tenant como super admin.
+     *
+     * Solicita a senha do super admin e retorna uma sessão autenticada
+     * do primeiro usuário Gerente ativo do tenant.
+     *
+     * @param  PlatformTenantImpersonateRequest  $request  Requisição com senha do super admin.
+     * @param  string  $id  ID do tenant.
+     * @return JsonResponse Sessão do usuário admin do tenant com metadados de impersonação.
+     */
+    public function impersonate(PlatformTenantImpersonateRequest $request, string $id): JsonResponse
+    {
+        $tenant = $this->actions->find($id);
+        $this->authorize('impersonate', $tenant);
+
+        /** @var \Domain\Auth\Models\AuthUser $superAdmin */
+        $superAdmin = $request->user();
+
+        $session = $this->impersonateAction->execute(
+            $tenant,
+            $superAdmin,
+            $request->validated('password')
+        );
+
+        return $this->success($session, 'Impersonação realizada com sucesso');
     }
 
     /**

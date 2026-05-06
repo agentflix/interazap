@@ -50,26 +50,14 @@
       />
 
       <af-text-input
-        label="Endereço"
-        [control]="form.controls.address"
-        placeholder="Ex: Rua das Flores, 123"
-        dataTest="company-form-address"
+        label="E-mail"
+        [control]="form.controls.email"
+        placeholder="Ex: contato@empresa.com.br"
+        dataTest="company-form-email"
       />
 
-      <div class="grid gap-4 md:grid-cols-3">
-        <af-text-input
-          label="Cidade"
-          [control]="form.controls.city"
-          placeholder="Ex: São Paulo"
-          dataTest="company-form-city"
-        />
-        <af-text-input
-          label="Estado"
-          [control]="form.controls.state"
-          placeholder="Ex: SP"
-          dataTest="company-form-state"
-        />
-        <div>
+      <div class="grid gap-4 md:grid-cols-[auto_1fr]">
+        <div class="w-44">
           <af-masked-input
             label="CEP"
             mask="cep"
@@ -81,6 +69,28 @@
             <span class="text-xs text-primary-500">Buscando endereço...</span>
           }
         </div>
+        <af-text-input
+          label="Endereço"
+          [control]="form.controls.address"
+          placeholder="Ex: Rua das Flores, 123"
+          dataTest="company-form-address"
+        />
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <af-text-input
+          label="Cidade"
+          [control]="form.controls.city"
+          placeholder="Ex: São Paulo"
+          dataTest="company-form-city"
+        />
+        <af-select-input
+          label="Estado"
+          [control]="form.controls.state"
+          [options]="stateOptions"
+          placeholder="Selecione..."
+          dataTest="company-form-state"
+        />
       </div>
 
       <af-switch-input

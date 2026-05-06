@@ -88,10 +88,13 @@ export class NegotiationProductsTabComponent implements OnInit {
   }));
 
   readonly productSelectOptions = computed(() => {
-    const options = this.productCatalog().map((product) => ({
-      label: `${product.name} - ${this.formatCurrency(product.price || 0)}`,
-      value: String(product.id),
-    }));
+    const options = this.productCatalog().map((product) => {
+      const stockInfo = this.getProductStockLabel(product);
+      return {
+        label: `${product.name} - ${this.formatCurrency(product.price || 0)}${stockInfo}`,
+        value: String(product.id),
+      };
+    });
 
     const editing = this.editingProduct();
     if (!editing || !editing.product_id) return options;
@@ -112,6 +115,20 @@ export class NegotiationProductsTabComponent implements OnInit {
       },
       ...options,
     ];
+  });
+
+  readonly selectedProductStockInfo = computed(() => {
+    const selectedId = this.productForm.controls.product_id.value;
+    if (!selectedId) return null;
+
+    const product = this.productCatalog().find((item) => String(item.id) === String(selectedId));
+    if (!product) return null;
+
+    return {
+      track_stock: product.track_stock ?? false,
+      stock: product.stock ?? 0,
+      stock_quantity: product.stock_quantity ?? 0,
+    };
   });
 
   constructor() {
@@ -190,6 +207,52 @@ export class NegotiationProductsTabComponent implements OnInit {
     if (selected && selected.price !== undefined && selected.price !== null) {
       this.productForm.controls.price.setValue(Number(selected.price) || 0);
     }
+
+    if (selected && (selected.track_stock ?? false)) {
+      const availableStock = selected.stock ?? 0;
+      const currentQty = this.productForm.controls.quantity.value;
+      if (currentQty > availableStock) {
+        this.productForm.controls.quantity.setValue(availableStock);
+      }
+    }
+  }
+
+  getProductStockLabel(product: ProductService): string {
+    if (product.type === 'service') return '';
+    if (!(product.track_stock ?? false)) return ' (ilimitado)';
+    const stock = product.stock ?? 0;
+    return ` (estoque: ${stock})`;
+  }
+
+  getStockBadgeClass(): string {
+    const info = this.selectedProductStockInfo();
+    if (!info) return '';
+    if (!info.track_stock) {
+      return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30';
+    }
+    if (info.stock === 0) {
+      return 'bg-red-500/10 text-red-600 border-red-500/30';
+    }
+    if (info.stock <= 5) {
+      return 'bg-amber-500/10 text-amber-600 border-amber-500/30';
+    }
+    return 'bg-blue-500/10 text-blue-600 border-blue-500/30';
+  }
+
+  getStockBadgeLabel(): string {
+    const info = this.selectedProductStockInfo();
+    if (!info) return '';
+    if (!info.track_stock) return 'Estoque ilimitado';
+    if (info.stock === 0) return 'Sem estoque';
+    return `${info.stock} em estoque`;
+  }
+
+  getQuantityMax(): number | null {
+    const info = this.selectedProductStockInfo();
+    if (info && info.track_stock) {
+      return info.stock;
+    }
+    return null;
   }
 
   saveProduct(): void {

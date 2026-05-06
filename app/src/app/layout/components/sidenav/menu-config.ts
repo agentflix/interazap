@@ -118,7 +118,7 @@ export const SIDEBAR_MENU: SidebarMenuItem[] = [
       },
       {
         type: 'item',
-        label: 'Templates',
+        label: 'Templates Meta',
         link: '/chat/templates',
         iconName: 'message-square-text',
         requiredPermission: 'chat.templates.manage',

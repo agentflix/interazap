@@ -8,7 +8,7 @@
  *   name: 'John Doe',
  *   email: 'john@example.com',
  *   is_active: true,
- *   company_id: '456'
+ *   crm_company_id: '456'
  * };
  * ```
  */
@@ -24,7 +24,6 @@ export interface Contact {
   document?: string;
   source?: string;
   is_active: boolean;
-  company_id: string;
   crm_company_id?: string;
   company?: {
     id: string;
@@ -57,6 +56,7 @@ export interface ContactFilters {
   search?: string;
   is_active?: boolean;
   tag?: string;
+  crm_company_id?: string;
   sort_by?: string;
   sort_dir?: 'asc' | 'desc';
   per_page?: number;

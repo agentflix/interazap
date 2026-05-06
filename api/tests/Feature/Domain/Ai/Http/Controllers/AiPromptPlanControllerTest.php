@@ -8,7 +8,6 @@ use Domain\Ai\Models\AiPromptPlan;
 use Domain\Auth\Models\AuthUser;
 use Domain\Platform\Models\PlatformPlan;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class AiPromptPlanControllerTest extends TestCase
@@ -23,10 +22,10 @@ class AiPromptPlanControllerTest extends TestCase
 
         $this->admin = AuthUser::factory()->create();
 
-        if (! \Domain\Auth\Models\AuthRole::query()->where('name', 'admin')->where('guard_name', 'sanctum')->exists()) {
-            \Domain\Auth\Models\AuthRole::create(['id' => (string) Str::orderedUuid(), 'name' => 'admin', 'guard_name' => 'sanctum']);
+        if (! \Domain\Auth\Models\AuthRole::query()->where('id', \Domain\Auth\Models\AuthRole::INQUILINO_ID)->where('guard_name', 'sanctum')->exists()) {
+            \Domain\Auth\Models\AuthRole::firstOrCreate(['id' => \Domain\Auth\Models\AuthRole::INQUILINO_ID], ['name' => \Domain\Auth\Models\AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
         }
-        $this->admin->assignRole('admin');
+        $this->admin->assignRole(\Domain\Auth\Models\AuthRole::INQUILINO_ID);
     }
 
     public function test_index_returns_all_plan_prompts(): void
@@ -67,8 +66,6 @@ class AiPromptPlanControllerTest extends TestCase
 
         $payload = [
             'content' => 'New System Prompt',
-            'token_limit_monthly' => 1000,
-            'allow_overage' => true,
         ];
 
         $response = $this->actingAs($this->admin)->putJson(route('platform.ai.plans.update', $plan->id), $payload);

@@ -10,6 +10,7 @@
           [id]="inputId"
           type="button"
           [class]="triggerClasses()"
+          [disabled]="isDisabled()"
           (click)="toggle($event)"
           [attr.aria-expanded]="isOpen()"
           [attr.aria-label]="ariaLabel() || label() || null"
@@ -95,7 +96,7 @@
       </div>
 
       @if (helpText() && !showError()) {
-        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
+        <p class="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
       }
 
       <af-form-error [show]="showError()" [message]="errorMessage()" />

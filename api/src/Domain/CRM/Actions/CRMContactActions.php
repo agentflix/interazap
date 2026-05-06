@@ -65,6 +65,10 @@ final class CRMContactActions
             $query->where('is_active', (bool) $isActive);
         }
 
+        if (! empty($filters['crm_company_id'])) {
+            $query->where('crm_company_id', (string) $filters['crm_company_id']);
+        }
+
         $allowedSortBy = ['name', 'email', 'created_at', 'updated_at', 'is_active'];
         $sortBy = ListFilterNormalizer::normalizeSortBy($filters['sort_by'] ?? null, $allowedSortBy, 'name');
         $sortDir = ListFilterNormalizer::normalizeSortDirection($filters['sort_dir'] ?? null);

@@ -49,6 +49,7 @@ final class UpdateChatTicketAction
             $ticket->loadMissing('extended');
             $ticket->close_reason = $reason;
             $ticket->closed_mode = $mode;
+            $ticket->current_ai_agent_id = null;
             if ($closedByUserId) {
                 $ticket->closed_by = $closedByUserId;
             }

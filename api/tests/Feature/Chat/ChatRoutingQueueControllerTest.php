@@ -33,8 +33,8 @@ function createSuperAdminUser(): AuthUser
     $user = AuthUser::factory()->create();
 
     $role = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(
-        ['name' => \Domain\Auth\Models\AuthRole::SUPER_ADMIN, 'guard_name' => 'sanctum'],
-        ['id' => \Domain\Auth\Models\AuthRole::SUPER_ADMIN_ID]
+        ['id' => \Domain\Auth\Models\AuthRole::ADMINISTRADOR_ID, 'name' => \Domain\Auth\Models\AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum'],
+        ['id' => \Domain\Auth\Models\AuthRole::ADMINISTRADOR_ID]
     );
     $user->assignRole($role);
 

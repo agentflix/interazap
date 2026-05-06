@@ -15,6 +15,17 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip if column is already NOT NULL (unified schema creates it as NOT NULL)
+        $columnInfo = DB::selectOne("
+            SELECT is_nullable
+            FROM information_schema.columns
+            WHERE table_name = 'platform_tenants' AND column_name = 'plan_id'
+        ");
+
+        if ($columnInfo && $columnInfo->is_nullable === 'NO') {
+            return;
+        }
+
         // 1. Garantir que todos os tenants tenham um plano antes de tornar NOT NULL
         $starterPlan = PlatformPlan::query()->where('slug', 'starter')->first();
 

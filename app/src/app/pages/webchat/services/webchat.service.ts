@@ -267,7 +267,7 @@ export class WebChatService implements OnDestroy {
 
     this._connectionState.set('connecting');
     this.sessionToken = token.trim();
-    // When restoring from localStorage, sessionId is not set via createSession() tap.
+    // When restoring from sessionStorage, sessionId is not set via createSession() tap.
     if (sessionId && typeof sessionId === 'string' && sessionId.trim() !== '') {
       this.sessionId = sessionId.trim();
     }
@@ -349,7 +349,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Adds a message to the local messages list and persists to localStorage.
+   * Adds a message to the local messages list and persists to sessionStorage.
    */
   addMessage(message: WebChatMessage): void {
     this._messages.update((msgs) => {
@@ -364,15 +364,15 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Persists the current messages list into the existing localStorage session entry.
+   * Persists the current messages list into the existing sessionStorage session entry.
    * Silently ignores if no session is stored yet.
    */
   private persistMessages(messages: WebChatMessage[]): void {
     try {
-      const raw = localStorage.getItem('webchat_session');
+      const raw = sessionStorage.getItem('webchat_session');
       if (!raw) return;
       const session = JSON.parse(raw) as object;
-      localStorage.setItem('webchat_session', JSON.stringify({ ...session, messages }));
+      sessionStorage.setItem('webchat_session', JSON.stringify({ ...session, messages }));
     } catch {
       // Ignore serialization errors (e.g. quota exceeded)
     }
@@ -386,7 +386,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Loads a restored session from localStorage.
+   * Loads a restored session from sessionStorage.
    * When `expectedSessionId` is provided (e.g. from URL query param ?s=),
    * the stored session is only returned if the sessionId matches.
    */
@@ -398,7 +398,7 @@ export class WebChatService implements OnDestroy {
     protocol?: string;
   } | null {
     try {
-      const raw = localStorage.getItem('webchat_session');
+      const raw = sessionStorage.getItem('webchat_session');
       if (!raw) return null;
       const parsed = JSON.parse(raw) as {
         token?: string;
@@ -410,7 +410,7 @@ export class WebChatService implements OnDestroy {
         protocol?: string;
       };
       if (typeof parsed.expiresAt !== 'number' || Date.now() > parsed.expiresAt) {
-        localStorage.removeItem('webchat_session');
+        sessionStorage.removeItem('webchat_session');
         return null;
       }
       if (
@@ -419,7 +419,7 @@ export class WebChatService implements OnDestroy {
         typeof parsed.sessionId !== 'string' ||
         parsed.sessionId.trim() === ''
       ) {
-        localStorage.removeItem('webchat_session');
+        sessionStorage.removeItem('webchat_session');
         return null;
       }
       // parsed.messages is validated below before use
@@ -449,7 +449,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Persists the session to localStorage with a 4-hour expiry.
+   * Persists the session to sessionStorage with a 4-hour expiry.
    * Any previously persisted messages are discarded on a new session.
    */
   saveSession(
@@ -458,17 +458,17 @@ export class WebChatService implements OnDestroy {
     contactInfo?: { contactName?: string; contactPhone?: string; protocol?: string },
   ): void {
     const expiresAt = Date.now() + 4 * 60 * 60 * 1000; // 4 hours
-    localStorage.setItem(
+    sessionStorage.setItem(
       'webchat_session',
       JSON.stringify({ token, sessionId, expiresAt, messages: [], ...contactInfo }),
     );
   }
 
   /**
-   * Clears the persisted session from localStorage.
+   * Clears the persisted session from sessionStorage.
    */
   clearSession(): void {
-    localStorage.removeItem('webchat_session');
+    sessionStorage.removeItem('webchat_session');
   }
 
   ngOnDestroy(): void {

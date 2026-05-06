@@ -17,13 +17,27 @@ class AuthRole extends Role
 {
     use HasUuids;
 
-    public const SUPER_ADMIN = 'super-admin';
+    // ── Roles de sistema com UUID fixo ──────────────────────────────────
 
-    public const MANAGER = 'Gerente';
+    /** Platform super-admin — exclusivo para conta InteraZap */
+    public const ADMINISTRADOR_ID = '00000000-0000-4000-8000-000000000001';
 
-    public const AGENT = 'Atendente';
+    public const ADMINISTRADOR_NAME = 'Administrador';
 
-    public const SUPER_ADMIN_ID = '00000000-0000-4000-8000-000000000001';
+    /** Tenant owner — unifica admin + inquilino */
+    public const INQUILINO_ID = '00000000-0000-4000-8000-000000000003';
+
+    public const INQUILINO_NAME = 'Inquilino';
+
+    /** Tenant manager */
+    public const GERENTE_ID = '00000000-0000-4000-8000-000000000004';
+
+    public const GERENTE_NAME = 'Gerente';
+
+    /** Tenant agent */
+    public const ATENDENTE_ID = '00000000-0000-4000-8000-000000000005';
+
+    public const ATENDENTE_NAME = 'Atendente';
 
     protected $table = 'auth_roles';
 

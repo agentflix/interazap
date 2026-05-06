@@ -160,14 +160,6 @@
                 <td>
                   <div class="flex justify-end items-center gap-1">
                     <af-icon-button
-                      label="Conectar"
-                      variant="outline"
-                      size="sm"
-                      (click)="openConnectModal(instance)"
-                    >
-                      <lucide-icon name="plug" [size]="15" />
-                    </af-icon-button>
-                    <af-icon-button
                       label="Status"
                       variant="ghost"
                       size="sm"
@@ -220,65 +212,6 @@
           (click)="instanceFormRef()?.submit()"
         >
           Salvar
-        </af-loading-button>
-      </div>
-    </af-modal>
-
-    <af-modal
-      [open]="isConnectModalOpen()"
-      title="Conectar instância"
-      size="sm"
-      (closed)="closeConnectModal()"
-    >
-      <form class="space-y-4" (submit)="$event.preventDefault()">
-        <af-select-input
-          label="Modo"
-          [control]="connectForm.controls.mode"
-          [options]="connectModeOptions"
-          [spacing]="false"
-        />
-
-        @if (connectForm.controls.mode.value === 'pair') {
-          <af-text-input
-            label="Telefone"
-            [control]="connectForm.controls.phone"
-            placeholder="5511999999999"
-            [spacing]="false"
-          />
-        }
-
-        @if (connectionResult()) {
-          <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3 space-y-2">
-            @if (connectionResult()?.pairCode) {
-              <div class="text-sm">
-                Pair code: <strong>{{ connectionResult()?.pairCode }}</strong>
-              </div>
-            }
-            @if (connectionResult()?.qrImage) {
-              <img
-                [src]="connectionResult()?.qrImage || ''"
-                alt="QR Code"
-                class="max-w-full h-auto rounded"
-              />
-            }
-            @if (connectionResult()?.expiresAt) {
-              <div class="text-xs text-neutral-500">
-                Expira em: {{ connectionResult()?.expiresAt }}
-              </div>
-            }
-          </div>
-        }
-      </form>
-
-      <div footer class="flex justify-end gap-2">
-        <af-button variant="ghost" size="sm" (click)="closeConnectModal()">Fechar</af-button>
-        <af-loading-button
-          variant="primary"
-          size="sm"
-          [loading]="isConnectingInstance()"
-          (click)="submitConnect()"
-        >
-          {{ connectActionLabel() }}
         </af-loading-button>
       </div>
     </af-modal>

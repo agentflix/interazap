@@ -8,6 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
@@ -69,6 +70,7 @@ export class SettingsUsers implements OnInit {
   private readonly service = inject(SettingsUsersService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
 
   readonly userFormRef = viewChild<SettingsUserFormComponent>('userForm');
 
@@ -84,6 +86,7 @@ export class SettingsUsers implements OnInit {
   private currentPage = 1;
   private searchTerm = '';
   private filterStatus = signal<SettingsUserStatus>('all');
+  private pendingEditId: string | null = null;
 
   readonly searchControl = new FormControl<string>('', { nonNullable: true });
   readonly filterStatusControl = new FormControl<string>('all', { nonNullable: true });
@@ -149,6 +152,15 @@ export class SettingsUsers implements OnInit {
         this.loadUsers();
       });
 
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const editId = params['edit'];
+        if (editId) {
+          this.pendingEditId = editId;
+        }
+      });
+
     this.loadUsers();
   }
 
@@ -172,6 +184,14 @@ export class SettingsUsers implements OnInit {
           this.meta.set(response.meta);
           this.syncSelectionControls(users);
           this.isLoading.set(false);
+
+          if (this.pendingEditId) {
+            const user = users.find((u) => u.id === this.pendingEditId);
+            if (user) {
+              this.openEdit(user);
+              this.pendingEditId = null;
+            }
+          }
         },
         error: () => {
           this.hasError.set(true);

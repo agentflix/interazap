@@ -55,15 +55,21 @@ class DatabaseSeeder extends Seeder
         $tenantId = $tenant->id;
 
         $superAdminRole = AuthRole::query()->firstOrCreate(
-            ['name' => AuthRole::SUPER_ADMIN, 'guard_name' => 'sanctum'],
-            ['id' => AuthRole::SUPER_ADMIN_ID]
+            ['id' => AuthRole::ADMINISTRADOR_ID],
+            ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
         );
 
         $roles = [];
-        foreach (['inquilino', 'gerente', 'atendente'] as $roleName) {
+        $roleDefinitions = [
+            AuthRole::INQUILINO_ID => AuthRole::INQUILINO_NAME,
+            AuthRole::GERENTE_ID => AuthRole::GERENTE_NAME,
+            AuthRole::ATENDENTE_ID => AuthRole::ATENDENTE_NAME,
+        ];
+
+        foreach ($roleDefinitions as $roleId => $roleName) {
             $roles[$roleName] = AuthRole::query()->firstOrCreate(
-                ['name' => $roleName, 'guard_name' => 'sanctum'],
-                ['id' => (string) Str::uuid()]
+                ['id' => $roleId],
+                ['name' => $roleName, 'guard_name' => 'sanctum']
             );
         }
 
@@ -91,6 +97,25 @@ class DatabaseSeeder extends Seeder
         }
 
         $admin->assignRole($superAdminRole);
+
+        $rosa = AuthUser::query()->withTrashed()->firstOrNew([
+            'email' => 'rosa@interazap.com.br',
+        ]);
+
+        $rosa->fill([
+            'tenant_id' => $tenant->id,
+            'name' => 'Rosa Lopes Pontes',
+            'password' => Hash::make('password'),
+            'is_active' => true,
+        ]);
+
+        $rosa->save();
+
+        if ($rosa->trashed()) {
+            $rosa->restore();
+        }
+
+        $rosa->assignRole($superAdminRole);
 
         $reportPermissions = AuthPermission::query()
             ->where('guard_name', 'sanctum')
@@ -123,6 +148,9 @@ class DatabaseSeeder extends Seeder
         $this->call(AiPromptPlanSeeder::class);
 
         app(PlatformTenantBootstrapAction::class)->execute($tenant);
+
+        // ── Ensure default company exists for all tenants ────────────────
+        $this->call(CRMDefaultCompanySeeder::class);
 
         // ── Tenant-scoped autopilot tools (required by product-expert agents) ─
         $this->call(AiAutopilotToolSeeder::class);

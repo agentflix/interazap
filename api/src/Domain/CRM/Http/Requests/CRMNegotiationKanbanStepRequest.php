@@ -56,7 +56,7 @@ class CRMNegotiationKanbanStepRequest extends FormRequest
                     fn ($query) => $query->where('tenant_id', $tenantId)
                 ),
             ],
-            'company_id' => [
+            'crm_company_id' => [
                 'nullable',
                 'uuid',
                 Rule::exists('crm_companies', 'id')->where(

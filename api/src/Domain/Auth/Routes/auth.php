@@ -34,6 +34,7 @@ Route::middleware(['auth:sanctum'])
         Route::post('/logout', [AuthLoginController::class, 'logout']);
         Route::get('/get-menu', [AuthLoginController::class, 'getMenu']);
         Route::post('/refresh', [AuthLoginController::class, 'refresh']);
+        Route::post('/stop-impersonating', [AuthLoginController::class, 'stopImpersonating']);
 
         // Perfil
         Route::get('/profile', [AuthProfileController::class, 'show']);
@@ -58,6 +59,7 @@ Route::middleware(['auth:sanctum'])
         Route::get('/roles/{id}', [AuthRoleController::class, 'show']);
         Route::put('/roles/{id}', [AuthRoleController::class, 'update']);
         Route::delete('/roles/{id}', [AuthRoleController::class, 'destroy']);
+        Route::get('/roles/{id}/users', [AuthRoleController::class, 'users']);
 
         // Usuários
         Route::get('/users', [AuthUserController::class, 'index']);
@@ -66,6 +68,7 @@ Route::middleware(['auth:sanctum'])
         Route::put('/users/{id}', [AuthUserController::class, 'update']);
         Route::delete('/users/{id}', [AuthUserController::class, 'destroy']);
         Route::post('/users/{id}/toggle', [AuthUserController::class, 'toggle']);
+        Route::post('/users/{id}/roles/remove', [AuthUserController::class, 'removeRole']);
         Route::post('/users/{id}/avatar', [AuthUserController::class, 'uploadAvatar']);
         Route::delete('/users/{id}/avatar', [AuthUserController::class, 'deleteAvatar']);
     });

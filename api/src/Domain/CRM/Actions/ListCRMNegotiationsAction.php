@@ -96,6 +96,12 @@ final class ListCRMNegotiationsAction
 
         $this->filterService->applyForAggregate($aggregateQuery, $filters);
 
+        // Negociações com amount > 0 devem ter ao menos um produto vinculado
+        $aggregateQuery->where(function ($builder): void {
+            $builder->where('amount', '<=', 0)
+                ->orWhereHas('products', fn ($productQuery) => $productQuery->whereNotNull('crm_product_id'));
+        });
+
         $aggregates = $aggregateQuery->get()->keyBy('crm_negotiation_funnel_step_id');
 
         return [

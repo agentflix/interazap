@@ -8,7 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
@@ -30,20 +30,12 @@ import {
   type AfSelectOption,
 } from '@shared/components';
 import {
-  type ConnectInstanceResponse,
   type UazapiInstance,
   type UazapiInstanceStatus,
   UazapiInstancesService,
 } from '@core/services/uazapi-instances.service';
 import { ToastService } from '@core/services/toast.service';
 import { UazapiInstanceFormComponent } from './components/uazapi-instance-form/uazapi-instance-form';
-
-interface ConnectionResult {
-  qrImage?: string | null;
-  pairCode?: string | null;
-  expiresAt?: string | null;
-  raw?: Record<string, unknown> | null;
-}
 
 @Component({
   selector: 'app-uazapi-instances',
@@ -78,7 +70,6 @@ export class UazapiInstances implements OnInit {
   private readonly service = inject(UazapiInstancesService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly fb = inject(FormBuilder);
 
   readonly instanceFormRef = viewChild<UazapiInstanceFormComponent>('instanceForm');
   readonly isFormSaving = computed(() => this.instanceFormRef()?.isSaving() ?? false);
@@ -89,11 +80,6 @@ export class UazapiInstances implements OnInit {
     { label: 'Conectando', value: 'connecting' },
     { label: 'Aguardando QR', value: 'qr' },
     { label: 'Desconectado', value: 'disconnected' },
-  ];
-
-  readonly connectModeOptions: AfSelectOption[] = [
-    { label: 'QR Code', value: 'qr' },
-    { label: 'Pair Code', value: 'pair' },
   ];
 
   readonly instances = signal<UazapiInstance[]>([]);
@@ -145,19 +131,7 @@ export class UazapiInstances implements OnInit {
     return `Tem certeza que deseja excluir a instância "${this.displayName(single)}"? Esta ação não pode ser desfeita.`;
   });
 
-  readonly connectForm = this.fb.group({
-    mode: this.fb.control<'qr' | 'pair'>('qr', { nonNullable: true }),
-    phone: this.fb.control('', [Validators.pattern(/^[0-9+]*$/)]),
-  });
-  readonly connectActionLabel = computed(() =>
-    this.connectForm.controls.mode.value === 'qr' ? 'Gerar QR Code' : 'Conectar',
-  );
-
-  readonly isConnectModalOpen = signal(false);
-  readonly connectTarget = signal<UazapiInstance | null>(null);
-  readonly connectionResult = signal<ConnectionResult | null>(null);
-  readonly isConnectingInstance = signal(false);
-
+  readonly showProfileImageModal = signal(false);
   readonly isStatusModalOpen = signal(false);
   readonly statusTarget = signal<UazapiInstance | null>(null);
   readonly statusResult = signal<Record<string, unknown> | null>(null);
@@ -167,8 +141,6 @@ export class UazapiInstances implements OnInit {
     if (!status) return [] as { key: string; value: string }[];
     return Object.entries(status).map(([key, value]) => ({ key, value: this.stringify(value) }));
   });
-
-  readonly showProfileImageModal = signal(false);
   readonly profileImageTarget = signal<UazapiInstance | null>(null);
   readonly isUpdatingProfileImage = signal(false);
   readonly profileImageMode = signal<'url' | 'base64' | 'remove'>('url');
@@ -303,61 +275,6 @@ export class UazapiInstances implements OnInit {
         error: () => {
           this.isDeleting.set(false);
           this.showDeleteModal.set(false);
-        },
-      });
-  }
-
-  openConnectModal(instance: UazapiInstance): void {
-    this.connectTarget.set(instance);
-    this.connectionResult.set(null);
-    this.connectForm.reset({ mode: 'qr', phone: '' });
-    this.isConnectModalOpen.set(true);
-  }
-
-  closeConnectModal(): void {
-    this.isConnectModalOpen.set(false);
-    this.connectTarget.set(null);
-    this.connectionResult.set(null);
-  }
-
-  submitConnect(): void {
-    const target = this.connectTarget();
-    if (!target || this.isConnectingInstance()) return;
-
-    if (this.connectForm.controls.mode.value === 'pair') {
-      this.connectForm.controls.phone.addValidators([Validators.required]);
-      this.connectForm.controls.phone.updateValueAndValidity({ emitEvent: false });
-    } else {
-      this.connectForm.controls.phone.removeValidators([Validators.required]);
-      this.connectForm.controls.phone.updateValueAndValidity({ emitEvent: false });
-    }
-
-    if (this.connectForm.invalid) {
-      this.connectForm.markAllAsTouched();
-      return;
-    }
-
-    this.isConnectingInstance.set(true);
-    this.service
-      .connect(target.id, {
-        mode: this.connectForm.controls.mode.value,
-        phone: this.resolveConnectPhone(),
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.isConnectingInstance.set(false);
-          const result = this.parseConnectionResult(response);
-          this.connectionResult.set(result);
-          if (this.connectForm.controls.mode.value === 'qr' && result.qrImage === null) {
-            this.toast.warning(
-              'QR Code não retornado pela UaZapi. Tente novamente em alguns segundos.',
-            );
-          }
-          this.loadInstances();
-        },
-        error: () => {
-          this.isConnectingInstance.set(false);
         },
       });
   }
@@ -682,52 +599,6 @@ export class UazapiInstances implements OnInit {
     }
   }
 
-  private parseConnectionResult(response: ConnectInstanceResponse): ConnectionResult {
-    const connection = response.connection ?? {};
-    const qrImage = this.normalizeQrImage(
-      this.pickConnectionString(connection, [
-        'qrImage',
-        'qr',
-        'qrcode',
-        'qr_code',
-        'base64',
-        'qr_base64',
-        'qrcode_base64',
-        'instance.qrcode',
-        'instance.qrCode',
-        'data.qrcode',
-        'data.qr_code',
-        'connection.qrcode',
-        'connection.qr_code',
-      ]),
-    );
-    const pairCode = this.pickConnectionString(connection, [
-      'pairCode',
-      'pair_code',
-      'code',
-      'instance.paircode',
-      'instance.pairCode',
-      'data.code',
-      'data.pair_code',
-      'connection.pair_code',
-    ]);
-    const expiresAt = this.pickConnectionString(connection, [
-      'expiresAt',
-      'expires_at',
-      'expiration',
-      'instance.expires_at',
-      'data.expires_at',
-      'connection.expires_at',
-    ]);
-
-    return {
-      qrImage,
-      pairCode,
-      expiresAt,
-      raw: connection,
-    };
-  }
-
   private pickConnectionString(source: Record<string, unknown>, paths: string[]): string | null {
     for (const path of paths) {
       const value = this.getNestedValue(source, path);
@@ -748,23 +619,6 @@ export class UazapiInstances implements OnInit {
     }
 
     return current;
-  }
-
-  private normalizeQrImage(value: string | null): string | null {
-    if (value === null) return null;
-    if (value.startsWith('http')) return value;
-    if (value.startsWith('data:image')) return value;
-
-    const sanitized = value.replace(/^data:image\/png;base64,/, '').trim();
-    if (sanitized.length === 0) return null;
-    return `data:image/png;base64,${sanitized}`;
-  }
-
-  private resolveConnectPhone(): string | null {
-    if (this.connectForm.controls.mode.value !== 'pair') return null;
-    const phoneValue = this.connectForm.controls.phone.value;
-    const sanitizedPhone = typeof phoneValue === 'string' ? phoneValue.trim() : '';
-    return sanitizedPhone.length > 0 ? sanitizedPhone : null;
   }
 
   private toStatusFilter(value: string): UazapiInstanceStatus {

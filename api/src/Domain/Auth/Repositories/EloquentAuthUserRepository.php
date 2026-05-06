@@ -44,6 +44,10 @@ final class EloquentAuthUserRepository implements AuthUserRepository
             $query->where('is_active', $filters->isActive);
         }
 
+        if ($filters->role !== null && $filters->role !== '') {
+            $query->whereHas('roles', fn ($q) => $q->where('name', $filters->role));
+        }
+
         return $query
             ->orderBy($filters->sanitizedSortBy(), $filters->sanitizedSortDirection())
             ->paginate($filters->sanitizedPerPage());

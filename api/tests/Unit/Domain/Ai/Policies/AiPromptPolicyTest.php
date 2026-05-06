@@ -16,7 +16,6 @@ use Domain\Auth\Models\AuthRole;
 use Domain\Auth\Models\AuthUser;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
@@ -39,14 +38,14 @@ class AiPromptPolicyTest extends TestCase
         $this->tenant = PlatformTenant::factory()->create();
         $this->otherTenant = PlatformTenant::factory()->create();
 
-        // Create admin role
-        if (! \Domain\Auth\Models\AuthRole::query()->where('name', 'admin')->where('guard_name', 'sanctum')->exists()) {
-            AuthRole::create(['id' => (string) Str::orderedUuid(), 'name' => 'admin', 'guard_name' => 'sanctum']);
+        // Create Inquilino role
+        if (! \Domain\Auth\Models\AuthRole::query()->where('id', AuthRole::INQUILINO_ID)->where('guard_name', 'sanctum')->exists()) {
+            AuthRole::firstOrCreate(['id' => AuthRole::INQUILINO_ID], ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
         }
 
-        // Tenant admin user (has admin role but is associated with a tenant)
+        // Tenant admin user (has Inquilino role but is associated with a tenant)
         $this->tenantAdmin = AuthUser::factory()->create(['tenant_id' => $this->tenant->id]);
-        $this->tenantAdmin->assignRole('admin');
+        $this->tenantAdmin->assignRole(AuthRole::INQUILINO_ID);
 
         // Regular tenant user (no admin role)
         $this->tenantUser = AuthUser::factory()->create(['tenant_id' => $this->tenant->id]);

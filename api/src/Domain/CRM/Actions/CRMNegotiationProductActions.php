@@ -237,9 +237,15 @@ final class CRMNegotiationProductActions
         $lockedProduct->increment('stock', abs($diff));
     }
 
+    /**
+     * Verifica se o estoque do produto deve ser controlado.
+     *
+     * Respeita exclusivamente a flag `track_stock` definida pelo usuário.
+     * Um produto com estoque > 0 mas track_stock = false é considerado infinito.
+     */
     private function shouldTrackStock(CRMProduct $product): bool
     {
-        return (bool) $product->track_stock || $product->stock > 0;
+        return (bool) $product->track_stock;
     }
 
     private function calculateTotal(int $quantity, float $unitPrice): float

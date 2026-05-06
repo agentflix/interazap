@@ -10,10 +10,6 @@ export class ConnectInstanceDto {
   @Matches(/^\d{10,15}$/)
   phone?: string;
 
-  /**
-   * Connection mode: 'qr' for QR code scan, 'pair' for phone number pairing.
-   * Defaults to 'qr' if not provided.
-   */
   @IsOptional()
   @IsEnum(['qr', 'pair'])
   mode?: 'qr' | 'pair';

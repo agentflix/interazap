@@ -13,11 +13,12 @@ it('prevents cross-tenant access to users', function (): void {
     $attacker = AuthUser::factory()->create();
 
     AuthRole::query()->firstOrCreate([
-        'name' => 'admin',
+        'id' => AuthRole::INQUILINO_ID,
+        'name' => AuthRole::INQUILINO_NAME,
         'guard_name' => 'sanctum',
     ]);
 
-    $attacker->assignRole('admin');
+    $attacker->assignRole(AuthRole::INQUILINO_ID);
 
     actingAs($attacker, 'sanctum');
 

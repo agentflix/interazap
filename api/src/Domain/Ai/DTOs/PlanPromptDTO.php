@@ -13,15 +13,8 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 final readonly class PlanPromptDTO
 {
-    /**
-     * @param  array<string, mixed>|null  $mandatoryRules
-     */
     public function __construct(
         public string $content,
-        public ?array $mandatoryRules = null,
-        public ?int $tokenLimitMonthly = null,
-        public ?bool $allowOverage = null,
-        public ?float $overagePricePer1k = null,
         public ?bool $isActive = null,
     ) {}
 
@@ -32,10 +25,6 @@ final readonly class PlanPromptDTO
     {
         return new self(
             content: (string) $request->validated('content'),
-            mandatoryRules: $request->validated('mandatory_rules'),
-            tokenLimitMonthly: $request->validated('token_limit_monthly'),
-            allowOverage: $request->validated('allow_overage'),
-            overagePricePer1k: $request->validated('overage_price_per_1k'),
             isActive: $request->validated('is_active'),
         );
     }
@@ -48,22 +37,6 @@ final readonly class PlanPromptDTO
         $data = [
             'content' => $this->content,
         ];
-
-        if ($this->mandatoryRules !== null) {
-            $data['mandatory_rules'] = $this->mandatoryRules;
-        }
-
-        if ($this->tokenLimitMonthly !== null) {
-            $data['token_limit_monthly'] = $this->tokenLimitMonthly;
-        }
-
-        if ($this->allowOverage !== null) {
-            $data['allow_overage'] = $this->allowOverage;
-        }
-
-        if ($this->overagePricePer1k !== null) {
-            $data['overage_price_per_1k'] = $this->overagePricePer1k;
-        }
 
         if ($this->isActive !== null) {
             $data['is_active'] = $this->isActive;

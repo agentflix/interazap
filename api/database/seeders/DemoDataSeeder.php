@@ -27,9 +27,9 @@ class DemoDataSeeder extends Seeder
     public function run(): void
     {
         $roleNames = [
-            AuthRole::SUPER_ADMIN,
-            AuthRole::MANAGER,
-            AuthRole::AGENT,
+            AuthRole::ADMINISTRADOR_NAME,
+            AuthRole::GERENTE_NAME,
+            AuthRole::ATENDENTE_NAME,
         ];
 
         $roles = $this->ensureRoles($roleNames);
@@ -80,7 +80,7 @@ class DemoDataSeeder extends Seeder
     {
         $permissions = AuthPermission::query()->where('guard_name', 'sanctum')->get();
 
-        foreach ([AuthRole::SUPER_ADMIN] as $roleName) {
+        foreach ([AuthRole::ADMINISTRADOR_NAME] as $roleName) {
             if (isset($roles[$roleName])) {
                 $roles[$roleName]->syncPermissions($permissions);
             }

@@ -162,37 +162,91 @@
   />
 }
 
-<!-- QR Code Modal -->
+<!-- QR Code / Pair Code Modal -->
 <af-modal [open]="showQrModal()" title="Conectar WhatsApp" size="md" (closed)="closeQrModal()">
-  <div class="flex flex-col items-center p-6 space-y-4">
-    @if (qrCodeLoading()) {
-      <div class="animate-spin text-primary-600">
-        <lucide-icon name="loader-circle" [size]="48" />
-      </div>
-      <p class="text-neutral-500">Gerando QR Code...</p>
-    } @else if (qrCodeData()) {
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-neutral-200">
-        <img [src]="qrCodeData()" alt="QR Code" class="w-64 h-64" />
-      </div>
-      <p class="text-sm text-neutral-600 text-center max-w-xs">
-        Abra o WhatsApp no seu celular, vá em Aparelhos Conectados > Conectar Aparelho e escaneie o
-        código acima.
-      </p>
-      <af-button
-        variant="outline"
-        size="sm"
-        [disabled]="qrCodeLoading()"
-        (click)="regenerateQrCode()"
+  <div class="space-y-4">
+    <!-- Tabs -->
+    <div class="flex border-b border-neutral-200 dark:border-neutral-700">
+      <button
+        type="button"
+        class="flex-1 pb-2 text-sm font-medium transition-colors"
+        [class]="
+          connectForm.controls.mode.value === 'qr'
+            ? 'border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
+            : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
+        "
+        (click)="connectForm.controls.mode.setValue('qr')"
       >
-        <lucide-icon name="refresh-cw" [size]="14" />
-        Regenerar QR Code
-      </af-button>
-    } @else {
-      <p class="text-red-500 dark:text-red-400">Erro ao gerar QR Code</p>
-      <af-button variant="outline" size="sm" (click)="regenerateQrCode()">
-        <lucide-icon name="refresh-cw" [size]="14" />
-        Tentar novamente
-      </af-button>
+        QR Code
+      </button>
+      <button
+        type="button"
+        class="flex-1 pb-2 text-sm font-medium transition-colors"
+        [class]="
+          connectForm.controls.mode.value === 'pair'
+            ? 'border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
+            : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
+        "
+        (click)="connectForm.controls.mode.setValue('pair')"
+      >
+        Pair Code
+      </button>
+    </div>
+
+    <!-- Phone input for Pair Code mode -->
+    @if (connectForm.controls.mode.value === 'pair') {
+      <af-text-input
+        label="Telefone"
+        [control]="connectForm.controls.phone"
+        placeholder="5511999999999"
+        [spacing]="false"
+      />
+    }
+
+    <!-- Action button -->
+    <div class="flex justify-center">
+      <af-loading-button
+        variant="primary"
+        size="sm"
+        [loading]="isConnectingInstance()"
+        (click)="submitConnect()"
+      >
+        {{ connectActionLabel() }}
+      </af-loading-button>
+    </div>
+
+    <!-- Results area -->
+    @if (qrCodeData()) {
+      <div class="flex flex-col items-center space-y-3">
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-neutral-200">
+          <img [src]="qrCodeData()!" alt="QR Code" class="w-64 h-64" />
+        </div>
+        <p class="text-sm text-neutral-600 text-center max-w-xs">
+          Abra o WhatsApp no seu celular, vá em Aparelhos Conectados > Conectar Aparelho e escaneie o
+          código acima.
+        </p>
+        @if (connectExpiresAt()) {
+          <p class="text-xs text-neutral-500">Expira em: {{ connectExpiresAt() }}</p>
+        }
+      </div>
+    }
+
+    @if (pairCodeData()) {
+      <div class="flex flex-col items-center space-y-3">
+        <div
+          class="bg-neutral-100 dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700"
+        >
+          <p class="text-3xl font-mono font-bold tracking-widest text-primary-600 dark:text-primary-400">
+            {{ pairCodeData() }}
+          </p>
+        </div>
+        <p class="text-sm text-neutral-600 text-center max-w-xs">
+          Use este código para conectar sua instância. O código expira em breve.
+        </p>
+        @if (connectExpiresAt()) {
+          <p class="text-xs text-neutral-500">Expira em: {{ connectExpiresAt() }}</p>
+        }
+      </div>
     }
   </div>
 </af-modal>

@@ -116,4 +116,19 @@ final class AuthLoginController extends BaseController
 
         return $this->success($session->toArray(), 'Token renovado');
     }
+
+    /**
+     * Encerrar a impersonação e retornar à sessão original do super admin.
+     *
+     * @param  Request  $request  Requisição atual.
+     * @return JsonResponse Nova sessão do super admin original.
+     */
+    public function stopImpersonating(Request $request): JsonResponse
+    {
+        /** @var AuthUser $user */
+        $user = $request->user();
+        $session = $this->authLoginActions->stopImpersonating($user);
+
+        return $this->success($session->toArray(), 'Impersonação encerrada');
+    }
 }

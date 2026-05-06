@@ -1,0 +1,75 @@
+version: "1.0"
+project: "InteraZap"
+
+dependency_rules:
+  - "Domain Layer (Models, VOs, Domain Events) NAO depende de framework Laravel"
+  - "Application Layer (Actions, DTOs) depende de Domain"
+  - "Infrastructure (Eloquent, Redis, Filesystem) implementa contratos de Domain"
+  - "Presentation (Controllers, Resources) depende de Application"
+  - "Multi-tenant: TODA query passa pelo trait BelongsToTenant ou scope explicito"
+  - "Bounded Contexts se comunicam via Actions ou Domain Events, NUNCA acessando models direto"
+  - "Gateway (NestJS) se comunica com API (Laravel) via Redis Streams (idempotente, com ack)"
+  - "WebSockets sao broadcast-only para clientes - logica autoritativa fica na API"
+  - "Frontends (App, Electron) consomem API via REST + WebSocket - nao acessam DB"
+
+module_dependencies:
+  Shared:
+    depends_on: []
+    communication: "kernel"
+
+  Platform:
+    depends_on: ["Shared"]
+    communication: "sync (trait BelongsToTenant)"
+
+  Auth:
+    depends_on: ["Shared", "Platform"]
+    communication: "sync"
+
+  Chat:
+    depends_on: ["Shared", "Platform", "CRM"]
+    communication: "sync + Redis Streams (Gateway events)"
+
+  CRM:
+    depends_on: ["Shared", "Platform", "Chat"]
+    communication: "sync"
+
+  Ai:
+    depends_on: ["Shared", "Chat"]
+    communication: "sync (via Gateway-NestJS para OpenAI)"
+
+  Billing:
+    depends_on: ["Shared", "Platform"]
+    communication: "sync + webhooks Asaas"
+
+  Configuration:
+    depends_on: ["Shared", "Platform"]
+    communication: "sync"
+
+  Dashboard:
+    depends_on: ["Shared", "Chat", "CRM", "Reports"]
+    communication: "sync (read-only)"
+
+  Reports:
+    depends_on: ["Shared", "Chat", "CRM"]
+    communication: "sync (read-only) + queue jobs"
+
+  Gateway:
+    depends_on: ["Shared", "Chat"]
+    communication: "Redis Streams"
+
+forbidden_dependencies:
+  - from: "Domain"
+    to: "Infrastructure"
+    reason: "Viola DDD; Domain descreve contratos, Infra implementa"
+  - from: "Shared"
+    to: "qualquer"
+    reason: "Shared eh kernel; nao depende de outro modulo"
+  - from: "Frontend"
+    to: "Database"
+    reason: "Frontends so consomem API, nunca acessam DB direto"
+  - from: "Chat"
+    to: "Billing"
+    reason: "Chat nao conhece pagamentos; integracao via Platform/Configuration"
+  - from: "Gateway-NestJS"
+    to: "Database (API)"
+    reason: "Gateway se comunica via Redis Streams, nao toca o DB do Laravel"

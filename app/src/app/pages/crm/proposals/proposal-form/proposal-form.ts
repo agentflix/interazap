@@ -195,6 +195,17 @@ export class ProposalFormComponent implements OnChanges {
     this.cancelled.emit();
   }
 
+  private resetForm(): void {
+    this.form.patchValue({
+      title: '',
+      number: null,
+      valid_until: '',
+      notes: '',
+    });
+    this.setItems([]);
+    this.errorMessage.set(null);
+  }
+
   insertVariable(variable: string): void {
     const current = this.form.controls.notes.value ?? '';
     this.form.controls.notes.setValue(current ? `${current} ${variable}` : variable);

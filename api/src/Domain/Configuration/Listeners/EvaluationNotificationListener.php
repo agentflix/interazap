@@ -27,7 +27,7 @@ final class EvaluationNotificationListener
             ->where('tenant_id', $event->tenantId)
             ->where('is_active', true)
             ->whereHas('roles', function ($query): void {
-                $query->whereIn('name', ['manager', AuthRole::SUPER_ADMIN])
+                $query->whereIn('id', [AuthRole::GERENTE_ID, AuthRole::ADMINISTRADOR_ID])
                     ->where('guard_name', 'sanctum');
             })
             ->pluck('id')

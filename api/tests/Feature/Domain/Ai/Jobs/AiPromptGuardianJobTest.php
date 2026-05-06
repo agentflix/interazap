@@ -14,7 +14,6 @@ use Domain\Auth\Models\AuthUser;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Shared\Services\MetricsService;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Str;
 
 describe('AiPromptGuardianJob', function (): void {
     beforeEach(function (): void {
@@ -25,16 +24,16 @@ describe('AiPromptGuardianJob', function (): void {
             'segment_id' => $this->segment->id,
         ]);
 
-        $adminRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+        $adminRole = AuthRole::firstOrCreate(
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
-        // Create admin with tenant (será notificado por ter role admin)
+        // Create admin with tenant (será notificado por ter role Inquilino)
         $this->superAdmin = AuthUser::factory()->create([
             'tenant_id' => $this->tenant->id,
         ]);
-        $this->superAdmin->assignRole($adminRole);
+        $this->superAdmin->assignRole(AuthRole::INQUILINO_ID);
     });
 
     it('approves prompt when guardian passes', function (): void {

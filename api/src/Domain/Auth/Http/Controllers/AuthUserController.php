@@ -149,6 +149,25 @@ final class AuthUserController extends BaseController
     }
 
     /**
+     * Remover um perfil específico do usuário.
+     */
+    public function removeRole(Request $request, string $id): JsonResponse
+    {
+        $user = AuthUser::with(['roles', 'permissions'])->findOrFail($id);
+        $this->authorize('update', $user);
+
+        /** @var array{role: string} $payload */
+        $payload = $request->validate([
+            'role' => ['required', 'string'],
+        ]);
+
+        $user = $this->actions->removeRole($id, $payload['role']);
+        $user->load(['permissions']);
+
+        return $this->success(new AuthUserResource($user), 'Perfil removido do usuário');
+    }
+
+    /**
      * Revogar todos os tokens do usuário.
      */
     public function revokeAllTokens(string $id): JsonResponse

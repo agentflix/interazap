@@ -18,6 +18,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('ai_knowledge_chunk_refs', 'tenant_id')) {
+            return;
+        }
+
         Schema::table('ai_knowledge_chunk_refs', function (Blueprint $table): void {
             $table->uuid('tenant_id')
                 ->after('document_id')

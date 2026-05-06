@@ -23,6 +23,7 @@ final class AiAgentResource extends BaseJsonResource
             'id' => $this->id,
             'tenant_id' => $this->tenant_id,
             'name' => $this->name,
+            'description' => $this->description,
             'type' => $this->type,
             'model_id' => $this->model_id,
             'system_prompt' => $this->system_prompt,

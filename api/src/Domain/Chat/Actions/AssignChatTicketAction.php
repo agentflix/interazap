@@ -120,6 +120,7 @@ final class AssignChatTicketAction
         if ($ticket->human_takeover_at) {
             $ticket->loadMissing('extended');
             $ticket->human_takeover_at = null;
+            $ticket->current_ai_agent_id = null;
             $ticket->save();
             $ticket->flushPendingExtended();
 

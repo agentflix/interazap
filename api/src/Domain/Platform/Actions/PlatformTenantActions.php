@@ -13,12 +13,15 @@ use Domain\Shared\Support\SearchSanitizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 /**
  * Acoes para gerenciamento de tenants da plataforma.
  */
 final class PlatformTenantActions
 {
+    private const PROTECTED_TENANT_DELETE_MESSAGE = 'Empresa principal InteraZap não pode ser excluída.';
+
     /**
      * @param  array<string, mixed>  $filters
      */
@@ -71,6 +74,10 @@ final class PlatformTenantActions
             unset($payload['is_active']);
         }
 
+        if (empty($payload['plan_id'])) {
+            $payload['plan_id'] = $this->resolveDefaultPlanId();
+        }
+
         return PlatformTenant::query()->create($payload);
     }
 
@@ -117,6 +124,8 @@ final class PlatformTenantActions
 
     public function delete(PlatformTenant $tenant): void
     {
+        $this->assertTenantCanBeDeleted($tenant);
+
         $tenant->delete();
     }
 
@@ -131,7 +140,16 @@ final class PlatformTenantActions
     public function forceDelete(string $id): void
     {
         $tenant = $this->find($id, true);
+        $this->assertTenantCanBeDeleted($tenant);
+
         $tenant->forceDelete();
+    }
+
+    private function assertTenantCanBeDeleted(PlatformTenant $tenant): void
+    {
+        if ($tenant->isProtectedDefaultTenant()) {
+            throw new RuntimeException(self::PROTECTED_TENANT_DELETE_MESSAGE);
+        }
     }
 
     public function toggleActive(string $id): PlatformTenant
@@ -157,6 +175,24 @@ final class PlatformTenantActions
     private function sanitizePerPage(int $perPage): int
     {
         return min(max($perPage, 1), 100);
+    }
+
+    private function resolveDefaultPlanId(): ?string
+    {
+        $starterPlan = \Domain\Platform\Models\PlatformPlan::query()
+            ->where('slug', 'starter')
+            ->where('is_active', true)
+            ->first();
+
+        if ($starterPlan instanceof \Domain\Platform\Models\PlatformPlan) {
+            return $starterPlan->id;
+        }
+
+        $anyPlan = \Domain\Platform\Models\PlatformPlan::query()
+            ->where('is_active', true)
+            ->first();
+
+        return $anyPlan instanceof \Domain\Platform\Models\PlatformPlan ? $anyPlan->id : null;
     }
 
     private function generateTenantCode(): string

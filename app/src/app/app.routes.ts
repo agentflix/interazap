@@ -362,7 +362,7 @@ export const routes: Routes = [
           import('./pages/chat/templates/templates-page/templates-page').then(
             (m) => m.TemplatesPageComponent,
           ),
-        data: { title: 'Templates de Mensagens', permission: 'chat.templates.manage' },
+        data: { title: 'Templates Meta', permission: 'chat.templates.manage' },
       },
       {
         path: 'chat/templates/new',

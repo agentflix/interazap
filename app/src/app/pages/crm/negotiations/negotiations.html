@@ -297,6 +297,10 @@
               <!-- Column header -->
               <div
                 class="sticky top-0 flex items-center justify-between gap-2 border-b border-neutral-200 dark:border-neutral-700/50 bg-neutral-50 dark:bg-neutral-900/80 px-4 py-3"
+                [style.borderLeftWidth]="'3px'"
+                [style.borderLeftStyle]="'solid'"
+                [style.borderLeftColor]="step.color || '#6b7280'"
+                [style.backgroundColor]="getStepHeaderBackground(step)"
               >
                 <div class="min-w-0">
                   <p
@@ -329,11 +333,10 @@
               >
                 @for (negotiation of step.negotiations || []; track negotiation.id) {
                   <div
-                    class="group rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm transition-shadow hover:shadow-md cursor-grab active:cursor-grabbing"
+                    class="group rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-md cursor-grab active:cursor-grabbing"
                     cdkDrag
                     [cdkDragData]="negotiation"
                   >
-                    <!-- Card title -->
                     <a
                       class="block truncate text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-tight hover:text-primary"
                       [routerLink]="['/crm/negotiations', negotiation.id]"
@@ -342,49 +345,31 @@
                       {{ negotiation.title }}
                     </a>
 
-                    <!-- Card value -->
-                    <p class="mt-1 text-xs font-medium text-primary">
+                    <p class="mt-1.5 text-sm font-medium text-primary">
                       {{ negotiation.value | currency: 'BRL' }}
                     </p>
 
-                    <!-- Card meta -->
-                    <div
-                      class="mt-2 flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400"
-                    >
+                    <div class="mt-2.5 space-y-1.5 text-xs text-neutral-500 dark:text-neutral-400">
                       @if (negotiation.contact?.name) {
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5">
                           <lucide-icon
-                            name="search"
+                            name="user-round"
                             [size]="12"
                             class="block shrink-0 text-neutral-400 dark:text-neutral-500"
                           />
-                          <span class="block min-w-0 flex-1 truncate">{{
-                            negotiation.contact?.name
-                          }}</span>
+                          <span class="truncate">{{ negotiation.contact?.name }}</span>
                         </div>
                       }
                       @if (negotiation.crm_company?.name) {
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5">
                           <lucide-icon
-                            name="dollar-sign"
+                            name="building-2"
                             [size]="12"
                             class="block shrink-0 text-neutral-400 dark:text-neutral-500"
                           />
-                          <span class="block min-w-0 flex-1 truncate">{{
-                            negotiation.crm_company?.name
-                          }}</span>
+                          <span class="truncate">{{ negotiation.crm_company?.name }}</span>
                         </div>
                       }
-                    </div>
-
-                    <!-- Card status -->
-                    <div class="mt-2.5 flex items-center justify-between">
-                      <span
-                        class="inline-flex items-center gap-x-1 rounded py-0.5 px-2 text-[10px] font-medium border"
-                        [class]="getStatusBadgeClass(negotiation.status)"
-                      >
-                        {{ getStatusLabel(negotiation.status) }}
-                      </span>
                     </div>
                   </div>
                 } @empty {

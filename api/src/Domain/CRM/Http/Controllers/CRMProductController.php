@@ -46,6 +46,7 @@ final class CRMProductController extends BaseController
                 'search' => $request->input('search'),
                 'type' => $request->input('type'),
                 'is_active' => $isActive,
+                'track_stock' => $request->input('track_stock'),
                 'per_page' => $request->input('per_page'),
                 'sort_by' => $request->input('sort_by'),
                 'sort_dir' => $request->input('sort_dir'),

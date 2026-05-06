@@ -348,8 +348,8 @@ test('api salva e retorna configuracao global de auto close', function (): void 
 
     // Autenticar como super-admin
     $role = AuthRole::query()->firstOrCreate(
-        ['name' => AuthRole::SUPER_ADMIN, 'guard_name' => 'sanctum'],
-        ['id' => AuthRole::SUPER_ADMIN_ID]
+        ['id' => AuthRole::ADMINISTRADOR_ID],
+        ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
     );
     $user = AuthUser::factory()->create(['tenant_id' => $tenant->id]);
     $user->assignRole($role);
@@ -384,8 +384,8 @@ test('api rejeita auto_close_inactivity_minutes com valor invalido', function ()
 
     // Autenticar como super-admin
     $role = AuthRole::query()->firstOrCreate(
-        ['name' => AuthRole::SUPER_ADMIN, 'guard_name' => 'sanctum'],
-        ['id' => AuthRole::SUPER_ADMIN_ID]
+        ['id' => AuthRole::ADMINISTRADOR_ID],
+        ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
     );
     $user = AuthUser::factory()->create(['tenant_id' => $tenant->id]);
     $user->assignRole($role);

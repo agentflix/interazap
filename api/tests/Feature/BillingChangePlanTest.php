@@ -126,9 +126,9 @@ class BillingChangePlanTest extends TestCase
             'email' => $tenant->primary_email,
         ]);
 
-        $role = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+        $role = AuthRole::firstOrCreate(
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
         foreach (['billing.view', 'billing.plan.manage'] as $permission) {
@@ -138,7 +138,7 @@ class BillingChangePlanTest extends TestCase
             );
         }
 
-        $admin->assignRole($role);
+        $admin->assignRole(AuthRole::INQUILINO_ID);
         $admin->givePermissionTo(['billing.view', 'billing.plan.manage']);
 
         return [$tenant->refresh(), $admin->refresh()];

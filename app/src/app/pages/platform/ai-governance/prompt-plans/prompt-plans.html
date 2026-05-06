@@ -33,8 +33,6 @@
           <thead>
             <tr>
               <th>Plano</th>
-              <th>Limite de Tokens</th>
-              <th>Excedente</th>
               <th class="text-right">Ações</th>
             </tr>
           </thead>
@@ -43,12 +41,6 @@
               <tr>
                 <td>
                   <span class="font-medium">{{ plan.plan?.name || '—' }}</span>
-                </td>
-                <td class="text-sm text-neutral-600 dark:text-neutral-400">
-                  {{ plan.token_limit_monthly ?? '—' }}
-                </td>
-                <td class="text-sm text-neutral-600 dark:text-neutral-400">
-                  {{ plan.allow_overage ? 'Permitido' : 'Não permitido' }}
                 </td>
                 <td>
                   <div class="flex justify-end items-center gap-1">
@@ -90,20 +82,6 @@
           errorMessage="Conteúdo é obrigatório"
         />
 
-        <af-textarea-input
-          label="Regras Obrigatórias (JSON)"
-          [control]="form.controls.mandatory_rules"
-          [rows]="8"
-        />
-
-        <af-number-input
-          label="Limite de Tokens Mensal"
-          [control]="form.controls.token_limit_monthly"
-          [min]="0"
-          [step]="1000"
-        />
-
-        <af-switch-input label="Permitir Excedente" [control]="form.controls.allow_overage" />
       </div>
 
       <div footer class="flex justify-end gap-2">
@@ -113,4 +91,3 @@
         </af-loading-button>
       </div>
     </af-modal>
-  

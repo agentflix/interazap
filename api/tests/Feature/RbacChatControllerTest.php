@@ -51,8 +51,8 @@ final class RbacChatControllerTest extends TestCase
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $adminRole = AuthRole::query()->firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
 
         $user = AuthUser::factory()->create();
