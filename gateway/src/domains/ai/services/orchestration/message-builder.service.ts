@@ -226,18 +226,14 @@ export class MessageBuilderService {
   }
 
   private expandConversationHistory(history: string[]): AICompletionMessage[] {
-    return history
-      .map((line) => {
-        if (line.startsWith('User: ')) {
-          return { role: 'user' as const, content: line.slice(6) };
-        }
+    return history.reduce<AICompletionMessage[]>((messages, line) => {
+      if (line.startsWith('User: ')) {
+        messages.push({ role: 'user', content: line.slice(6) });
+      } else if (line.startsWith('Agent: ')) {
+        messages.push({ role: 'assistant', content: line.slice(7) });
+      }
 
-        if (line.startsWith('Agent: ')) {
-          return { role: 'assistant' as const, content: line.slice(7) };
-        }
-
-        return null;
-      })
-      .filter((message): message is AICompletionMessage => message !== null);
+      return messages;
+    }, []);
   }
 }

@@ -9,11 +9,12 @@ import { of } from 'rxjs';
 describe('CRMSectionComponent', () => {
   let component: CRMSectionComponent;
   let fixture: ComponentFixture<CRMSectionComponent>;
-  let negotiationService: { list: Mock };
+  let negotiationService: { list: Mock; move: Mock };
 
   beforeEach(async () => {
     negotiationService = {
       list: vi.fn(),
+      move: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -40,6 +41,18 @@ describe('CRMSectionComponent', () => {
           last_page: 1,
           per_page: 10,
           total: 0,
+        },
+      }),
+    );
+    negotiationService.move.mockReturnValue(
+      of({
+        data: {
+          negotiation: {
+            id: '1',
+            title: 'Test Deal',
+            status: 'open',
+            step: { id: '2', name: 'Fechamento', order: 3 },
+          },
         },
       }),
     );
@@ -122,5 +135,52 @@ describe('CRMSectionComponent', () => {
     fixture.detectChanges();
 
     expect(component.negotiations()[0].value).toBe(1500.5);
+  });
+
+  it('should move negotiation to next stage and release updating state', () => {
+    component.negotiations.set([
+      {
+        id: '1',
+        title: 'Test Deal',
+        status: 'open',
+        position: 1,
+        step: { id: '1', name: 'Prospecção', order: 2 },
+        funnel: {
+          id: 'f1',
+          name: 'Funil',
+          steps: [
+            { id: '0', name: 'Entrada', order: 1 },
+            { id: '1', name: 'Prospecção', order: 2 },
+            { id: '2', name: 'Fechamento', order: 3 },
+          ],
+        },
+      } as unknown as CRMNegotiation,
+    ]);
+
+    component.onStageChanged('1', 'next');
+
+    expect(negotiationService.move).toHaveBeenCalledWith('1', '2', 1);
+    expect(component.stageUpdatingByDeal()['1']).toBe(false);
+    expect(component.negotiations()[0].step?.id).toBe('2');
+  });
+
+  it('should not call move when there is no target step', () => {
+    component.negotiations.set([
+      {
+        id: '1',
+        title: 'Test Deal',
+        status: 'open',
+        position: 1,
+        step: { id: '0', name: 'Entrada', order: 1 },
+        funnel: {
+          id: 'f1',
+          name: 'Funil',
+          steps: [{ id: '0', name: 'Entrada', order: 1 }],
+        },
+      } as unknown as CRMNegotiation,
+    ]);
+
+    component.onStageChanged('1', 'previous');
+    expect(negotiationService.move).not.toHaveBeenCalled();
   });
 });

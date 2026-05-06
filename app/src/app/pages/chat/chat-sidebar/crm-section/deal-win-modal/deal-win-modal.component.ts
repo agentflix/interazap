@@ -33,7 +33,7 @@ export class DealWinModalComponent {
   private readonly negotiationService = inject(NegotiationService);
 
   readonly isOpen = input.required<boolean>();
-  readonly deal = input.required<CRMNegotiation>();
+  readonly deal = input<CRMNegotiation | null>(null);
   readonly closeModal = output<void>();
   readonly confirmed = output<void>();
 
@@ -43,9 +43,14 @@ export class DealWinModalComponent {
    * Confirmar venda ganha.
    */
   onConfirm(): void {
+    const negotiation = this.deal();
+    if (!negotiation) {
+      return;
+    }
+
     this.isConfirming.set(true);
 
-    this.negotiationService.markAsWon(this.deal().id).subscribe({
+    this.negotiationService.markAsWon(negotiation.id).subscribe({
       next: () => {
         this.isConfirming.set(false);
         this.confirmed.emit();

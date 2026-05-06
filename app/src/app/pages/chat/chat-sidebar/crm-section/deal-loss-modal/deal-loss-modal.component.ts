@@ -63,7 +63,7 @@ export class DealLossModalComponent implements OnInit {
   private readonly reasonLossService = inject(ReasonLossService);
 
   readonly isOpen = input.required<boolean>();
-  readonly deal = input.required<CRMNegotiation>();
+  readonly deal = input<CRMNegotiation | null>(null);
   readonly closeModal = output<void>();
   readonly confirmed = output<void>();
 
@@ -106,6 +106,11 @@ export class DealLossModalComponent implements OnInit {
    * Confirmar perda da negociação.
    */
   onConfirm(): void {
+    const negotiation = this.deal();
+    if (!negotiation) {
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -117,7 +122,7 @@ export class DealLossModalComponent implements OnInit {
     const normalizedNotes = notes || undefined;
 
     this.negotiationService
-      .markAsLost(this.deal().id, normalizedReasonId, normalizedNotes)
+      .markAsLost(negotiation.id, normalizedReasonId, normalizedNotes)
       .subscribe({
         next: () => {
           this.isConfirming.set(false);
