@@ -38,42 +38,42 @@ export class ContactService {
   /**
    * Recupera o perfil detalhado de um contato específico.
    * @param id Identificador do contato.
-   * @returns {Observable<{ data: { contact: Contact } }>} Stream finito com os dados do contato.
+   * @returns {Observable<{ data: Contact }>} Stream finito com os dados do contato.
    */
-  find(id: string | number): Observable<{ data: { contact: Contact } }> {
-    return this.http.get<{ data: { contact: Contact } }>(`${this.baseUrl}/${id}`);
+  find(id: string | number): Observable<{ data: Contact }> {
+    return this.http.get<{ data: Contact }>(`${this.baseUrl}/${id}`);
   }
 
   /**
    * Cadastra um novo contato no CRM.
    * @param data Dados do novo contato.
-   * @returns {Observable<{ data: { contact: Contact } }>} Stream finito com o contato criado.
+   * @returns {Observable<{ data: Contact }>} Stream finito com o contato criado.
    */
-  create(data: Partial<Contact>): Observable<{ data: { contact: Contact } }> {
-    return this.http.post<{ data: { contact: Contact } }>(this.baseUrl, data);
+  create(data: Partial<Contact>): Observable<{ data: Contact }> {
+    return this.http.post<{ data: Contact }>(this.baseUrl, data);
   }
 
   /**
    * Atualiza as informações de um contato existente.
    * @param id Identificador do contato.
    * @param data Novos atributos para o contato.
-   * @returns {Observable<{ data: { contact: Contact } }>} Stream finito com o contato atualizado.
+   * @returns {Observable<{ data: Contact }>} Stream finito com o contato atualizado.
    */
-  update(id: string | number, data: Partial<Contact>): Observable<{ data: { contact: Contact } }> {
-    return this.http.put<{ data: { contact: Contact } }>(`${this.baseUrl}/${id}`, data);
+  update(id: string | number, data: Partial<Contact>): Observable<{ data: Contact }> {
+    return this.http.put<{ data: Contact }>(`${this.baseUrl}/${id}`, data);
   }
 
   /**
    * Atualiza parcialmente um contato existente.
    * @param id Identificador do contato.
    * @param data Atributos a atualizar.
-   * @returns {Observable<{ data: { contact: Contact } }>} Stream finito com o contato atualizado.
+   * @returns {Observable<{ data: Contact }>} Stream finito com o contato atualizado.
    */
   patch(
     id: string | number,
     data: Partial<Contact> & { ticket_id?: string | number },
-  ): Observable<{ data: { contact: Contact } }> {
-    return this.http.patch<{ data: { contact: Contact } }>(`${this.baseUrl}/${id}`, data);
+  ): Observable<{ data: Contact }> {
+    return this.http.patch<{ data: Contact }>(`${this.baseUrl}/${id}`, data);
   }
 
   /**
@@ -88,10 +88,10 @@ export class ContactService {
   /**
    * Alterna o estado de ativação de um contato.
    * @param id Identificador do contato.
-   * @returns {Observable<{ data: { contact: Contact } }>} Stream finito com o novo estado.
+   * @returns {Observable<{ data: Contact }>} Stream finito com o novo estado.
    */
-  toggleActive(id: string | number): Observable<{ data: { contact: Contact } }> {
-    return this.http.patch<{ data: { contact: Contact } }>(
+  toggleActive(id: string | number): Observable<{ data: Contact }> {
+    return this.http.patch<{ data: Contact }>(
       `${this.baseUrl}/${id}/toggle-active`,
       {},
     );

@@ -163,7 +163,7 @@ export class ContactFormComponent {
       next: (response) => {
         this.isSaving.set(false);
         this.resetForm();
-        this.saved.emit(response.data.contact);
+        this.saved.emit(response.data);
       },
       error: () => {
         this.isSaving.set(false);
@@ -242,7 +242,7 @@ export class ContactFormComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const fullContact = response.data.contact;
+          const fullContact = response.data;
           const normalizedPhone = this.splitPhone(fullContact.phone ?? contact.phone);
 
           this.form.patchValue({
