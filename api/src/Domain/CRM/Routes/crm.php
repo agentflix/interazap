@@ -57,7 +57,11 @@ Route::middleware(['auth:sanctum'])
         Route::put('/negotiations/{id}', [CRMNegotiationController::class, 'update']);
         Route::delete('/negotiations/{id}', [CRMNegotiationController::class, 'destroy']);
         Route::post('/negotiations/{id}/tasks', [CRMNegotiationController::class, 'addTask']);
+        Route::get('/negotiations/{id}/tasks', [CRMNegotiationController::class, 'listTasks']);
+        Route::put('/negotiations/{id}/tasks/{taskId}', [CRMNegotiationController::class, 'updateTask']);
         Route::patch('/negotiations/{id}/tasks/{taskId}/status', [CRMNegotiationController::class, 'updateTaskStatus']);
+        Route::patch('/negotiations/{id}/tasks/{taskId}/toggle', [CRMNegotiationController::class, 'toggleTask']);
+        Route::delete('/negotiations/{id}/tasks/{taskId}', [CRMNegotiationController::class, 'deleteTask']);
         Route::post('/negotiations/{id}/tags', [CRMTagController::class, 'attachToNegotiation']);
         Route::delete('/negotiations/{id}/tags/{tagId}', [CRMTagController::class, 'detachFromNegotiation']);
         Route::get('/negotiations/{id}/proposals', [CRMProposalController::class, 'index']);

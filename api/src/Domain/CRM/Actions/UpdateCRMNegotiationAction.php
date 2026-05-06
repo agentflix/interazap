@@ -136,6 +136,72 @@ final class UpdateCRMNegotiationAction
     }
 
     /**
+     * Listar todas as tarefas de uma negociação.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, CRMNegotiationTask>
+     */
+    public function listTasks(string $tenantId, string $negotiationId): \Illuminate\Database\Eloquent\Collection
+    {
+        $this->listAction->find($tenantId, $negotiationId);
+
+        return CRMNegotiationTask::query()
+            ->where('tenant_id', $tenantId)
+            ->where('crm_negotiation_id', $negotiationId)
+            ->orderByDesc('due_date')
+            ->orderByDesc('created_at')
+            ->get();
+    }
+
+    /**
+     * Atualizar tarefa de negociação.
+     */
+    public function updateTask(string $tenantId, string $negotiationId, string $taskId, CRMNegotiationTaskDTO $dto): CRMNegotiationTask
+    {
+        $task = CRMNegotiationTask::query()
+            ->where('tenant_id', $tenantId)
+            ->where('crm_negotiation_id', $negotiationId)
+            ->where('id', $taskId)
+            ->firstOrFail();
+
+        $task->fill($dto->toArray());
+        $task->save();
+
+        return $task->load(['negotiation.company', 'assignee']);
+    }
+
+    /**
+     * Alternar status de conclusão da tarefa.
+     */
+    public function toggleTask(string $tenantId, string $negotiationId, string $taskId): CRMNegotiationTask
+    {
+        $task = CRMNegotiationTask::query()
+            ->where('tenant_id', $tenantId)
+            ->where('crm_negotiation_id', $negotiationId)
+            ->where('id', $taskId)
+            ->firstOrFail();
+
+        $task->is_completed = ! $task->is_completed;
+        $task->completed_at = $task->is_completed ? now() : null;
+        $task->status = $task->is_completed ? CRMTaskStatus::DONE : CRMTaskStatus::PENDING;
+        $task->save();
+
+        return $task->load(['negotiation.company', 'assignee']);
+    }
+
+    /**
+     * Excluir tarefa de negociação.
+     */
+    public function deleteTask(string $tenantId, string $negotiationId, string $taskId): void
+    {
+        CRMNegotiationTask::query()
+            ->where('tenant_id', $tenantId)
+            ->where('crm_negotiation_id', $negotiationId)
+            ->where('id', $taskId)
+            ->firstOrFail()
+            ->delete();
+    }
+
+    /**
      * @param  array<string, mixed>  $before
      */
     private function recordUpdateHistoryNote(string $tenantId, CRMNegotiation $negotiation, array $before): void

@@ -48,6 +48,19 @@ class CRMNegotiationTask extends Model
         'description',
         'due_date',
         'status',
+        'action_type',
+        'start_time',
+        'end_time',
+        'reminder_at',
+        'add_to_agenda',
+        'agenda_event_id',
+        'notify_ui',
+        'notify_email',
+        'notify_push',
+        'notify_whatsapp',
+        'is_completed',
+        'completed_at',
+        'priority',
     ];
 
     /**
@@ -56,6 +69,16 @@ class CRMNegotiationTask extends Model
     protected $casts = [
         'due_date' => 'datetime',
         'status' => \Domain\CRM\Enums\CRMTaskStatus::class,
+        'start_time' => 'string',
+        'end_time' => 'string',
+        'reminder_at' => 'datetime',
+        'add_to_agenda' => 'boolean',
+        'notify_ui' => 'boolean',
+        'notify_email' => 'boolean',
+        'notify_push' => 'boolean',
+        'notify_whatsapp' => 'boolean',
+        'is_completed' => 'boolean',
+        'completed_at' => 'datetime',
     ];
 
     /**

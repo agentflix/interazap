@@ -46,6 +46,29 @@ trait DelegatesCRMNegotiationActions
         return app(UpdateCRMNegotiationAction::class)->updateTaskStatus($tenantId, $negotiationId, $taskId, $status);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, CRMNegotiationTask>
+     */
+    public function listTasks(string $tenantId, string $negotiationId): \Illuminate\Database\Eloquent\Collection
+    {
+        return app(UpdateCRMNegotiationAction::class)->listTasks($tenantId, $negotiationId);
+    }
+
+    public function updateTask(string $tenantId, string $negotiationId, string $taskId, CRMNegotiationTaskDTO $dto): CRMNegotiationTask
+    {
+        return app(UpdateCRMNegotiationAction::class)->updateTask($tenantId, $negotiationId, $taskId, $dto);
+    }
+
+    public function toggleTask(string $tenantId, string $negotiationId, string $taskId): CRMNegotiationTask
+    {
+        return app(UpdateCRMNegotiationAction::class)->toggleTask($tenantId, $negotiationId, $taskId);
+    }
+
+    public function deleteTask(string $tenantId, string $negotiationId, string $taskId): void
+    {
+        app(UpdateCRMNegotiationAction::class)->deleteTask($tenantId, $negotiationId, $taskId);
+    }
+
     public function find(string $tenantId, string $id): CRMNegotiation
     {
         return app(ListCRMNegotiationsAction::class)->find($tenantId, $id);

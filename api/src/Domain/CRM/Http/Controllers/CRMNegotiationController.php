@@ -164,6 +164,83 @@ final class CRMNegotiationController extends BaseController
     }
 
     /**
+     * Listar tarefas de uma negociação.
+     *
+     * @param  Request  $request  Requisição atual.
+     * @param  string  $id  ID da negociação.
+     * @return JsonResponse Lista de tarefas.
+     */
+    public function listTasks(Request $request, string $id): JsonResponse
+    {
+        $tenantId = $this->tenantId();
+        $negotiation = $this->actions->find($tenantId, $id);
+        $this->authorize('view', $negotiation);
+
+        $tasks = $this->actions->listTasks($tenantId, $id);
+
+        return $this->success([
+            'tasks' => CRMNegotiationTaskResource::collection($tasks),
+        ], 'Tarefas listadas');
+    }
+
+    /**
+     * Atualizar tarefa de uma negociação.
+     *
+     * @param  CRMNegotiationTaskRequest  $request  Requisição com dados atualizados.
+     * @param  string  $id  ID da negociação.
+     * @param  string  $taskId  ID da tarefa.
+     * @return JsonResponse Tarefa atualizada.
+     */
+    public function updateTask(CRMNegotiationTaskRequest $request, string $id, string $taskId): JsonResponse
+    {
+        $tenantId = $this->tenantId();
+        $negotiation = $this->actions->find($tenantId, $id);
+        $this->authorize('update', $negotiation);
+
+        $task = $this->actions->updateTask($tenantId, $id, $taskId, CRMNegotiationTaskDTO::fromRequest($request, $id));
+
+        return $this->success(new CRMNegotiationTaskResource($task), 'Tarefa atualizada');
+    }
+
+    /**
+     * Alternar status de conclusão de uma tarefa.
+     *
+     * @param  Request  $request  Requisição atual.
+     * @param  string  $id  ID da negociação.
+     * @param  string  $taskId  ID da tarefa.
+     * @return JsonResponse Tarefa atualizada.
+     */
+    public function toggleTask(Request $request, string $id, string $taskId): JsonResponse
+    {
+        $tenantId = $this->tenantId();
+        $negotiation = $this->actions->find($tenantId, $id);
+        $this->authorize('update', $negotiation);
+
+        $task = $this->actions->toggleTask($tenantId, $id, $taskId);
+
+        return $this->success(new CRMNegotiationTaskResource($task), 'Tarefa atualizada');
+    }
+
+    /**
+     * Excluir tarefa de uma negociação.
+     *
+     * @param  Request  $request  Requisição atual.
+     * @param  string  $id  ID da negociação.
+     * @param  string  $taskId  ID da tarefa.
+     * @return JsonResponse Resposta sem conteúdo.
+     */
+    public function deleteTask(Request $request, string $id, string $taskId): JsonResponse
+    {
+        $tenantId = $this->tenantId();
+        $negotiation = $this->actions->find($tenantId, $id);
+        $this->authorize('update', $negotiation);
+
+        $this->actions->deleteTask($tenantId, $id, $taskId);
+
+        return $this->noContent();
+    }
+
+    /**
      * Mover negociação para outra etapa do funil.
      *
      * @param  CRMNegotiationMoveRequest  $request  Requisição com nova etapa e posição.
