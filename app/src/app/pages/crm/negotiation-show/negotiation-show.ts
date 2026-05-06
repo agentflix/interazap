@@ -162,7 +162,7 @@ export class NegotiationShow {
       return current.company;
     }
 
-    const companyId = current.crm_company_id ?? current.company_id;
+    const companyId = current.crm_company_id;
     if (!companyId) return null;
 
     const found = this.companies().find((item) => String(item.id) === String(companyId));
@@ -620,7 +620,7 @@ export class NegotiationShow {
     const value = normalized.value ?? normalized.amount;
     const expectedCloseDate = normalized.expected_close_date ?? normalized.expected_close;
     const contactId = normalized.contact_id ?? normalized.crm_contact_id;
-    const companyId = normalized.crm_company_id ?? normalized.company_id;
+    const companyId = normalized.crm_company_id;
     const funnelId = normalized.funnel_id ?? normalized.crm_negotiation_funnel_id;
     const stepId = normalized.step_id ?? normalized.crm_negotiation_funnel_step_id;
     const userId = normalized.user_id ?? normalized.auth_user_id;
@@ -633,13 +633,11 @@ export class NegotiationShow {
       expected_close_date: expectedCloseDate,
       contact_id: contactId,
       crm_company_id: companyId,
-      company_id: companyId,
       funnel_id: funnelId,
       step_id: stepId,
       user_id: userId,
       contact,
       crm_company: company,
-      company,
     };
   }
 

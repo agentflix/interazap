@@ -149,6 +149,9 @@ class DatabaseSeeder extends Seeder
 
         app(PlatformTenantBootstrapAction::class)->execute($tenant);
 
+        // ── Ensure default company exists for all tenants ────────────────
+        $this->call(CRMDefaultCompanySeeder::class);
+
         // ── Tenant-scoped autopilot tools (required by product-expert agents) ─
         $this->call(AiAutopilotToolSeeder::class);
 

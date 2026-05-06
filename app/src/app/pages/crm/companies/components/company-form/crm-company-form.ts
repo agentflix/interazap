@@ -17,8 +17,10 @@ import {
   AfDocumentInputComponent,
   AfMaskedInputComponent,
   AfPhoneInputComponent,
+  AfSelectInputComponent,
   AfSwitchInputComponent,
   AfTextInputComponent,
+  type AfSelectOption,
 } from '@shared/components';
 import {
   type CRMCompany,
@@ -26,6 +28,7 @@ import {
   CRMCompanyService,
 } from '@core/services/crm-company.service';
 import { type CnpjData, type AddressData, UtilsService } from '@core/services/utils.service';
+import { normalizeUf } from '@pages/platform/tenants/components/tenant-form/tenant-form.utils';
 
 /**
  * Company form component — create/edit CRM companies.
@@ -43,6 +46,7 @@ import { type CnpjData, type AddressData, UtilsService } from '@core/services/ut
     AfDocumentInputComponent,
     AfMaskedInputComponent,
     AfPhoneInputComponent,
+    AfSelectInputComponent,
     AfSwitchInputComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,15 +68,47 @@ export class CompanyFormComponent {
   readonly isSearchingCnpj = signal(false);
   readonly isSearchingCep = signal(false);
 
+  /** Opções de estados brasileiros para o select. */
+  readonly stateOptions: AfSelectOption[] = [
+    { value: 'AC', label: 'Acre' },
+    { value: 'AL', label: 'Alagoas' },
+    { value: 'AP', label: 'Amapá' },
+    { value: 'AM', label: 'Amazonas' },
+    { value: 'BA', label: 'Bahia' },
+    { value: 'CE', label: 'Ceará' },
+    { value: 'DF', label: 'Distrito Federal' },
+    { value: 'ES', label: 'Espírito Santo' },
+    { value: 'GO', label: 'Goiás' },
+    { value: 'MA', label: 'Maranhão' },
+    { value: 'MT', label: 'Mato Grosso' },
+    { value: 'MS', label: 'Mato Grosso do Sul' },
+    { value: 'MG', label: 'Minas Gerais' },
+    { value: 'PA', label: 'Pará' },
+    { value: 'PB', label: 'Paraíba' },
+    { value: 'PR', label: 'Paraná' },
+    { value: 'PE', label: 'Pernambuco' },
+    { value: 'PI', label: 'Piauí' },
+    { value: 'RJ', label: 'Rio de Janeiro' },
+    { value: 'RN', label: 'Rio Grande do Norte' },
+    { value: 'RS', label: 'Rio Grande do Sul' },
+    { value: 'RO', label: 'Rondônia' },
+    { value: 'RR', label: 'Roraima' },
+    { value: 'SC', label: 'Santa Catarina' },
+    { value: 'SP', label: 'São Paulo' },
+    { value: 'SE', label: 'Sergipe' },
+    { value: 'TO', label: 'Tocantins' },
+  ];
+
   readonly form = this.fb.group({
     name: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
     document: this.fb.control<string | null>(''),
+    email: this.fb.control('', { nonNullable: true }),
     phone: this.fb.control('', { nonNullable: true }),
     phone_country_code: this.fb.control('+55', { nonNullable: true }),
+    zip_code: this.fb.control('', { nonNullable: true }),
     address: this.fb.control('', { nonNullable: true }),
     city: this.fb.control('', { nonNullable: true }),
     state: this.fb.control('', { nonNullable: true }),
-    zip_code: this.fb.control('', { nonNullable: true }),
     is_active: this.fb.control(true, { nonNullable: true }),
   });
 
@@ -94,12 +130,13 @@ export class CompanyFormComponent {
         this.form.reset({
           name: item.name,
           document: item.document || '',
+          email: item.email || '',
           phone: splitPhone.local,
           phone_country_code: splitPhone.countryCode,
+          zip_code: this.formatCepForInput(item.zip_code),
           address: item.address || '',
           city: item.city || '',
           state: item.state || '',
-          zip_code: this.formatCepForInput(item.zip_code),
           is_active: item.is_active,
         });
       } else {
@@ -119,11 +156,12 @@ export class CompanyFormComponent {
     const payload: CRMCompanyPayload = {
       name: fv.name,
       document: fv.document || undefined,
+      email: fv.email || undefined,
       phone: this.buildInternationalPhone(fv.phone, fv.phone_country_code) || undefined,
+      zip_code: fv.zip_code || undefined,
       address: fv.address || undefined,
       city: fv.city || undefined,
-      state: fv.state || undefined,
-      zip_code: fv.zip_code || undefined,
+      state: normalizeUf(fv.state) || undefined,
       is_active: fv.is_active,
     };
 
@@ -219,7 +257,7 @@ export class CompanyFormComponent {
   }
 
   private resetForm(): void {
-    this.form.reset({ is_active: true, phone_country_code: '+55' });
+    this.form.reset({ is_active: true, phone_country_code: '+55', email: '' });
     this.errorMessage.set(null);
   }
 

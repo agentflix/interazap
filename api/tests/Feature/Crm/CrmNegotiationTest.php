@@ -317,7 +317,7 @@ test('list supports advanced filters', function (): void {
     ]);
 
     $response = $this->getJson('/api/crm/negotiations?'
-        .'company_id='.$companyA->id
+        .'crm_company_id='.$companyA->id
         .'&amount_min=1000'
         .'&amount_max=2000'
         .'&lead_score_min=70'
@@ -365,7 +365,7 @@ test('kanban supports company and amount filters', function (): void {
     ]);
 
     $response = $this->getJson('/api/crm/negotiations-kanban?funnel_id='.$this->funnel->id
-        .'&company_id='.$companyA->id
+        .'&crm_company_id='.$companyA->id
         .'&amount_min=1000');
 
     $response->assertOk();

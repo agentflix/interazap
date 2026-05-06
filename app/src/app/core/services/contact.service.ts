@@ -116,6 +116,7 @@ export class ContactService {
     params = this.appendTrimmedString(params, 'search', filters.search);
     params = this.appendBoolean(params, 'is_active', filters.is_active);
     params = this.appendTrimmedString(params, 'tag', filters.tag);
+    params = this.appendTrimmedString(params, 'crm_company_id', filters.crm_company_id);
     params = this.appendScalar(params, 'sort_by', filters.sort_by);
     params = this.appendScalar(params, 'sort_dir', filters.sort_dir);
     params = this.appendScalar(params, 'per_page', filters.per_page);

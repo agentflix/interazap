@@ -13,6 +13,7 @@ describe('NegotiationFormComponent', () => {
   let component: NegotiationFormComponent;
   let fixture: ComponentFixture<NegotiationFormComponent>;
   let negotiationServiceMock: Partial<NegotiationService>;
+  let contactServiceMock: Partial<ContactService>;
 
   const mockContact: Contact = {
     id: '1',
@@ -30,7 +31,8 @@ describe('NegotiationFormComponent', () => {
       listSteps: vi.fn().mockReturnValue(of({ data: [] })),
     };
 
-    const contactServiceMock = {
+    contactServiceMock = {
+      list: vi.fn().mockReturnValue(of({ data: [mockContact] })),
       create: vi.fn().mockReturnValue(of({ data: { contact: mockContact } })),
     };
 
@@ -131,6 +133,35 @@ describe('NegotiationFormComponent', () => {
   });
 
   it('computed filteredContacts filtra por empresa selecionada', () => {
-    expect(component.filteredContacts).toBeDefined();
+    fixture.componentRef.setInput('contacts', [mockContact]);
+    fixture.detectChanges();
+
+    component.form.controls.crm_company_id.setValue('1');
+
+    expect(contactServiceMock.list).toHaveBeenCalledWith({
+      crm_company_id: '1',
+      per_page: 100,
+      is_active: true,
+    });
+    expect(component.filteredContacts().map((contact) => contact.id)).toEqual(['1']);
+  });
+
+  it('resolve fallback via company.id ao filtrar contatos', () => {
+    const contactWithCompanyFallback = {
+      id: '2',
+      name: 'Fallback Contact',
+      is_active: true,
+      company: { id: 'company-fallback', name: 'Empresa X' },
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    } as Contact;
+
+    (contactServiceMock.list as ReturnType<typeof vi.fn>).mockReturnValue(
+      of({ data: [contactWithCompanyFallback] }),
+    );
+
+    component.form.controls.crm_company_id.setValue('company-fallback');
+
+    expect(component.filteredContacts().map((contact) => contact.id)).toEqual(['2']);
   });
 });

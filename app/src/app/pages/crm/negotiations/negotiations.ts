@@ -238,7 +238,7 @@ export class Negotiations {
         (o) => String(o.value) === String(this.companyFilterControl.value),
       )?.label;
       chips.push({
-        key: 'company_id',
+        key: 'crm_company_id',
         label: `Empresa: ${label ?? this.companyFilterControl.value}`,
       });
     }
@@ -616,7 +616,7 @@ export class Negotiations {
         status: filters.status,
         search: filters.search,
         step_id: filters.step_id,
-        company_id: filters.company_id,
+        crm_company_id: filters.crm_company_id,
         contact_id: filters.contact_id,
         user_id: filters.user_id,
         date_from: filters.date_from,
@@ -689,7 +689,7 @@ export class Negotiations {
         status: filters.status,
         search: filters.search,
         step_id: filters.step_id,
-        company_id: filters.company_id,
+        crm_company_id: filters.crm_company_id,
         contact_id: filters.contact_id,
         user_id: filters.user_id,
         date_from: filters.date_from,
@@ -757,7 +757,7 @@ export class Negotiations {
         status: filters.status,
         search: filters.search,
         step_id: filters.step_id,
-        company_id: filters.company_id,
+        crm_company_id: filters.crm_company_id,
         contact_id: filters.contact_id,
         user_id: filters.user_id,
         date_from: filters.date_from,
@@ -840,7 +840,7 @@ export class Negotiations {
           : this.negotiationStatusControl.value,
       funnel_id: this.normalizeId(this.funnelSelectControl.value),
       step_id: this.normalizeId(this.stepFilterControl.value),
-      company_id: this.normalizeId(this.companyFilterControl.value),
+      crm_company_id: this.normalizeId(this.companyFilterControl.value),
       contact_id: this.normalizeId(this.contactFilterControl.value),
       user_id: this.normalizeId(this.userFilterControl.value),
       date_from: this.dateFromControl.value || undefined,
@@ -902,7 +902,7 @@ export class Negotiations {
     this.userFilterControl.setValue(query.get('user_id'), { emitEvent: false });
     this.dateFromControl.setValue(query.get('date_from'), { emitEvent: false });
     this.dateToControl.setValue(query.get('date_to'), { emitEvent: false });
-    this.companyFilterControl.setValue(query.get('company_id'), { emitEvent: false });
+    this.companyFilterControl.setValue(query.get('crm_company_id'), { emitEvent: false });
     this.contactFilterControl.setValue(query.get('contact_id'), { emitEvent: false });
     this.amountMinControl.setValue(
       query.get('amount_min') ? Number(query.get('amount_min')) : null,
@@ -955,7 +955,7 @@ export class Negotiations {
         this.dateFromControl.setValue(null);
         this.dateToControl.setValue(null);
         return true;
-      case 'company_id':
+      case 'crm_company_id':
         this.companyFilterControl.setValue(null);
         return true;
       case 'contact_id':
@@ -982,7 +982,7 @@ export class Negotiations {
       status: filters.status ?? null,
       funnel_id: filters.funnel_id ? String(filters.funnel_id) : null,
       step_id: filters.step_id ? String(filters.step_id) : null,
-      company_id: filters.company_id ? String(filters.company_id) : null,
+      crm_company_id: filters.crm_company_id ? String(filters.crm_company_id) : null,
       contact_id: filters.contact_id ? String(filters.contact_id) : null,
       user_id: filters.user_id ? String(filters.user_id) : null,
       date_from: filters.date_from ?? null,

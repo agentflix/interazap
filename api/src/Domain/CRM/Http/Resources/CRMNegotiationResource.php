@@ -25,7 +25,6 @@ class CRMNegotiationResource extends BaseJsonResource
             'auth_user_id' => $this->auth_user_id,
             'crm_company_id' => $this->crm_company_id,
             'crm_contact_id' => $this->crm_contact_id,
-            'company_id' => $this->crm_company_id,
             'contact_id' => $this->crm_contact_id,
             'crm_negotiation_funnel_id' => $this->crm_negotiation_funnel_id,
             'crm_negotiation_funnel_step_id' => $this->crm_negotiation_funnel_step_id,

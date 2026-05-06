@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   type SelectOption,
@@ -76,6 +77,7 @@ export class NegotiationFormComponent {
   readonly steps = signal<FunnelStep[]>([]);
   readonly selectedCompanyId = signal<string | number | null>(null);
   readonly createdContacts = signal<Contact[]>([]);
+  readonly companyContacts = signal<Contact[]>([]);
   readonly isCreateContactModalOpen = signal(false);
   readonly isCreatingContact = signal(false);
   readonly createContactError = signal<string | null>(null);
@@ -102,7 +104,7 @@ export class NegotiationFormComponent {
     const companyId = this.selectedCompanyId();
     if (!companyId) return [];
 
-    return this.allContacts().filter(
+    return this.companyContacts().filter(
       (contact) => String(this.resolveContactCompanyId(contact) ?? '') === String(companyId),
     );
   });
@@ -163,15 +165,15 @@ export class NegotiationFormComponent {
           title: item.title,
           contact_id: item.contact_id ?? null,
           user_id: item.user_id ?? item.auth_user_id ?? null,
-          crm_company_id: item.crm_company_id ?? item.company_id ?? null,
+          crm_company_id: item.crm_company_id ?? null,
           funnel_id: item.funnel_id ?? null,
           step_id: item.step_id ?? null,
           expected_close_date: item.expected_close_date ?? '',
           status: item.status ?? 'open',
           notes: item.notes ?? '',
         });
-        this.selectedCompanyId.set(item.crm_company_id ?? item.company_id ?? null);
-        this.setContactFieldState(item.crm_company_id ?? item.company_id ?? null);
+        this.selectedCompanyId.set(item.crm_company_id ?? null);
+        this.setContactFieldState(item.crm_company_id ?? null);
 
         if (item.funnel_id) {
           this.loadStepsForFunnel(item.funnel_id, item.step_id ?? null);
@@ -196,17 +198,38 @@ export class NegotiationFormComponent {
 
     this.form.controls.crm_company_id.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((companyId) => {
-        const normalizedCompanyId = this.normalizeId(companyId ?? null);
-        this.selectedCompanyId.set(normalizedCompanyId);
-        this.setContactFieldState(normalizedCompanyId);
+      .pipe(
+        tap((companyId) => {
+          const normalizedCompanyId = this.normalizeId(companyId ?? null);
+          this.selectedCompanyId.set(normalizedCompanyId);
+          this.setContactFieldState(normalizedCompanyId);
 
-        if (!normalizedCompanyId) {
-          this.form.controls.contact_id.setValue(null);
-          return;
-        }
+          if (!normalizedCompanyId) {
+            this.companyContacts.set([]);
+            this.form.controls.contact_id.setValue(null);
+          }
+        }),
+        distinctUntilChanged(),
+        switchMap((companyId) => {
+          const normalizedCompanyId = this.normalizeId(companyId ?? null);
+          if (!normalizedCompanyId) {
+            return of([]);
+          }
 
-        const contacts = this.filteredContacts();
+          return this.contactService
+            .list({
+              crm_company_id: String(normalizedCompanyId),
+              per_page: 100,
+              is_active: true,
+            })
+            .pipe(
+              catchError(() => of({ data: [] })),
+              switchMap((response) => of(response.data ?? [])),
+            );
+        }),
+      )
+      .subscribe((contacts) => {
+        this.companyContacts.set(contacts);
         const currentContactId = this.normalizeId(this.form.controls.contact_id.value);
         if (
           currentContactId &&
@@ -215,7 +238,7 @@ export class NegotiationFormComponent {
           this.form.controls.contact_id.setValue(null);
         }
 
-        if (contacts.length === 0) {
+        if (this.selectedCompanyId() && contacts.length === 0) {
           this.openCreateContactModal();
         }
       });
@@ -281,7 +304,6 @@ export class NegotiationFormComponent {
       name: value.name?.trim() ?? '',
       phone: value.phone?.trim() ?? '',
       email: value.email?.trim() || undefined,
-      company_id: String(companyId),
       crm_company_id: String(companyId),
       is_active: true,
     };
@@ -387,6 +409,7 @@ export class NegotiationFormComponent {
       notes: '',
     });
     this.selectedCompanyId.set(null);
+    this.companyContacts.set([]);
     this.setContactFieldState(null);
 
     if (initialFunnelId) {
@@ -410,7 +433,7 @@ export class NegotiationFormComponent {
       return null;
     }
 
-    return contact.crm_company_id ?? contact.company_id ?? null;
+    return contact.crm_company_id ?? contact.company?.id ?? null;
   }
 
   private setContactFieldState(companyId: string | number | null): void {

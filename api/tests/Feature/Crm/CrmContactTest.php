@@ -149,6 +149,30 @@ test('can filter contacts by active status', function (): void {
         ->assertJsonMissing(['name' => 'Inactive Contact']);
 });
 
+test('can filter contacts by crm_company_id', function (): void {
+    $companyA = CRMCompany::factory()->create(['tenant_id' => $this->tenant->id]);
+    $companyB = CRMCompany::factory()->create(['tenant_id' => $this->tenant->id]);
+
+    CRMContact::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Contato Empresa A',
+        'crm_company_id' => $companyA->id,
+    ]);
+
+    CRMContact::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'name' => 'Contato Empresa B',
+        'crm_company_id' => $companyB->id,
+    ]);
+
+    $response = $this->getJson('/api/crm/contacts?crm_company_id='.$companyA->id);
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonFragment(['name' => 'Contato Empresa A'])
+        ->assertJsonMissing(['name' => 'Contato Empresa B']);
+});
+
 test('can create and update contact notes and custom fields', function (): void {
     $company = CRMCompany::factory()->create(['tenant_id' => $this->tenant->id]);
 

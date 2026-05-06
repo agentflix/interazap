@@ -10,6 +10,7 @@ use Domain\Ai\Models\AiAgentChannel;
 use Domain\Ai\Models\AiAgentSkill;
 use Domain\Ai\Models\AiPromptSegment;
 use Domain\Ai\Models\AiPromptTenant;
+use Domain\CRM\Models\CRMCompany;
 use Domain\CRM\Models\CRMDepartment;
 use Domain\CRM\Models\CRMNegotiationFunnel;
 use Domain\CRM\Models\CRMNegotiationFunnelStep;
@@ -42,6 +43,7 @@ final class PlatformTenantBootstrapAction
             'segment_id' => $segment->id,
             'segment_code' => $segment->code,
             'dry_run' => $dryRun,
+            'default_company' => 0,
             'agents' => 0,
             'agent_skills' => 0,
             'agent_channels' => 0,
@@ -76,6 +78,8 @@ final class PlatformTenantBootstrapAction
             $report['tags'] = $this->syncTags($tenant, (array) $catalog['tags']);
             $report['departments'] = $this->syncDepartments($tenant, (array) $catalog['departments']);
         });
+
+        $report['default_company'] = $this->syncDefaultCompany($tenant);
 
         logger()->info('PlatformTenant bootstrap completed', $report);
 
@@ -483,5 +487,27 @@ final class PlatformTenantBootstrapAction
         }
 
         return $count;
+    }
+
+    /**
+     * Cria a empresa padrão ("Minha Empresa") para o tenant, se ainda não existir.
+     */
+    private function syncDefaultCompany(PlatformTenant $tenant): int
+    {
+        $wasCreated = CRMCompany::query()->firstOrCreate(
+            [
+                'tenant_id' => $tenant->id,
+                'name' => 'Minha Empresa',
+            ],
+            [
+                'id' => (string) Str::orderedUuid(),
+                'document' => $tenant->document,
+                'email' => $tenant->primary_email,
+                'phone' => null,
+                'is_active' => true,
+            ]
+        );
+
+        return $wasCreated->wasRecentlyCreated ? 1 : 0;
     }
 }

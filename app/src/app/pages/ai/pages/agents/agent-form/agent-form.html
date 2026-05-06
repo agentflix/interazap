@@ -42,9 +42,9 @@
                   [control]="form.controls.temperature"
                   label="Temperatura"
                   type="number"
+                  helpText="0 = preciso, 2 = criativo"
                   dataTest="agent-temperature"
                 />
-                <p class="text-xs text-neutral-500 mt-1">0 = preciso, 2 = criativo</p>
               </div>
               <af-text-input
                 [control]="form.controls.max_tokens"
@@ -59,12 +59,10 @@
               [control]="form.controls.system_prompt"
               label="System Prompt"
               placeholder="Instruções gerais para o agente..."
+              helpText="Defina o comportamento padrão do agente. Deixe em branco para usar o prompt global."
               [rows]="6"
               dataTest="agent-system-prompt"
             />
-            <p class="text-xs text-neutral-500 -mt-4">
-              Defina o comportamento padrão do agente. Deixe em branco para usar o prompt global.
-            </p>
 
             <!-- Active Toggle -->
             <af-switch-input [control]="form.controls.is_active" label="Agente ativo" />
