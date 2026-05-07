@@ -77,7 +77,10 @@ final class PlatformUserController extends BaseController
      */
     public function show(string $id): JsonResponse
     {
-        $user = AuthUser::with('roles')->findOrFail($id);
+        $user = AuthUser::query()
+            ->withoutGlobalScope(TenantScope::class)
+            ->with('roles')
+            ->findOrFail($id);
         $this->authorize('view', $user);
 
         return $this->success(new AuthUserResource($user), 'Usuário carregado');
@@ -92,7 +95,9 @@ final class PlatformUserController extends BaseController
      */
     public function update(AuthUserUpdateRequest $request, string $id): JsonResponse
     {
-        $user = AuthUser::findOrFail($id);
+        $user = AuthUser::query()
+            ->withoutGlobalScope(TenantScope::class)
+            ->findOrFail($id);
         $this->authorize('update', $user);
         $user = $this->service->updateForAnyTenant($id, AuthUserDTO::fromRequest($request));
 
@@ -107,7 +112,9 @@ final class PlatformUserController extends BaseController
      */
     public function destroy(string $id): JsonResponse
     {
-        $user = AuthUser::findOrFail($id);
+        $user = AuthUser::query()
+            ->withoutGlobalScope(TenantScope::class)
+            ->findOrFail($id);
         $this->authorize('delete', $user);
         $this->service->deleteForAnyTenant($id);
 
@@ -122,7 +129,9 @@ final class PlatformUserController extends BaseController
      */
     public function toggle(string $id): JsonResponse
     {
-        $user = AuthUser::findOrFail($id);
+        $user = AuthUser::query()
+            ->withoutGlobalScope(TenantScope::class)
+            ->findOrFail($id);
         $this->authorize('toggle', $user);
         $user = $this->service->toggleActiveForAnyTenant($id);
 
@@ -138,7 +147,9 @@ final class PlatformUserController extends BaseController
      */
     public function uploadAvatar(AuthUserAvatarRequest $request, string $id): JsonResponse
     {
-        $user = AuthUser::findOrFail($id);
+        $user = AuthUser::query()
+            ->withoutGlobalScope(TenantScope::class)
+            ->findOrFail($id);
         $this->authorize('update', $user);
         $payload = $this->service->updateAvatarForAnyTenant($id, $request->file('image'));
 
@@ -153,7 +164,9 @@ final class PlatformUserController extends BaseController
      */
     public function deleteAvatar(string $id): JsonResponse
     {
-        $user = AuthUser::findOrFail($id);
+        $user = AuthUser::query()
+            ->withoutGlobalScope(TenantScope::class)
+            ->findOrFail($id);
         $this->authorize('update', $user);
         $payload = $this->service->deleteAvatarForAnyTenant($id);
 

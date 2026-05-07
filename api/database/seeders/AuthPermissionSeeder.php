@@ -16,6 +16,7 @@ class AuthPermissionSeeder extends Seeder
      * @var array<int, string>
      */
     private array $permissions = [
+        'dashboard.view',
         'users.user.view',
         'users.user.manage',
         'users.role.view',
@@ -54,6 +55,7 @@ class AuthPermissionSeeder extends Seeder
         'settings.tags.manage',
         'ai.autopilot.view',
         'ai.autopilot.manage',
+        'ai.autopilots.manage',
         'ai.knowledge.view',
         'ai.knowledge.manage',
         'ai.prompts.view',

@@ -26,6 +26,11 @@ export interface AuthUser {
     };
   } | null;
   permissions: string[];
+  is_impersonating?: boolean;
+  impersonated_tenant?: {
+    id: string;
+    name: string;
+  };
 }
 
 interface StoredAuth {
@@ -67,12 +72,12 @@ export class AuthStoreService {
   /** Whether the service has restored state from localStorage */
   hasHydrated = computed(() => this.hydratedSignal());
   /** Whether the current session is an impersonation */
-  isImpersonating = computed(() => Boolean(this.userSignal()?.['is_impersonating' as keyof AuthUser]));
+  isImpersonating = computed(() => Boolean(this.userSignal()?.is_impersonating));
   /** Name of the impersonated tenant */
   impersonatedTenantName = computed(() => {
     const user = this.userSignal();
-    if (!user || !('impersonated_tenant' in user)) return null;
-    return (user as unknown as Record<string, unknown>)['impersonated_tenant'] as { name: string } | undefined;
+    if (!user || !user.impersonated_tenant) return null;
+    return user.impersonated_tenant.name;
   });
 
   private readonly preferencesService = inject(PreferencesService, { optional: true });

@@ -30,6 +30,11 @@ export interface AuthResponse {
     requires_2fa?: boolean;
     two_factor_required?: boolean;
     email?: string;
+    is_impersonating?: boolean;
+    impersonated_tenant?: {
+      id: string;
+      name: string;
+    };
   };
 }
 

@@ -141,6 +141,13 @@ export const routes: Routes = [
           import('./pages/platform/users/platform-users').then((m) => m.PlatformUsers),
         data: { title: 'Usuários' },
       },
+      {
+        path: 'platform/leads',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./pages/platform/leads/platform-leads').then((m) => m.PlatformLeads),
+        data: { title: 'Leads da Plataforma', permission: 'platform.tenants.manage' },
+      },
       // ─── Platform AI Governance ────────────────────────────────────────────
       {
         path: 'platform/ai-governance',

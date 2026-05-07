@@ -290,8 +290,15 @@ export class Tenants implements OnInit {
 
           const user = response.data?.user;
           const token = response.data?.token;
+          const permissions = response.data?.permissions ?? [];
           if (user && token) {
-            this.authStore.startImpersonation(user as unknown as AuthUser, token);
+            const impersonatedUser = {
+              ...user,
+              permissions,
+              is_impersonating: true,
+              impersonated_tenant: response.data?.impersonated_tenant,
+            } as unknown as AuthUser;
+            this.authStore.startImpersonation(impersonatedUser, token);
           }
 
           this.toast.success(`Você entrou como ${tenant.name}.`);
