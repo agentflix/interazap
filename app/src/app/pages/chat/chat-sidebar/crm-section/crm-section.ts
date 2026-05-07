@@ -203,7 +203,8 @@ export class CRMSectionComponent implements OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          const updated = response.data.negotiation as CRMNegotiation;
+          const raw = response.data as Record<string, unknown>;
+          const updated = (raw['negotiation'] ?? raw) as CRMNegotiation;
           this.negotiations.update((deals) =>
             deals.map((d) => {
               if (d.id !== dealId) {
