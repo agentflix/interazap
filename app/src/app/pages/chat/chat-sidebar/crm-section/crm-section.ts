@@ -213,6 +213,7 @@ export class CRMSectionComponent implements OnDestroy {
               return {
                 ...d,
                 ...updated,
+                funnel: d.funnel ?? updated.funnel,
                 step: updated.step ?? targetStep,
                 step_id: updated.step_id ?? targetStep.id,
                 position: updated.position ?? targetIndex + 1,
