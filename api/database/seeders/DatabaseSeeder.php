@@ -162,5 +162,10 @@ class DatabaseSeeder extends Seeder
         if ((bool) Config::get('app.seed_demo_data', false)) {
             $this->call(DemoSeeder::class);
         }
+
+        // ── Performance test data (opt-in via PERFORMANCE_SEED=true) ──────
+        if ((bool) Config::get('app.performance_seed', false)) {
+            $this->call(PerformanceSeeder::class);
+        }
     }
 }

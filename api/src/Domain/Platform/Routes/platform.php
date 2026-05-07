@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Domain\Platform\Http\Controllers\PlatformBillingInvoiceController;
+use Domain\Platform\Http\Controllers\PlatformLeadAdminController;
 use Domain\Platform\Http\Controllers\PlatformPlanController;
 use Domain\Platform\Http\Controllers\PlatformTenantController;
 use Domain\Platform\Http\Controllers\PlatformUazapiInstanceController;
@@ -52,6 +53,8 @@ Route::middleware(['auth:sanctum'])
         Route::put('/plans/{id}', [PlatformPlanController::class, 'update']);
         Route::delete('/plans/{id}', [PlatformPlanController::class, 'destroy']);
         Route::patch('/plans/{id}/toggle', [PlatformPlanController::class, 'toggle']);
+
+        Route::get('/leads', [PlatformLeadAdminController::class, 'index']);
 
         Route::get('/uazapi/instances', [PlatformUazapiInstanceController::class, 'index']);
         Route::post('/uazapi/instances', [PlatformUazapiInstanceController::class, 'store']);

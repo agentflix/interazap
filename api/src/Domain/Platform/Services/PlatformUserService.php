@@ -8,6 +8,7 @@ use Domain\Auth\Actions\AuthUserActions;
 use Domain\Auth\DTOs\AuthUserDTO;
 use Domain\Auth\DTOs\AuthUserFiltersDTO;
 use Domain\Auth\Models\AuthUser;
+use Domain\Shared\Scopes\TenantScope;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -28,6 +29,7 @@ final class PlatformUserService
     public function listAllTenants(AuthUserFiltersDTO $filters): LengthAwarePaginator
     {
         $query = AuthUser::query()
+            ->withoutGlobalScope(TenantScope::class)
             ->with(['tenant', 'roles'])
             ->withCount(['roles']);
 

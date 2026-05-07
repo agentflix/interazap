@@ -204,8 +204,15 @@ export class PlatformUsers implements OnInit {
 
           const userData = response.data?.user;
           const token = response.data?.token;
+          const permissions = response.data?.permissions ?? [];
           if (userData && token) {
-            this.authStore.startImpersonation(userData as unknown as AuthUser, token);
+            const impersonatedUser = {
+              ...userData,
+              permissions,
+              is_impersonating: true,
+              impersonated_tenant: response.data?.impersonated_tenant,
+            } as unknown as AuthUser;
+            this.authStore.startImpersonation(impersonatedUser, token);
           }
 
           const tenantName = user.tenant?.name ?? user.name;

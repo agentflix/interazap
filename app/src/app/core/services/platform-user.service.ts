@@ -17,6 +17,7 @@ export interface PlatformUser {
   tenant?: {
     id: string;
     name: string;
+    document?: string;
   };
   company?: {
     id: string | number;

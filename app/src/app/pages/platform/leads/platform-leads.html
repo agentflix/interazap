@@ -1,0 +1,66 @@
+<af-crud-page
+  title="Leads da Plataforma"
+  subtitle="Plataforma"
+  searchPlaceholder="Buscar por nome, e-mail, telefone ou empresa"
+  [loading]="isLoading()"
+  [empty]="isEmpty()"
+  emptyTitle="Nenhum lead encontrado"
+  emptyDescription="Ajuste os filtros ou aguarde novas captações da landing page."
+  [skeletonColumns]="6"
+  [skeletonRows]="6"
+  [currentPage]="meta().current_page"
+  [lastPage]="meta().last_page"
+  [perPage]="meta().per_page"
+  [total]="meta().total"
+  (search)="onSearch($event)"
+  (pageChange)="loadPage($event)"
+>
+  <div filters class="flex items-center gap-2">
+    <div class="min-w-44">
+      <af-select-input [control]="statusFilterControl" [options]="statusFilterOptions" size="sm" />
+    </div>
+
+    <div class="min-w-44">
+      <af-select-input [control]="sourceFilterControl" [options]="sourceFilterOptions" size="sm" />
+    </div>
+  </div>
+
+  @if (hasError()) {
+    <div class="p-6 space-y-3">
+      <af-alert
+        variant="danger"
+        title="Erro ao carregar leads"
+        message="Não foi possível carregar os leads da plataforma."
+      />
+      <af-button variant="outline" size="sm" (click)="retry()">
+        <lucide-icon name="refresh-cw" [size]="14" class="block" />
+        Tentar novamente
+      </af-button>
+    </div>
+  } @else {
+    <af-data-table [hoverable]="true">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Telefone</th>
+          <th>Empresa</th>
+          <th>Origem</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (lead of leads(); track lead.id) {
+          <tr>
+            <td class="font-medium">{{ lead.name }}</td>
+            <td class="text-sm text-neutral-600 dark:text-neutral-400">{{ lead.email }}</td>
+            <td class="text-sm text-neutral-600 dark:text-neutral-400">{{ formatPhone(lead.phone) }}</td>
+            <td>{{ lead.company || '—' }}</td>
+            <td>{{ lead.source }}</td>
+            <td>{{ statusLabel(lead.status) }}</td>
+          </tr>
+        }
+      </tbody>
+    </af-data-table>
+  }
+</af-crud-page>

@@ -20,7 +20,7 @@ import { AfScrollAreaComponent } from '../../../shared/components/scroll-area/sc
 export class SidenavComponent {
   protected readonly theme = inject(ThemeService);
   private readonly authStore = inject(AuthStoreService);
-  protected readonly menuItems = computed(() => this.filterMenuItems(SIDEBAR_MENU));
+  protected readonly menuItems = computed(() => this.removeOrphanTitles(this.filterMenuItems(SIDEBAR_MENU)));
 
   private openAccordions = signal<Set<string>>(new Set());
 
@@ -74,7 +74,39 @@ export class SidenavComponent {
     }, []);
   }
 
+  /**
+   * Remove títulos que ficam órfãos (sem itens visíveis abaixo).
+   */
+  private removeOrphanTitles(items: SidebarMenuItem[]): SidebarMenuItem[] {
+    const result: SidebarMenuItem[] = [];
+    let pendingTitle: SidebarMenuItem | null = null;
+
+    for (const item of items) {
+      if (item.type === 'title') {
+        // Se já tinha um título pendente, descarta (ficou órfão)
+        pendingTitle = item;
+        continue;
+      }
+
+      // Se tem um título pendente e agora encontrou um item visível, adiciona o título
+      if (pendingTitle) {
+        result.push(pendingTitle);
+        pendingTitle = null;
+      }
+
+      result.push(item);
+    }
+
+    // Título pendente no final fica órfão, não adiciona
+    return result;
+  }
+
   private isMenuItemVisible(item: SidebarMenuItem): boolean {
+    // Verificar permissão antes de tudo
+    if (item.requiredPermission && !this.authStore.hasPermission(item.requiredPermission)) {
+      return false;
+    }
+
     if (item.requiresAiEnabled && !this.hasAiModuleEnabled()) {
       return false;
     }

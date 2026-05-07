@@ -23,6 +23,8 @@ final class RolePermissionSeeder extends Seeder
 
         // ── inquilino — master / owner of the tenant ──────────────────
         $inquilino->syncPermissions([
+            // Dashboard
+            'dashboard.view',
             // Chat
             'chat.called.view',
             'chat.tickets.manage',
@@ -83,12 +85,15 @@ final class RolePermissionSeeder extends Seeder
             // AI
             'ai.autopilot.view',
             'ai.autopilot.manage',
+            'ai.autopilots.manage',
             'ai.knowledge.view',
             'ai.knowledge.manage',
         ]);
 
         // ── gerente — manager: CRM + Chat + Reports, no user management ─
         $gerente->syncPermissions([
+            // Dashboard
+            'dashboard.view',
             // Chat
             'chat.called.view',
             'chat.tickets.manage',
@@ -128,11 +133,14 @@ final class RolePermissionSeeder extends Seeder
             'settings.tags.manage',
             // AI (read-only)
             'ai.autopilot.view',
+            'ai.autopilots.manage',
             'ai.knowledge.view',
         ]);
 
         // ── atendente — agent: basic operation only ───────────────────
         $atendente->syncPermissions([
+            // Dashboard
+            'dashboard.view',
             // Chat
             'chat.called.view',
             'chat.tickets.manage',
