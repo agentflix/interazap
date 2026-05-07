@@ -83,20 +83,22 @@
           }
 
           <form [formGroup]="profileForm" (submit)="updateProfile()">
-            <af-text-input
-              [control]="profileForm.controls.name"
-              label="Nome"
-              placeholder="Seu nome completo"
-              [required]="true"
-              dataTest="profile-name"
-              [errorMessage]="profileError('name')"
-            />
-            <af-text-input
-              [control]="profileForm.controls.email"
-              label="E-mail"
-              [readOnly]="true"
-              dataTest="profile-email"
-            />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <af-text-input
+                [control]="profileForm.controls.name"
+                label="Nome"
+                placeholder="Seu nome completo"
+                [required]="true"
+                dataTest="profile-name"
+                [errorMessage]="profileError('name')"
+              />
+              <af-text-input
+                [control]="profileForm.controls.email"
+                label="E-mail"
+                [readOnly]="true"
+                dataTest="profile-email"
+              />
+            </div>
             <div class="flex justify-end">
               <af-loading-button
                 variant="primary"
@@ -126,31 +128,32 @@
           }
 
           <form [formGroup]="passwordForm" (submit)="updatePassword()">
-            <af-password-input
-              [control]="passwordForm.controls.current_password"
-              label="Senha atual"
-              placeholder="••••••••"
-              [required]="true"
-              dataTest="profile-current-password"
-              [errorMessage]="passwordError('current_password')"
-            />
-            <af-password-strength
-              [control]="passwordForm.controls.password"
-              label="Nova senha"
-              [required]="true"
-              [minLength]="8"
-              [showChecklist]="true"
-              dataTest="profile-new-password"
-              [errorMessage]="passwordError('password')"
-            />
-            <af-password-input
-              [control]="passwordForm.controls.password_confirmation"
-              label="Confirmar nova senha"
-              placeholder="••••••••"
-              [required]="true"
-              dataTest="profile-confirm-password"
-              [errorMessage]="passwordMismatch() ? 'As senhas não coincidem.' : ''"
-            />
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <af-password-input
+                [control]="passwordForm.controls.current_password"
+                label="Senha atual"
+                placeholder="••••••••"
+                [required]="true"
+                dataTest="profile-current-password"
+                [errorMessage]="passwordError('current_password')"
+              />
+              <af-password-input
+                [control]="passwordForm.controls.password"
+                label="Nova senha"
+                placeholder="Crie uma senha segura"
+                [required]="true"
+                dataTest="profile-new-password"
+                [errorMessage]="passwordError('password')"
+              />
+              <af-password-input
+                [control]="passwordForm.controls.password_confirmation"
+                label="Confirmar nova senha"
+                placeholder="••••••••"
+                [required]="true"
+                dataTest="profile-confirm-password"
+                [errorMessage]="passwordMismatch() ? 'As senhas não coincidem.' : ''"
+              />
+            </div>
             <div class="flex justify-end">
               <af-loading-button
                 variant="primary"

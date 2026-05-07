@@ -9,10 +9,11 @@ import {
   signal,
   type OnDestroy,
 } from '@angular/core';
-import { type Subscription } from 'rxjs';
+import { finalize, type Subscription } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideHandshake, lucidePlus } from '@ng-icons/lucide';
 import { NegotiationService } from 'src/app/core/services/negotiation.service';
+import { FunnelService, type FunnelStep } from 'src/app/core/services/funnel.service';
 import { DealCardComponent } from './deal-card/deal-card.component';
 import { DealEditModalComponent } from './deal-edit-modal/deal-edit-modal.component';
 import { DealLossModalComponent } from './deal-loss-modal/deal-loss-modal.component';
@@ -54,6 +55,7 @@ import { AfScrollAreaComponent } from 'src/app/shared/components/scroll-area/scr
 })
 export class CRMSectionComponent implements OnDestroy {
   private readonly negotiationService = inject(NegotiationService);
+  private readonly funnelService = inject(FunnelService);
   private loadNegotiationsSub: Subscription | null = null;
 
   readonly contactId = input.required<string>();
@@ -66,6 +68,8 @@ export class CRMSectionComponent implements OnDestroy {
   readonly showLossModal = signal(false);
   readonly showWinModal = signal(false);
   readonly selectedDeal = signal<CRMNegotiation | null>(null);
+  readonly stageUpdatingByDeal = signal<Record<string, boolean>>({});
+  readonly funnelStepsByFunnelId = signal<Record<string, FunnelStep[]>>({});
 
   /**
    * Negociações ordenadas: abertas → ganhas → perdidas.
@@ -99,7 +103,9 @@ export class CRMSectionComponent implements OnDestroy {
       .list({ contact_id: this.contactId(), per_page: 50 })
       .subscribe({
         next: (response) => {
-          this.negotiations.set(response.data ?? []);
+          const deals = response.data ?? [];
+          this.negotiations.set(deals);
+          this.hydrateFunnelSteps(deals);
           this.isLoading.set(false);
         },
         error: () => {
@@ -176,26 +182,112 @@ export class CRMSectionComponent implements OnDestroy {
    */
   onStageChanged(dealId: string | number, direction: 'previous' | 'next'): void {
     const deal = this.negotiations().find((n) => n.id === dealId);
-    if (!deal || !deal.step || !deal.funnel?.steps) return;
+    const orderedSteps = this.getOrderedStepsForDeal(deal);
+    if (!deal || !deal.step || orderedSteps.length === 0) return;
 
-    const orderedSteps = [...deal.funnel.steps].sort((a, b) => a.order - b.order);
     const currentIndex = orderedSteps.findIndex((step) => step.id === deal.step?.id);
     if (currentIndex < 0) return;
 
     const targetIndex = direction === 'previous' ? currentIndex - 1 : currentIndex + 1;
     const targetStep = orderedSteps[targetIndex];
     if (!targetStep) return;
+    const dealKey = String(dealId);
+    this.stageUpdatingByDeal.update((state) => ({ ...state, [dealKey]: true }));
 
     this.negotiationService
       .move(dealId, targetStep.id, deal.position ?? targetIndex + 1)
+      .pipe(
+        finalize(() => {
+          this.stageUpdatingByDeal.update((state) => ({ ...state, [dealKey]: false }));
+        }),
+      )
       .subscribe({
         next: (response) => {
           const updated = response.data.negotiation as CRMNegotiation;
           this.negotiations.update((deals) =>
-            deals.map((d) => (d.id === dealId ? { ...d, ...updated } : d)),
+            deals.map((d) => {
+              if (d.id !== dealId) {
+                return d;
+              }
+
+              return {
+                ...d,
+                ...updated,
+                funnel: d.funnel ?? updated.funnel,
+                step: updated.step ?? targetStep,
+                step_id: updated.step_id ?? targetStep.id,
+                position: updated.position ?? targetIndex + 1,
+              };
+            }),
+          );
+        },
+        error: () => {
+          // no-op: estado de loading por negociação já é liberado no finalize
+        },
+      });
+  }
+
+  isStageUpdating(dealId: string | number): boolean {
+    return this.stageUpdatingByDeal()[String(dealId)] === true;
+  }
+
+  private hydrateFunnelSteps(deals: CRMNegotiation[]): void {
+    const funnelIds = Array.from(
+      new Set(
+        deals
+          .map((deal) => deal.funnel?.id ?? deal.funnel_id)
+          .filter((id): id is string | number => id !== undefined && id !== null),
+      ),
+    );
+
+    funnelIds.forEach((funnelId) => {
+      const key = String(funnelId);
+      if (this.funnelStepsByFunnelId()[key]) {
+        return;
+      }
+
+      this.funnelService.listSteps(funnelId).subscribe({
+        next: (response) => {
+          const steps = [...(response.data.steps ?? [])].sort((a, b) => a.order - b.order);
+          this.funnelStepsByFunnelId.update((state) => ({ ...state, [key]: steps }));
+          this.negotiations.update((currentDeals) =>
+            currentDeals.map((deal) => {
+              const dealFunnelId = deal.funnel?.id ?? deal.funnel_id;
+              if (String(dealFunnelId ?? '') !== key) {
+                return deal;
+              }
+
+              return {
+                ...deal,
+                funnel: {
+                  ...(deal.funnel ?? { id: funnelId, name: '', is_active: true }),
+                  steps,
+                },
+              };
+            }),
           );
         },
       });
+    });
+  }
+
+  private getOrderedStepsForDeal(deal: CRMNegotiation | undefined): FunnelStep[] {
+    if (!deal) {
+      return [];
+    }
+
+    const directSteps = deal.funnel?.steps;
+    if (Array.isArray(directSteps) && directSteps.length > 0) {
+      return [...directSteps].sort((a, b) => a.order - b.order);
+    }
+
+    const funnelId = deal.funnel?.id ?? deal.funnel_id;
+    if (!funnelId) {
+      return [];
+    }
+
+    const cachedSteps = this.funnelStepsByFunnelId()[String(funnelId)] ?? [];
+    return [...cachedSteps].sort((a, b) => a.order - b.order);
   }
 }
 

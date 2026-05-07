@@ -4,15 +4,17 @@
       Você está prestes a marcar esta negociação como ganha:
     </p>
 
-    <div class="card bg-green-50 dark:bg-green-900/20 border-l-4 border-l-green-500">
-      <div class="card-body space-y-2">
-        <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-          {{ deal().title }}
-        </p>
-        <p class="text-xs text-neutral-600 dark:text-neutral-400">{{ deal().contact?.name }}</p>
-        <p class="text-lg font-bold text-green-600">{{ deal().value | currency: 'BRL' }}</p>
+    @if (deal(); as negotiation) {
+      <div class="card bg-green-50 dark:bg-green-900/20 border-l-4 border-l-green-500">
+        <div class="card-body space-y-2">
+          <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+            {{ negotiation.title }}
+          </p>
+          <p class="text-xs text-neutral-600 dark:text-neutral-400">{{ negotiation.contact?.name }}</p>
+          <p class="text-lg font-bold text-green-600">{{ negotiation.value | currency: 'BRL' }}</p>
+        </div>
       </div>
-    </div>
+    }
 
     <div class="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
       <div class="size-5 text-blue-600 dark:text-blue-400 shrink-0">

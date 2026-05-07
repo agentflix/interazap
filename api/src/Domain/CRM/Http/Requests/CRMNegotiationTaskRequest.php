@@ -34,6 +34,17 @@ class CRMNegotiationTaskRequest extends FormRequest
             'due_date' => ['nullable', 'date'],
             'status' => ['nullable', 'string', 'max:50'],
             'auth_user_id' => ['nullable', 'uuid', 'exists:auth_users,id'],
+            'action_type' => ['nullable', 'string', 'max:50'],
+            'start_time' => ['nullable', 'date_format:H:i'],
+            'end_time' => ['nullable', 'date_format:H:i'],
+            'reminder_at' => ['nullable', 'date'],
+            'add_to_agenda' => ['nullable', 'boolean'],
+            'agenda_event_id' => ['nullable', 'uuid', 'exists:crm_events,id'],
+            'notify_ui' => ['nullable', 'boolean'],
+            'notify_email' => ['nullable', 'boolean'],
+            'notify_push' => ['nullable', 'boolean'],
+            'notify_whatsapp' => ['nullable', 'boolean'],
+            'priority' => ['nullable', 'string', 'in:low,medium,high'],
         ];
     }
 }

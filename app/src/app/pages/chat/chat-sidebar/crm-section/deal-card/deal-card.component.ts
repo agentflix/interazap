@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { provideIcons } from '@ng-icons/core';
 import { CurrencyPipe } from '@shared/pipes/currency.pipe';
@@ -42,12 +42,36 @@ import { IconButtonComponent } from 'src/app/shared/components/buttons';
 })
 export class DealCardComponent {
   readonly deal = input.required<CRMNegotiation>();
+  readonly stageUpdating = input(false);
   readonly edit = output<void>();
   readonly markLost = output<void>();
   readonly markWon = output<void>();
   readonly stageChanged = output<'previous' | 'next'>();
 
-  readonly isUpdating = signal(false);
+  readonly orderedSteps = computed(() => {
+    const steps = this.deal().funnel?.steps ?? [];
+    return [...steps].sort((a, b) => a.order - b.order);
+  });
+
+  readonly currentStepIndex = computed(() => {
+    const currentStepId = this.deal().step?.id;
+    if (!currentStepId) return -1;
+    return this.orderedSteps().findIndex((step) => step.id === currentStepId);
+  });
+
+  readonly currentStepName = computed(() => this.deal().step?.name ?? 'Sem etapa');
+  readonly canMovePrevious = computed(
+    () => this.deal().status === 'open' && this.currentStepIndex() > 0 && !this.stageUpdating(),
+  );
+  readonly canMoveNext = computed(() => {
+    const idx = this.currentStepIndex();
+    return (
+      this.deal().status === 'open' &&
+      idx >= 0 &&
+      idx < this.orderedSteps().length - 1 &&
+      !this.stageUpdating()
+    );
+  });
 
   /**
    * Classe CSS por status da negociação.
@@ -77,9 +101,7 @@ export class DealCardComponent {
    * Mudar para etapa anterior.
    */
   moveToPreviousStage(): void {
-    if (this.deal().status !== 'open') return;
-    this.isUpdating.set(true);
-    // Lógica simplificada: apenas emite evento, quem consome busca a etapa anterior
+    if (!this.canMovePrevious()) return;
     this.stageChanged.emit('previous');
   }
 
@@ -87,8 +109,7 @@ export class DealCardComponent {
    * Mudar para próxima etapa.
    */
   moveToNextStage(): void {
-    if (this.deal().status !== 'open') return;
-    this.isUpdating.set(true);
+    if (!this.canMoveNext()) return;
     this.stageChanged.emit('next');
   }
 

@@ -89,8 +89,12 @@ export interface ContactListResponse extends PaginatedResponse<Contact> {
  * Response structure for a single contact.
  */
 export interface ContactResponse {
+  /** Success flag */
+  success: boolean;
+  /** Message from the API */
+  message: string;
   /** Contact data wrapper */
-  data: { contact: Contact };
+  data: Contact;
 }
 
 /**

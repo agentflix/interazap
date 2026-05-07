@@ -360,12 +360,16 @@ export class Contacts implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
-            this.openEdit(response.data.contact);
+            this.openEdit(response.data);
             void this.router.navigate([], {
               queryParams: { contact_id: null },
               queryParamsHandling: 'merge',
               replaceUrl: true,
             });
+          },
+          error: () => {
+            this.routeHandled = false;
+            this.toast.error('Não foi possível carregar o contato.');
           },
         });
     });

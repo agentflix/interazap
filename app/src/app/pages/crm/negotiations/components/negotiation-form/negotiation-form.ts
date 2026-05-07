@@ -316,7 +316,7 @@ export class NegotiationFormComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const createdContact = response.data.contact;
+          const createdContact = response.data;
           this.createdContacts.update((items) => {
             const next = items.filter((item) => String(item.id) !== String(createdContact.id));
             next.push(createdContact);

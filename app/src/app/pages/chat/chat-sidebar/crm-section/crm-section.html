@@ -22,7 +22,7 @@
     <div class="p-4">
       <!-- Loading Skeleton -->
       @if (isLoading()) {
-        <div class="space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           @for (_ of [1, 2, 3, 4, 5]; track $index) {
             <div class="card animate-pulse">
               <div class="card-body space-y-2">
@@ -62,10 +62,11 @@
 
       <!-- List -->
       @if (!isLoading() && !showEmpty()) {
-        <div class="space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           @for (deal of sortedNegotiations(); track deal.id) {
             <app-deal-card
               [deal]="deal"
+              [stageUpdating]="isStageUpdating(deal.id)"
               (edit)="openEditModal(deal)"
               (markLost)="openLossModal(deal)"
               (markWon)="openWinModal(deal)"
@@ -89,14 +90,14 @@
 
 <app-deal-loss-modal
   [isOpen]="showLossModal()"
-  [deal]="selectedDeal()!"
+  [deal]="selectedDeal()"
   (closeModal)="showLossModal.set(false)"
   (confirmed)="onDealLost()"
 />
 
 <app-deal-win-modal
   [isOpen]="showWinModal()"
-  [deal]="selectedDeal()!"
+  [deal]="selectedDeal()"
   (closeModal)="showWinModal.set(false)"
   (confirmed)="onDealWon()"
 />

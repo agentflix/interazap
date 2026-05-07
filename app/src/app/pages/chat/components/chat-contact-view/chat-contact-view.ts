@@ -219,7 +219,7 @@ export class ChatContactView {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const updated = response.data.contact;
+          const updated = response.data;
           this.isSaving.set(false);
           this.attemptedSubmit.set(false);
           this.contactSignal.set(updated);
@@ -296,7 +296,7 @@ export class ChatContactView {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const contact = response.data.contact;
+          const contact = response.data;
           this.contactSignal.set(contact);
 
           this.form.patchValue({

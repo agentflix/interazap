@@ -1,193 +1,181 @@
+<app-page-title title="Tickets" subtitle="Chat">
+  <af-button variant="secondary" size="sm" (clicked)="openFilters()">
+    <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+    Filtros
+  </af-button>
+</app-page-title>
 
-    <div class="pt-2">
-      <app-page-title title="Tickets" subtitle="Chat">
-        <af-button variant="secondary" size="sm" (clicked)="openFilters()">
-          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
-          Filtros
-        </af-button>
-      </app-page-title>
+<!-- Filter Drawer -->
+<af-drawer [open]="isFilterOpen()" title="Filtros" side="right" size="lg" (closed)="closeFilters()">
+  <af-search-input
+    [control]="searchControl"
+    placeholder="Buscar por protocolo, contato ou agente..."
+    dataTest="ticket-search"
+  />
 
-      <!-- Filter Drawer -->
-      <af-drawer
-        [open]="isFilterOpen()"
-        title="Filtros"
-        side="right"
-        size="lg"
-        (closed)="closeFilters()"
-      >
-        <af-search-input
-          [control]="searchControl"
-          placeholder="Buscar por protocolo, contato ou agente..."
-          dataTest="ticket-search"
-        />
-
-        <div class="grid grid-cols-1">
-          <af-select-input
-            label="Status"
-            [control]="filterStatusControl"
-            [options]="statusOptions"
-            placeholder="Todos os status"
-            dataTest="ticket-filter-status"
-          />
-          <af-select-input
-            label="Agente"
-            [control]="filterAgentControl"
-            [options]="agentOptions()"
-            placeholder="Todos os agentes"
-            dataTest="ticket-filter-agent"
-          />
-          <af-select-input
-            label="Período"
-            [control]="filterDateControl"
-            [options]="dateRangeOptions"
-            placeholder="Qualquer período"
-            dataTest="ticket-filter-date"
-          />
-        </div>
-
-        <div footer>
-          <div class="flex w-full items-center justify-between gap-2">
-            <af-button variant="danger" size="sm" (clicked)="clearFilters()">
-              Limpar filtros
-            </af-button>
-            <div class="flex gap-2">
-              <af-button variant="ghost" size="sm" (clicked)="closeFilters()">Cancelar</af-button>
-              <af-button variant="primary" size="sm" (clicked)="applyFilters()">Aplicar</af-button>
-            </div>
-          </div>
-        </div>
-      </af-drawer>
-
-      <!-- Table -->
-      <div
-        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
-      >
-        @if (isLoading()) {
-          <af-skeleton-table-row [columns]="8" [rows]="6" />
-        } @else if (hasError()) {
-          <div class="p-6 space-y-3">
-            <af-alert
-              variant="danger"
-              title="Erro ao carregar atendimentos"
-              message="Não foi possível carregar os atendimentos. Verifique sua conexão e tente novamente."
-            />
-            <af-button variant="outline" size="sm" (click)="retry()">
-              <lucide-icon name="refresh-cw" [size]="14" class="block" />
-              Tentar novamente
-            </af-button>
-          </div>
-        } @else if (isEmpty()) {
-          <af-empty-state
-            title="Nenhum atendimento encontrado"
-            description="Nenhum atendimento corresponde aos filtros selecionados."
-          />
-        } @else {
-          <af-data-table [hoverable]="true">
-            <thead>
-              <tr>
-                <th>Protocolo</th>
-                <th>Contato</th>
-                <th>Agente</th>
-                <th>Status</th>
-                <th>Espera</th>
-                <th>Atendimento</th>
-                <th>Avaliação</th>
-                <th class="text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (ticket of tickets(); track ticket.id) {
-                <tr>
-                  <td>
-                    <span class="font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                      {{ ticket.protocol || '—' }}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="flex flex-col">
-                      <span class="font-medium text-neutral-900 dark:text-neutral-50">
-                        {{ ticket.contact?.name || '—' }}
-                      </span>
-                      @if (ticket.contact?.phone) {
-                        <span class="text-xs text-neutral-500">
-                          {{ ticket.contact!.phone }}
-                        </span>
-                      }
-                    </div>
-                  </td>
-                  <td>
-                    <span class="text-sm text-neutral-700 dark:text-neutral-300">
-                      {{ ticket.user?.name || '—' }}
-                    </span>
-                  </td>
-                  <td>
-                    <af-status-badge [status]="mapTicketStatus(ticket.status)">
-                      {{ translateStatus(ticket.status) }}
-                    </af-status-badge>
-                  </td>
-                  <td>
-                    <span class="text-sm text-neutral-600 dark:text-neutral-400">
-                      {{ formatDuration(ticket.wait_duration_seconds) }}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="text-sm text-neutral-600 dark:text-neutral-400">
-                      {{ formatDuration(ticket.service_duration_seconds) }}
-                    </span>
-                  </td>
-                  <td>
-                    @if (ticket.evaluation?.has_evaluation) {
-                      <div class="flex items-center gap-1">
-                        <lucide-icon name="star" [size]="14" class="text-amber-500" />
-                        <span class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                          {{ ticket.evaluation!.rating }}
-                        </span>
-                      </div>
-                    } @else {
-                      <span class="text-xs text-neutral-400">—</span>
-                    }
-                  </td>
-                  <td>
-                    <div class="flex justify-end">
-                      <af-table-actions
-                        [showView]="true"
-                        [showEdit]="false"
-                        [showDelete]="ticket.status !== 'closed'"
-                        (view)="viewTicket(ticket)"
-                        (delete)="openForceClose(ticket)"
-                      />
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </af-data-table>
-        }
-      </div>
-
-      <!-- Pagination -->
-      @if (!isLoading() && !isEmpty() && meta().last_page > 1) {
-        <af-pagination
-          [currentPage]="meta().current_page"
-          [lastPage]="meta().last_page"
-          [perPage]="meta().per_page"
-          [total]="meta().total"
-          (pageChange)="loadPage($event)"
-        />
-      }
-    </div>
-
-    <!-- Force close confirmation modal -->
-    <af-confirm-modal
-      [open]="showForceCloseModal()"
-      title="Encerrar atendimento forçado"
-      [message]="forceCloseMessage()"
-      confirmLabel="Encerrar"
-      cancelLabel="Cancelar"
-      variant="danger"
-      iconName="x-circle"
-      [isLoading]="isForceClosing()"
-      (confirmed)="handleForceCloseConfirmed()"
-      (cancelled)="showForceCloseModal.set(false)"
+  <div class="grid grid-cols-1">
+    <af-select-input
+      label="Status"
+      [control]="filterStatusControl"
+      [options]="statusOptions"
+      placeholder="Todos os status"
+      dataTest="ticket-filter-status"
     />
-  
+    <af-select-input
+      label="Agente"
+      [control]="filterAgentControl"
+      [options]="agentOptions()"
+      placeholder="Todos os agentes"
+      dataTest="ticket-filter-agent"
+    />
+    <af-select-input
+      label="Período"
+      [control]="filterDateControl"
+      [options]="dateRangeOptions"
+      placeholder="Qualquer período"
+      dataTest="ticket-filter-date"
+    />
+  </div>
+
+  <div footer>
+    <div class="flex w-full items-center justify-between gap-2">
+      <af-button variant="danger" size="sm" (clicked)="clearFilters()"> Limpar filtros </af-button>
+      <div class="flex gap-2">
+        <af-button variant="ghost" size="sm" (clicked)="closeFilters()">Cancelar</af-button>
+        <af-button variant="primary" size="sm" (clicked)="applyFilters()">Aplicar</af-button>
+      </div>
+    </div>
+  </div>
+</af-drawer>
+
+<!-- Table -->
+<div
+  class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+>
+  @if (isLoading()) {
+    <af-skeleton-table-row [columns]="8" [rows]="6" />
+  } @else if (hasError()) {
+    <div class="p-6 space-y-3">
+      <af-alert
+        variant="danger"
+        title="Erro ao carregar atendimentos"
+        message="Não foi possível carregar os atendimentos. Verifique sua conexão e tente novamente."
+      />
+      <af-button variant="outline" size="sm" (click)="retry()">
+        <lucide-icon name="refresh-cw" [size]="14" class="block" />
+        Tentar novamente
+      </af-button>
+    </div>
+  } @else if (isEmpty()) {
+    <af-empty-state
+      title="Nenhum atendimento encontrado"
+      description="Nenhum atendimento corresponde aos filtros selecionados."
+    />
+  } @else {
+    <af-data-table [hoverable]="true">
+      <thead>
+        <tr>
+          <th>Protocolo</th>
+          <th>Contato</th>
+          <th>Agente</th>
+          <th>Status</th>
+          <th>Espera</th>
+          <th>Atendimento</th>
+          <th>Avaliação</th>
+          <th class="text-right">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ticket of tickets(); track ticket.id) {
+          <tr>
+            <td>
+              <span class="font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                {{ ticket.protocol || '—' }}
+              </span>
+            </td>
+            <td>
+              <div class="flex flex-col">
+                <span class="font-medium text-neutral-900 dark:text-neutral-50">
+                  {{ ticket.contact?.name || '—' }}
+                </span>
+                @if (ticket.contact?.phone) {
+                  <span class="text-xs text-neutral-500">
+                    {{ ticket.contact!.phone }}
+                  </span>
+                }
+              </div>
+            </td>
+            <td>
+              <span class="text-sm text-neutral-700 dark:text-neutral-300">
+                {{ ticket.user?.name || '—' }}
+              </span>
+            </td>
+            <td>
+              <af-status-badge [status]="mapTicketStatus(ticket.status)">
+                {{ translateStatus(ticket.status) }}
+              </af-status-badge>
+            </td>
+            <td>
+              <span class="text-sm text-neutral-600 dark:text-neutral-400">
+                {{ formatDuration(ticket.wait_duration_seconds) }}
+              </span>
+            </td>
+            <td>
+              <span class="text-sm text-neutral-600 dark:text-neutral-400">
+                {{ formatDuration(ticket.service_duration_seconds) }}
+              </span>
+            </td>
+            <td>
+              @if (ticket.evaluation?.has_evaluation) {
+                <div class="flex items-center gap-1">
+                  <lucide-icon name="star" [size]="14" class="text-amber-500" />
+                  <span class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ ticket.evaluation!.rating }}
+                  </span>
+                </div>
+              } @else {
+                <span class="text-xs text-neutral-400">—</span>
+              }
+            </td>
+            <td>
+              <div class="flex justify-end">
+                <af-table-actions
+                  [showView]="true"
+                  [showEdit]="false"
+                  [showDelete]="ticket.status !== 'closed'"
+                  (view)="viewTicket(ticket)"
+                  (delete)="openForceClose(ticket)"
+                />
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </af-data-table>
+  }
+</div>
+
+<!-- Pagination -->
+@if (!isLoading() && !isEmpty() && meta().last_page > 1) {
+  <af-pagination
+    [currentPage]="meta().current_page"
+    [lastPage]="meta().last_page"
+    [perPage]="meta().per_page"
+    [total]="meta().total"
+    (pageChange)="loadPage($event)"
+  />
+}
+
+<!-- Force close confirmation modal -->
+<af-confirm-modal
+  [open]="showForceCloseModal()"
+  title="Encerrar atendimento forçado"
+  [message]="forceCloseMessage()"
+  confirmLabel="Encerrar"
+  cancelLabel="Cancelar"
+  variant="danger"
+  iconName="x-circle"
+  [isLoading]="isForceClosing()"
+  (confirmed)="handleForceCloseConfirmed()"
+  (cancelled)="showForceCloseModal.set(false)"
+/>
