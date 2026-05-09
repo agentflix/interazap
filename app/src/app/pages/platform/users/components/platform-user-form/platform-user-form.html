@@ -1,61 +1,59 @@
+<form class="space-y-4" (submit)="$event.preventDefault()">
+  <af-select-input
+    label="Empresa"
+    [control]="form.controls.company_id"
+    [options]="companyOptions()"
+    [required]="true"
+    placeholder="Selecione uma empresa"
+    dataTest="platform-user-form-company"
+  />
 
-    <form class="space-y-4" (submit)="$event.preventDefault()">
-      <af-text-input
-        label="Nome"
-        [control]="form.controls.name"
-        placeholder="Ex: Maria Souza"
-        [required]="true"
-        dataTest="platform-user-form-name"
-      />
+  <af-text-input
+    label="Nome"
+    [control]="form.controls.name"
+    placeholder="Ex: Maria Souza"
+    [required]="true"
+    dataTest="platform-user-form-name"
+  />
 
-      <af-text-input
-        label="E-mail"
-        type="email"
-        [control]="form.controls.email"
-        placeholder="Ex: maria@empresa.com"
-        [required]="true"
-        dataTest="platform-user-form-email"
-      />
+  <af-text-input
+    label="E-mail"
+    type="email"
+    [control]="form.controls.email"
+    placeholder="Ex: maria@empresa.com"
+    [required]="true"
+    dataTest="platform-user-form-email"
+  />
 
-      <af-checkbox-group
-        label="Perfis"
-        [control]="form.controls.roles"
-        [options]="roleOptions()"
-        dataTest="platform-user-form-roles"
-      />
+  <af-password-strength
+    [label]="isEditing() ? 'Senha (opcional)' : 'Senha'"
+    [control]="form.controls.password"
+    placeholder="Mínimo 8 caracteres"
+    [minLength]="8"
+    [showChecklist]="true"
+    [required]="!isEditing()"
+    dataTest="platform-user-form-password"
+  />
 
-      <af-select-input
-        label="Empresa"
-        [control]="form.controls.company_id"
-        [options]="companyOptions()"
-        [required]="true"
-        placeholder="Selecione uma empresa"
-        dataTest="platform-user-form-company"
-      />
+  <af-password-input
+    label="Confirmar senha"
+    [control]="form.controls.password_confirmation"
+    placeholder="Repita a senha"
+    [required]="isPasswordConfirmationRequired()"
+    [errorMessage]="passwordConfirmationErrorMessage()"
+    dataTest="platform-user-form-password-confirmation"
+  />
 
-      <af-password-strength
-        [label]="isEditing() ? 'Senha (opcional)' : 'Senha'"
-        [control]="form.controls.password"
-        placeholder="Mínimo 8 caracteres"
-        [minLength]="8"
-        [showChecklist]="true"
-        [required]="!isEditing()"
-        dataTest="platform-user-form-password"
-      />
+  <af-checkbox-group
+    label="Perfis"
+    [control]="form.controls.roles"
+    [options]="roleOptions()"
+    dataTest="platform-user-form-roles"
+  />
 
-      <af-password-input
-        label="Confirmar senha"
-        [control]="form.controls.password_confirmation"
-        placeholder="Repita a senha"
-        [required]="isPasswordConfirmationRequired()"
-        [errorMessage]="passwordConfirmationErrorMessage()"
-        dataTest="platform-user-form-password-confirmation"
-      />
-
-      <af-switch-input
-        label="Ativo"
-        [control]="form.controls.is_active"
-        dataTest="platform-user-form-active"
-      />
-    </form>
-  
+  <af-switch-input
+    label="Ativo"
+    [control]="form.controls.is_active"
+    dataTest="platform-user-form-active"
+  />
+</form>
