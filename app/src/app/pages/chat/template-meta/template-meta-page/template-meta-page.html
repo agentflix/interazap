@@ -18,7 +18,7 @@
   (pageChange)="onPageChange($event)"
 >
   <!-- Filtros -->
-  <div filters class="flex flex-wrap items-end gap-2 w-full sm:w-auto">
+  <div filters class="flex items-center gap-2">
     <div class="min-w-[180px]">
       <af-select-input
         [control]="chatInstanceControl"
@@ -40,7 +40,6 @@
       size="sm"
       [disabled]="!canSync() || isSyncing()"
       (click)="syncNow()"
-      class="self-end"
     >
       <lucide-icon name="refresh-cw" [size]="16" class="block" />
       {{ isSyncing() ? 'Sincronizando...' : 'Sincronizar com Meta' }}

@@ -166,7 +166,7 @@ export class TemplateFormPageComponent implements OnInit {
         error: () => {
           this.isLoading.set(false);
           toast.error('Falha ao carregar template.');
-          void this.router.navigate(['/chat/templates']);
+          void this.router.navigate(['/chat/template-meta']);
         },
       });
   }
@@ -208,7 +208,7 @@ export class TemplateFormPageComponent implements OnInit {
       const ok = window.confirm('Descartar alterações não salvas?');
       if (!ok) return;
     }
-    void this.router.navigate(['/chat/templates']);
+    void this.router.navigate(['/chat/template-meta']);
   }
 
   submit(): void {
@@ -235,7 +235,7 @@ export class TemplateFormPageComponent implements OnInit {
       next: () => {
         this.isSubmitting.set(false);
         toast.success(id ? 'Template atualizado.' : 'Template enviado para aprovação.');
-        void this.router.navigate(['/chat/templates']);
+        void this.router.navigate(['/chat/template-meta']);
       },
       error: (err: unknown) => {
         this.isSubmitting.set(false);
@@ -263,7 +263,7 @@ export class TemplateFormPageComponent implements OnInit {
         next: () => {
           this.isSubmitting.set(false);
           toast.success('Template atualizado.');
-          void this.router.navigate(['/chat/templates']);
+          void this.router.navigate(['/chat/template-meta']);
         },
         error: (err: unknown) => {
           this.isSubmitting.set(false);

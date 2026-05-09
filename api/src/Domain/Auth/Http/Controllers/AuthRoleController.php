@@ -43,7 +43,7 @@ final class AuthRoleController extends BaseController
             'search', 'sort_by', 'sort_direction', 'per_page',
         ]));
 
-        $excludeSuperAdmin = ! $request->user()->isSuperAdmin();
+        $excludeSuperAdmin = true;
         $paginator = $this->actions->list($filters, $excludeSuperAdmin);
         $paginator->getCollection()->transform(fn ($item) => new AuthRoleResource($item));
 

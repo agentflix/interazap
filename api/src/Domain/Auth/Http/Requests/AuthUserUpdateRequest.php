@@ -7,6 +7,7 @@ namespace Domain\Auth\Http\Requests;
 use Domain\Auth\Models\AuthRole;
 use Domain\Auth\Models\AuthUser;
 use Domain\Auth\Policies\AuthUserPolicy;
+use Domain\Shared\Scopes\TenantScope;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,7 +25,8 @@ final class AuthUserUpdateRequest extends FormRequest
             return;
         }
 
-        $isPlatformAdmin = $user->isSuperAdmin() && empty($user->tenant_id);
+        $isPlatformAdmin = $user->isSuperAdmin()
+            && ($this->isPlatformUsersRoute() || empty($user->tenant_id));
 
         if (! $isPlatformAdmin) {
             $this->merge(['tenant_id' => $user->tenant_id]);
@@ -41,12 +43,27 @@ final class AuthUserUpdateRequest extends FormRequest
         $userId = $this->route('id');
 
         if (! $this->filled('tenant_id') && $userId) {
-            $model = AuthUser::find($userId);
+            $query = AuthUser::query();
+
+            if ($user->isSuperAdmin() && $this->isPlatformUsersRoute()) {
+                $query->withoutGlobalScope(TenantScope::class);
+            }
+
+            $model = $query->find($userId);
 
             if ($model) {
                 $this->merge(['tenant_id' => $model->tenant_id]);
             }
         }
+    }
+
+    private function isPlatformUsersRoute(): bool
+    {
+        $uri = (string) ($this->route()?->uri() ?? '');
+        $path = trim($this->path(), '/');
+
+        return str_contains($uri, 'platform/users')
+            || str_contains($path, 'platform/users');
     }
 
     /**
@@ -64,7 +81,13 @@ final class AuthUserUpdateRequest extends FormRequest
             return false;
         }
 
-        $model = AuthUser::find($userId);
+        $query = AuthUser::query();
+
+        if ($user->isSuperAdmin() && $this->isPlatformUsersRoute()) {
+            $query->withoutGlobalScope(TenantScope::class);
+        }
+
+        $model = $query->find($userId);
 
         if (! $model) {
             return false;

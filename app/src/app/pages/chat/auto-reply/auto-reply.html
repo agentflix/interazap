@@ -89,11 +89,10 @@
 
             <!-- Status -->
             <td>
-              <div class="flex items-center gap-3">
+              <div class="flex items-center">
                 <af-status-badge [status]="rule.is_active ? 'online' : 'offline'">
                   {{ rule.is_active ? 'Ativo' : 'Inativo' }}
                 </af-status-badge>
-                <af-switch-input [checked]="rule.is_active" (toggled)="toggleRule(rule)" />
               </div>
             </td>
 
@@ -178,6 +177,8 @@
         <af-file-input label="Arquivo" [control]="form.controls.file" />
       </div>
     }
+
+    <af-switch-input label="Ativo" [control]="form.controls.is_active" />
   </div>
 
   <div footer class="flex justify-end gap-2">

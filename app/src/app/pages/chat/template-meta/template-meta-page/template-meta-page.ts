@@ -39,7 +39,7 @@ import {
 } from '../helpers/template-status';
 
 @Component({
-  selector: 'app-chat-templates-page',
+  selector: 'app-chat-template-meta-page',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -55,9 +55,9 @@ import {
     AfTooltipComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './templates-page.html',
+  templateUrl: './template-meta-page.html',
 })
-export class TemplatesPageComponent implements OnInit {
+export class TemplateMetaPageComponent implements OnInit {
   private readonly templateService = inject(ChatMessageTemplateService);
   private readonly integrationService = inject(IntegrationService);
   private readonly router = inject(Router);
@@ -174,15 +174,15 @@ export class TemplatesPageComponent implements OnInit {
 
   // ── Actions ─────────────────────────────────────────────────────────
   openCreate(): void {
-    void this.router.navigate(['/chat/templates/new']);
+    void this.router.navigate(['/chat/template-meta/new']);
   }
 
   openEdit(item: ChatMessageTemplate): void {
-    void this.router.navigate(['/chat/templates', item.id, 'edit']);
+    void this.router.navigate(['/chat/template-meta', item.id, 'edit']);
   }
 
   openView(item: ChatMessageTemplate): void {
-    void this.router.navigate(['/chat/templates', item.id, 'edit']);
+    void this.router.navigate(['/chat/template-meta', item.id, 'edit']);
   }
 
   syncNow(): void {

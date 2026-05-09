@@ -38,6 +38,8 @@ import { ToastService } from '@core/services/toast.service';
 import { AuthService } from '@core/services/auth.service';
 import { AuthStoreService, type AuthUser } from '@core/services/auth-store.service';
 import { Router } from '@angular/router';
+import { PlatformPlanService } from '@pages/platform/services/platform-plan.service';
+import { type PlatformPlan } from '@pages/platform/models';
 import { TenantExportComponent } from './components/tenant-export/tenant-export';
 import { TenantFormComponent } from './components/tenant-form/tenant-form';
 
@@ -73,6 +75,7 @@ type TenantSortField = 'name' | 'document' | 'is_active' | 'created_at';
 })
 export class Tenants implements OnInit {
   private readonly service = inject(CompanyService);
+  private readonly platformPlanService = inject(PlatformPlanService);
   private readonly toast = inject(ToastService);
   private readonly authService = inject(AuthService);
   private readonly authStore = inject(AuthStoreService);
@@ -85,6 +88,7 @@ export class Tenants implements OnInit {
   readonly isFormSaving = computed(() => this.tenantFormRef()?.isSaving() ?? false);
 
   readonly tenants = signal<Company[]>([]);
+  readonly plansById = signal<Map<string, PlatformPlan>>(new Map());
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
   readonly meta = signal({ current_page: 1, last_page: 1, per_page: 15, total: 0 });
@@ -179,6 +183,7 @@ export class Tenants implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadPlans();
     this.loadTenants();
   }
 
@@ -473,6 +478,42 @@ export class Tenants implements OnInit {
     }
 
     return null;
+  }
+
+  planLabel(tenant: Company): string {
+    if (!tenant.plan_id) return 'Plano não definido';
+
+    const plan = this.plansById().get(String(tenant.plan_id));
+    if (!plan) return 'Plano não definido';
+
+    return `${plan.name} - ${this.formatPriceBrl(plan.price_monthly)}`;
+  }
+
+  private formatPriceBrl(value: string | number | null | undefined): string {
+    const numericValue = Number(value ?? 0);
+    if (!Number.isFinite(numericValue)) return 'R$0,00';
+
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+      .format(numericValue)
+      .replace(/\s/g, '');
+  }
+
+  private loadPlans(): void {
+    this.platformPlanService
+      .list({ per_page: 100 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const plansMap = new Map<string, PlatformPlan>();
+          for (const plan of response.data) {
+            plansMap.set(plan.id, plan);
+          }
+          this.plansById.set(plansMap);
+        },
+        error: () => {
+          this.plansById.set(new Map());
+        },
+      });
   }
 
   private loadTenants(): void {

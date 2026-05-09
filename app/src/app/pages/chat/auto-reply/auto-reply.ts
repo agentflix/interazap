@@ -98,6 +98,7 @@ export class AutoReply implements OnInit {
     actionType: ['message', Validators.required],
     department: [''],
     caption: [''],
+    is_active: this.fb.nonNullable.control(true),
     isWelcome: this.fb.nonNullable.control(false),
     file: [null],
   });
@@ -310,6 +311,7 @@ export class AutoReply implements OnInit {
       actionType: rule.actions?.[0]?.type === 'transfer_department' ? 'transfer' : 'message',
       department: rule.department_id ? String(rule.department_id) : '',
       caption: this.getBodyLines(rule).join('\n'),
+      is_active: Boolean(rule.is_active),
       isWelcome: !!rule.is_welcome,
     });
     this.keywordStatus.set('idle');
@@ -340,6 +342,7 @@ export class AutoReply implements OnInit {
       actionType: 'message',
       department: '',
       caption: '',
+      is_active: true,
       isWelcome: false,
     });
     this.keywordStatus.set('idle');
@@ -440,6 +443,7 @@ export class AutoReply implements OnInit {
     const payload = this.buildRulePayload(
       rule,
       keyword,
+      value.is_active,
       value.isWelcome,
       value.department,
       actionResult.actions,
@@ -504,23 +508,6 @@ export class AutoReply implements OnInit {
       });
   }
 
-  toggleRule(rule: AutoReplyRule): void {
-    this.autoReplyRules
-      .toggle(rule.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          const updated = response.data;
-          this.rules.update((items) =>
-            items.map((item) => (item.id === updated.id ? updated : item)),
-          );
-        },
-        error: () => {
-          toast.error('Não foi possível atualizar o status.');
-        },
-      });
-  }
-
   private hasDuplicateKeyword(keyword: string, currentRuleId: string | null): boolean {
     const normalizedKeyword = this.normalizeKeyword(keyword);
 
@@ -579,6 +566,7 @@ export class AutoReply implements OnInit {
   private buildRulePayload(
     rule: AutoReplyRule | null,
     keyword: string,
+    isActive: boolean | null | undefined,
     isWelcome: boolean,
     departmentId: string | null,
     actions: AutoReplyAction[],
@@ -607,7 +595,7 @@ export class AutoReply implements OnInit {
       actions,
       cooldown_seconds: rule?.cooldown_seconds ?? 60,
       priority: rule?.priority ?? 0,
-      is_active: rule?.is_active ?? true,
+      is_active: isActive ?? false,
       respect_business_hours: rule?.respect_business_hours ?? true,
     };
   }

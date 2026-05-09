@@ -80,11 +80,11 @@ modules_status:
   Auth:
     status: "active"
     completion: "95%"
-    last_change: "2026-05-03"
+    last_change: "2026-05-09"
   Chat:
     status: "active"
     completion: "80%"
-    last_change: "2026-05-06"
+    last_change: "2026-05-09"
   CRM:
     status: "active"
     completion: "72%"
@@ -129,6 +129,6 @@ modules_status:
 quality:
   test_coverage_backend: "indefinido (medir com pest --coverage)"
   test_coverage_frontend: "indefinido"
-  lint_status: "api feature tests + phpstan direcionado OK; app testes/build bloqueados por erros de tipagem preexistentes fora do escopo da FEAT-005"
+  lint_status: "api feature tests de roles/usuarios OK (hardening Administrador + restauracao da listagem + fix de tenant override em /platform/users); app vitest local reporta 'No test suite found' inclusive em specs existentes"
   seeders: "PerformanceSeeder criado: ~150k registros em 50 tenants, 83 tabelas, raw batch insert anti-timeout"
   last_validation: "2026-05-09"

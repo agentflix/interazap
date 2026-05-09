@@ -45,13 +45,15 @@ class AuthRoleControllerTest extends TestCase
         $admin = $this->createSuperAdminUser();
         $this->seedPermissions();
 
-        $this->actingAs($admin, 'sanctum')
+        $response = $this->actingAs($admin, 'sanctum')
             ->getJson('/api/auth/roles')
             ->assertOk()
             ->assertJsonStructure([
-                'data' => [['id', 'name']],
+                'data',
                 'meta' => ['current_page', 'total', 'per_page', 'last_page'],
             ]);
+
+        $this->assertIsArray($response->json('data'));
     }
 
     public function test_store_creates_role_with_permissions(): void
@@ -262,24 +264,55 @@ class AuthRoleControllerTest extends TestCase
             ['id' => AuthRole::INQUILINO_ID],
             ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
+        AuthRole::query()->firstOrCreate(
+            ['id' => AuthRole::GERENTE_ID],
+            ['name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum']
+        );
+        AuthRole::query()->firstOrCreate(
+            ['id' => AuthRole::ATENDENTE_ID],
+            ['name' => AuthRole::ATENDENTE_NAME, 'guard_name' => 'sanctum']
+        );
         $tenantUser = AuthUser::factory()->create();
         $tenantUser->assignRole($tenantRole);
 
-        $this->actingAs($tenantUser, 'sanctum')
+        $response = $this->actingAs($tenantUser, 'sanctum')
             ->getJson('/api/auth/roles')
             ->assertOk()
             ->assertJsonMissing(['name' => AuthRole::ADMINISTRADOR_NAME]);
+
+        $roleNames = collect($response->json('data'))->pluck('name')->all();
+        $this->assertContains(AuthRole::INQUILINO_NAME, $roleNames);
+        $this->assertContains(AuthRole::GERENTE_NAME, $roleNames);
+        $this->assertContains(AuthRole::ATENDENTE_NAME, $roleNames);
     }
 
-    public function test_index_includes_super_admin_role_for_super_admin_user(): void
+    public function test_index_excludes_super_admin_role_for_super_admin_user(): void
     {
         $admin = $this->createSuperAdminUser();
         $this->seedPermissions();
 
-        $this->actingAs($admin, 'sanctum')
+        AuthRole::query()->firstOrCreate(
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
+        );
+        AuthRole::query()->firstOrCreate(
+            ['id' => AuthRole::GERENTE_ID],
+            ['name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum']
+        );
+        AuthRole::query()->firstOrCreate(
+            ['id' => AuthRole::ATENDENTE_ID],
+            ['name' => AuthRole::ATENDENTE_NAME, 'guard_name' => 'sanctum']
+        );
+
+        $response = $this->actingAs($admin, 'sanctum')
             ->getJson('/api/auth/roles')
             ->assertOk()
-            ->assertJsonFragment(['name' => AuthRole::ADMINISTRADOR_NAME]);
+            ->assertJsonMissing(['name' => AuthRole::ADMINISTRADOR_NAME]);
+
+        $roleNames = collect($response->json('data'))->pluck('name')->all();
+        $this->assertContains(AuthRole::INQUILINO_NAME, $roleNames);
+        $this->assertContains(AuthRole::GERENTE_NAME, $roleNames);
+        $this->assertContains(AuthRole::ATENDENTE_NAME, $roleNames);
     }
 
     public function test_users_endpoint_returns_paginated_users_for_role(): void

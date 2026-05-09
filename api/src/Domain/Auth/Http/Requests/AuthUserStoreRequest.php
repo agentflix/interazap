@@ -23,7 +23,8 @@ final class AuthUserStoreRequest extends FormRequest
             return;
         }
 
-        $isPlatformAdmin = $user->isSuperAdmin() && empty($user->tenant_id);
+        $isPlatformAdmin = $user->isSuperAdmin()
+            && ($this->isPlatformUsersRoute() || empty($user->tenant_id));
 
         if (! $isPlatformAdmin) {
             // Every tenant-scoped user can create only within their own tenant.
@@ -35,6 +36,15 @@ final class AuthUserStoreRequest extends FormRequest
         if (! $this->filled('tenant_id') && $this->filled('company_id')) {
             $this->merge(['tenant_id' => $this->input('company_id')]);
         }
+    }
+
+    private function isPlatformUsersRoute(): bool
+    {
+        $uri = (string) ($this->route()?->uri() ?? '');
+        $path = trim($this->path(), '/');
+
+        return str_contains($uri, 'platform/users')
+            || str_contains($path, 'platform/users');
     }
 
     /**

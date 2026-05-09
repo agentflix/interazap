@@ -120,7 +120,7 @@ class AuthUserControllerTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_super_admin_can_assign_super_admin_role(): void
+    public function test_super_admin_cannot_assign_super_admin_role(): void
     {
         $superAdminRole = AuthRole::query()->firstOrCreate(
             ['id' => AuthRole::ADMINISTRADOR_ID],
@@ -139,7 +139,25 @@ class AuthUserControllerTest extends TestCase
                 'password' => 'password',
                 'roles' => [AuthRole::ADMINISTRADOR_NAME],
             ])
-            ->assertCreated();
+            ->assertForbidden();
+    }
+
+    public function test_super_admin_cannot_assign_super_admin_role_on_update(): void
+    {
+        $superAdminRole = AuthRole::query()->firstOrCreate(
+            ['id' => AuthRole::ADMINISTRADOR_ID],
+            ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
+        );
+        $superAdmin = AuthUser::factory()->create();
+        $superAdmin->assignRole($superAdminRole);
+
+        $targetUser = AuthUser::factory()->create(['tenant_id' => $superAdmin->tenant_id]);
+
+        $this->actingAs($superAdmin, 'sanctum')
+            ->putJson("/api/auth/users/{$targetUser->id}", [
+                'roles' => [AuthRole::ADMINISTRADOR_NAME],
+            ])
+            ->assertForbidden();
     }
 
     public function test_non_super_admin_cannot_assign_super_admin_via_singular_role_field_on_create(): void

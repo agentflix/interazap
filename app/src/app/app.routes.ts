@@ -363,28 +363,28 @@ export const routes: Routes = [
         data: { title: 'Configuração', permission: 'chat.routing.manage' },
       },
       {
-        path: 'chat/templates',
+        path: 'chat/template-meta',
         canActivate: [permissionGuard],
         loadComponent: () =>
-          import('./pages/chat/templates/templates-page/templates-page').then(
-            (m) => m.TemplatesPageComponent,
+          import('./pages/chat/template-meta/template-meta-page/template-meta-page').then(
+            (m) => m.TemplateMetaPageComponent,
           ),
         data: { title: 'Templates Meta', permission: 'chat.templates.manage' },
       },
       {
-        path: 'chat/templates/new',
+        path: 'chat/template-meta/new',
         canActivate: [permissionGuard],
         loadComponent: () =>
-          import('./pages/chat/templates/template-form-page/template-form-page').then(
+          import('./pages/chat/template-meta/template-form-page/template-form-page').then(
             (m) => m.TemplateFormPageComponent,
           ),
         data: { title: 'Novo Template', permission: 'chat.templates.manage' },
       },
       {
-        path: 'chat/templates/:id/edit',
+        path: 'chat/template-meta/:id/edit',
         canActivate: [permissionGuard],
         loadComponent: () =>
-          import('./pages/chat/templates/template-form-page/template-form-page').then(
+          import('./pages/chat/template-meta/template-form-page/template-form-page').then(
             (m) => m.TemplateFormPageComponent,
           ),
         data: { title: 'Editar Template', permission: 'chat.templates.manage' },

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { TemplatesPageComponent } from './templates-page';
+import { TemplateMetaPageComponent } from './template-meta-page';
 import { ChatMessageTemplateService } from '../../services/chat-message-template.service';
 import { IntegrationService } from '@core/services/integration.service';
 
@@ -15,7 +15,7 @@ vi.mock('ngx-sonner', () => ({
   },
 }));
 
-describe('TemplatesPageComponent', () => {
+describe('TemplateMetaPageComponent', () => {
   let templateService: {
     list: ReturnType<typeof vi.fn>;
     sync: ReturnType<typeof vi.fn>;
@@ -42,7 +42,7 @@ describe('TemplatesPageComponent', () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [TemplatesPageComponent],
+      imports: [TemplateMetaPageComponent],
       providers: [
         provideRouter([]),
         { provide: ChatMessageTemplateService, useValue: templateService },
@@ -52,7 +52,7 @@ describe('TemplatesPageComponent', () => {
   });
 
   it('cria o componente e carrega integrações + templates', () => {
-    const fixture = TestBed.createComponent(TemplatesPageComponent);
+    const fixture = TestBed.createComponent(TemplateMetaPageComponent);
     fixture.detectChanges();
     expect(integrationService.list).toHaveBeenCalled();
     expect(templateService.list).toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe('TemplatesPageComponent', () => {
   });
 
   it('aciona sync quando canal está selecionado', () => {
-    const fixture = TestBed.createComponent(TemplatesPageComponent);
+    const fixture = TestBed.createComponent(TemplateMetaPageComponent);
     fixture.detectChanges();
     const cmp = fixture.componentInstance;
     cmp.chatInstanceFilter.set('i1');
@@ -69,7 +69,7 @@ describe('TemplatesPageComponent', () => {
   });
 
   it('NÃO chama sync quando nenhum canal selecionado', () => {
-    const fixture = TestBed.createComponent(TemplatesPageComponent);
+    const fixture = TestBed.createComponent(TemplateMetaPageComponent);
     fixture.detectChanges();
     const cmp = fixture.componentInstance;
     cmp.chatInstanceFilter.set('');
@@ -78,7 +78,7 @@ describe('TemplatesPageComponent', () => {
   });
 
   it('confirma exclusão e recarrega lista', () => {
-    const fixture = TestBed.createComponent(TemplatesPageComponent);
+    const fixture = TestBed.createComponent(TemplateMetaPageComponent);
     fixture.detectChanges();
     const cmp = fixture.componentInstance;
     cmp.askDelete({
@@ -103,17 +103,17 @@ describe('TemplatesPageComponent', () => {
 
   it('lida com erro de carregamento', () => {
     templateService.list.mockReturnValueOnce(throwError(() => new Error('boom')));
-    const fixture = TestBed.createComponent(TemplatesPageComponent);
+    const fixture = TestBed.createComponent(TemplateMetaPageComponent);
     fixture.detectChanges();
     expect(fixture.componentInstance.hasError()).toBe(true);
   });
 
-  it('navega para /chat/templates/new ao criar', () => {
-    const fixture = TestBed.createComponent(TemplatesPageComponent);
+  it('navega para /chat/template-meta/new ao criar', () => {
+    const fixture = TestBed.createComponent(TemplateMetaPageComponent);
     fixture.detectChanges();
     const router = TestBed.inject(Router);
     const spy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     fixture.componentInstance.openCreate();
-    expect(spy).toHaveBeenCalledWith(['/chat/templates/new']);
+    expect(spy).toHaveBeenCalledWith(['/chat/template-meta/new']);
   });
 });
