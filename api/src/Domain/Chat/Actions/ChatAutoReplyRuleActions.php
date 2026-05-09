@@ -7,6 +7,7 @@ namespace Domain\Chat\Actions;
 use Domain\Chat\DTOs\ChatAutoReplyRuleDTO;
 use Domain\Chat\Models\ChatAutoReplyRule;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Casos de Uso para Regras de Auto Reply.
@@ -26,14 +27,8 @@ final class ChatAutoReplyRuleActions
      */
     public function list(string $tenantId): LengthAwarePaginator
     {
-        $query = ChatAutoReplyRule::query()
-            ->where('tenant_id', $tenantId);
-
-        if (request()->routeIs('api.chat.auto-reply-rules.*')) {
-            $query->where('is_welcome', false);
-        }
-
-        return $query
+        return ChatAutoReplyRule::query()
+            ->where('tenant_id', $tenantId)
             ->latest()
             ->paginate();
     }
@@ -47,10 +42,16 @@ final class ChatAutoReplyRuleActions
      */
     public function create(string $tenantId, ChatAutoReplyRuleDTO $dto): ChatAutoReplyRule
     {
-        return ChatAutoReplyRule::query()->create([
-            'tenant_id' => $tenantId,
-            ...$dto->toArray(),
-        ]);
+        return DB::transaction(function () use ($tenantId, $dto): ChatAutoReplyRule {
+            if ($dto->isWelcome) {
+                $this->ensureSingleWelcomeRule($tenantId);
+            }
+
+            return ChatAutoReplyRule::query()->create([
+                'tenant_id' => $tenantId,
+                ...$dto->toArray(),
+            ]);
+        });
     }
 
     /**
@@ -63,11 +64,17 @@ final class ChatAutoReplyRuleActions
      */
     public function update(string $tenantId, string $id, ChatAutoReplyRuleDTO $dto): ChatAutoReplyRule
     {
-        $rule = $this->find($tenantId, $id);
-        $rule->fill($dto->toArray());
-        $rule->save();
+        return DB::transaction(function () use ($tenantId, $id, $dto): ChatAutoReplyRule {
+            if ($dto->isWelcome) {
+                $this->ensureSingleWelcomeRule($tenantId, $id);
+            }
 
-        return $rule;
+            $rule = $this->find($tenantId, $id);
+            $rule->fill($dto->toArray());
+            $rule->save();
+
+            return $rule;
+        });
     }
 
     /**
@@ -149,5 +156,25 @@ final class ChatAutoReplyRuleActions
         $normalized = (string) preg_replace('/\s+/', ' ', $normalized);
 
         return $normalized;
+    }
+
+    /**
+     * Garante que exista no máximo uma regra de boas-vindas por tenant.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string|null  $ignoreRuleId  UUID da regra a ignorar (em update).
+     */
+    private function ensureSingleWelcomeRule(string $tenantId, ?string $ignoreRuleId = null): void
+    {
+        $query = ChatAutoReplyRule::query()
+            ->where('tenant_id', $tenantId)
+            ->where('is_welcome', true);
+
+        if ($ignoreRuleId !== null) {
+            $query->where('id', '!=', $ignoreRuleId);
+        }
+
+        $query->lockForUpdate()->get(['id']);
+        $query->update(['is_welcome' => false]);
     }
 }

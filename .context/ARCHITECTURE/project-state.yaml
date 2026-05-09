@@ -129,6 +129,6 @@ modules_status:
 quality:
   test_coverage_backend: "indefinido (medir com pest --coverage)"
   test_coverage_frontend: "indefinido"
-  lint_status: "api feature tests de roles/usuarios OK (hardening Administrador + restauracao da listagem + fix de tenant override em /platform/users); app vitest local reporta 'No test suite found' inclusive em specs existentes"
+  lint_status: "api feature tests de roles/usuarios OK (hardening Administrador + restauracao da listagem + fix de tenant override em /platform/users); api chat auto-reply com unicidade de is_welcome validada em create/update; app vitest local reporta 'No test suite found' inclusive em specs existentes"
   seeders: "PerformanceSeeder criado: ~150k registros em 50 tenants, 83 tabelas, raw batch insert anti-timeout"
   last_validation: "2026-05-09"

@@ -14,25 +14,82 @@ class ChatAutoReplyRuleControllerTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
+    public function test_should_keep_only_one_welcome_rule_active_on_create(): void
+    {
+        $this->authenticateForAutoReplyRules();
+
+        $firstRule = $this->postJson('/api/chat/auto-reply/rules', [
+            'name' => 'Boas-vindas A',
+            'trigger_text' => 'olá',
+            'response_text' => 'Bem-vindo A',
+            'is_active' => true,
+            'is_welcome' => true,
+            'cooldown_seconds' => 30,
+        ])->assertCreated()->json('data');
+
+        $secondRule = $this->postJson('/api/chat/auto-reply/rules', [
+            'name' => 'Boas-vindas B',
+            'trigger_text' => 'oi',
+            'response_text' => 'Bem-vindo B',
+            'is_active' => true,
+            'is_welcome' => true,
+            'cooldown_seconds' => 30,
+        ])->assertCreated()->json('data');
+
+        $this->assertDatabaseHas('chat_auto_reply_rules', [
+            'id' => $firstRule['id'],
+            'is_welcome' => 0,
+        ]);
+        $this->assertDatabaseHas('chat_auto_reply_rules', [
+            'id' => $secondRule['id'],
+            'is_welcome' => 1,
+        ]);
+    }
+
+    public function test_should_keep_only_one_welcome_rule_active_on_update(): void
+    {
+        $this->authenticateForAutoReplyRules();
+
+        $firstRule = $this->postJson('/api/chat/auto-reply/rules', [
+            'name' => 'Boas-vindas A',
+            'trigger_text' => 'olá',
+            'response_text' => 'Bem-vindo A',
+            'is_active' => true,
+            'is_welcome' => true,
+            'cooldown_seconds' => 30,
+        ])->assertCreated()->json('data');
+
+        $secondRule = $this->postJson('/api/chat/auto-reply/rules', [
+            'name' => 'Regra normal',
+            'trigger_text' => 'menu',
+            'response_text' => 'Menu principal',
+            'is_active' => true,
+            'is_welcome' => false,
+            'cooldown_seconds' => 30,
+        ])->assertCreated()->json('data');
+
+        $this->putJson('/api/chat/auto-reply/rules/'.$secondRule['id'], [
+            'name' => 'Boas-vindas B',
+            'trigger_text' => 'menu',
+            'response_text' => 'Bem-vindo B',
+            'is_active' => true,
+            'is_welcome' => true,
+            'cooldown_seconds' => 30,
+        ])->assertOk();
+
+        $this->assertDatabaseHas('chat_auto_reply_rules', [
+            'id' => $firstRule['id'],
+            'is_welcome' => 0,
+        ]);
+        $this->assertDatabaseHas('chat_auto_reply_rules', [
+            'id' => $secondRule['id'],
+            'is_welcome' => 1,
+        ]);
+    }
+
     public function test_auto_reply_rule_crud_and_keyword_validation(): void
     {
-        $user = AuthUser::factory()->create();
-        $permissions = [
-            'chat.auto_reply_rules.view',
-            'chat.auto_reply_rules.create',
-            'chat.auto_reply_rules.update',
-            'chat.auto_reply_rules.delete',
-        ];
-
-        foreach ($permissions as $permission) {
-            $perm = AuthPermission::query()->firstOrCreate(
-                ['name' => $permission, 'guard_name' => 'sanctum'],
-                ['id' => Str::orderedUuid()]
-            );
-            $user->givePermissionTo($perm);
-        }
-
-        $this->actingAs($user, 'sanctum');
+        $this->authenticateForAutoReplyRules();
 
         $payload = [
             'name' => 'Auto Reply',
@@ -82,5 +139,26 @@ class ChatAutoReplyRuleControllerTest extends TestCase
 
         $this->deleteJson('/api/chat/auto-reply/rules/'.$ruleId)
             ->assertNoContent();
+    }
+
+    private function authenticateForAutoReplyRules(): void
+    {
+        $user = AuthUser::factory()->create();
+        $permissions = [
+            'chat.auto_reply_rules.view',
+            'chat.auto_reply_rules.create',
+            'chat.auto_reply_rules.update',
+            'chat.auto_reply_rules.delete',
+        ];
+
+        foreach ($permissions as $permission) {
+            $perm = AuthPermission::query()->firstOrCreate(
+                ['name' => $permission, 'guard_name' => 'sanctum'],
+                ['id' => Str::orderedUuid()]
+            );
+            $user->givePermissionTo($perm);
+        }
+
+        $this->actingAs($user, 'sanctum');
     }
 }

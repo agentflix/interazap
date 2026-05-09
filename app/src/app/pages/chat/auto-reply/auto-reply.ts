@@ -286,6 +286,10 @@ export class AutoReply implements OnInit {
     return 'Automação';
   }
 
+  getWelcomeLabel(rule: AutoReplyRule): string {
+    return rule.is_welcome ? 'Sim' : 'Não';
+  }
+
   getMessageTypeLabel(id: string): string {
     return this.messageTypes.find((type) => type.id === id)?.label ?? '1 - Texto';
   }

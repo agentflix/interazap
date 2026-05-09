@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { AutoReply } from './auto-reply';
 import { AutoReplyService } from '@core/services/auto-reply.service';
 import { DepartmentService } from '@core/services/department.service';
+import { type AutoReplyRule } from '@core/services/auto-reply.service';
 
 class AutoReplyServiceStub {
   list = vi.fn().mockReturnValue(of({ success: true, data: { data: [] } }));
@@ -112,6 +113,14 @@ describe('AutoReply', () => {
     component.openEdit(rule);
 
     expect(component.form.controls.is_active.value).toBe(false);
+  });
+
+  it('returns correct label for welcome flag', () => {
+    const welcomeRule = { is_welcome: true } as AutoReplyRule;
+    const regularRule = { is_welcome: false } as AutoReplyRule;
+
+    expect(component.getWelcomeLabel(welcomeRule)).toBe('Sim');
+    expect(component.getWelcomeLabel(regularRule)).toBe('Não');
   });
 
   it('validates keyword with debounce', () => {
