@@ -16,12 +16,12 @@
   (pageChange)="loadPage($event)"
 >
   <div filters class="flex items-center gap-2">
-    <div class="min-w-44">
-      <af-select-input [control]="statusFilterControl" [options]="statusFilterOptions" size="sm" />
-    </div>
-
-    <div class="min-w-44">
-      <af-select-input [control]="sourceFilterControl" [options]="sourceFilterOptions" size="sm" />
+    <div class="ml-auto">
+      <app-lead-export-button
+        [searchTerm]="currentSearchTerm()"
+        (exported)="handleExported()"
+        (errorOccurred)="handleExportError($event)"
+      />
     </div>
   </div>
 
@@ -43,24 +43,41 @@
         <tr>
           <th>Nome</th>
           <th>E-mail</th>
-          <th>Telefone</th>
           <th>Empresa</th>
-          <th>Origem</th>
-          <th>Status</th>
+          <th class="text-right">Ações</th>
         </tr>
       </thead>
       <tbody>
         @for (lead of leads(); track lead.id) {
           <tr>
-            <td class="font-medium">{{ lead.name }}</td>
+            <td>
+              <div class="flex flex-col">
+                <span class="font-medium">{{ lead.name }}</span>
+                <span class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ formatPhone(lead.phone) }}
+                </span>
+              </div>
+            </td>
             <td class="text-sm text-neutral-600 dark:text-neutral-400">{{ lead.email }}</td>
-            <td class="text-sm text-neutral-600 dark:text-neutral-400">{{ formatPhone(lead.phone) }}</td>
             <td>{{ lead.company || '—' }}</td>
-            <td>{{ lead.source }}</td>
-            <td>{{ statusLabel(lead.status) }}</td>
+            <td>
+              <div class="flex justify-end items-center">
+                <af-button variant="outline" size="sm" (click)="openConvertModal(lead)">
+                  <lucide-icon name="building-2" [size]="14" class="block" />
+                  Converter
+                </af-button>
+              </div>
+            </td>
           </tr>
         }
       </tbody>
     </af-data-table>
   }
 </af-crud-page>
+
+<app-lead-convert-modal
+  [open]="showConvertModal()"
+  [lead]="selectedLead()"
+  (converted)="onConvertedLead()"
+  (cancelled)="closeConvertModal()"
+/>

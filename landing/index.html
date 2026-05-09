@@ -1986,7 +1986,6 @@
 
             function buildLeadPayload(extra) {
                 var payload = {
-                    source: 'landing_form',
                     referrer: document.referrer || null,
                     user_agent: navigator.userAgent || null,
                     utm_source: getQueryParam('utm_source'),
@@ -2334,7 +2333,6 @@
                     submitBtn.textContent = 'Enviando…';
 
                     var payload = buildLeadPayload({
-                        source: 'landing_exit_modal',
                         name: name.value.trim(),
                         phone: phoneDigits,
                         email: email.value.trim(),

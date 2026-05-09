@@ -122,7 +122,7 @@ class DashboardTest extends TestCase
         $this->seedDashboardData($tenantId);
 
         $newTenant = \Domain\Platform\Models\PlatformTenant::factory()->create();
-        $otherUser = AuthUser::factory()->create(['tenant_id' => $newTenant->id]);
+        AuthUser::factory()->create(['tenant_id' => $newTenant->id]);
         $this->seedDashboardData($newTenant->id);
 
         $response = $this->getJson('/api/dashboard')

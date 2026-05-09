@@ -27,7 +27,7 @@ afterEach(function (): void {
 
 function createRoutingQueue(string $tenantId, ?string $instanceId = null, bool $isEnabled = true, string $strategy = 'round_robin', ?int $maxOpen = null): ChatRoutingQueue
 {
-    return ChatRoutingQueue::create([
+    return \Domain\Chat\Models\ChatRoutingQueue::query()->create([
         'tenant_id' => $tenantId,
         'instance_id' => $instanceId,
         'name' => 'Test Queue',
@@ -39,7 +39,7 @@ function createRoutingQueue(string $tenantId, ?string $instanceId = null, bool $
 
 function createRoutingAgent(string $queueId, string $userId, int $position = 0, bool $isActive = true): ChatRoutingQueueAgent
 {
-    return ChatRoutingQueueAgent::create([
+    return \Domain\Chat\Models\ChatRoutingQueueAgent::query()->create([
         'queue_id' => $queueId,
         'user_id' => $userId,
         'position' => $position,
@@ -71,7 +71,7 @@ it('distributes tickets sequentially in round robin among agents', function (): 
         $ticket = createRoutingTicket($this->tenantId);
         $assigned = $service->route($ticket);
         $assignments[] = $assigned;
-        usleep(1_100_000); // ensure distinct last_assigned_at timestamps (1.1s)
+        \Illuminate\Support\Sleep::usleep(1_100_000); // ensure distinct last_assigned_at timestamps (1.1s)
     }
 
     foreach ($agents as $agent) {
@@ -166,7 +166,7 @@ it('returns null when no global queue and no channel override', function (): voi
 });
 
 it('treats max_open_tickets_per_agent as unlimited when null', function (): void {
-    $queue = createRoutingQueue($this->tenantId, null, true, 'round_robin', null);
+    $queue = createRoutingQueue($this->tenantId, null, true, 'round_robin');
     $agent = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
     createRoutingAgent($queue->id, $agent->id);
 
@@ -255,7 +255,7 @@ it('respects max_open_tickets_per_agent in least busy', function (): void {
 })->group('integration');
 
 it('least_busy unlimited when max_open_tickets_per_agent is null', function (): void {
-    $queue = createRoutingQueue($this->tenantId, null, true, 'least_busy', null);
+    $queue = createRoutingQueue($this->tenantId, null, true, 'least_busy');
     $agent = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
     createRoutingAgent($queue->id, $agent->id);
 
@@ -284,12 +284,12 @@ it('selects agent with matching skill in skill_based', function (): void {
     createRoutingAgent($queue->id, $agent2->id, 1);
 
     // agent1 has skill 'suporte', agent2 has skill 'vendas'
-    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+    \Domain\Chat\Models\ChatRoutingAgentSkill::query()->create([
         'queue_id' => $queue->id,
         'user_id' => $agent1->id,
         'skill' => 'suporte',
     ]);
-    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+    \Domain\Chat\Models\ChatRoutingAgentSkill::query()->create([
         'queue_id' => $queue->id,
         'user_id' => $agent2->id,
         'skill' => 'vendas',
@@ -309,7 +309,7 @@ it('returns null when no agent has matching skill', function (): void {
     createRoutingAgent($queue->id, $agent->id, 0);
 
     // agent has skill 'vendas', ticket category is 'suporte'
-    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+    \Domain\Chat\Models\ChatRoutingAgentSkill::query()->create([
         'queue_id' => $queue->id,
         'user_id' => $agent->id,
         'skill' => 'vendas',
@@ -328,7 +328,7 @@ it('returns null when ticket has no category in skill_based', function (): void 
     $agent = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
     createRoutingAgent($queue->id, $agent->id, 0);
 
-    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+    \Domain\Chat\Models\ChatRoutingAgentSkill::query()->create([
         'queue_id' => $queue->id,
         'user_id' => $agent->id,
         'skill' => 'suporte',
@@ -350,12 +350,12 @@ it('applies round robin among agents with same matching skill', function (): voi
     createRoutingAgent($queue->id, $agent2->id, 1);
 
     // Both agents have skill 'suporte'
-    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+    \Domain\Chat\Models\ChatRoutingAgentSkill::query()->create([
         'queue_id' => $queue->id,
         'user_id' => $agent1->id,
         'skill' => 'suporte',
     ]);
-    \Domain\Chat\Models\ChatRoutingAgentSkill::create([
+    \Domain\Chat\Models\ChatRoutingAgentSkill::query()->create([
         'queue_id' => $queue->id,
         'user_id' => $agent2->id,
         'skill' => 'suporte',

@@ -8,12 +8,19 @@ import { LucideAngularModule, icons } from 'lucide-angular';
 import { of, throwError } from 'rxjs';
 import { PlatformLeads } from './platform-leads';
 import { PlatformLeadService } from '@core/services/platform-lead.service';
+import { PlatformPlanService } from '@platform/services/platform-plan.service';
 
 describe('PlatformLeads', () => {
   let component: PlatformLeads;
   let fixture: ComponentFixture<PlatformLeads>;
 
   let platformLeadServiceMock: {
+    list: ReturnType<typeof vi.fn>;
+    convert: ReturnType<typeof vi.fn>;
+    export: ReturnType<typeof vi.fn>;
+  };
+
+  let platformPlanServiceMock: {
     list: ReturnType<typeof vi.fn>;
   };
 
@@ -28,12 +35,21 @@ describe('PlatformLeads', () => {
               email: 'joao@example.com',
               phone: '11999998888',
               company: 'Acme',
-              source: 'landing_form',
-              status: 'new',
               lgpd_consent: true,
             },
           ],
           meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+        }),
+      ),
+      convert: vi.fn(),
+      export: vi.fn(),
+    };
+
+    platformPlanServiceMock = {
+      list: vi.fn().mockReturnValue(
+        of({
+          data: [],
+          meta: { current_page: 1, total: 0, per_page: 100, last_page: 1 },
         }),
       ),
     };
@@ -46,6 +62,7 @@ describe('PlatformLeads', () => {
         provideRouter([]),
         importProvidersFrom(LucideAngularModule.pick(icons)),
         { provide: PlatformLeadService, useValue: platformLeadServiceMock },
+        { provide: PlatformPlanService, useValue: platformPlanServiceMock },
       ],
     }).compileComponents();
 
@@ -60,13 +77,13 @@ describe('PlatformLeads', () => {
     expect(component.hasError()).toBe(false);
   });
 
-  it('filtra por status', () => {
+  it('filtra por busca', () => {
     platformLeadServiceMock.list.mockClear();
 
-    component.statusFilterControl.setValue('qualified');
+    component.onSearch('joao');
 
     expect(platformLeadServiceMock.list).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'qualified' }),
+      expect.objectContaining({ search: 'joao' }),
     );
   });
 

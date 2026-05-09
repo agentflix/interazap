@@ -33,7 +33,7 @@ describe('PlatformPlanSeeder', function (): void {
             ->and($plan->limit_users)->toBe(5)
             ->and($plan->chat_channels_limit)->toBe(1)
             ->and($plan->storage_mode)->toBe(PlatformStorageMode::LIMITED)
-            ->and($plan->storage_limit_bytes)->toBe(1 * 1024 * 1024 * 1024)
+            ->and($plan->storage_limit_bytes)->toBe(1024 * 1024 * 1024)
             ->and($plan->ai_enabled)->toBeFalse()
             ->and($plan->negotiations_mode)->toBe(PlatformNegotiationsMode::LIMITED)
             ->and($plan->negotiations_limit)->toBe(50)

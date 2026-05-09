@@ -7,33 +7,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
-/**
- * Cria as 4 roles de sistema com UUIDs fixos e nomes padronizados.
- *
- * Banco limpo — sem lógica de migração de dados legados.
- */
-final class UnifyRolesToUuid extends Migration
+return new class extends Migration
 {
-    /**
-     * @var array<string, array{id: string, name: string}>
-     */
-    private const SYSTEM_ROLES = [
-        'Administrador' => [
-            'id' => AuthRole::ADMINISTRADOR_ID,
-            'name' => AuthRole::ADMINISTRADOR_NAME,
-        ],
-        'Inquilino' => [
-            'id' => AuthRole::INQUILINO_ID,
-            'name' => AuthRole::INQUILINO_NAME,
-        ],
-        'Gerente' => [
-            'id' => AuthRole::GERENTE_ID,
-            'name' => AuthRole::GERENTE_NAME,
-        ],
-        'Atendente' => [
-            'id' => AuthRole::ATENDENTE_ID,
-            'name' => AuthRole::ATENDENTE_NAME,
-        ],
+    private const array SYSTEM_ROLES = [
+        ['id' => AuthRole::ADMINISTRADOR_ID, 'name' => AuthRole::ADMINISTRADOR_NAME],
+        ['id' => AuthRole::INQUILINO_ID, 'name' => AuthRole::INQUILINO_NAME],
+        ['id' => AuthRole::GERENTE_ID, 'name' => AuthRole::GERENTE_NAME],
+        ['id' => AuthRole::ATENDENTE_ID, 'name' => AuthRole::ATENDENTE_NAME],
     ];
 
     public function up(): void
@@ -57,4 +37,4 @@ final class UnifyRolesToUuid extends Migration
 
         Artisan::call('permission:cache-reset');
     }
-}
+};

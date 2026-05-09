@@ -56,24 +56,20 @@ it('emits ticket.updated with ticket_closed payload when status is closed', func
     $this->gatewayBroadcast
         ->shouldReceive('broadcastEvent')
         ->once()
-        ->withArgs(function (string $event, array $data, ?string $room) use ($ticket): bool {
-            return $event === 'chat.activity'
-                && $room === 'ticket:'.(string) $ticket->id
-                && (($data['subevents'][0]['type'] ?? null) === 'ticket.updated')
-                && (($data['subevents'][0]['data']['ticket_id'] ?? null) === (string) $ticket->id)
-                && (($data['subevents'][0]['data']['tenant_id'] ?? null) === (string) $ticket->tenant_id)
-                && (($data['subevents'][0]['data']['event_type'] ?? null) === 'ticket_closed')
-                && (($data['subevents'][0]['data']['ticket']['status'] ?? null) === 'closed');
-        });
+        ->withArgs(fn (string $event, array $data, ?string $room): bool => $event === 'chat.activity'
+            && $room === 'ticket:'.$ticket->id
+            && (($data['subevents'][0]['type'] ?? null) === 'ticket.updated')
+            && (($data['subevents'][0]['data']['ticket_id'] ?? null) === (string) $ticket->id)
+            && (($data['subevents'][0]['data']['tenant_id'] ?? null) === (string) $ticket->tenant_id)
+            && (($data['subevents'][0]['data']['event_type'] ?? null) === 'ticket_closed')
+            && (($data['subevents'][0]['data']['ticket']['status'] ?? null) === 'closed'));
 
     $this->gatewayBroadcast
         ->shouldReceive('broadcastEvent')
         ->once()
-        ->withArgs(function (string $event, array $data, ?string $room) use ($ticket): bool {
-            return $event === 'chat.activity'
-                && $room === 'tenant:'.(string) $ticket->tenant_id
-                && (($data['subevents'][0]['type'] ?? null) === 'ticket.updated');
-        });
+        ->withArgs(fn (string $event, array $data, ?string $room): bool => $event === 'chat.activity'
+            && $room === 'tenant:'.$ticket->tenant_id
+            && (($data['subevents'][0]['type'] ?? null) === 'ticket.updated'));
 
     $updated = $this->action->updateStatus($ticket, 'closed', null, 'normal', null);
 

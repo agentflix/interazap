@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Domain\Ai\Contracts\AiEmbeddingServiceInterface;
 use Domain\Ai\Models\AiKnowledgeChunk;
 use Domain\Ai\Models\AiKnowledgeDocument;
-use Domain\Ai\Models\AiRagQueryLog;
 use Domain\Ai\Services\AiRagService;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -63,9 +62,9 @@ describe('AiRagService search logging', function (): void {
         $results = $service->search('test query', $tenant->id);
 
         expect($results)->not->toBeEmpty();
-        expect(AiRagQueryLog::count())->toBe(1);
+        expect(\Domain\Ai\Models\AiRagQueryLog::query()->count())->toBe(1);
 
-        $log = AiRagQueryLog::first();
+        $log = \Domain\Ai\Models\AiRagQueryLog::query()->first();
         expect($log->tenant_id)->toBe($tenant->id);
         expect($log->query_hash)->toBe(hash('sha256', 'test query'));
         expect($log->mode)->toBe('vector');
@@ -103,9 +102,9 @@ describe('AiRagService search logging', function (): void {
         $results = $service->search('unrelated query', $tenant->id, minScore: 0.99);
 
         expect($results)->toBeEmpty();
-        expect(AiRagQueryLog::count())->toBe(1);
+        expect(\Domain\Ai\Models\AiRagQueryLog::query()->count())->toBe(1);
 
-        $log = AiRagQueryLog::first();
+        $log = \Domain\Ai\Models\AiRagQueryLog::query()->first();
         expect($log->has_results)->toBeFalse();
         expect($log->results_count)->toBe(0);
     });
@@ -120,6 +119,6 @@ describe('AiRagService search logging', function (): void {
         $results = $service->search('   ', $tenant->id);
 
         expect($results)->toBeEmpty();
-        expect(AiRagQueryLog::count())->toBe(0);
+        expect(\Domain\Ai\Models\AiRagQueryLog::query()->count())->toBe(0);
     });
 });

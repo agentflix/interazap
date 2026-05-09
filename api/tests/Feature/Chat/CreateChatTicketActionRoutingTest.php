@@ -6,8 +6,6 @@ use Domain\Auth\Models\AuthUser;
 use Domain\Chat\Actions\CreateChatTicketAction;
 use Domain\Chat\DTOs\ChatTicketDTO;
 use Domain\Chat\Models\ChatInstance;
-use Domain\Chat\Models\ChatRoutingQueue;
-use Domain\Chat\Models\ChatRoutingQueueAgent;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Shared\Support\TenantContext;
@@ -26,7 +24,7 @@ afterEach(function (): void {
 });
 
 it('assigns ticket to agent when active queue exists', function (): void {
-    $queue = ChatRoutingQueue::create([
+    $queue = \Domain\Chat\Models\ChatRoutingQueue::query()->create([
         'tenant_id' => $this->tenantId,
         'instance_id' => null,
         'name' => 'Global Queue',
@@ -34,7 +32,7 @@ it('assigns ticket to agent when active queue exists', function (): void {
         'strategy' => 'round_robin',
     ]);
     $agent = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-    ChatRoutingQueueAgent::create([
+    \Domain\Chat\Models\ChatRoutingQueueAgent::query()->create([
         'queue_id' => $queue->id,
         'user_id' => $agent->id,
         'position' => 0,
@@ -71,14 +69,14 @@ it('creates ticket with assigned_to null when routing service is unavailable', f
 
 it('uses channel queue over global queue for instance ticket', function (): void {
     $instance = ChatInstance::factory()->create(['tenant_id' => $this->tenantId]);
-    $channelQueue = ChatRoutingQueue::create([
+    $channelQueue = \Domain\Chat\Models\ChatRoutingQueue::query()->create([
         'tenant_id' => $this->tenantId,
         'instance_id' => $instance->id,
         'name' => 'Channel Queue',
         'is_enabled' => true,
         'strategy' => 'round_robin',
     ]);
-    $globalQueue = ChatRoutingQueue::create([
+    $globalQueue = \Domain\Chat\Models\ChatRoutingQueue::query()->create([
         'tenant_id' => $this->tenantId,
         'instance_id' => null,
         'name' => 'Global Queue',
@@ -88,8 +86,8 @@ it('uses channel queue over global queue for instance ticket', function (): void
 
     $channelAgent = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
     $globalAgent = AuthUser::factory()->create(['tenant_id' => $this->tenantId]);
-    ChatRoutingQueueAgent::create(['queue_id' => $channelQueue->id, 'user_id' => $channelAgent->id, 'position' => 0, 'is_active' => true]);
-    ChatRoutingQueueAgent::create(['queue_id' => $globalQueue->id, 'user_id' => $globalAgent->id, 'position' => 0, 'is_active' => true]);
+    \Domain\Chat\Models\ChatRoutingQueueAgent::query()->create(['queue_id' => $channelQueue->id, 'user_id' => $channelAgent->id, 'position' => 0, 'is_active' => true]);
+    \Domain\Chat\Models\ChatRoutingQueueAgent::query()->create(['queue_id' => $globalQueue->id, 'user_id' => $globalAgent->id, 'position' => 0, 'is_active' => true]);
 
     $action = app(CreateChatTicketAction::class);
     $dto = new ChatTicketDTO(channel: 'whatsapp', instanceId: $instance->id);

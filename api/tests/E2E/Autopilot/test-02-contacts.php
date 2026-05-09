@@ -74,7 +74,7 @@ e2e_run('update_contact: atualiza email do contato', function () use ($ctx): voi
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
 
-    $contact = CRMContact::find($ctx['contact_id']);
+    $contact = \Domain\CRM\Models\CRMContact::query()->find($ctx['contact_id']);
     e2e_assert($contact->email === 'e2e-updated@test.com', 'email atualizado no banco');
 });
 

@@ -30,9 +30,7 @@ class AiRagServiceTest extends TestCase
     private function mockDbTransaction(): void
     {
         DB::shouldReceive('transaction')
-            ->andReturnUsing(function (callable $callback, int $attempts = 1) {
-                return $callback();
-            });
+            ->andReturnUsing(fn (callable $callback, int $attempts = 1) => $callback());
     }
 
     public function test_search_returns_empty_array_if_query_is_empty(): void
@@ -234,13 +232,11 @@ class AiRagServiceTest extends TestCase
         DB::shouldReceive('statement')->once();
         DB::shouldReceive('select')
             ->once()
-            ->withArgs(function (string $sql, array $bindings): bool {
-                return str_contains($sql, '((? * v.vector_score) + (? * COALESCE(k.keyword_score, 0))) as score')
-                    && $bindings[4] === 0.5
-                    && $bindings[5] === 0.5
-                    && $bindings[6] === 0.5
-                    && $bindings[7] === 0.5;
-            })
+            ->withArgs(fn (string $sql, array $bindings): bool => str_contains($sql, '((? * v.vector_score) + (? * COALESCE(k.keyword_score, 0))) as score')
+                && $bindings[4] === 0.5
+                && $bindings[5] === 0.5
+                && $bindings[6] === 0.5
+                && $bindings[7] === 0.5)
             ->andReturn([]);
 
         $service = new AiRagService($embeddingMock);
@@ -273,11 +269,9 @@ class AiRagServiceTest extends TestCase
 
         DB::shouldReceive('select')
             ->once()
-            ->withArgs(function (string $sql, array $bindings): bool {
-                return str_contains($sql, 'c.chunk_index BETWEEN ? AND ?')
-                    && $bindings[2] === 0
-                    && $bindings[3] === 2;
-            })
+            ->withArgs(fn (string $sql, array $bindings): bool => str_contains($sql, 'c.chunk_index BETWEEN ? AND ?')
+                && $bindings[2] === 0
+                && $bindings[3] === 2)
             ->andReturn([
                 (object) [
                     'chunk_id' => 'chunk-1',
@@ -364,10 +358,8 @@ class AiRagServiceTest extends TestCase
         DB::shouldReceive('statement')->once();
         DB::shouldReceive('select')
             ->once()
-            ->withArgs(function (string $sql, array $bindings): bool {
-                return str_contains($sql, 'AND d.file_type IN (?)')
-                    && $bindings[2] === 'pdf';
-            })
+            ->withArgs(fn (string $sql, array $bindings): bool => str_contains($sql, 'AND d.file_type IN (?)')
+                && $bindings[2] === 'pdf')
             ->andReturn([]);
 
         $filters = new \Domain\Ai\DTOs\KnowledgeSearchFiltersDTO(

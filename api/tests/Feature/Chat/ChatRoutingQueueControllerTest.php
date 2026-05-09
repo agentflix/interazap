@@ -43,7 +43,7 @@ function createSuperAdminUser(): AuthUser
 
 function createControllerQueue(string $tenantId, ?string $instanceId = null, bool $isEnabled = true): ChatRoutingQueue
 {
-    return ChatRoutingQueue::create([
+    return \Domain\Chat\Models\ChatRoutingQueue::query()->create([
         'tenant_id' => $tenantId,
         'instance_id' => $instanceId,
         'name' => 'Test Queue',
@@ -54,7 +54,7 @@ function createControllerQueue(string $tenantId, ?string $instanceId = null, boo
 
 function createControllerAgent(string $queueId, string $userId, int $position = 0): ChatRoutingQueueAgent
 {
-    return ChatRoutingQueueAgent::create([
+    return \Domain\Chat\Models\ChatRoutingQueueAgent::query()->create([
         'queue_id' => $queueId,
         'user_id' => $userId,
         'position' => $position,

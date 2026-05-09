@@ -55,6 +55,8 @@ Route::middleware(['auth:sanctum'])
         Route::patch('/plans/{id}/toggle', [PlatformPlanController::class, 'toggle']);
 
         Route::get('/leads', [PlatformLeadAdminController::class, 'index']);
+        Route::get('/leads/export', [PlatformLeadAdminController::class, 'export'])->name('platform.leads.export');
+        Route::post('/leads/{id}/convert', [PlatformLeadAdminController::class, 'convert'])->name('platform.leads.convert');
 
         Route::get('/uazapi/instances', [PlatformUazapiInstanceController::class, 'index']);
         Route::post('/uazapi/instances', [PlatformUazapiInstanceController::class, 'store']);

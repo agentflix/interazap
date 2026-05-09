@@ -269,7 +269,7 @@ class ChatMessageOutboundTest extends TestCase
         $this->assertSame('outgoing', $message->direction);
 
         // Bot deve chamar o gateway para entregar a mensagem
-        Http::assertSent(fn ($request): bool => str_contains($request->url(), 'gateway.test'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'gateway.test'));
     }
 
     public function test_outgoing_ai_message_emits_chat_activity_for_attendant_and_chat_list(): void

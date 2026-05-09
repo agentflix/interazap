@@ -50,7 +50,7 @@ final class ChatSessionTest extends TestCase
             'ticket_id' => $ticket->id,
         ]);
 
-        $found = ChatSession::find($session->id);
+        $found = \Domain\Chat\Models\ChatSession::query()->find($session->id);
 
         $this->assertNotNull($found);
         $this->assertEquals($session->id, $found->id);
@@ -76,7 +76,7 @@ final class ChatSessionTest extends TestCase
 
     public function test_belongs_to_tenant_scope(): void
     {
-        $otherTenantId = (string) PlatformTenant::factory()->create()->id;
+        PlatformTenant::factory()->create()->id;
         $ticket = ChatTicket::factory()->create(['tenant_id' => $this->tenantId]);
 
         $session = ChatSession::query()->create([
@@ -84,7 +84,7 @@ final class ChatSessionTest extends TestCase
             'ticket_id' => $ticket->id,
         ]);
 
-        $found = ChatSession::find($session->id);
+        $found = \Domain\Chat\Models\ChatSession::query()->find($session->id);
         $this->assertEquals($this->tenantId, $found->tenant_id);
 
         $foundWithoutScope = ChatSession::query()->forTenant($this->tenantId)->find($session->id);

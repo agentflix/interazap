@@ -308,7 +308,7 @@ class ChatBroadcastServiceTest extends TestCase
 
     public function test_emit_typing_with_null_presence(): void
     {
-        $this->service->emitTyping('tenant-2', 'ticket-2', false, null);
+        $this->service->emitTyping('tenant-2', 'ticket-2', false);
 
         Http::assertSent(function ($request): bool {
             $data = $request->data();

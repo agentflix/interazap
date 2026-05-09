@@ -23,8 +23,6 @@ final class PlatformLeadAdminResource extends BaseJsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'company' => $this->company,
-            'source' => $this->source,
-            'status' => $this->status,
             'lgpd_consent' => (bool) $this->lgpd_consent,
             'created_at' => $this->iso($this->created_at),
             'updated_at' => $this->iso($this->updated_at),

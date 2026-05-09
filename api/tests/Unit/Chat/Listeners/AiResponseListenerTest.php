@@ -49,12 +49,10 @@ final class AiResponseListenerTest extends TestCase
         $this->mockPublisher
             ->shouldReceive('publishAiResponse')
             ->once()
-            ->withArgs(function ($publishedSessionId, $messagePayload) use ($sessionId, $message): bool {
-                return $publishedSessionId === $sessionId
-                    && $messagePayload['id'] === (string) $message->id
-                    && $messagePayload['content'] === 'Olá! Como posso ajudar?'
-                    && $messagePayload['source'] === 'ai';
-            });
+            ->withArgs(fn ($publishedSessionId, $messagePayload): bool => $publishedSessionId === $sessionId
+                && $messagePayload['id'] === (string) $message->id
+                && $messagePayload['content'] === 'Olá! Como posso ajudar?'
+                && $messagePayload['source'] === 'ai');
 
         $event = new AiResponseReceived(
             tenantId: $this->tenantId,
@@ -92,13 +90,11 @@ final class AiResponseListenerTest extends TestCase
         $this->mockPublisher
             ->shouldReceive('publishAiResponse')
             ->once()
-            ->withArgs(function ($publishedSessionId, $messagePayload) use ($sessionId): bool {
-                return $publishedSessionId === $sessionId
-                    && ($messagePayload['file_url'] ?? null) === 'http://localhost/storage/chat/webchat/tenant/img.png'
-                    && ($messagePayload['file_name'] ?? null) === 'img.png'
-                    && ($messagePayload['mime_type'] ?? null) === 'image/png'
-                    && ($messagePayload['file_size'] ?? null) === 102400;
-            });
+            ->withArgs(fn ($publishedSessionId, $messagePayload): bool => $publishedSessionId === $sessionId
+                && ($messagePayload['file_url'] ?? null) === 'http://localhost/storage/chat/webchat/tenant/img.png'
+                && ($messagePayload['file_name'] ?? null) === 'img.png'
+                && ($messagePayload['mime_type'] ?? null) === 'image/png'
+                && ($messagePayload['file_size'] ?? null) === 102400);
 
         $event = new AiResponseReceived(
             tenantId: $this->tenantId,

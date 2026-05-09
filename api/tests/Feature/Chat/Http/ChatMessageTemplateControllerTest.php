@@ -174,8 +174,8 @@ it('destroy chama Gateway DELETE para template Meta', function (): void {
     $this->deleteJson('/api/chat/message-templates/'.$template->id)
         ->assertNoContent();
 
-    Http::assertSent(fn ($req) => $req->method() === 'DELETE'
-        && str_contains($req->url(), '/channels/'.$instance->id.'/templates/meta_tpl'));
+    Http::assertSent(fn ($req): bool => $req->method() === 'DELETE'
+        && str_contains((string) $req->url(), '/channels/'.$instance->id.'/templates/meta_tpl'));
 });
 
 it('sync executa SyncMetaTemplatesAction e retorna count', function (): void {

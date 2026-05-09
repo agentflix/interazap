@@ -24,7 +24,7 @@ class PlatformPlanSeeder extends Seeder
                 'limit_users' => 5,
                 'chat_channels_limit' => 1,
                 'storage_mode' => PlatformStorageMode::LIMITED->value,
-                'storage_limit_bytes' => 1 * 1024 * 1024 * 1024,
+                'storage_limit_bytes' => 1024 * 1024 * 1024,
                 'ai_enabled' => false,
                 'token_limit_monthly' => 50000,
                 'allow_overage' => false,

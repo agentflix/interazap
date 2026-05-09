@@ -36,7 +36,7 @@ final class ReportsBillingSeeder extends Seeder
     private function seedInvoices(string $tenantId): void
     {
         // Clear existing invoices for this tenant to avoid unique constraint violations
-        BillingInvoice::where('tenant_id', $tenantId)->delete();
+        \Domain\Billing\Models\BillingInvoice::query()->where('tenant_id', $tenantId)->delete();
 
         $statuses = ['paid', 'pending', 'overdue', 'draft'];
         $paymentMethods = ['credit_card', 'pix', 'bank_transfer', 'boleto'];
@@ -45,17 +45,17 @@ final class ReportsBillingSeeder extends Seeder
         for ($i = 0; $i < 12; $i++) {
             $status = $statuses[array_rand($statuses)];
             $referenceMonth = now()->subMonths($i)->format('Y-m');
-            $dueDate = now()->subMonths($i)->addDays(rand(5, 30));
+            $dueDate = now()->subMonths($i)->addDays(random_int(5, 30));
 
             BillingInvoice::factory()
                 ->create([
                     'tenant_id' => $tenantId,
-                    'status' => fn () => $statuses[array_rand($statuses)],
+                    'status' => fn (): string => $statuses[array_rand($statuses)],
                     'reference_month' => $referenceMonth,
                     'due_date' => $dueDate,
-                    'payment_method' => fn () => $paymentMethods[array_rand($paymentMethods)],
-                    'amount' => rand(100, 5000),
-                    'paid_at' => $status === 'paid' ? $dueDate->copy()->addDays(rand(1, 5)) : null,
+                    'payment_method' => fn (): string => $paymentMethods[array_rand($paymentMethods)],
+                    'amount' => random_int(100, 5000),
+                    'paid_at' => $status === 'paid' ? $dueDate->copy()->addDays(random_int(1, 5)) : null,
                 ]);
         }
     }

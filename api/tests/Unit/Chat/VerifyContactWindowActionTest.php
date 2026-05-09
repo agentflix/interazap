@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Chat;
 
-use Carbon\Carbon;
 use Domain\Chat\Actions\VerifyContactWindowAction;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatTicket;
@@ -46,7 +45,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => Carbon::now()->subHours(23)->subMinutes(59),
+            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(23)->subMinutes(59),
         ]);
 
         $result = $this->action->execute($tenant->id, $contact->id);
@@ -67,7 +66,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => Carbon::now()->subHours(24),
+            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(24),
         ]);
 
         $result = $this->action->execute($tenant->id, $contact->id);
@@ -88,7 +87,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => Carbon::now()->subHours(24)->subMinutes(1),
+            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(24)->subMinutes(1),
         ]);
 
         $result = $this->action->execute($tenant->id, $contact->id);
@@ -121,7 +120,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => Carbon::now()->subHours(1),
+            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(1),
         ]);
 
         // Buscando como tenant2 deve retornar sem mensagens
@@ -143,7 +142,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => false,
-            'created_at' => Carbon::now()->subMinutes(30),
+            'created_at' => \Illuminate\Support\Facades\Date::now()->subMinutes(30),
         ]);
 
         // Mensagem do contato (is_from_contact = true) - deve contar
@@ -152,7 +151,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => Carbon::now()->subHours(1),
+            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(1),
         ]);
 
         $result = $this->action->execute($tenant->id, $contact->id);
@@ -173,7 +172,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => Carbon::now()->subHours(25),
+            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(25),
         ]);
 
         // Mensagem recente há 1h (dentro da janela)
@@ -182,7 +181,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => Carbon::now()->subHours(1),
+            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(1),
         ]);
 
         $result = $this->action->execute($tenant->id, $contact->id);

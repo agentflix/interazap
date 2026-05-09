@@ -30,11 +30,11 @@ final class PerformanceSharedSeeder
     {
         $events = ['created' => 30, 'updated' => 50, 'deleted' => 20];
         $auditableTypes = [
-            'Domain\\CRM\\Models\\CRMContact' => 30,
-            'Domain\\CRM\\Models\\CRMCompany' => 20,
-            'Domain\\CRM\\Models\\CRMNegotiation' => 25,
-            'Domain\\Chat\\Models\\ChatTicket' => 15,
-            'Domain\\Auth\\Models\\AuthUser' => 10,
+            \Domain\CRM\Models\CRMContact::class => 30,
+            \Domain\CRM\Models\CRMCompany::class => 20,
+            \Domain\CRM\Models\CRMNegotiation::class => 25,
+            \Domain\Chat\Models\ChatTicket::class => 15,
+            \Domain\Auth\Models\AuthUser::class => 10,
         ];
         $logs = [];
         $count = random_int(80, 120);
@@ -46,8 +46,8 @@ final class PerformanceSharedSeeder
             $logs[] = [
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
-                'user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
-                'user_type' => 'Domain\\Auth\\Models\\AuthUser',
+                'user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
+                'user_type' => \Domain\Auth\Models\AuthUser::class,
                 'event' => $event,
                 'auditable_type' => $auditableType,
                 'auditable_id' => PerformanceSeeder::uuid(),

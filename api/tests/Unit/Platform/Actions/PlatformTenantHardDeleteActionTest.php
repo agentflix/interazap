@@ -38,9 +38,7 @@ class PlatformTenantHardDeleteActionTest extends TestCase
         $this->assertDatabaseMissing('chat_instances', ['tenant_id' => $tenant->id]);
         $this->assertDatabaseMissing('crm_contacts', ['tenant_id' => $tenant->id]);
 
-        Event::assertDispatched(PlatformTenantPurgedEvent::class, function (PlatformTenantPurgedEvent $event) use ($tenant): bool {
-            return $event->tenantId === (string) $tenant->id;
-        });
+        Event::assertDispatched(PlatformTenantPurgedEvent::class, fn (PlatformTenantPurgedEvent $event): bool => $event->tenantId === (string) $tenant->id);
     }
 
     public function test_throws_on_incorrect_password(): void
@@ -98,7 +96,7 @@ class PlatformTenantHardDeleteActionTest extends TestCase
             'password' => Hash::make('super-password'),
         ]);
 
-        $superAdminRole = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(
+        \Domain\Auth\Models\AuthRole::query()->firstOrCreate(
             ['id' => \Domain\Auth\Models\AuthRole::ADMINISTRADOR_ID],
             ['name' => \Domain\Auth\Models\AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
         );

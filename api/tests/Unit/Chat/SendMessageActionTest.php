@@ -299,7 +299,6 @@ class SendMessageActionTest extends TestCase
         ]);
 
         $resolver = new \ReflectionMethod($this->messageActions, 'resolveMediaType');
-        $resolver->setAccessible(true);
 
         $resolvedType = $resolver->invoke($this->messageActions, $message);
 

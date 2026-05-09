@@ -67,7 +67,7 @@ final class WebChatMediaControllerTest extends TestCase
         $this->assertNotEmpty($url);
 
         // Extrair o path relativo da URL para verificar no Storage::fake
-        $parsedPath = ltrim(parse_url($url, PHP_URL_PATH), '/');
+        $parsedPath = ltrim(parse_url((string) $url, PHP_URL_PATH), '/');
         // Remove o prefixo 'storage/' se presente
         $storagePath = preg_replace('#^storage/#', '', $parsedPath);
         Storage::disk('public')->assertExists($storagePath);
@@ -248,17 +248,13 @@ final class WebChatMediaControllerTest extends TestCase
 
         // Recuperar segredo privado
         $secretProp = $reflection->getProperty('secret');
-        $secretProp->setAccessible(true);
         $secret = (string) $secretProp->getValue($this->jwtService);
 
         // Recuperar issuer privado
         $issuerProp = $reflection->getProperty('issuer');
-        $issuerProp->setAccessible(true);
         $issuer = (string) $issuerProp->getValue($this->jwtService);
 
-        $encode = static function (string $data): string {
-            return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
-        };
+        $encode = (static fn (string $data): string => rtrim(strtr(base64_encode($data), '+/', '-_'), '='));
 
         $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT'], JSON_THROW_ON_ERROR);
         $payload = json_encode([

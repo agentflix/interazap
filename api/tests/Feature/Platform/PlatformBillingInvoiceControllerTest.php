@@ -23,7 +23,7 @@ class PlatformBillingInvoiceControllerTest extends TestCase
     private function makeAdmin(): AuthUser
     {
         $admin = AuthUser::factory()->create();
-        $role = AuthRole::query()->firstOrCreate(
+        AuthRole::query()->firstOrCreate(
             ['id' => AuthRole::INQUILINO_ID],
             ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );

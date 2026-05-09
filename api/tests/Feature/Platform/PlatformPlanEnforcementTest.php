@@ -38,7 +38,7 @@ class PlatformPlanEnforcementTest extends TestCase
     private function makeTenantAdmin(PlatformTenant $tenant): AuthUser
     {
         $admin = AuthUser::factory()->create(['tenant_id' => $tenant->id]);
-        $role = AuthRole::query()->firstOrCreate(
+        AuthRole::query()->firstOrCreate(
             ['id' => AuthRole::INQUILINO_ID],
             ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );

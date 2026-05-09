@@ -144,7 +144,7 @@ final class PerformanceAiSeeder
             ];
         }
 
-        if (! empty($delegations)) {
+        if ($delegations !== []) {
             PerformanceSeeder::insertBatch('ai_agent_delegations', $delegations, self::BATCH_SIZE);
         }
     }
@@ -162,7 +162,7 @@ final class PerformanceAiSeeder
                     'agent_id' => $agentId,
                     'slug' => 'doc_'.PerformanceSeeder::uuid(),
                     'content' => fake('pt_BR')->paragraph(),
-                    'updated_by' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                    'updated_by' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                     'created_at' => PerformanceSeeder::randomDate(),
                     'updated_at' => now(),
                 ];
@@ -230,7 +230,7 @@ final class PerformanceAiSeeder
             ];
         }
 
-        if (! empty($links)) {
+        if ($links !== []) {
             PerformanceSeeder::insertBatch('ai_agent_tools', $links, self::BATCH_SIZE);
         }
     }
@@ -335,7 +335,7 @@ final class PerformanceAiSeeder
             $runs[] = [
                 'id' => $id,
                 'tenant_id' => $tenantId,
-                'playbook_id' => ! empty($playbookIds) ? $playbookIds[array_rand($playbookIds)] : null,
+                'playbook_id' => $playbookIds === [] ? null : $playbookIds[array_rand($playbookIds)],
                 'status' => $status,
                 'playbook_version' => random_int(1, 5),
                 'input_context' => json_encode(['ticket_id' => PerformanceSeeder::uuid()]),
@@ -401,7 +401,7 @@ final class PerformanceAiSeeder
                 'run_id' => $runIds[array_rand($runIds)],
                 'status' => $status,
                 'requested_action' => json_encode(['type' => 'send_message']),
-                'approved_by' => $isApproved && ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                'approved_by' => $isApproved && $userIds !== [] ? $userIds[array_rand($userIds)] : null,
                 'approved_at' => $isApproved ? now()->subDays(random_int(1, 30)) : null,
                 'rejected_at' => $isRejected ? now()->subDays(random_int(1, 30)) : null,
                 'rejected_reason' => $isRejected ? 'Motivo da rejeicao '.random_int(1, 100) : null,
@@ -410,7 +410,7 @@ final class PerformanceAiSeeder
             ];
         }
 
-        if (! empty($approvals)) {
+        if ($approvals !== []) {
             PerformanceSeeder::insertBatch('ai_autopilot_approvals', $approvals, self::BATCH_SIZE);
         }
     }
@@ -434,7 +434,7 @@ final class PerformanceAiSeeder
             $logs[] = [
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
-                'user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                'user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                 'ai_model_pricing_id' => $pricingIds[array_rand($pricingIds)] ?? null,
                 'model_name' => $models[array_rand($models)],
                 'provider' => PerformanceSeeder::weightedRandom($providers),
@@ -445,8 +445,8 @@ final class PerformanceAiSeeder
                 'request_id' => 'req_'.random_int(100000, 999999),
                 'feature' => PerformanceSeeder::weightedRandom($features),
                 'latency_ms' => random_int(100, 5000),
-                'usable_type' => random_int(0, 1) ? 'Domain\\Chat\\Models\\ChatTicket' : null,
-                'usable_id' => random_int(0, 1) ? PerformanceSeeder::uuid() : null,
+                'usable_type' => random_int(0, 1) !== 0 ? \Domain\Chat\Models\ChatTicket::class : null,
+                'usable_id' => random_int(0, 1) !== 0 ? PerformanceSeeder::uuid() : null,
                 'metadata' => json_encode(['version' => '1.0']),
                 'cached_prompt_tokens' => random_int(0, 500),
                 'created_at' => PerformanceSeeder::randomDate(),
@@ -472,9 +472,9 @@ final class PerformanceAiSeeder
             $notifications[] = [
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
-                'seller_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
-                'notifiable_type' => ! empty($negotiationIds) ? 'Domain\\CRM\\Models\\CRMNegotiation' : null,
-                'notifiable_id' => ! empty($negotiationIds) ? $negotiationIds[array_rand($negotiationIds)] : null,
+                'seller_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
+                'notifiable_type' => $negotiationIds === [] ? null : \Domain\CRM\Models\CRMNegotiation::class,
+                'notifiable_id' => $negotiationIds === [] ? null : $negotiationIds[array_rand($negotiationIds)],
                 'message' => fake('pt_BR')->sentence(),
                 'reason' => PerformanceSeeder::weightedRandom($reasons),
                 'channel' => PerformanceSeeder::weightedRandom($channels),
@@ -508,7 +508,7 @@ final class PerformanceAiSeeder
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
                 'negotiation_id' => $negotiationIds[array_rand($negotiationIds)],
-                'ticket_id' => ! empty($ticketIds) ? $ticketIds[array_rand($ticketIds)] : null,
+                'ticket_id' => $ticketIds === [] ? null : $ticketIds[array_rand($ticketIds)],
                 'schedule_type' => PerformanceSeeder::weightedRandom($types),
                 'sale_date' => now()->subDays(random_int(1, 90)),
                 'scheduled_at' => now()->subDays(random_int(1, 30)),
@@ -524,7 +524,7 @@ final class PerformanceAiSeeder
             ];
         }
 
-        if (! empty($schedules)) {
+        if ($schedules !== []) {
             PerformanceSeeder::insertBatch('ai_post_sale_schedules', $schedules, self::BATCH_SIZE);
         }
     }
@@ -547,7 +547,7 @@ final class PerformanceAiSeeder
             ];
         }
 
-        if (! empty($summaries)) {
+        if ($summaries !== []) {
             PerformanceSeeder::insertBatch('ai_conversation_summaries', $summaries, self::BATCH_SIZE);
         }
     }

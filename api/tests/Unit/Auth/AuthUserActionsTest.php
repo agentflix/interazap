@@ -27,7 +27,7 @@ class AuthUserActionsTest extends TestCase
     public function test_create_assigns_role_and_hashes_password(): void
     {
         $tenant = PlatformTenant::factory()->create();
-        $role = AuthRole::query()->firstOrCreate(
+        AuthRole::query()->firstOrCreate(
             ['id' => AuthRole::INQUILINO_ID],
             ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
@@ -52,7 +52,7 @@ class AuthUserActionsTest extends TestCase
     public function test_update_changes_password_and_role(): void
     {
         $tenant = PlatformTenant::factory()->create();
-        $role = AuthRole::query()->firstOrCreate(
+        AuthRole::query()->firstOrCreate(
             ['id' => AuthRole::GERENTE_ID],
             ['name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum']
         );
@@ -162,7 +162,7 @@ class AuthUserActionsTest extends TestCase
     public function test_create_enforces_unique_email_per_tenant(): void
     {
         $tenant = PlatformTenant::factory()->create();
-        $role = AuthRole::query()->firstOrCreate(
+        AuthRole::query()->firstOrCreate(
             ['id' => AuthRole::INQUILINO_ID],
             ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );
@@ -193,7 +193,7 @@ class AuthUserActionsTest extends TestCase
     {
         $tenantA = PlatformTenant::factory()->create();
         $tenantB = PlatformTenant::factory()->create();
-        $role = AuthRole::query()->firstOrCreate(
+        AuthRole::query()->firstOrCreate(
             ['id' => AuthRole::INQUILINO_ID],
             ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );

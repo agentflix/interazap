@@ -19,8 +19,8 @@ declare(strict_types=1);
 function reloadCorsConfigForEnv(string $appEnv): void
 {
     putenv("APP_ENV={$appEnv}");
-    $_ENV['APP_ENV'] = $appEnv;
-    $_SERVER['APP_ENV'] = $appEnv;
+    \Illuminate\Support\Env::get('APP_ENV') = $appEnv;
+    \Illuminate\Support\Facades\Request::server('APP_ENV') = $appEnv;
 
     /** @var array<string, mixed> $cors */
     $cors = require base_path('config/cors.php');

@@ -111,7 +111,7 @@ class CRMNegotiationFunnelSeeder extends Seeder
                         ]);
                         $step->save();
                     } else {
-                        CRMNegotiationFunnelStep::create([
+                        \Domain\CRM\Models\CRMNegotiationFunnelStep::query()->create([
                             'id' => (string) Str::orderedUuid(),
                             'tenant_id' => $tenant->id,
                             'crm_negotiation_funnel_id' => $funnel->id,

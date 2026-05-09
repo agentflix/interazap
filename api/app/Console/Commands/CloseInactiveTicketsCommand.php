@@ -32,7 +32,7 @@ final class CloseInactiveTicketsCommand extends Command
         $tenantOption = $this->option('tenant');
 
         if ($tenantOption) {
-            $tenant = PlatformTenant::find($tenantOption);
+            $tenant = \Domain\Platform\Models\PlatformTenant::query()->find($tenantOption);
 
             if (! $tenant) {
                 $this->error("Tenant {$tenantOption} não encontrado.");

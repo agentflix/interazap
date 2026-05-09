@@ -34,7 +34,7 @@ final class PlatformLeadController extends BaseController
      * Endpoint público (sem auth). Honeypot e deduplicação tratados na Action.
      *
      * @param  PlatformLeadStoreRequest  $request  Requisição validada.
-     * @return JsonResponse 201 com { id, name, source, created_at }.
+     * @return JsonResponse 201 com { id, name, created_at }.
      */
     public function store(PlatformLeadStoreRequest $request): JsonResponse
     {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Chat;
 
 use Domain\Ai\Events\AiRunRequested;
-use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatSession;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\WebChatJwtService;
@@ -64,7 +63,7 @@ final class WebChatMessageControllerTest extends TestCase
         $messageId = $response->json('data.messageId');
         $this->assertNotEmpty($messageId);
 
-        $message = ChatMessage::find($messageId);
+        $message = \Domain\Chat\Models\ChatMessage::query()->find($messageId);
         $this->assertNotNull($message);
         $this->assertEquals('Olá, preciso de ajuda', $message->content);
         $this->assertEquals($this->tenantId, $message->tenant_id);
@@ -72,11 +71,9 @@ final class WebChatMessageControllerTest extends TestCase
         $this->assertEquals('incoming', $message->direction);
         $this->assertEquals('webchat', $message->source);
 
-        Event::assertDispatched(AiRunRequested::class, function ($event) use ($ticket): bool {
-            return $event->tenantId === (string) $ticket->tenant_id
-                && $event->ticketId === (string) $ticket->id
-                && $event->body === 'Olá, preciso de ajuda';
-        });
+        Event::assertDispatched(AiRunRequested::class, fn ($event): bool => $event->tenantId === (string) $ticket->tenant_id
+            && $event->ticketId === (string) $ticket->id
+            && $event->body === 'Olá, preciso de ajuda');
     }
 
     public function test_returns_401_for_invalid_token(): void

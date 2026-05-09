@@ -14,7 +14,6 @@
 declare(strict_types=1);
 
 use Domain\Ai\Enums\AiAgentRole;
-use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Ai\Services\AutopilotRunSnapshotResolver;
 use Domain\Ai\Services\ToolDispatcherService;
@@ -88,7 +87,7 @@ e2e_run('Todas as 29 tool classes instanciam sem exceção via app()', function 
         $instance = app($className);
         e2e_assert($instance !== null, "instância criada: {$className}");
         e2e_assert($instance->getName() === $toolName, "getName()={$toolName} (got: {$instance->getName()})");
-        e2e_assert(strlen($instance->getDescription()) > 0, "getDescription() não vazio: {$toolName}");
+        e2e_assert((string) $instance->getDescription() !== '', "getDescription() não vazio: {$toolName}");
         e2e_assert(is_array($instance->getParameters()), "getParameters() retorna array: {$toolName}");
     }
 });
@@ -97,7 +96,7 @@ e2e_run('Todas as 29 tool classes instanciam sem exceção via app()', function 
 
 e2e_run('AutopilotRunSnapshotResolver: resolve snapshot sem exceção', function () use ($ctx): void {
     $resolver = app(AutopilotRunSnapshotResolver::class);
-    $agent = AiAgent::find($ctx['agent_id']);
+    $agent = \Domain\Ai\Models\AiAgent::query()->find($ctx['agent_id']);
 
     e2e_assert($agent !== null, 'agente E2E encontrado');
 
@@ -108,7 +107,7 @@ e2e_run('AutopilotRunSnapshotResolver: resolve snapshot sem exceção', function
     e2e_assert(array_key_exists('tools', $snapshot), 'snapshot.tools existe (pode ser null)');
     e2e_assert(array_key_exists('context', $snapshot), 'snapshot.context existe (pode ser null)');
     e2e_assert(isset($snapshot['hydrated_at']), 'snapshot.hydrated_at presente');
-    e2e_assert(strlen((string) $snapshot['hydrated_at']) > 0, 'hydrated_at não vazio');
+    e2e_assert((string) $snapshot['hydrated_at'] !== '', 'hydrated_at não vazio');
 
     if ($snapshot['tools'] !== null) {
         e2e_assert(is_array($snapshot['tools']), 'snapshot.tools é array quando presente');

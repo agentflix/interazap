@@ -254,7 +254,7 @@ class AuthRoleControllerTest extends TestCase
 
     public function test_index_excludes_super_admin_role_for_non_super_admin_user(): void
     {
-        $admin = $this->createSuperAdminUser();
+        $this->createSuperAdminUser();
         $this->seedPermissions();
 
         // Create a non-super-admin role and user

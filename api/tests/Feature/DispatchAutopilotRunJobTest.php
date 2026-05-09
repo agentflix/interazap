@@ -52,13 +52,11 @@ final class DispatchAutopilotRunJobTest extends TestCase
 
         app(AutopilotRunDispatcherListener::class)->handle($event);
 
-        Bus::assertDispatched(DispatchAutopilotRunJob::class, function (DispatchAutopilotRunJob $job) use ($tenantId, $ticketId, $messageId): bool {
-            return $job->tenantId === $tenantId
-                && $job->triggerType === AutopilotTriggerType::INBOUND_MESSAGE
-                && ($job->context['ticket_id'] ?? '') === $ticketId
-                && ($job->context['message_id'] ?? '') === $messageId
-                && $job->sourceId === $ticketId;
-        });
+        Bus::assertDispatched(DispatchAutopilotRunJob::class, fn (DispatchAutopilotRunJob $job): bool => $job->tenantId === $tenantId
+            && $job->triggerType === AutopilotTriggerType::INBOUND_MESSAGE
+            && ($job->context['ticket_id'] ?? '') === $ticketId
+            && ($job->context['message_id'] ?? '') === $messageId
+            && $job->sourceId === $ticketId);
     }
 
     public function test_listener_does_not_dispatch_when_tenant_id_is_empty(): void
@@ -100,9 +98,7 @@ final class DispatchAutopilotRunJobTest extends TestCase
 
         app(AutopilotRunDispatcherListener::class)->handle($event);
 
-        Bus::assertDispatched(DispatchAutopilotRunJob::class, function (DispatchAutopilotRunJob $job): bool {
-            return true;
-        });
+        Bus::assertDispatched(DispatchAutopilotRunJob::class, fn (DispatchAutopilotRunJob $job): bool => true);
     }
 
     public function test_job_has_300s_timeout(): void
@@ -118,9 +114,7 @@ final class DispatchAutopilotRunJobTest extends TestCase
 
         app(AutopilotRunDispatcherListener::class)->handle($event);
 
-        Bus::assertDispatched(DispatchAutopilotRunJob::class, function (DispatchAutopilotRunJob $job): bool {
-            return $job->timeout === 300;
-        });
+        Bus::assertDispatched(DispatchAutopilotRunJob::class, fn (DispatchAutopilotRunJob $job): bool => $job->timeout === 300);
     }
 
     public function test_job_has_3_tries(): void
@@ -136,8 +130,6 @@ final class DispatchAutopilotRunJobTest extends TestCase
 
         app(AutopilotRunDispatcherListener::class)->handle($event);
 
-        Bus::assertDispatched(DispatchAutopilotRunJob::class, function (DispatchAutopilotRunJob $job): bool {
-            return $job->tries === 3;
-        });
+        Bus::assertDispatched(DispatchAutopilotRunJob::class, fn (DispatchAutopilotRunJob $job): bool => $job->tries === 3);
     }
 }

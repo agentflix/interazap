@@ -32,9 +32,6 @@ final class PerformanceSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /** Number of tenants to create. */
-    private const int TENANT_COUNT = 50;
-
     /** Batch size for raw inserts. */
     private const int BATCH_SIZE = 1000;
 
@@ -132,7 +129,7 @@ final class PerformanceSeeder extends Seeder
                 'phone' => '+55'.random_int(1100000000, 99999999999),
                 'street' => $faker->streetName(),
                 'number' => (string) random_int(1, 9999),
-                'complement' => random_int(0, 1) ? 'Sala '.random_int(100, 999) : null,
+                'complement' => random_int(0, 1) !== 0 ? 'Sala '.random_int(100, 999) : null,
                 'district' => $faker->citySuffix(),
                 'city' => $faker->city(),
                 'state' => $faker->stateAbbr(),
@@ -154,7 +151,7 @@ final class PerformanceSeeder extends Seeder
                 'settings_localization' => json_encode(['timezone' => 'America/Sao_Paulo', 'locale' => 'pt_BR']),
                 'settings_privacy' => json_encode(['lgpd_enabled' => true]),
                 'settings_chat' => json_encode(['auto_close' => true]),
-                'created_at' => $this->randomDate(),
+                'created_at' => self::randomDate(),
                 'updated_at' => now(),
                 'deleted_at' => $profile === 'deleted' ? now()->subDays(random_int(1, 30)) : null,
             ];
@@ -198,8 +195,7 @@ final class PerformanceSeeder extends Seeder
     public static function randomDate(): Carbon
     {
         $distributions = [
-            30 => 7,    // 30% within last 7 days
-            25 => 30,   // 25% within 7-30 days
+            30 => 7,   // 25% within 7-30 days
             25 => 90,   // 25% within 30-90 days
             15 => 180,  // 15% within 90-180 days
             5 => 365,   // 5% within 180-365 days

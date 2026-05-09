@@ -417,11 +417,9 @@ test('dispara ticket closed event com closed_mode auto_inactivity', function ():
 
     expect($result['closed_ids'])->toContain((string) $ticket->id);
 
-    Event::assertDispatched(TicketClosedEvent::class, function (TicketClosedEvent $event) use ($tenant, $ticket): bool {
-        return $event->tenantId === (string) $tenant->id
-            && $event->ticketId === (string) $ticket->id
-            && $event->closedMode === 'auto_inactivity';
-    });
+    Event::assertDispatched(TicketClosedEvent::class, fn (TicketClosedEvent $event): bool => $event->tenantId === (string) $tenant->id
+        && $event->ticketId === (string) $ticket->id
+        && $event->closedMode === 'auto_inactivity');
 });
 
 // ── Cenário extra: Command com tenant inexistente retorna FAILURE ──

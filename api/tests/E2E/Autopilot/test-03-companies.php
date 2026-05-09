@@ -59,7 +59,7 @@ e2e_run('update_company: atualiza telefone da empresa', function () use ($ctx, &
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
 
-    $company = CRMCompany::find($companyId);
+    $company = \Domain\CRM\Models\CRMCompany::query()->find($companyId);
     e2e_assert($company->phone === '+5511999990001', 'phone atualizado no banco');
 });
 

@@ -40,7 +40,7 @@ e2e_run('notify_seller: cria notificação persistida com sucesso', function () 
     $notificationId = $r->data['notification_id'];
 
     // Verifica persistência no banco
-    $notif = AiSellerNotification::find($notificationId);
+    $notif = \Domain\Ai\Models\AiSellerNotification::query()->find($notificationId);
     e2e_assert($notif !== null, 'notificação persistida no banco');
     e2e_assert($notif->tenant_id === $ctx['tenant_id'], 'tenant_id correto no banco');
 });

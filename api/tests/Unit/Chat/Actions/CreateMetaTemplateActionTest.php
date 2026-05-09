@@ -46,7 +46,6 @@ it('cria template Meta em status pending e dispatcha job', function (): void {
     Queue::assertPushed(SubmitMetaTemplateJob::class, function (SubmitMetaTemplateJob $job) use ($template): bool {
         $reflection = new ReflectionClass($job);
         $prop = $reflection->getProperty('templateId');
-        $prop->setAccessible(true);
 
         return $prop->getValue($job) === (string) $template->id;
     });

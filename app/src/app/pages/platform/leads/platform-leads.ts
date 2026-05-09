@@ -1,20 +1,29 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   AfAlertComponent,
   AfButtonComponent,
   AfCrudPageComponent,
   AfDataTableComponent,
-  AfSelectInputComponent,
-  type AfSelectOption,
 } from '@shared/components';
+import { ToastService } from '@core/services/toast.service';
+import { UtilsService } from '@core/services/utils.service';
 import {
   type PlatformLead,
   PlatformLeadService,
   type PlatformLeadFilters,
 } from '@core/services/platform-lead.service';
+import { LeadConvertModalComponent } from './components/lead-convert-modal/lead-convert-modal';
+import { LeadExportButtonComponent } from './components/lead-export-button/lead-export-button';
 
 @Component({
   selector: 'app-platform-leads',
@@ -24,15 +33,18 @@ import {
     LucideAngularModule,
     AfCrudPageComponent,
     AfDataTableComponent,
-    AfSelectInputComponent,
     AfAlertComponent,
     AfButtonComponent,
+    LeadConvertModalComponent,
+    LeadExportButtonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './platform-leads.html',
 })
 export class PlatformLeads {
   private readonly service = inject(PlatformLeadService);
+  private readonly toast = inject(ToastService);
+  private readonly utils = inject(UtilsService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly leads = signal<PlatformLead[]>([]);
@@ -40,23 +52,8 @@ export class PlatformLeads {
   readonly hasError = signal(false);
   readonly currentSearchTerm = signal('');
   readonly meta = signal({ current_page: 1, last_page: 1, per_page: 15, total: 0 });
-
-  readonly statusFilterControl = new FormControl<string>('all', { nonNullable: true });
-  readonly statusFilterOptions: AfSelectOption[] = [
-    { label: 'Todos os status', value: 'all' },
-    { label: 'Novo', value: 'new' },
-    { label: 'Contatado', value: 'contacted' },
-    { label: 'Qualificado', value: 'qualified' },
-    { label: 'Convertido', value: 'converted' },
-    { label: 'Perdido', value: 'lost' },
-  ];
-
-  readonly sourceFilterControl = new FormControl<string>('all', { nonNullable: true });
-  readonly sourceFilterOptions: AfSelectOption[] = [
-    { label: 'Todas as origens', value: 'all' },
-    { label: 'Landing Form', value: 'landing_form' },
-    { label: 'Exit Modal', value: 'landing_exit_modal' },
-  ];
+  readonly showConvertModal = signal(false);
+  readonly selectedLead = signal<PlatformLead | null>(null);
 
   readonly isEmpty = computed(
     () => !this.isLoading() && !this.hasError() && this.leads().length === 0,
@@ -65,16 +62,6 @@ export class PlatformLeads {
   private page = 1;
 
   constructor() {
-    this.statusFilterControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.page = 1;
-      this.loadLeads();
-    });
-
-    this.sourceFilterControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.page = 1;
-      this.loadLeads();
-    });
-
     this.loadLeads();
   }
 
@@ -93,31 +80,32 @@ export class PlatformLeads {
     this.loadLeads();
   }
 
-  statusLabel(status: string): string {
-    const map: Record<string, string> = {
-      new: 'Novo',
-      contacted: 'Contatado',
-      qualified: 'Qualificado',
-      converted: 'Convertido',
-      lost: 'Perdido',
-    };
+  openConvertModal(lead: PlatformLead): void {
+    this.selectedLead.set(lead);
+    this.showConvertModal.set(true);
+  }
 
-    return map[status] ?? status;
+  closeConvertModal(): void {
+    this.showConvertModal.set(false);
+    this.selectedLead.set(null);
+  }
+
+  onConvertedLead(): void {
+    this.toast.success('Lead convertido com sucesso.');
+    this.closeConvertModal();
+    this.loadLeads();
+  }
+
+  handleExportError(message: string): void {
+    this.toast.error(message);
+  }
+
+  handleExported(): void {
+    this.toast.success('Arquivo CSV gerado com sucesso.');
   }
 
   formatPhone(phone: string | null | undefined): string {
-    if (!phone) return '—';
-
-    const digits = phone.replace(/\D/g, '');
-    if (digits.length === 11) {
-      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-    }
-
-    if (digits.length === 10) {
-      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-    }
-
-    return phone;
+    return this.utils.formatPhone(phone ?? undefined);
   }
 
   private loadLeads(): void {
@@ -131,12 +119,6 @@ export class PlatformLeads {
       sort_by: 'created_at',
       sort_dir: 'desc',
     };
-
-    const status = this.statusFilterControl.value;
-    if (status !== 'all') filters.status = status;
-
-    const source = this.sourceFilterControl.value;
-    if (source !== 'all') filters.source = source;
 
     this.service
       .list(filters)

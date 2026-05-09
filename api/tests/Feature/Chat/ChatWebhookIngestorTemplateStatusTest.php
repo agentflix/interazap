@@ -34,14 +34,12 @@ it('despacha MetaTemplateStatusUpdated quando event_type = meta.template.status_
 
     Event::assertDispatched(
         MetaTemplateStatusUpdated::class,
-        function (MetaTemplateStatusUpdated $event): bool {
-            return $event->instanceId === 'instance-uuid-1'
-                && $event->templateName === 'welcome_v1'
-                && $event->language === 'pt_BR'
-                && $event->status === 'APPROVED'
-                && $event->externalId === 'ext-123'
-                && $event->rejectedReason === null;
-        }
+        fn (MetaTemplateStatusUpdated $event): bool => $event->instanceId === 'instance-uuid-1'
+            && $event->templateName === 'welcome_v1'
+            && $event->language === 'pt_BR'
+            && $event->status === 'APPROVED'
+            && $event->externalId === 'ext-123'
+            && $event->rejectedReason === null
     );
 });
 
@@ -62,12 +60,10 @@ it('aceita direction=template_status como gatilho alternativo', function (): voi
 
     Event::assertDispatched(
         MetaTemplateStatusUpdated::class,
-        function (MetaTemplateStatusUpdated $event): bool {
-            return $event->status === 'REJECTED'
-                && $event->rejectedReason === 'Body too short'
-                && $event->templateName === 'goodbye'
-                && $event->externalId === null;
-        }
+        fn (MetaTemplateStatusUpdated $event): bool => $event->status === 'REJECTED'
+            && $event->rejectedReason === 'Body too short'
+            && $event->templateName === 'goodbye'
+            && $event->externalId === null
     );
 });
 

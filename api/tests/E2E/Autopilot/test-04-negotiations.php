@@ -82,7 +82,7 @@ e2e_run('move_pipeline: move negociação para outro step', function () use ($ct
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
 
-    $neg = CRMNegotiation::find($ctx['negotiation_id']);
+    $neg = \Domain\CRM\Models\CRMNegotiation::query()->find($ctx['negotiation_id']);
     e2e_assert($neg->crm_negotiation_funnel_step_id === $ctx['step_b_id'], 'step_id atualizado no banco');
 
     // Restaura step original
@@ -99,7 +99,7 @@ e2e_run('update_lead_score: atualiza score da negociação', function () use ($c
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
 
-    $neg = CRMNegotiation::find($ctx['negotiation_id']);
+    $neg = \Domain\CRM\Models\CRMNegotiation::query()->find($ctx['negotiation_id']);
     e2e_assert((int) $neg->lead_score === 85, "lead_score=85 (got: {$neg->lead_score})");
 });
 
@@ -116,7 +116,7 @@ e2e_run('qualify_lead: qualifica lead com step e score', function () use ($ctx):
     e2e_assert($r->success, "success=true (got: {$r->message})");
 
     // Restaura step original
-    CRMNegotiation::where('id', $ctx['negotiation_id'])
+    \Domain\CRM\Models\CRMNegotiation::query()->where('id', $ctx['negotiation_id'])
         ->update(['crm_negotiation_funnel_step_id' => $ctx['step_a_id'], 'lead_score' => 50]);
 });
 
@@ -161,7 +161,7 @@ e2e_run('close_negotiation: fecha negociação recém-criada', function () use (
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
 
-    $neg = CRMNegotiation::find($createdNegId);
+    $neg = \Domain\CRM\Models\CRMNegotiation::query()->find($createdNegId);
     e2e_assert($neg->status->value !== 'open', "status não é mais open (got: {$neg->status->value})");
 });
 

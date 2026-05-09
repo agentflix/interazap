@@ -36,13 +36,11 @@ final class WebChatRedisPublisherTest extends TestCase
         $this->mockBroadcastService
             ->shouldReceive('broadcastEvent')
             ->once()
-            ->withArgs(function ($event, $data, $room) use ($sessionId, $message): bool {
-                return $event === 'webchat:ai_response'
-                    && $data['session_id'] === $sessionId
-                    && $data['tenant_id'] === $message['tenant_id']
-                    && $data['message'] === $message
-                    && $room === 'session:'.$sessionId;
-            })
+            ->withArgs(fn ($event, $data, $room): bool => $event === 'webchat:ai_response'
+                && $data['session_id'] === $sessionId
+                && $data['tenant_id'] === $message['tenant_id']
+                && $data['message'] === $message
+                && $room === 'session:'.$sessionId)
             ->byDefault();
 
         $this->service->publishAiResponse($sessionId, $message);
@@ -50,13 +48,11 @@ final class WebChatRedisPublisherTest extends TestCase
         // Assert that broadcastEvent was called with the expected arguments
         $this->mockBroadcastService
             ->shouldHaveReceived('broadcastEvent')
-            ->withArgs(function ($event, $data, $room) use ($sessionId, $message): bool {
-                return $event === 'webchat:ai_response'
-                    && $data['session_id'] === $sessionId
-                    && $data['tenant_id'] === $message['tenant_id']
-                    && $data['message'] === $message
-                    && $room === 'session:'.$sessionId;
-            })
+            ->withArgs(fn ($event, $data, $room): bool => $event === 'webchat:ai_response'
+                && $data['session_id'] === $sessionId
+                && $data['tenant_id'] === $message['tenant_id']
+                && $data['message'] === $message
+                && $room === 'session:'.$sessionId)
             ->once();
 
         // Pest requires explicit assertion
