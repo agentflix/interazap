@@ -62,14 +62,14 @@ class AiCatalogSeeder extends Seeder
 
         $saas = $general;
         $saas['prompt_suffix'] = 'Atue como especialista em força de vendas SaaS, focando MQL, SQL, trial, ativação e expansão.';
-        $saas['tags'] = ['Lead-qualificado', 'Lead-vendas', 'Periodo-teste', 'Integracao', 'Expansao'];
+        $saas['tags'] = ['Lead Qualificado', 'Lead Vendas', 'Período Teste', 'Integração', 'Expansão'];
         $saas['departments'] = ['Pré-vendas', 'Vendas', 'Onboarding', 'Customer Success'];
         $saas['agents'] = [
             [
                 'name' => 'Super Admin - SAAS',
                 'type' => 'general',
                 'model_id' => 'gpt-4o-mini',
-                'system_prompt' => 'Atue como operador principal da operacao SaaS com foco em triagem e encaminhamento eficiente.',
+                'system_prompt' => 'Atue como operador principal da operação SaaS com foco em triagem e encaminhamento eficiente.',
                 'classifier_model' => 'gpt-4o-mini',
                 'max_tokens' => 2048,
                 'temperature' => 0.5,
@@ -82,14 +82,14 @@ class AiCatalogSeeder extends Seeder
                         'name' => 'Autopilot Orchestration',
                         'description' => 'Orquestra agentes especializados e decide escalonamento conforme contexto.',
                         'metadata' => [
-                            'prompt_append' => '=== ORQUESTRAÇÃO === Orquestre triagem, qualificacao e escalonamento humano quando necessario.',
+                            'prompt_append' => '=== ORQUESTRAÇÃO === Orquestre triagem, qualificação e escalonamento humano quando necessário.',
                         ],
                     ],
                 ],
                 'files' => [
                     [
                         'slug' => 'IDENTITY.md',
-                        'content' => '# Quem sou eu\n\nSou o Super Admin da operacao SaaS.',
+                        'content' => '# Quem sou eu\n\nSou o Super Admin da operação SaaS.',
                     ],
                 ],
                 'channels' => ['whatsapp'],
@@ -103,17 +103,17 @@ class AiCatalogSeeder extends Seeder
 
         $ecommerce = $general;
         $ecommerce['prompt_suffix'] = 'Atue como especialista em e-commerce, focando em conversão, carrinho abandonado, rastreio de pedidos e pós-venda com excelência.';
-        $ecommerce['tags'] = ['carrinho-abandonado', 'primeira-compra', 'recorrente', 'vip', 'troca-devolucao'];
+        $ecommerce['tags'] = ['Carrinho Abandonado', 'Primeira Compra', 'Recorrente', 'VIP', 'Troca e Devolução'];
         $ecommerce['departments'] = ['Vendas Online', 'SAC', 'Logística', 'Pós-venda'];
 
         $healthcare = $general;
         $healthcare['prompt_suffix'] = 'Atue com acolhimento, sigilo absoluto e foco em agendamento e orientações pré/pós-consulta. Nunca diagnostique ou prescreva.';
-        $healthcare['tags'] = ['urgente', 'retorno', 'primeira-consulta', 'convênio', 'particular'];
+        $healthcare['tags'] = ['Urgente', 'Retorno', 'Primeira Consulta', 'Convênio', 'Particular'];
         $healthcare['departments'] = ['Recepção', 'Agendamento', 'Atendimento', 'Financeiro'];
 
         $realEstate = $general;
         $realEstate['prompt_suffix'] = 'Atue como consultor imobiliário digital especializado em imóveis residenciais e comerciais, agendamento de visitas e acompanhamento documental.';
-        $realEstate['tags'] = ['compra', 'aluguel', 'financiamento', 'visita-agendada', 'documentação'];
+        $realEstate['tags'] = ['Compra', 'Aluguel', 'Financiamento', 'Visita Agendada', 'Documentação'];
         $realEstate['departments'] = ['Vendas', 'Locação', 'Documental', 'Financeiro'];
 
         return [

@@ -164,9 +164,9 @@ class DemoDataSeeder extends Seeder
     private function seedDepartments(string $tenantId): void
     {
         $departments = [
-            ['name' => 'Comercial', 'description' => 'Vendas e prospeccao'],
-            ['name' => 'Suporte', 'description' => 'Atendimento e pos-venda'],
-            ['name' => 'Financeiro', 'description' => 'Cobranca e faturamento'],
+            ['name' => 'Comercial', 'description' => 'Vendas e prospecção'],
+            ['name' => 'Suporte', 'description' => 'Atendimento e pós-venda'],
+            ['name' => 'Financeiro', 'description' => 'Cobrança e faturamento'],
         ];
 
         $desiredCount = 30;
@@ -200,7 +200,7 @@ class DemoDataSeeder extends Seeder
             ['name' => 'VIP', 'color' => '#16a34a'],
             ['name' => 'Inadimplente', 'color' => '#dc2626'],
             ['name' => 'Onboarding', 'color' => '#2563eb'],
-            ['name' => 'Churn Risk', 'color' => '#f97316'],
+            ['name' => 'Risco de Churn', 'color' => '#f97316'],
             ['name' => 'Upsell', 'color' => '#7c3aed'],
         ];
 

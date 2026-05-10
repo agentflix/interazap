@@ -197,7 +197,7 @@ final class PerformanceCrmSeeder
     {
         $categories = ['status', 'prioridade', 'segmento', 'origem'];
         $colors = ['#16a34a', '#dc2626', '#2563eb', '#f97316', '#7c3aed', '#db2777', '#0891b2', '#65a30d'];
-        $tagNames = ['VIP', 'Hot', 'Cold', 'Inadimplente', 'Onboarding', 'Churn Risk', 'Upsell', 'Novo', 'Recorrente', 'Referral', 'Parceiro', 'Lead Qualificado'];
+        $tagNames = ['VIP', 'Quente', 'Frio', 'Inadimplente', 'Onboarding', 'Risco de Churn', 'Upsell', 'Novo', 'Recorrente', 'Referência', 'Parceiro', 'Lead Qualificado'];
 
         $tags = [];
         $ids = [];
