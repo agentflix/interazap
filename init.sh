@@ -23,10 +23,8 @@ EOF
 }
 
 tab "cd ~/Documents/interazap/api && php artisan serve"
-tab "cd ~/Documents/interazap/api && php artisan streams:chat-consume"
-tab "cd ~/Documents/interazap/api && php artisan ai:consume-run-responses"
-tab "cd ~/Documents/interazap/api && php artisan ai:consume-tool-requests"
 tab "cd ~/Documents/interazap/api && php artisan cache:clear && php artisan horizon"
 tab "cd ~/Documents/interazap/app && ng serve"
 tab "cd ~/Documents/interazap/gateway && npm run start"
+tab "cd ~/Documents/interazap/api && php artisan streams:chat-consume & php artisan ai:consume-run-responses & php artisan ai:consume-tool-requests & wait"
 tab "cd ~/Documents/interazap && ngrok http 3000"
