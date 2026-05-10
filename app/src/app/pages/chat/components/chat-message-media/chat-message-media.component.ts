@@ -22,8 +22,11 @@ import {
   lucidePause,
   lucidePlay,
 } from '@ng-icons/lucide';
+import { HttpClient } from '@angular/common/http';
+import { switchMap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChatMediaLoaderService } from 'src/app/core/services/chat-media-loader.service';
+import { CalledMessageService } from 'src/app/core/services/called-message.service';
 import { type ChatMediaGalleryItem } from './chat-message-media.component.model';
 import 'photoswipe/style.css';
 import type PhotoSwipeLightbox from 'photoswipe/lightbox';
@@ -156,7 +159,11 @@ export class ChatMessageMediaComponent implements AfterViewInit, OnDestroy, OnCh
   readonly resolvedUrl = signal<string | null>(null);
 
   private readonly mediaLoader = inject(ChatMediaLoaderService);
+  private readonly messageService = inject(CalledMessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly http = inject(HttpClient);
+
+  readonly isDownloading = signal(false);
 
   private observer: IntersectionObserver | null = null;
   private hasRequestedLoad = false;
@@ -382,37 +389,43 @@ export class ChatMessageMediaComponent implements AfterViewInit, OnDestroy, OnCh
   }
 
   /**
-   * Força o download do documento sem abrir o arquivo no navegador.
-   * Usa fetch + blob para contornar Content-Disposition: inline do servidor.
+   * Inicia o download do documento buscando uma signed URL fresca na API.
+   * Não usa resolvedUrl() diretamente porque ela pode ser a URL de storage
+   * (populada por prime()), que bloqueia por CORS ao ser buscada via fetch/XHR.
+   * A signed URL retornada pelo endpoint /media fica sob /api/* e tem CORS configurado.
    */
   openDocument(): void {
-    const url = this.resolvedUrl();
-    if (!url || typeof window === 'undefined') return;
-    this.forceDownload(url, this.cleanFileName());
-  }
+    if (this.isDownloading() || typeof window === 'undefined') return;
+    this.isDownloading.set(true);
 
-  /**
-   * Força download via fetch+blob, ignorando Content-Disposition do servidor.
-   * @param {string} url - URL do arquivo a baixar.
-   * @param {string} name - Nome sugerido para o arquivo salvo.
-   */
-  private forceDownload(url: string, name: string): void {
-    fetch(url)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = name;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
-      })
-      .catch(() => {
-        // fallback: abre em nova aba se fetch falhar (CORS, etc.)
-        window.open(url, '_blank', 'noopener,noreferrer');
+    const fallback = this.resolvedUrl() ?? '';
+
+    this.messageService
+      .getMediaUrl(String(this.calledId), String(this.messageId))
+      .pipe(
+        switchMap((response) => {
+          const signedUrl = response?.data?.url?.trim() || fallback;
+          return this.http.get(signedUrl, { responseType: 'blob' });
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = this.cleanFileName();
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
+          this.isDownloading.set(false);
+        },
+        error: () => {
+          if (fallback) window.open(fallback, '_blank', 'noopener,noreferrer');
+          this.isDownloading.set(false);
+        },
       });
   }
 
