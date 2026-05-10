@@ -8,7 +8,9 @@ use Domain\Chat\Actions\ProcessChatMessageAction;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatSession;
 use Domain\Chat\Services\ChatAutopilotResponder;
+use Domain\Chat\Services\ChatAutoReplyResponder;
 use Domain\Chat\Services\WebChatJwtService;
+use Domain\Platform\Services\PlatformPlanEnforcementService;
 use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,7 +30,9 @@ final class WebChatMessageController extends BaseController
     public function __construct(
         private readonly WebChatJwtService $jwtService,
         private readonly ChatAutopilotResponder $autopilotResponder,
+        private readonly ChatAutoReplyResponder $autoReplyResponder,
         private readonly ProcessChatMessageAction $processAction,
+        private readonly PlatformPlanEnforcementService $planEnforcement,
     ) {}
 
     /**
@@ -113,18 +117,47 @@ final class WebChatMessageController extends BaseController
 
         $this->processAction->emitNewMessageEvent($message, $ticket);
 
-        // Dispara ChatAutopilotResponder apenas para mensagens de texto
+        if ($ticket !== null && $ticket->human_takeover_at !== null) {
+            Log::info('[WebChat] Automação ignorada: ticket sob atendimento humano', [
+                'ticket_id' => $ticketId,
+                'tenant_id' => $tenantId,
+                'human_takeover_at' => (string) $ticket->human_takeover_at,
+            ]);
+
+            return $this->created([
+                'messageId' => (string) $message->id,
+            ], 'Mensagem enviada');
+        }
+
+        // Para mensagens de texto:
+        // - plano com IA: dispara Autopilot
+        // - plano sem IA: fallback para Auto Reply (chatbot)
         if ($validated['file_url'] === null) {
-            $this->autopilotResponder->respond(
-                tenantId: $tenantId,
-                ticketId: $ticketId,
-                body: $validated['content'],
-                context: [
-                    'session_id' => $sessionId,
-                    'message_id' => (string) $message->id,
-                    'source' => 'webchat',
-                ],
-            );
+            if ($this->planEnforcement->isAiEnabled($tenantId)) {
+                $this->autopilotResponder->respond(
+                    tenantId: $tenantId,
+                    ticketId: $ticketId,
+                    body: $validated['content'],
+                    context: [
+                        'session_id' => $sessionId,
+                        'message_id' => (string) $message->id,
+                        'source' => 'webchat',
+                    ],
+                );
+            } else {
+                $isFirstInteraction = ChatMessage::query()
+                    ->where('ticket_id', $ticketId)
+                    ->where('tenant_id', $tenantId)
+                    ->where('is_from_contact', true)
+                    ->count() === 1;
+
+                $this->autoReplyResponder->dispatch(
+                    $tenantId,
+                    $ticketId,
+                    $validated['content'],
+                    $isFirstInteraction,
+                );
+            }
         }
 
         return $this->created([

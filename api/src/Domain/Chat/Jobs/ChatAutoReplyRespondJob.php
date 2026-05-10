@@ -7,7 +7,6 @@ namespace Domain\Chat\Jobs;
 use Domain\Chat\Services\ChatAutoReplyResponder;
 use Domain\Shared\Concerns\HasJobDefaults;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,18 +15,13 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Executes Auto Reply response asynchronously.
  */
-final class ChatAutoReplyRespondJob implements ShouldBeUnique, ShouldQueue
+final class ChatAutoReplyRespondJob implements ShouldQueue
 {
     use Dispatchable;
     use HasJobDefaults;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-
-    /**
-     * Unique lock time window.
-     */
-    public int $uniqueFor = 60;
 
     /**
      * @param  string  $tenantId  Tenant identifier.
@@ -42,14 +36,6 @@ final class ChatAutoReplyRespondJob implements ShouldBeUnique, ShouldQueue
         private readonly bool $isFirstInteraction = false,
     ) {
         $this->onQueue('auto-reply');
-    }
-
-    /**
-     * The unique ID of the job.
-     */
-    public function uniqueId(): string
-    {
-        return $this->ticketId.'|'.sha1($this->body);
     }
 
     /**

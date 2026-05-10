@@ -63,12 +63,15 @@ test('can fetch tenant details with plan and resources', function (): void {
 });
 
 test('tenant details returns null plan when not defined', function (): void {
+    $plan = PlatformPlan::query()->findOrFail($this->tenant->plan_id);
+    $plan->delete();
+
     $response = $this->getJson("/api/platform/tenants/{$this->tenant->id}/details");
 
     $response->assertOk()
         ->assertJsonPath('data.company.name', $this->tenant->name)
         ->assertJsonPath('data.contracted_plan', null)
-        ->assertJsonPath('data.resources.ai.enabled', true)
+        ->assertJsonPath('data.resources.ai.enabled', false)
         ->assertJsonPath('data.resources.users.limit', null)
         ->assertJsonPath('data.resources.users.available', null);
 });

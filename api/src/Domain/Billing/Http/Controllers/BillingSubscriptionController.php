@@ -66,7 +66,7 @@ final class BillingSubscriptionController extends BaseController
         $storageMode = 'LIMITED';
         $negotiationsMode = $currentPlan === null ? 'UNLIMITED' : $currentPlan->negotiations_mode->value;
         $negotiationsLimit = $currentPlan?->negotiations_limit;
-        $aiEnabled = $currentPlan === null ? true : (bool) $currentPlan->ai_enabled;
+        $aiEnabled = $currentPlan === null ? false : (bool) $currentPlan->ai_enabled;
         $currentPlanPrice = $currentPlan === null ? 0.0 : (float) $currentPlan->price_monthly;
 
         $negotiationsCurrent = CRMNegotiation::query()

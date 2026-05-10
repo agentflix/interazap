@@ -12,6 +12,7 @@ use Domain\Chat\Services\ChatBroadcastService;
 use Domain\Chat\Services\ChatGatewayService;
 use Domain\Chat\Services\WebChatRedisPublisher;
 use Domain\Platform\Models\PlatformTenant;
+use Domain\Platform\Services\PlatformPlanEnforcementService;
 use Domain\Shared\Services\GatewayBroadcastService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 
@@ -38,6 +39,7 @@ beforeEach(function (): void {
         $this->messageAction,
         $this->evaluateAction,
         $this->webChatPublisher,
+        new PlatformPlanEnforcementService,
     );
 });
 

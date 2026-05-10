@@ -13,6 +13,7 @@ use Domain\Chat\Services\ChatActivityBroadcastService;
 use Domain\Chat\Services\ChatBroadcastService;
 use Domain\Chat\Services\ChatGatewayService;
 use Domain\CRM\Models\CRMContact;
+use Domain\Platform\Models\PlatformPlan;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Shared\Services\GatewayBroadcastService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -187,6 +188,8 @@ it('sends start service automated message when opening ticket', function (): voi
 
 it('sends end service automated message when closing ticket', function (): void {
     Bus::fake();
+    $plan = PlatformPlan::factory()->create(['ai_enabled' => true]);
+    $this->tenant->update(['plan_id' => $plan->id]);
 
     $this->gateway
         ->shouldReceive('sendText')
@@ -232,6 +235,32 @@ it('sends end service automated message when closing ticket', function (): void 
         ->and($automated?->status)->toBe('sent');
 
     Bus::assertDispatched(AiAnalyzeSentimentJob::class);
+});
+
+it('does not dispatch final sentiment when tenant plan has ai disabled', function (): void {
+    Bus::fake();
+
+    $plan = PlatformPlan::factory()->create(['ai_enabled' => false]);
+    $this->tenant->update(['plan_id' => $plan->id]);
+
+    $ticket = ChatTicket::factory()->create([
+        'tenant_id' => $this->tenant->id,
+        'status' => 'open',
+    ]);
+
+    \Domain\Chat\Models\ChatMessage::query()->create([
+        'tenant_id' => (string) $this->tenant->id,
+        'ticket_id' => (string) $ticket->id,
+        'content' => 'texto para análise final',
+        'type' => 'text',
+        'direction' => 'incoming',
+        'is_from_contact' => true,
+        'status' => 'received',
+    ]);
+
+    $this->actions->updateStatus($ticket, 'closed', 'done', 'forced');
+
+    Bus::assertNotDispatched(AiAnalyzeSentimentJob::class);
 });
 
 it('does not dispatch final sentiment without inbound text', function (): void {

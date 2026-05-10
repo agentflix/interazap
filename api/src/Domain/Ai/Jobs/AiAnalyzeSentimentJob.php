@@ -8,6 +8,7 @@ use Domain\Ai\Actions\AiNotificationActions;
 use Domain\Ai\Enums\SentimentLevel;
 use Domain\Ai\Services\AiSentimentService;
 use Domain\Chat\Models\ChatTicket;
+use Domain\Platform\Services\PlatformPlanEnforcementService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -39,6 +40,10 @@ final class AiAnalyzeSentimentJob implements ShouldQueue
 
     public function handle(AiSentimentService $service, AiNotificationActions $notificationActions): void
     {
+        if (! app(PlatformPlanEnforcementService::class)->isAiEnabled($this->tenantId)) {
+            return;
+        }
+
         $lockKey = "sentiment:cooldown:{$this->ticketId}";
         $lock = true;
 

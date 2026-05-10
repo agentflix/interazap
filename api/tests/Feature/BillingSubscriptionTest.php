@@ -70,6 +70,22 @@ class BillingSubscriptionTest extends TestCase
         $this->getJson('/api/billing/plans')->assertForbidden();
     }
 
+    public function test_subscription_defaults_ai_disabled_when_current_plan_is_unavailable(): void
+    {
+        [$tenant, $admin] = $this->createTenantAdmin();
+
+        $plan = PlatformPlan::query()->findOrFail($tenant->plan_id);
+        $plan->delete();
+
+        Sanctum::actingAs($admin, abilities: ['*']);
+
+        $response = $this->getJson('/api/billing/subscription');
+
+        $response->assertOk();
+        $response->assertJsonPath('data.current_plan', null);
+        $response->assertJsonPath('data.usage.ai.enabled', false);
+    }
+
     private function createTenantAdmin(): array
     {
         $tenant = PlatformTenant::factory()->create();

@@ -1,6 +1,6 @@
 version: "1.0"
 project: "InteraZap"
-last_updated: "2026-05-09"
+last_updated: "2026-05-10"
 
 stack:
   backend:
@@ -76,7 +76,7 @@ modules_status:
   Platform:
     status: "active"
     completion: "100%"
-    last_change: "2026-05-09"
+    last_change: "2026-05-10"
   Auth:
     status: "active"
     completion: "95%"
@@ -84,7 +84,7 @@ modules_status:
   Chat:
     status: "active"
     completion: "80%"
-    last_change: "2026-05-09"
+    last_change: "2026-05-10"
   CRM:
     status: "active"
     completion: "72%"
@@ -92,11 +92,11 @@ modules_status:
   Ai:
     status: "active"
     completion: "65%"
-    last_change: "2026-05-05"
+    last_change: "2026-05-10"
   Billing:
     status: "active"
     completion: "75%"
-    last_change: "2026-05-05"
+    last_change: "2026-05-10"
   Configuration:
     status: "active"
     completion: "70%"
@@ -129,6 +129,6 @@ modules_status:
 quality:
   test_coverage_backend: "indefinido (medir com pest --coverage)"
   test_coverage_frontend: "indefinido"
-  lint_status: "api feature tests de roles/usuarios OK (hardening Administrador + restauracao da listagem + fix de tenant override em /platform/users); api chat auto-reply com unicidade de is_welcome validada em create/update; app vitest local reporta 'No test suite found' inclusive em specs existentes"
+  lint_status: "api: hotfix de gates de IA por plano + fallback/retrigger de menu no WebChat + supervisor dedicado Horizon para fila auto-reply + gate de plano no dispatch e no processamento de sentimento (job) ao fechar ticket + cooldown removido no chatbot + deduplicação por body removida no job de auto-reply para permitir repetição de menu/opções; automação agora é bloqueada em atendimento humano (controller + responder). composer gate:all segue bloqueado por 2 issues preexistentes de Pint em arquivos fora do escopo (migration de welcome rule e PlatformUserControllerTest)"
   seeders: "PerformanceSeeder criado: ~150k registros em 50 tenants, 83 tabelas, raw batch insert anti-timeout"
-  last_validation: "2026-05-09"
+  last_validation: "2026-05-10"
