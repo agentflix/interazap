@@ -16,9 +16,11 @@ use Domain\Ai\Listeners\AiGateKeeperListener;
 use Domain\Ai\Listeners\AiRunDelegatedStickyAgentListener;
 use Domain\Ai\Listeners\AutopilotRunDispatcherListener;
 use Domain\Chat\Events\MessagePersisted;
+use Domain\Chat\Events\MetaTemplateStatusUpdated;
 use Domain\Chat\Listeners\AiResponseListener;
 use Domain\Chat\Listeners\MessagePersistorListener;
 use Domain\Chat\Listeners\RevokeInvalidPushTokenListener;
+use Domain\Chat\Listeners\UpdateMetaTemplateStatusListener;
 use Domain\Chat\Listeners\UpdateTicketActivityTimestampsListener;
 use Domain\Configuration\Events\AiEscalationRequiredEvent;
 use Domain\Configuration\Events\AiHotLeadDetectedEvent;
@@ -121,6 +123,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         NotificationFailed::class => [
             RevokeInvalidPushTokenListener::class,
+        ],
+        MetaTemplateStatusUpdated::class => [
+            UpdateMetaTemplateStatusListener::class,
         ],
     ];
 

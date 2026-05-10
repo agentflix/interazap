@@ -5,6 +5,7 @@ export const environment = {
   gateway: {
     url: 'https://stage.gateway.interazap.com.br',
     path: '/ws',
+    internalApiKey: '',
   },
   publicWebchatUrl: 'https://stage.app.interazap.com.br',
   sentry: {

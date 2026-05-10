@@ -5,6 +5,7 @@ export const environment = {
   gateway: {
     url: '',
     path: '/ws',
+    internalApiKey: '',
   },
   publicWebchatUrl: 'http://localhost:4200',
   sentry: {

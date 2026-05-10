@@ -17,7 +17,7 @@ return new class extends Migration
         if (! Schema::hasTable('crm_negotiation_funnels')) {
             Schema::create('crm_negotiation_funnels', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do funil');
-                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o funil pertence');
+                $table->foreignUuid('tenant_id')->comment('Tenant ao qual o funil pertence')->constrained('platform_tenants');
                 $table->string('name', 255)->comment('Nome do funil');
                 $table->text('description')->nullable()->comment('Descrição do funil de vendas');
                 $table->boolean('is_active')->default(true)->comment('Se o funil está ativo');
@@ -31,8 +31,8 @@ return new class extends Migration
         if (! Schema::hasTable('crm_negotiation_funnel_steps')) {
             Schema::create('crm_negotiation_funnel_steps', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da etapa do funil');
-                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a etapa pertence');
-                $table->foreignUuid('crm_negotiation_funnel_id')->constrained('crm_negotiation_funnels')->comment('Funil dono da etapa');
+                $table->foreignUuid('tenant_id')->comment('Tenant ao qual a etapa pertence')->constrained('platform_tenants');
+                $table->foreignUuid('crm_negotiation_funnel_id')->comment('Funil dono da etapa')->constrained('crm_negotiation_funnels');
                 $table->string('name', 255)->comment('Nome da etapa');
                 $table->string('color', 7)->nullable()->comment('Cor da etapa');
                 $table->boolean('is_active')->default(true)->comment('Se a etapa está ativa');
@@ -48,13 +48,13 @@ return new class extends Migration
         if (! Schema::hasTable('crm_negotiations')) {
             Schema::create('crm_negotiations', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da negociação');
-                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a negociação pertence');
-                $table->foreignUuid('crm_company_id')->nullable()->constrained('crm_companies')->comment('Empresa vinculada');
-                $table->foreignUuid('crm_contact_id')->constrained('crm_contacts')->comment('Contato vinculado');
-                $table->foreignUuid('crm_negotiation_funnel_id')->constrained('crm_negotiation_funnels')->comment('Funil de vendas');
-                $table->foreignUuid('crm_negotiation_funnel_step_id')->constrained('crm_negotiation_funnel_steps')->comment('Etapa atual no funil');
-                $table->foreignUuid('crm_reason_loss_id')->nullable()->constrained('crm_reason_losses')->comment('Motivo de perda (se perdida)');
-                $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users')->comment('Responsável pela negociação');
+                $table->foreignUuid('tenant_id')->comment('Tenant ao qual a negociação pertence')->constrained('platform_tenants');
+                $table->foreignUuid('crm_company_id')->nullable()->comment('Empresa vinculada')->constrained('crm_companies');
+                $table->foreignUuid('crm_contact_id')->comment('Contato vinculado')->constrained('crm_contacts');
+                $table->foreignUuid('crm_negotiation_funnel_id')->comment('Funil de vendas')->constrained('crm_negotiation_funnels');
+                $table->foreignUuid('crm_negotiation_funnel_step_id')->comment('Etapa atual no funil')->constrained('crm_negotiation_funnel_steps');
+                $table->foreignUuid('crm_reason_loss_id')->nullable()->comment('Motivo de perda (se perdida)')->constrained('crm_reason_losses');
+                $table->foreignUuid('auth_user_id')->nullable()->comment('Responsável pela negociação')->constrained('auth_users');
                 $table->string('title', 255)->comment('Título da negociação');
                 $table->decimal('amount', 12, 2)->default(0)->comment('Valor estimado');
                 $table->string('status', 20)->default('open')->comment('Status: open, won, lost, paused');
@@ -80,9 +80,9 @@ return new class extends Migration
         if (! Schema::hasTable('crm_negotiation_tasks')) {
             Schema::create('crm_negotiation_tasks', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da tarefa');
-                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a tarefa pertence');
-                $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations')->comment('Negociação vinculada');
-                $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users')->comment('Responsável pela tarefa');
+                $table->foreignUuid('tenant_id')->comment('Tenant ao qual a tarefa pertence')->constrained('platform_tenants');
+                $table->foreignUuid('crm_negotiation_id')->comment('Negociação vinculada')->constrained('crm_negotiations');
+                $table->foreignUuid('auth_user_id')->nullable()->comment('Responsável pela tarefa')->constrained('auth_users');
                 $table->string('title', 255)->comment('Título da tarefa');
                 $table->text('description')->nullable()->comment('Descrição da tarefa');
                 $table->timestamp('due_date')->nullable()->comment('Data de vencimento');
@@ -100,9 +100,9 @@ return new class extends Migration
         if (! Schema::hasTable('crm_negotiation_products')) {
             Schema::create('crm_negotiation_products', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do produto na negociação');
-                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual o registro pertence');
-                $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations')->comment('Negociação vinculada');
-                $table->foreignUuid('crm_product_id')->nullable()->constrained('crm_products')->comment('Produto de origem');
+                $table->foreignUuid('tenant_id')->comment('Tenant ao qual o registro pertence')->constrained('platform_tenants');
+                $table->foreignUuid('crm_negotiation_id')->comment('Negociação vinculada')->constrained('crm_negotiations');
+                $table->foreignUuid('crm_product_id')->nullable()->comment('Produto de origem')->constrained('crm_products');
                 $table->string('name', 255)->comment('Nome do produto no momento da venda');
                 $table->integer('quantity')->comment('Quantidade');
                 $table->decimal('unit_price', 12, 2)->comment('Preço unitário');
@@ -118,9 +118,9 @@ return new class extends Migration
         if (! Schema::hasTable('crm_negotiation_tags')) {
             Schema::create('crm_negotiation_tags', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da relação negociação-tag');
-                $table->foreignUuid('tenant_id')->constrained('platform_tenants')->comment('Tenant ao qual a relação pertence');
-                $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations')->comment('Negociação vinculada');
-                $table->foreignUuid('crm_tag_id')->constrained('crm_tags')->comment('Tag vinculada');
+                $table->foreignUuid('tenant_id')->comment('Tenant ao qual a relação pertence')->constrained('platform_tenants');
+                $table->foreignUuid('crm_negotiation_id')->comment('Negociação vinculada')->constrained('crm_negotiations');
+                $table->foreignUuid('crm_tag_id')->comment('Tag vinculada')->constrained('crm_tags');
                 $table->timestamps();
 
                 $table->unique(['tenant_id', 'crm_negotiation_id', 'crm_tag_id'], 'uq_crm_negotiation_tags');
