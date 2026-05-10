@@ -36,3 +36,11 @@ api/.env
 # --- IA (regenerável via scripts/setup-ai.sh) ---
 /.opencode
 CLAUDE.md
+
+# --- Backup files (never commit) ---
+*.bak
+package-lock.json
+
+# --- Backup files (never commit) ---
+*.bak
+package-lock.json

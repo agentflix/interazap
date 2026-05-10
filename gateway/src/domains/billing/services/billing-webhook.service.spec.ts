@@ -8,7 +8,7 @@ import { AsaasNormalizer } from '../providers/asaas/asaas.normalizer';
 import { BullMQQueueFactory } from '../../../shared/services/queue/bullmq-queue-factory.service';
 import { buildTestingModule } from '../../../test-utils/testing-module.util';
 import { ResolvedTenant } from '../models/billing-tenant-resolver.model';
-import { NormalizedPaymentEvent } from '../contracts/payment-event.dto';
+import { NormalizedPaymentEvent } from '../models/payment-event.model';
 import { DatabaseQueryResult } from '../../../infrastructure/models/database.model';
 
 describe('BillingWebhookService', () => {

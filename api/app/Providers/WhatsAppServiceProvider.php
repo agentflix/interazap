@@ -22,7 +22,7 @@ class WhatsAppServiceProvider extends ServiceProvider
             }
 
             throw new RuntimeException(
-                'WhatsAppProviderPort deve ser resolvido via ProviderResolver, não diretamente.'
+                'WhatsAppProviderPort deve ser resolvido via WhatsAppAdapterFactory, não diretamente.'
             );
         });
     }

@@ -346,7 +346,13 @@ export class NewConversationModalComponent {
           return existing ? { calledId: String(existing.id), reused: true } : null;
         }),
         switchMap((existing) => {
-          if (existing !== null) return of(existing);
+          if (existing !== null) {
+            if (mode === 'template' && template) {
+              // ticket existe mas template deve ser enviado mesmo assim
+              return sendMessage(existing.calledId);
+            }
+            return of(existing);
+          }
 
           return this.calledService
             .create({ contact_id: contactId, channel: 'whatsapp', instance_id: instanceId })

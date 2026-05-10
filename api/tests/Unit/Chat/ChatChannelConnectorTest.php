@@ -110,4 +110,65 @@ class ChatChannelConnectorTest extends TestCase
 
         $this->assertSame(['ok' => true], $response);
     }
+
+    public function test_connect_telegram_returns_normalized_payload(): void
+    {
+        $tenant = \Domain\Platform\Models\PlatformTenant::factory()->create();
+        $instance = ChatInstance::factory()->create([
+            'tenant_id' => $tenant->id,
+            'provider' => 'telegram',
+            'settings_json' => ['bot_token' => '123456:ABC-DEF'],
+        ]);
+
+        $uazapi = Mockery::mock(UazapiGatewayService::class);
+        $http = Mockery::mock(GatewayHttpClient::class);
+
+        // validate-token response
+        $http->shouldReceive('post')
+            ->once()
+            ->with('/telegram/validate-token', ['bot_token' => '123456:ABC-DEF'])
+            ->andReturn(['id' => 987654, 'username' => 'test_bot']);
+
+        // set-webhook response
+        $http->shouldReceive('post')
+            ->once()
+            ->with('/telegram/set-webhook', Mockery::on(function (array $payload) {
+                return isset($payload['bot_token'], $payload['webhook_url'], $payload['webhook_secret']);
+            }))
+            ->andReturn(['ok' => true]);
+
+        $connector = new ChatChannelConnector($uazapi, $http);
+        $result = $connector->connect($instance, 'qr');
+
+        // Contract fields
+        $this->assertSame('telegram', $result['mode']);
+        $this->assertNull($result['qr_code']);
+        $this->assertNull($result['pair_code']);
+        $this->assertNotNull($result['expires_at']);
+        $this->assertSame('telegram', $result['provider']);
+
+        // Telegram-specific fields
+        $this->assertSame('connected', $result['status']);
+        $this->assertSame('test_bot', $result['bot_username']);
+        $this->assertSame(987654, $result['bot_id']);
+    }
+
+    public function test_connect_telegram_throws_when_bot_token_missing(): void
+    {
+        $tenant = \Domain\Platform\Models\PlatformTenant::factory()->create();
+        $instance = ChatInstance::factory()->create([
+            'tenant_id' => $tenant->id,
+            'provider' => 'telegram',
+            'settings_json' => [],
+        ]);
+
+        $connector = new ChatChannelConnector(
+            Mockery::mock(UazapiGatewayService::class),
+            Mockery::mock(GatewayHttpClient::class),
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Bot token ausente para instância Telegram.');
+        $connector->connect($instance, 'qr');
+    }
 }

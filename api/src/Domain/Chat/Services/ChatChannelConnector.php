@@ -42,7 +42,7 @@ class ChatChannelConnector
      * @param  ChatInstance  $instance  A instância que será conectada.
      * @param  string  $mode  Modo de conexão ('qr' ou 'pair').
      * @param  string|null  $phone  Número de telefone (obrigatório para modo 'pair').
-     * @return array{mode:string,qr_code:?string,pair_code:?string,expires_at:string,provider:string,phone?:?string} Dados normalizados da conexão.
+     * @return array{mode:string,qr_code:?string,pair_code:?string,expires_at:string,provider:string,phone?:?string,status?:string,bot_username?:string,bot_id?:int} Dados normalizados da conexão.
      *
      * @throws RuntimeException Caso o provedor não seja suportado ou token esteja inválido.
      */
@@ -227,7 +227,7 @@ class ChatChannelConnector
      * as settings da instância com bot_id, bot_username e webhook_secret.
      *
      * @param  ChatInstance  $instance  Instância Telegram a conectar.
-     * @return array{status:string,bot_username:?string,bot_id:?int} Dados da conexão.
+     * @return array{mode:string,qr_code:?string,pair_code:?string,expires_at:string,provider:string,status:string,bot_username:string,bot_id:int} Dados da conexão.
      *
      * @throws RuntimeException Se bot_token estiver ausente ou inválido.
      */
@@ -284,9 +284,14 @@ class ChatChannelConnector
         $instance->save();
 
         return [
+            'mode' => 'telegram',
+            'qr_code' => null,
+            'pair_code' => null,
+            'expires_at' => now()->toIso8601String(),
+            'provider' => 'telegram',
             'status' => 'connected',
             'bot_username' => $botInfo['username'],
-            'bot_id' => $botInfo['id'],
+            'bot_id' => (int) $botInfo['id'],
         ];
     }
 
