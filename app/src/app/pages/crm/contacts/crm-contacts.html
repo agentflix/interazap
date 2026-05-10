@@ -18,18 +18,8 @@
       (search)="onSearch($event)"
       (pageChange)="loadPage($event)"
     >
-      <!-- Filter + header actions slot -->
+      <!-- Page header actions -->
       <div filters class="flex items-center gap-2">
-        <div class="min-w-40">
-          <af-select-input
-            [control]="filterStatusControl"
-            [options]="filterStatusOptions"
-            size="sm"
-            classContainer=""
-            ariaLabel="Filtrar por status"
-            dataTest="contact-filter-status"
-          />
-        </div>
         @if (hasSelection()) {
           <af-button
             variant="danger"
@@ -40,22 +30,34 @@
             Excluir selecionados ({{ selectedCount() }})
           </af-button>
         }
-        <div class="ml-auto flex items-center gap-2">
-          <af-button
-            variant="outline"
-            size="sm"
-            ariaLabel="Importar contatos"
-            dataTest="contact-import-btn"
-            (click)="openImport()"
-          >
-            <lucide-icon name="upload" [size]="14" class="block" />
-            Importar
-          </af-button>
-          <app-contact-export
-            [searchTerm]="searchTerm()"
-            [statusFilter]="filterStatusControl.value"
-          />
-        </div>
+        <af-button variant="secondary" size="sm" (clicked)="openFilter()">
+          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+          Filtros
+          @if (activeFiltersCount() > 0) {
+            <span
+              class="ml-1 inline-flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white"
+            >{{ activeFiltersCount() }}</span>
+          }
+        </af-button>
+      </div>
+
+      <!-- Table header actions (icon-only) -->
+      <div table-actions class="flex items-center gap-1">
+        <af-button
+          variant="outline"
+          size="sm"
+          ariaLabel="Importar contatos"
+          title="Importar"
+          dataTest="contact-import-btn"
+          (click)="openImport()"
+        >
+          <lucide-icon name="upload" [size]="14" class="block" />
+        </af-button>
+        <app-contact-export
+          [iconOnly]="true"
+          [searchTerm]="searchTerm()"
+          [statusFilter]="filterStatusControl.value"
+        />
       </div>
 
       <!-- Table -->
@@ -179,6 +181,35 @@
         </af-data-table>
       }
     </af-crud-page>
+
+    <!-- Filter Drawer -->
+    <af-drawer
+      [class.hidden]="!isFilterOpen()"
+      [open]="isFilterOpen()"
+      title="Filtros de contatos"
+      side="right"
+      size="lg"
+      (closed)="closeFilter()"
+    >
+      <div class="grid grid-cols-1">
+        <af-select-input
+          label="Status"
+          [control]="filterStatusControl"
+          [options]="filterStatusOptions"
+          dataTest="contact-filter-status"
+        />
+      </div>
+
+      <div footer>
+        <div class="flex w-full items-center justify-between gap-2">
+          <af-button variant="danger" size="sm" (clicked)="clearFilter()">Limpar filtros</af-button>
+          <div class="flex gap-2">
+            <af-button variant="ghost" size="sm" (clicked)="closeFilter()">Cancelar</af-button>
+            <af-button variant="primary" size="sm" (clicked)="applyFilter()">Aplicar</af-button>
+          </div>
+        </div>
+      </div>
+    </af-drawer>
 
     <!-- Create / Edit modal -->
     <af-modal

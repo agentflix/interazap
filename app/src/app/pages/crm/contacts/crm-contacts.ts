@@ -22,6 +22,7 @@ import {
   AfCrudPageComponent,
   AfConfirmModalComponent,
   AfDataTableComponent,
+  AfDrawerComponent,
   AfLoadingButtonComponent,
   AfModalComponent,
   AfSelectInputComponent,
@@ -67,6 +68,7 @@ import {
     AfLoadingButtonComponent,
     AfSelectInputComponent,
     AfDataTableComponent,
+    AfDrawerComponent,
     AfSortableHeaderComponent,
     AfStatusBadgeComponent,
     AfTableActionsComponent,
@@ -94,6 +96,24 @@ export class Contacts implements OnInit {
 
   /** Whether the contact form is currently saving */
   readonly isFormSaving = computed(() => this.contactFormRef()?.isSaving() ?? false);
+
+  // ─── Filter drawer ─────────────────────────────────────────────────────────
+  readonly isFilterOpen = signal(false);
+
+  readonly activeFiltersCount = computed(() =>
+    this.filterStatus() !== 'all' ? 1 : 0,
+  );
+
+  openFilter(): void { this.isFilterOpen.set(true); }
+  closeFilter(): void { this.isFilterOpen.set(false); }
+
+  clearFilter(): void {
+    this.filterStatusControl.setValue('all');
+  }
+
+  applyFilter(): void {
+    this.closeFilter();
+  }
 
   // ─── Filter signals ────────────────────────────────────────────────────────
   /** Current search term for the contact list */

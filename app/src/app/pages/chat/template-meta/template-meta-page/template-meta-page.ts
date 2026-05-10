@@ -19,11 +19,12 @@ import {
   AfConfirmModalComponent,
   AfCrudPageComponent,
   AfDataTableComponent,
-  AfSelectInputComponent,
-  type AfSelectOption,
+  AfDrawerComponent,
   AfTableActionsComponent,
   AfTooltipComponent,
 } from '@shared/components';
+import { ButtonComponent } from '@shared/components/buttons';
+import { type SelectOption, SelectInputComponent } from '@shared/components/inputs';
 import { type PaginationMeta } from '@core/models/pagination.model';
 import {
   type ChatMessageTemplate,
@@ -50,9 +51,11 @@ import {
     AfButtonComponent,
     AfAlertComponent,
     AfConfirmModalComponent,
-    AfSelectInputComponent,
     AfTableActionsComponent,
     AfTooltipComponent,
+    AfDrawerComponent,
+    ButtonComponent,
+    SelectInputComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './template-meta-page.html',
@@ -83,6 +86,8 @@ export class TemplateMetaPageComponent implements OnInit {
   readonly toDelete = signal<ChatMessageTemplate | null>(null);
   readonly isDeleting = signal(false);
 
+  readonly isFilterOpen = signal(false);
+
   readonly chatInstanceControl = new FormControl<string | number | null>('', { nonNullable: true });
   readonly statusControl = new FormControl<string | number | null>('', { nonNullable: true });
 
@@ -90,12 +95,12 @@ export class TemplateMetaPageComponent implements OnInit {
     () => !this.isLoading() && !this.hasError() && this.items().length === 0,
   );
 
-  readonly chatInstanceOptions = computed<AfSelectOption[]>(() => [
+  readonly chatInstanceOptions = computed<SelectOption[]>(() => [
     { value: '', label: 'Todos os canais' },
     ...this.integrations().map((i) => ({ value: i.id, label: i.name })),
   ]);
 
-  readonly statusOptions: AfSelectOption[] = [
+  readonly statusOptions: SelectOption[] = [
     { value: '', label: 'Todos os status' },
     { value: 'approved', label: 'Aprovado' },
     { value: 'pending', label: 'Em aprovação' },
@@ -105,6 +110,13 @@ export class TemplateMetaPageComponent implements OnInit {
   ];
 
   readonly canSync = computed(() => this.chatInstanceFilter().length > 0);
+
+  readonly activeFiltersCount = computed(() => {
+    let count = 0;
+    if (this.chatInstanceFilter()) count++;
+    if (this.statusFilter()) count++;
+    return count;
+  });
 
   ngOnInit(): void {
     this.loadIntegrations();
@@ -170,6 +182,25 @@ export class TemplateMetaPageComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.loadTemplates(page);
+  }
+
+  // ── Filter drawer ────────────────────────────────────────────────────
+  openFilter(): void {
+    this.isFilterOpen.set(true);
+  }
+
+  closeFilter(): void {
+    this.isFilterOpen.set(false);
+  }
+
+  applyFilter(): void {
+    this.loadTemplates(1);
+    this.closeFilter();
+  }
+
+  clearFilter(): void {
+    this.chatInstanceControl.setValue('');
+    this.statusControl.setValue('');
   }
 
   // ── Actions ─────────────────────────────────────────────────────────

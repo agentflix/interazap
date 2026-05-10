@@ -20,6 +20,7 @@ import {
   AfCrudPageComponent,
   AfConfirmModalComponent,
   AfDataTableComponent,
+  AfDrawerComponent,
   AfIconButtonComponent,
   AfLoadingButtonComponent,
   AfModalComponent,
@@ -55,6 +56,7 @@ import { CompanyFormComponent } from './components/company-form/crm-company-form
     AfScrollAreaComponent,
     AfSelectInputComponent,
     AfDataTableComponent,
+    AfDrawerComponent,
     AfSortableHeaderComponent,
     AfStatusBadgeComponent,
     AfTableActionsComponent,
@@ -89,6 +91,24 @@ export class Companies implements OnInit {
   readonly isEmpty = computed(
     () => !this.isLoading() && !this.hasError() && this.companies().length === 0,
   );
+
+  // ─── Filter drawer ─────────────────────────────────────────────────────────
+  readonly isFilterOpen = signal(false);
+
+  readonly activeFiltersCount = computed(() =>
+    this.filterStatusControl.value !== 'all' ? 1 : 0,
+  );
+
+  openFilter(): void { this.isFilterOpen.set(true); }
+  closeFilter(): void { this.isFilterOpen.set(false); }
+
+  clearFilter(): void {
+    this.filterStatusControl.setValue('all');
+  }
+
+  applyFilter(): void {
+    this.closeFilter();
+  }
 
   // ─── Filter ────────────────────────────────────────────────────────────────
   readonly filterStatusControl = new FormControl<string>('all', { nonNullable: true });

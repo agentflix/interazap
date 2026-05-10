@@ -12,6 +12,7 @@
       } @else {
         <lucide-icon name="download" [size]="14" class="block" />
       }
-      Exportar
+      @if (!iconOnly()) {
+        Exportar
+      }
     </af-button>
-  

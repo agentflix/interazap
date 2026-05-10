@@ -17,24 +17,8 @@
   (search)="onSearch($event)"
   (pageChange)="onPageChange($event)"
 >
-  <!-- Filtros -->
+  <!-- Ações no header -->
   <div filters class="flex items-center gap-2">
-    <div class="min-w-[180px]">
-      <af-select-input
-        [control]="chatInstanceControl"
-        [options]="chatInstanceOptions()"
-        size="sm"
-        [spacing]="false"
-      />
-    </div>
-    <div class="min-w-[160px]">
-      <af-select-input
-        [control]="statusControl"
-        [options]="statusOptions"
-        size="sm"
-        [spacing]="false"
-      />
-    </div>
     <af-button
       variant="outline"
       size="sm"
@@ -44,6 +28,20 @@
       <lucide-icon name="refresh-cw" [size]="16" class="block" />
       {{ isSyncing() ? 'Sincronizando...' : 'Sincronizar com Meta' }}
     </af-button>
+
+    <app-button
+      variant="secondary"
+      size="sm"
+      (clicked)="openFilter()"
+    >
+      <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+      Filtros
+      @if (activeFiltersCount() > 0) {
+        <span
+          class="ml-1 inline-flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white"
+        >{{ activeFiltersCount() }}</span>
+      }
+    </app-button>
   </div>
 
   <!-- Conteúdo -->
@@ -111,6 +109,40 @@
     </af-data-table>
   }
 </af-crud-page>
+
+<af-drawer
+  [class.hidden]="!isFilterOpen()"
+  [open]="isFilterOpen()"
+  title="Filtros de templates"
+  side="right"
+  size="lg"
+  (closed)="closeFilter()"
+>
+  <div class="grid grid-cols-1">
+    <app-select-input
+      label="Canal"
+      [control]="chatInstanceControl"
+      [options]="chatInstanceOptions()"
+    />
+    <app-select-input
+      label="Status"
+      [control]="statusControl"
+      [options]="statusOptions"
+    />
+  </div>
+
+  <div footer>
+    <div class="flex w-full items-center justify-between gap-2">
+      <app-button variant="danger" size="sm" (clicked)="clearFilter()">
+        Limpar filtros
+      </app-button>
+      <div class="flex gap-2">
+        <app-button variant="ghost" size="sm" (clicked)="closeFilter()">Cancelar</app-button>
+        <app-button variant="primary" size="sm" (clicked)="applyFilter()">Aplicar</app-button>
+      </div>
+    </div>
+  </div>
+</af-drawer>
 
 <af-confirm-modal
   [open]="!!toDelete()"

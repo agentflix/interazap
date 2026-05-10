@@ -31,6 +31,8 @@ export class ContactExportComponent {
   readonly searchTerm = input<string>('');
   /** Current status filter to filter export */
   readonly statusFilter = input<string>('all');
+  /** When true, renders only the icon with no label text */
+  readonly iconOnly = input(false);
 
   /** Emitted after a successful export */
   readonly exported = output<void>();

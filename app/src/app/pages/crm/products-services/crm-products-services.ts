@@ -20,6 +20,7 @@ import {
   AfCrudPageComponent,
   AfConfirmModalComponent,
   AfDataTableComponent,
+  AfDrawerComponent,
   AfIconButtonComponent,
   AfLoadingButtonComponent,
   AfModalComponent,
@@ -58,6 +59,7 @@ import { ProductServiceFormComponent } from './components/product-service-form/c
     AfScrollAreaComponent,
     AfSelectInputComponent,
     AfDataTableComponent,
+    AfDrawerComponent,
     AfSortableHeaderComponent,
     AfStatusBadgeComponent,
     AfTableActionsComponent,
@@ -89,6 +91,28 @@ export class ProductsServices implements OnInit {
   readonly isEmpty = computed(
     () => !this.isLoading() && !this.hasError() && this.items().length === 0,
   );
+
+  // ─── Filter drawer ─────────────────────────────────────────────────────────
+  readonly isFilterOpen = signal(false);
+
+  readonly activeFiltersCount = computed(() => {
+    let count = 0;
+    if (this.filterStatusControl.value !== 'all') count++;
+    if (this.filterTypeControl.value !== 'all') count++;
+    return count;
+  });
+
+  openFilter(): void { this.isFilterOpen.set(true); }
+  closeFilter(): void { this.isFilterOpen.set(false); }
+
+  clearFilter(): void {
+    this.filterStatusControl.setValue('all');
+    this.filterTypeControl.setValue('all');
+  }
+
+  applyFilter(): void {
+    this.closeFilter();
+  }
 
   // ─── Filters ───────────────────────────────────────────────────────────────
   readonly filterStatusControl = new FormControl<string>('all', { nonNullable: true });
