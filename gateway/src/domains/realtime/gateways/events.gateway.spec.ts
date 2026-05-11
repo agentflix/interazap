@@ -398,10 +398,7 @@ describe('EventsGateway', () => {
 
     it('should suppress debug logs for chat.activity by default', () => {
       const loggerDebugSpy = jest
-        .spyOn(
-          (gateway as any).logger,
-          'debug',
-        )
+        .spyOn((gateway as any).logger, 'debug')
         .mockImplementation(() => undefined);
 
       const payload = { event: 'chat.activity', subevents: [] };
@@ -465,10 +462,7 @@ describe('EventsGateway', () => {
       };
 
       const loggerDebugSpy = jest
-        .spyOn(
-          (debugGateway as any).logger,
-          'debug',
-        )
+        .spyOn((debugGateway as any).logger, 'debug')
         .mockImplementation(() => undefined);
 
       const payload = { event: 'chat.activity', subevents: [] };
@@ -611,10 +605,12 @@ describe('EventsGateway', () => {
 
   describe('verifyToken edge cases', () => {
     it('should reject token when JWT_SECRET is not configured', async () => {
-      (mockConfigService.get as jest.Mock).mockImplementation((key: string): string | undefined => {
-        if (key === 'jwt.secret') return undefined;
-        return '';
-      });
+      (mockConfigService.get as jest.Mock).mockImplementation(
+        (key: string): string | undefined => {
+          if (key === 'jwt.secret') return undefined;
+          return '';
+        },
+      );
 
       (mockSocket as any).handshake = {
         auth: { token: mockJwt },

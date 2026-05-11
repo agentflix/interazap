@@ -69,7 +69,7 @@ jest.mock('openai', () => {
     return instance;
   });
 
-    // Adiciona propriedade default para compatibilidade ESM/CJS
+  // Adiciona propriedade default para compatibilidade ESM/CJS
   (MockOpenAI as any).default = MockOpenAI;
 
   return {
