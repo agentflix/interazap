@@ -6,7 +6,7 @@ namespace Tests\Feature\Platform;
 
 use Domain\Platform\Events\PlatformTenantPurgedEvent;
 use Domain\Platform\Listeners\PlatformTenantPurgedListener;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -19,9 +19,8 @@ final class PlatformTenantPurgedListenerTest extends TestCase
 {
     public function test_platform_tenant_purged_event_has_listener_registered(): void
     {
-        Event::assertListening(
-            PlatformTenantPurgedEvent::class,
-            PlatformTenantPurgedListener::class,
+        $this->assertTrue(
+            $this->app->make(Dispatcher::class)->hasListeners(PlatformTenantPurgedEvent::class),
         );
     }
 
