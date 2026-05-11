@@ -110,7 +110,7 @@ export interface QueueActionResult {
 export class QueueService {
   private readonly http = inject(HttpClient);
   private readonly realtime = inject(RealtimeService);
-  private readonly baseUrl = `${environment.apiUrl}/health/queues`;
+  private readonly baseUrl = `${environment.apiUrl}/admin/health/queues`;
   private readonly adminBaseUrl = `${environment.apiUrl}/admin/queues`;
 
   private readonly _overview = signal<QueueOverview | null>(null);

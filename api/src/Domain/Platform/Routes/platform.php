@@ -15,16 +15,17 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Queue Health Routes (Internal Monitoring)
+| Queue Health Routes (Internal Monitoring — Auth Required)
 |--------------------------------------------------------------------------
-| These routes are used for internal queue monitoring and health checks.
-| Protected by throttle middleware to prevent abuse.
+| These routes expose queue names, sizes and config — sensitive operational
+| data. Moved under auth:sanctum (same guard as admin/queues) to prevent
+| anonymous enumeration. The observability throttle is kept as an
+| additional rate-limit layer.
 */
-Route::middleware(['throttle:observability'])
-    ->prefix('health')
+Route::middleware(['auth:sanctum', 'throttle:observability'])
+    ->prefix('admin/health')
     ->group(function (): void {
         Route::get('/queues', [QueueHealthController::class, 'index']);
-        Route::get('/queue', [QueueHealthController::class, 'index']);
         Route::get('/queues/config', [QueueHealthController::class, 'config']);
         Route::get('/queues/{queue}', [QueueHealthController::class, 'show']);
     });

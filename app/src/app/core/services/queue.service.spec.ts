@@ -91,7 +91,7 @@ describe('QueueService', () => {
     const mainReq = httpMock.expectOne(`${environment.apiUrl}/admin/queues`);
     mainReq.flush({ message: 'Not Found' }, { status: 404, statusText: 'Not Found' });
 
-    const fallbackReq = httpMock.expectOne(`${environment.apiUrl}/health/queues`);
+    const fallbackReq = httpMock.expectOne(`${environment.apiUrl}/admin/health/queues`);
     expect(fallbackReq.request.method).toBe('GET');
     fallbackReq.flush({
       healthy: true,
@@ -116,7 +116,7 @@ describe('QueueService', () => {
     const mainReq = httpMock.expectOne(`${environment.apiUrl}/admin/queues/default`);
     mainReq.flush({ message: 'Not Found' }, { status: 404, statusText: 'Not Found' });
 
-    const fallbackReq = httpMock.expectOne(`${environment.apiUrl}/health/queues/default`);
+    const fallbackReq = httpMock.expectOne(`${environment.apiUrl}/admin/health/queues/default`);
     fallbackReq.flush({ name: 'default', size: 5, delayed: 2 });
   });
 
