@@ -32,12 +32,8 @@ Route::middleware(['throttle:observability'])
 Route::middleware(['auth:sanctum'])
     ->prefix('admin/queues')
     ->group(function (): void {
-        Route::get('/', [QueueAdminController::class, 'index']);
-        Route::get('/{name}', [QueueAdminController::class, 'show']);
-        Route::post('/{name}/pause', [QueueAdminController::class, 'pause']);
-        Route::post('/{name}/resume', [QueueAdminController::class, 'resume']);
-        Route::post('/{name}/clean', [QueueAdminController::class, 'clean']);
-
+        // Static routes MUST come before dynamic /{name} to avoid route collision.
+        // e.g. /dlq must not be captured as name="dlq" by the show action.
         Route::get('/dlq', [QueueAdminController::class, 'deadLetterIndex']);
         Route::post('/dlq/{id}/retry', [QueueAdminController::class, 'deadLetterRetry']);
         Route::post('/dlq/retry-all', [QueueAdminController::class, 'deadLetterRetryAll']);
@@ -48,6 +44,12 @@ Route::middleware(['auth:sanctum'])
         Route::get('/circuits/{name}', [QueueAdminController::class, 'circuitsShow']);
         Route::post('/circuits/{name}/reset', [QueueAdminController::class, 'circuitsReset']);
         Route::post('/circuits/{name}/open', [QueueAdminController::class, 'circuitsOpen']);
+
+        Route::get('/', [QueueAdminController::class, 'index']);
+        Route::get('/{name}', [QueueAdminController::class, 'show']);
+        Route::post('/{name}/pause', [QueueAdminController::class, 'pause']);
+        Route::post('/{name}/resume', [QueueAdminController::class, 'resume']);
+        Route::post('/{name}/clean', [QueueAdminController::class, 'clean']);
     });
 
 Route::middleware(['auth:sanctum'])
