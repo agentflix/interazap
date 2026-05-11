@@ -34,7 +34,7 @@ final class DetectStaleRunsCommand extends Command
         $optionValue = $this->option('threshold');
         $thresholdMinutes = $optionValue !== null && $optionValue !== ''
             ? (int) $optionValue
-            : (int) env('AI_STALE_RUN_THRESHOLD_MINUTES', self::DEFAULT_THRESHOLD_MINUTES);
+            : (int) config('ai.stale_run_threshold_minutes', self::DEFAULT_THRESHOLD_MINUTES);
 
         if ($thresholdMinutes < 1) {
             $thresholdMinutes = self::DEFAULT_THRESHOLD_MINUTES;

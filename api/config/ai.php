@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'stale_run_threshold_minutes' => (int) env('AI_STALE_RUN_THRESHOLD_MINUTES', 2),
     'autopilot' => [
         'max_tokens' => (int) env('AI_AUTOPILOT_MAX_TOKENS', 800),
         'max_tool_iterations' => (int) env('AI_MAX_TOOL_ITERATIONS', 5),
