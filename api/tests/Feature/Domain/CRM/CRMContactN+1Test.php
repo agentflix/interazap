@@ -76,10 +76,10 @@ test('contact list does not have N+1 queries', function (): void {
     $queries = DB::getQueryLog();
     $queryCount = count($queries);
 
-    // Debug: Log queries se falhar
-    if ($queryCount > 10) {
-        dump('Query count: '.$queryCount);
-        dump('Queries:', array_map(fn (array $q) => $q['query'], $queries));
+    // Debug (only when DEBUG_N_PLUS1=1)
+    if ($queryCount > 10 && env('DEBUG_N_PLUS1')) {
+        info('Query count: '.$queryCount);
+        info('Queries: '.json_encode(array_map(fn (array $q) => $q['query'], $queries)));
     }
 
     // Deveria ter no máximo:
@@ -161,10 +161,10 @@ test('contact show does not have N+1 queries', function (): void {
     $queries = DB::getQueryLog();
     $queryCount = count($queries);
 
-    // Debug
-    if ($queryCount > 8) {
-        dump('Query count: '.$queryCount);
-        dump('Queries:', array_map(fn (array $q) => $q['query'], $queries));
+    // Debug (only when DEBUG_N_PLUS1=1)
+    if ($queryCount > 8 && env('DEBUG_N_PLUS1')) {
+        info('Query count: '.$queryCount);
+        info('Queries: '.json_encode(array_map(fn (array $q) => $q['query'], $queries)));
     }
 
     // Deveria ter no máximo 8 queries (similar ao list, mas sem count)

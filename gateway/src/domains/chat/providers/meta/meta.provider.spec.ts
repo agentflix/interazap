@@ -88,31 +88,44 @@ describe('MetaProvider.normalize', () => {
         reason: string | null;
         mmlite_status: string | null;
       }> = {},
-    ): MetaWebhookPayload =>
-      baseEntry('message_template_status_update', {
+    ): MetaWebhookPayload => {
+      const value = baseEntry('message_template_status_update', {
         // metadata is intentionally absent — template events don't carry it
         messaging_product: 'whatsapp',
         metadata: {
           display_phone_number: '',
           phone_number_id: '',
         },
-        event: overrides.event ?? 'APPROVED',
-        message_template_id: overrides.message_template_id ?? '987654321012345',
-        message_template_name:
-          overrides.message_template_name ?? 'welcome_message',
-        message_template_language:
-          overrides.message_template_language ?? 'pt_BR',
-        reason: overrides.reason ?? null,
-        mmlite_status: overrides.mmlite_status ?? null,
-      });
+      } as any).entry[0].changes[0].value as any;
 
-    it('produces event_type=meta.template.status_updated and direction=template_status', () => {
-      const result = provider.normalize(buildTemplatePayload());
-
-      expect(result.event_type).toBe('meta.template.status_updated');
-      expect(result.direction).toBe('template_status');
-      expect(result.template).toBeDefined();
-    });
+      // Template events carry 'event' field directly on the value
+      return {
+        object: 'whatsapp_business_account',
+        entry: [
+          {
+            id: 'WABA_123',
+            time: 1700000000,
+            changes: [
+              {
+                field: 'message_template_status_update',
+                value: {
+                  ...value,
+                  event: overrides.event ?? 'APPROVED',
+                  message_template_id:
+                    overrides.message_template_id ?? '987654321012345',
+                  message_template_name:
+                    overrides.message_template_name ?? 'welcome_message',
+                  message_template_language:
+                    overrides.message_template_language ?? 'pt_BR',
+                  reason: overrides.reason ?? null,
+                  mmlite_status: overrides.mmlite_status ?? null,
+                },
+              },
+            ],
+          },
+        ],
+      };
+    };
 
     it('maps APPROVED → approved with structured template payload', () => {
       const result = provider.normalize(

@@ -91,7 +91,29 @@ describe('OpenAITranslator', () => {
     });
 
     it('should return null for null finish_reason', () => {
-      const response = createMockResponse({ finish_reason: null });
+      const response = {
+        id: 'chatcmpl-123',
+        object: 'chat.completion',
+        created: 1677652288,
+        model: 'gpt-4o',
+        choices: [
+          {
+            index: 0,
+            message: {
+              role: 'assistant',
+              content: 'Test content',
+              refusal: null,
+            },
+            finish_reason: null,
+            logprobs: null,
+          },
+        ],
+        usage: {
+          prompt_tokens: 10,
+          completion_tokens: 5,
+          total_tokens: 15,
+        },
+      } as unknown as ChatCompletion;
       const result = translator.translate(response);
       expect(result.finishReason).toBeNull();
     });

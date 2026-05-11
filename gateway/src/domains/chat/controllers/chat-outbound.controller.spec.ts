@@ -77,6 +77,8 @@ describe('ChatOutboundController', () => {
       sendMessageService.send.mockResolvedValue({
         success: true,
         messageId: 'msg-123',
+        attempts: 1,
+        processingTimeMs: 50,
       });
 
       const result = await controller.send(dto);
@@ -119,7 +121,7 @@ describe('ChatOutboundController', () => {
         instanceToken: 'token-1',
         type: 'media' as const,
         to: '5511999999999',
-        mediaType: 'image',
+        mediaType: 'image' as const,
         mediaUrl: 'https://example.com/image.jpg',
         caption: 'Test image',
       };
@@ -127,6 +129,8 @@ describe('ChatOutboundController', () => {
       sendMessageService.send.mockResolvedValue({
         success: true,
         messageId: 'msg-456',
+        attempts: 1,
+        processingTimeMs: 75,
       });
 
       const result = await controller.send(dto);
@@ -154,6 +158,8 @@ describe('ChatOutboundController', () => {
       sendMessageService.send.mockResolvedValue({
         success: false,
         error: 'Network error',
+        attempts: 1,
+        processingTimeMs: 100,
       });
 
       const result = await controller.send(dto);

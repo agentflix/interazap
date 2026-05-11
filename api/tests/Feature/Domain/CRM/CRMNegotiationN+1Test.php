@@ -95,10 +95,10 @@ test('negotiation list does not have N+1 queries', function (): void {
     $queries = DB::getQueryLog();
     $queryCount = count($queries);
 
-    // Debug
-    if ($queryCount > 12) {
-        dump('Query count: '.$queryCount);
-        dump('Queries:', array_map(fn (array $q) => $q['query'], $queries));
+    // Debug (only when DEBUG_N_PLUS1=1)
+    if ($queryCount > 12 && env('DEBUG_N_PLUS1')) {
+        info('Query count: '.$queryCount);
+        info('Queries: '.json_encode(array_map(fn (array $q) => $q['query'], $queries)));
     }
 
     // Deveria ter no máximo:
@@ -176,15 +176,15 @@ test('negotiation kanban does not have N+1 queries', function (): void {
     $queries = DB::getQueryLog();
     $queryCount = count($queries);
 
-    // Debug
-    if ($response->status() !== 200) {
-        dump('Response status: '.$response->status());
-        dump('Response body:', $response->json());
+    // Debug (only when DEBUG_N_PLUS1=1)
+    if ($response->status() !== 200 && env('DEBUG_N_PLUS1')) {
+        info('Response status: '.$response->status());
+        info('Response body: '.json_encode($response->json()));
     }
 
-    if ($queryCount > 10) {
-        dump('Query count: '.$queryCount);
-        dump('Queries:', array_map(fn (array $q) => $q['query'], $queries));
+    if ($queryCount > 10 && env('DEBUG_N_PLUS1')) {
+        info('Query count: '.$queryCount);
+        info('Queries: '.json_encode(array_map(fn (array $q) => $q['query'], $queries)));
     }
 
     // Kanban usa get() ao invés de paginate(), então não tem count
@@ -267,10 +267,10 @@ test('negotiation show does not have N+1 queries', function (): void {
     $queries = DB::getQueryLog();
     $queryCount = count($queries);
 
-    // Debug
-    if ($queryCount > 9) {
-        dump('Query count: '.$queryCount);
-        dump('Queries:', array_map(fn (array $q) => $q['query'], $queries));
+    // Debug (only when DEBUG_N_PLUS1=1)
+    if ($queryCount > 9 && env('DEBUG_N_PLUS1')) {
+        info('Query count: '.$queryCount);
+        info('Queries: '.json_encode(array_map(fn (array $q) => $q['query'], $queries)));
     }
 
     // Increased threshold to 11 to account for runtime variations
@@ -329,10 +329,10 @@ test('negotiation update does not have N+1 queries on reload', function (): void
     $queries = DB::getQueryLog();
     $queryCount = count($queries);
 
-    // Debug
-    if ($response->status() !== 200) {
-        dump('Response status: '.$response->status());
-        dump('Response body:', $response->json());
+    // Debug (only when DEBUG_N_PLUS1=1)
+    if ($response->status() !== 200 && env('DEBUG_N_PLUS1')) {
+        info('Response status: '.$response->status());
+        info('Response body: '.json_encode($response->json()));
     }
 
     // Update + reload com eager loading

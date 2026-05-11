@@ -116,7 +116,7 @@ describe('ChatWebhookService', () => {
   describe('handle', () => {
     const mockToken = 'test-token-123';
     const mockResolvedInstance = {
-      provider: 'uazapi',
+      provider: 'uazapi' as const,
       tenant_id: 'tenant-123',
       instance_id: 'instance-456',
     };
@@ -126,7 +126,7 @@ describe('ChatWebhookService', () => {
         mockResolvedInstance,
       );
       redisService.ensureIdempotent.mockResolvedValue(true);
-      redisService.publishStream.mockResolvedValue();
+      redisService.publishStream.mockResolvedValue('stream-id');
     });
 
     it('should handle uazapi webhook', async () => {
@@ -190,7 +190,7 @@ describe('ChatWebhookService', () => {
         raw: event.raw,
       };
 
-      zapiAdapter.normalizeWebhook.mockReturnValue(
+      zapiAdapter.normalizeWebhook.mockResolvedValue(
         normalized as unknown as NormalizedWebhookEvent,
       );
 
@@ -232,8 +232,7 @@ describe('ChatWebhookService', () => {
         message: {
           id: 'msg-duplicate-1',
           body: 'Duplicate message',
-          fromMe: false,
-        },
+        } as any,
       };
 
       const normalized = {
@@ -571,7 +570,7 @@ describe('ChatWebhookService', () => {
   describe('handle - duplicate detection', () => {
     const mockToken = 'test-token-123';
     const mockResolvedInstance = {
-      provider: 'uazapi',
+      provider: 'uazapi' as const,
       tenant_id: 'tenant-123',
       instance_id: 'instance-456',
     };
@@ -932,7 +931,7 @@ describe('ChatWebhookService', () => {
         },
       };
 
-      zapiAdapter.normalizeWebhook.mockReturnValue({
+      zapiAdapter.normalizeWebhook.mockResolvedValue({
         provider: 'zapi',
         tenantId: mockResolvedInstance.tenant_id,
         instanceId: mockResolvedInstance.instance_id,
@@ -1025,7 +1024,7 @@ describe('ChatWebhookService', () => {
   describe('handle - connection events', () => {
     const mockToken = 'test-token-123';
     const mockResolvedInstance = {
-      provider: 'uazapi',
+      provider: 'uazapi' as const,
       tenant_id: 'tenant-123',
       instance_id: 'instance-456',
     };

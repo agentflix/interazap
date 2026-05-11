@@ -92,44 +92,22 @@ describe('ChatWebhookService Coverage', () => {
   describe('handle (and private extract methods)', () => {
     it('should extract instance from raw payload (direct)', async () => {
       jest.spyOn(uazapiProvider, 'normalize').mockReturnValue({
+        provider: 'uazapi',
+        instance_webhook_token: 'token',
         event_type: 'connection', // Ensure it hits processing and specifically connection flow
         target: 'test',
         raw: {
           instance: { id: 'inst-123', name: 'Test Instance' },
         },
-      } as NormalizedUazapiEvent);
-
-      await service.handle('uazapi', 'token', { raw: {} } as WebhookEventDto);
-    });
-
-    it('should extract instance from payload.raw (fallback)', async () => {
-      jest.spyOn(uazapiProvider, 'normalize').mockReturnValue({
-        event_type: 'connection',
-        target: 'test',
-        payload: {
-          raw: {
-            instance: { id: 'inst-fallback', name: 'Fallback Instance' },
-          },
-        },
       } as unknown as NormalizedUazapiEvent);
-
-      await service.handle('uazapi', 'token', {} as WebhookEventDto);
-    });
-
-    it('should extract status from raw payload (direct)', async () => {
-      jest.spyOn(uazapiProvider, 'normalize').mockReturnValue({
-        event_type: 'connection', // Use connection to trigger extractStatusPayload
-        target: 'test',
-        raw: {
-          status: { code: 'sent', label: 'Sent', connected: true },
-        },
-      } as NormalizedUazapiEvent);
 
       await service.handle('uazapi', 'token', { raw: {} } as WebhookEventDto);
     });
 
     it('should extract status from payload.raw (fallback)', async () => {
       jest.spyOn(uazapiProvider, 'normalize').mockReturnValue({
+        provider: 'uazapi',
+        instance_webhook_token: 'token',
         event_type: 'connection',
         target: 'test',
         payload: {

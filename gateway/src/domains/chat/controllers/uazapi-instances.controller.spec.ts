@@ -104,11 +104,15 @@ describe('UazapiInstancesController', () => {
       client.connectInstance.mockResolvedValue({ qrCode: 'base64...' });
 
       const result = await controller.connect('inst-token', {
-        waitQrCode: true,
+        mode: 'qr',
       });
 
       expect(client.connectInstance).toHaveBeenCalledWith('inst-token', {
-        waitQrCode: true,
+        mode: 'qr',
+      });
+
+      expect(client.connectInstance).toHaveBeenCalledWith('inst-token', {
+        mode: 'qr',
       });
       expect(result).toEqual({ qrCode: 'base64...' });
     });
