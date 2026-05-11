@@ -181,7 +181,7 @@ export class TemplateSelectorComponent {
     this.loadError.set(null);
 
     this.http
-      .get<TemplatesResponse>(`${environment.gateway.url}/channels/${channelId}/templates`)
+      .get<TemplatesResponse>(`${environment.apiUrl}/chat/message-templates?chat_instance_id=${channelId}&status=APPROVED`)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(() => {
@@ -190,7 +190,7 @@ export class TemplateSelectorComponent {
         }),
       )
       .subscribe((response) => {
-        const approved = (response.data ?? []).filter((t) => t.status === 'APPROVED');
+        const approved = response.data ?? [];
         this.templates.set(approved);
         this.isLoading.set(false);
 

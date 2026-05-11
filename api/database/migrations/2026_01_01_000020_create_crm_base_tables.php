@@ -167,7 +167,7 @@ return new class extends Migration
         if (! Schema::hasTable('crm_contact_tags')) {
             Schema::create('crm_contact_tags', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único da relação contato-tag');
-                $table->foreignUuid('tenant_id')->nullable()->comment('Tenant ao qual a relação pertence')->constrained('platform_tenants');
+                $table->foreignUuid('tenant_id')->comment('Tenant ao qual a relação pertence')->constrained('platform_tenants');
                 $table->foreignUuid('crm_contact_id')->comment('Contato vinculado')->constrained('crm_contacts');
                 $table->foreignUuid('crm_tag_id')->comment('Tag vinculada')->constrained('crm_tags');
                 $table->timestamps();

@@ -26,15 +26,15 @@ Comandos executados com resultado relevante:
 
 ## 2. Mapa do projeto
 
-| Area | Caminho | Responsabilidade observada |
-|---|---|---|
-| API | `api/` | Laravel 12, DDD em `api/src/Domain/*`, rotas em `routes/api.php` e por contexto |
-| Gateway | `gateway/` | NestJS, webhooks, realtime, integracoes, Redis Streams, health, filas |
-| App | `app/` | Angular/Ionic, rotas de auth, CRM, Chat, Billing, Settings, Admin Monitoring, Reports |
-| Electron | `electron/` | Desktop Angular/Electron, com bundle gerado em `electron/app/browser` |
-| Landing | `landing/` | Site marketing |
-| Infra | `infra/` | Ansible/nginx |
-| Observability | `observability/` | Prometheus/Grafana |
+| Area          | Caminho          | Responsabilidade observada                                                            |
+| ------------- | ---------------- | ------------------------------------------------------------------------------------- |
+| API           | `api/`           | Laravel 12, DDD em `api/src/Domain/*`, rotas em `routes/api.php` e por contexto       |
+| Gateway       | `gateway/`       | NestJS, webhooks, realtime, integracoes, Redis Streams, health, filas                 |
+| App           | `app/`           | Angular/Ionic, rotas de auth, CRM, Chat, Billing, Settings, Admin Monitoring, Reports |
+| Electron      | `electron/`      | Desktop Angular/Electron, com bundle gerado em `electron/app/browser`                 |
+| Landing       | `landing/`       | Site marketing                                                                        |
+| Infra         | `infra/`         | Ansible/nginx                                                                         |
+| Observability | `observability/` | Prometheus/Grafana                                                                    |
 
 ### Principais pontos de entrada
 
@@ -62,13 +62,13 @@ Comandos executados com resultado relevante:
 
 ## 3. Achados criticos
 
-| Severidade | Categoria | Arquivo | Evidencia | Impacto | Recomendacao |
-|---|---|---|---|---|---|
-| Alto | Frontend x Gateway | `app/src/app/shared/components/template-selector/template-selector.ts:184` | App chama Gateway interno sem `x-api-key`; Gateway exige `InternalApiKeyGuard` | Selector de templates falha com 401 ou resposta vazia | Usar API Laravel autenticada ou proxy server-side |
-| Alto | Frontend x Gateway | `app/src/app/pages/chat/components/new-conversation-modal/new-conversation-modal.ts:326` | App chama `/channels/:id/send-template`; rota nao existe no Gateway | Nova conversa por template falha | Reaproveitar `/api/chat/tickets/{ticketId}/messages/template` ou criar action backend |
-| Alto | Eventos/Webhooks | `api/app/Providers/EventServiceProvider.php:63` | Listener `UpdateMetaTemplateStatusListener` existe, evento e disparado, mas nao registrado | Status de template Meta nao sincroniza | Registrar listener e testar webhook |
-| Alto | Banco/API | `api/database/migrations/2026_01_01_000020_create_crm_base_tables.php:20` | PHPStan acusa `ForeignKeyDefinition::comment()` inexistente em varias migrations | Gate falha; fresh install pode quebrar | Mover `comment()` antes de `constrained()` |
-| Alto | Admin/Observabilidade | `app/src/app/core/services/queue.service.ts:138` | App usa `/api/admin/queues/*`; API so expoe `/api/health/queues/*` | Painel admin parcialmente quebrado | Criar endpoints Laravel autenticados ou ajustar UI |
+| Severidade | Categoria             | Arquivo                                                                                  | Evidencia                                                                                  | Impacto                                               | Recomendacao                                                                          |
+| ---------- | --------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Alto       | Frontend x Gateway    | `app/src/app/shared/components/template-selector/template-selector.ts:184`               | App chama Gateway interno sem `x-api-key`; Gateway exige `InternalApiKeyGuard`             | Selector de templates falha com 401 ou resposta vazia | Usar API Laravel autenticada ou proxy server-side                                     |
+| Alto       | Frontend x Gateway    | `app/src/app/pages/chat/components/new-conversation-modal/new-conversation-modal.ts:326` | App chama `/channels/:id/send-template`; rota nao existe no Gateway                        | Nova conversa por template falha                      | Reaproveitar `/api/chat/tickets/{ticketId}/messages/template` ou criar action backend |
+| Alto       | Eventos/Webhooks      | `api/app/Providers/EventServiceProvider.php:63`                                          | Listener `UpdateMetaTemplateStatusListener` existe, evento e disparado, mas nao registrado | Status de template Meta nao sincroniza                | Registrar listener e testar webhook                                                   |
+| Alto       | Banco/API             | `api/database/migrations/2026_01_01_000020_create_crm_base_tables.php:20`                | PHPStan acusa `ForeignKeyDefinition::comment()` inexistente em varias migrations           | Gate falha; fresh install pode quebrar                | Mover `comment()` antes de `constrained()`                                            |
+| Alto       | Admin/Observabilidade | `app/src/app/core/services/queue.service.ts:138`                                         | App usa `/api/admin/queues/*`; API so expoe `/api/health/queues/*`                         | Painel admin parcialmente quebrado                    | Criar endpoints Laravel autenticados ou ajustar UI                                    |
 
 ---
 
@@ -100,7 +100,7 @@ Comandos executados com resultado relevante:
 - Sugestao de correcao: mover para `config/ai.php` e ler via `config()`.
 - Risco da correcao: Baixo.
 
-#### [MEDIO] Flag `chat_rewrite_v1` parece sem efeito real
+#### [MEDIO] Flag `chat_rewrite_v1` parece sem efeito real (OK)
 
 - Categoria: Feature flag / Codigo morto
 - Status: Provavel
@@ -112,7 +112,7 @@ Comandos executados com resultado relevante:
 - Sugestao de correcao: injetar o adapter no bootstrap da pagina/store de chat ou remover a flag se o rollout foi abandonado.
 - Risco da correcao: Medio.
 
-### Codigo morto
+### Codigo morto (OK)
 
 #### [BAIXO] Codigo deprecated/legado ainda presente
 
@@ -138,7 +138,7 @@ Comandos executados com resultado relevante:
 - Sugestao de correcao: remover com autorizacao e ajustar `.gitignore`.
 - Risco da correcao: Baixo, exceto se algum pipeline depender dos lockfiles.
 
-### Logica de negocio
+### Logica de negocio (Ok)
 
 #### [ALTO] Nova conversa por template usa rota inexistente
 
@@ -164,7 +164,7 @@ Comandos executados com resultado relevante:
 - Sugestao de correcao: criar DTO/union explicita ou normalizar resposta multi-provedor.
 - Risco da correcao: Medio.
 
-### Frontend x Backend
+### Frontend x Backend (Ok)
 
 #### [ALTO] Selector de templates chama endpoint interno e contrato errado
 
@@ -190,7 +190,7 @@ Comandos executados com resultado relevante:
 - Sugestao de correcao: criar controller Laravel autenticado/autorizado que faca proxy server-side para Gateway.
 - Risco da correcao: Medio.
 
-### Banco de dados
+### Banco de dados (Ok)
 
 #### [ALTO] Migrations usam `comment()` depois de `constrained()`
 
@@ -398,4 +398,3 @@ rg -n "MetaTemplateStatusUpdated|UpdateMetaTemplateStatusListener" api
 ## 10. Proximo passo recomendado
 
 Corrigir primeiro o fluxo de templates App/API/Gateway, porque ele combina quebra real de UX com risco arquitetural: o frontend esta tentando acessar endpoints internos do Gateway e ainda com contrato incompatvel. Em seguida, registrar o listener `MetaTemplateStatusUpdated`, que e uma correcao pequena e destrava sincronizacao real de status da Meta.
-

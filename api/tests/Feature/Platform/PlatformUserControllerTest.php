@@ -62,5 +62,4 @@ class PlatformUserControllerTest extends TestCase
             'tenant_id' => $selectedTenant->id,
         ]);
     }
-
 }

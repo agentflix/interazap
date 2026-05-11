@@ -30,10 +30,10 @@ final class SendTemplateMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'template_id'   => ['nullable', 'uuid', 'exists:chat_message_templates,id'],
+            'template_id' => ['nullable', 'uuid', 'exists:chat_message_templates,id'],
             'template_name' => ['nullable', 'string', 'max:255'],
-            'variables'     => ['nullable', 'array'],
-            'variables.*'   => ['nullable', 'string', 'max:1024'],
+            'variables' => ['nullable', 'array'],
+            'variables.*' => ['nullable', 'string', 'max:1024'],
         ];
     }
 

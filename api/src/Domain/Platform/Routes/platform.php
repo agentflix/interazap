@@ -9,6 +9,7 @@ use Domain\Platform\Http\Controllers\PlatformTenantController;
 use Domain\Platform\Http\Controllers\PlatformUazapiInstanceController;
 use Domain\Platform\Http\Controllers\PlatformUazapiMessageController;
 use Domain\Platform\Http\Controllers\PlatformUserController;
+use Domain\Platform\Http\Controllers\QueueAdminController;
 use Domain\Platform\Http\Controllers\QueueHealthController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,27 @@ Route::middleware(['throttle:observability'])
         Route::get('/queue', [QueueHealthController::class, 'index']);
         Route::get('/queues/config', [QueueHealthController::class, 'config']);
         Route::get('/queues/{queue}', [QueueHealthController::class, 'show']);
+    });
+
+Route::middleware(['auth:sanctum'])
+    ->prefix('admin/queues')
+    ->group(function (): void {
+        Route::get('/', [QueueAdminController::class, 'index']);
+        Route::get('/{name}', [QueueAdminController::class, 'show']);
+        Route::post('/{name}/pause', [QueueAdminController::class, 'pause']);
+        Route::post('/{name}/resume', [QueueAdminController::class, 'resume']);
+        Route::post('/{name}/clean', [QueueAdminController::class, 'clean']);
+
+        Route::get('/dlq', [QueueAdminController::class, 'deadLetterIndex']);
+        Route::post('/dlq/{id}/retry', [QueueAdminController::class, 'deadLetterRetry']);
+        Route::post('/dlq/retry-all', [QueueAdminController::class, 'deadLetterRetryAll']);
+        Route::delete('/dlq/{id}', [QueueAdminController::class, 'deadLetterPurge']);
+        Route::post('/dlq/purge-all', [QueueAdminController::class, 'deadLetterPurgeAll']);
+
+        Route::get('/circuits', [QueueAdminController::class, 'circuitsIndex']);
+        Route::get('/circuits/{name}', [QueueAdminController::class, 'circuitsShow']);
+        Route::post('/circuits/{name}/reset', [QueueAdminController::class, 'circuitsReset']);
+        Route::post('/circuits/{name}/open', [QueueAdminController::class, 'circuitsOpen']);
     });
 
 Route::middleware(['auth:sanctum'])

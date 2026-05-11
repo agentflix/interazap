@@ -185,5 +185,4 @@ final class ChatAutoReplyResponder
     {
         return stripos($body, $rule->trigger_text) !== false;
     }
-
 }
