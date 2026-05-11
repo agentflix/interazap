@@ -9,6 +9,7 @@ import {
   startWith,
   Subject,
   merge,
+  catchError,
 } from 'rxjs';
 import { environment } from '@env/environment';
 import { RealtimeService } from './realtime.service';
@@ -139,32 +140,11 @@ export class QueueService {
    * @returns Observable com QueueOverview
    */
   getOverview(): Observable<QueueOverview> {
-    return this.http
-      .get<{ healthy: boolean; queues: { name: string; size: number; delayed: number }[] }>(
-        this.baseUrl,
-      )
-      .pipe(
-        map((res) => {
-          const queues: QueueMetrics[] = res.queues.map((q) => ({
-            name: q.name,
-            waiting: q.size,
-            active: 0,
-            completed: 0,
-            failed: 0,
-            delayed: q.delayed,
-            paused: false,
-          }));
-          return {
-            queues,
-            totalJobs: queues.reduce((sum, q) => sum + q.waiting + q.delayed, 0),
-            totalFailed: 0,
-            totalCompleted: 0,
-            uptime: 0,
-            redis: { connected: true, memory: 'N/A' },
-          };
-        }),
-        tap((data) => this._overview.set(data)),
-      );
+    return this.http.get<QueueOverview | { data: QueueOverview }>(this.adminBaseUrl).pipe(
+      map((res) => this.unwrapData(res)),
+      catchError(() => this.getHealthOverviewFallback()),
+      tap((data) => this._overview.set(data)),
+    );
   }
 
   /**
@@ -175,17 +155,10 @@ export class QueueService {
    */
   getQueueMetrics(queueName: string): Observable<QueueMetrics> {
     return this.http
-      .get<{ name: string; size: number; delayed: number }>(`${this.baseUrl}/${queueName}`)
+      .get<QueueMetrics | { data: QueueMetrics }>(`${this.adminBaseUrl}/${queueName}`)
       .pipe(
-        map((res) => ({
-          name: res.name,
-          waiting: res.size,
-          active: 0,
-          completed: 0,
-          failed: 0,
-          delayed: res.delayed,
-          paused: false,
-        })),
+        map((res) => this.unwrapData(res)),
+        catchError(() => this.getHealthQueueFallback(queueName)),
       );
   }
 
@@ -310,9 +283,9 @@ export class QueueService {
    * @returns Observable com CircuitBreakerStatus
    */
   getCircuitBreaker(name: string): Observable<CircuitBreakerStatus> {
-    return this.http.get<{ data: CircuitBreakerStatus }>(`${this.adminBaseUrl}/circuits/${name}`).pipe(
-      map((res) => res.data),
-    );
+    return this.http
+      .get<{ data: CircuitBreakerStatus }>(`${this.adminBaseUrl}/circuits/${name}`)
+      .pipe(map((res) => res.data));
   }
 
   /**
@@ -402,5 +375,59 @@ export class QueueService {
     this._overview.set(null);
     this._circuits.set(null);
     this._error.set(null);
+  }
+
+  private getHealthOverviewFallback(): Observable<QueueOverview> {
+    return this.http
+      .get<{
+        healthy: boolean;
+        queues: { name: string; size: number; delayed: number }[];
+      }>(this.baseUrl)
+      .pipe(
+        map((res) => {
+          const queues: QueueMetrics[] = res.queues.map((q) => ({
+            name: q.name,
+            waiting: q.size,
+            active: 0,
+            completed: 0,
+            failed: 0,
+            delayed: q.delayed,
+            paused: false,
+          }));
+
+          return {
+            queues,
+            totalJobs: queues.reduce((sum, q) => sum + q.waiting + q.delayed, 0),
+            totalFailed: 0,
+            totalCompleted: 0,
+            uptime: 0,
+            redis: { connected: res.healthy, memory: 'N/A' },
+          };
+        }),
+      );
+  }
+
+  private getHealthQueueFallback(queueName: string): Observable<QueueMetrics> {
+    return this.http
+      .get<{ name: string; size: number; delayed: number }>(`${this.baseUrl}/${queueName}`)
+      .pipe(
+        map((res) => ({
+          name: res.name,
+          waiting: res.size,
+          active: 0,
+          completed: 0,
+          failed: 0,
+          delayed: res.delayed,
+          paused: false,
+        })),
+      );
+  }
+
+  private unwrapData<T>(response: T | { data: T }): T {
+    if (response !== null && typeof response === 'object' && 'data' in response) {
+      return (response as { data: T }).data;
+    }
+
+    return response;
   }
 }

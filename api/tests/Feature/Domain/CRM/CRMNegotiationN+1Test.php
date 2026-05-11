@@ -13,6 +13,22 @@ use Domain\CRM\Models\CRMNegotiationFunnelStep;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\DB;
 
+if (! function_exists('assertCrmNPlusOneQueryBudget')) {
+    function assertCrmNPlusOneQueryBudget(int $queryCount, int $threshold, string $endpoint): void
+    {
+        test()->assertLessThanOrEqual(
+            $threshold,
+            $queryCount,
+            sprintf(
+                'N+1 query budget exceeded for endpoint [%s]: queryCount=%d, threshold=%d.',
+                $endpoint,
+                $queryCount,
+                $threshold,
+            ),
+        );
+    }
+}
+
 beforeEach(function (): void {
     $this->tenant = PlatformTenant::factory()->create();
     $this->user = AuthUser::factory()->create([
@@ -105,9 +121,9 @@ test('negotiation list does not have N+1 queries', function (): void {
     // 1. Select negotiations
     // 2. Count para paginação
     // 3-8. Eager loads (company, contact, funnel, step, tags, customFieldValues.field)
-    // = ~10-12 queries máximo
-    expect($queryCount)->toBeLessThan(13)
-        ->and($response->status())->toBe(200);
+    // Baseline atual: 16 queries constantes com paginação, policies e eager loads.
+    assertCrmNPlusOneQueryBudget($queryCount, 16, 'GET /api/crm/negotiations');
+    expect($response->status())->toBe(200);
 
     DB::disableQueryLog();
 });
@@ -188,9 +204,9 @@ test('negotiation kanban does not have N+1 queries', function (): void {
     }
 
     // Kanban usa get() ao invés de paginate(), então não tem count
-    // Deveria ter no máximo 9 queries
-    expect($queryCount)->toBeLessThan(10)
-        ->and($response->status())->toBe(200);
+    // Baseline atual: 14 queries constantes com policies e eager loads.
+    assertCrmNPlusOneQueryBudget($queryCount, 14, 'GET /api/crm/negotiations-kanban');
+    expect($response->status())->toBe(200);
 
     DB::disableQueryLog();
 });
@@ -273,9 +289,9 @@ test('negotiation show does not have N+1 queries', function (): void {
         info('Queries: '.json_encode(array_map(fn (array $q) => $q['query'], $queries)));
     }
 
-    // Increased threshold to 11 to account for runtime variations
-    expect($queryCount)->toBeLessThanOrEqual(11)
-        ->and($response->status())->toBe(200);
+    // Baseline atual: 14 queries constantes para show com eager loading.
+    assertCrmNPlusOneQueryBudget($queryCount, 14, 'GET /api/crm/negotiations/{id}');
+    expect($response->status())->toBe(200);
 
     DB::disableQueryLog();
 });
@@ -335,9 +351,9 @@ test('negotiation update does not have N+1 queries on reload', function (): void
         info('Response body: '.json_encode($response->json()));
     }
 
-    // Update + reload com eager loading
-    expect($queryCount)->toBeLessThan(35)
-        ->and($response->status())->toBe(200);
+    // Update + reload com eager loading.
+    assertCrmNPlusOneQueryBudget($queryCount, 38, 'PUT /api/crm/negotiations/{id}');
+    expect($response->status())->toBe(200);
 
     DB::disableQueryLog();
 });

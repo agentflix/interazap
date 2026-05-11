@@ -63,8 +63,8 @@ metrics:
   total_features: 5
   features_completed: 5
   features_in_progress: 0
-  total_tasks: 48
-  tasks_completed: 48
+  total_tasks: 54
+  tasks_completed: 54
   tasks_in_progress: 0
   tasks_pending: 0
 
@@ -76,7 +76,7 @@ modules_status:
   Platform:
     status: "active"
     completion: "100%"
-    last_change: "2026-05-10"
+    last_change: "2026-05-11"
   Auth:
     status: "active"
     completion: "95%"
@@ -84,11 +84,11 @@ modules_status:
   Chat:
     status: "active"
     completion: "80%"
-    last_change: "2026-05-10"
+    last_change: "2026-05-11"
   CRM:
     status: "active"
     completion: "72%"
-    last_change: "2026-05-06"
+    last_change: "2026-05-11"
   Ai:
     status: "active"
     completion: "65%"
@@ -120,7 +120,7 @@ modules_status:
   App:
     status: "active"
     completion: "75%"
-    last_change: "2026-05-09"
+    last_change: "2026-05-11"
   Electron:
     status: "active"
     completion: "60%"
@@ -129,6 +129,6 @@ modules_status:
 quality:
   test_coverage_backend: "indefinido (medir com pest --coverage)"
   test_coverage_frontend: "indefinido"
-  lint_status: "api: hotfix de gates de IA por plano + fallback/retrigger de menu no WebChat + supervisor dedicado Horizon para fila auto-reply + gate de plano no dispatch e no processamento de sentimento (job) ao fechar ticket + cooldown removido no chatbot + deduplicação por body removida no job de auto-reply para permitir repetição de menu/opções; automação agora é bloqueada em atendimento humano (controller + responder). composer gate:all segue bloqueado por 2 issues preexistentes de Pint em arquivos fora do escopo (migration de welcome rule e PlatformUserControllerTest)"
+  lint_status: "api: N+1 CRM focado passando e QueueAdminControllerTest passando; app: build passando e gate App/Gateway passando; pnpm test --watch=false ainda falha por 4 suites fora do escopo (chat-contact-view, chat-message-media, chat-store.resync, lead-export-button)"
   seeders: "PerformanceSeeder criado: ~150k registros em 50 tenants, 83 tabelas, raw batch insert anti-timeout"
-  last_validation: "2026-05-10"
+  last_validation: "2026-05-11"

@@ -117,7 +117,7 @@ describe('CompanyModalComponent', () => {
         id: '1',
         name: 'Contact',
         is_active: true,
-        company_id: 'company-1',
+        crm_company_id: 'company-1',
         created_at: '2026-01-01T00:00:00.000Z',
         updated_at: '2026-01-01T00:00:00.000Z',
       };
@@ -173,7 +173,7 @@ describe('CompanyModalComponent', () => {
         id: '1',
         name: 'Contact',
         is_active: true,
-        company_id: 'company-1',
+        crm_company_id: 'company-1',
         created_at: '2026-01-01T00:00:00.000Z',
         updated_at: '2026-01-01T00:00:00.000Z',
       };

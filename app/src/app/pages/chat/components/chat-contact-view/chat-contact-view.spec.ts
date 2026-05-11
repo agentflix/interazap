@@ -22,7 +22,7 @@ const createContact = (overrides: Partial<Contact> = {}): Contact => ({
   id: overrides.id ?? 'contact-1',
   name: overrides.name ?? 'Contato',
   is_active: overrides.is_active ?? true,
-  company_id: overrides.company_id ?? 'tenant-1',
+  crm_company_id: overrides.crm_company_id ?? 'tenant-1',
   created_at: overrides.created_at ?? '2026-01-22T10:00:00.000Z',
   updated_at: overrides.updated_at ?? '2026-01-22T10:00:00.000Z',
   ...overrides,
