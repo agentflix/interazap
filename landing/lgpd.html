@@ -1,316 +1,237 @@
-<!doctype html>
-<html lang="pt-BR" class="scroll-smooth">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-        <title>LGPD — Como a InteraZap protege seus dados pessoais</title>
-        <meta name="description" content="Saiba como a InteraZap está em conformidade com a Lei Geral de Proteção de Dados (LGPD), seus direitos como titular e como exercê-los." />
-        <meta name="robots" content="index, follow" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            primary: '#1a3c34',
-                            'primary-light': '#245044',
-                            accent: '#22c55e',
-                            'accent-hover': '#16a34a',
-                            dark: '#1f2937',
-                            light: '#f9fafb',
-                            muted: '#6b7280',
-                        },
-                        fontFamily: { sans: ['Inter', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'] },
-                    },
-                },
-            };
-        </script>
-        <style>
-            body { font-family: 'Inter', 'Plus Jakarta Sans', sans-serif; }
-            .prose h2 { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-top: 2.5rem; margin-bottom: 0.75rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; }
-            .prose h3 { font-size: 1rem; font-weight: 600; color: #1f2937; margin-top: 1.5rem; margin-bottom: 0.5rem; }
-            .prose p  { color: #374151; line-height: 1.75; margin-bottom: 1rem; }
-            .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
-            .prose ul li { color: #374151; line-height: 1.75; margin-bottom: 0.35rem; }
-            .prose a  { color: #16a34a; text-decoration: underline; }
-            .prose a:hover { color: #22c55e; }
-            .prose strong { color: #1f2937; }
-            .callout-info {
-                background: #f0fdf4;
-                border-left: 4px solid #22c55e;
-                padding: 1rem 1.25rem;
-                border-radius: 0 0.5rem 0.5rem 0;
-                margin-bottom: 1.5rem;
-            }
-            .callout-info p { margin-bottom: 0; color: #16a34a; }
-            .right-card {
-                border: 1px solid #e5e7eb;
-                border-radius: 0.75rem;
-                padding: 1.25rem 1.5rem;
-                display: flex;
-                align-items: flex-start;
-                gap: 1rem;
-                margin-bottom: 0.75rem;
-                background: #fff;
-                transition: box-shadow 0.2s;
-            }
-            .right-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.07); }
-            .right-card .icon {
-                width: 2.5rem; height: 2.5rem; border-radius: 0.5rem;
-                background: #f0fdf4; display: flex; align-items: center;
-                justify-content: center; flex-shrink: 0; font-size: 1.1rem;
-            }
-            .right-card h4 { font-weight: 700; color: #1f2937; font-size: 0.95rem; margin-bottom: 0.2rem; }
-            .right-card p  { color: #6b7280; font-size: 0.875rem; margin: 0; line-height: 1.5; }
-            .disclaimer-box {
-                background: #f8fafc;
-                border: 1px solid #e2e8f0;
-                border-radius: 1rem;
-                padding: 2rem;
-                margin-top: 3rem;
-            }
-        </style>
-    </head>
-    <body class="bg-white text-dark antialiased">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <title>LGPD — Como a InteraZap protege seus dados pessoais</title>
+  <meta name="description" content="Saiba como a InteraZap está em conformidade com a Lei Geral de Proteção de Dados (LGPD), seus direitos como titular e como exercê-los." />
+  <meta name="robots" content="index, follow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0F1117; background: #fff; -webkit-font-smoothing: antialiased; }
+    :root {
+      --green: #16A34A; --green-mid: #22C55E; --green-light: #DCFCE7; --green-dark: #166534; --neon: #4ADE80;
+      --dark: #0C0E14; --dark-2: #181B26; --dark-3: #22263A;
+      --gray: #6B7280; --gray-light: #F5F5F3; --border: #E5E7EB;
+      --r-sm: 8px; --r: 12px; --r-lg: 20px;
+    }
 
-        <!-- HEADER -->
-        <header class="bg-primary border-b border-white/10 sticky top-0 z-50">
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-                <a href="index.html" class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" viewBox="0 0 128 128" fill="currentColor">
-                            <path d="M72 24L36 72H60L56 104L92 56H68L72 24Z"/>
-                        </svg>
-                    </div>
-                    <span class="text-lg font-bold text-white">InteraZap</span>
-                </a>
-                <a href="index.html" class="text-sm text-white/60 hover:text-white transition flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                    Voltar ao site
-                </a>
-            </div>
-        </header>
+    /* ── HEADER ── */
+    .l-header { background: var(--dark); border-bottom: 1px solid rgba(255,255,255,.08); position: sticky; top: 0; z-index: 50; }
+    .l-header-inner { max-width: 1160px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .l-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .l-logo-icon { width: 32px; height: 32px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .l-logo-icon svg { width: 20px; height: 20px; color: #fff; }
+    .l-logo-text { font-size: 18px; font-weight: 800; color: #fff; }
+    .l-back { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.5); text-decoration: none; transition: color .15s; }
+    .l-back:hover { color: #fff; }
+    .l-back svg { width: 16px; height: 16px; }
 
-        <!-- HERO -->
-        <section class="bg-primary py-16">
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center">
-                <span class="inline-block text-accent text-xs font-semibold uppercase tracking-widest mb-3">Privacidade &amp; Compliance</span>
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-white">LGPD na InteraZap</h1>
-                <p class="mt-4 text-white/60 text-base max-w-2xl mx-auto">
-                    A Lei Geral de Proteção de Dados (Lei nº 13.709/2018) garante seus direitos sobre dados pessoais.
-                    Aqui explicamos como a InteraZap cumpre cada exigência e como você pode exercer seus direitos.
-                </p>
-            </div>
-        </section>
+    /* ── HERO ── */
+    .l-hero { background: var(--dark); padding: 48px 24px 56px; text-align: center; }
+    .l-hero-inner { max-width: 800px; margin: 0 auto; }
+    .l-eyebrow { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--neon); margin-bottom: 12px; }
+    .l-hero h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.03em; line-height: 1.15; color: #fff; margin-bottom: 16px; }
+    .l-hero p { font-size: 16px; color: rgba(255,255,255,.45); line-height: 1.7; max-width: 600px; margin: 0 auto; }
 
-        <!-- CONTENT -->
-        <main class="max-w-3xl mx-auto px-4 sm:px-6 py-14 prose">
+    /* ── CONTENT ── */
+    .l-content { max-width: 780px; margin: 0 auto; padding: 64px 24px 80px; }
+    .l-content h2 { font-size: 1.25rem; font-weight: 700; color: var(--dark); margin-top: 2.5rem; margin-bottom: .75rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .l-content h3 { font-size: 1rem; font-weight: 600; color: var(--dark); margin-top: 1.5rem; margin-bottom: .5rem; }
+    .l-content p { color: #374151; line-height: 1.75; margin-bottom: 1rem; }
+    .l-content ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+    .l-content ul li { color: #374151; line-height: 1.75; margin-bottom: .35rem; }
+    .l-content a { color: var(--green); text-decoration: underline; }
+    .l-content a:hover { color: var(--green-mid); }
+    .l-content strong { color: var(--dark); }
 
-            <div class="callout-info">
-                <p>📋 <strong>Última atualização:</strong> 26 de abril de 2026. Esta página é atualizada sempre que houver mudança nas práticas de tratamento de dados da InteraZap.</p>
-            </div>
+    .callout-info { background: var(--green-light); border-left: 4px solid var(--green); padding: 1rem 1.25rem; border-radius: 0 var(--r-sm) var(--r-sm) 0; margin-bottom: 1.5rem; }
+    .callout-info p { margin-bottom: 0; color: var(--green-dark); }
 
-            <h2>O que é a LGPD?</h2>
-            <p>A <strong>Lei Geral de Proteção de Dados Pessoais (LGPD)</strong> — Lei nº 13.709, de 14 de agosto de 2018 — é a legislação brasileira que regula o tratamento de dados pessoais por empresas e pessoas físicas. Inspirada no GDPR europeu, a LGPD estabelece princípios, bases legais, direitos dos titulares e obrigações para quem trata dados pessoais.</p>
-            <p>A lei se aplica a qualquer operação com dados pessoais realizada no Brasil ou com dados de pessoas que estejam em território nacional, independentemente do meio (digital ou físico) ou do país onde a empresa está sediada.</p>
-            <p>A <strong>Autoridade Nacional de Proteção de Dados (ANPD)</strong> é o órgão federal responsável por fiscalizar o cumprimento da LGPD e aplicar sanções em caso de violações.</p>
+    .right-card { border: 1px solid var(--border); border-radius: var(--r); padding: 1.25rem 1.5rem; display: flex; align-items: flex-start; gap: 1rem; margin-bottom: .75rem; background: #fff; transition: box-shadow .2s; }
+    .right-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.07); }
+    .right-card .icon { width: 2.5rem; height: 2.5rem; border-radius: var(--r-sm); background: var(--green-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem; }
+    .right-card h4 { font-weight: 700; color: var(--dark); font-size: .95rem; margin-bottom: .2rem; }
+    .right-card p { color: var(--gray); font-size: .875rem; margin: 0; line-height: 1.5; }
 
-            <h2>Como a InteraZap se enquadra na LGPD</h2>
-            <p>A InteraZap atua em dois papéis distintos conforme a LGPD:</p>
-            <ul>
-                <li><strong>Controladora de dados</strong> — quando trata dados de visitantes do site, leads e usuários da plataforma (nome, e-mail, telefone, dados de acesso) para fins próprios, como envio de comunicações comerciais e gestão de contas.</li>
-                <li><strong>Operadora de dados</strong> — quando processa dados pessoais em nome dos nossos Clientes (empresas que contratam a plataforma), como contatos do CRM e conversas do WhatsApp. Nesses casos, o Cliente é o Controlador e a InteraZap executa as instruções contratuais.</li>
-            </ul>
+    .disclaimer-box { background: var(--gray-light); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2rem; margin-top: 3rem; }
+    .disclaimer-box h3 { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: .75rem; display: flex; align-items: center; gap: 8px; }
+    .disclaimer-box p { font-size: .875rem; color: var(--gray); line-height: 1.65; margin-bottom: .75rem; }
+    .disclaimer-box ul { list-style: none; padding: 0; }
+    .disclaimer-box ul li { display: flex; align-items: flex-start; gap: 8px; font-size: .875rem; color: var(--gray); line-height: 1.6; margin-bottom: .5rem; }
+    .disclaimer-box ul li span.dash { color: var(--border); flex-shrink: 0; }
 
-            <h2>Bases legais que utilizamos</h2>
-            <p>Todo tratamento de dados na InteraZap é fundamentado em ao menos uma das bases legais previstas no art. 7º da LGPD:</p>
-            <ul>
-                <li><strong>Consentimento (Art. 7º, I):</strong> utilizado quando você preenche formulários no site e marca a caixa de aceite. Você pode revogar a qualquer momento.</li>
-                <li><strong>Execução de contrato (Art. 7º, V):</strong> para clientes que contratam nossos planos — o tratamento é necessário para prestar o serviço.</li>
-                <li><strong>Legítimo interesse (Art. 7º, IX):</strong> para análise de navegação, prevenção de fraudes e melhoria contínua da plataforma, quando não há risco desproporcional aos titulares.</li>
-                <li><strong>Cumprimento de obrigação legal (Art. 7º, II):</strong> quando exigido por autoridade competente ou por lei (ex.: guarda de registros de acesso conforme Marco Civil da Internet).</li>
-            </ul>
+    /* ── FOOTER ── */
+    .l-footer { background: var(--dark); border-top: 1px solid rgba(255,255,255,.06); padding: 40px 24px; }
+    .l-footer-inner { max-width: 1160px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+    .l-footer-copy { font-size: 12px; color: rgba(255,255,255,.3); }
+    .l-footer-nav { display: flex; flex-wrap: wrap; gap: 16px; }
+    .l-footer-nav a { font-size: 12px; color: rgba(255,255,255,.4); text-decoration: none; transition: color .15s; }
+    .l-footer-nav a:hover { color: #fff; }
+    .l-footer-nav a.active { color: var(--neon); font-weight: 600; }
 
-            <h2>Seus direitos como titular</h2>
-            <p>O art. 18 da LGPD garante a você os seguintes direitos, que podem ser exercidos a qualquer momento:</p>
+    @media (max-width: 600px) {
+      .l-footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
 
-            <div class="not-prose mb-8">
-                <div class="right-card">
-                    <div class="icon">🔍</div>
-                    <div>
-                        <h4>Confirmação e acesso</h4>
-                        <p>Saiba se tratamos seus dados e obtenha uma cópia completa das informações que temos sobre você.</p>
-                    </div>
-                </div>
-                <div class="right-card">
-                    <div class="icon">✏️</div>
-                    <div>
-                        <h4>Correção</h4>
-                        <p>Solicite a correção de dados incompletos, inexatos ou desatualizados — agimos em até 15 dias úteis.</p>
-                    </div>
-                </div>
-                <div class="right-card">
-                    <div class="icon">🗑️</div>
-                    <div>
-                        <h4>Eliminação</h4>
-                        <p>Peça a exclusão de dados tratados com base no seu consentimento, quando este não for mais necessário.</p>
-                    </div>
-                </div>
-                <div class="right-card">
-                    <div class="icon">🔒</div>
-                    <div>
-                        <h4>Anonimização ou bloqueio</h4>
-                        <p>Solicite que dados desnecessários, excessivos ou tratados em desconformidade sejam anonimizados ou bloqueados.</p>
-                    </div>
-                </div>
-                <div class="right-card">
-                    <div class="icon">📦</div>
-                    <div>
-                        <h4>Portabilidade</h4>
-                        <p>Receba seus dados em formato estruturado para transferi-los a outro fornecedor de serviço.</p>
-                    </div>
-                </div>
-                <div class="right-card">
-                    <div class="icon">ℹ️</div>
-                    <div>
-                        <h4>Informação sobre compartilhamento</h4>
-                        <p>Saiba com quais entidades públicas ou privadas compartilhamos seus dados.</p>
-                    </div>
-                </div>
-                <div class="right-card">
-                    <div class="icon">🚫</div>
-                    <div>
-                        <h4>Revogação do consentimento</h4>
-                        <p>Retire seu consentimento a qualquer momento, sem prejuízo da licitude do tratamento realizado anteriormente.</p>
-                    </div>
-                </div>
-                <div class="right-card">
-                    <div class="icon">⚖️</div>
-                    <div>
-                        <h4>Oposição</h4>
-                        <p>Oponha-se a tratamentos baseados em legítimo interesse quando houver fundamento legal para tal.</p>
-                    </div>
-                </div>
-                <div class="right-card">
-                    <div class="icon">📣</div>
-                    <div>
-                        <h4>Reclamação à ANPD</h4>
-                        <p>Se não estiver satisfeito com nossa resposta, você pode peticionar à Autoridade Nacional de Proteção de Dados em <a href="https://www.gov.br/anpd" target="_blank" rel="noopener noreferrer" class="text-accent-hover underline">gov.br/anpd</a>.</p>
-                    </div>
-                </div>
-            </div>
+<!-- HEADER -->
+<header class="l-header">
+  <div class="l-header-inner">
+    <a href="index.html" class="l-logo">
+      <div class="l-logo-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <span class="l-logo-text">InteraZap</span>
+    </a>
+    <a href="index.html" class="l-back">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+      Voltar ao site
+    </a>
+  </div>
+</header>
 
-            <h2>Como exercer seus direitos</h2>
-            <p>Para exercer qualquer dos direitos acima, envie uma solicitação para o nosso Encarregado de Proteção de Dados (DPO):</p>
-            <ul>
-                <li><strong>E-mail:</strong> <a href="mailto:contato@interazap.com.br">contato@interazap.com.br</a></li>
-                <li><strong>Assunto:</strong> "LGPD — [descreva o direito que deseja exercer] — [seu nome]"</li>
-                <li><strong>Prazo de resposta:</strong> até <strong>15 dias úteis</strong> a partir do recebimento.</li>
-            </ul>
-            <p>Para validar sua identidade, podemos solicitar documentação adicional. Isso protege você contra requisições feitas por terceiros sem sua autorização.</p>
+<!-- HERO -->
+<section class="l-hero">
+  <div class="l-hero-inner">
+    <span class="l-eyebrow">Privacidade &amp; Compliance</span>
+    <h1>LGPD na InteraZap</h1>
+    <p>A Lei Geral de Proteção de Dados (Lei nº 13.709/2018) garante seus direitos sobre dados pessoais. Aqui explicamos como a InteraZap cumpre cada exigência e como você pode exercer seus direitos.</p>
+  </div>
+</section>
 
-            <h2>Medidas técnicas de segurança</h2>
-            <p>A InteraZap adota as seguintes medidas para proteger seus dados:</p>
-            <ul>
-                <li><strong>Criptografia em trânsito</strong> — toda comunicação usa TLS 1.2+ (HTTPS).</li>
-                <li><strong>Criptografia em repouso</strong> — dados sensíveis são armazenados criptografados no banco de dados.</li>
-                <li><strong>Controle de acesso (RBAC)</strong> — cada colaborador acessa apenas os dados necessários para sua função.</li>
-                <li><strong>Logs de auditoria</strong> — todas as ações na plataforma são registradas com data, hora e usuário.</li>
-                <li><strong>Backups regulares</strong> — com retenção e rotação definidos por política interna.</li>
-                <li><strong>Testes de segurança</strong> — revisões periódicas de vulnerabilidades e análise estática de código.</li>
-                <li><strong>Política de incidentes</strong> — em caso de vazamento de dados, notificamos os titulares e a ANPD nos prazos legais.</li>
-            </ul>
+<!-- CONTENT -->
+<main class="l-content">
 
-            <h2>Cookies e rastreamento</h2>
-            <p>O site interazap.com.br utiliza cookies para melhorar a experiência de navegação. Ao continuar no site, você concorda com o uso de cookies essenciais. Cookies analíticos e de marketing são utilizados somente com seu consentimento explícito.</p>
-            <p>Para gerenciar preferências de cookies, utilize as configurações do seu navegador ou entre em contato conosco.</p>
+  <div class="callout-info">
+    <p><strong>Última atualização:</strong> 26 de abril de 2026. Esta página é atualizada sempre que houver mudança nas práticas de tratamento de dados da InteraZap.</p>
+  </div>
 
-            <h2>Retenção e exclusão de dados</h2>
-            <ul>
-                <li><strong>Leads (não clientes):</strong> dados retidos por até 2 anos após a última interação.</li>
-                <li><strong>Clientes ativos:</strong> dados mantidos durante a vigência do contrato.</li>
-                <li><strong>Clientes encerrados:</strong> dados retidos por 5 anos após o encerramento (obrigações fiscais e legais) e então excluídos.</li>
-                <li><strong>Após solicitação de exclusão:</strong> dados são anonimizados ou excluídos em até 30 dias, exceto quando a retenção for exigida por lei.</li>
-            </ul>
+  <h2>O que é a LGPD?</h2>
+  <p>A <strong>Lei Geral de Proteção de Dados Pessoais (LGPD)</strong> — Lei nº 13.709, de 14 de agosto de 2018 — é a legislação brasileira que regula o tratamento de dados pessoais por empresas e pessoas físicas. Inspirada no GDPR europeu, a LGPD estabelece princípios, bases legais, direitos dos titulares e obrigações para quem trata dados pessoais.</p>
+  <p>A lei se aplica a qualquer operação com dados pessoais realizada no Brasil ou com dados de pessoas que estejam em território nacional, independentemente do meio (digital ou físico) ou do país onde a empresa está sediada.</p>
+  <p>A <strong>Autoridade Nacional de Proteção de Dados (ANPD)</strong> é o órgão federal responsável por fiscalizar o cumprimento da LGPD e aplicar sanções em caso de violações.</p>
 
-            <h2>Encarregado de Proteção de Dados (DPO)</h2>
-            <p>Nos termos do art. 41 da LGPD, a InteraZap designou um Encarregado de Proteção de Dados responsável por:</p>
-            <ul>
-                <li>Receber e atender requisições dos titulares.</li>
-                <li>Comunicar-se com a ANPD quando necessário.</li>
-                <li>Orientar colaboradores sobre as práticas de proteção de dados.</li>
-            </ul>
-            <ul>
-                <li><strong>Contato DPO:</strong> <a href="mailto:contato@interazap.com.br">contato@interazap.com.br</a></li>
-            </ul>
+  <h2>Como a InteraZap se enquadra na LGPD</h2>
+  <p>A InteraZap atua em dois papéis distintos conforme a LGPD:</p>
+  <ul>
+    <li><strong>Controladora de dados</strong> — quando trata dados de visitantes do site, leads e usuários da plataforma (nome, e-mail, telefone, dados de acesso) para fins próprios, como envio de comunicações comerciais e gestão de contas.</li>
+    <li><strong>Operadora de dados</strong> — quando processa dados pessoais em nome dos nossos Clientes (empresas que contratam a plataforma), como contatos do CRM e conversas do WhatsApp. Nesses casos, o Cliente é o Controlador e a InteraZap executa as instruções contratuais.</li>
+  </ul>
 
-            <h2>Documentos relacionados</h2>
-            <ul>
-                <li><a href="politica-de-privacidade.html">Política de Privacidade completa</a></li>
-                <li><a href="termos-de-uso.html">Termos de Uso</a></li>
-                <li><a href="whatsapp-nao-oficial.html">WhatsApp Oficial e Não Oficial — Entenda as diferenças</a></li>
-                <li><a href="https://www.gov.br/anpd" target="_blank" rel="noopener noreferrer">Autoridade Nacional de Proteção de Dados (ANPD)</a></li>
-                <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" target="_blank" rel="noopener noreferrer">Texto completo da LGPD — Lei nº 13.709/2018</a></li>
-            </ul>
+  <h2>Bases legais que utilizamos</h2>
+  <p>Todo tratamento de dados na InteraZap é fundamentado em ao menos uma das bases legais previstas no art. 7º da LGPD:</p>
+  <ul>
+    <li><strong>Consentimento (Art. 7º, I):</strong> utilizado quando você preenche formulários no site e marca a caixa de aceite. Você pode revogar a qualquer momento.</li>
+    <li><strong>Execução de contrato (Art. 7º, V):</strong> para clientes que contratam nossos planos — o tratamento é necessário para prestar o serviço.</li>
+    <li><strong>Legítimo interesse (Art. 7º, IX):</strong> para análise de navegação, prevenção de fraudes e melhoria contínua da plataforma, quando não há risco desproporcional aos titulares.</li>
+    <li><strong>Cumprimento de obrigação legal (Art. 7º, II):</strong> quando exigido por autoridade competente ou por lei (ex.: guarda de registros de acesso conforme Marco Civil da Internet).</li>
+  </ul>
 
-            <!-- DISCLAIMER DE NÃO PARCERIA -->
-            <div class="disclaimer-box not-prose">
-                <h3 class="text-base font-bold text-dark mb-3 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-neutral-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Aviso de não vinculação com terceiros
-                </h3>
-                <p class="text-sm text-neutral-500 leading-relaxed mb-3">
-                    A <strong class="text-dark">InteraZap</strong> é uma empresa independente e <strong class="text-dark">não possui nenhuma parceria, afiliação, patrocínio, endorsement ou vínculo oficial</strong> com as seguintes empresas e suas marcas registradas:
-                </p>
-                <ul class="text-sm text-neutral-500 space-y-1.5 mb-3 pl-0 list-none">
-                    <li class="flex items-start gap-2">
-                        <span class="text-neutral-300 mt-0.5">—</span>
-                        <span><strong class="text-dark">Meta Platforms, Inc.</strong> — proprietária do WhatsApp, Instagram e Facebook. "WhatsApp" e "Meta" são marcas registradas da Meta Platforms, Inc. A InteraZap utiliza a API Oficial do WhatsApp Business por meio de acesso técnico homologado, e também disponibiliza integração via QR Code, mas nenhum desses acessos implica parceria, aprovação ou endosso da Meta.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="text-neutral-300 mt-0.5">—</span>
-                        <span><strong class="text-dark">Microsoft Corporation</strong> — proprietária do Windows e da plataforma Azure. "Windows" e "Microsoft" são marcas registradas da Microsoft Corporation. A referência ao Windows em nosso site diz respeito exclusivamente à compatibilidade do aplicativo web da InteraZap com o sistema operacional Windows, sem qualquer vínculo comercial ou institucional com a Microsoft.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="text-neutral-300 mt-0.5">—</span>
-                        <span><strong class="text-dark">Apple Inc.</strong> — proprietária do macOS, iOS e App Store. "Apple", "macOS" e "iOS" são marcas registradas da Apple Inc. A referência ao macOS em nosso site diz respeito exclusivamente à compatibilidade do aplicativo web da InteraZap com computadores Mac, sem qualquer vínculo comercial ou institucional com a Apple.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="text-neutral-300 mt-0.5">—</span>
-                        <span><strong class="text-dark">Google LLC</strong> — proprietária do Android e Google Play Store. "Android" e "Google Play" são marcas registradas da Google LLC. A menção ao Google Play em nosso site é uma referência à distribuição futura do aplicativo móvel da InteraZap, sem parceria oficial estabelecida com a Google.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="text-neutral-300 mt-0.5">—</span>
-                        <span><strong class="text-dark">Telegram Messenger Inc.</strong> — proprietária do Telegram. A menção ao Telegram refere-se à integração técnica com a API pública do Telegram, sem parceria ou vínculo oficial com a empresa.</span>
-                    </li>
-                </ul>
-                <p class="text-xs text-neutral-400 leading-relaxed">
-                    Todos os nomes de produtos, marcas comerciais e logotipos mencionados neste site são propriedade de seus respectivos titulares e são utilizados apenas para fins de identificação e compatibilidade técnica, sem intenção de infringir direitos de propriedade intelectual. A InteraZap não é patrocinada, endossada, afiliada ou associada a nenhuma das empresas acima mencionadas, a não ser que expressamente declarado em acordo formal vigente.
-                </p>
-            </div>
+  <h2>Seus direitos como titular</h2>
+  <p>O art. 18 da LGPD garante a você os seguintes direitos, que podem ser exercidos a qualquer momento:</p>
 
-        </main>
+  <div class="right-card"><div class="icon">🔍</div><div><h4>Confirmação e acesso</h4><p>Saiba se tratamos seus dados e obtenha uma cópia completa das informações que temos sobre você.</p></div></div>
+  <div class="right-card"><div class="icon">✏️</div><div><h4>Correção</h4><p>Solicite a correção de dados incompletos, inexatos ou desatualizados — agimos em até 15 dias úteis.</p></div></div>
+  <div class="right-card"><div class="icon">🗑️</div><div><h4>Eliminação</h4><p>Peça a exclusão de dados tratados com base no seu consentimento, quando este não for mais necessário.</p></div></div>
+  <div class="right-card"><div class="icon">🔒</div><div><h4>Anonimização ou bloqueio</h4><p>Solicite que dados desnecessários, excessivos ou tratados em desconformidade sejam anonimizados ou bloqueados.</p></div></div>
+  <div class="right-card"><div class="icon">📦</div><div><h4>Portabilidade</h4><p>Receba seus dados em formato estruturado para transferi-los a outro fornecedor de serviço.</p></div></div>
+  <div class="right-card"><div class="icon">ℹ️</div><div><h4>Informação sobre compartilhamento</h4><p>Saiba com quais entidades públicas ou privadas compartilhamos seus dados.</p></div></div>
+  <div class="right-card"><div class="icon">🚫</div><div><h4>Revogação do consentimento</h4><p>Retire seu consentimento a qualquer momento, sem prejuízo da licitude do tratamento realizado anteriormente.</p></div></div>
+  <div class="right-card"><div class="icon">⚖️</div><div><h4>Oposição</h4><p>Oponha-se a tratamentos baseados em legítimo interesse quando houver fundamento legal para tal.</p></div></div>
+  <div class="right-card"><div class="icon">📣</div><div><h4>Reclamação à ANPD</h4><p>Se não estiver satisfeito com nossa resposta, você pode peticionar à Autoridade Nacional de Proteção de Dados em <a href="https://www.gov.br/anpd" target="_blank" rel="noopener noreferrer">gov.br/anpd</a>.</p></div></div>
 
-        <!-- FOOTER -->
-        <footer class="bg-primary border-t border-white/10 py-10">
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p class="text-white/40 text-xs">&copy; 2026 InteraZap. Todos os direitos reservados.</p>
-                <nav class="flex flex-wrap gap-4 text-xs">
-                    <a href="politica-de-privacidade.html" class="text-white/50 hover:text-white transition">Política de Privacidade</a>
-                    <a href="termos-de-uso.html" class="text-white/50 hover:text-white transition">Termos de Uso</a>
-                    <a href="lgpd.html" class="text-accent font-medium">LGPD</a>
-                    <a href="whatsapp-nao-oficial.html" class="text-white/50 hover:text-white transition">WhatsApp Não Oficial</a>
-                </nav>
-            </div>
-        </footer>
+  <h2>Como exercer seus direitos</h2>
+  <p>Para exercer qualquer dos direitos acima, envie uma solicitação para o nosso Encarregado de Proteção de Dados (DPO):</p>
+  <ul>
+    <li><strong>E-mail:</strong> <a href="mailto:contato@interazap.com.br">contato@interazap.com.br</a></li>
+    <li><strong>Assunto:</strong> "LGPD — [descreva o direito que deseja exercer] — [seu nome]"</li>
+    <li><strong>Prazo de resposta:</strong> até <strong>15 dias úteis</strong> a partir do recebimento.</li>
+  </ul>
+  <p>Para validar sua identidade, podemos solicitar documentação adicional. Isso protege você contra requisições feitas por terceiros sem sua autorização.</p>
 
-    </body>
+  <h2>Medidas técnicas de segurança</h2>
+  <p>A InteraZap adota as seguintes medidas para proteger seus dados:</p>
+  <ul>
+    <li><strong>Criptografia em trânsito</strong> — toda comunicação usa TLS 1.2+ (HTTPS).</li>
+    <li><strong>Criptografia em repouso</strong> — dados sensíveis são armazenados criptografados no banco de dados.</li>
+    <li><strong>Controle de acesso (RBAC)</strong> — cada colaborador acessa apenas os dados necessários para sua função.</li>
+    <li><strong>Logs de auditoria</strong> — todas as ações na plataforma são registradas com data, hora e usuário.</li>
+    <li><strong>Backups regulares</strong> — com retenção e rotação definidos por política interna.</li>
+    <li><strong>Testes de segurança</strong> — revisões periódicas de vulnerabilidades e análise estática de código.</li>
+    <li><strong>Política de incidentes</strong> — em caso de vazamento de dados, notificamos os titulares e a ANPD nos prazos legais.</li>
+  </ul>
+
+  <h2>Cookies e rastreamento</h2>
+  <p>O site interazap.com.br utiliza cookies para melhorar a experiência de navegação. Ao continuar no site, você concorda com o uso de cookies essenciais. Cookies analíticos e de marketing são utilizados somente com seu consentimento explícito.</p>
+  <p>Para gerenciar preferências de cookies, utilize as configurações do seu navegador ou entre em contato conosco.</p>
+
+  <h2>Retenção e exclusão de dados</h2>
+  <ul>
+    <li><strong>Leads (não clientes):</strong> dados retidos por até 2 anos após a última interação.</li>
+    <li><strong>Clientes ativos:</strong> dados mantidos durante a vigência do contrato.</li>
+    <li><strong>Clientes encerrados:</strong> dados retidos por 5 anos após o encerramento (obrigações fiscais e legais) e então excluídos.</li>
+    <li><strong>Após solicitação de exclusão:</strong> dados são anonimizados ou excluídos em até 30 dias, exceto quando a retenção for exigida por lei.</li>
+  </ul>
+
+  <h2>Encarregado de Proteção de Dados (DPO)</h2>
+  <p>Nos termos do art. 41 da LGPD, a InteraZap designou um Encarregado de Proteção de Dados responsável por:</p>
+  <ul>
+    <li>Receber e atender requisições dos titulares.</li>
+    <li>Comunicar-se com a ANPD quando necessário.</li>
+    <li>Orientar colaboradores sobre as práticas de proteção de dados.</li>
+  </ul>
+  <ul>
+    <li><strong>Contato DPO:</strong> <a href="mailto:contato@interazap.com.br">contato@interazap.com.br</a></li>
+  </ul>
+
+  <h2>Documentos relacionados</h2>
+  <ul>
+    <li><a href="politica-de-privacidade.html">Política de Privacidade completa</a></li>
+    <li><a href="termos-de-uso.html">Termos de Uso</a></li>
+    <li><a href="whatsapp-nao-oficial.html">WhatsApp Oficial e Não Oficial — Entenda as diferenças</a></li>
+    <li><a href="https://www.gov.br/anpd" target="_blank" rel="noopener noreferrer">Autoridade Nacional de Proteção de Dados (ANPD)</a></li>
+    <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" target="_blank" rel="noopener noreferrer">Texto completo da LGPD — Lei nº 13.709/2018</a></li>
+  </ul>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer-box">
+    <h3>
+      <svg style="width:20px;height:20px;color:var(--gray);flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Aviso de não vinculação com terceiros
+    </h3>
+    <p>A <strong>InteraZap</strong> é uma empresa independente e <strong>não possui nenhuma parceria, afiliação, patrocínio, endorsement ou vínculo oficial</strong> com as seguintes empresas e suas marcas registradas:</p>
+    <ul>
+      <li><span class="dash">—</span><span><strong>Meta Platforms, Inc.</strong> — proprietária do WhatsApp, Instagram e Facebook. "WhatsApp" e "Meta" são marcas registradas da Meta Platforms, Inc. A InteraZap utiliza a API Oficial do WhatsApp Business por meio de acesso técnico homologado, e também disponibiliza integração via QR Code, mas nenhum desses acessos implica parceria, aprovação ou endosso da Meta.</span></li>
+      <li><span class="dash">—</span><span><strong>Microsoft Corporation</strong> — proprietária do Windows e da plataforma Azure. "Windows" e "Microsoft" são marcas registradas da Microsoft Corporation.</span></li>
+      <li><span class="dash">—</span><span><strong>Apple Inc.</strong> — proprietária do macOS, iOS e App Store. "Apple", "macOS" e "iOS" são marcas registradas da Apple Inc.</span></li>
+      <li><span class="dash">—</span><span><strong>Google LLC</strong> — proprietária do Android e Google Play Store. "Android" e "Google Play" são marcas registradas da Google LLC.</span></li>
+      <li><span class="dash">—</span><span><strong>Telegram Messenger Inc.</strong> — proprietária do Telegram. A menção ao Telegram refere-se à integração técnica com a API pública do Telegram, sem parceria ou vínculo oficial com a empresa.</span></li>
+    </ul>
+    <p style="font-size:.75rem;color:#9CA3AF;line-height:1.6;margin-bottom:0;margin-top:.5rem">Todos os nomes de produtos, marcas comerciais e logotipos mencionados neste site são propriedade de seus respectivos titulares e são utilizados apenas para fins de identificação e compatibilidade técnica.</p>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="l-footer">
+  <div class="l-footer-inner">
+    <p class="l-footer-copy">&copy; 2026 InteraZap. Todos os direitos reservados.</p>
+    <nav class="l-footer-nav">
+      <a href="politica-de-privacidade.html">Política de Privacidade</a>
+      <a href="termos-de-uso.html">Termos de Uso</a>
+      <a href="lgpd.html" class="active">LGPD</a>
+      <a href="whatsapp-nao-oficial.html">WhatsApp Não Oficial</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
 </html>
