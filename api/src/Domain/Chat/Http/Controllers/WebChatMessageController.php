@@ -40,7 +40,7 @@ final class WebChatMessageController extends BaseController
      *
      * POST /api/webchat/messages
      *
-     * @return JsonResponse{messageId: string}
+     * @return JsonResponse Message acknowledgement payload.
      */
     public function store(Request $request): JsonResponse
     {

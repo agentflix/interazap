@@ -63,10 +63,6 @@ export class ProposalListComponent implements OnInit {
   readonly selectedProposal = signal<Proposal | null>(null);
   readonly isDeleting = signal(false);
 
-  constructor() {
-    // Load is called from ngOnInit to avoid NG0950 with required input signals
-  }
-
   ngOnInit(): void {
     this.load();
   }

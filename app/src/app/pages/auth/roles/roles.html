@@ -56,8 +56,12 @@
                 </td>
                 <td>
                   <span
+                    role="button"
+                    tabindex="0"
                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
                     (click)="openUsersModal(role)"
+                    (keydown.enter)="openUsersModal(role)"
+                    (keydown.space)="openUsersModal(role)"
                   >
                     <lucide-icon name="users" [size]="12" class="block" />
                     {{ role.users_count }}

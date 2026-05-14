@@ -19,6 +19,7 @@ use Domain\Platform\Models\PlatformTenant;
 use Domain\Platform\Services\PlatformPlanEnforcementService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -136,7 +137,7 @@ class PlatformPlanEnforcementServiceTest extends TestCase
 
     public function test_is_ai_enabled_returns_false_when_no_plan(): void
     {
-        $isAiEnabled = $this->service->isAiEnabled($this->tenantId);
+        $isAiEnabled = $this->service->isAiEnabled((string) Str::orderedUuid());
 
         expect($isAiEnabled)->toBeFalse();
     }

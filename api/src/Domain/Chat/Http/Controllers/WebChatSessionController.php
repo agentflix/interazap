@@ -35,7 +35,7 @@ final class WebChatSessionController extends BaseController
      *
      * POST /api/webchat/sessions
      *
-     * @return JsonResponse{token: string, sessionId: string, ticketId: string}
+     * @return JsonResponse Session bootstrap payload.
      */
     public function store(Request $request): JsonResponse
     {

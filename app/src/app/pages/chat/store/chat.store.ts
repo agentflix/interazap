@@ -315,7 +315,8 @@ export class ChatStore implements OnDestroy, ChatMessageCacheDelegate {
     if (type === 'ticket.new') {
       const ticketData = rawEvent.data as TicketEventData;
       const tkt = ticketData.ticket;
-      const ticketId = (tkt?.id != null ? String(tkt.id) : ticketData.ticket_id) as string | undefined;
+      const ticketId =
+        tkt?.id !== undefined && tkt.id !== null ? String(tkt.id) : ticketData.ticket_id;
       if (ticketId !== undefined && tkt !== undefined) {
         changes.tickets.set(ticketId, tkt);
         flags.hasTicketChanges = true;
@@ -350,7 +351,8 @@ export class ChatStore implements OnDestroy, ChatMessageCacheDelegate {
     if (type === 'ticket.updated') {
       const ticketData = rawEvent.data as TicketEventData;
       const tkt = ticketData.ticket;
-      const ticketId = (tkt?.id != null ? String(tkt.id) : ticketData.ticket_id) as string | undefined;
+      const ticketId =
+        tkt?.id !== undefined && tkt.id !== null ? String(tkt.id) : ticketData.ticket_id;
       if (ticketId !== undefined) {
         const existingTicket = changes.tickets.get(ticketId);
         if (existingTicket !== undefined && tkt !== undefined) {

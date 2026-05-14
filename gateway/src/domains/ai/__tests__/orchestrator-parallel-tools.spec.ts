@@ -120,19 +120,23 @@ describe('AiRunOrchestratorService parallel tools', () => {
         totalTokens: 15,
       });
 
+    let activeCalls = 0;
+    let maxActiveCalls = 0;
+
     mocks.toolExecutor.executeTool.mockImplementation(
       async (name: string): Promise<Record<string, unknown>> => {
+        activeCalls += 1;
+        maxActiveCalls = Math.max(maxActiveCalls, activeCalls);
         await new Promise((resolve) => setTimeout(resolve, 50));
+        activeCalls -= 1;
         return { success: true, data: { name } };
       },
     );
 
-    const startedAt = Date.now();
     const response = await service.execute(baseRequest);
-    const elapsedMs = Date.now() - startedAt;
 
     expect(mocks.toolExecutor.executeTool).toHaveBeenCalledTimes(3);
-    expect(elapsedMs).toBeLessThan(120);
+    expect(maxActiveCalls).toBe(3);
     expect(response['iterations_count']).toBe(1);
   });
 

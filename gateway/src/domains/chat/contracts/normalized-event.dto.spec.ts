@@ -88,7 +88,6 @@ describe('MessagePayloadDto', () => {
   });
 
   it('should fail without id', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _id, ...payload } = validPayload;
     const dto = plainToInstance(MessagePayloadDto, payload);
     const errors = await validate(dto);
@@ -96,7 +95,6 @@ describe('MessagePayloadDto', () => {
   });
 
   it('should fail without from', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { from: _from, ...payload } = validPayload;
     const dto = plainToInstance(MessagePayloadDto, payload);
     const errors = await validate(dto);
@@ -104,7 +102,6 @@ describe('MessagePayloadDto', () => {
   });
 
   it('should fail without to', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { to: _to, ...payload } = validPayload;
     const dto = plainToInstance(MessagePayloadDto, payload);
     const errors = await validate(dto);
@@ -121,7 +118,6 @@ describe('MessagePayloadDto', () => {
   });
 
   it('should fail without timestamp', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { timestamp: _timestamp, ...payload } = validPayload;
     const dto = plainToInstance(MessagePayloadDto, payload);
     const errors = await validate(dto);
@@ -165,7 +161,6 @@ describe('StatusPayloadDto', () => {
   });
 
   it('should fail without messageId', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { messageId: _messageId, ...payload } = validPayload;
     const dto = plainToInstance(StatusPayloadDto, payload);
     const errors = await validate(dto);
@@ -182,7 +177,6 @@ describe('StatusPayloadDto', () => {
   });
 
   it('should fail without timestamp', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { timestamp: _timestamp, ...payload } = validPayload;
     const dto = plainToInstance(StatusPayloadDto, payload);
     const errors = await validate(dto);
@@ -323,7 +317,6 @@ describe('NormalizedWebhookEventDto', () => {
   });
 
   it('should fail without tenantId', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { tenantId: _tenantId, ...payload } = validPayload;
     const dto = plainToInstance(NormalizedWebhookEventDto, payload);
     const errors = await validate(dto);
@@ -331,7 +324,6 @@ describe('NormalizedWebhookEventDto', () => {
   });
 
   it('should fail without instanceId', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { instanceId: _instanceId, ...payload } = validPayload;
     const dto = plainToInstance(NormalizedWebhookEventDto, payload);
     const errors = await validate(dto);
@@ -339,7 +331,6 @@ describe('NormalizedWebhookEventDto', () => {
   });
 
   it('should fail without instanceWebhookToken', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { instanceWebhookToken: _instanceWebhookToken, ...payload } =
       validPayload;
     const dto = plainToInstance(NormalizedWebhookEventDto, payload);
@@ -348,7 +339,6 @@ describe('NormalizedWebhookEventDto', () => {
   });
 
   it('should fail without provider', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { provider: _provider, ...payload } = validPayload;
     const dto = plainToInstance(NormalizedWebhookEventDto, payload);
     const errors = await validate(dto);
@@ -374,7 +364,6 @@ describe('NormalizedWebhookEventDto', () => {
   });
 
   it('should fail without eventType', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { eventType: _eventType, ...payload } = validPayload;
     const dto = plainToInstance(NormalizedWebhookEventDto, payload);
     const errors = await validate(dto);
@@ -382,7 +371,6 @@ describe('NormalizedWebhookEventDto', () => {
   });
 
   it('should fail without direction', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { direction: _direction, ...payload } = validPayload;
     const dto = plainToInstance(NormalizedWebhookEventDto, payload);
     const errors = await validate(dto);
@@ -390,7 +378,6 @@ describe('NormalizedWebhookEventDto', () => {
   });
 
   it('should fail without rawPayload', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { rawPayload: _rawPayload, ...payload } = validPayload;
     const dto = plainToInstance(NormalizedWebhookEventDto, payload);
     const errors = await validate(dto);
@@ -398,7 +385,6 @@ describe('NormalizedWebhookEventDto', () => {
   });
 
   it('should fail without idempotencyKey', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { idempotencyKey: _idempotencyKey, ...payload } = validPayload;
     const dto = plainToInstance(NormalizedWebhookEventDto, payload);
     const errors = await validate(dto);
@@ -406,7 +392,6 @@ describe('NormalizedWebhookEventDto', () => {
   });
 
   it('should fail without receivedAt', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { receivedAt: _receivedAt, ...payload } = validPayload;
     const dto = plainToInstance(NormalizedWebhookEventDto, payload);
     const errors = await validate(dto);

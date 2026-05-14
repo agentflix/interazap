@@ -16,7 +16,10 @@ function checkCorsOrigin(
 ): [Error | null, boolean] {
   const allowedStr = envOrigins ?? '';
   const allowed = allowedStr
-    ? allowedStr.split(',').map((s) => s.trim()).filter(Boolean)
+    ? allowedStr
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
     : ['http://localhost:4200', 'http://127.0.0.1:4200'];
 
   if (!origin || allowed.includes(origin)) {

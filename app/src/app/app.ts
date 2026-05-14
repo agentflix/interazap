@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, effect, inject } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgxSonnerToaster } from 'ngx-sonner';
 import { NativeBridgeService } from './core/services/platform/native-bridge.service';

@@ -46,7 +46,7 @@ describe('ChatContactView', (): void => {
     crmCompanyService = TestBed.inject(CRMCompanyService) as unknown as CRMCompanyServiceStub;
 
     crmCompanyService.list.mockReturnValue(of({ data: [] }));
-    contactService.find.mockReturnValue(of({ data: { contact: createContact() } }));
+    contactService.find.mockReturnValue(of({ data: createContact() }));
 
     component = TestBed.runInInjectionContext(() => new ChatContactView());
   });
@@ -86,7 +86,7 @@ describe('ChatContactView', (): void => {
       custom_fields: { role: 'Support', notes: 'VIP' },
     });
 
-    contactService.find.mockReturnValue(of({ data: { contact: fullContact } }));
+    contactService.find.mockReturnValue(of({ data: fullContact }));
 
     component.contact = summary;
     await Promise.resolve();
@@ -102,7 +102,7 @@ describe('ChatContactView', (): void => {
     vi.spyOn(toast, 'error').mockImplementation(() => '' as never);
 
     contactService.find.mockReturnValue(
-      of({ data: { contact: createContact({ name: '', whatsapp: '' }) } }),
+      of({ data: createContact({ name: '', whatsapp: '' }) }),
     );
 
     const summary: CalledContactSummary = {
@@ -146,9 +146,9 @@ describe('ChatContactView', (): void => {
       custom_fields: { role: 'Support', notes: 'Priority' },
     });
 
-    contactService.update.mockReturnValue(of({ data: { contact: updatedContact } }));
+    contactService.update.mockReturnValue(of({ data: updatedContact }));
 
-    contactService.find.mockReturnValue(of({ data: { contact: existingContact } }));
+    contactService.find.mockReturnValue(of({ data: existingContact }));
     component.contactSignal.set(existingContact);
     component.contact = summary;
     await Promise.resolve();
@@ -191,7 +191,7 @@ describe('ChatContactView', (): void => {
     contactService.update.mockReturnValue(throwError((): Error => new Error('fail')));
 
     contactService.find.mockReturnValue(
-      of({ data: { contact: createContact({ id: 'contact-5' }) } }),
+      of({ data: createContact({ id: 'contact-5' }) }),
     );
     component.contact = summary;
     component.form.patchValue({

@@ -20,7 +20,7 @@ final class WebChatHealthController extends BaseController
      *
      * GET /api/webchat/health
      *
-     * @return JsonResponse{status: string, redis: bool}
+     * @return JsonResponse Health status payload.
      */
     public function __invoke(): JsonResponse
     {

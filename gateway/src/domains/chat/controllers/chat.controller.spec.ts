@@ -43,9 +43,8 @@ describe('ChatController', () => {
       expect(guards).toBeDefined();
       expect(guards.length).toBeGreaterThanOrEqual(1);
 
-      const guardInstances = guards.map(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        (g: any) => (typeof g === 'function' ? g : g.constructor),
+      const guardInstances = guards.map((g: any) =>
+        typeof g === 'function' ? g : g.constructor,
       );
       expect(guardInstances).toContain(InternalApiKeyGuard);
     });

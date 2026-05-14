@@ -1,4 +1,5 @@
-import { ErrorHandler, Injectable, inject } from '@angular/core';
+import type { ErrorHandler} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { PlatformService } from './platform.service';
 
 /**
@@ -38,7 +39,7 @@ export class SentryService {
 /** ErrorHandler stub que apenas loga no console. */
 export class SentryAngularErrorHandler implements ErrorHandler {
   handleError(error: unknown): void {
-    // eslint-disable-next-line no-console
+     
     console.error('[SentryAngularErrorHandler stub]', error);
   }
 }

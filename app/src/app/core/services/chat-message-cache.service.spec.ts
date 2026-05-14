@@ -211,12 +211,13 @@ describe('ChatMessageCacheService', () => {
       service.getOrCreate('ticket-1');
 
       const delegate = createDelegate();
-      delegate.getMessages.mockReturnValue([createMessage('dm-1')]);
+      const delegateMessages = [createMessage('dm-1')];
+      delegate.getMessages.mockReturnValue(delegateMessages);
       service.setDelegate(delegate);
 
       // Re-access should sync from delegate
       const sig = service.getOrCreate('ticket-1');
-      expect(sig()).toEqual([createMessage('dm-1')]);
+      expect(sig()).toEqual(delegateMessages);
     });
 
     it('should mirror prepend to delegate', () => {

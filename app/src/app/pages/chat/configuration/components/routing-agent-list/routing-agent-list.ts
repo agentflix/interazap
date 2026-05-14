@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import type { CdkDragDrop} from '@angular/cdk/drag-drop';
+import { DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { LucideAngularModule } from 'lucide-angular';
 import { AfButtonComponent, AfSwitchInputComponent, AfTextInputComponent } from '@shared/components';
 import { type ChatRoutingQueueAgent } from '../../../services/chat-routing-queue.service';

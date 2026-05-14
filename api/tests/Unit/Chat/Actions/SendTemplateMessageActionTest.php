@@ -77,7 +77,7 @@ it('envia template aprovado e cria ChatMessage status=sent', function (): void {
         ->and($message->metadata['template']['name'])->toBe('welcome_v1')
         ->and($message->metadata['template_variables'])->toBe(['1' => 'Rafael', '2' => '#1234']);
 
-    Http::assertSent(function (array $request): bool {
+    Http::assertSent(function ($request): bool {
         if (! str_contains($request->url(), '/send-template')) {
             return false;
         }

@@ -1,3 +1,5 @@
+import type {
+  OnInit} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,7 +7,6 @@ import {
   effect,
   inject,
   input,
-  OnInit,
   output,
   signal,
 } from '@angular/core';

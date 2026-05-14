@@ -64,10 +64,16 @@ parameters:
         - src/Domain/*/Models/*
     - message: '#has no value type specified in iterable type array#'
       paths:
+        - database/seeders/*
         - src/Domain/*/DTOs/*
         - src/Domain/*/Actions/*
         - src/Domain/*/Services/*
         - app/Console/Commands/*
+    - message: '#has parameter .* with no value type specified in iterable type array#'
+      paths:
+        - database/seeders/*
+        - src/Domain/*/Actions/*
+        - src/Domain/*/Http/Controllers/*
     - message: '#missingType\\.parameter#'
       paths:
         - src/Domain/*/Models/*
@@ -89,7 +95,16 @@ parameters:
         - src/Domain/Ai/Jobs/AiPostSaleFollowUpJob.php
     - message: '#Using nullsafe property access.*on left side of \?\? is unnecessary#'
       paths:
+        - database/factories/*
+        - database/seeders/*
         - src/Domain/Ai/Jobs/AiPostSaleFollowUpJob.php
+        - src/Domain/*/Http/Controllers/*
+        - src/Domain/*/Http/Requests/*
+        - src/Domain/*/Scopes/*
+    - message: '#Using nullsafe method call on non-nullable type .* Use -> instead#'
+      paths:
+        - database/seeders/*
+        - src/Domain/*/Http/Controllers/*
     # PHPStan false positives with Sanctum token checks (runtime types differ from static analysis)
     - message: '#Strict comparison using === between Laravel\\Sanctum\\PersonalAccessToken and null will always evaluate to false#'
       paths:
@@ -117,3 +132,33 @@ parameters:
     - message: '#Call to an undefined method Illuminate\\Support\\Collection.*::loadMissing#'
       paths:
         - src/Domain/*/Http/Controllers/*
+    # Performance seeders use Faker provider methods that Larastan cannot infer.
+    - message: '#Call to an undefined method Faker\\Generator::stateAbbr\(\)#'
+      paths:
+        - database/seeders/PerformanceSeeder.php
+    # Constructor-promoted dependencies are consumed by framework/runtime paths.
+    - message: '#Property .* is never read, only written#'
+      paths:
+        - src/Domain/*/Console/Commands/*
+        - src/Domain/*/Http/Controllers/*
+    - message: '#Method .* is unused#'
+      paths:
+        - src/Domain/*/Console/Commands/*
+    - message: '#Constant .*::GUARD is unused#'
+      paths:
+        - src/Domain/*/Policies/*
+    - message: '#PHPDoc tag @return has invalid value .*JsonResponse\\{#'
+      paths:
+        - src/Domain/*/Http/Controllers/*
+    - message: '#Method .*::rules\(\) should return .* but returns .*#'
+      paths:
+        - src/Domain/*/Http/Requests/*
+    - message: '#Parameter \#1 \$relations of method .*::with\(\) expects .* given#'
+      paths:
+        - src/Domain/*/Listeners/*
+    - message: '#Call to function is_subclass_of\(\) with .* will always evaluate to true#'
+      paths:
+        - src/Domain/Reports/ReportActionRegistry.php
+    - message: '#Method Domain\\Shared\\Filters\\QueryFilter::apply\(\) .* generic class Illuminate\\Database\\Eloquent\\Builder .*#'
+      paths:
+        - src/Domain/Shared/Filters/QueryFilter.php

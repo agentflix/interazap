@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, NgZone } from '@angular/core';
 import { Network } from '@capacitor/network';
-import { Subject, Subscription, fromEvent, merge } from 'rxjs';
+import type { Subscription} from 'rxjs';
+import { Subject, fromEvent, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PlatformService } from './platform/platform.service';
 
