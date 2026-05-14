@@ -586,10 +586,8 @@
       VAULT_ASAAS_API_KEY: "{{ asaas_api_key | default('') }}"
       VAULT_UAZAPI_BASE_URL: "{{ uazapi_base_url | default('') }}"
       VAULT_UAZAPI_ADMIN_TOKEN: "{{ uazapi_admin_token | default('') }}"
-      VAULT_UAZAPI_WEBHOOK_URL: "{{ uazapi_webhook_url | default('') }}"
       VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
       VAULT_UAZAPI_WEBHOOK_URL: "{{ effective_uazapi_webhook_url }}"
-      VAULT_DEFAULT_TENANT_ID: "{{ default_tenant_id | default('') }}"
 
 - name: 'Validar .env Gateway crítico'
   shell: |

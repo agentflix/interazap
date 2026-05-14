@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -14,14 +15,15 @@ return new class extends Migration
             return;
         }
 
+        DB::statement('DROP INDEX IF EXISTS idx_platform_leads_source');
+        DB::statement('DROP INDEX IF EXISTS idx_platform_leads_status');
+
         Schema::table('platform_leads', function (Blueprint $table): void {
             if (Schema::hasColumn('platform_leads', 'source')) {
-                $table->dropIndex('idx_platform_leads_source');
                 $table->dropColumn('source');
             }
 
             if (Schema::hasColumn('platform_leads', 'status')) {
-                $table->dropIndex('idx_platform_leads_status');
                 $table->dropColumn('status');
             }
         });
