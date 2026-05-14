@@ -59,7 +59,7 @@
       effective_gateway_internal_api_key: "{{ gateway_internal_api_key_production if app_environment == 'production' else gateway_internal_api_key_staging }}"
       effective_gateway_jwt_secret: "{{ gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging }}"
       effective_webchat_jwt_secret: "{{ (webchat_jwt_secret_production if app_environment == 'production' else webchat_jwt_secret_staging) | default((gateway_jwt_secret_production if app_environment == 'production' else gateway_jwt_secret_staging), true) }}"
-      effective_app_key: "{{ agentflix_secret_key_staging if app_environment == 'staging' else agentflix_secret_key_production }}"
+      effective_app_key: "{{ interazap_secret_key_staging if app_environment == 'staging' else interazap_secret_key_production }}"
       effective_uazapi_webhook_url: "{{ uazapi_webhook_url | default(('https://stage.gateway.interazap.com.br/webhook/uazapi' if app_environment == 'staging' else 'https://gateway.interazap.com.br/webhook/uazapi'), true) }}"
 
 - name: 'Validar segredos críticos antes de gerar .env'
@@ -77,7 +77,7 @@
 
 - name: 'Clonar API para a nova release'
   git:
-      repo: '{{ agentflix_git_url }}'
+      repo: '{{ interazap_git_url }}'
       dest: '{{ deploy_path }}/api/releases/{{ deploy_timestamp }}'
       version: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
       force: yes
@@ -133,8 +133,8 @@
       DB_CONNECTION=pgsql
       DB_HOST=127.0.0.1
       DB_PORT=5432
-      DB_DATABASE={{ 'agentflix_stage' if app_environment == 'staging' else 'interazap' }}
-      DB_USERNAME=agentflix_app
+      DB_DATABASE={{ 'interazap_stage' if app_environment == 'staging' else 'interazap' }}
+      DB_USERNAME=interazap_app
       DB_PASSWORD=${VAULT_DB_PASSWORD}
 
       REDIS_CLIENT=predis
@@ -142,7 +142,7 @@
       REDIS_PASSWORD=${VAULT_REDIS_PASSWORD}
       REDIS_PORT=6379
       REDIS_DB={{ '1' if app_environment == 'staging' else '0' }}
-      REDIS_PREFIX={{ 'agentflix_stage_' if app_environment == 'staging' else 'agentflix_prod_' }}
+      REDIS_PREFIX={{ 'interazap_stage_' if app_environment == 'staging' else 'interazap_prod_' }}
       REDIS_QUEUE=default
       REDIS_QUEUE_RETRY_AFTER=90
       REDIS_BACKOFF_ALGORITHM=decorrelated_jitter
@@ -417,7 +417,7 @@
 
 - name: 'Clonar App para a nova release'
   git:
-      repo: '{{ agentflix_git_url }}'
+      repo: '{{ interazap_git_url }}'
       dest: '{{ deploy_path }}/app/releases/{{ deploy_timestamp }}'
       version: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
       force: yes
@@ -485,7 +485,7 @@
 
 - name: 'Clonar Gateway para a nova release'
   git:
-      repo: '{{ agentflix_git_url }}'
+      repo: '{{ interazap_git_url }}'
       dest: '{{ deploy_path }}/gateway/releases/{{ deploy_timestamp }}'
       version: "{{ 'develop' if app_environment == 'staging' else 'main' }}"
       force: yes
@@ -530,7 +530,7 @@
       cat > {{ deploy_path }}/gateway/shared/.env << ENVEOF
       NODE_ENV={{ app_environment }}
       PORT={{ 6001 if app_environment == 'staging' else 6002 }}
-      DATABASE_URL=postgres://agentflix_app:${VAULT_DB_PASSWORD}@127.0.0.1:5432/{{ 'agentflix_stage' if app_environment == 'staging' else 'interazap' }}
+      DATABASE_URL=postgres://interazap_app:${VAULT_DB_PASSWORD}@127.0.0.1:5432/{{ 'interazap_stage' if app_environment == 'staging' else 'interazap' }}
       REDIS_URL=redis://${REDIS_AUTH_SEGMENT}127.0.0.1:6379/{{ '1' if app_environment == 'staging' else '0' }}
       API_URL=http://127.0.0.1:{{ octane_port | default(9501) }}
       JWT_SECRET=${VAULT_JWT_SECRET}

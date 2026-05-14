@@ -17,7 +17,7 @@
       groups: deploysudo, www-data
       append: yes
       shell: /bin/bash
-      password: "{{ agentflix_password | password_hash('sha512') }}"
+      password: "{{ interazap_password | password_hash('sha512') }}"
       create_home: yes
       home: /home/deploy
       skeleton: /etc/skel

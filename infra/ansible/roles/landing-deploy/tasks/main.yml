@@ -37,7 +37,7 @@
 
 - name: 'Clonar repositório para release atual da landing'
   git:
-    repo: '{{ agentflix_git_url }}'
+    repo: '{{ interazap_git_url }}'
     dest: '{{ landing_current_release_path }}'
     version: '{{ landing_target_branch }}'
     force: yes
