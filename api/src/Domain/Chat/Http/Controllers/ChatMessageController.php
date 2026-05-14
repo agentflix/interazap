@@ -10,13 +10,16 @@ use Domain\Chat\Actions\ChatMessageReactionActions;
 use Domain\Chat\Actions\ChatTicketActions;
 use Domain\Chat\Actions\ListChatMessagesAction;
 use Domain\Chat\Actions\SendChatMessageAction;
+use Domain\Chat\Actions\SendTemplateMessageAction;
 use Domain\Chat\DTOs\ChatMessageDTO;
 use Domain\Chat\Http\Requests\ChatMessageContactRequest;
 use Domain\Chat\Http\Requests\ChatMessageEditRequest;
 use Domain\Chat\Http\Requests\ChatMessageLocationRequest;
 use Domain\Chat\Http\Requests\ChatMessageReactRequest;
 use Domain\Chat\Http\Requests\ChatMessageStoreRequest;
+use Domain\Chat\Http\Requests\SendTemplateMessageRequest;
 use Domain\Chat\Http\Resources\ChatMessageResource;
+use Domain\Chat\Models\ChatMessageTemplate;
 use Domain\Platform\Services\PlatformPlanEnforcementService;
 use Domain\Shared\Http\Controllers\BaseController;
 use Domain\Shared\Services\AuditLogger;
@@ -38,6 +41,7 @@ final class ChatMessageController extends BaseController
     public function __construct(
         private readonly ListChatMessagesAction $listMessagesAction,
         private readonly SendChatMessageAction $sendMessageAction,
+        private readonly SendTemplateMessageAction $sendTemplateAction,
         private readonly ChatMessageReactionActions $reactionActions,
         private readonly ChatMessageEditActions $editActions,
         private readonly ChatMessageDeleteActions $deleteActions,
@@ -335,5 +339,44 @@ final class ChatMessageController extends BaseController
         $this->audit->log($request->user(), $tenantId, 'chat.messages.location_sent', $message);
 
         return $this->created(new ChatMessageResource($message), 'Localização enviada');
+    }
+
+    /**
+     * Enviar mensagem de template Meta aprovado em um ticket.
+     *
+     * @param  SendTemplateMessageRequest  $request  Dados validados (template_id ou template_name + variables).
+     * @param  string  $ticketId  Identificador UUID do ticket.
+     * @return JsonResponse Mensagem registrada e enviada.
+     */
+    public function sendTemplate(SendTemplateMessageRequest $request, string $ticketId): JsonResponse
+    {
+        $tenantId = (string) $request->user()->tenant_id;
+        $ticket = $this->ticketActions->find($tenantId, $ticketId);
+        $this->authorize('create', [\Domain\Chat\Models\ChatMessage::class, $ticket]);
+
+        $validated = $request->validated();
+        $variables = (array) ($validated['variables'] ?? []);
+
+        if (! empty($validated['template_id'])) {
+            $templateId = (string) $validated['template_id'];
+        } else {
+            $template = ChatMessageTemplate::query()
+                ->where('tenant_id', $tenantId)
+                ->where('name', $validated['template_name'])
+                ->firstOrFail();
+            $templateId = (string) $template->id;
+        }
+
+        $message = $this->sendTemplateAction->execute(
+            $tenantId,
+            $ticketId,
+            $templateId,
+            $variables,
+            (string) $request->user()->id,
+        );
+
+        $this->audit->log($request->user(), $tenantId, 'chat.messages.template_sent', $message);
+
+        return $this->created(new ChatMessageResource($message), 'Template enviado');
     }
 }

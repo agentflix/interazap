@@ -65,7 +65,7 @@ e2e_run('delegate_to_agent: delega para agente target válido', function () use 
     // DelegateToAgentTool tenta criar child run + publicar no Redis Stream
     // Em ambiente sem worker pode retornar success OU failure com mensagem informativa
     e2e_assert(isset($r->success), 'campo success presente na resposta');
-    e2e_assert(isset($r->message) && strlen($r->message) > 0, 'mensagem presente na resposta');
+    e2e_assert(isset($r->message) && $r->message !== '', 'mensagem presente na resposta');
 
     if ($r->success) {
         e2e_assert(isset($r->data['child_run_id']), 'data.child_run_id presente em caso de sucesso');

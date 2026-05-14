@@ -18,9 +18,8 @@ final class PlatformLeadActions
      *
      * Comportamento:
      * - Honeypot preenchido → retorna instância "fake" não persistida (silent drop).
-     * - Deduplicação: se já existe lead com o mesmo email OU telefone na MESMA
-     *   origem nas últimas 24h, atualiza `updated_at` do existente e o retorna,
-     *   sem criar novo registro.
+     * - Deduplicação: se já existe lead com o mesmo email OU telefone nas últimas
+     *   24h, atualiza `updated_at` do existente e o retorna, sem criar novo registro.
      * - Caso contrário, cria o registro e dispara `PlatformLeadCreated`.
      *
      * @param  PlatformLeadDTO  $dto  DTO com dados do lead.
@@ -47,13 +46,13 @@ final class PlatformLeadActions
         /** @var PlatformLead $lead */
         $lead = PlatformLead::query()->create($dto->toArray());
 
-        PlatformLeadCreated::dispatch($lead->id, $lead->source);
+        PlatformLeadCreated::dispatch($lead->id);
 
         return $lead->refresh();
     }
 
     /**
-     * Busca duplicata recente (mesma origem, mesmo email OU telefone, últimas 24h).
+     * Busca duplicata recente (mesmo email OU telefone, últimas 24h).
      *
      * @param  PlatformLeadDTO  $dto  DTO do lead em criação.
      */
@@ -61,7 +60,6 @@ final class PlatformLeadActions
     {
         /** @var PlatformLead|null $lead */
         $lead = PlatformLead::query()
-            ->where('source', $dto->source)
             ->where('created_at', '>=', now()->subDay())
             ->where(function ($query) use ($dto): void {
                 $query->where('email', $dto->email)

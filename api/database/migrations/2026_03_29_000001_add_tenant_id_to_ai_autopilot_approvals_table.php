@@ -21,7 +21,7 @@ return new class extends Migration
         // anteriores (2026-03-04) já a criaram. Aplica apenas o delta necessário.
         if (! Schema::hasColumn('ai_autopilot_approvals', 'tenant_id')) {
             Schema::table('ai_autopilot_approvals', function (Blueprint $table): void {
-                $table->uuid('tenant_id')->nullable()->after('id');
+                $table->uuid('tenant_id')->after('id');
                 $table->foreign('tenant_id')
                     ->references('id')
                     ->on('platform_tenants')

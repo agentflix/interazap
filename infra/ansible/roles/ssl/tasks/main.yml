@@ -14,16 +14,17 @@
 
 - name: 'Definir domínios SSL'
   set_fact:
-      ssl_domains:
-          - interazap.com.br
-          - www.interazap.com.br
-          - app.interazap.com.br
-          - api.interazap.com.br
-          - gateway.interazap.com.br
-          - stage.www.interazap.com.br
-          - stage.app.interazap.com.br
-          - stage.api.interazap.com.br
-          - stage.gateway.interazap.com.br
+       ssl_domains:
+           - interazap.com.br
+           - www.interazap.com.br
+           - clinicas.interazap.com.br
+           - app.interazap.com.br
+           - api.interazap.com.br
+           - gateway.interazap.com.br
+           - stage.www.interazap.com.br
+           - stage.app.interazap.com.br
+           - stage.api.interazap.com.br
+           - stage.gateway.interazap.com.br
 
 - name: 'Criar diretório para certificados'
   file:

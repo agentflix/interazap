@@ -126,10 +126,7 @@ class BillingChangePlanTest extends TestCase
             'email' => $tenant->primary_email,
         ]);
 
-        $role = AuthRole::firstOrCreate(
-            ['id' => AuthRole::INQUILINO_ID],
-            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
-        );
+        \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::INQUILINO_ID], ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
 
         foreach (['billing.view', 'billing.plan.manage'] as $permission) {
             AuthPermission::query()->firstOrCreate(

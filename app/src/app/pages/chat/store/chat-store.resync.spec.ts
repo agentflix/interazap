@@ -169,8 +169,8 @@ describe('ChatStore deterministic resync pagination', () => {
 
     const merged = store.messages().get('ticket-1') ?? [];
     expect(merged).toHaveLength(125);
-    expect(merged[0]?.id).toBe('m-1');
-    expect(merged[124]?.id).toBe('m-125');
+    expect(merged[0]?.id).toBe('m-125');
+    expect(merged[124]?.id).toBe('m-1');
   });
 });
 

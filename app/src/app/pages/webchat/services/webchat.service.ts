@@ -337,8 +337,9 @@ export class WebChatService implements OnDestroy {
         ),
         tap((messages) => {
           if (messages.length > 0) {
-            this._messages.set(messages);
-            this.persistMessages(messages);
+            const sorted = messages.sort(compareWebChatMessagesAsc);
+            this._messages.set(sorted);
+            this.persistMessages(sorted);
           }
         }),
         catchError((err) => {
@@ -357,7 +358,7 @@ export class WebChatService implements OnDestroy {
       if (msgs.some((m) => m.id === message.id)) {
         return msgs;
       }
-      const updated = [...msgs, message];
+      const updated = [...msgs, message].sort(compareWebChatMessagesAsc);
       this.persistMessages(updated);
       return updated;
     });
@@ -580,4 +581,20 @@ export class WebChatService implements OnDestroy {
       this._ticketClosedByAgent$.next();
     });
   }
+}
+
+/**
+ * Compara duas WebChatMessages para ordenação estável ASC (cronológica).
+ *
+ * Regra canônica: `createdAt` ASC → `id` ASC (desempate determinístico).
+ */
+function compareWebChatMessagesAsc(a: WebChatMessage, b: WebChatMessage): number {
+  const tsA = Date.parse(a.createdAt ?? '');
+  const tsB = Date.parse(b.createdAt ?? '');
+  const tsDiff = (Number.isNaN(tsA) ? 0 : tsA) - (Number.isNaN(tsB) ? 0 : tsB);
+  if (tsDiff !== 0) {
+    return tsDiff;
+  }
+  // Desempate por id (comparação lexicográfica)
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }

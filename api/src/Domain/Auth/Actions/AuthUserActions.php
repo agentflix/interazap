@@ -130,11 +130,11 @@ final class AuthUserActions
     }
 
     /**
-     * Impede que um usuário não-super-admin atribua o perfil super-admin.
+     * Impede que qualquer usuário autenticado atribua o perfil super-admin.
      *
      * @param  AuthUserDTO  $dto  DTO com os roles a serem atribuídos.
      *
-     * @throws AuthorizationException Quando tenta atribuir super-admin sem permissão.
+     * @throws AuthorizationException Quando tenta atribuir super-admin via API autenticada.
      */
     private function guardSuperAdminAssignment(AuthUserDTO $dto): void
     {
@@ -146,17 +146,11 @@ final class AuthUserActions
     /**
      * @param  list<string>  $rolesToAssign
      *
-     * @throws AuthorizationException Quando tenta atribuir super-admin sem permissão.
+     * @throws AuthorizationException Quando tenta atribuir super-admin via API autenticada.
      */
     private function guardSuperAdminRoles(array $rolesToAssign): void
     {
         if (! auth()->check()) {
-            return;
-        }
-
-        $currentUser = auth()->user();
-
-        if ($currentUser->isSuperAdmin()) {
             return;
         }
 

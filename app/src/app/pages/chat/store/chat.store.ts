@@ -21,6 +21,7 @@ import {
   ChatMessageCacheService,
   type ChatMessageCacheDelegate,
 } from '@core/services/chat-message-cache.service';
+import { compareMessagesDesc, resolveMessageOrderTimestamp as resolveStableOrderTimestamp } from '@core/utils/message-comparator.util';
 import { type ChatStoreState } from './chat-store.model';
 
 interface StreamingState {
@@ -314,14 +315,17 @@ export class ChatStore implements OnDestroy, ChatMessageCacheDelegate {
     if (type === 'ticket.new') {
       const ticketData = rawEvent.data as TicketEventData;
       const tkt = ticketData.ticket;
-      const ticketId = (tkt?.id != null ? String(tkt.id) : ticketData.ticket_id) as string | undefined;
+      const ticketId =
+        tkt?.id !== undefined && tkt.id !== null ? String(tkt.id) : ticketData.ticket_id;
       if (ticketId !== undefined && tkt !== undefined) {
         changes.tickets.set(ticketId, tkt);
         flags.hasTicketChanges = true;
         changes.delta.all += 1;
         const status = tkt.status as keyof ChatStoreState['countsDelta'] | undefined;
-        if (status !== undefined && changes.delta[status] !== undefined) {
-          changes.delta[status] = (changes.delta[status] ?? 0) + 1;
+        // CalledCounts não possui index signature — cast via unknown para indexação dinâmica
+        const deltaMap = changes.delta as unknown as Record<string, number | undefined>;
+        if (status !== undefined && deltaMap[status] !== undefined) {
+          deltaMap[status] = (deltaMap[status] ?? 0) + 1;
         }
         flags.hasDeltaChanges = true;
       }
@@ -347,7 +351,8 @@ export class ChatStore implements OnDestroy, ChatMessageCacheDelegate {
     if (type === 'ticket.updated') {
       const ticketData = rawEvent.data as TicketEventData;
       const tkt = ticketData.ticket;
-      const ticketId = (tkt?.id != null ? String(tkt.id) : ticketData.ticket_id) as string | undefined;
+      const ticketId =
+        tkt?.id !== undefined && tkt.id !== null ? String(tkt.id) : ticketData.ticket_id;
       if (ticketId !== undefined) {
         const existingTicket = changes.tickets.get(ticketId);
         if (existingTicket !== undefined && tkt !== undefined) {
@@ -643,10 +648,10 @@ export class ChatStore implements OnDestroy, ChatMessageCacheDelegate {
       return null;
     }
 
+    // Usa o comparador estável (timestamp + id) para encontrar a mensagem mais recente,
+    // garantindo desempate determinístico quando timestamps são iguais.
     const latest = messages.reduce((current, candidate) =>
-      this.resolveMessageOrderTimestamp(candidate) >= this.resolveMessageOrderTimestamp(current)
-        ? candidate
-        : current,
+      compareMessagesDesc(candidate, current) < 0 ? candidate : current,
     );
 
     if (typeof latest.id === 'string' && latest.id.trim() !== '') {
@@ -700,10 +705,7 @@ export class ChatStore implements OnDestroy, ChatMessageCacheDelegate {
       }
     }
 
-    return Array.from(messageById.values()).sort(
-      (left, right) =>
-        this.resolveMessageOrderTimestamp(left) - this.resolveMessageOrderTimestamp(right),
-    );
+    return Array.from(messageById.values()).sort(compareMessagesDesc);
   }
 
   private applyEditToMessageCollection(
@@ -902,19 +904,10 @@ export class ChatStore implements OnDestroy, ChatMessageCacheDelegate {
   }
 
   private resolveMessageOrderTimestamp(message: CalledMessage): number {
-    const candidates = [message.created_at, message.sent_at, message.delivered_at, message.read_at];
-
-    for (const value of candidates) {
-      if (typeof value !== 'string' || value.trim() === '') {
-        continue;
-      }
-
-      const timestamp = Date.parse(value);
-      if (!Number.isNaN(timestamp)) {
-        return timestamp;
-      }
+    const timestamp = resolveStableOrderTimestamp(message);
+    if (timestamp !== 0) {
+      return timestamp;
     }
-
     return this.resolveMessageFreshnessTimestamp(message);
   }
 

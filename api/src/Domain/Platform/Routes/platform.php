@@ -9,23 +9,48 @@ use Domain\Platform\Http\Controllers\PlatformTenantController;
 use Domain\Platform\Http\Controllers\PlatformUazapiInstanceController;
 use Domain\Platform\Http\Controllers\PlatformUazapiMessageController;
 use Domain\Platform\Http\Controllers\PlatformUserController;
+use Domain\Platform\Http\Controllers\QueueAdminController;
 use Domain\Platform\Http\Controllers\QueueHealthController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Queue Health Routes (Internal Monitoring)
+| Queue Health Routes (Internal Monitoring — Auth Required)
 |--------------------------------------------------------------------------
-| These routes are used for internal queue monitoring and health checks.
-| Protected by throttle middleware to prevent abuse.
+| These routes expose queue names, sizes and config — sensitive operational
+| data. Moved under auth:sanctum (same guard as admin/queues) to prevent
+| anonymous enumeration. The observability throttle is kept as an
+| additional rate-limit layer.
 */
-Route::middleware(['throttle:observability'])
-    ->prefix('health')
+Route::middleware(['auth:sanctum', 'throttle:observability'])
+    ->prefix('admin/health')
     ->group(function (): void {
         Route::get('/queues', [QueueHealthController::class, 'index']);
-        Route::get('/queue', [QueueHealthController::class, 'index']);
         Route::get('/queues/config', [QueueHealthController::class, 'config']);
         Route::get('/queues/{queue}', [QueueHealthController::class, 'show']);
+    });
+
+Route::middleware(['auth:sanctum'])
+    ->prefix('admin/queues')
+    ->group(function (): void {
+        // Static routes MUST come before dynamic /{name} to avoid route collision.
+        // e.g. /dlq must not be captured as name="dlq" by the show action.
+        Route::get('/dlq', [QueueAdminController::class, 'deadLetterIndex']);
+        Route::post('/dlq/{id}/retry', [QueueAdminController::class, 'deadLetterRetry']);
+        Route::post('/dlq/retry-all', [QueueAdminController::class, 'deadLetterRetryAll']);
+        Route::delete('/dlq/{id}', [QueueAdminController::class, 'deadLetterPurge']);
+        Route::post('/dlq/purge-all', [QueueAdminController::class, 'deadLetterPurgeAll']);
+
+        Route::get('/circuits', [QueueAdminController::class, 'circuitsIndex']);
+        Route::get('/circuits/{name}', [QueueAdminController::class, 'circuitsShow']);
+        Route::post('/circuits/{name}/reset', [QueueAdminController::class, 'circuitsReset']);
+        Route::post('/circuits/{name}/open', [QueueAdminController::class, 'circuitsOpen']);
+
+        Route::get('/', [QueueAdminController::class, 'index']);
+        Route::get('/{name}', [QueueAdminController::class, 'show']);
+        Route::post('/{name}/pause', [QueueAdminController::class, 'pause']);
+        Route::post('/{name}/resume', [QueueAdminController::class, 'resume']);
+        Route::post('/{name}/clean', [QueueAdminController::class, 'clean']);
     });
 
 Route::middleware(['auth:sanctum'])
@@ -55,6 +80,8 @@ Route::middleware(['auth:sanctum'])
         Route::patch('/plans/{id}/toggle', [PlatformPlanController::class, 'toggle']);
 
         Route::get('/leads', [PlatformLeadAdminController::class, 'index']);
+        Route::get('/leads/export', [PlatformLeadAdminController::class, 'export'])->name('platform.leads.export');
+        Route::post('/leads/{id}/convert', [PlatformLeadAdminController::class, 'convert'])->name('platform.leads.convert');
 
         Route::get('/uazapi/instances', [PlatformUazapiInstanceController::class, 'index']);
         Route::post('/uazapi/instances', [PlatformUazapiInstanceController::class, 'store']);

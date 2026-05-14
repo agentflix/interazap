@@ -82,6 +82,7 @@ final class WebChatMessagesController extends BaseController
             ->where('is_deleted', false)
             ->with('extended')
             ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc')
             ->get()
             ->map(fn (ChatMessage $msg) => [
                 'id' => (string) $msg->id,

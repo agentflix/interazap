@@ -53,6 +53,7 @@ describe('RedisStreamsService', () => {
         domain: 'ai',
         action: 'completion',
         provider: 'openai',
+        correlationId: 'corr-1',
         payload: { prompt: 'test' },
       });
 
@@ -75,9 +76,10 @@ describe('RedisStreamsService', () => {
       redisService.publishStream.mockResolvedValue('1234567890-0');
 
       const message = createGatewayMessage({
-        domain: 'chat',
+        domain: 'whatsapp',
         action: 'send',
         provider: 'zapi',
+        correlationId: 'corr-2',
         payload: { text: 'hello' },
       });
 
@@ -98,6 +100,7 @@ describe('RedisStreamsService', () => {
         domain: 'ai',
         action: 'embed',
         provider: 'openai',
+        correlationId: 'corr-3',
         payload: { text: 'test' },
         metadata: { model: 'text-embedding-ada-002' },
       });
@@ -453,7 +456,7 @@ describe('RedisStreamsService', () => {
     it('should create an error response', () => {
       const response = service.createErrorResponse(
         'corr-123',
-        'PROVIDER_ERROR',
+        'PROVIDER_SERVER_ERROR',
         'Something went wrong',
       );
 
@@ -466,7 +469,7 @@ describe('RedisStreamsService', () => {
     it('should include processing time when provided', () => {
       const response = service.createErrorResponse(
         'corr-123',
-        'TIMEOUT',
+        'PROVIDER_TIMEOUT',
         'Request timed out',
         500,
       );
@@ -477,7 +480,7 @@ describe('RedisStreamsService', () => {
     it('should include details when provided', () => {
       const response = service.createErrorResponse(
         'corr-123',
-        'VALIDATION_ERROR',
+        'INVALID_REQUEST',
         'Invalid input',
         undefined,
         { field: 'email' },

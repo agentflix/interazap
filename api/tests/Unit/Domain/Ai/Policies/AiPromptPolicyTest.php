@@ -40,7 +40,7 @@ class AiPromptPolicyTest extends TestCase
 
         // Create Inquilino role
         if (! \Domain\Auth\Models\AuthRole::query()->where('id', AuthRole::INQUILINO_ID)->where('guard_name', 'sanctum')->exists()) {
-            AuthRole::firstOrCreate(['id' => AuthRole::INQUILINO_ID], ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
+            \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::INQUILINO_ID], ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
         }
 
         // Tenant admin user (has Inquilino role but is associated with a tenant)

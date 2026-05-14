@@ -94,7 +94,7 @@ final class ReportsContactsSeeder extends Seeder
                     'name' => "Contact {$i}",
                     'phone' => '+55'.random_int(10000000000, 99999999999),
                     'is_active' => true,
-                    'created_at' => now()->subDays(rand(1, 60)),
+                    'created_at' => now()->subDays(random_int(1, 60)),
                 ]
             );
             $contacts[] = $contact;
@@ -102,7 +102,7 @@ final class ReportsContactsSeeder extends Seeder
 
         // Assign random tags to contacts - usa syncWithoutDetaching que já é idempotente
         foreach ($contacts as $contact) {
-            $randomTags = collect($tags)->random(rand(0, 3));
+            $randomTags = collect($tags)->random(random_int(0, 3));
             foreach ($randomTags as $tag) {
                 $contact->tags()->syncWithoutDetaching([
                     $tag->id => [

@@ -7,7 +7,6 @@ namespace Database\Seeders;
 use Domain\Ai\Enums\AiDocumentType;
 use Domain\Ai\Enums\AiEmbeddingStatus;
 use Domain\Ai\Enums\AutopilotTriggerType;
-use Domain\Ai\Jobs\AiKnowledgeProcessJob;
 use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAgentChannel;
 use Domain\Ai\Models\AiAgentDelegation;
@@ -231,10 +230,12 @@ class InteraZapProductAgentsSeeder extends Seeder
         ];
 
         foreach ($rules as [$sourceName, $targetName]) {
-            if (! isset($agents[$sourceName]) || ! isset($agents[$targetName])) {
+            if (! isset($agents[$sourceName])) {
                 continue;
             }
-
+            if (! isset($agents[$targetName])) {
+                continue;
+            }
             AiAgentDelegation::query()->updateOrCreate(
                 [
                     'tenant_id' => $tenantId,
@@ -416,7 +417,7 @@ class InteraZapProductAgentsSeeder extends Seeder
             ]
         );
 
-        AiKnowledgeProcessJob::dispatch($document->id);
+        dispatch(new \Domain\Ai\Jobs\AiKnowledgeProcessJob($document->id));
     }
 
     /**

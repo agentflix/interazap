@@ -20,10 +20,8 @@ final class PlatformLeadCreated
 
     /**
      * @param  string  $leadId  Identificador (UUID) do lead criado.
-     * @param  string  $source  Origem do lead (landing_form, landing_exit_modal, ...).
      */
     public function __construct(
         public readonly string $leadId,
-        public readonly string $source,
     ) {}
 }

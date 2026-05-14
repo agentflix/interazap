@@ -1,6 +1,6 @@
 version: "1.0"
 project: "InteraZap"
-last_updated: "2026-05-07"
+last_updated: "2026-05-11"
 
 stack:
   backend:
@@ -61,12 +61,12 @@ stack:
 
 metrics:
   total_features: 5
-  features_completed: 4
-  features_in_progress: 1
-  total_tasks: 35
-  tasks_completed: 34
+  features_completed: 5
+  features_in_progress: 0
+  total_tasks: 54
+  tasks_completed: 54
   tasks_in_progress: 0
-  tasks_pending: 1
+  tasks_pending: 0
 
 modules_status:
   Shared:
@@ -74,29 +74,29 @@ modules_status:
     completion: "100%"
     last_change: "2026-05-06"
   Platform:
-    status: "in_progress"
-    completion: "92%"
-    last_change: "2026-05-07"
+    status: "active"
+    completion: "100%"
+    last_change: "2026-05-11"
   Auth:
     status: "active"
     completion: "95%"
-    last_change: "2026-05-03"
+    last_change: "2026-05-09"
   Chat:
     status: "active"
     completion: "80%"
-    last_change: "2026-05-06"
+    last_change: "2026-05-11"
   CRM:
     status: "active"
     completion: "72%"
-    last_change: "2026-05-06"
+    last_change: "2026-05-11"
   Ai:
     status: "active"
     completion: "65%"
-    last_change: "2026-05-05"
+    last_change: "2026-05-10"
   Billing:
     status: "active"
     completion: "75%"
-    last_change: "2026-05-05"
+    last_change: "2026-05-10"
   Configuration:
     status: "active"
     completion: "70%"
@@ -119,8 +119,8 @@ modules_status:
     last_change: "2026-05-05"
   App:
     status: "active"
-    completion: "72%"
-    last_change: "2026-05-07"
+    completion: "75%"
+    last_change: "2026-05-11"
   Electron:
     status: "active"
     completion: "60%"
@@ -129,6 +129,6 @@ modules_status:
 quality:
   test_coverage_backend: "indefinido (medir com pest --coverage)"
   test_coverage_frontend: "indefinido"
-  lint_status: "app build OK; composer analyse bloqueado por erros preexistentes fora da FEAT-003"
+  lint_status: "api: N+1 CRM focado passando e QueueAdminControllerTest passando; app: build passando e gate App/Gateway passando; pnpm test --watch=false ainda falha por 4 suites fora do escopo (chat-contact-view, chat-message-media, chat-store.resync, lead-export-button)"
   seeders: "PerformanceSeeder criado: ~150k registros em 50 tenants, 83 tabelas, raw batch insert anti-timeout"
-  last_validation: "2026-05-06"
+  last_validation: "2026-05-11"

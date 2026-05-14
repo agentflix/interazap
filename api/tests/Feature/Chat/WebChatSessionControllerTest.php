@@ -51,7 +51,7 @@ final class WebChatSessionControllerTest extends TestCase
         $this->assertNotEmpty($response->json('data.ticketId'));
 
         $sessionId = $response->json('data.sessionId');
-        $session = ChatSession::find($sessionId);
+        $session = \Domain\Chat\Models\ChatSession::query()->find($sessionId);
         $this->assertNotNull($session);
         $this->assertEquals($this->tenantId, $session->tenant_id);
     }

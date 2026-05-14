@@ -2,17 +2,20 @@ import {
   type OnInit,
   ChangeDetectionStrategy,
   Component,
-  computed,
   DestroyRef,
+  computed,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   AfAlertComponent,
   AfButtonComponent,
+  AfCheckboxInputComponent,
   AfCrudPageComponent,
   AfConfirmModalComponent,
   AfDataTableComponent,
@@ -32,17 +35,19 @@ import { OpeningHoursFormComponent } from './components/opening-hours-form/openi
  * Notes:
  * - The API returns all opening hours in one call (not paginated).
  * - Local search is applied on day-of-week label (same as original).
- * - No bulk-delete or status filters (matching original config).
+ * - Supports bulk-delete via checkbox selection (consistent with other CRUD pages).
  */
 @Component({
   selector: 'app-opening-hours',
   standalone: true,
   imports: [
+    ReactiveFormsModule,
     LucideAngularModule,
     AfCrudPageComponent,
     AfModalComponent,
     AfConfirmModalComponent,
     AfButtonComponent,
+    AfCheckboxInputComponent,
     AfLoadingButtonComponent,
     AfDataTableComponent,
     AfStatusBadgeComponent,
@@ -95,6 +100,13 @@ export class OpeningHours implements OnInit {
     () => !this.isLoading() && !this.hasError() && this.filteredHours().length === 0,
   );
 
+  // ─── Selection state (bulk delete) ─────────────────────────────────────────
+  readonly selectAllControl = new FormControl<boolean>(false, { nonNullable: true });
+  private readonly rowSelectionControls = new Map<string, FormControl<boolean>>();
+  readonly selectedHourIds = signal<string[]>([]);
+  readonly selectedCount = computed(() => this.selectedHourIds().length);
+  readonly hasSelection = computed(() => this.selectedCount() > 0);
+
   // ─── Modal state ───────────────────────────────────────────────────────────
   readonly showFormModal = signal(false);
   readonly selectedHour = signal<OpeningHour | null>(null);
@@ -106,14 +118,38 @@ export class OpeningHours implements OnInit {
   readonly showDeleteModal = signal(false);
   readonly hourToDelete = signal<OpeningHour | null>(null);
 
+  readonly deleteModalTitle = computed(() =>
+    this.hourToDelete() ? 'Excluir horário' : 'Excluir horários',
+  );
+
+  readonly deleteConfirmLabel = computed(() =>
+    this.hourToDelete() ? 'Excluir' : 'Excluir selecionados',
+  );
+
   readonly deleteMessage = computed(() => {
-    const hour = this.hourToDelete();
-    return hour
-      ? `Tem certeza que deseja excluir o horário de ${this.getDayLabel(hour.day_of_week)}? Esta ação não pode ser desfeita.`
+    const single = this.hourToDelete();
+    if (!single && this.selectedCount() > 0) {
+      return `Tem certeza que deseja excluir ${this.selectedCount()} horários selecionados? Esta ação não pode ser desfeita.`;
+    }
+    return single
+      ? `Tem certeza que deseja excluir o horário de ${this.getDayLabel(single.day_of_week)}? Esta ação não pode ser desfeita.`
       : 'Tem certeza que deseja excluir este horário?';
   });
 
   readonly isDeleting = signal(false);
+
+  constructor() {
+    this.selectAllControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((checked) => {
+        const nextSelected = checked ? this.filteredHours().map((h) => h.id) : [];
+        this.selectedHourIds.set(nextSelected);
+
+        for (const hour of this.filteredHours()) {
+          this.getRowSelectionControl(hour.id).setValue(checked);
+        }
+      });
+  }
 
   ngOnInit(): void {
     this.loadHours();
@@ -148,6 +184,12 @@ export class OpeningHours implements OnInit {
     this.showDeleteModal.set(true);
   }
 
+  openBulkDelete(): void {
+    if (!this.hasSelection()) return;
+    this.hourToDelete.set(null);
+    this.showDeleteModal.set(true);
+  }
+
   handleFormSaved(hour: OpeningHour): void {
     this.showFormModal.set(false);
     this.selectedHour.set(null);
@@ -162,20 +204,28 @@ export class OpeningHours implements OnInit {
   }
 
   handleDeleteConfirmed(): void {
-    const hour = this.hourToDelete();
-    if (!hour || this.isDeleting()) return;
+    if (this.isDeleting()) return;
+
+    const singleHour = this.hourToDelete();
+    const idsToDelete = singleHour ? [singleHour.id] : this.selectedHourIds();
+
+    if (idsToDelete.length === 0) return;
 
     this.isDeleting.set(true);
 
-    this.openingHourService
-      .delete(hour.id)
+    forkJoin(idsToDelete.map((id) => this.openingHourService.delete(id)))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isDeleting.set(false);
           this.showDeleteModal.set(false);
           this.hourToDelete.set(null);
-          this.toast.success('Horário excluído com sucesso.');
+          this.clearSelection();
+          this.toast.success(
+            idsToDelete.length > 1
+              ? 'Horários excluídos com sucesso.'
+              : 'Horário excluído com sucesso.',
+          );
           this.loadHours();
         },
         error: () => {
@@ -194,6 +244,62 @@ export class OpeningHours implements OnInit {
     this.loadHours();
   }
 
+  // ─── Selection helpers ─────────────────────────────────────────────────────
+
+  getRowSelectionControl(id: string): FormControl<boolean> {
+    const existing = this.rowSelectionControls.get(id);
+    if (existing) return existing;
+
+    const control = new FormControl<boolean>(false, { nonNullable: true });
+    control.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((checked) => {
+      const selected = new Set(this.selectedHourIds());
+      if (checked) {
+        selected.add(id);
+      } else {
+        selected.delete(id);
+      }
+
+      this.selectedHourIds.set([...selected]);
+
+      const allSelected =
+        this.filteredHours().length > 0 &&
+        this.filteredHours().every((h) => selected.has(h.id));
+      this.selectAllControl.setValue(allSelected, { emitEvent: false });
+    });
+
+    this.rowSelectionControls.set(id, control);
+    return control;
+  }
+
+  private syncSelectionControls(hours: OpeningHour[]): void {
+    const activeIds = new Set(hours.map((h) => h.id));
+
+    for (const key of this.rowSelectionControls.keys()) {
+      if (!activeIds.has(key)) {
+        this.rowSelectionControls.delete(key);
+      }
+    }
+
+    const selected = this.selectedHourIds().filter((id) => activeIds.has(id));
+    this.selectedHourIds.set(selected);
+
+    for (const hour of hours) {
+      this.getRowSelectionControl(hour.id).setValue(selected.includes(hour.id));
+    }
+
+    this.selectAllControl.setValue(hours.length > 0 && selected.length === hours.length, {
+      emitEvent: false,
+    });
+  }
+
+  private clearSelection(): void {
+    this.selectedHourIds.set([]);
+    this.selectAllControl.setValue(false, { emitEvent: false });
+    for (const control of this.rowSelectionControls.values()) {
+      control.setValue(false, { emitEvent: false });
+    }
+  }
+
   // ─── Data loading ──────────────────────────────────────────────────────────
 
   private loadHours(): void {
@@ -205,7 +311,9 @@ export class OpeningHours implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.hours.set(response.data.opening_hours ?? []);
+          const data = response.data.opening_hours ?? [];
+          this.hours.set(data);
+          this.syncSelectionControls(data);
           this.isLoading.set(false);
         },
         error: () => {

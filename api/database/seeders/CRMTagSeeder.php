@@ -16,16 +16,16 @@ class CRMTagSeeder extends Seeder
         $tenants = PlatformTenant::query()->limit(100)->get();
 
         $tags = [
-            'hot',
-            'warm',
-            'cold',
-            'vip',
-            'renewal',
-            'upsell',
-            'cross-sell',
-            'priority',
-            'follow-up',
-            'at-risk',
+            'Quente',
+            'Morno',
+            'Frio',
+            'VIP',
+            'Renovação',
+            'Upsell',
+            'Cross-sell',
+            'Prioritário',
+            'Acompanhamento',
+            'Em Risco',
         ];
 
         foreach ($tenants as $tenant) {

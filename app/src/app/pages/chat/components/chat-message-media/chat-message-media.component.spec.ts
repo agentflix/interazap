@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ChatMessageMediaComponent } from './chat-message-media.component';
 import { ChatMediaLoaderService } from 'src/app/core/services/chat-media-loader.service';
+import { CalledMessageService } from 'src/app/core/services/called-message.service';
 import { of, throwError } from 'rxjs';
 
 const photoSwipeLightboxMock = vi.hoisted(() => {
@@ -29,6 +32,10 @@ describe('ChatMessageMediaComponent', () => {
     load: Mock;
     prime: Mock;
   };
+  let messageService: {
+    getMediaUrl: Mock;
+  };
+  let httpTesting: HttpTestingController;
   let mockObserver: {
     observe: Mock;
     disconnect: Mock;
@@ -102,11 +109,20 @@ describe('ChatMessageMediaComponent', () => {
       load: vi.fn().mockReturnValue(of('https://example.com/media.jpg')),
       prime: vi.fn(),
     };
+    messageService = {
+      getMediaUrl: vi.fn().mockReturnValue(of({ data: { url: 'https://example.com/document.pdf' } })),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ChatMessageMediaComponent],
-      providers: [{ provide: ChatMediaLoaderService, useValue: mediaLoader }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: ChatMediaLoaderService, useValue: mediaLoader },
+        { provide: CalledMessageService, useValue: messageService },
+      ],
     }).compileComponents();
+    httpTesting = TestBed.inject(HttpTestingController);
 
     fixture = TestBed.createComponent(ChatMessageMediaComponent);
     component = fixture.componentInstance;
@@ -117,6 +133,8 @@ describe('ChatMessageMediaComponent', () => {
   afterEach(() => {
     mediaLoader.load.mockReset();
     mediaLoader.prime.mockReset();
+    messageService.getMediaUrl.mockReset();
+    httpTesting.verify();
     photoSwipeLightboxMock.ctor.mockClear();
     photoSwipeLightboxMock.init.mockClear();
     photoSwipeLightboxMock.loadAndOpen.mockClear();
@@ -349,20 +367,20 @@ describe('ChatMessageMediaComponent', () => {
   });
 
   describe('Document Operations', () => {
-    let fetchSpy: Mock;
     let appendChildSpy: Mock;
     let removeChildSpy: Mock;
     let createObjectURLSpy: Mock;
     let revokeObjectURLSpy: Mock;
+    let mockBlob: Blob;
     let mockAnchor: { click: Mock; href: string; download: string; style: { display: string } };
 
     beforeEach(() => {
       mockAnchor = { click: vi.fn(), href: '', download: '', style: { display: '' } };
 
-      const mockBlob = new Blob(['content'], { type: 'application/pdf' });
-      fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-        blob: () => Promise.resolve(mockBlob),
-      } as unknown as Response);
+      mockBlob = new Blob(['content'], { type: 'application/pdf' });
+      messageService.getMediaUrl.mockReturnValue(
+        of({ data: { url: 'https://example.com/document.pdf' } }),
+      );
 
       createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
       revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
@@ -387,9 +405,11 @@ describe('ChatMessageMediaComponent', () => {
       component.resolvedUrl.set('https://example.com/document.pdf');
 
       component.openDocument();
+      const request = httpTesting.expectOne('https://example.com/document.pdf');
+      request.flush(mockBlob);
       await vi.waitFor(() => expect(appendChildSpy).toHaveBeenCalled());
 
-      expect(fetchSpy).toHaveBeenCalledWith('https://example.com/document.pdf');
+      expect(messageService.getMediaUrl).toHaveBeenCalledWith('called-1', 'msg-1');
       expect(createObjectURLSpy).toHaveBeenCalled();
       expect(mockAnchor.href).toBe('blob:mock-url');
       expect(mockAnchor.style.display).toBe('none');
@@ -397,12 +417,13 @@ describe('ChatMessageMediaComponent', () => {
       expect(removeChildSpy).toHaveBeenCalled();
     });
 
-    it('should fall back to window.open when fetch fails', async () => {
-      fetchSpy.mockRejectedValue(new Error('CORS'));
+    it('should fall back to window.open when signed download fails', async () => {
       const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
       component.resolvedUrl.set('https://example.com/document.pdf');
 
       component.openDocument();
+      const request = httpTesting.expectOne('https://example.com/document.pdf');
+      request.error(new ProgressEvent('error'));
       await vi.waitFor(() => expect(openSpy).toHaveBeenCalled());
 
       expect(openSpy).toHaveBeenCalledWith(
@@ -412,13 +433,16 @@ describe('ChatMessageMediaComponent', () => {
       );
     });
 
-    it('should do nothing without URL', () => {
+    it('should use signed URL even without fallback URL', async () => {
       component.resolvedUrl.set(null);
 
       component.openDocument();
+      const request = httpTesting.expectOne('https://example.com/document.pdf');
+      request.flush(new Blob(['content'], { type: 'application/pdf' }));
+      await vi.waitFor(() => expect(appendChildSpy).toHaveBeenCalled());
 
-      expect(fetchSpy).not.toHaveBeenCalled();
-      expect(appendChildSpy).not.toHaveBeenCalled();
+      expect(messageService.getMediaUrl).toHaveBeenCalledWith('called-1', 'msg-1');
+      expect(appendChildSpy).toHaveBeenCalled();
     });
   });
 

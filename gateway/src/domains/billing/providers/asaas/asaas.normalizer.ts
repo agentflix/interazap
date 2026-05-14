@@ -7,7 +7,7 @@ import {
   PaymentBillingType,
   PaymentEventPayload,
   PaymentStatus,
-} from '../../contracts/payment-event.dto';
+} from '../../models/payment-event.model';
 
 /**
  * AsaasNormalizer

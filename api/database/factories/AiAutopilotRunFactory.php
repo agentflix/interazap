@@ -25,12 +25,10 @@ class AiAutopilotRunFactory extends Factory
         return [
             'id' => (string) Str::orderedUuid(),
             'tenant_id' => fn () => \Domain\Platform\Models\PlatformTenant::query()->inRandomOrder()->first()->id ?? \Domain\Platform\Models\PlatformTenant::factory(),
-            'playbook_id' => function (array $attributes) {
-                return \Domain\Ai\Models\AiAutopilotPlaybook::query()
-                    ->where('tenant_id', $attributes['tenant_id'])
-                    ->inRandomOrder()
-                    ->first()->id ?? \Domain\Ai\Models\AiAutopilotPlaybook::factory()->create(['tenant_id' => $attributes['tenant_id']])->id;
-            },
+            'playbook_id' => fn (array $attributes) => \Domain\Ai\Models\AiAutopilotPlaybook::query()
+                ->where('tenant_id', $attributes['tenant_id'])
+                ->inRandomOrder()
+                ->first()->id ?? \Domain\Ai\Models\AiAutopilotPlaybook::factory()->create(['tenant_id' => $attributes['tenant_id']])->id,
             'status' => $this->faker->randomElement(['running', 'completed', 'failed', 'cancelled']),
             'playbook_version' => 1,
             'input_context' => ['source' => 'factory'],

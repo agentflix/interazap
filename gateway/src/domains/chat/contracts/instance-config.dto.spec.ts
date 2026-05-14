@@ -60,7 +60,6 @@ describe('InstanceConfigDto', () => {
   });
 
   it('should fail without id', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _id, ...payload } = validPayload;
     const dto = plainToInstance(InstanceConfigDto, payload);
     const errors = await validate(dto);
@@ -68,7 +67,6 @@ describe('InstanceConfigDto', () => {
   });
 
   it('should fail without tenantId', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { tenantId: _tenantId, ...payload } = validPayload;
     const dto = plainToInstance(InstanceConfigDto, payload);
     const errors = await validate(dto);
@@ -76,7 +74,6 @@ describe('InstanceConfigDto', () => {
   });
 
   it('should fail without provider', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { provider: _provider, ...payload } = validPayload;
     const dto = plainToInstance(InstanceConfigDto, payload);
     const errors = await validate(dto);
@@ -93,7 +90,6 @@ describe('InstanceConfigDto', () => {
   });
 
   it('should fail without webhookToken', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { webhookToken: _webhookToken, ...payload } = validPayload;
     const dto = plainToInstance(InstanceConfigDto, payload);
     const errors = await validate(dto);

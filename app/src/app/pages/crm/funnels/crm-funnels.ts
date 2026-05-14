@@ -19,6 +19,7 @@ import {
   AfConfirmModalComponent,
   AfCrudPageComponent,
   AfDataTableComponent,
+  AfDrawerComponent,
   AfLoadingButtonComponent,
   AfModalComponent,
   AfSelectInputComponent,
@@ -50,6 +51,7 @@ import { FunnelFormComponent } from './components/funnel-form/crm-funnel-form';
     AfLoadingButtonComponent,
     AfSelectInputComponent,
     AfDataTableComponent,
+    AfDrawerComponent,
     AfSortableHeaderComponent,
     AfStatusBadgeComponent,
     AfTableActionsComponent,
@@ -84,6 +86,24 @@ export class Funnels implements OnInit {
   readonly isEmpty = computed(
     () => !this.isLoading() && !this.hasError() && this.funnels().length === 0,
   );
+
+  // ─── Filter drawer ─────────────────────────────────────────────────────────
+  readonly isFilterOpen = signal(false);
+
+  readonly activeFiltersCount = computed(() =>
+    this.filterStatusControl.value !== 'all' ? 1 : 0,
+  );
+
+  openFilter(): void { this.isFilterOpen.set(true); }
+  closeFilter(): void { this.isFilterOpen.set(false); }
+
+  clearFilter(): void {
+    this.filterStatusControl.setValue('all');
+  }
+
+  applyFilter(): void {
+    this.closeFilter();
+  }
 
   // ─── Filter ────────────────────────────────────────────────────────────────
   readonly filterStatusControl = new FormControl<string>('all', { nonNullable: true });

@@ -8,7 +8,6 @@ use Domain\Billing\Enums\BillingInvoiceStatus;
 use Domain\Billing\Models\BillingInvoice;
 use Domain\Platform\Models\PlatformPlan;
 use Domain\Platform\Models\PlatformTenant;
-use Illuminate\Support\Carbon;
 
 it('calcula overage de IA para tokens acima do limite mensal', function (): void {
     $plan = PlatformPlan::factory()->create([
@@ -34,7 +33,7 @@ it('calcula overage de IA para tokens acima do limite mensal', function (): void
 });
 
 it('gera fatura com mensalidade e overage', function (): void {
-    Carbon::setTestNow('2026-05-01 06:00:00');
+    \Illuminate\Support\Facades\Date::setTestNow('2026-05-01 06:00:00');
 
     $plan = PlatformPlan::factory()->create([
         'price_monthly' => 297.00,
@@ -66,7 +65,7 @@ it('gera fatura com mensalidade e overage', function (): void {
         ->and($invoice->metadata['overage_tokens'])->toBe(50000)
         ->and((float) $invoice->metadata['overage_amount'])->toBe(100.0);
 
-    Carbon::setTestNow();
+    \Illuminate\Support\Facades\Date::setTestNow();
 });
 
 it('nao cria faturas em dry run', function (): void {

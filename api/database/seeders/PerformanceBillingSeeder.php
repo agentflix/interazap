@@ -100,7 +100,7 @@ final class PerformanceBillingSeeder
             ];
         }
 
-        if (! empty($payments)) {
+        if ($payments !== []) {
             PerformanceSeeder::insertBatch('billing_payments', $payments, self::BATCH_SIZE);
         }
     }

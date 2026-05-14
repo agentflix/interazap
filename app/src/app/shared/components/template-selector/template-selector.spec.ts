@@ -3,6 +3,7 @@ import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { environment } from '@env/environment';
 import { TemplateSelectorComponent, type MetaTemplate } from './template-selector';
 
 class HttpClientStub {
@@ -52,6 +53,12 @@ describe('TemplateSelectorComponent', () => {
 
   it('loads templates on init', () => {
     expect(http.get).toHaveBeenCalled();
+  });
+
+  it('loads templates through the Laravel API', () => {
+    expect(http.get).toHaveBeenCalledWith(
+      `${environment.apiUrl}/chat/message-templates?chat_instance_id=channel-1&status=APPROVED`,
+    );
   });
 
   it('filters only APPROVED templates', () => {

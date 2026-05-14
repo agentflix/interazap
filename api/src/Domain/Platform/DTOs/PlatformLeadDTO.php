@@ -23,7 +23,6 @@ final readonly class PlatformLeadDTO
      * @param  string  $phone  Telefone (somente dígitos, normalizado).
      * @param  string  $email  E-mail do lead.
      * @param  string|null  $company  Nome da empresa, opcional.
-     * @param  string  $source  Origem do lead (landing_form, landing_exit_modal, ...).
      * @param  string|null  $utmSource  UTM source.
      * @param  string|null  $utmMedium  UTM medium.
      * @param  string|null  $utmCampaign  UTM campaign.
@@ -38,7 +37,6 @@ final readonly class PlatformLeadDTO
         public string $phone,
         public string $email,
         public ?string $company,
-        public string $source,
         public ?string $utmSource,
         public ?string $utmMedium,
         public ?string $utmCampaign,
@@ -72,7 +70,6 @@ final readonly class PlatformLeadDTO
             company: isset($data['company']) && trim((string) $data['company']) !== ''
                 ? trim((string) $data['company'])
                 : null,
-            source: (string) ($data['source'] ?? ''),
             utmSource: self::nullableString($data['utm_source'] ?? null),
             utmMedium: self::nullableString($data['utm_medium'] ?? null),
             utmCampaign: self::nullableString($data['utm_campaign'] ?? null),
@@ -96,7 +93,6 @@ final readonly class PlatformLeadDTO
             'phone' => $this->phone,
             'email' => $this->email,
             'company' => $this->company,
-            'source' => $this->source,
             'utm_source' => $this->utmSource,
             'utm_medium' => $this->utmMedium,
             'utm_campaign' => $this->utmCampaign,

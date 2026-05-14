@@ -57,11 +57,9 @@ it('chama Gateway DELETE em template Meta e soft delete em sucesso', function ()
 
     expect(ChatMessageTemplate::query()->find($template->id))->toBeNull();
 
-    Http::assertSent(function ($request) use ($instance): bool {
-        return $request->method() === 'DELETE'
-            && str_contains($request->url(), '/channels/'.$instance->id.'/templates/meta_tpl')
-            && $request->header('x-api-key') === ['secret-key'];
-    });
+    Http::assertSent(fn ($request): bool => $request->method() === 'DELETE'
+        && str_contains((string) $request->url(), '/channels/'.$instance->id.'/templates/meta_tpl')
+        && $request->header('x-api-key') === ['secret-key']);
 });
 
 it('marca template Meta como disabled e soft delete quando Gateway falha', function (): void {

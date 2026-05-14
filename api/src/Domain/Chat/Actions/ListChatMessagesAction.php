@@ -44,7 +44,7 @@ final readonly class ListChatMessagesAction
             $query->where('type', $filters['type']);
         }
 
-        return $query->orderBy('created_at', 'desc')->paginate();
+        return $query->orderBy('created_at', 'desc')->orderBy('id', 'desc')->paginate();
     }
 
     /**

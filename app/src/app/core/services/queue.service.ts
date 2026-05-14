@@ -2,7 +2,6 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   type Observable,
-  catchError,
   map,
   tap,
   interval,
@@ -10,6 +9,7 @@ import {
   startWith,
   Subject,
   merge,
+  catchError,
 } from 'rxjs';
 import { environment } from '@env/environment';
 import { RealtimeService } from './realtime.service';
@@ -106,39 +106,12 @@ export interface QueueActionResult {
   affected?: number;
 }
 
-interface GatewayCircuitItem {
-  name: string;
-  state: CircuitState;
-  failures: number;
-  lastFailure: number | null;
-  options?: {
-    resetTimeout?: number;
-  };
-}
-
-interface GatewayCircuitsResponse {
-  circuits?: GatewayCircuitItem[];
-}
-
-interface GatewayCircuitSingleResponse {
-  name: string;
-  exists?: boolean;
-  state?: CircuitState | null;
-  failures?: number;
-  lastFailure?: number | null;
-  options?: {
-    resetTimeout?: number;
-  };
-}
-
 @Injectable({ providedIn: 'root' })
 export class QueueService {
   private readonly http = inject(HttpClient);
   private readonly realtime = inject(RealtimeService);
-  private readonly baseUrl = `${environment.apiUrl}/admin/queues`;
-  private readonly gatewayBaseUrl =
-    environment.gateway.url !== '' ? environment.gateway.url : window.location.origin;
-  private readonly circuitsHealthUrl = `${this.gatewayBaseUrl}/health/circuits`;
+  private readonly baseUrl = `${environment.apiUrl}/admin/health/queues`;
+  private readonly adminBaseUrl = `${environment.apiUrl}/admin/queues`;
 
   private readonly _overview = signal<QueueOverview | null>(null);
   private readonly _circuits = signal<CircuitBreakerOverview | null>(null);
@@ -167,39 +140,10 @@ export class QueueService {
    * @returns Observable com QueueOverview
    */
   getOverview(): Observable<QueueOverview> {
-    const healthUrl = `${environment.apiUrl}/health/queues`;
-    return this.http.get<{ data: QueueOverview }>(`${this.baseUrl}/overview`).pipe(
-      map((res) => res.data),
+    return this.http.get<QueueOverview | { data: QueueOverview }>(this.adminBaseUrl).pipe(
+      map((res) => this.unwrapData(res)),
+      catchError(() => this.getHealthOverviewFallback()),
       tap((data) => this._overview.set(data)),
-      catchError(() =>
-        this.http
-          .get<{ healthy: boolean; queues: { name: string; size: number; delayed: number }[] }>(
-            healthUrl,
-          )
-          .pipe(
-            map((res) => {
-              const queues: QueueMetrics[] = res.queues.map((q) => ({
-                name: q.name,
-                waiting: q.size,
-                active: 0,
-                completed: 0,
-                failed: 0,
-                delayed: q.delayed,
-                paused: false,
-              }));
-              const overview: QueueOverview = {
-                queues,
-                totalJobs: queues.reduce((sum, q) => sum + q.waiting + q.delayed, 0),
-                totalFailed: 0,
-                totalCompleted: 0,
-                uptime: 0,
-                redis: { connected: true, memory: 'N/A' },
-              };
-              return overview;
-            }),
-            tap((data) => this._overview.set(data)),
-          ),
-      ),
     );
   }
 
@@ -210,26 +154,11 @@ export class QueueService {
    * @returns Observable com metricas da fila
    */
   getQueueMetrics(queueName: string): Observable<QueueMetrics> {
-    const fallbackUrl = `${environment.apiUrl}/health/queues/${queueName}`;
     return this.http
-      .get<{ data: QueueMetrics }>(`${this.baseUrl}/${queueName}/metrics`)
+      .get<QueueMetrics | { data: QueueMetrics }>(`${this.adminBaseUrl}/${queueName}`)
       .pipe(
-        map((res) => res.data),
-        catchError(() =>
-          this.http
-            .get<{ name: string; size: number; delayed: number }>(fallbackUrl)
-            .pipe(
-              map((res) => ({
-                name: res.name,
-                waiting: res.size,
-                active: 0,
-                completed: 0,
-                failed: 0,
-                delayed: res.delayed,
-                paused: false,
-              })),
-            ),
-        ),
+        map((res) => this.unwrapData(res)),
+        catchError(() => this.getHealthQueueFallback(queueName)),
       );
   }
 
@@ -241,7 +170,7 @@ export class QueueService {
    */
   pauseQueue(queueName: string): Observable<QueueActionResult> {
     return this.http
-      .post<QueueActionResult>(`${this.baseUrl}/${queueName}/pause`, {})
+      .post<QueueActionResult>(`${this.adminBaseUrl}/${queueName}/pause`, {})
       .pipe(tap(() => this.refresh()));
   }
 
@@ -253,7 +182,7 @@ export class QueueService {
    */
   resumeQueue(queueName: string): Observable<QueueActionResult> {
     return this.http
-      .post<QueueActionResult>(`${this.baseUrl}/${queueName}/resume`, {})
+      .post<QueueActionResult>(`${this.adminBaseUrl}/${queueName}/resume`, {})
       .pipe(tap(() => this.refresh()));
   }
 
@@ -269,7 +198,7 @@ export class QueueService {
     status: 'completed' | 'failed' | 'delayed' | 'wait',
   ): Observable<QueueActionResult> {
     return this.http
-      .post<QueueActionResult>(`${this.baseUrl}/${queueName}/clean`, { status })
+      .post<QueueActionResult>(`${this.adminBaseUrl}/${queueName}/clean`, { status })
       .pipe(tap(() => this.refresh()));
   }
 
@@ -291,7 +220,7 @@ export class QueueService {
     if (filters?.per_page) params['per_page'] = filters.per_page;
 
     return this.http
-      .get<{ data: DeadLetterQueueResponse }>(`${this.baseUrl}/dlq`, { params })
+      .get<{ data: DeadLetterQueueResponse }>(`${this.adminBaseUrl}/dlq`, { params })
       .pipe(map((res) => res.data));
   }
 
@@ -302,7 +231,7 @@ export class QueueService {
    * @returns Observable com resultado da operacao
    */
   retryDeadLetterJob(jobId: string): Observable<QueueActionResult> {
-    return this.http.post<QueueActionResult>(`${this.baseUrl}/dlq/${jobId}/retry`, {});
+    return this.http.post<QueueActionResult>(`${this.adminBaseUrl}/dlq/${jobId}/retry`, {});
   }
 
   /**
@@ -312,7 +241,7 @@ export class QueueService {
    * @returns Observable com resultado da operacao
    */
   retryAllDeadLetterJobs(filters?: DeadLetterFilters): Observable<QueueActionResult> {
-    return this.http.post<QueueActionResult>(`${this.baseUrl}/dlq/retry-all`, filters || {});
+    return this.http.post<QueueActionResult>(`${this.adminBaseUrl}/dlq/retry-all`, filters || {});
   }
 
   /**
@@ -322,7 +251,7 @@ export class QueueService {
    * @returns Observable com resultado da operacao
    */
   purgeDeadLetterJob(jobId: string): Observable<QueueActionResult> {
-    return this.http.delete<QueueActionResult>(`${this.baseUrl}/dlq/${jobId}`);
+    return this.http.delete<QueueActionResult>(`${this.adminBaseUrl}/dlq/${jobId}`);
   }
 
   /**
@@ -332,7 +261,7 @@ export class QueueService {
    * @returns Observable com resultado da operacao
    */
   purgeAllDeadLetterJobs(filters?: DeadLetterFilters): Observable<QueueActionResult> {
-    return this.http.post<QueueActionResult>(`${this.baseUrl}/dlq/purge-all`, filters || {});
+    return this.http.post<QueueActionResult>(`${this.adminBaseUrl}/dlq/purge-all`, filters || {});
   }
 
   /**
@@ -341,13 +270,8 @@ export class QueueService {
    * @returns Observable com CircuitBreakerOverview
    */
   getCircuitBreakers(): Observable<CircuitBreakerOverview> {
-    return this.http.get<{ data: CircuitBreakerOverview }>(`${this.baseUrl}/circuits`).pipe(
+    return this.http.get<{ data: CircuitBreakerOverview }>(`${this.adminBaseUrl}/circuits`).pipe(
       map((res) => res.data),
-      catchError(() =>
-        this.http
-          .get<GatewayCircuitsResponse>(this.circuitsHealthUrl)
-          .pipe(map((res) => this.mapGatewayCircuitsOverview(res))),
-      ),
       tap((data) => this._circuits.set(data)),
     );
   }
@@ -359,14 +283,9 @@ export class QueueService {
    * @returns Observable com CircuitBreakerStatus
    */
   getCircuitBreaker(name: string): Observable<CircuitBreakerStatus> {
-    return this.http.get<{ data: CircuitBreakerStatus }>(`${this.baseUrl}/circuits/${name}`).pipe(
-      map((res) => res.data),
-      catchError(() =>
-        this.http
-          .get<GatewayCircuitSingleResponse>(`${this.circuitsHealthUrl}/${name}`)
-          .pipe(map((res) => this.mapGatewayCircuit(res, name))),
-      ),
-    );
+    return this.http
+      .get<{ data: CircuitBreakerStatus }>(`${this.adminBaseUrl}/circuits/${name}`)
+      .pipe(map((res) => res.data));
   }
 
   /**
@@ -377,12 +296,7 @@ export class QueueService {
    */
   resetCircuitBreaker(name: string): Observable<QueueActionResult> {
     return this.http
-      .post<QueueActionResult>(`${this.baseUrl}/circuits/${name}/reset`, {})
-      .pipe(
-        catchError(() =>
-          this.http.post<QueueActionResult>(`${this.circuitsHealthUrl}/${name}/reset`, {}),
-        ),
-      )
+      .post<QueueActionResult>(`${this.adminBaseUrl}/circuits/${name}/reset`, {})
       .pipe(tap(() => this.refreshCircuits()));
   }
 
@@ -394,12 +308,7 @@ export class QueueService {
    */
   openCircuitBreaker(name: string): Observable<QueueActionResult> {
     return this.http
-      .post<QueueActionResult>(`${this.baseUrl}/circuits/${name}/open`, {})
-      .pipe(
-        catchError(() =>
-          this.http.post<QueueActionResult>(`${this.circuitsHealthUrl}/${name}/open`, {}),
-        ),
-      )
+      .post<QueueActionResult>(`${this.adminBaseUrl}/circuits/${name}/open`, {})
       .pipe(tap(() => this.refreshCircuits()));
   }
 
@@ -468,44 +377,57 @@ export class QueueService {
     this._error.set(null);
   }
 
-  private mapGatewayCircuitsOverview(response: GatewayCircuitsResponse): CircuitBreakerOverview {
-    const circuits = (response.circuits ?? []).map((item) =>
-      this.mapGatewayCircuit(item, item.name),
-    );
+  private getHealthOverviewFallback(): Observable<QueueOverview> {
+    return this.http
+      .get<{
+        healthy: boolean;
+        queues: { name: string; size: number; delayed: number }[];
+      }>(this.baseUrl)
+      .pipe(
+        map((res) => {
+          const queues: QueueMetrics[] = res.queues.map((q) => ({
+            name: q.name,
+            waiting: q.size,
+            active: 0,
+            completed: 0,
+            failed: 0,
+            delayed: q.delayed,
+            paused: false,
+          }));
 
-    return {
-      circuits,
-      totalOpen: circuits.filter((circuit) => circuit.state === 'OPEN').length,
-      totalHalfOpen: circuits.filter((circuit) => circuit.state === 'HALF_OPEN').length,
-      totalClosed: circuits.filter((circuit) => circuit.state === 'CLOSED').length,
-    };
+          return {
+            queues,
+            totalJobs: queues.reduce((sum, q) => sum + q.waiting + q.delayed, 0),
+            totalFailed: 0,
+            totalCompleted: 0,
+            uptime: 0,
+            redis: { connected: res.healthy, memory: 'N/A' },
+          };
+        }),
+      );
   }
 
-  private mapGatewayCircuit(
-    response: GatewayCircuitItem | GatewayCircuitSingleResponse,
-    fallbackName: string,
-  ): CircuitBreakerStatus {
-    const state = response.state ?? 'CLOSED';
-    const failures = response.failures ?? 0;
-    const lastFailureTimestamp = response.lastFailure ?? null;
-    const lastFailure =
-      typeof lastFailureTimestamp === 'number' && lastFailureTimestamp > 0
-        ? new Date(lastFailureTimestamp).toISOString()
-        : undefined;
-    const resetTimeout = response.options?.resetTimeout ?? 0;
-    const nextRetryAt =
-      state === 'OPEN' && typeof lastFailureTimestamp === 'number' && lastFailureTimestamp > 0
-        ? new Date(lastFailureTimestamp + resetTimeout).toISOString()
-        : undefined;
+  private getHealthQueueFallback(queueName: string): Observable<QueueMetrics> {
+    return this.http
+      .get<{ name: string; size: number; delayed: number }>(`${this.baseUrl}/${queueName}`)
+      .pipe(
+        map((res) => ({
+          name: res.name,
+          waiting: res.size,
+          active: 0,
+          completed: 0,
+          failed: 0,
+          delayed: res.delayed,
+          paused: false,
+        })),
+      );
+  }
 
-    return {
-      name: response.name ?? fallbackName,
-      state,
-      failures,
-      successes: 0,
-      lastFailure,
-      nextRetryAt,
-      history: [],
-    };
+  private unwrapData<T>(response: T | { data: T }): T {
+    if (response !== null && typeof response === 'object' && 'data' in response) {
+      return (response as { data: T }).data;
+    }
+
+    return response;
   }
 }

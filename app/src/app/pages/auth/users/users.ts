@@ -21,6 +21,7 @@ import {
   AfConfirmModalComponent,
   AfCrudPageComponent,
   AfDataTableComponent,
+  AfDrawerComponent,
   AfLoadingButtonComponent,
   AfModalComponent,
   AfIconButtonComponent,
@@ -57,6 +58,7 @@ import { getInitials } from '@shared/utils/string.utils';
     AfLoadingButtonComponent,
     AfSelectInputComponent,
     AfDataTableComponent,
+    AfDrawerComponent,
     AfAvatarComponent,
     AfStatusBadgeComponent,
     AfTableActionsComponent,
@@ -89,6 +91,25 @@ export class SettingsUsers implements OnInit {
   private pendingEditId: string | null = null;
 
   readonly searchControl = new FormControl<string>('', { nonNullable: true });
+
+  // ─── Filter drawer ─────────────────────────────────────────────────────────
+  readonly isFilterOpen = signal(false);
+
+  readonly activeFiltersCount = computed(() =>
+    this.filterStatusControl.value !== 'all' ? 1 : 0,
+  );
+
+  openFilter(): void { this.isFilterOpen.set(true); }
+  closeFilter(): void { this.isFilterOpen.set(false); }
+
+  clearFilter(): void {
+    this.filterStatusControl.setValue('all');
+  }
+
+  applyFilter(): void {
+    this.closeFilter();
+  }
+
   readonly filterStatusControl = new FormControl<string>('all', { nonNullable: true });
   readonly filterStatusOptions: AfSelectOption[] = [
     { label: 'Todos', value: 'all' },

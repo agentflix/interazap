@@ -125,7 +125,7 @@ class ChatAutoReplySeeder extends Seeder
             ->create();
 
         $tickets = ChatTicket::factory()
-            ->count(rand(10, 20))
+            ->count(random_int(10, 20))
             ->forTenant($tenant->id)
             ->sequence(function ($sequence) use ($contacts, $instance): array {
                 $contact = $contacts->random();

@@ -1,4 +1,5 @@
-import { Injectable, OnDestroy, inject } from '@angular/core';
+import type { OnDestroy} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { App, type URLOpenListenerEvent } from '@capacitor/app';
 import { PlatformService } from './platform.service';

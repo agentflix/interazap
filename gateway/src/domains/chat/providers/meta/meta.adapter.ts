@@ -41,9 +41,8 @@ export class MetaAdapter implements MetaWhatsAppProvider {
    * Lanca erro indicando que deve usar sendTemplate.
    */
   sendText(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _instanceToken: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     _request: SendTextRequest,
   ): Promise<SendMessageResult> {
     this.logger.warn(
@@ -60,9 +59,8 @@ export class MetaAdapter implements MetaWhatsAppProvider {
    * Envia mensagem de midia (stub - nao implementado para Meta).
    */
   sendMedia(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _instanceToken: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     _request: SendMediaRequest,
   ): Promise<SendMessageResult> {
     this.logger.warn('sendMedia is not implemented for Meta provider');
@@ -75,7 +73,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   /**
    * Consulta status de conexao (sempre conectado para Meta Business API).
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   getStatus(_instanceToken: string): Promise<InstanceStatus> {
     // Meta Business API instances are always "connected" as they use webhooks
     return Promise.resolve({
@@ -87,7 +85,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   /**
    * Desconecta instancia (nao aplicavel para Meta Business API).
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   disconnect(_instanceToken: string): Promise<void> {
     this.logger.debug('Disconnect called on Meta adapter - no-op');
     return Promise.resolve();
@@ -96,7 +94,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   /**
    * Recupera QR Code (nao aplicavel para Meta Business API).
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   getQrCode(_instanceToken: string): Promise<string | null> {
     return Promise.resolve(null);
   }

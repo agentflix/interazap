@@ -1,5 +1,6 @@
 import { type OnInit, ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import type { SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { environment } from '@env/environment';
 import { CopyButtonComponent } from './copy-button/copy-button';
 import { LucideAngularModule } from 'lucide-angular';

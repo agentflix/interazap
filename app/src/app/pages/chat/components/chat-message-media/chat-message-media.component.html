@@ -242,14 +242,15 @@
                 </div>
                 <button
                   type="button"
-                  class="size-8 shrink-0 rounded-lg bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
+                  class="size-8 shrink-0 rounded-lg bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   (click)="openDocument()"
                   (keydown.enter)="openDocument()"
                   (keydown.space)="openDocument()"
+                  [disabled]="isDownloading()"
                   title="Baixar documento"
                   aria-label="Baixar documento"
                 >
-                  <ng-icon name="lucideDownload" class="size-4"></ng-icon>
+                  <ng-icon name="lucideDownload" class="size-4" [class.animate-bounce]="isDownloading()"></ng-icon>
                 </button>
               </div>
             }
@@ -277,14 +278,15 @@
                 </div>
                 <button
                   type="button"
-                  class="size-8 shrink-0 rounded-lg bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
+                  class="size-8 shrink-0 rounded-lg bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   (click)="openDocument()"
                   (keydown.enter)="openDocument()"
                   (keydown.space)="openDocument()"
+                  [disabled]="isDownloading()"
                   title="Baixar arquivo"
                   aria-label="Baixar arquivo"
                 >
-                  <ng-icon name="lucideDownload" class="size-4"></ng-icon>
+                  <ng-icon name="lucideDownload" class="size-4" [class.animate-bounce]="isDownloading()"></ng-icon>
                 </button>
               </div>
             }

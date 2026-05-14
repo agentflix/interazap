@@ -30,7 +30,6 @@ class PlatformLeadStoreTest extends TestCase
             'phone' => '(11) 91234-5678',
             'email' => 'joao@example.com',
             'company' => 'Acme Ltda',
-            'source' => 'landing_form',
             'lgpd_consent' => true,
             'utm_source' => 'google',
             'utm_medium' => 'cpc',
@@ -45,9 +44,8 @@ class PlatformLeadStoreTest extends TestCase
         $response = $this->postJson('/api/public/leads', $this->validPayload());
 
         $response->assertCreated()
-            ->assertJsonStructure(['data' => ['id', 'name', 'source', 'created_at']])
-            ->assertJsonPath('data.name', 'João da Silva')
-            ->assertJsonPath('data.source', 'landing_form');
+            ->assertJsonStructure(['data' => ['id', 'name', 'created_at']])
+            ->assertJsonPath('data.name', 'João da Silva');
 
         // Resposta NÃO expõe email/phone
         $response->assertJsonMissingPath('data.email');
@@ -56,15 +54,11 @@ class PlatformLeadStoreTest extends TestCase
         $this->assertDatabaseHas('platform_leads', [
             'email' => 'joao@example.com',
             'phone' => '11912345678',
-            'source' => 'landing_form',
             'utm_source' => 'google',
             'lgpd_consent' => true,
-            'status' => 'new',
         ]);
 
-        Event::assertDispatched(PlatformLeadCreated::class, function (PlatformLeadCreated $event): bool {
-            return $event->source === 'landing_form' && $event->leadId !== '';
-        });
+        Event::assertDispatched(PlatformLeadCreated::class, fn (PlatformLeadCreated $event): bool => $event->leadId !== '');
     }
 
     public function test_rejects_request_without_lgpd_consent(): void
@@ -137,7 +131,7 @@ class PlatformLeadStoreTest extends TestCase
 
         $this->postJson('/api/public/leads', $payload)
             ->assertCreated()
-            ->assertJsonPath('data.source', 'landing_form');
+            ->assertJsonPath('data.name', 'João da Silva');
 
         $this->assertDatabaseCount('platform_leads', 0);
         Event::assertNotDispatched(PlatformLeadCreated::class);

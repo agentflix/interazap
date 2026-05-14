@@ -26,12 +26,12 @@ export interface ChatMessageTemplateComponent {
     header_text?: string[];
     header_handle?: string[];
   };
-  buttons?: Array<{
+  buttons?: {
     type: 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER';
     text: string;
     url?: string;
     phone_number?: string;
-  }>;
+  }[];
 }
 
 /**

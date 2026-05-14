@@ -46,9 +46,8 @@ describe('ChatOutboundController', () => {
       expect(guards).toBeDefined();
       expect(guards.length).toBeGreaterThanOrEqual(1);
 
-      const guardInstances = guards.map(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        (g: any) => (typeof g === 'function' ? g : g.constructor),
+      const guardInstances = guards.map((g: any) =>
+        typeof g === 'function' ? g : g.constructor,
       );
       expect(guardInstances).toContain(InternalApiKeyGuard);
     });
@@ -77,6 +76,8 @@ describe('ChatOutboundController', () => {
       sendMessageService.send.mockResolvedValue({
         success: true,
         messageId: 'msg-123',
+        attempts: 1,
+        processingTimeMs: 50,
       });
 
       const result = await controller.send(dto);
@@ -119,7 +120,7 @@ describe('ChatOutboundController', () => {
         instanceToken: 'token-1',
         type: 'media' as const,
         to: '5511999999999',
-        mediaType: 'image',
+        mediaType: 'image' as const,
         mediaUrl: 'https://example.com/image.jpg',
         caption: 'Test image',
       };
@@ -127,6 +128,8 @@ describe('ChatOutboundController', () => {
       sendMessageService.send.mockResolvedValue({
         success: true,
         messageId: 'msg-456',
+        attempts: 1,
+        processingTimeMs: 75,
       });
 
       const result = await controller.send(dto);
@@ -154,6 +157,8 @@ describe('ChatOutboundController', () => {
       sendMessageService.send.mockResolvedValue({
         success: false,
         error: 'Network error',
+        attempts: 1,
+        processingTimeMs: 100,
       });
 
       const result = await controller.send(dto);

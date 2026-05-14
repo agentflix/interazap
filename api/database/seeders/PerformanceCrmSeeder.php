@@ -26,7 +26,7 @@ final class PerformanceCrmSeeder
         $tagIds = $this->seedTags($tenantId);
         $productIds = $this->seedProducts($tenantId);
         $reasonLossIds = $this->seedReasonLosses($tenantId);
-        $departmentIds = $this->seedDepartments($tenantId);
+        $this->seedDepartments($tenantId);
 
         // 2. Contacts (depend on companies)
         $contactIds = $this->seedContacts($tenantId, $companyIds);
@@ -110,7 +110,7 @@ final class PerformanceCrmSeeder
         for ($i = 0; $i < $count; $i++) {
             $id = PerformanceSeeder::uuid();
             $ids[] = $id;
-            $hasCompany = ! empty($companyIds) && (bool) random_int(0, 1);
+            $hasCompany = $companyIds !== [] && (bool) random_int(0, 1);
 
             $contacts[] = [
                 'id' => $id,
@@ -142,7 +142,7 @@ final class PerformanceCrmSeeder
         $labels = ['Celular', 'Trabalho', 'Casa', 'WhatsApp'];
         $phones = [];
 
-        foreach ($contactIds as $index => $contactId) {
+        foreach ($contactIds as $contactId) {
             $phoneCount = random_int(1, 3);
             for ($p = 0; $p < $phoneCount; $p++) {
                 $phones[] = [
@@ -197,7 +197,7 @@ final class PerformanceCrmSeeder
     {
         $categories = ['status', 'prioridade', 'segmento', 'origem'];
         $colors = ['#16a34a', '#dc2626', '#2563eb', '#f97316', '#7c3aed', '#db2777', '#0891b2', '#65a30d'];
-        $tagNames = ['VIP', 'Hot', 'Cold', 'Inadimplente', 'Onboarding', 'Churn Risk', 'Upsell', 'Novo', 'Recorrente', 'Referral', 'Parceiro', 'Lead Qualificado'];
+        $tagNames = ['VIP', 'Quente', 'Frio', 'Inadimplente', 'Onboarding', 'Risco de Churn', 'Upsell', 'Novo', 'Recorrente', 'Referência', 'Parceiro', 'Lead Qualificado'];
 
         $tags = [];
         $ids = [];
@@ -463,7 +463,7 @@ final class PerformanceCrmSeeder
             $id = PerformanceSeeder::uuid();
             $ids[] = $id;
             $status = PerformanceSeeder::weightedRandom($statusWeights);
-            $hasCompany = ! empty($companyIds) && (bool) random_int(0, 1);
+            $hasCompany = $companyIds !== [] && (bool) random_int(0, 1);
             $closedAt = $status !== 'open' ? now()->subDays(random_int(1, 90)) : null;
 
             $negotiations[] = [
@@ -473,8 +473,8 @@ final class PerformanceCrmSeeder
                 'crm_contact_id' => $contactIds[array_rand($contactIds)] ?? null,
                 'crm_negotiation_funnel_id' => $funnelIds[array_rand($funnelIds)] ?? null,
                 'crm_negotiation_funnel_step_id' => $stepIds[array_rand($stepIds)] ?? null,
-                'crm_reason_loss_id' => $status === 'lost' && ! empty($reasonLossIds) ? $reasonLossIds[array_rand($reasonLossIds)] : null,
-                'auth_user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                'crm_reason_loss_id' => $status === 'lost' && $reasonLossIds !== [] ? $reasonLossIds[array_rand($reasonLossIds)] : null,
+                'auth_user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                 'title' => 'Negociacao '.random_int(1000, 9999),
                 'amount' => random_int(1000, 50000) + (random_int(0, 99) / 100),
                 'status' => $status,
@@ -513,7 +513,7 @@ final class PerformanceCrmSeeder
                     'id' => PerformanceSeeder::uuid(),
                     'tenant_id' => $tenantId,
                     'crm_negotiation_id' => $negotiationId,
-                    'auth_user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                    'auth_user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                     'title' => 'Tarefa '.random_int(100, 999),
                     'description' => 'Descricao da tarefa '.random_int(1, 100),
                     'due_date' => $dueDate,
@@ -524,7 +524,7 @@ final class PerformanceCrmSeeder
             }
         }
 
-        if (! empty($tasks)) {
+        if ($tasks !== []) {
             PerformanceSeeder::insertBatch('crm_negotiation_tasks', $tasks, self::BATCH_SIZE);
         }
     }
@@ -554,7 +554,7 @@ final class PerformanceCrmSeeder
             }
         }
 
-        if (! empty($links)) {
+        if ($links !== []) {
             PerformanceSeeder::insertBatch('crm_negotiation_products', $links, self::BATCH_SIZE);
         }
     }
@@ -625,7 +625,7 @@ final class PerformanceCrmSeeder
             }
         }
 
-        if (! empty($proposals)) {
+        if ($proposals !== []) {
             PerformanceSeeder::insertBatch('crm_proposals', $proposals, self::BATCH_SIZE);
         }
 
@@ -660,7 +660,7 @@ final class PerformanceCrmSeeder
             }
         }
 
-        if (! empty($items)) {
+        if ($items !== []) {
             PerformanceSeeder::insertBatch('crm_proposal_items', $items, self::BATCH_SIZE);
         }
     }
@@ -732,7 +732,7 @@ final class PerformanceCrmSeeder
             ];
         }
 
-        if (! empty($values)) {
+        if ($values !== []) {
             PerformanceSeeder::insertBatch('crm_custom_field_values', $values, self::BATCH_SIZE);
         }
     }
@@ -749,13 +749,13 @@ final class PerformanceCrmSeeder
         $entities = [];
 
         foreach ($companyIds as $id) {
-            $entities[] = ['type' => 'Domain\\CRM\\Models\\CRMCompany', 'id' => $id];
+            $entities[] = ['type' => \Domain\CRM\Models\CRMCompany::class, 'id' => $id];
         }
         foreach ($contactIds as $id) {
-            $entities[] = ['type' => 'Domain\\CRM\\Models\\CRMContact', 'id' => $id];
+            $entities[] = ['type' => \Domain\CRM\Models\CRMContact::class, 'id' => $id];
         }
         foreach ($negotiationIds as $id) {
-            $entities[] = ['type' => 'Domain\\CRM\\Models\\CRMNegotiation', 'id' => $id];
+            $entities[] = ['type' => \Domain\CRM\Models\CRMNegotiation::class, 'id' => $id];
         }
 
         for ($i = 0; $i < $count; $i++) {
@@ -765,7 +765,7 @@ final class PerformanceCrmSeeder
                 'tenant_id' => $tenantId,
                 'entity_type' => $entity['type'],
                 'entity_id' => $entity['id'],
-                'auth_user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                'auth_user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                 'content' => 'Nota de acompanhamento '.random_int(1, 1000).'. '.fake('pt_BR')->sentence(),
                 'created_at' => PerformanceSeeder::randomDate(),
                 'updated_at' => now(),
@@ -786,7 +786,7 @@ final class PerformanceCrmSeeder
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
                 'crm_negotiation_id' => $negotiationIds[array_rand($negotiationIds)],
-                'auth_user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                'auth_user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                 'name' => 'arquivo_'.random_int(1000, 9999).['.pdf', '.png', '.jpg', '.xlsx'][array_rand(['.pdf', '.png', '.jpg', '.xlsx'])],
                 'path' => 'uploads/'.random_int(2024, 2026).'/'.random_int(1, 12).'/'.$tenantId.'/'.random_int(1000, 9999).'.bin',
                 'size' => random_int(1000, 10_000_000),
@@ -822,12 +822,12 @@ final class PerformanceCrmSeeder
             $events[] = [
                 'id' => $id,
                 'tenant_id' => $tenantId,
-                'auth_user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                'auth_user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                 'title' => ucfirst($type).' com '.fake('pt_BR')->name(),
                 'type' => $type,
                 'status' => $status,
                 'description' => (bool) random_int(0, 1) ? 'Descricao do evento '.random_int(1, 100) : null,
-                'location' => (bool) random_int(0, 1) ? (random_int(0, 1) ? 'Sala '.random_int(100, 999) : 'https://meet.perf.local/'.random_int(1000, 9999)) : null,
+                'location' => (bool) random_int(0, 1) ? (random_int(0, 1) !== 0 ? 'Sala '.random_int(100, 999) : 'https://meet.perf.local/'.random_int(1000, 9999)) : null,
                 'starts_at' => $startsAt,
                 'ends_at' => $isAllDay ? null : $startsAt->copy()->addMinutes(random_int(15, 180)),
                 'is_all_day' => $isAllDay,
@@ -852,10 +852,10 @@ final class PerformanceCrmSeeder
 
         $entities = [];
         foreach ($negotiationIds as $id) {
-            $entities[] = ['type' => 'Domain\\CRM\\Models\\CRMNegotiation', 'id' => $id];
+            $entities[] = ['type' => \Domain\CRM\Models\CRMNegotiation::class, 'id' => $id];
         }
         foreach ($contactIds as $id) {
-            $entities[] = ['type' => 'Domain\\CRM\\Models\\CRMContact', 'id' => $id];
+            $entities[] = ['type' => \Domain\CRM\Models\CRMContact::class, 'id' => $id];
         }
 
         for ($i = 0; $i < $count; $i++) {
@@ -889,8 +889,8 @@ final class PerformanceCrmSeeder
                     'id' => PerformanceSeeder::uuid(),
                     'tenant_id' => $tenantId,
                     'crm_event_id' => $eventId,
-                    'auth_user_id' => $isUser && ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
-                    'crm_contact_id' => ! $isUser && ! empty($contactIds) ? $contactIds[array_rand($contactIds)] : null,
+                    'auth_user_id' => $isUser && $userIds !== [] ? $userIds[array_rand($userIds)] : null,
+                    'crm_contact_id' => ! $isUser && $contactIds !== [] ? $contactIds[array_rand($contactIds)] : null,
                     'name' => fake('pt_BR')->name(),
                     'email' => 'participant.'.random_int(1000, 9999).'@perf.local',
                     'status' => PerformanceSeeder::weightedRandom($statuses),
@@ -918,7 +918,7 @@ final class PerformanceCrmSeeder
                         'id' => PerformanceSeeder::uuid(),
                         'tenant_id' => $tenantId,
                         'crm_event_id' => $eventId,
-                        'auth_user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                        'auth_user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                         'type' => ['notification', 'email', 'sms'][array_rand(['notification', 'email', 'sms'])],
                         'minutes_before' => [0, 5, 15, 30, 60, 1440][array_rand([0, 5, 15, 30, 60, 1440])],
                         'notify_ui' => (bool) random_int(0, 1),
@@ -936,7 +936,7 @@ final class PerformanceCrmSeeder
             }
         }
 
-        if (! empty($reminders)) {
+        if ($reminders !== []) {
             PerformanceSeeder::insertBatch('crm_event_reminders', $reminders, self::BATCH_SIZE);
         }
     }

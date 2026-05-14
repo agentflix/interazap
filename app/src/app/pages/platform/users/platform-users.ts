@@ -96,7 +96,9 @@ export class PlatformUsers implements OnInit {
 
   readonly roles = signal<{ id: string; name: string }[]>([]);
   readonly roleOptions = computed<readonly AfCheckboxOption[]>(() =>
-    this.roles().map((r) => ({ label: r.name, value: r.name })),
+    this.roles()
+      .filter((r) => r.name !== 'Administrador')
+      .map((r) => ({ label: r.name, value: r.name })),
   );
 
   readonly selectAllControl = new FormControl<boolean>(false, { nonNullable: true });

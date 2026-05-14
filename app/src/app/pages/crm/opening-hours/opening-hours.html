@@ -9,13 +9,22 @@
       [empty]="isEmpty()"
       emptyTitle="Nenhum horário definido"
       emptyDescription="Comece adicionando os horários de funcionamento da sua empresa."
-      [skeletonColumns]="5"
+      [skeletonColumns]="6"
       [skeletonRows]="5"
       [currentPage]="1"
       [lastPage]="1"
       (create)="openCreate()"
       (search)="onSearch($event)"
     >
+      <!-- Filter slot with bulk delete button -->
+      <div filters class="flex items-center gap-2">
+        @if (hasSelection()) {
+          <af-button variant="danger" size="sm" (click)="openBulkDelete()">
+            Excluir selecionados ({{ selectedCount() }})
+          </af-button>
+        }
+      </div>
+
       <!-- Table (shown when not loading / not empty / no error) -->
       @if (hasError()) {
         <div class="p-6 space-y-3">
@@ -33,6 +42,13 @@
         <af-data-table [hoverable]="true">
           <thead>
             <tr>
+              <th class="w-10">
+                <af-checkbox-input
+                  [control]="selectAllControl"
+                  ariaLabel="Selecionar todos os horários"
+                  dataTest="opening-hours-select-all"
+                />
+              </th>
               <th>Dia da Semana</th>
               <th>Abertura</th>
               <th>Fechamento</th>
@@ -43,6 +59,13 @@
           <tbody>
             @for (hour of filteredHours(); track hour.id) {
               <tr>
+                <td>
+                  <af-checkbox-input
+                    [control]="getRowSelectionControl(hour.id)"
+                    [ariaLabel]="'Selecionar horário de ' + getDayLabel(hour.day_of_week)"
+                    [dataTest]="'opening-hours-select-' + hour.id"
+                  />
+                </td>
                 <td class="font-medium">
                   {{ getDayLabel(hour.day_of_week) }}
                 </td>
@@ -107,9 +130,9 @@
     <!-- Delete confirmation modal -->
     <af-confirm-modal
       [open]="showDeleteModal()"
-      title="Excluir horário"
+      [title]="deleteModalTitle()"
       [message]="deleteMessage()"
-      confirmLabel="Excluir"
+      [confirmLabel]="deleteConfirmLabel()"
       cancelLabel="Cancelar"
       variant="danger"
       iconName="trash-2"

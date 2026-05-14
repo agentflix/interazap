@@ -47,10 +47,34 @@ interface TelegramTypingPayload {
  * - Isolamento por tenant (eventos só são emitidos para clientes do mesmo tenant)
  * - Rate limiting (100 eventos/min por conexão)
  * - Heartbeat a cada 30s
+ * - CORS restrito a allowlist de origens configuráveis
  */
 @WebSocketGateway({
   namespace: '/telegram',
-  cors: { origin: '*', credentials: true },
+  cors: {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      const allowedStr = process.env.TELEGRAM_WS_ALLOWED_ORIGINS ?? '';
+      const allowed = allowedStr
+        ? allowedStr
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : ['http://localhost:4200', 'http://127.0.0.1:4200'];
+
+      if (!origin || allowed.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(
+          new Error(`Origin ${origin} not allowed by CORS policy`),
+          false,
+        );
+      }
+    },
+    credentials: true,
+  },
   transports: ['websocket', 'polling'],
 })
 export class TelegramWebSocketGateway

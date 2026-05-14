@@ -1,6 +1,7 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NewConversationModalComponent } from './new-conversation-modal';
@@ -8,21 +9,23 @@ import { ContactService } from 'src/app/core/services/contact.service';
 import { CalledService } from 'src/app/core/services/called.service';
 import { CalledMessageService } from 'src/app/core/services/called-message.service';
 import { InstanceService, type Instance } from 'src/app/core/services/instance.service';
-import { type Contact } from 'src/app/core/models/contact.model';
+import { environment } from '@env/environment';
+import type { Contact } from 'src/app/core/models/contact.model';
+import type { TemplateSelectedEvent } from '@shared/components/template-selector/template-selector';
 
 // ---------------------------------------------------------------------------
 // Stubs
 // ---------------------------------------------------------------------------
 
-const makeContact = (overrides: Partial<Contact> = {}): Contact => ({
-  id: '1',
-  name: 'Rafael Amor',
-  company_id: 'c1',
-  is_active: true,
-  created_at: '2026-01-01T00:00:00Z',
-  updated_at: '2026-01-01T00:00:00Z',
-  ...overrides,
-});
+const makeContact = (overrides: Partial<Contact> = {}): Contact =>
+  ({
+    id: '1',
+    name: 'Rafael Amor',
+    is_active: true,
+    created_at: '2026-01-01T00:00:00Z',
+    updated_at: '2026-01-01T00:00:00Z',
+    ...overrides,
+  }) as unknown as Contact;
 
 const makeInstance = (overrides: Partial<Instance> = {}): Instance =>
   ({
@@ -67,12 +70,14 @@ describe('NewConversationModalComponent', () => {
   let calledService: CalledServiceStub;
   let messageService: CalledMessageServiceStub;
   let router: RouterStub;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [NewConversationModalComponent],
       providers: [
         provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: ContactService, useClass: ContactServiceStub },
         { provide: InstanceService, useClass: InstanceServiceStub },
         { provide: CalledService, useClass: CalledServiceStub },
@@ -86,11 +91,13 @@ describe('NewConversationModalComponent', () => {
     calledService = TestBed.inject(CalledService) as unknown as CalledServiceStub;
     messageService = TestBed.inject(CalledMessageService) as unknown as CalledMessageServiceStub;
     router = TestBed.inject(Router) as unknown as RouterStub;
+    httpMock = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    httpMock.verify();
   });
 
   it('should create', () => {
@@ -238,7 +245,7 @@ describe('NewConversationModalComponent', () => {
   });
 
   // -------------------------------------------------------------------------
-  // startChat() — reuse existing ticket
+  // startChat() — reuse existing ticket (free text)
   // -------------------------------------------------------------------------
 
   it('startChat() reuses existing open ticket without creating a new one', () => {
@@ -252,6 +259,41 @@ describe('NewConversationModalComponent', () => {
     component.startChat();
 
     expect(calledService.create).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/chat', '55']);
+  });
+
+  // -------------------------------------------------------------------------
+  // startChat() — template with existing ticket (Bug 2 fix)
+  // -------------------------------------------------------------------------
+
+  it('startChat() sends template when ticket exists and mode is template', () => {
+    calledService.list
+      .mockReturnValueOnce(makeCalledList([{ id: '55' }])) // open → found
+      .mockReturnValue(makeCalledList([]));
+
+    const mockTemplate: TemplateSelectedEvent = {
+      templateName: 'welcome_message',
+      parameters: { name: 'Rafael' },
+    };
+
+    component.open();
+    component.selectContact('1');
+    component.sendMode.set('template');
+    component.selectedTemplate.set(mockTemplate);
+    component.startChat();
+
+    // Verify HTTP request was made to template endpoint
+    const req = httpMock.expectOne(`${environment.apiUrl}/chat/tickets/55/messages/template`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      template_name: 'welcome_message',
+      variables: { name: 'Rafael' },
+    });
+    req.flush({});
+
+    // Should NOT have created a new ticket or sent free text
+    expect(calledService.create).not.toHaveBeenCalled();
+    expect(messageService.send).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/chat', '55']);
   });
 

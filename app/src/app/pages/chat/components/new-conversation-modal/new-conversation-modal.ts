@@ -316,14 +316,12 @@ export class NewConversationModalComponent {
     // Helper to send message based on mode
     const sendMessage = (calledId: string) => {
       if (mode === 'template' && template) {
-        // Send template via gateway API
-        const payload = {
-          contact_id: contactId,
-          template_name: template.templateName,
-          parameters: template.parameters,
-        };
+        // Send template via Laravel API (tenant-isolated, auth enforced)
         return this.http
-          .post(`${environment.gateway.url}/channels/${channelId}/send-template`, payload)
+          .post(`${environment.apiUrl}/chat/tickets/${calledId}/messages/template`, {
+            template_name: template.templateName,
+            variables: template.parameters,
+          })
           .pipe(map(() => ({ calledId, reused: false })));
       } else {
         // Send free text via message service
@@ -348,7 +346,13 @@ export class NewConversationModalComponent {
           return existing ? { calledId: String(existing.id), reused: true } : null;
         }),
         switchMap((existing) => {
-          if (existing !== null) return of(existing);
+          if (existing !== null) {
+            if (mode === 'template' && template) {
+              // ticket existe mas template deve ser enviado mesmo assim
+              return sendMessage(existing.calledId);
+            }
+            return of(existing);
+          }
 
           return this.calledService
             .create({ contact_id: contactId, channel: 'whatsapp', instance_id: instanceId })

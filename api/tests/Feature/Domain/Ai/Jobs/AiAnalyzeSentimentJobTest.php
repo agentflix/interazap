@@ -8,6 +8,7 @@ use Domain\Ai\Jobs\AiAnalyzeSentimentJob;
 use Domain\Ai\Services\AiSentimentService;
 use Domain\Auth\Models\AuthUser;
 use Domain\Chat\Models\ChatTicket;
+use Domain\Platform\Models\PlatformPlan;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Redis\Connections\PredisConnection;
@@ -17,7 +18,8 @@ uses(LazilyRefreshDatabase::class);
 
 describe('AiAnalyzeSentimentJob', function (): void {
     it('processes sentiment, applies sliding window and creates alert when critical', function (): void {
-        $tenant = PlatformTenant::factory()->create();
+        $plan = PlatformPlan::factory()->create(['ai_enabled' => true]);
+        $tenant = PlatformTenant::factory()->create(['plan_id' => $plan->id]);
         $seller = AuthUser::factory()->create(['tenant_id' => $tenant->id]);
 
         $ticket = ChatTicket::factory()->forTenant((string) $tenant->id)->create([
@@ -82,7 +84,8 @@ describe('AiAnalyzeSentimentJob', function (): void {
     });
 
     it('skips processing when cooldown lock is not acquired', function (): void {
-        $tenant = PlatformTenant::factory()->create();
+        $plan = PlatformPlan::factory()->create(['ai_enabled' => true]);
+        $tenant = PlatformTenant::factory()->create(['plan_id' => $plan->id]);
         $ticket = ChatTicket::factory()->forTenant((string) $tenant->id)->create([
             'sentiment_score' => null,
         ]);
@@ -106,6 +109,28 @@ describe('AiAnalyzeSentimentJob', function (): void {
             ->andReturn($defaultRedis);
 
         Redis::shouldNotReceive('publish');
+
+        $job = new AiAnalyzeSentimentJob((string) $ticket->id, 'mensagem', (string) $tenant->id);
+        $job->handle($service, new AiNotificationActions);
+
+        $ticket->refresh();
+
+        expect($ticket->sentiment_score)->toBeNull()
+            ->and($ticket->sentiment)->toBeNull();
+    });
+
+    it('skips processing when tenant plan has ai disabled', function (): void {
+        $plan = PlatformPlan::factory()->create(['ai_enabled' => false]);
+        $tenant = PlatformTenant::factory()->create(['plan_id' => $plan->id]);
+        $ticket = ChatTicket::factory()->forTenant((string) $tenant->id)->create([
+            'sentiment_score' => null,
+        ]);
+
+        /** @var AIServiceInterface&\Mockery\MockInterface $aiService */
+        $aiService = Mockery::mock(AIServiceInterface::class);
+        $aiService->shouldNotReceive('complete');
+        $aiService->shouldReceive('getProvider')->andReturn('openai');
+        $service = new AiSentimentService($aiService);
 
         $job = new AiAnalyzeSentimentJob((string) $ticket->id, 'mensagem', (string) $tenant->id);
         $job->handle($service, new AiNotificationActions);

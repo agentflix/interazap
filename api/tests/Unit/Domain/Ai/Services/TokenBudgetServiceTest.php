@@ -51,11 +51,10 @@ $spy = new class
             $this->daily[$tenantId] = ($this->daily[$tenantId] ?? 0.0) + $value;
 
             return $this->daily[$tenantId];
-        } else {
-            $this->monthly[$tenantId] = ($this->monthly[$tenantId] ?? 0.0) + $value;
-
-            return $this->monthly[$tenantId];
         }
+        $this->monthly[$tenantId] = ($this->monthly[$tenantId] ?? 0.0) + $value;
+
+        return $this->monthly[$tenantId];
     }
 
     public function get(string $key): string
@@ -66,9 +65,9 @@ $spy = new class
 
         if ($period === 'daily') {
             return isset($this->daily[$tenantId]) ? (string) $this->daily[$tenantId] : '0';
-        } else {
-            return isset($this->monthly[$tenantId]) ? (string) $this->monthly[$tenantId] : '0';
         }
+
+        return isset($this->monthly[$tenantId]) ? (string) $this->monthly[$tenantId] : '0';
     }
 
     public function ttl(): int
@@ -92,8 +91,8 @@ beforeEach(function () use ($spy): void {
     Cache::flush();
 
     $mockConnection = Mockery::mock();
-    $mockConnection->shouldReceive('incrbyfloat')->andReturnUsing(fn ($k, $v) => $spy->incrbyfloat($k, $v));
-    $mockConnection->shouldReceive('get')->andReturnUsing(fn ($k) => $spy->get($k));
+    $mockConnection->shouldReceive('incrbyfloat')->andReturnUsing(fn (string $k, float $v): float => $spy->incrbyfloat($k, $v));
+    $mockConnection->shouldReceive('get')->andReturnUsing(fn (string $k): string => $spy->get($k));
     $mockConnection->shouldReceive('ttl')->andReturn(-1);
     $mockConnection->shouldReceive('expire')->andReturn(true);
 
@@ -105,7 +104,7 @@ beforeEach(function () use ($spy): void {
     $this->service = new TokenBudgetService;
 });
 
-afterEach(function () {
+afterEach(function (): void {
     Mockery::close();
 });
 

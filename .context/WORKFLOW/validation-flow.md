@@ -65,6 +65,7 @@ pnpm --filter gateway build
 pnpm --filter app lint
 pnpm --filter app test
 pnpm --filter app build
+./scripts/validate-app-gateway-boundary.sh
 ```
 
 **Critérios:**
@@ -72,6 +73,7 @@ pnpm --filter app build
 - [ ] Vitest: 0 falhas, ≥ 70% coverage
 - [ ] Build (`ng build`): sucesso, sem warnings críticos
 - [ ] Tamanho do bundle dentro do budget configurado (`angular.json`)
+- [ ] Browser não usa `environment.gateway.url` fora do `RealtimeService`
 
 ### electron/ (Electron 33 + Angular 20)
 

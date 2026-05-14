@@ -19,6 +19,7 @@ import {
   AfCrudPageComponent,
   AfConfirmModalComponent,
   AfDataTableComponent,
+  AfDrawerComponent,
   AfLoadingButtonComponent,
   AfModalComponent,
   AfSelectInputComponent,
@@ -50,6 +51,7 @@ import { TagFormComponent } from './components/tag-form/tag-form';
     AfLoadingButtonComponent,
     AfSelectInputComponent,
     AfDataTableComponent,
+    AfDrawerComponent,
     AfSortableHeaderComponent,
     AfStatusBadgeComponent,
     AfTableActionsComponent,
@@ -84,6 +86,24 @@ export class Tags implements OnInit {
   readonly isEmpty = computed(
     () => !this.isLoading() && !this.hasError() && this.tags().length === 0,
   );
+
+  // ─── Filter drawer ─────────────────────────────────────────────────────────
+  readonly isFilterOpen = signal(false);
+
+  readonly activeFiltersCount = computed(() =>
+    this.filterStatusControl.value !== 'all' ? 1 : 0,
+  );
+
+  openFilter(): void { this.isFilterOpen.set(true); }
+  closeFilter(): void { this.isFilterOpen.set(false); }
+
+  clearFilter(): void {
+    this.filterStatusControl.setValue('all');
+  }
+
+  applyFilter(): void {
+    this.closeFilter();
+  }
 
   // ─── Filter ────────────────────────────────────────────────────────────────
   readonly filterStatusControl = new FormControl<string>('all', { nonNullable: true });

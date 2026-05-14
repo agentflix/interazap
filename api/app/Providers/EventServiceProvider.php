@@ -15,10 +15,24 @@ use Domain\Ai\Listeners\AiConversationSummaryListener;
 use Domain\Ai\Listeners\AiGateKeeperListener;
 use Domain\Ai\Listeners\AiRunDelegatedStickyAgentListener;
 use Domain\Ai\Listeners\AutopilotRunDispatcherListener;
+use Domain\Billing\Events\BillingCollectionSentEvent;
+use Domain\Billing\Events\BillingPurgeWarningEvent;
+use Domain\Billing\Events\BillingTenantGraceEvent;
+use Domain\Billing\Events\BillingTenantLockedEvent;
+use Domain\Billing\Events\BillingTenantPurgedEvent;
+use Domain\Billing\Events\BillingTenantUnlockedEvent;
+use Domain\Billing\Listeners\BillingCollectionSentListener;
+use Domain\Billing\Listeners\BillingPurgeWarningListener;
+use Domain\Billing\Listeners\BillingTenantGraceListener;
+use Domain\Billing\Listeners\BillingTenantLockedListener;
+use Domain\Billing\Listeners\BillingTenantPurgedListener;
+use Domain\Billing\Listeners\BillingTenantUnlockedListener;
 use Domain\Chat\Events\MessagePersisted;
+use Domain\Chat\Events\MetaTemplateStatusUpdated;
 use Domain\Chat\Listeners\AiResponseListener;
 use Domain\Chat\Listeners\MessagePersistorListener;
 use Domain\Chat\Listeners\RevokeInvalidPushTokenListener;
+use Domain\Chat\Listeners\UpdateMetaTemplateStatusListener;
 use Domain\Chat\Listeners\UpdateTicketActivityTimestampsListener;
 use Domain\Configuration\Events\AiEscalationRequiredEvent;
 use Domain\Configuration\Events\AiHotLeadDetectedEvent;
@@ -38,6 +52,8 @@ use Domain\Configuration\Listeners\ChatTicketNotificationListener;
 use Domain\Configuration\Listeners\CrmNotificationListener;
 use Domain\Configuration\Listeners\EvaluationNotificationListener;
 use Domain\Platform\Console\Listeners\WorkerGracefulShutdownListener;
+use Domain\Platform\Events\PlatformTenantPurgedEvent;
+use Domain\Platform\Listeners\PlatformTenantPurgedListener;
 use Domain\Shared\Listeners\AuthEventSubscriber;
 use Domain\Shared\Listeners\SecurityEventSubscriber;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -55,6 +71,18 @@ use Illuminate\Support\Facades\Event;
  */
 class EventServiceProvider extends ServiceProvider
 {
+    /*
+     * Eventos intencionalmente sem listener (fire-and-forget):
+     *
+     * - AiRunDelegating::class            — observabilidade do ciclo de delegação IA; sem side-effects obrigatórios
+     * - AiKnowledgeDocumentProcessed::class — Job persiste estado no model; evento reservado para observabilidade futura
+     * - PlatformLeadCreated::class        — reservado para automações de funil futuras
+     * - NotificationCreatedEvent::class   — instrumentação futura de auditoria
+     * - RealtimeBroadcastEvent::class     — implementa ShouldBroadcastNow; broadcasting direto, sem listener necessário
+     *
+     * Nota: TokenCreated, TokenRevoked, TwoFactorEnabled, TwoFactorDisabled são cobertos por SecurityEventSubscriber ($subscribe).
+     */
+
     /**
      * The event listener mappings for the application.
      *
@@ -121,6 +149,30 @@ class EventServiceProvider extends ServiceProvider
         ],
         NotificationFailed::class => [
             RevokeInvalidPushTokenListener::class,
+        ],
+        MetaTemplateStatusUpdated::class => [
+            UpdateMetaTemplateStatusListener::class,
+        ],
+        BillingTenantLockedEvent::class => [
+            BillingTenantLockedListener::class,
+        ],
+        BillingTenantUnlockedEvent::class => [
+            BillingTenantUnlockedListener::class,
+        ],
+        BillingTenantGraceEvent::class => [
+            BillingTenantGraceListener::class,
+        ],
+        BillingTenantPurgedEvent::class => [
+            BillingTenantPurgedListener::class,
+        ],
+        BillingPurgeWarningEvent::class => [
+            BillingPurgeWarningListener::class,
+        ],
+        BillingCollectionSentEvent::class => [
+            BillingCollectionSentListener::class,
+        ],
+        PlatformTenantPurgedEvent::class => [
+            PlatformTenantPurgedListener::class,
         ],
     ];
 

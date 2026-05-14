@@ -122,7 +122,7 @@ export const SIDEBAR_MENU: SidebarMenuItem[] = [
       {
         type: 'item',
         label: 'Templates Meta',
-        link: '/chat/templates',
+        link: '/chat/template-meta',
         iconName: 'message-square-text',
         requiredPermission: 'chat.templates.manage',
       },

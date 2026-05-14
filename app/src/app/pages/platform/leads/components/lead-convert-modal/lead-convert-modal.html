@@ -1,0 +1,61 @@
+<af-modal [open]="open()" title="Converter lead em tenant" size="lg" (closed)="close()">
+  <div class="space-y-4">
+    @if (errorMessage()) {
+      <af-alert variant="danger" title="Falha na conversão" [message]="errorMessage() || ''" />
+    }
+
+    <af-text-input
+      label="Nome"
+      [control]="form.controls.name"
+      placeholder="Nome do tenant"
+      [required]="true"
+      dataTest="lead-convert-name"
+    />
+
+    <af-text-input
+      label="E-mail"
+      type="email"
+      [control]="form.controls.email"
+      placeholder="owner@empresa.com"
+      [required]="true"
+      dataTest="lead-convert-email"
+    />
+
+    <af-text-input
+      label="Telefone"
+      [control]="form.controls.phone"
+      placeholder="(11) 99999-9999"
+      [required]="true"
+      dataTest="lead-convert-phone"
+    />
+
+    <af-text-input
+      label="CNPJ/CPF"
+      [control]="form.controls.document"
+      placeholder="Opcional"
+      dataTest="lead-convert-document"
+    />
+
+    <af-select-input
+      label="Plano"
+      [control]="form.controls.plan_id"
+      [options]="planOptions()"
+      [placeholder]="isLoadingPlans() ? 'Carregando planos...' : 'Selecione um plano (opcional)'"
+      dataTest="lead-convert-plan"
+    />
+  </div>
+
+  <div footer class="flex justify-end gap-2">
+    <af-button variant="ghost" size="sm" [disabled]="isSubmitting()" (click)="close()">
+      Cancelar
+    </af-button>
+    <af-button variant="primary" size="sm" [disabled]="isSubmitting()" (click)="submit()">
+      @if (isSubmitting()) {
+        <lucide-icon name="loader-circle" [size]="14" class="block animate-spin" />
+      } @else {
+        <lucide-icon name="building-2" [size]="14" class="block" />
+      }
+      Converter
+    </af-button>
+  </div>
+</af-modal>

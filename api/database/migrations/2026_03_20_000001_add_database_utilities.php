@@ -57,7 +57,7 @@ return new class extends Migration
         // INDEX: idx_auth_users_email — Fast email-only lookup
         // =====================================================================
         if (! $this->indexExists('auth_users', 'idx_auth_users_email')) {
-            Schema::table('auth_users', function ($table) {
+            Schema::table('auth_users', function ($table): void {
                 $table->index('email', 'idx_auth_users_email');
             });
         }
@@ -66,7 +66,7 @@ return new class extends Migration
         // INDEX: idx_auth_personal_access_tokens_tokenable — Token owner lookup
         // =====================================================================
         if (! $this->indexExists('auth_personal_access_tokens', 'idx_auth_personal_access_tokens_tokenable')) {
-            Schema::table('auth_personal_access_tokens', function ($table) {
+            Schema::table('auth_personal_access_tokens', function ($table): void {
                 $table->index(['tokenable_type', 'tokenable_id'], 'idx_auth_personal_access_tokens_tokenable');
             });
         }
@@ -75,7 +75,7 @@ return new class extends Migration
         // INDEX: idx_ai_usage_logs_tenant_feature — Feature-based queries
         // =====================================================================
         if (! $this->indexExists('ai_usage_logs', 'idx_ai_usage_logs_tenant_feature')) {
-            Schema::table('ai_usage_logs', function ($table) {
+            Schema::table('ai_usage_logs', function ($table): void {
                 $table->index(['tenant_id', 'feature', 'created_at'], 'idx_ai_usage_logs_tenant_feature');
             });
         }

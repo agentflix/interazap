@@ -73,6 +73,7 @@ use Domain\Platform\Policies\PlatformBillingInvoicePolicy;
 use Domain\Platform\Policies\PlatformPlanPolicy;
 use Domain\Platform\Policies\PlatformTenantPolicy;
 use Domain\Platform\Policies\PlatformUazapiInstancePolicy;
+use Domain\Platform\Policies\QueueAdminPolicy;
 use Domain\Shared\Models\SharedMedia;
 use Domain\Shared\Policies\SharedMediaPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -157,6 +158,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('reports.viewAdmin', [\Domain\Reports\Policies\ReportsPolicy::class, 'viewAdmin']);
         Gate::define('reports.export', [\Domain\Reports\Policies\ReportsPolicy::class, 'export']);
         Gate::define('platform.billing.invoice.delete', [PlatformBillingInvoicePolicy::class, 'delete']);
+        Gate::define('platform.queues.manage', [QueueAdminPolicy::class, 'manage']);
         Gate::define('search', static fn (AuthUser $user): bool => $user->exists);
     }
 }

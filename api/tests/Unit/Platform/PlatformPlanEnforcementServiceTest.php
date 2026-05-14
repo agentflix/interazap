@@ -19,6 +19,7 @@ use Domain\Platform\Models\PlatformTenant;
 use Domain\Platform\Services\PlatformPlanEnforcementService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -33,14 +34,17 @@ class PlatformPlanEnforcementServiceTest extends TestCase
 
     private string $tenantId;
 
+    private PlatformPlan $tenantPlan;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->service = new PlatformPlanEnforcementService;
 
-        // Create a real tenant
+        // Create a real tenant (factory always associates a plan)
         $tenant = PlatformTenant::factory()->create();
         $this->tenantId = $tenant->id;
+        $this->tenantPlan = PlatformPlan::query()->findOrFail($tenant->plan_id);
 
         // Ensure 'Inquilino' role exists for guard 'sanctum'
         if (! AuthRole::query()->where('id', AuthRole::INQUILINO_ID)->where('guard_name', 'sanctum')->exists()) {
@@ -50,11 +54,12 @@ class PlatformPlanEnforcementServiceTest extends TestCase
         Storage::fake('public');
     }
 
-    public function test_get_current_plan_returns_null_when_no_invoice(): void
+    public function test_get_current_plan_returns_tenant_plan_when_no_invoice(): void
     {
         $plan = $this->service->getCurrentPlan($this->tenantId);
 
-        expect($plan)->toBeNull();
+        expect($plan)->not->toBeNull();
+        expect($plan->id)->toBe($this->tenantPlan->id);
     }
 
     public function test_get_current_plan_returns_plan_from_paid_invoice(): void
@@ -90,19 +95,20 @@ class PlatformPlanEnforcementServiceTest extends TestCase
         expect($result->id)->toBe($plan->id);
     }
 
-    public function test_get_current_plan_ignores_canceled_invoices(): void
+    public function test_get_current_plan_fallback_to_tenant_plan_when_invoice_is_cancelled(): void
     {
-        $plan = PlatformPlan::factory()->create();
+        $invoicePlan = PlatformPlan::factory()->create();
 
         BillingInvoice::factory()->create([
             'tenant_id' => $this->tenantId,
-            'plan_id' => $plan->id,
+            'plan_id' => $invoicePlan->id,
             'status' => BillingInvoiceStatus::CANCELLED,
         ]);
 
         $result = $this->service->getCurrentPlan($this->tenantId);
 
-        expect($result)->toBeNull();
+        expect($result)->not->toBeNull();
+        expect($result->id)->toBe($this->tenantPlan->id);
     }
 
     public function test_get_current_plan_returns_most_recent_invoice(): void
@@ -131,7 +137,7 @@ class PlatformPlanEnforcementServiceTest extends TestCase
 
     public function test_is_ai_enabled_returns_false_when_no_plan(): void
     {
-        $isAiEnabled = $this->service->isAiEnabled($this->tenantId);
+        $isAiEnabled = $this->service->isAiEnabled((string) Str::orderedUuid());
 
         expect($isAiEnabled)->toBeFalse();
     }
@@ -156,8 +162,12 @@ class PlatformPlanEnforcementServiceTest extends TestCase
         expect($isAiEnabled)->toBeFalse();
     }
 
-    public function test_can_create_user_returns_true_when_no_plan(): void
+    public function test_can_create_user_returns_true_when_plan_limit_is_zero(): void
     {
+        $plan = PlatformPlan::factory()->create(['limit_users' => 0]);
+        PlatformTenant::query()->where('id', $this->tenantId)->update(['plan_id' => $plan->id]);
+        $this->tenantPlan = $plan;
+
         AuthUser::factory()->count(10)->create(['tenant_id' => $this->tenantId]);
 
         $canCreate = $this->service->canCreateUser($this->tenantId);

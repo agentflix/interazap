@@ -16,6 +16,7 @@ describe('UazapiProvider', () => {
   describe('normalize', () => {
     it('should normalize basic message event', () => {
       const payload = {
+        EventType: 'messages',
         message: {
           id: 'msg-1',
           body: 'Hello World',
@@ -35,6 +36,7 @@ describe('UazapiProvider', () => {
 
     it('should extract body from different fields', () => {
       const payload = {
+        EventType: 'messages',
         message: {
           text: 'Test message',
           from: '5511999999999',
@@ -48,6 +50,7 @@ describe('UazapiProvider', () => {
 
     it('should detect direction from fromMe field', () => {
       const outgoing = {
+        EventType: 'messages',
         message: {
           id: 'msg-1',
           body: 'Outgoing',
@@ -56,6 +59,7 @@ describe('UazapiProvider', () => {
       } as UazapiWebhookDto;
 
       const incoming = {
+        EventType: 'messages',
         message: {
           id: 'msg-2',
           body: 'Incoming',
@@ -72,6 +76,7 @@ describe('UazapiProvider', () => {
 
     it('should handle media messages', () => {
       const payload = {
+        EventType: 'messages',
         message: {
           id: 'msg-1',
           type: 'image',
@@ -90,6 +95,7 @@ describe('UazapiProvider', () => {
 
     it('should handle connection events', () => {
       const payload = {
+        EventType: 'connection',
         instance: {
           status: 'connected',
           qrCode: null,

@@ -47,12 +47,10 @@ final class ProcessChatMessageActionTest extends TestCase
         $this->mockActivityBroadcast
             ->shouldReceive('emitMessageReceived')
             ->once()
-            ->withArgs(function ($chatId, $payload) use ($ticket, $message): bool {
-                return $chatId === (string) $ticket->id
-                    && ($payload['message']['id'] ?? null) === (string) $message->id
-                    && ($payload['message']['content'] ?? null) === 'Olá, tudo bem?'
-                    && ($payload['message']['type'] ?? null) === 'text';
-            });
+            ->withArgs(fn ($chatId, $payload): bool => $chatId === (string) $ticket->id
+                && ($payload['message']['id'] ?? null) === (string) $message->id
+                && ($payload['message']['content'] ?? null) === 'Olá, tudo bem?'
+                && ($payload['message']['type'] ?? null) === 'text');
 
         $this->action->emitNewMessageEvent($message, $ticket);
         $this->addToAssertionCount(1);
@@ -80,7 +78,7 @@ final class ProcessChatMessageActionTest extends TestCase
         $this->mockActivityBroadcast
             ->shouldReceive('emitMessageReceived')
             ->once()
-            ->withArgs(function ($chatId, $payload) use ($ticket): bool {
+            ->withArgs(function ($chatId, array $payload) use ($ticket): bool {
                 $msg = $payload['message'] ?? [];
 
                 return $chatId === (string) $ticket->id

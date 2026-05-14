@@ -21,9 +21,7 @@ export class ToolCallLoopService {
    * @param content - Conteúdo retornado pelo modelo.
    * @returns Lista de chamadas de tool extraídas do payload.
    */
-  parseToolCalls(
-    content: string,
-  ): Array<{ name: string; arguments: unknown }> {
+  parseToolCalls(content: string): Array<{ name: string; arguments: unknown }> {
     try {
       const parsed = JSON.parse(content) as unknown;
       const items =

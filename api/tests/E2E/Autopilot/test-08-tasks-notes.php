@@ -34,7 +34,7 @@ e2e_run('create_task: cria tarefa em negociação', function () use ($ctx, &$tas
 
     $taskId = $r->data['task_id'];
 
-    $task = CRMNegotiationTask::find($taskId);
+    $task = \Domain\CRM\Models\CRMNegotiationTask::query()->find($taskId);
     e2e_assert($task !== null, 'tarefa persistida no banco');
     e2e_assert($task->title === 'Tarefa E2E — Ligar para cliente', 'title correto');
 });
@@ -70,7 +70,7 @@ e2e_run('create_note: cria nota em negociação', function () use ($ctx, &$noteI
 
     $noteId = $r->data['note_id'];
 
-    $note = CRMNote::find($noteId);
+    $note = \Domain\CRM\Models\CRMNote::query()->find($noteId);
     e2e_assert($note !== null, 'nota persistida no banco');
 });
 

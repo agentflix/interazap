@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Domain\Auth\Models\AuthUser;
-use Domain\CRM\Models\CRMContact;
 use Domain\CRM\Models\CRMNegotiation;
-use Domain\CRM\Models\CRMNegotiationFunnel;
 use Domain\CRM\Models\CRMNegotiationFunnelStep;
 use Domain\CRM\Models\CRMNegotiationProduct;
 use Domain\CRM\Models\CRMProduct;
@@ -45,12 +43,12 @@ final class ReportsCrmSeeder extends Seeder
     private function seedCrmData(string $tenantId): void
     {
         // Clear existing data to avoid unique constraint violations
-        CRMNegotiationProduct::where('tenant_id', $tenantId)->delete();
-        CRMProposal::where('tenant_id', $tenantId)->delete();
-        CRMNegotiation::where('tenant_id', $tenantId)->delete();
-        CRMProduct::where('tenant_id', $tenantId)->delete();
-        CRMContact::where('tenant_id', $tenantId)->delete();
-        CRMNegotiationFunnel::where('tenant_id', $tenantId)->delete();
+        \Domain\CRM\Models\CRMNegotiationProduct::query()->where('tenant_id', $tenantId)->delete();
+        \Domain\CRM\Models\CRMProposal::query()->where('tenant_id', $tenantId)->delete();
+        \Domain\CRM\Models\CRMNegotiation::query()->where('tenant_id', $tenantId)->delete();
+        \Domain\CRM\Models\CRMProduct::query()->where('tenant_id', $tenantId)->delete();
+        \Domain\CRM\Models\CRMContact::query()->where('tenant_id', $tenantId)->delete();
+        \Domain\CRM\Models\CRMNegotiationFunnel::query()->where('tenant_id', $tenantId)->delete();
         // Note: CRMReasonLoss is intentionally not deleted to allow re-runs
 
         // Get agents for this tenant
@@ -106,7 +104,7 @@ final class ReportsCrmSeeder extends Seeder
 
         $created = [];
         foreach ($reasons as $reason) {
-            $existing = CRMReasonLoss::where('tenant_id', $tenantId)
+            $existing = \Domain\CRM\Models\CRMReasonLoss::query()->where('tenant_id', $tenantId)
                 ->where('name', $reason)
                 ->first();
             if ($existing) {
@@ -148,12 +146,12 @@ final class ReportsCrmSeeder extends Seeder
                     'auth_user_id' => $agentIds[array_rand($agentIds)],
                     'status' => $status,
                     'crm_negotiation_funnel_step_id' => $step->id,
-                    'closed_at' => $status !== 'open' ? now()->subDays(rand(1, 30)) : null,
-                    'amount' => rand(1000, 10000),
+                    'closed_at' => $status !== 'open' ? now()->subDays(random_int(1, 30)) : null,
+                    'amount' => random_int(1000, 10000),
                 ]);
 
             // Link to loss reason if lost
-            if ($status === 'lost' && ! empty($lossReasons)) {
+            if ($status === 'lost' && $lossReasons !== []) {
                 $lossReason = $lossReasons[array_rand($lossReasons)];
                 $negotiation->update(['crm_reason_loss_id' => $lossReason->id]);
             }
@@ -171,12 +169,12 @@ final class ReportsCrmSeeder extends Seeder
 
         foreach ($negotiations as $negotiation) {
             CRMProposal::factory()
-                ->count(rand(1, 3))
+                ->count(random_int(1, 3))
                 ->create([
                     'tenant_id' => $tenantId,
                     'crm_negotiation_id' => $negotiation->id,
-                    'status' => fn () => $statuses[array_rand($statuses)],
-                    'total' => $negotiation->amount ?? rand(1000, 10000),
+                    'status' => fn (): string => $statuses[array_rand($statuses)],
+                    'total' => $negotiation->amount ?? random_int(1000, 10000),
                 ]);
         }
     }
@@ -198,15 +196,15 @@ final class ReportsCrmSeeder extends Seeder
             ->get();
 
         foreach ($negotiations as $negotiation) {
-            $randomProducts = collect($products)->random(rand(1, 3));
+            $randomProducts = collect($products)->random(random_int(1, 3));
             foreach ($randomProducts as $product) {
                 CRMNegotiationProduct::factory()
                     ->create([
                         'tenant_id' => $tenantId,
                         'crm_negotiation_id' => $negotiation->id,
                         'crm_product_id' => $product->id,
-                        'quantity' => rand(1, 5),
-                        'unit_price' => $product->price ?? rand(100, 1000),
+                        'quantity' => random_int(1, 5),
+                        'unit_price' => $product->price ?? random_int(100, 1000),
                     ]);
             }
         }

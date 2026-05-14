@@ -82,17 +82,15 @@ final class AutopilotRunDispatcherListenerTest extends TestCase
             sourceId: $sourceId,
         ));
 
-        Bus::assertDispatched(DispatchAutopilotRunJob::class, function (DispatchAutopilotRunJob $job) use ($tenantId, $ticketId, $messageId, $instanceId, $sourceId, $body): bool {
-            return $job->tenantId === $tenantId
-                && $job->triggerType === AutopilotTriggerType::INBOUND_MESSAGE
-                && ($job->context['ticket_id'] ?? '') === $ticketId
-                && ($job->context['message_id'] ?? '') === $messageId
-                && ($job->context['body'] ?? '') === $body
-                && ($job->context['instance_id'] ?? '') === $instanceId
-                && ($job->context['source_type'] ?? '') === 'ticket'
-                && ($job->context['custom_field'] ?? '') === 'custom_value'
-                && $job->sourceId === $sourceId;
-        });
+        Bus::assertDispatched(DispatchAutopilotRunJob::class, fn (DispatchAutopilotRunJob $job): bool => $job->tenantId === $tenantId
+            && $job->triggerType === AutopilotTriggerType::INBOUND_MESSAGE
+            && ($job->context['ticket_id'] ?? '') === $ticketId
+            && ($job->context['message_id'] ?? '') === $messageId
+            && ($job->context['body'] ?? '') === $body
+            && ($job->context['instance_id'] ?? '') === $instanceId
+            && ($job->context['source_type'] ?? '') === 'ticket'
+            && ($job->context['custom_field'] ?? '') === 'custom_value'
+            && $job->sourceId === $sourceId);
     }
 
     public function test_listener_dispatches_for_all_trigger_types(): void
@@ -117,9 +115,7 @@ final class AutopilotRunDispatcherListenerTest extends TestCase
                 sourceId: (string) Str::orderedUuid(),
             ));
 
-            Bus::assertDispatched(DispatchAutopilotRunJob::class, function (DispatchAutopilotRunJob $job) use ($triggerType): bool {
-                return $job->triggerType === $triggerType;
-            });
+            Bus::assertDispatched(DispatchAutopilotRunJob::class, fn (DispatchAutopilotRunJob $job): bool => $job->triggerType === $triggerType);
         }
     }
 

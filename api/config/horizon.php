@@ -242,6 +242,20 @@ return [
             'timeout' => 60,
             'nice' => 0,
         ],
+        // Supervisor dedicado para auto-reply (chatbot/menu) para evitar
+        // starvation e garantir baixa latência nas respostas do WebChat.
+        'supervisor-auto-reply' => [
+            'connection' => 'redis',
+            'queue' => ['auto-reply'],
+            'balance' => 'simple',
+            'maxProcesses' => 1,
+            'maxTime' => 3600,
+            'maxJobs' => 1000,
+            'memory' => 128,
+            'tries' => 3,
+            'timeout' => 120,
+            'nice' => 0,
+        ],
         // Supervisor dedicado à fila `ai` — evita starvation por jobs de outras filas
         // e garante paralelismo real para AiRunExecutionJob/AiToolCallJob.
         'supervisor-ai' => [
@@ -265,6 +279,9 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'supervisor-auto-reply' => [
+                'maxProcesses' => 2,
+            ],
             'supervisor-ai' => [
                 'maxProcesses' => (int) env('HORIZON_AI_MAX_PROCESSES', 6),
             ],
@@ -273,6 +290,9 @@ return [
         'local' => [
             'supervisor-1' => [
                 'maxProcesses' => 2,
+            ],
+            'supervisor-auto-reply' => [
+                'maxProcesses' => 1,
             ],
             'supervisor-ai' => [
                 'maxProcesses' => (int) env('HORIZON_AI_MAX_PROCESSES', 4),

@@ -25,7 +25,7 @@ final class PerformanceAuthSeeder
     {
         $userIds = $this->seedUsers($tenantId);
         $this->seedDeviceTokens($tenantId, $userIds);
-        $this->seedPersonalAccessTokens($tenantId, $userIds);
+        $this->seedPersonalAccessTokens($userIds);
     }
 
     /**
@@ -37,7 +37,6 @@ final class PerformanceAuthSeeder
     private function seedUsers(string $tenantId): array
     {
         $faker = fake('pt_BR');
-        $roleNames = [AuthRole::ADMINISTRADOR_NAME, AuthRole::GERENTE_NAME, AuthRole::ATENDENTE_NAME];
         $roleWeights = [AuthRole::ADMINISTRADOR_NAME => 10, AuthRole::GERENTE_NAME => 20, AuthRole::ATENDENTE_NAME => 70];
 
         $users = [];
@@ -64,7 +63,7 @@ final class PerformanceAuthSeeder
                 'name' => $faker->name(),
                 'email' => "user{$i}.{$tenantId}@perf.local",
                 'phone' => '+55'.random_int(1100000000, 99999999999),
-                'avatar_url' => random_int(0, 1) ? "https://avatars.perf.local/{$userId}.png" : null,
+                'avatar_url' => random_int(0, 1) !== 0 ? "https://avatars.perf.local/{$userId}.png" : null,
                 'email_verified_at' => $isActive ? PerformanceSeeder::randomDate() : null,
                 'password' => Hash::make('password'),
                 'remember_token' => Str::random(10),
@@ -82,7 +81,7 @@ final class PerformanceAuthSeeder
         PerformanceSeeder::insertBatch('auth_users', $users, self::BATCH_SIZE);
 
         // Assign roles via pivot table (first user guaranteed admin)
-        $this->assignRoles($tenantId, $userIds, $roleWeights);
+        $this->assignRoles($userIds, $roleWeights);
 
         return $userIds;
     }
@@ -94,7 +93,7 @@ final class PerformanceAuthSeeder
      * @param  array<int, string>  $userIds
      * @param  array<string, int>  $roleWeights
      */
-    private function assignRoles(string $tenantId, array $userIds, array $roleWeights): void
+    private function assignRoles(array $userIds, array $roleWeights): void
     {
         $roleMap = [
             AuthRole::ADMINISTRADOR_NAME => AuthRole::ADMINISTRADOR_ID,
@@ -114,7 +113,7 @@ final class PerformanceAuthSeeder
 
             $pivot[] = [
                 'role_id' => $roleId,
-                'model_type' => 'Domain\Auth\Models\AuthUser',
+                'model_type' => \Domain\Auth\Models\AuthUser::class,
                 'model_id' => $userId,
             ];
         }
@@ -155,7 +154,7 @@ final class PerformanceAuthSeeder
             }
         }
 
-        if (! empty($tokens)) {
+        if ($tokens !== []) {
             PerformanceSeeder::insertBatch('auth_device_tokens', $tokens, self::BATCH_SIZE);
         }
     }
@@ -165,7 +164,7 @@ final class PerformanceAuthSeeder
      *
      * @param  array<int, string>  $userIds
      */
-    private function seedPersonalAccessTokens(string $tenantId, array $userIds): void
+    private function seedPersonalAccessTokens(array $userIds): void
     {
         $tokens = [];
 
@@ -177,7 +176,7 @@ final class PerformanceAuthSeeder
 
                 $tokens[] = [
                     'id' => PerformanceSeeder::uuid(),
-                    'tokenable_type' => 'Domain\Auth\Models\AuthUser',
+                    'tokenable_type' => \Domain\Auth\Models\AuthUser::class,
                     'tokenable_id' => $userId,
                     'name' => 'Token '.random_int(100, 999),
                     'token' => hash('sha256', random_bytes(32)),
@@ -190,7 +189,7 @@ final class PerformanceAuthSeeder
             }
         }
 
-        if (! empty($tokens)) {
+        if ($tokens !== []) {
             PerformanceSeeder::insertBatch('auth_personal_access_tokens', $tokens, self::BATCH_SIZE);
         }
     }

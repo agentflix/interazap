@@ -9,6 +9,7 @@ import { of, throwError } from 'rxjs';
 import { Tenants } from './tenants';
 import { CompanyService } from '@core/services/company.service';
 import { type TenantDetails } from '@shared/models/tenant-details.model';
+import { PlatformPlanService } from '@pages/platform/services/platform-plan.service';
 
 describe('Tenants', () => {
   let component: Tenants;
@@ -21,6 +22,7 @@ describe('Tenants', () => {
     forceDelete: ReturnType<typeof vi.fn>;
     purge: ReturnType<typeof vi.fn>;
   };
+  let platformPlanServiceMock: { list: ReturnType<typeof vi.fn> };
 
   const mockTenants = [
     {
@@ -31,6 +33,7 @@ describe('Tenants', () => {
       email: 'acme@test.com',
       primary_email: 'acme@test.com',
       is_active: true,
+      plan_id: 'plan-1',
     },
     {
       id: 'tenant-2',
@@ -96,6 +99,33 @@ describe('Tenants', () => {
       forceDelete: vi.fn().mockReturnValue(of(void 0)),
       purge: vi.fn().mockReturnValue(of(void 0)),
     };
+    platformPlanServiceMock = {
+      list: vi.fn().mockReturnValue(
+        of({
+          data: [
+            {
+              id: 'plan-1',
+              name: 'Starter',
+              slug: 'starter',
+              limit_users: 5,
+              storage_mode: 'LIMITED',
+              storage_limit_bytes: 1073741824,
+              storage_limit_gb: 1,
+              ai_enabled: false,
+              token_limit_monthly: null,
+              allow_overage: false,
+              overage_price_per_1k: null,
+              whatsapp_integrations_limit: 1,
+              negotiations_mode: 'UNLIMITED',
+              negotiations_limit: null,
+              price_monthly: '0.00',
+              is_active: true,
+            },
+          ],
+          meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+        }),
+      ),
+    };
 
     await TestBed.configureTestingModule({
       imports: [Tenants],
@@ -105,6 +135,7 @@ describe('Tenants', () => {
         provideRouter([]),
         importProvidersFrom(LucideAngularModule.pick(icons)),
         { provide: CompanyService, useValue: companyServiceMock },
+        { provide: PlatformPlanService, useValue: platformPlanServiceMock },
       ],
     }).compileComponents();
 
@@ -119,8 +150,15 @@ describe('Tenants', () => {
 
   it('loads tenants on init', () => {
     expect(companyServiceMock.list).toHaveBeenCalled();
+    expect(platformPlanServiceMock.list).toHaveBeenCalled();
     expect(component.tenants().length).toBe(2);
     expect(component.isLoading()).toBe(false);
+  });
+
+  it('renders plan column with name and formatted price', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('Plano');
+    expect(compiled.textContent).toContain('Starter - R$0,00');
   });
 
   it('renders details button for active tenant rows', () => {

@@ -10,7 +10,7 @@ beforeEach(function (): void {
 
 describe('PerformanceSeeder', function (): void {
     it('can be instantiated', function (): void {
-        $seeder = new PerformanceSeeder();
+        $seeder = new PerformanceSeeder;
 
         expect($seeder)->toBeInstanceOf(PerformanceSeeder::class);
     });

@@ -22,7 +22,7 @@ final class PerformancePlatformSeeder
     public function seedForTenant(string $tenantId): void
     {
         $this->seedUazapiInstances($tenantId);
-        $this->seedLeads($tenantId);
+        $this->seedLeads();
     }
 
     /**
@@ -30,8 +30,6 @@ final class PerformancePlatformSeeder
      */
     private function seedUazapiInstances(string $tenantId): void
     {
-        $providers = ['whatsapp', 'meta', 'telegram'];
-        $statuses = ['inactive', 'connecting', 'active', 'error'];
         $weights = ['active' => 50, 'inactive' => 20, 'connecting' => 15, 'error' => 15];
 
         $instances = [];
@@ -58,12 +56,11 @@ final class PerformancePlatformSeeder
     }
 
     /**
-     * Create ~10 leads per tenant with varied statuses and sources.
+     * Create ~10 leads per tenant.
      */
-    private function seedLeads(string $tenantId): void
+    private function seedLeads(): void
     {
         $faker = fake('pt_BR');
-        $statuses = ['new' => 30, 'contacted' => 25, 'qualified' => 20, 'converted' => 15, 'lost' => 10];
         $sources = ['landing_page', 'facebook_ads', 'google_ads', 'organic', 'referral', 'event', 'whatsapp'];
 
         $leads = [];
@@ -79,7 +76,6 @@ final class PerformancePlatformSeeder
                 'phone' => '+55'.random_int(1100000000, 99999999999),
                 'email' => 'lead.'.random_int(1000, 9999).'@example.com',
                 'company' => $faker->company(),
-                'source' => $sources[array_rand($sources)],
                 'utm_source' => $hasUtm ? $sources[array_rand($sources)] : null,
                 'utm_medium' => $hasUtm ? ['cpc', 'organic', 'social', 'email'][array_rand(['cpc', 'organic', 'social', 'email'])] : null,
                 'utm_campaign' => $hasUtm ? 'campaign_'.random_int(1, 20) : null,
@@ -87,7 +83,6 @@ final class PerformancePlatformSeeder
                 'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'ip_address' => $faker->ipv4(),
                 'lgpd_consent' => $hasConsent,
-                'status' => PerformanceSeeder::weightedRandom($statuses),
                 'created_at' => PerformanceSeeder::randomDate(),
                 'updated_at' => now(),
             ];

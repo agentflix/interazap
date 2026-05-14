@@ -12,6 +12,7 @@ import { ChatMessageCacheService } from 'src/app/core/services/chat-message-cach
 import { ChatRealtimeService } from 'src/app/core/services/chat-realtime.service';
 import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
 import { ChatStartService } from 'src/app/core/services/chat-start.service';
+import { mergeAndSortMessagesDesc } from 'src/app/core/utils/message-comparator.util';
 
 @Injectable()
 export class UserChatThreadStore {
@@ -219,21 +220,7 @@ export class UserChatThreadStore {
   }
 
   private mergeAndSort(current: CalledMessage[], incoming: CalledMessage[]): CalledMessage[] {
-    const map = new Map<string, CalledMessage>();
-
-    current.forEach((message) => map.set(String(message.id), message));
-    incoming.forEach((message) => map.set(String(message.id), message));
-
-    return Array.from(map.values()).sort(
-      (left, right) => this.toTimestamp(left) - this.toTimestamp(right),
-    );
-  }
-
-  private toTimestamp(message: CalledMessage): number {
-    const source = message.sent_at ?? message.created_at ?? message.delivered_at ?? message.read_at;
-    if (!source) return 0;
-    const parsed = Date.parse(source);
-    return Number.isNaN(parsed) ? 0 : parsed;
+    return mergeAndSortMessagesDesc(current, incoming);
   }
 
   private setupRealtimeEffects(): void {

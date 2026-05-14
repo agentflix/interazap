@@ -1,0 +1,157 @@
+<af-crud-page
+  title="Templates Meta"
+  subtitle="WhatsApp Business — Meta"
+  createLabel="Novo Template Meta"
+  searchPlaceholder="Buscar por nome..."
+  [loading]="isLoading()"
+  [empty]="isEmpty()"
+  emptyTitle="Nenhum template ainda"
+  emptyDescription="Crie seu primeiro template e envie-o para aprovação da Meta."
+  [skeletonColumns]="7"
+  [skeletonRows]="6"
+  [currentPage]="meta().current_page"
+  [lastPage]="meta().last_page"
+  [perPage]="meta().per_page"
+  [total]="meta().total"
+  (create)="openCreate()"
+  (search)="onSearch($event)"
+  (pageChange)="onPageChange($event)"
+>
+  <!-- Ações no header -->
+  <div filters class="flex items-center gap-2">
+    <af-button
+      variant="outline"
+      size="sm"
+      [disabled]="!canSync() || isSyncing()"
+      (click)="syncNow()"
+    >
+      <lucide-icon name="refresh-cw" [size]="16" class="block" />
+      {{ isSyncing() ? 'Sincronizando...' : 'Sincronizar com Meta' }}
+    </af-button>
+
+    <app-button
+      variant="secondary"
+      size="sm"
+      (clicked)="openFilter()"
+    >
+      <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+      Filtros
+      @if (activeFiltersCount() > 0) {
+        <span
+          class="ml-1 inline-flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white"
+        >{{ activeFiltersCount() }}</span>
+      }
+    </app-button>
+  </div>
+
+  <!-- Conteúdo -->
+  @if (hasError()) {
+    <div class="p-6">
+      <af-alert
+        variant="danger"
+        title="Erro ao carregar templates"
+        message="Ocorreu uma falha ao buscar os templates. Tente novamente."
+      />
+      <div class="mt-4">
+        <af-button variant="outline" size="sm" (click)="loadTemplates()"
+          >Tentar novamente</af-button
+        >
+      </div>
+    </div>
+  } @else {
+    <af-data-table>
+      <thead>
+        <tr>
+          <th class="text-left">Nome</th>
+          <th class="text-left">Canal</th>
+          <th class="text-left">Idioma</th>
+          <th class="text-left">Categoria</th>
+          <th class="text-left">Status</th>
+          <th class="text-left">Atualizado em</th>
+          <th class="text-right">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of items(); track item.id) {
+          <tr [class.opacity-60]="item.status === 'disabled'">
+            <td>
+              <div class="font-medium">{{ item.name }}</div>
+              @if (item.shortcut) {
+                <div class="text-xs text-neutral-400">{{ item.shortcut }}</div>
+              }
+            </td>
+            <td>{{ channelName(item.chat_instance_id) }}</td>
+            <td class="uppercase text-xs text-neutral-500">{{ item.language }}</td>
+            <td class="text-xs text-neutral-500">{{ item.category }}</td>
+            <td>
+              <div class="inline-flex items-center gap-1">
+                <af-badge [variant]="variantOf(item.status)">{{ labelOf(item.status) }}</af-badge>
+                @if (item.status === 'rejected' && item.rejected_reason) {
+                  <af-tooltip [text]="item.rejected_reason" position="top">
+                    <button
+                      type="button"
+                      class="text-danger-500 inline-flex"
+                      [attr.aria-label]="'Motivo da rejeição: ' + item.rejected_reason"
+                    >
+                      <lucide-icon name="alert-circle" [size]="14" />
+                    </button>
+                  </af-tooltip>
+                }
+              </div>
+            </td>
+            <td class="text-xs text-neutral-400">{{ formatDate(item.last_synced_at) }}</td>
+            <td class="text-right">
+              <af-table-actions (edit)="openEdit(item)" (delete)="askDelete(item)" />
+            </td>
+          </tr>
+        }
+      </tbody>
+    </af-data-table>
+  }
+</af-crud-page>
+
+<af-drawer
+  [class.hidden]="!isFilterOpen()"
+  [open]="isFilterOpen()"
+  title="Filtros de templates"
+  side="right"
+  size="lg"
+  (closed)="closeFilter()"
+>
+  <div class="grid grid-cols-1">
+    <app-select-input
+      label="Canal"
+      [control]="chatInstanceControl"
+      [options]="chatInstanceOptions()"
+    />
+    <app-select-input
+      label="Status"
+      [control]="statusControl"
+      [options]="statusOptions"
+    />
+  </div>
+
+  <div footer>
+    <div class="flex w-full items-center justify-between gap-2">
+      <app-button variant="danger" size="sm" (clicked)="clearFilter()">
+        Limpar filtros
+      </app-button>
+      <div class="flex gap-2">
+        <app-button variant="ghost" size="sm" (clicked)="closeFilter()">Cancelar</app-button>
+        <app-button variant="primary" size="sm" (clicked)="applyFilter()">Aplicar</app-button>
+      </div>
+    </div>
+  </div>
+</af-drawer>
+
+<af-confirm-modal
+  [open]="!!toDelete()"
+  title="Excluir template"
+  [message]="deleteMessage()"
+  variant="danger"
+  confirmLabel="Excluir"
+  cancelLabel="Cancelar"
+  [isLoading]="isDeleting()"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()"
+/>

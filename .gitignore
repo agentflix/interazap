@@ -30,9 +30,16 @@ gateway/logs/gateway-events.log
 api/coverage.xml
 api/.env
 
+# --- ladding/ ---
+/landing/node_modules
+
 # --- Docker ---
 .env.docker
 
 # --- IA (regenerável via scripts/setup-ai.sh) ---
 /.opencode
 CLAUDE.md
+
+# --- Backup files (never commit) ---
+*.bak
+package-lock.json

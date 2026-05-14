@@ -18,13 +18,7 @@ import {
   AfCrudPageComponent,
   AfDataTableComponent,
   AfDrawerComponent,
-  AfEmptyStateComponent,
-  AfIconButtonComponent,
-  AfPageTitleComponent,
-  AfPaginationComponent,
-  AfSearchInputComponent,
   AfSelectInputComponent,
-  AfSkeletonTableRowComponent,
   AfStatusBadgeComponent,
   AfTableActionsComponent,
   type AfSelectOption,
@@ -46,6 +40,7 @@ import { type User, UserService } from '@core/services/user.service';
   imports: [
     ReactiveFormsModule,
     LucideAngularModule,
+    AfCrudPageComponent,
     AfDataTableComponent,
     AfConfirmModalComponent,
     AfButtonComponent,
@@ -54,11 +49,6 @@ import { type User, UserService } from '@core/services/user.service';
     AfTableActionsComponent,
     AfAlertComponent,
     AfDrawerComponent,
-    AfEmptyStateComponent,
-    AfPageTitleComponent,
-    AfPaginationComponent,
-    AfSearchInputComponent,
-    AfSkeletonTableRowComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './ticket-page.html',
@@ -84,7 +74,6 @@ export class TicketPage implements OnInit {
   );
 
   // ─── Filter controls ───────────────────────────────────────────────────────
-  readonly searchControl = new FormControl('', { nonNullable: true });
   readonly filterStatusControl = new FormControl<string>('all', { nonNullable: true });
   readonly filterAgentControl = new FormControl<string>('all', { nonNullable: true });
   readonly filterDateControl = new FormControl<string>('all', { nonNullable: true });
@@ -164,11 +153,9 @@ export class TicketPage implements OnInit {
     this.filterStatusControl.setValue('all');
     this.filterAgentControl.setValue('all');
     this.filterDateControl.setValue('all');
-    this.searchControl.setValue('');
   }
 
   applyFilters(): void {
-    this.searchTerm.set(this.searchControl.value.trim());
     this.pageNumber.set(1);
     this.loadTickets();
     this.closeFilters();

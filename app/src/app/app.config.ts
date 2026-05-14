@@ -21,6 +21,7 @@ import { billingLockoutInterceptor } from './core/interceptors/billing-lockout.i
 import { traceIdInterceptor } from './core/interceptors/trace-id.interceptor';
 import { requestTimeoutInterceptor } from './core/interceptors/request-timeout.interceptor';
 import { offlineDetectionInterceptor } from './core/interceptors/offline-detection.interceptor';
+import { gatewayApiKeyInterceptor } from './core/interceptors/gateway-api-key.interceptor';
 import { buildLucideIconRegistry } from './core/icons/lucide-icon-registry';
 import { environment } from '../environments/environment';
 import { SentryService, SentryAngularErrorHandler } from './core/services/platform/sentry.service';
@@ -57,6 +58,7 @@ export const appConfig: ApplicationConfig = {
         traceIdInterceptor,
         requestTimeoutInterceptor,
         offlineDetectionInterceptor,
+        gatewayApiKeyInterceptor,
         bearerInterceptor,
         authInterceptor,
         billingLockoutInterceptor,

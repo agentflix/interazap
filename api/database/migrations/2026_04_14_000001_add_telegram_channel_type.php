@@ -59,7 +59,7 @@ return new class extends Migration
             DB::statement("ALTER TABLE chat_tickets DROP CONSTRAINT \"{$constraint->conname}\"");
 
             $values = collect(self::ALLOWED_CHANNELS)
-                ->map(fn (string $v) => "'{$v}'")
+                ->map(fn (string $v): string => "'{$v}'")
                 ->implode(', ');
 
             DB::statement('

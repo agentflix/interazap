@@ -67,7 +67,7 @@ $cleanups = [
     'CRMNegotiationFunnel' => fn () => CRMNegotiationFunnel::query()->where('tenant_id', $tenantId)->delete(),
     'CRMContact' => fn () => CRMContact::query()->where('tenant_id', $tenantId)->delete(),
     'CRMCompany' => fn () => CRMCompany::query()->where('tenant_id', $tenantId)->delete(),
-    'PlatformTenant' => fn () => $tenant->forceDelete(),
+    'PlatformTenant' => $tenant->forceDelete(...),
 ];
 
 foreach ($cleanups as $name => $fn) {

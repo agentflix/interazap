@@ -15,6 +15,7 @@ use Domain\Chat\Services\WebChatRedisPublisher;
 use Domain\Configuration\Events\TicketAssignedEvent;
 use Domain\Configuration\Events\TicketClosedEvent;
 use Domain\Platform\Models\PlatformTenant;
+use Domain\Platform\Services\PlatformPlanEnforcementService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
@@ -27,6 +28,7 @@ final class UpdateChatTicketAction
         private readonly SendTicketMessageAction $messageAction,
         private readonly EvaluateTicketCsatAction $evaluateAction,
         private readonly WebChatRedisPublisher $webChatPublisher,
+        private readonly PlatformPlanEnforcementService $planEnforcement,
     ) {}
 
     /**
@@ -238,6 +240,10 @@ final class UpdateChatTicketAction
 
     private function dispatchFinalSentimentAnalysis(ChatTicket $ticket): void
     {
+        if (! $this->planEnforcement->isAiEnabled((string) $ticket->tenant_id)) {
+            return;
+        }
+
         $lastInboundText = ChatMessage::query()
             ->where('tenant_id', $ticket->tenant_id)
             ->where('ticket_id', $ticket->id)

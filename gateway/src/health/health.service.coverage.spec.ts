@@ -7,6 +7,7 @@ import { Logger } from '@nestjs/common';
 describe('HealthService Coverage', () => {
   let service: HealthService;
   let redisService: RedisService;
+  let databaseService: DatabaseService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

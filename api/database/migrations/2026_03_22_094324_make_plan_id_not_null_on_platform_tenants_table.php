@@ -34,7 +34,7 @@ return new class extends Migration
         }
 
         // 2. Alterar a coluna para NOT NULL
-        Schema::table('platform_tenants', function (Blueprint $table) {
+        Schema::table('platform_tenants', function (Blueprint $table): void {
             $table->uuid('plan_id')->nullable(false)->change();
         });
     }
@@ -44,7 +44,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('platform_tenants', function (Blueprint $table) {
+        Schema::table('platform_tenants', function (Blueprint $table): void {
             $table->uuid('plan_id')->nullable(true)->change();
         });
     }

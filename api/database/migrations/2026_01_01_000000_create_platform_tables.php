@@ -132,7 +132,6 @@ return new class extends Migration
                 $table->string('phone', 20)->comment('Telefone de contato');
                 $table->string('email', 255)->comment('E-mail de contato');
                 $table->string('company', 255)->nullable()->comment('Empresa do lead');
-                $table->string('source', 50)->comment('Fonte de origem do lead');
                 $table->string('utm_source', 100)->nullable()->comment('UTM source da campanha');
                 $table->string('utm_medium', 100)->nullable()->comment('UTM medium da campanha');
                 $table->string('utm_campaign', 100)->nullable()->comment('UTM campaign da campanha');
@@ -140,12 +139,9 @@ return new class extends Migration
                 $table->string('user_agent', 1023)->nullable()->comment('User agent do navegador');
                 $table->string('ip_address', 45)->nullable()->comment('Endereço IP de origem (IPv6 ready)');
                 $table->boolean('lgpd_consent')->default(false)->comment('Consentimento LGPD fornecido');
-                $table->string('status', 20)->default('new')->comment('Status do lead: new, contacted, qualified, converted, lost');
                 $table->timestamps();
 
-                $table->index('status', 'idx_platform_leads_status');
                 $table->index('email', 'idx_platform_leads_email');
-                $table->index('source', 'idx_platform_leads_source');
             });
         }
 

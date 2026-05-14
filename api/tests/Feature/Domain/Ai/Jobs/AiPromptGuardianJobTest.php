@@ -24,10 +24,7 @@ describe('AiPromptGuardianJob', function (): void {
             'segment_id' => $this->segment->id,
         ]);
 
-        $adminRole = AuthRole::firstOrCreate(
-            ['id' => AuthRole::INQUILINO_ID],
-            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
-        );
+        $adminRole = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::INQUILINO_ID], ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
 
         // Create admin with tenant (será notificado por ter role Inquilino)
         $this->superAdmin = AuthUser::factory()->create([

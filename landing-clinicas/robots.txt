@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /dist/
+Sitemap: https://clinicas.interazap.com.br/sitemap.xml

@@ -39,6 +39,7 @@ final class BillingPlanListResource extends BaseJsonResource
                 ['label' => sprintf('%d usuários', (int) $plan->limit_users), 'included' => true],
                 ['label' => sprintf('%d canal WhatsApp', (int) $plan->chat_channels_limit), 'included' => true],
                 ['label' => $plan->storage_limit_bytes ? $this->formatBytes((int) $plan->storage_limit_bytes).' de storage' : 'Storage ilimitado', 'included' => true],
+                ['label' => 'Chatbot (respostas automáticas)', 'included' => true],
                 ['label' => 'Inteligência Artificial', 'included' => (bool) $plan->ai_enabled],
                 ['label' => 'Negociações ilimitadas', 'included' => true],
             ],

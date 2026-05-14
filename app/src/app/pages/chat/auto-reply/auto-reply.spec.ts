@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { AutoReply } from './auto-reply';
 import { AutoReplyService } from '@core/services/auto-reply.service';
 import { DepartmentService } from '@core/services/department.service';
+import { type AutoReplyRule } from '@core/services/auto-reply.service';
 
 class AutoReplyServiceStub {
   list = vi.fn().mockReturnValue(of({ success: true, data: { data: [] } }));
@@ -31,7 +32,6 @@ class AutoReplyServiceStub {
   update = vi.fn().mockReturnValue(of({ success: true, data: { id: 'rule-1' } }));
   validateKeyword = vi.fn().mockReturnValue(of({ success: true, data: { available: true } }));
   delete = vi.fn().mockReturnValue(of(void 0));
-  toggle = vi.fn().mockReturnValue(of({ data: { id: 'rule-1' } }));
 }
 
 class DepartmentServiceStub {
@@ -68,14 +68,16 @@ describe('AutoReply', () => {
     expect(component.isEditOpen()).toBe(true);
     expect(component.editingRuleId()).toBeNull();
     expect(component.form.controls.keyword.value).toBe('');
+    expect(component.form.controls.is_active.value).toBe(true);
   });
 
-  it('saves new rule with is_welcome payload', () => {
+  it('saves new rule with is_welcome and is_active payload', () => {
     component.openCreate();
     component.form.patchValue({
       keyword: 'menu',
       caption: 'Olá!',
       actionType: 'message',
+      is_active: false,
       isWelcome: true,
     });
     component.keywordStatus.set('available');
@@ -83,8 +85,42 @@ describe('AutoReply', () => {
     component.saveEdit();
 
     expect(autoReplyRules.create).toHaveBeenCalled();
-    const payload = autoReplyRules.create.mock.calls.at(-1)?.[0] as { is_welcome?: boolean };
+    const payload = autoReplyRules.create.mock.calls.at(-1)?.[0] as {
+      is_welcome?: boolean;
+      is_active?: boolean;
+    };
     expect(payload.is_welcome).toBe(true);
+    expect(payload.is_active).toBe(false);
+  });
+
+  it('opens edit modal and fills is_active based on rule', () => {
+    const rule = {
+      id: 'rule-2',
+      name: 'Sem status',
+      patterns: ['teste'],
+      is_welcome: false,
+      company_id: 'company-1',
+      match_type: 'contains' as const,
+      actions: [{ type: 'send_message' as const, message: 'Teste', message_type: '1' }],
+      cooldown_seconds: 60,
+      priority: 0,
+      is_active: false,
+      respect_business_hours: true,
+      created_at: '2026-01-30',
+      updated_at: '2026-01-30',
+    };
+
+    component.openEdit(rule);
+
+    expect(component.form.controls.is_active.value).toBe(false);
+  });
+
+  it('returns correct label for welcome flag', () => {
+    const welcomeRule = { is_welcome: true } as AutoReplyRule;
+    const regularRule = { is_welcome: false } as AutoReplyRule;
+
+    expect(component.getWelcomeLabel(welcomeRule)).toBe('Sim');
+    expect(component.getWelcomeLabel(regularRule)).toBe('Não');
   });
 
   it('validates keyword with debounce', () => {
@@ -127,27 +163,5 @@ describe('AutoReply', () => {
 
     expect(autoReplyRules.delete).toHaveBeenCalledWith('rule-9');
     expect(component.rules()).toEqual([]);
-  });
-
-  it('toggles rule status', () => {
-    const rule = {
-      id: 'rule-1',
-      name: 'Menu',
-      patterns: ['menu'],
-      is_welcome: false,
-      company_id: 'company-1',
-      match_type: 'contains' as const,
-      actions: [],
-      cooldown_seconds: 60,
-      priority: 0,
-      is_active: true,
-      respect_business_hours: true,
-      created_at: '2026-01-30',
-      updated_at: '2026-01-30',
-    };
-
-    component.toggleRule(rule);
-
-    expect(autoReplyRules.toggle).toHaveBeenCalledWith('rule-1');
   });
 });

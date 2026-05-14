@@ -75,7 +75,7 @@ class BillingInvoiceListTest extends TestCase
             'tenant_id' => $adminTenant->id,
         ]);
 
-        $role = AuthRole::query()->firstOrCreate(
+        AuthRole::query()->firstOrCreate(
             ['id' => AuthRole::INQUILINO_ID],
             ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
         );

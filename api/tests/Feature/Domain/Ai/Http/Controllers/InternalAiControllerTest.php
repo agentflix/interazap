@@ -531,7 +531,7 @@ class InternalAiControllerTest extends TestCase
             'is_active' => true,
         ]);
 
-        $agentWithoutRule = AiAgent::query()->create([
+        AiAgent::query()->create([
             'id' => (string) Str::orderedUuid(),
             'tenant_id' => (string) $tenant->id,
             'name' => 'Agente Sem Regra',
@@ -578,7 +578,7 @@ class InternalAiControllerTest extends TestCase
         ]);
 
         $response = $this->getJson(
-            '/api/internal/ai/agents/available?tenant_id='.(string) $tenant->id.'&agent_id='.(string) $sourceAgent->id,
+            '/api/internal/ai/agents/available?tenant_id='.$tenant->id.'&agent_id='.$sourceAgent->id,
             ['X-Internal-Api-Key' => 'internal-test-key'],
         );
 

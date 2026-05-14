@@ -23,7 +23,6 @@ final class PlatformLeadResource extends BaseJsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'source' => $this->source,
             'created_at' => $this->iso($this->created_at),
         ];
     }

@@ -160,7 +160,6 @@ describe('ChatNegotiationView', () => {
       name: 'Test',
       crm_company_id: '10',
       is_active: true,
-      company_id: 'company-1',
       created_at: '2026-01-01T00:00:00.000Z',
       updated_at: '2026-01-01T00:00:00.000Z',
     };
@@ -177,7 +176,7 @@ describe('ChatNegotiationView', () => {
       id: 1,
       name: 'Test',
       is_active: true,
-      company_id: 'company-1',
+      crm_company_id: 'company-1',
       created_at: '2026-01-01T00:00:00.000Z',
       updated_at: '2026-01-01T00:00:00.000Z',
     };
@@ -227,7 +226,6 @@ describe('ChatNegotiationView', () => {
       name: 'Contato',
       crm_company_id: '10',
       is_active: true,
-      company_id: 'company-1',
       created_at: '2026-01-01T00:00:00.000Z',
       updated_at: '2026-01-01T00:00:00.000Z',
     };
@@ -268,7 +266,6 @@ describe('ChatNegotiationView', () => {
       name: 'Contato',
       crm_company_id: '10',
       is_active: true,
-      company_id: 'company-1',
       created_at: '2026-01-01T00:00:00.000Z',
       updated_at: '2026-01-01T00:00:00.000Z',
     };
@@ -302,7 +299,6 @@ describe('ChatNegotiationView', () => {
       name: 'Contato',
       crm_company_id: '10',
       is_active: true,
-      company_id: 'company-1',
       created_at: '2026-01-01T00:00:00.000Z',
       updated_at: '2026-01-01T00:00:00.000Z',
     };
@@ -336,7 +332,6 @@ describe('ChatNegotiationView', () => {
       name: 'Contato',
       crm_company_id: '10',
       is_active: true,
-      company_id: 'company-1',
       created_at: '2026-01-01T00:00:00.000Z',
       updated_at: '2026-01-01T00:00:00.000Z',
     };

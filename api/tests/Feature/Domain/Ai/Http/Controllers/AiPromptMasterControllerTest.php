@@ -12,14 +12,8 @@ uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     // Criar roles necessárias
-    $adminRole = AuthRole::firstOrCreate(
-        ['id' => AuthRole::INQUILINO_ID],
-        ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
-    );
-    $userRole = AuthRole::firstOrCreate(
-        ['id' => AuthRole::ATENDENTE_ID],
-        ['name' => AuthRole::ATENDENTE_NAME, 'guard_name' => 'sanctum']
-    );
+    $adminRole = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::INQUILINO_ID], ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
+    $userRole = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::ATENDENTE_ID], ['name' => AuthRole::ATENDENTE_NAME, 'guard_name' => 'sanctum']);
 
     $this->tenant = PlatformTenant::factory()->create();
 

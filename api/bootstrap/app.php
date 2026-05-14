@@ -17,7 +17,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withCommands([
         App\Console\Commands\ConsumeChatStreamCommand::class,
         Domain\Billing\Console\Commands\BillingWebhookConsumer::class,
-        App\Console\Commands\ChatAutoCloseTicketsCommand::class,
         App\Console\Commands\CloseInactiveTicketsCommand::class,
         App\Console\Commands\ChatSlaRecalcCommand::class,
         App\Console\Commands\ChatUazapiSendMediaCommand::class,
@@ -73,7 +72,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-            'observability' => \Domain\Shared\Http\Middleware\ObservabilityAccessMiddleware::class,
             'idempotent' => \Shared\Http\Middleware\IdempotentRequest::class,
             'tenant' => \Domain\Shared\Http\Middleware\TenantContextMiddleware::class,
             'billing.delinquency' => \Domain\Billing\Http\Middleware\BillingDelinquencyMiddleware::class,

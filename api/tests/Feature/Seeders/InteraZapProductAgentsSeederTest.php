@@ -39,7 +39,5 @@ test('seeder materializes knowledge file and queues processing job', function ()
         ->and(Storage::disk('local')->get($filePath))->toContain('InteraZap')
         ->and(AiKnowledgeChunk::query()->where('document_id', $document?->id)->count())->toBe(0);
 
-    Bus::assertDispatched(AiKnowledgeProcessJob::class, function (AiKnowledgeProcessJob $job) use ($document): bool {
-        return $job->documentId === $document?->id;
-    });
+    Bus::assertDispatched(AiKnowledgeProcessJob::class, fn (AiKnowledgeProcessJob $job): bool => $job->documentId === $document?->id);
 });

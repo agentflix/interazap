@@ -10,10 +10,7 @@ use Domain\Platform\DTOs\PlatformTenantDTO;
 use Domain\Platform\Models\PlatformTenant;
 
 test('reproduce tenant creation error via actions', function (): void {
-    $role = AuthRole::firstOrCreate(
-        ['id' => AuthRole::ADMINISTRADOR_ID],
-        ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
-    );
+    $role = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::ADMINISTRADOR_ID], ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']);
 
     $tenant = PlatformTenant::factory()->create();
 

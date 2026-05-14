@@ -19,20 +19,20 @@
       (pageChange)="loadPage($event)"
     >
       <div filters class="flex items-center gap-2">
-        <div class="min-w-40">
-          <af-select-input
-            [control]="filterStatusControl"
-            [options]="filterStatusOptions"
-            size="sm"
-            classContainer=""
-            dataTest="reason-filter-status"
-          />
-        </div>
         @if (hasSelection()) {
           <af-button variant="danger" size="sm" (click)="openBulkDelete()">
             Excluir selecionados ({{ selectedCount() }})
           </af-button>
         }
+        <af-button variant="secondary" size="sm" (clicked)="openFilter()">
+          <lucide-icon name="sliders-horizontal" [size]="16" class="block" />
+          Filtros
+          @if (activeFiltersCount() > 0) {
+            <span
+              class="ml-1 inline-flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white"
+            >{{ activeFiltersCount() }}</span>
+          }
+        </af-button>
       </div>
 
       @if (hasError()) {
@@ -119,6 +119,35 @@
         </af-data-table>
       }
     </af-crud-page>
+
+    <!-- Filter Drawer -->
+    <af-drawer
+      [class.hidden]="!isFilterOpen()"
+      [open]="isFilterOpen()"
+      title="Filtros de motivos de perda"
+      side="right"
+      size="lg"
+      (closed)="closeFilter()"
+    >
+      <div class="grid grid-cols-1">
+        <af-select-input
+          label="Status"
+          [control]="filterStatusControl"
+          [options]="filterStatusOptions"
+          dataTest="reason-filter-status"
+        />
+      </div>
+
+      <div footer>
+        <div class="flex w-full items-center justify-between gap-2">
+          <af-button variant="danger" size="sm" (clicked)="clearFilter()">Limpar filtros</af-button>
+          <div class="flex gap-2">
+            <af-button variant="ghost" size="sm" (clicked)="closeFilter()">Cancelar</af-button>
+            <af-button variant="primary" size="sm" (clicked)="applyFilter()">Aplicar</af-button>
+          </div>
+        </div>
+      </div>
+    </af-drawer>
 
     <!-- Create / Edit modal -->
     <af-modal

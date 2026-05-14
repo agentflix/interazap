@@ -138,7 +138,7 @@ describe('ChatStore', () => {
       id: '1',
       name: 'New',
       is_active: true,
-      company_id: 'company-1',
+      crm_company_id: 'company-1',
       created_at: '2026-01-01T00:00:00.000Z',
       updated_at: '2026-01-01T00:00:00.000Z',
     };
@@ -158,14 +158,18 @@ describe('ChatStore', () => {
 
     it('returns "free" when instance provider is not meta', () => {
       store.instanceProviders.set({ i1: 'uazapi' });
-      calledServiceSpy.get.mockReturnValue(of({ data: createCalled({ id: '1', instance_id: 'i1' }) }));
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
       store.selectCalled('1');
       expect(store.composerMode()).toBe('free');
     });
 
     it('returns "mixed" when meta provider and window is open', () => {
       store.instanceProviders.set({ i1: 'meta' });
-      calledServiceSpy.get.mockReturnValue(of({ data: createCalled({ id: '1', instance_id: 'i1' }) }));
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
       store.selectCalled('1');
       store.setWindowStatus({ canSendFreeText: true, lastMessageAt: new Date() });
       expect(store.composerMode()).toBe('mixed');
@@ -173,7 +177,9 @@ describe('ChatStore', () => {
 
     it('returns "template-only" when meta provider and window is expired', () => {
       store.instanceProviders.set({ i1: 'meta' });
-      calledServiceSpy.get.mockReturnValue(of({ data: createCalled({ id: '1', instance_id: 'i1' }) }));
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
       store.selectCalled('1');
       store.setWindowStatus({ canSendFreeText: false, lastMessageAt: null });
       expect(store.composerMode()).toBe('template-only');

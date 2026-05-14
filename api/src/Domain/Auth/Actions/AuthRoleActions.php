@@ -45,7 +45,7 @@ final class AuthRoleActions
         }
 
         if ($excludeSuperAdmin) {
-            $query->whereNotIn('id', self::SYSTEM_ROLE_IDS);
+            $query->where('id', '!=', AuthRole::ADMINISTRADOR_ID);
         }
 
         return $query

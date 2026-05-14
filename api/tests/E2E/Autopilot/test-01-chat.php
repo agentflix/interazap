@@ -81,7 +81,7 @@ e2e_run('transfer_to_human: desativa bot e registra takeover', function () use (
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
 
-    $ticket = ChatTicket::find($ctx['ticket_id']);
+    $ticket = \Domain\Chat\Models\ChatTicket::query()->find($ctx['ticket_id']);
     e2e_assert(! $ticket->is_bot_active, 'is_bot_active=false após transferência');
 });
 
@@ -111,7 +111,7 @@ e2e_run('close_ticket: fecha ticket aberto', function () use ($ctx): void {
 
     e2e_assert($r->success, "success=true (got: {$r->message})");
 
-    $refreshed = ChatTicket::find($closeTicket->id);
+    $refreshed = \Domain\Chat\Models\ChatTicket::query()->find($closeTicket->id);
     e2e_assert($refreshed->status === 'closed', "status=closed (got: {$refreshed->status})");
 
     // Cleanup

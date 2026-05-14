@@ -36,7 +36,7 @@ final class WebhookSignatureValidatorTest extends TestCase
 
     public function test_returns_true_when_asaas_token_is_not_configured(): void
     {
-        config()->set('services.asaas.webhook_token', null);
+        config()->set('services.asaas.webhook_token');
 
         $request = Request::create('/webhook', 'POST');
         $validator = new WebhookSignatureValidator;

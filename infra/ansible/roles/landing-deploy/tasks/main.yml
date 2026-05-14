@@ -64,3 +64,35 @@
   shell: |
     ls -1dt {{ landing_releases_path }}/* 2>/dev/null | tail -n +6 | xargs rm -rf
   ignore_errors: yes
+
+# =====================================================
+# LANDING CLÍNICAS
+# =====================================================
+
+- name: 'Garantir estrutura de diretórios da landing-clinicas'
+  file:
+    path: '{{ item.path }}'
+    owner: '{{ item.owner }}'
+    group: '{{ item.group }}'
+    mode: '0755'
+    state: directory
+  loop:
+    - { path: '{{ deploy_path }}/clinicas/public', owner: 'www-data', group: 'www-data' }
+  when: app_environment == 'production'
+
+- name: 'Sincronizar arquivos da landing-clinicas para pasta pública'
+  command: >-
+    rsync -rlpt --delete
+    {{ landing_current_release_path }}/landing-clinicas/
+    {{ deploy_path }}/clinicas/public/
+  become: yes
+  when: app_environment == 'production'
+
+- name: 'Garantir ownership da pasta pública da landing-clinicas'
+  file:
+    path: '{{ deploy_path }}/clinicas/public'
+    owner: www-data
+    group: www-data
+    recurse: yes
+    state: directory
+  when: app_environment == 'production'

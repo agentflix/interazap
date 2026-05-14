@@ -14,6 +14,7 @@ use Domain\Platform\Enums\PlatformNegotiationsMode;
 use Domain\Platform\Enums\PlatformReportsMode;
 use Domain\Platform\Enums\PlatformStorageMode;
 use Domain\Platform\Models\PlatformPlan;
+use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -70,6 +71,7 @@ final class PlatformPlanEnforcementService
             return $this->cachedPlan;
         }
 
+        // 1. Prioridade: plano via última fatura ativa (histórico de pagamentos)
         $invoice = BillingInvoice::query()
             ->withoutGlobalScopes()
             ->where('tenant_id', $tenantId)
@@ -86,8 +88,20 @@ final class PlatformPlanEnforcementService
             ->orderByDesc('created_at')
             ->first();
 
+        // 2. Fallback: usa plan_id direto do tenant (tenants sem fatura ainda ativa)
+        $tenant = PlatformTenant::query()
+            ->withoutGlobalScopes()
+            ->where('id', $tenantId)
+            ->with('plan')
+            ->first();
+
+        $plan = $invoice?->plan;
+        if ($plan === null && $tenant !== null) {
+            $plan = $tenant->plan;
+        }
+
         $this->cachedPlanTenantId = $tenantId;
-        $this->cachedPlan = $invoice?->plan;
+        $this->cachedPlan = $plan;
 
         return $this->cachedPlan;
     }

@@ -82,12 +82,20 @@
   notify: 'Recarregar Nginx'
 
 - name: 'Criar configuração do site gateway.interazap.com.br (Production)'
-  template:
-      src: gateway-production.conf.j2
-      dest: /etc/nginx/sites-available/gateway.interazap.com.br
-      mode: '0644'
-  when: app_environment == 'production'
-  notify: 'Recarregar Nginx'
+    template:
+        src: gateway-production.conf.j2
+        dest: /etc/nginx/sites-available/gateway.interazap.com.br
+        mode: '0644'
+    when: app_environment == 'production'
+    notify: 'Recarregar Nginx'
+
+- name: 'Criar configuração do site clinicas.interazap.com.br (Production)'
+    template:
+        src: clinicas-production.conf.j2
+        dest: /etc/nginx/sites-available/clinicas.interazap.com.br
+        mode: '0644'
+    when: app_environment == 'production'
+    notify: 'Recarregar Nginx'
 
 # =====================================================
 # STAGING SITES
@@ -137,6 +145,7 @@
   loop:
       - interazap.com.br
       - www.interazap.com.br
+      - clinicas.interazap.com.br
       - app.interazap.com.br
       - api.interazap.com.br
       - gateway.interazap.com.br

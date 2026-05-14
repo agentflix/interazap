@@ -72,7 +72,7 @@ class TenantSettingsTest extends TestCase
 
     public function test_super_admin_can_read_settings_from_any_tenant(): void
     {
-        $tenant = PlatformTenant::factory()->create();
+        PlatformTenant::factory()->create();
         $superAdmin = AuthUser::factory()->create();
         $superAdmin->assignRole(\Domain\Auth\Models\AuthRole::ADMINISTRADOR_ID);
 
@@ -195,7 +195,7 @@ class TenantSettingsTest extends TestCase
 
     public function test_unauthenticated_request_returns_401(): void
     {
-        $tenant = PlatformTenant::factory()->create();
+        PlatformTenant::factory()->create();
 
         $this->getJson('/api/platform/tenants/{tenant->id}/settings')
             ->assertUnauthorized();

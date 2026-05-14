@@ -22,7 +22,7 @@ return new class extends Migration
             $table->time('end_time')->nullable()->after('start_time')->comment('Horário de término da tarefa');
             $table->timestamp('reminder_at')->nullable()->after('end_time')->comment('Data/hora do lembrete');
             $table->boolean('add_to_agenda')->default(false)->after('reminder_at')->comment('Se deve adicionar à agenda');
-            $table->foreignUuid('agenda_event_id')->nullable()->after('add_to_agenda')->constrained('crm_events')->comment('Evento de agenda vinculado');
+            $table->foreignUuid('agenda_event_id')->nullable()->after('add_to_agenda')->comment('Evento de agenda vinculado')->constrained('crm_events');
             $table->boolean('notify_ui')->default(false)->after('agenda_event_id')->comment('Notificação na interface');
             $table->boolean('notify_email')->default(false)->after('notify_ui')->comment('Notificação por email');
             $table->boolean('notify_push')->default(false)->after('notify_email')->comment('Notificação push');

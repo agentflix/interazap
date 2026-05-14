@@ -1,5 +1,6 @@
+import type {
+  HttpErrorResponse} from '@angular/common/http';
 import {
-  HttpErrorResponse,
   HttpEventType,
   type HttpInterceptorFn,
   type HttpResponse,

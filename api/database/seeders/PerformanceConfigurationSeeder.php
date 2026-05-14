@@ -74,7 +74,7 @@ final class PerformanceConfigurationSeeder
             $notifications[] = [
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
-                'user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                'user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                 'type' => $types[array_rand($types)],
                 'title' => 'Notificacao '.random_int(100, 999),
                 'body' => fake('pt_BR')->sentence(),

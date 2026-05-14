@@ -8,6 +8,7 @@ use Domain\Ai\Enums\AutopilotTriggerType;
 use Domain\Ai\Events\AiRunRequested;
 use Domain\Ai\Events\AutopilotTriggerFired;
 use Domain\Chat\Models\ChatTicket;
+use Domain\Platform\Services\PlatformPlanEnforcementService;
 
 /**
  * Gatekeeper listener for the AI Autopilot pipeline.
@@ -29,6 +30,10 @@ use Domain\Chat\Models\ChatTicket;
  */
 final class AiGateKeeperListener
 {
+    public function __construct(
+        private readonly PlatformPlanEnforcementService $planEnforcement,
+    ) {}
+
     /**
      * Handle the AiRunRequested event.
      */
@@ -43,6 +48,15 @@ final class AiGateKeeperListener
                 'ticket_id' => $event->ticketId,
                 'tenant_id' => $event->tenantId,
                 'human_takeover_at' => (string) $ticket->human_takeover_at,
+            ]);
+
+            return;
+        }
+
+        if (! $this->planEnforcement->isAiEnabled($event->tenantId)) {
+            logger()->info('[AiGateKeeper] AI run bloqueado: plano sem IA', [
+                'ticket_id' => $event->ticketId,
+                'tenant_id' => $event->tenantId,
             ]);
 
             return;

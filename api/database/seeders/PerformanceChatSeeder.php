@@ -32,11 +32,11 @@ final class PerformanceChatSeeder
         $contactIds = DB::table('crm_contacts')->where('tenant_id', $tenantId)->pluck('id')->toArray();
 
         $ticketIds = $this->seedTickets($tenantId, $instanceIds, $userIds, $contactIds);
-        $this->seedTicketsExtended($tenantId, $ticketIds);
+        $this->seedTicketsExtended($ticketIds);
 
         // Messages are the highest volume - use large batch
         $messageIds = $this->seedMessages($tenantId, $ticketIds, $userIds, $contactIds);
-        $this->seedMessagesExtended($tenantId, $messageIds);
+        $this->seedMessagesExtended($messageIds);
 
         $this->seedMessageTemplates($tenantId, $instanceIds);
         $this->seedTicketTransfers($tenantId, $ticketIds, $userIds);
@@ -47,7 +47,7 @@ final class PerformanceChatSeeder
         $this->seedTransmissionLists($tenantId, $instanceIds);
         $this->seedTransmissionListContacts($tenantId);
         $this->seedQuickAnswers($tenantId);
-        $this->seedTicketEvaluations($tenantId, $ticketIds);
+        $this->seedTicketEvaluations($tenantId);
         $this->seedRoutingQueues($tenantId, $instanceIds);
         $this->seedRoutingQueueAgents($tenantId, $userIds);
         $this->seedRoutingAgentSkills($tenantId, $userIds);
@@ -57,7 +57,6 @@ final class PerformanceChatSeeder
     private function seedInstances(string $tenantId): array
     {
         $providers = ['whatsapp', 'meta', 'telegram'];
-        $statuses = ['disconnected', 'connecting', 'active', 'error'];
         $statusWeights = ['active' => 50, 'disconnected' => 20, 'connecting' => 15, 'error' => 15];
 
         $instances = [];
@@ -127,15 +126,15 @@ final class PerformanceChatSeeder
             $status = PerformanceSeeder::weightedRandom($statusWeights);
             $isClosed = $status === 'closed';
             $hasFirstResponse = random_int(0, 100) > 20;
-            $hasContact = ! empty($contactIds) && random_int(0, 100) > 10;
+            $hasContact = $contactIds !== [] && random_int(0, 100) > 10;
             $lastMessageAt = PerformanceSeeder::randomDate();
 
             $tickets[] = [
                 'id' => $id,
                 'tenant_id' => $tenantId,
                 'contact_id' => $hasContact ? $contactIds[array_rand($contactIds)] : null,
-                'instance_id' => ! empty($instanceIds) ? $instanceIds[array_rand($instanceIds)] : null,
-                'assigned_to' => ! empty($userIds) && (bool) random_int(0, 1) ? $userIds[array_rand($userIds)] : null,
+                'instance_id' => $instanceIds === [] ? null : $instanceIds[array_rand($instanceIds)],
+                'assigned_to' => $userIds !== [] && (bool) random_int(0, 1) ? $userIds[array_rand($userIds)] : null,
                 'current_ai_agent_id' => null, // Will be seeded by AI seeder
                 'protocol' => 'SUP-'.str_pad((string) random_int(1000, 99999), 5, '0', STR_PAD_LEFT),
                 'channel' => PerformanceSeeder::weightedRandom($channels),
@@ -171,7 +170,7 @@ final class PerformanceChatSeeder
         return $ids;
     }
 
-    private function seedTicketsExtended(string $tenantId, array $ticketIds): void
+    private function seedTicketsExtended(array $ticketIds): void
     {
         $extended = [];
 
@@ -230,8 +229,8 @@ final class PerformanceChatSeeder
                     'id' => $id,
                     'tenant_id' => $tenantId,
                     'ticket_id' => $ticketId,
-                    'user_id' => ! $isFromContact && ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
-                    'contact_id' => $isFromContact && ! empty($contactIds) ? $contactIds[array_rand($contactIds)] : null,
+                    'user_id' => ! $isFromContact && $userIds !== [] ? $userIds[array_rand($userIds)] : null,
+                    'contact_id' => $isFromContact && $contactIds !== [] ? $contactIds[array_rand($contactIds)] : null,
                     'content' => $type === 'text' ? fake('pt_BR')->sentence() : null,
                     'type' => $type,
                     'direction' => $direction,
@@ -245,7 +244,7 @@ final class PerformanceChatSeeder
                     'read_at' => $status === 'read' ? $sentAt->copy()->addMinutes(random_int(1, 60)) : null,
                     'is_deleted' => $isDeleted,
                     'deleted_at' => $isDeleted ? $sentAt->copy()->addMinutes(random_int(1, 60)) : null,
-                    'deleted_by' => $isDeleted && ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                    'deleted_by' => $isDeleted && $userIds !== [] ? $userIds[array_rand($userIds)] : null,
                     'transcription' => $type === 'audio' ? 'Transcricao do audio '.random_int(1, 100) : null,
                     'audio_duration_ms' => $type === 'audio' ? random_int(1000, 60000) : null,
                     'audio_mime_type' => $type === 'audio' ? 'audio/ogg; codecs=opus' : null,
@@ -260,7 +259,7 @@ final class PerformanceChatSeeder
         return $ids;
     }
 
-    private function seedMessagesExtended(string $tenantId, array $messageIds): void
+    private function seedMessagesExtended(array $messageIds): void
     {
         $extended = [];
         $mimeTypes = ['image/jpeg', 'image/png', 'application/pdf', 'audio/ogg', 'video/mp4'];
@@ -295,7 +294,7 @@ final class PerformanceChatSeeder
             }
         }
 
-        if (! empty($extended)) {
+        if ($extended !== []) {
             PerformanceSeeder::insertBatch('chat_messages_extended', $extended, self::MESSAGE_BATCH_SIZE);
         }
     }
@@ -313,7 +312,7 @@ final class PerformanceChatSeeder
             $templates[] = [
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
-                'chat_instance_id' => ! empty($instanceIds) ? $instanceIds[array_rand($instanceIds)] : null,
+                'chat_instance_id' => $instanceIds === [] ? null : $instanceIds[array_rand($instanceIds)],
                 'name' => 'template_'.random_int(100, 999),
                 'shortcut' => '/t'.random_int(1, 99),
                 'content' => fake('pt_BR')->sentence(),
@@ -342,7 +341,7 @@ final class PerformanceChatSeeder
         $count = min(count($ticketIds), 15);
 
         for ($i = 0; $i < $count; $i++) {
-            if (empty($userIds) || count($userIds) < 2) {
+            if ($userIds === [] || count($userIds) < 2) {
                 break;
             }
 
@@ -366,7 +365,7 @@ final class PerformanceChatSeeder
             ];
         }
 
-        if (! empty($transfers)) {
+        if ($transfers !== []) {
             PerformanceSeeder::insertBatch('chat_ticket_transfers', $transfers, self::BATCH_SIZE);
         }
     }
@@ -383,14 +382,14 @@ final class PerformanceChatSeeder
                 'tenant_id' => $tenantId,
                 'message_id' => $messageIds[array_rand($messageIds)],
                 'interaction_type' => PerformanceSeeder::weightedRandom($types),
-                'user_id' => ! empty($userIds) ? $userIds[array_rand($userIds)] : null,
+                'user_id' => $userIds === [] ? null : $userIds[array_rand($userIds)],
                 'data' => json_encode(['button_id' => 'btn_'.random_int(1, 10)]),
                 'created_at' => PerformanceSeeder::randomDate(),
                 'updated_at' => now(),
             ];
         }
 
-        if (! empty($interactions)) {
+        if ($interactions !== []) {
             PerformanceSeeder::insertBatch('chat_message_interactions', $interactions, self::BATCH_SIZE);
         }
     }
@@ -404,7 +403,7 @@ final class PerformanceChatSeeder
             $sessions[] = [
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
-                'contact_id' => ! empty($contactIds) ? $contactIds[array_rand($contactIds)] : null,
+                'contact_id' => $contactIds === [] ? null : $contactIds[array_rand($contactIds)],
                 'ticket_id' => $ticketIds[array_rand($ticketIds)],
                 'token' => (string) Str::uuid(),
                 'client_info' => json_encode(['ip' => fake('pt_BR')->ipv4(), 'ua' => 'Mozilla/5.0']),
@@ -473,7 +472,7 @@ final class PerformanceChatSeeder
             $lists[] = [
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
-                'instance_id' => ! empty($instanceIds) ? $instanceIds[array_rand($instanceIds)] : null,
+                'instance_id' => $instanceIds === [] ? null : $instanceIds[array_rand($instanceIds)],
                 'name' => 'Lista '.($i + 1),
                 'message' => fake('pt_BR')->sentence(),
                 'filter_criteria' => json_encode(['tags' => []]),
@@ -541,7 +540,7 @@ final class PerformanceChatSeeder
         PerformanceSeeder::insertBatch('chat_quick_answers', $answers, self::BATCH_SIZE);
     }
 
-    private function seedTicketEvaluations(string $tenantId, array $ticketIds): void
+    private function seedTicketEvaluations(string $tenantId): void
     {
         $evaluations = [];
         $closedTicketIds = DB::table('chat_tickets')
@@ -566,7 +565,7 @@ final class PerformanceChatSeeder
             ];
         }
 
-        if (! empty($evaluations)) {
+        if ($evaluations !== []) {
             PerformanceSeeder::insertBatch('chat_ticket_evaluations', $evaluations, self::BATCH_SIZE);
         }
     }
@@ -581,7 +580,7 @@ final class PerformanceChatSeeder
             $queues[] = [
                 'id' => PerformanceSeeder::uuid(),
                 'tenant_id' => $tenantId,
-                'instance_id' => ! empty($instanceIds) ? $instanceIds[array_rand($instanceIds)] : null,
+                'instance_id' => $instanceIds === [] ? null : $instanceIds[array_rand($instanceIds)],
                 'name' => 'Fila '.($i + 1),
                 'is_enabled' => random_int(0, 100) > 20,
                 'strategy' => PerformanceSeeder::weightedRandom($strategies),
@@ -615,7 +614,7 @@ final class PerformanceChatSeeder
             }
         }
 
-        if (! empty($agents)) {
+        if ($agents !== []) {
             PerformanceSeeder::insertBatch('chat_routing_queue_agents', $agents, self::BATCH_SIZE);
         }
     }

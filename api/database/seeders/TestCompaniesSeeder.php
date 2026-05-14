@@ -20,15 +20,9 @@ class TestCompaniesSeeder extends Seeder
 {
     public function run(): void
     {
-        $managerRole = AuthRole::firstOrCreate(
-            ['id' => AuthRole::GERENTE_ID, 'name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
-        );
+        $managerRole = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::GERENTE_ID, 'name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum'], ['id' => (string) Str::orderedUuid()]);
 
-        $adminRole = AuthRole::firstOrCreate(
-            ['name' => 'admin', 'guard_name' => 'sanctum'],
-            ['id' => (string) Str::orderedUuid()]
-        );
+        $adminRole = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'sanctum'], ['id' => (string) Str::orderedUuid()]);
 
         // Permissões básicas para usuários de tenant
         $basicPermissions = [
@@ -78,10 +72,7 @@ class TestCompaniesSeeder extends Seeder
         ];
 
         foreach ($basicPermissions as $permissionName) {
-            \Spatie\Permission\Models\Permission::firstOrCreate(
-                ['name' => $permissionName, 'guard_name' => 'sanctum'],
-                ['id' => (string) Str::orderedUuid()]
-            );
+            \Spatie\Permission\Models\Permission::query()->firstOrCreate(['name' => $permissionName, 'guard_name' => 'sanctum'], ['id' => (string) Str::orderedUuid()]);
         }
 
         $managerRole->givePermissionTo($basicPermissions);

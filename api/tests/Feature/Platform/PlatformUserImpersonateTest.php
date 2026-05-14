@@ -11,14 +11,9 @@ use Laravel\Sanctum\Sanctum;
 uses()->group('platform', 'impersonation');
 
 beforeEach(function (): void {
-    $this->superAdminRole = AuthRole::firstOrCreate(
-        ['id' => AuthRole::ADMINISTRADOR_ID, 'name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']
-    );
+    $this->superAdminRole = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::ADMINISTRADOR_ID, 'name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']);
 
-    $this->managerRole = AuthRole::firstOrCreate(
-        ['id' => AuthRole::GERENTE_ID, 'name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum'],
-        ['id' => (string) \Illuminate\Support\Str::orderedUuid()]
-    );
+    $this->managerRole = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::GERENTE_ID, 'name' => AuthRole::GERENTE_NAME, 'guard_name' => 'sanctum'], ['id' => (string) \Illuminate\Support\Str::orderedUuid()]);
 
     $this->tenant = PlatformTenant::factory()->create(['is_active' => true]);
 

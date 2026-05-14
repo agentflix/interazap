@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Domain\Platform\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 /**
  * Validação para captura pública de lead da plataforma InteraZap.
@@ -42,7 +41,6 @@ final class PlatformLeadStoreRequest extends FormRequest
             ],
             'email' => ['required', 'email:rfc', 'max:180'],
             'company' => ['nullable', 'string', 'max:150'],
-            'source' => ['required', 'string', Rule::in(['landing_form', 'landing_exit_modal'])],
             'lgpd_consent' => ['required', 'accepted'],
 
             'utm_source' => ['nullable', 'string', 'max:80'],
@@ -66,7 +64,6 @@ final class PlatformLeadStoreRequest extends FormRequest
         return [
             'phone.regex' => 'Telefone inválido. Use o formato brasileiro, ex: (11) 91234-5678.',
             'lgpd_consent.accepted' => 'É necessário aceitar os termos de privacidade (LGPD).',
-            'source.in' => 'Origem inválida.',
         ];
     }
 }

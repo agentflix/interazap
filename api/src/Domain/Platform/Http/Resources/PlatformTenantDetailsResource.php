@@ -128,7 +128,7 @@ final class PlatformTenantDetailsResource extends JsonResource
                 'mode' => $storageMode,
             ],
             'ai' => [
-                'enabled' => $plan ? (bool) $plan->ai_enabled : true,
+                'enabled' => $plan ? (bool) $plan->ai_enabled : false,
             ],
             'negotiations' => [
                 'current' => $negotiationsCount,

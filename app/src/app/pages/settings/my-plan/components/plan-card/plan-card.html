@@ -17,12 +17,19 @@
         }
       </div>
 
-      <ul class="space-y-1.5 text-sm text-neutral-700 dark:text-neutral-300 mb-4">
+      <ul class="space-y-1.5 text-sm mb-4">
         @for (feature of plan().features ?? []; track feature.label) {
-          <li class="flex items-center gap-2">
-            <span class="text-neutral-500 dark:text-neutral-400">•</span>
-            <span>{{ feature.label }}</span>
-          </li>
+          @if (feature.included) {
+            <li class="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+              <span class="text-emerald-500">✓</span>
+              <span>{{ feature.label }}</span>
+            </li>
+          } @else {
+            <li class="flex items-center gap-2 text-neutral-400 dark:text-neutral-600 line-through">
+              <span>✕</span>
+              <span>{{ feature.label }}</span>
+            </li>
+          }
         }
       </ul>
 

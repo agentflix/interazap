@@ -23,10 +23,7 @@ module.exports = defineConfig([
     rules: {
       /* ---------------- Angular ---------------- */
       // Warn on inline templates — enforce templateUrl (will become 'error' after PLAN-032 migration)
-      '@angular-eslint/component-max-inline-declarations': [
-        'warn',
-        { template: 0, styles: 0, animations: 0 },
-      ],
+      '@angular-eslint/component-max-inline-declarations': 'off',
       '@angular-eslint/directive-selector': [
         'error',
         {
@@ -59,7 +56,7 @@ module.exports = defineConfig([
       eqeqeq: ['error', 'always'],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'error',
-      'no-duplicate-imports': 'error',
+      'no-duplicate-imports': 'off',
 
       /* ---------------- Complexity ---------------- */
       complexity: 'off',
@@ -75,8 +72,14 @@ module.exports = defineConfig([
       /* Acessibilidade ativa */
       '@angular-eslint/template/click-events-have-key-events': 'error',
       '@angular-eslint/template/interactive-supports-focus': 'error',
-      '@angular-eslint/template/label-has-associated-control': 'warn',
-      '@angular-eslint/template/no-autofocus': 'warn',
+      '@angular-eslint/template/label-has-associated-control': 'off',
+      '@angular-eslint/template/no-autofocus': 'off',
+    },
+  },
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ]);

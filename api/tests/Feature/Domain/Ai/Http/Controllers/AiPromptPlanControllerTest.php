@@ -23,7 +23,7 @@ class AiPromptPlanControllerTest extends TestCase
         $this->admin = AuthUser::factory()->create();
 
         if (! \Domain\Auth\Models\AuthRole::query()->where('id', \Domain\Auth\Models\AuthRole::INQUILINO_ID)->where('guard_name', 'sanctum')->exists()) {
-            \Domain\Auth\Models\AuthRole::firstOrCreate(['id' => \Domain\Auth\Models\AuthRole::INQUILINO_ID], ['name' => \Domain\Auth\Models\AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
+            \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => \Domain\Auth\Models\AuthRole::INQUILINO_ID], ['name' => \Domain\Auth\Models\AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']);
         }
         $this->admin->assignRole(\Domain\Auth\Models\AuthRole::INQUILINO_ID);
     }

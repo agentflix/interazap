@@ -8,7 +8,7 @@
       [empty]="isEmpty()"
       emptyTitle="Nenhum inquilino encontrado"
       emptyDescription="Comece adicionando seu primeiro inquilino ao sistema."
-      [skeletonColumns]="6"
+      [skeletonColumns]="7"
       [skeletonRows]="6"
       [currentPage]="meta().current_page"
       [lastPage]="meta().last_page"
@@ -77,6 +77,7 @@
               ></th>
               <th>E-mail</th>
               <th>Telefone</th>
+              <th>Plano</th>
               <th>Status</th>
               <th class="text-right">Ações</th>
             </tr>
@@ -106,6 +107,9 @@
                 </td>
                 <td class="text-sm text-neutral-600 dark:text-neutral-400">
                   {{ formatPhone(tenant.phone) }}
+                </td>
+                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ planLabel(tenant) }}
                 </td>
                 <td>
                   @if (tenant.deleted_at) {

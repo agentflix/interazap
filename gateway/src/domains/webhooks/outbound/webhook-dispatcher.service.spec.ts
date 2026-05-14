@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 
 jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockedAxios = axios as unknown as jest.Mock;
 
 describe('WebhookDispatcherService', () => {
   let service: WebhookDispatcherService;

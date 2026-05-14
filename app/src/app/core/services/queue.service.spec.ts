@@ -66,7 +66,7 @@ describe('QueueService', () => {
       expect(service.overview()?.queues[0]?.name).toBe('default');
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/admin/queues/overview`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/admin/queues`);
     expect(req.request.method).toBe('GET');
     req.flush(apiOverview);
   });
@@ -88,10 +88,10 @@ describe('QueueService', () => {
       expect(overview.redis.memory).toBe('N/A');
     });
 
-    const mainReq = httpMock.expectOne(`${environment.apiUrl}/admin/queues/overview`);
+    const mainReq = httpMock.expectOne(`${environment.apiUrl}/admin/queues`);
     mainReq.flush({ message: 'Not Found' }, { status: 404, statusText: 'Not Found' });
 
-    const fallbackReq = httpMock.expectOne(`${environment.apiUrl}/health/queues`);
+    const fallbackReq = httpMock.expectOne(`${environment.apiUrl}/admin/health/queues`);
     expect(fallbackReq.request.method).toBe('GET');
     fallbackReq.flush({
       healthy: true,
@@ -113,10 +113,42 @@ describe('QueueService', () => {
       });
     });
 
-    const mainReq = httpMock.expectOne(`${environment.apiUrl}/admin/queues/default/metrics`);
+    const mainReq = httpMock.expectOne(`${environment.apiUrl}/admin/queues/default`);
     mainReq.flush({ message: 'Not Found' }, { status: 404, statusText: 'Not Found' });
 
-    const fallbackReq = httpMock.expectOne(`${environment.apiUrl}/health/queues/default`);
+    const fallbackReq = httpMock.expectOne(`${environment.apiUrl}/admin/health/queues/default`);
     fallbackReq.flush({ name: 'default', size: 5, delayed: 2 });
+  });
+
+  it('deve carregar metricas de fila pelo proxy admin da API', () => {
+    service.getQueueMetrics('default').subscribe((metrics) => {
+      expect(metrics.waiting).toBe(7);
+      expect(metrics.paused).toBe(false);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/admin/queues/default`);
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      data: {
+        name: 'default',
+        waiting: 7,
+        active: 1,
+        completed: 20,
+        failed: 0,
+        delayed: 2,
+        paused: false,
+      },
+    });
+  });
+
+  it('deve executar acoes administrativas somente via API Laravel', () => {
+    service.pauseQueue('default').subscribe((result) => {
+      expect(result.success).toBe(true);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/admin/queues/default/pause`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush({ success: true, message: 'paused' });
   });
 });
