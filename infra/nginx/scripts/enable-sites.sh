@@ -11,6 +11,7 @@ SITES=(
     "app.interazap.com.br"
     "stage.gateway.interazap.com.br"
     "gateway.interazap.com.br"
+    "clinicas.interazap.com.br"
 )
 
 for site in "${SITES[@]}"; do
