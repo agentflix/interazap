@@ -19,7 +19,7 @@ return new class extends Migration
     public function up(): void
     {
         foreach (self::SYSTEM_ROLES as $config) {
-            DB::table('auth_roles')->insert([
+            DB::table('auth_roles')->insertOrIgnore([
                 'id' => $config['id'],
                 'name' => $config['name'],
                 'guard_name' => 'sanctum',
