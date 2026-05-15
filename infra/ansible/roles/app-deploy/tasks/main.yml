@@ -504,7 +504,7 @@
 
 - name: 'Instalar pnpm e dependências'
   shell: |
-      npm install -g pnpm
+      npm install -g pnpm@10.24.0
       pnpm install --frozen-lockfile --filter gateway
   args:
       chdir: '{{ deploy_path }}/gateway/releases/{{ deploy_timestamp }}'

@@ -81,7 +81,7 @@
       export NVM_DIR="/home/deploy/.nvm"
       . "$NVM_DIR/nvm.sh"
       nvm use 22
-      npm install -g pm2 pnpm
+      npm install -g pm2 pnpm@10.24.0
   args:
       executable: /bin/bash
   become: yes
