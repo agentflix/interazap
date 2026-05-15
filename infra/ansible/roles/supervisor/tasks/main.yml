@@ -27,7 +27,7 @@
 
 - name: 'Criar configuração de programas do InteraZap - Production'
   template:
-      src: agentflix-production.conf.j2
+      src: interazap-production.conf.j2
       dest: /etc/supervisor/conf.d/interazap-production.conf
       mode: '0644'
   when: app_environment == 'production'
@@ -35,7 +35,7 @@
 
 - name: 'Criar configuração de programas do InteraZap - Staging'
   template:
-      src: agentflix-staging.conf.j2
+      src: interazap-staging.conf.j2
       dest: /etc/supervisor/conf.d/interazap-staging.conf
       mode: '0644'
   when: app_environment == 'staging'

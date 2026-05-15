@@ -56,18 +56,18 @@
 
 - name: 'Remover conf.d duplicados de Swoole (manter apenas o do pacote)'
   shell: |
-      # Listar todos os .ini em conf.d que carregam swoole
+      shopt -s nullglob
       for dir in /etc/php/8.4/cli/conf.d /etc/php/8.4/fpm/conf.d; do
         found=0
         for f in "$dir"/*swoole*; do
-          [ -f "$f" ] || continue
           found=$((found + 1))
-          # Manter o primeiro (20-swoole.ini do pacote), remover duplicatas
           [ $found -gt 1 ] && rm -f "$f" && echo "removed $f"
         done
       done
+      exit 0
+  args:
+      executable: /bin/bash
   changed_when: false
-  ignore_errors: yes
 
 - name: 'Baixar e instalar Composer'
   get_url:

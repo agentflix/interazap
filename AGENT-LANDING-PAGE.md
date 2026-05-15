@@ -256,3 +256,31 @@ Crie respostas para vencer essas objeções.
 ### 8. Conclusão estratégica
 
 Diga se a ideia parece validável, qual nicho atacar primeiro e qual oferta inicial testar.
+
+Conversa 4 — Consultório de psicologia (objeção de impessoalidade resolvida)
+
+▎ 👤 Dr. Ricardo Campos
+▎ Confesso que tive receio de usar IA no consultório. Achei que ia ficar frio, robótico. Mas os pacientes tão adorando. Um me perguntou se a "moça da recepção" estava de férias 😄
+
+▎ 🟢 Você
+▎ Dr. Ricardo essa é sempre a maior dúvida antes de ativar! Fico feliz que os pacientes não percebam diferença. Se quiser personalizar ainda mais o tom — mais formal, mais acolhedor — é só ajustar no painel. Qualquer coisa estou aqui 👍
+
+---
+
+Conversa 5 — SaaS/Serviço B2B (IA que explica raciocínio)
+
+▎ 👤 Felipe Andrade
+▎ O que me conquistou foi ver o raciocínio da IA. Não é caixa-preta. Ele falou "identifiquei que o lead está no trial há 3 dias sem ativar, vou acionar o CS". Isso é diferente de tudo que testei antes
+
+▎ 🟢 Você
+▎ Felipe, exatamente isso! Transparência no raciocínio foi uma decisão de produto que tomamos desde o início — você precisa confiar na IA pra deixar ela rodar 24h. Fico feliz que fez diferença pra você. Se quiser criar gatilhos customizados de engajamento é só chamar 🤝
+
+---
+
+Conversa 6 — Pequeno negócio (ROI direto)
+
+▎ 👤 Ana Souza
+▎ Rafael, o InteraZap pagou o plano em 3 dias. Entrou um cliente às 2h da manhã, a IA atendeu, mandou o portfólio e fechou pedido. R$ 1.800 de venda que eu ia perder dormindo. Muito obrigada mesmo
+
+▎ 🟢 Você
+▎ Ana que história incrível!! R$ 1.800 às 2h da manhã — é exatamente pra isso que a gente construiu isso. Muito feliz pelo seu resultado! Se quiser compartilhar no grupo de clientes ou deixar um feedback por escrito, seria de grande ajuda 🙏

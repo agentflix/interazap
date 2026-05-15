@@ -172,12 +172,12 @@
       role_attr_flags: SUPERUSER
       encrypted: yes
 
-- name: 'Criar usuário agentflix_app'
+- name: 'Criar usuário interazap_app'
   become: yes
   become_user: postgres
   no_log: true
   postgresql_user:
-      name: agentflix_app
+      name: interazap_app
       password: '{{ postgres_app_password }}'
       role_attr_flags: CREATEDB,LOGIN
       encrypted: yes
@@ -187,25 +187,25 @@
   become_user: postgres
   shell: |
       psql -tc "SELECT 1 FROM pg_database WHERE datname = 'interazap'" | grep -q 1 || \
-      psql -c "CREATE DATABASE interazap OWNER agentflix_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
-  register: create_db_agentflix
-  changed_when: "'CREATE DATABASE' in create_db_agentflix.stdout"
+      psql -c "CREATE DATABASE interazap OWNER interazap_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
+  register: create_db_interazap
+  changed_when: "'CREATE DATABASE' in create_db_interazap.stdout"
 
-- name: 'Criar banco de dados agentflix_stage (Staging)'
+- name: 'Criar banco de dados interazap_stage (Staging)'
   become: yes
   become_user: postgres
   shell: |
-      psql -tc "SELECT 1 FROM pg_database WHERE datname = 'agentflix_stage'" | grep -q 1 || \
-      psql -c "CREATE DATABASE agentflix_stage OWNER agentflix_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
-  register: create_db_agentflix_stage
-  changed_when: "'CREATE DATABASE' in create_db_agentflix_stage.stdout"
+      psql -tc "SELECT 1 FROM pg_database WHERE datname = 'interazap_stage'" | grep -q 1 || \
+      psql -c "CREATE DATABASE interazap_stage OWNER interazap_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
+  register: create_db_interazap_stage
+  changed_when: "'CREATE DATABASE' in create_db_interazap_stage.stdout"
 
 - name: 'Criar banco de dados gateway (Production)'
   become: yes
   become_user: postgres
   shell: |
       psql -tc "SELECT 1 FROM pg_database WHERE datname = 'gateway'" | grep -q 1 || \
-      psql -c "CREATE DATABASE gateway OWNER agentflix_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
+      psql -c "CREATE DATABASE gateway OWNER interazap_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
   register: create_db_gateway
   changed_when: "'CREATE DATABASE' in create_db_gateway.stdout"
 
@@ -214,7 +214,7 @@
   become_user: postgres
   shell: |
       psql -tc "SELECT 1 FROM pg_database WHERE datname = 'gateway_stage'" | grep -q 1 || \
-      psql -c "CREATE DATABASE gateway_stage OWNER agentflix_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
+      psql -c "CREATE DATABASE gateway_stage OWNER interazap_app ENCODING 'UTF8' LOCALE_PROVIDER libc LC_COLLATE 'pt_BR.UTF-8' LC_CTYPE 'pt_BR.UTF-8' TEMPLATE template0"
   register: create_db_gateway_stage
   changed_when: "'CREATE DATABASE' in create_db_gateway_stage.stdout"
 
@@ -227,7 +227,7 @@
       cascade: yes
   loop:
       - interazap
-      - agentflix_stage
+      - interazap_stage
       - gateway
       - gateway_stage
 

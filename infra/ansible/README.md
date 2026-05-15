@@ -365,3 +365,56 @@ sudo tail -50 /var/log/postgresql/postgresql-18-main.log
 | Redis      | 7         |
 | Node.js    | 20 LTS    |
 | Nginx      | latest    |
+
+---
+
+## TUTORIAL
+
+Servidor resetado → usuário deploy não existe mais. GitHub Actions tenta SSH como deploy → nega.
+
+Sequência para resolver:
+
+1. Acesse o servidor como root (via console do provedor, ou SSH root se ainda funcionar):
+   ssh root@186.202.209.180
+
+2. Adicione a chave pública do GitHub Actions ao root (temporário, só para provisionar):
+
+No GitHub → Settings do repo → Secrets → procure SSH_PRIVATE_KEY ou similar. Pegue a chave pública correspondente e adicione no servidor:
+
+# No servidor como root:
+
+echo "COLE_AQUI_A_CHAVE_PUBLICA_DO_RUNNER" >> /root/.ssh/authorized_keys
+
+3. Rode o provision primeiro (no GitHub Actions ou local com a chave root):
+   ansible-playbook -i inventory/hosts.ini playbook.yml \  
+    -e ansible_user=root \
+    --limit staging \
+    --tags provision \
+    --ask-vault-pass
+
+Isso cria o usuário deploy com a chave SSH do admin (sua máquina local) no authorized_keys.
+
+4. Depois rode o deploy normal:
+   ansible-playbook -i inventory/hosts.ini playbook.yml \
+    --limit staging \
+   --tags deploy
+
+---
+
+Alternativa mais rápida — se tiver acesso ao console do provedor (Hetzner, DigitalOcean, etc.), acesse via VNC/console e:
+
+# Crie o deploy manualmente no servidor:
+
+adduser --disabled-password --gecos "" deploy
+usermod -aG sudo deploy
+mkdir -p /home/deploy/.ssh
+
+# Cole a chave pública do runner aqui:
+
+echo "CHAVE_PUBLICA_DO_GITHUB_ACTIONS" > /home/deploy/.ssh/authorized_keys
+chown -R deploy:deploy /home/deploy/.ssh
+chmod 700 /home/deploy/.ssh
+chmod 600 /home/deploy/.ssh/authorized_keys
+echo "deploy ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/deploy
+
+Depois o pipeline já consegue conectar e termina o restante do setup.

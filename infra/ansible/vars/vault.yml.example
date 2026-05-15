@@ -16,8 +16,8 @@
 # USUÁRIOS
 # =====================================================
 
-# Senha do usuário agentflix (hash SHA512)
-agentflix_password: ''
+# Senha do usuário interazap (hash SHA512)
+interazap_password: ''
 
 # =====================================================
 # POSTGRESQL
@@ -41,10 +41,10 @@ redis_password: ''
 # =====================================================
 
 # APP_KEY do Laravel - PRODUÇÃO (gerar com: php artisan key:generate --show)
-agentflix_secret_key_production: ''
+interazap_secret_key_production: ''
 
 # APP_KEY do Laravel - STAGING (chave separada da produção)
-agentflix_secret_key_staging: ''
+interazap_secret_key_staging: ''
 
 # =====================================================
 # GATEWAY
