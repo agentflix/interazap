@@ -25,5 +25,5 @@ pnpm --filter app format:check
 
 ## PREVC
 
-- Respeite `.context/WORKFLOW/PREVC.md` e `.context/WORKFLOW/validation-flow.md`.
+- Respeite `.context/SKILLS/workflow-prevc/references/prevc.md` e `.context/SKILLS/workflow-prevc/references/validation-flow.md`.
 - A fase Confirm normalmente atualiza changelog, memory e project-state, mas não faça isso quando o escopo da solicitação proibir.

@@ -12,7 +12,7 @@ description: Especialista Laravel do InteraZap. Use quando Codex precisar implem
 
 ## Fluxo
 
-Use esta skill para qualquer trabalho em `api/`. Antes de implementar, leia a feature doc em `.context/DOCS/FEATURES/`, MEMORY relevante em `.context/DOCS/MEMORY/`, o workflow em `.context/WORKFLOW/PREVC.md` e os gates em `.context/WORKFLOW/validation-flow.md`.
+Use esta skill para qualquer trabalho em `api/`. Antes de implementar, leia a feature doc em `.context/DOCS/FEATURES/`, MEMORY relevante em `.context/DOCS/MEMORY/`, o workflow em `.context/SKILLS/workflow-prevc/references/prevc.md` e os gates em `.context/SKILLS/workflow-prevc/references/validation-flow.md`.
 
 ## Regras
 

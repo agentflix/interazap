@@ -12,7 +12,7 @@ description: Especialista NestJS/Gateway do InteraZap. Use quando Codex precisar
 
 ## Fluxo
 
-Use esta skill para qualquer trabalho em `gateway/`. Antes de implementar, leia a feature doc em `.context/DOCS/FEATURES/`, MEMORY relevante em `.context/DOCS/MEMORY/`, o workflow em `.context/WORKFLOW/PREVC.md`, os gates em `.context/WORKFLOW/validation-flow.md` e as regras de `gateway/AGENTS.md`.
+Use esta skill para qualquer trabalho em `gateway/`. Antes de implementar, leia a feature doc em `.context/DOCS/FEATURES/`, MEMORY relevante em `.context/DOCS/MEMORY/`, o workflow em `.context/SKILLS/workflow-prevc/references/prevc.md`, os gates em `.context/SKILLS/workflow-prevc/references/validation-flow.md` e as regras de `gateway/AGENTS.md`.
 
 Quando houver divergência entre documentação geral e configuração local, trate os arquivos do workspace como fonte operacional: `gateway/package.json`, `gateway/src/main.ts`, `gateway/src/app.module.ts`, `gateway/src/core/config/configuration.ts`, `gateway/test/jest-e2e.json` e `.env.example`.
 

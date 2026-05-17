@@ -24,5 +24,5 @@ pnpm --filter gateway lint
 
 ## PREVC
 
-- Respeite `.context/WORKFLOW/PREVC.md` e `.context/WORKFLOW/validation-flow.md`.
+- Respeite `.context/SKILLS/workflow-prevc/references/prevc.md` e `.context/SKILLS/workflow-prevc/references/validation-flow.md`.
 - Na fase Confirm, atualize changelog, MEMORY e project-state quando a regra do repositório exigir.

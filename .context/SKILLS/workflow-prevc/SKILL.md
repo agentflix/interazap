@@ -33,6 +33,16 @@ PLANNING -> REVIEW -> EXECUTION -> VALIDATION -> CONFIRM
 - A fase CONFIRM exige evidências, atualização de changelog/memória quando aplicável e fechamento explícito da task.
 - Em features cross-workspace, a ordem padrão é `DBA -> BACKEND -> GATEWAY -> FRONTEND`.
 
+## Guardrails Obrigatórios
+
+- Não avance de fase sem o output mínimo da fase atual.
+- Não considere task concluída sem evidência verificável.
+- Não ignore falha de gate; falha volta para EXECUTION.
+- Não use teste pulado como evidência de qualidade.
+- Não registre segredo, token, chave, payload sensível completo ou assinatura em código, logs ou documentação.
+- Não altere contexto, arquitetura ou contrato cross-workspace sem registrar a decisão quando aplicável.
+- Não faça push automático; commit semântico é permitido apenas quando solicitado.
+
 ## Exemplo de Uso
 
 - Para implementar uma task: leia `references/prevc.md`, identifique a fase EXECUTION, carregue a skill especialista do workspace e valide com `references/validation-flow.md`.

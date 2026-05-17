@@ -12,7 +12,7 @@ description: Especialista Angular/Ionic do InteraZap. Use quando Codex precisar 
 
 ## Fluxo
 
-Use esta skill para qualquer trabalho em `app/`. Antes de implementar, leia a feature doc em `.context/DOCS/FEATURES/`, MEMORY relevante em `.context/DOCS/MEMORY/`, o workflow em `.context/WORKFLOW/PREVC.md` e os gates em `.context/WORKFLOW/validation-flow.md`.
+Use esta skill para qualquer trabalho em `app/`. Antes de implementar, leia a feature doc em `.context/DOCS/FEATURES/`, MEMORY relevante em `.context/DOCS/MEMORY/`, o workflow em `.context/SKILLS/workflow-prevc/references/prevc.md` e os gates em `.context/SKILLS/workflow-prevc/references/validation-flow.md`.
 
 Quando houver divergência entre documentação geral e configuração local, trate os arquivos do workspace como fonte operacional: `app/package.json`, `app/angular.json`, `app/vitest.config.ts`, `app/src/app/app.config.ts`, `app/src/app/app.routes.ts`, `app/capacitor.config.ts` e `app/src/environments/*`.
 
