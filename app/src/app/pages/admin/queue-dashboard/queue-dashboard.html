@@ -20,41 +20,41 @@
             </div>
             <div>
               <p class="text-sm text-neutral-500 dark:text-neutral-400">Total de Jobs</p>
-              <p class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-                {{ overview()?.totalJobs ?? 0 | number }}
-              </p>
+                <p class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
+                  {{ overview()?.totalJobs ?? 0 | number }}
+                </p>
+              </div>
             </div>
-          </div>
-        </af-card>
+          </af-card>
 
-        <af-card>
-          <div class="flex items-center gap-3">
-            <div
-              class="size-10 rounded-lg bg-success/15 text-success flex items-center justify-center"
-            >
-              <lucide-icon name="circle-check" [size]="20" class="block" />
+          <af-card>
+            <div class="flex items-center gap-3">
+              <div
+                class="size-10 rounded-lg bg-success/15 text-success flex items-center justify-center"
+              >
+                <lucide-icon name="circle-check" [size]="20" class="block" />
+              </div>
+              <div>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">Concluídos</p>
+                <p class="text-xl font-semibold text-success tabular-nums">
+                  {{ overview()?.totalCompleted ?? 0 | number }}
+                </p>
+              </div>
             </div>
-            <div>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400">Concluídos</p>
-              <p class="text-xl font-semibold text-success">
-                {{ overview()?.totalCompleted ?? 0 | number }}
-              </p>
-            </div>
-          </div>
-        </af-card>
+          </af-card>
 
-        <af-card>
-          <div class="flex items-center gap-3">
-            <div
-              class="size-10 rounded-lg bg-danger/15 text-danger flex items-center justify-center"
-            >
-              <lucide-icon name="circle-x" [size]="20" class="block" />
-            </div>
-            <div>
-              <p class="text-sm text-neutral-500 dark:text-neutral-400">Falhos</p>
-              <p class="text-xl font-semibold text-danger">
-                {{ overview()?.totalFailed ?? 0 | number }}
-              </p>
+          <af-card>
+            <div class="flex items-center gap-3">
+              <div
+                class="size-10 rounded-lg bg-danger/15 text-danger flex items-center justify-center"
+              >
+                <lucide-icon name="circle-x" [size]="20" class="block" />
+              </div>
+              <div>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">Falhos</p>
+                <p class="text-xl font-semibold text-danger tabular-nums">
+                  {{ overview()?.totalFailed ?? 0 | number }}
+                </p>
             </div>
           </div>
         </af-card>
@@ -113,21 +113,21 @@
               @for (queue of queues(); track queue.name) {
                 <tr>
                   <td class="font-medium">{{ queue.name }}</td>
-                  <td class="text-center">
+                  <td class="text-center tabular-nums">
                     <af-badge variant="warning">{{ queue.waiting }}</af-badge>
                   </td>
-                  <td class="text-center">
+                  <td class="text-center tabular-nums">
                     <af-badge variant="info">{{ queue.active }}</af-badge>
                   </td>
-                  <td class="text-center">
+                  <td class="text-center tabular-nums">
                     <af-badge variant="success">{{ queue.completed | number }}</af-badge>
                   </td>
-                  <td class="text-center">
+                  <td class="text-center tabular-nums">
                     <af-badge [variant]="queue.failed > 0 ? 'danger' : 'default'">{{
                       queue.failed
                     }}</af-badge>
                   </td>
-                  <td class="text-center">
+                  <td class="text-center tabular-nums">
                     <af-badge variant="default">{{ queue.delayed }}</af-badge>
                   </td>
                   <td class="text-center">

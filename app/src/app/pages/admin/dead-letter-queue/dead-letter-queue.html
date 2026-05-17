@@ -84,7 +84,7 @@
             </span>
             <div>
               <p class="text-sm text-neutral-500 dark:text-neutral-400">Total na DLQ</p>
-              <p class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+              <p class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
                 {{ pagination()?.total ?? 0 }}
               </p>
             </div>
@@ -114,7 +114,7 @@
             </span>
             <div>
               <p class="text-sm text-neutral-500 dark:text-neutral-400">Filas Afetadas</p>
-              <p class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+              <p class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
                 {{ uniqueQueues().length }}
               </p>
             </div>
@@ -172,7 +172,7 @@
                       }
                     </div>
                   </td>
-                  <td class="text-center">
+                  <td class="text-center tabular-nums">
                     <af-badge variant="danger"
                       >{{ job.attemptsMade }}/{{ job.maxAttempts }}</af-badge
                     >
@@ -269,7 +269,7 @@
             </div>
             <div>
               <p class="text-sm text-neutral-500 dark:text-neutral-400">Tentativas</p>
-              <p class="text-sm text-neutral-900 dark:text-neutral-100">
+              <p class="text-sm text-neutral-900 dark:text-neutral-100 tabular-nums">
                 {{ selectedJob()!.attemptsMade }} / {{ selectedJob()!.maxAttempts }}
               </p>
             </div>

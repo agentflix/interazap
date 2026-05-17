@@ -100,10 +100,10 @@
                 <td class="uppercase text-xs font-medium text-neutral-500">
                   {{ item.content_type }}
                 </td>
-                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                <td class="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
                   {{ item.chunk_count }}
                 </td>
-                <td class="text-sm text-neutral-600 dark:text-neutral-400">
+                <td class="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
                   {{ formatTokens(item.token_count) }}
                 </td>
                 <td>
@@ -252,7 +252,7 @@
               <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                   <p class="text-xs text-neutral-500">Versão</p>
-                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 tabular-nums">
                     v{{ doc.version }}
                   </p>
                 </div>
@@ -274,13 +274,13 @@
               <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                   <p class="text-xs text-neutral-500">Chunks</p>
-                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 tabular-nums">
                     {{ doc.chunk_count }}
                   </p>
                 </div>
                 <div>
                   <p class="text-xs text-neutral-500">Tokens</p>
-                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 tabular-nums">
                     {{ formatTokens(doc.token_count) }}
                   </p>
                 </div>

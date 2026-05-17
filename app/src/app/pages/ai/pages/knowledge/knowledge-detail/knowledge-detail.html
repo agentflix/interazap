@@ -60,7 +60,7 @@
           </div>
           <div>
             <p class="text-xs text-neutral-500">Chunks</p>
-            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
               {{ doc.chunk_count }}
             </p>
           </div>
@@ -109,7 +109,7 @@
               <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
                 <div class="flex items-center justify-between gap-2 mb-1">
                   <p class="text-xs text-neutral-500">Chunk #{{ chunk.chunk_index }}</p>
-                  <p class="text-xs text-neutral-500">Tokens: {{ chunk.token_count }}</p>
+                  <p class="text-xs text-neutral-500 tabular-nums">Tokens: {{ chunk.token_count }}</p>
                 </div>
 
                 @if (expandedChunkId() === chunk.id) {

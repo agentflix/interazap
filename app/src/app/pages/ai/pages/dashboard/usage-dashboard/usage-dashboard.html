@@ -60,11 +60,11 @@
             </span>
           </div>
           <div class="flex items-baseline gap-2">
-            <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
               {{ formatCurrency(summary()?.total_cost ?? 0) }}
             </span>
             @if (summary()?.cost_change_percent) {
-              <span class="text-xs flex items-center gap-1" [class]="trendClass()">
+              <span class="text-xs flex items-center gap-1 tabular-nums" [class]="trendClass()">
                 <lucide-icon [name]="trendIcon()" [size]="12" />
                 {{ summary()?.cost_change_percent | number: '1.1-1' }}%
               </span>
@@ -84,7 +84,7 @@
               <lucide-icon name="coins" [size]="18" />
             </span>
           </div>
-          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
             {{ formatNumber(summary()?.total_tokens ?? 0) }}
           </span>
         </div>
@@ -101,7 +101,7 @@
               <lucide-icon name="activity" [size]="18" />
             </span>
           </div>
-          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
             {{ formatNumber(summary()?.total_requests ?? 0) }}
           </span>
         </div>
@@ -118,7 +118,7 @@
               <lucide-icon name="bot" [size]="18" />
             </span>
           </div>
-          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <span class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
             {{ summary()?.avg_latency_ms | number: '1.0-0' }}ms
           </span>
         </div>
@@ -187,7 +187,7 @@
                       {{ agent.agent_name }}
                     </span>
                   </div>
-                  <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
                     {{ formatCurrency(agent.total_cost) }}
                   </span>
                 </div>
@@ -217,7 +217,7 @@
               <div>
                 <div class="flex items-center justify-between mb-1">
                   <span class="text-sm text-neutral-600 dark:text-neutral-400">Diário</span>
-                  <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
                     {{ formatNumber(budgetStatus()!.daily_used) }} /
                     {{
                       budgetStatus()!.daily_budget
@@ -280,36 +280,36 @@
           @if (voiceUsage()) {
             <div class="grid grid-cols-2 gap-4">
               <!-- STT -->
-              <div class="space-y-1">
-                <div class="text-xs text-neutral-500 uppercase tracking-wider">STT</div>
-                <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                  {{ formatCurrency(voiceUsage()!.stt_cost) }}
+                <div class="space-y-1">
+                  <div class="text-xs text-neutral-500 uppercase tracking-wider">STT</div>
+                  <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
+                    {{ formatCurrency(voiceUsage()!.stt_cost) }}
+                  </div>
+                  <div class="text-xs text-neutral-500 tabular-nums">
+                    {{ voiceUsage()!.stt_requests }} requisições ·
+                    {{ voiceUsage()!.stt_minutes | number: '1.1-1' }} min
+                  </div>
                 </div>
-                <div class="text-xs text-neutral-500">
-                  {{ voiceUsage()!.stt_requests }} requisições ·
-                  {{ voiceUsage()!.stt_minutes | number: '1.1-1' }} min
+                <!-- TTS -->
+                <div class="space-y-1">
+                  <div class="text-xs text-neutral-500 uppercase tracking-wider">TTS</div>
+                  <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
+                    {{ formatCurrency(voiceUsage()!.tts_cost) }}
+                  </div>
+                  <div class="text-xs text-neutral-500 tabular-nums">
+                    {{ voiceUsage()!.tts_requests }} requisições ·
+                    {{ formatNumber(voiceUsage()!.tts_characters) }} chars
+                  </div>
                 </div>
-              </div>
-              <!-- TTS -->
-              <div class="space-y-1">
-                <div class="text-xs text-neutral-500 uppercase tracking-wider">TTS</div>
-                <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                  {{ formatCurrency(voiceUsage()!.tts_cost) }}
+                <!-- Total -->
+                <div class="col-span-2 pt-3 border-t border-neutral-200 dark:border-neutral-700">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-neutral-600 dark:text-neutral-400">Total voz</span>
+                    <span class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
+                      {{ formatCurrency(voiceUsage()!.total_voice_cost) }}
+                    </span>
+                  </div>
                 </div>
-                <div class="text-xs text-neutral-500">
-                  {{ voiceUsage()!.tts_requests }} requisições ·
-                  {{ formatNumber(voiceUsage()!.tts_characters) }} chars
-                </div>
-              </div>
-              <!-- Total -->
-              <div class="col-span-2 pt-3 border-t border-neutral-200 dark:border-neutral-700">
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-neutral-600 dark:text-neutral-400">Total voz</span>
-                  <span class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                    {{ formatCurrency(voiceUsage()!.total_voice_cost) }}
-                  </span>
-                </div>
-              </div>
             </div>
           } @else {
             <af-empty-state

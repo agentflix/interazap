@@ -25,7 +25,7 @@
             </span>
             <div>
               <p class="text-sm text-neutral-500 dark:text-neutral-400">Fechados</p>
-              <p class="text-xl font-semibold text-success">
+              <p class="text-xl font-semibold text-success tabular-nums">
                 {{ circuitData()?.totalClosed ?? 0 }}
               </p>
             </div>
@@ -41,7 +41,7 @@
             </span>
             <div>
               <p class="text-sm text-neutral-500 dark:text-neutral-400">Semi-Abertos</p>
-              <p class="text-xl font-semibold text-warning">
+              <p class="text-xl font-semibold text-warning tabular-nums">
                 {{ circuitData()?.totalHalfOpen ?? 0 }}
               </p>
             </div>
@@ -57,7 +57,7 @@
             </span>
             <div>
               <p class="text-sm text-neutral-500 dark:text-neutral-400">Abertos</p>
-              <p class="text-xl font-semibold text-danger">{{ circuitData()?.totalOpen ?? 0 }}</p>
+              <p class="text-xl font-semibold text-danger tabular-nums">{{ circuitData()?.totalOpen ?? 0 }}</p>
             </div>
           </div>
         </af-card>
@@ -139,14 +139,14 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Falhas</p>
-                    <p class="text-lg font-semibold text-danger">{{ circuit.failures }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Sucessos</p>
-                    <p class="text-lg font-semibold text-success">{{ circuit.successes }}</p>
-                  </div>
+                <div>
+                  <p class="text-xs text-neutral-500 dark:text-neutral-400">Falhas</p>
+                  <p class="text-lg font-semibold text-danger tabular-nums">{{ circuit.failures }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500 dark:text-neutral-400">Sucessos</p>
+                  <p class="text-lg font-semibold text-success tabular-nums">{{ circuit.successes }}</p>
+                </div>
                   @if (circuit.lastFailure) {
                     <div>
                       <p class="text-xs text-neutral-500 dark:text-neutral-400">Última Falha</p>
