@@ -1,0 +1,4 @@
+interface:
+  display_name: "Laravel Especialista"
+  short_description: "Guia Laravel do InteraZap"
+  default_prompt: "Use esta skill para implementar ou revisar backend Laravel no InteraZap seguindo DDD, multi-tenancy, testes e gates do repositório."

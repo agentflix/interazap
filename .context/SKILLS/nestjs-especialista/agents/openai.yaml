@@ -1,0 +1,4 @@
+interface:
+  display_name: "NestJS Especialista"
+  short_description: "Guia NestJS/Gateway do InteraZap"
+  default_prompt: "Use $nestjs-especialista para implementar ou revisar o Gateway NestJS do InteraZap seguindo arquitetura, segurança, Redis Streams, BullMQ, Socket.IO, testes e gates do repositório."

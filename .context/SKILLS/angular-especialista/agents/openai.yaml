@@ -1,0 +1,4 @@
+interface:
+  display_name: "Angular Especialista"
+  short_description: "Guia Angular/Ionic do InteraZap"
+  default_prompt: "Use $angular-especialista para implementar ou revisar frontend Angular/Ionic no InteraZap seguindo arquitetura, segurança, testes e gates do repositório."

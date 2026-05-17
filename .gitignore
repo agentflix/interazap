@@ -38,6 +38,8 @@ api/.env
 
 # --- IA (regenerável via scripts/setup-ai.sh) ---
 /.opencode
+/.claude
+/.codex
 CLAUDE.md
 
 # --- Backup files (never commit) ---
