@@ -36,6 +36,7 @@ Este arquivo é apenas o índice minimalista do projeto.
 - Use `nestjs-especialista` para qualquer mudança em `gateway/`.
 - Use `angular-especialista` para qualquer mudança em `app/`.
 - Use `workflow-prevc` para planejar, executar, validar ou confirmar features/tasks pelo fluxo PREVC.
+- Use `code-review-confiavel` para revisar diffs, PRs ou entregas antes de mergear.
 - Use `skill-architect` para criar ou evoluir skills.
 
 ## Agents
