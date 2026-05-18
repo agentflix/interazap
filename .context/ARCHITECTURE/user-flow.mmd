@@ -1,0 +1,50 @@
+%%{init: {'theme': 'base'}}%%
+graph TD
+    START["Usuário acessa InteraZap"]
+
+    AUTH{"Autenticado?"}
+    LOGIN["Login (Auth/Login)\nSanctum token"]
+    DASHBOARD["Dashboard\nMétricas do tenant"]
+
+    START --> AUTH
+    AUTH -->|Não| LOGIN
+    LOGIN --> DASHBOARD
+    AUTH -->|Sim| DASHBOARD
+
+    DASHBOARD --> CHAT_FLOW["Fluxo de Atendimento\n(Chat)"]
+    DASHBOARD --> CRM_FLOW["Fluxo CRM\n(Contacts/Companies)"]
+    DASHBOARD --> AI_FLOW["Fluxo AI Autopilot\n(Ai)"]
+    DASHBOARD --> BILLING_FLOW["Fluxo Billing\n(Billing)"]
+    DASHBOARD --> CONFIG_FLOW["Configurações\n(Configuration)"]
+
+    subgraph AtendimentoWhatsApp["Atendimento WhatsApp"]
+        CHAT_FLOW --> TICKET["Novo Ticket\n(WhatsApp inbound)"]
+        TICKET --> ASSIGN["Atribuir Agente"]
+        ASSIGN --> RESPOND["Responder\n(UazAPI/Z-API)"]
+        RESPOND --> CLOSE_TICKET["Fechar Ticket\n(manual ou auto-close 20min)"]
+    end
+
+    subgraph GestaoContatos["Gestão de Contatos"]
+        CRM_FLOW --> CONTACT["Criar/Editar Contato"]
+        CONTACT --> COMPANY["Vincular Empresa"]
+        COMPANY --> PROPOSAL["Criar Proposta"]
+        PROPOSAL --> REMINDER["Configurar Lembrete"]
+    end
+
+    subgraph AutopilotAI["AI Autopilot"]
+        AI_FLOW --> AUTOPILOT_CONFIG["Configurar Autopilot\n(contexto, tools)"]
+        AUTOPILOT_CONFIG --> AUTOPILOT_ON["Habilitar por Ticket"]
+        AUTOPILOT_ON --> AI_RESPONSE["IA responde automaticamente\n(OpenAI + RAG)"]
+        AI_RESPONSE --> HUMAN_TAKEOVER["Handover para Humano\n(se necessário)"]
+    end
+
+    subgraph Webchat["Webchat Público"]
+        PUBLIC_USER["Usuário Final\n(webchat widget)"] --> JWT_AUTH["JWT anônimo"]
+        JWT_AUTH --> WEBCHAT_MSG["Envia mensagem\n(WebSocket / REST)"]
+        WEBCHAT_MSG --> TICKET
+    end
+
+    style AtendimentoWhatsApp fill:#FCE4EC,stroke:#E91E63
+    style GestaoContatos fill:#E8F5E9,stroke:#4CAF50
+    style AutopilotAI fill:#E3F2FD,stroke:#2196F3
+    style Webchat fill:#FFF3E0,stroke:#FF9800

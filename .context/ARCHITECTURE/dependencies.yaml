@@ -1,0 +1,87 @@
+version: "1.0"
+project: "InteraZap"
+
+dependency_rules:
+  - "Domain Layer (src/Domain/*) NÃO importa Laravel, NestJS ou qualquer framework diretamente"
+  - "Domain Layer usa Eloquent APENAS como implementação de persistência — nunca como contrato"
+  - "Application Layer (Actions, Services, Jobs) depende de Domain"
+  - "Infrastructure (Repositories, Providers) implementa contratos do Domain"
+  - "HTTP Layer (Controllers, Requests) depende de Application"
+  - "Dependências são UNIDIRECIONAIS — ciclos são proibidos"
+  - "Shared Kernel (src/Domain/Shared) NÃO depende de nenhum outro módulo"
+  - "Platform é a base de multi-tenancy — todos os bounded contexts dependem de Platform"
+  - "BelongsToTenant DEVE ser aplicado em toda entidade com dados por tenant"
+
+module_dependencies:
+  "Shared":
+    depends_on: []
+    communication: "standalone"
+
+  "Platform":
+    depends_on: ["Shared"]
+    communication: "sync"
+
+  "Auth":
+    depends_on: ["Platform", "Shared"]
+    communication: "sync"
+
+  "Configuration":
+    depends_on: ["Platform", "Shared"]
+    communication: "sync"
+
+  "Gateway":
+    depends_on: ["Platform", "Shared"]
+    communication: "sync + circuit-breaker"
+
+  "Billing":
+    depends_on: ["Platform", "Shared"]
+    communication: "sync + webhook (ASAAS)"
+
+  "CRM":
+    depends_on: ["Platform", "Shared"]
+    communication: "sync"
+
+  "Ai":
+    depends_on: ["Chat", "Platform", "Shared"]
+    communication: "sync + queue (Redis)"
+
+  "Chat":
+    depends_on: ["CRM", "Gateway", "Platform", "Ai", "Shared"]
+    communication: "sync + events + queue"
+
+  "Dashboard":
+    depends_on: ["Chat", "CRM", "Platform"]
+    communication: "sync (read-only)"
+
+  "Reports":
+    depends_on: ["Chat", "CRM", "Platform"]
+    communication: "sync (read-only) + queue"
+
+forbidden_dependencies:
+  - from: "Domain"
+    to: "Infrastructure"
+    reason: "Domain não conhece implementação — usa contratos (Contracts/)"
+  - from: "Shared"
+    to: "any"
+    reason: "Shared Kernel não depende de nenhum outro módulo"
+  - from: "Domain"
+    to: "Http"
+    reason: "Domain não conhece camada HTTP"
+  - from: "Chat"
+    to: "Billing"
+    reason: "Chat não depende diretamente de Billing — desacoplados"
+  - from: "Reports"
+    to: "Billing"
+    reason: "Reports é read-only de Chat/CRM, não de Billing"
+
+cross_workspace_communication:
+  "api <-> gateway":
+    method: "Redis Streams + HTTP (interno)"
+    pattern: "event-driven async"
+    note: "Gateway consome eventos do api via Redis; api não chama gateway diretamente"
+  "gateway <-> app":
+    method: "Socket.io WebSocket"
+    pattern: "real-time broadcast/unicast"
+  "app <-> api":
+    method: "REST API (Sanctum tokens)"
+    pattern: "request-response"

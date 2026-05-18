@@ -1,4 +1,4 @@
-import type { Tag } from 'src/app/core/services/tag.service';
+import type { Tag } from '@core/models/tag.model';
 
 /**
  * Represents a tag attached to a contact.

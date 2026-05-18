@@ -1,0 +1,66 @@
+%%{init: {'theme': 'base'}}%%
+graph LR
+    subgraph Core["Núcleo do InteraZap"]
+        SHARED["Shared\nShared Kernel"]
+        PLATFORM["Platform\nMulti-tenant"]
+        AUTH["Auth\nAutenticação"]
+    end
+
+    subgraph Business["Domínios de Negócio"]
+        CHAT["Chat\nWhatsApp/Tickets"]
+        CRM["CRM\nContacts/Companies"]
+        AI["Ai\nAutopilot/RAG"]
+        BILLING["Billing\nASAAS"]
+        CONFIG["Configuration\nSettings"]
+    end
+
+    subgraph Output["Saída/Apresentação"]
+        DASHBOARD["Dashboard\nAnalytics"]
+        REPORTS["Reports\nExports"]
+        GW["Gateway\nCircuit Breaker"]
+    end
+
+    subgraph External["Serviços Externos (gateway/ NestJS)"]
+        NESTGW["NestJS Gateway\nSocket.io + Providers"]
+        UAZAPI["UazAPI"]
+        ZAPI["Z-API"]
+        ASAAS_EXT["ASAAS"]
+        OPENAI["OpenAI"]
+    end
+
+    SHARED --> PLATFORM
+    SHARED --> AUTH
+    SHARED --> CHAT
+    SHARED --> CRM
+    SHARED --> AI
+    SHARED --> BILLING
+    SHARED --> CONFIG
+
+    PLATFORM --> CHAT
+    PLATFORM --> CRM
+    PLATFORM --> AI
+    PLATFORM --> BILLING
+    PLATFORM --> CONFIG
+    PLATFORM --> DASHBOARD
+    PLATFORM --> REPORTS
+
+    CHAT --> DASHBOARD
+    CRM --> DASHBOARD
+    CHAT --> REPORTS
+    CRM --> REPORTS
+
+    GW --> CHAT
+    CHAT --> GW
+    AI --> CHAT
+    CRM --> CHAT
+
+    NESTGW --> UAZAPI
+    NESTGW --> ZAPI
+    NESTGW --> ASAAS_EXT
+    AI --> OPENAI
+
+    style SHARED fill:#FFF9C4,stroke:#F9A825,stroke-width:2px
+    style PLATFORM fill:#E8F5E9,stroke:#4CAF50
+    style AI fill:#E3F2FD,stroke:#2196F3
+    style CHAT fill:#FCE4EC,stroke:#E91E63
+    style NESTGW fill:#F3E5F5,stroke:#9C27B0

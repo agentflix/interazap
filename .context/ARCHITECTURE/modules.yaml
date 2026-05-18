@@ -1,0 +1,175 @@
+version: "1.0"
+project: "InteraZap"
+architecture: "DDD + Clean Architecture"
+generated_at: "2026-05-17"
+
+modules:
+  - name: "Ai"
+    description: "Autopilot, embeddings, RAG, tools, integração OpenAI"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Ai/"
+    dependencies:
+      - "Chat"
+      - "Platform"
+      - "Shared"
+    exposes:
+      - "AiAutopilotService"
+      - "AiEmbeddingService"
+      - "AiPermissionMatrixService"
+    database_tables:
+      - "ai_conversations"
+      - "ai_embeddings"
+      - "ai_tool_calls"
+
+  - name: "Auth"
+    description: "Autenticação, autorização, tokens Sanctum, JWT webchat"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Auth/"
+    dependencies:
+      - "Platform"
+      - "Shared"
+    exposes:
+      - "AuthenticateUserAction"
+      - "SanctumTokenService"
+    database_tables:
+      - "personal_access_tokens"
+      - "users"
+
+  - name: "Billing"
+    description: "ASAAS, invoices, planos, cobrança multi-tenant"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Billing/"
+    dependencies:
+      - "Platform"
+      - "Shared"
+    exposes:
+      - "BillingInvoiceService"
+      - "AsaasWebhookHandler"
+    database_tables:
+      - "billing_invoices"
+      - "billing_plans"
+      - "billing_subscriptions"
+
+  - name: "Chat"
+    description: "WhatsApp (UazAPI/Z-API), tickets, quick answers, atendimento"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Chat/"
+    dependencies:
+      - "CRM"
+      - "Gateway"
+      - "Platform"
+      - "Ai"
+      - "Shared"
+    exposes:
+      - "ChatTicketService"
+      - "SendWhatsAppMessageAction"
+      - "ChatAutoCloseJob"
+    database_tables:
+      - "chat_tickets"
+      - "chat_messages"
+      - "chat_quick_answers"
+      - "chat_contacts"
+
+  - name: "Configuration"
+    description: "Configurações do tenant (horário, notificações, integrações)"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Configuration/"
+    dependencies:
+      - "Platform"
+      - "Shared"
+    exposes:
+      - "TenantConfigurationService"
+    database_tables:
+      - "configurations"
+
+  - name: "CRM"
+    description: "Companies, contacts, proposals, tags, pipeline"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/CRM/"
+    dependencies:
+      - "Platform"
+      - "Shared"
+    exposes:
+      - "CRMContactService"
+      - "CRMCompanyService"
+      - "CRMEventReminderService"
+    database_tables:
+      - "crm_companies"
+      - "crm_contacts"
+      - "crm_proposals"
+      - "crm_tags"
+      - "crm_event_reminders"
+
+  - name: "Dashboard"
+    description: "Analytics, métricas, KPIs por tenant"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Dashboard/"
+    dependencies:
+      - "Chat"
+      - "CRM"
+      - "Platform"
+    exposes:
+      - "DashboardMetricsService"
+    database_tables: []
+
+  - name: "Gateway"
+    description: "Circuit breaker, provider adapters (UazAPI, Z-API), retry"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Gateway/"
+    dependencies:
+      - "Platform"
+      - "Shared"
+    exposes:
+      - "CircuitBreakerService"
+      - "WhatsAppProviderAdapter"
+    database_tables:
+      - "gateway_circuit_breakers"
+
+  - name: "Platform"
+    description: "Multi-tenant, workspace, PlatformTenant, settings"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Platform/"
+    dependencies:
+      - "Shared"
+    exposes:
+      - "GetTenantSettingsAction"
+      - "UpdateTenantSettingsAction"
+      - "PlatformTenant (Model)"
+    database_tables:
+      - "platform_tenants"
+      - "platform_tenant_settings"
+      - "platform_workspaces"
+
+  - name: "Reports"
+    description: "Exports de dados, relatórios analíticos por tenant"
+    type: "bounded-context"
+    status: "active"
+    path: "api/src/Domain/Reports/"
+    dependencies:
+      - "Chat"
+      - "CRM"
+      - "Platform"
+    exposes:
+      - "ReportExportService"
+    database_tables: []
+
+  - name: "Shared"
+    description: "DTOs, Events, Concerns, Enums cross-cutting"
+    type: "shared-kernel"
+    status: "active"
+    path: "api/src/Domain/Shared/"
+    dependencies: []
+    exposes:
+      - "BelongsToTenant (Trait)"
+      - "BaseDTO"
+      - "DomainEvent"
+    database_tables: []
