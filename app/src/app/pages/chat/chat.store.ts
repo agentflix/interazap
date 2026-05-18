@@ -10,6 +10,9 @@ import { InstanceService } from 'src/app/core/services/instance.service';
 import { toast } from 'ngx-sonner';
 import { type Contact } from 'src/app/core/models/contact.model';
 import { type WindowStatus } from 'src/app/core/models/window-status.model';
+import type { ComposerMode } from '@chat/models/chat-state.model';
+export type { ChatState, ComposerMode } from '@chat/models/chat-state.model';
+
 
 /**
  * Modo do composer de mensagens.
@@ -17,19 +20,10 @@ import { type WindowStatus } from 'src/app/core/models/window-status.model';
  * - `mixed`: Meta dentro da janela — permite texto + template
  * - `template-only`: Meta fora da janela — só template aprovado
  */
-export type ComposerMode = 'free' | 'mixed' | 'template-only';
 
 /**
  * Interface representing the chat state for managing selected called/ticket information.
  */
-export interface ChatState {
-  selectedCalledId: string | null;
-  selectedCalled: Called | null;
-  isLoadingCalled: boolean;
-  isSending: boolean;
-  replyingTo: CalledMessage | null;
-  isMediaBatchSending: boolean;
-}
 
 /**
  * Global chat store for managing selected ticket state and actions.

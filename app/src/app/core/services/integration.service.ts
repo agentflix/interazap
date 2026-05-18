@@ -2,26 +2,21 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
-
-import { type Integration, type IntegrationSettings } from '@shared/models/integration.model';
+import { type PaginatedResponse } from '@core/models/pagination.model';
+import {
+  type Integration,
+  type IntegrationConnectPayload,
+  type IntegrationConnectResponse,
+  type IntegrationConnectionStateSource,
+  type IntegrationConnectionUiState,
+  type IntegrationFilters,
+  type IntegrationSettings,
+  type IntegrationStatusResponse,
+} from '@shared/models/integration.model';
+export type { IntegrationConnectPayload, IntegrationConnectResponse, IntegrationConnectionStateSource, IntegrationConnectionUiState, IntegrationFilters, IntegrationStatusResponse } from '@shared/models/integration.model';
 
 export type { Integration, IntegrationSettings };
 
-export type IntegrationConnectionUiState =
-  | 'connected'
-  | 'disconnected'
-  | 'connecting'
-  | 'qr'
-  | 'unknown';
-
-export interface IntegrationConnectionStateSource {
-  is_connected?: boolean;
-  connection_status?: string | null;
-  connected?: boolean;
-  status?: string | null;
-  qrcode?: string | null;
-  paircode?: string | null;
-}
 
 const CONNECTED_CONNECTION_STATUSES = new Set([
   'connected',
@@ -116,48 +111,12 @@ export function shouldFlushIntegrationConnectionImmediately(
 }
 
 /** Query parameters for integrations list. */
-export interface IntegrationFilters {
-  search?: string;
-  is_active?: boolean;
-  page?: number;
-  per_page?: number;
-  sort_by?: string;
-  sort_dir?: 'asc' | 'desc';
-}
-
-/** Generic paginated response used by integrations endpoint. */
-export interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-  };
-}
 
 /** Payload to establish integration connection. */
-export interface IntegrationConnectPayload {
-  mode: 'qr' | 'pair';
-  phone?: string | null;
-}
 
 /** Connect response payload. */
-export interface IntegrationConnectResponse {
-  instance: Integration;
-  connection: {
-    mode: 'qr' | 'pair';
-    qr_code?: string | null;
-    pair_code?: string | null;
-    expires_at?: string | null;
-  };
-}
 
 /** Runtime status payload. */
-export interface IntegrationStatusResponse {
-  instance: Integration;
-  status: Record<string, string | number | boolean | null>;
-}
 
 /** Service for chat integrations CRUD and connection lifecycle. */
 @Injectable({ providedIn: 'root' })

@@ -62,3 +62,13 @@ export interface PlatformPlanPayload {
   price_monthly: number;
   is_active?: boolean;
 }
+
+export interface Paginated<T> {
+  data: T[];
+  meta: {
+    current_page: number;
+    total: number;
+    per_page: number;
+    last_page: number;
+  };
+}

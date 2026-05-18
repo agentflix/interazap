@@ -2,54 +2,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
+import type { ProductService, ProductServiceFilters, ProductServiceListResponse } from '@core/models/product-service.model';
+export type { ProductService, ProductServiceFilters, ProductServiceListResponse } from '@core/models/product-service.model';
 
-export interface ProductService {
-  id: string | number;
-  company_id: string;
-  category_id?: string;
-  code?: string;
-  name: string;
-  description?: string;
-  type: 'product' | 'service';
-  price?: number;
-  cost?: number;
-  unit?: string;
-  stock_quantity?: number;
-  min_stock?: number;
-  is_active: boolean;
-  is_featured?: boolean;
-  track_stock?: boolean;
-  stock?: number;
-  image?: string;
-  attributes?: Record<string, unknown>;
-  category?: {
-    id: string;
-    name: string;
-  };
-  created_at: string;
-  updated_at: string;
-}
 
-export interface ProductServiceFilters {
-  search?: string;
-  type?: 'product' | 'service';
-  is_active?: boolean;
-  category_id?: string;
-  sort_by?: string;
-  sort_dir?: string;
-  per_page?: number;
-  page?: number;
-}
-
-export interface ProductServiceListResponse {
-  data: ProductService[];
-  meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-  };
-}
 
 /**
  * Servico responsavel pelo CRUD de produtos e servicos no CRM.

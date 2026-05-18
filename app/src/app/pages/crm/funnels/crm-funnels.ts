@@ -30,7 +30,8 @@ import {
   type SortDirection,
 } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
-import { type Funnel, FunnelService } from '@core/services/crm-funnel.service';
+import { FunnelService } from '@core/services/crm-funnel.service';
+import type { Funnel } from '@core/models/funnel.model';
 import { FunnelFormComponent } from './components/funnel-form/crm-funnel-form';
 
 /**
@@ -160,11 +161,11 @@ export class Funnels implements OnInit {
     this.selectAllControl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((checked) => {
-        const nextSelected = checked ? this.funnels().map((f) => f.id) : [];
+        const nextSelected = checked ? this.funnels().map((f) => String(f.id)) : [];
         this.selectedFunnelIds.set(nextSelected);
 
         for (const funnel of this.funnels()) {
-          this.getRowSelectionControl(funnel.id).setValue(checked);
+          this.getRowSelectionControl(String(funnel.id)).setValue(checked);
         }
       });
   }
@@ -301,32 +302,33 @@ export class Funnels implements OnInit {
       });
   }
 
-  getRowSelectionControl(id: string): FormControl<boolean> {
-    const existing = this.rowSelectionControls.get(id);
+  getRowSelectionControl(id: string | number): FormControl<boolean> {
+    const key = String(id);
+    const existing = this.rowSelectionControls.get(key);
     if (existing) return existing;
 
     const control = new FormControl<boolean>(false, { nonNullable: true });
     control.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((checked) => {
       const selected = new Set(this.selectedFunnelIds());
       if (checked) {
-        selected.add(id);
+        selected.add(key);
       } else {
-        selected.delete(id);
+        selected.delete(key);
       }
 
       this.selectedFunnelIds.set([...selected]);
 
       const allSelected =
-        this.funnels().length > 0 && this.funnels().every((f) => selected.has(f.id));
+        this.funnels().length > 0 && this.funnels().every((f) => selected.has(String(f.id)));
       this.selectAllControl.setValue(allSelected, { emitEvent: false });
     });
 
-    this.rowSelectionControls.set(id, control);
+    this.rowSelectionControls.set(key, control);
     return control;
   }
 
   private syncSelectionControls(funnels: Funnel[]): void {
-    const activeIds = new Set(funnels.map((f) => f.id));
+    const activeIds = new Set(funnels.map((f) => String(f.id)));
 
     for (const key of this.rowSelectionControls.keys()) {
       if (!activeIds.has(key)) {
@@ -338,7 +340,8 @@ export class Funnels implements OnInit {
     this.selectedFunnelIds.set(selected);
 
     for (const funnel of funnels) {
-      this.getRowSelectionControl(funnel.id).setValue(selected.includes(funnel.id));
+      const funnelId = String(funnel.id);
+      this.getRowSelectionControl(funnelId).setValue(selected.includes(funnelId));
     }
 
     this.selectAllControl.setValue(funnels.length > 0 && selected.length === funnels.length, {

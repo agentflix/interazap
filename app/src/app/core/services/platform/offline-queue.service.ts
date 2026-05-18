@@ -1,18 +1,12 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { PlatformService } from './platform.service';
+import type { OfflineQueuedMessage } from '@core/models/offline-queue.model';
+export type { OfflineQueuedMessage } from '@core/models/offline-queue.model';
+
 
 const OFFLINE_QUEUE_STORAGE_KEY = 'chat_offline_queue_v1';
 
-export interface OfflineQueuedMessage {
-  id: string;
-  calledId: string;
-  content: string;
-  type: 'text';
-  clientMessageId: string;
-  createdAt: string;
-  attempts: number;
-}
 
 function isRecord(value: object | null): value is Record<string, string | number> {
   return value !== null;

@@ -17,7 +17,8 @@ import {
   AfTextInputComponent,
   AfTextareaInputComponent,
 } from '@shared/components';
-import { type ReasonLoss, ReasonLossService } from '@core/services/crm-reason-loss.service';
+import { ReasonLossService } from '@core/services/crm-reason-loss.service';
+import type { ReasonLoss } from '@core/models/reason-loss.model';
 
 /**
  * Reason loss form component — create/edit loss reasons.

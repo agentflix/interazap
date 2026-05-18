@@ -3,31 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { environment } from '@env/environment';
+import type { NegotiationContactLink, NegotiationContactPayload } from '@core/models/negotiation.model';
+export type { NegotiationContactLink, NegotiationContactPayload } from '@core/models/negotiation.model';
 
-export interface NegotiationContactLink {
-  id: string | number;
-  negotiation_id: string | number;
-  contact_id: string | number;
-  role?: string | null;
-  is_primary?: boolean;
-  notes?: string | null;
-  contact?: {
-    id: string | number;
-    name: string;
-    email?: string | null;
-    phone?: string | null;
-    whatsapp?: string | null;
-    crm_company_id?: string | number | null;
-  } | null;
-  created_at?: string | null;
-}
 
-export interface NegotiationContactPayload {
-  contact_id?: string | number;
-  role?: string;
-  is_primary?: boolean;
-  notes?: string | null;
-}
 
 interface NegotiationResponse {
   id: string | number;

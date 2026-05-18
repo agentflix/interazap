@@ -10,7 +10,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideAngularModule } from 'lucide-angular';
 import { AfButtonComponent } from '@shared/components';
-import { type ContactFilters, ContactService } from '@core/services/crm-contact.service';
+import { ContactService } from '@core/services/crm-contact.service';
+import type { ContactFilters } from '@core/models/contact.model';
 
 /**
  * Contact export component — triggers CSV download.

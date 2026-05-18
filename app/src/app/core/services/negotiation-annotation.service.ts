@@ -3,30 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '@env/environment';
+import type { NegotiationAnnotation, NegotiationAnnotationPayload } from '@core/models/negotiation.model';
+export type { NegotiationAnnotation, NegotiationAnnotationPayload, NegotiationAnnotationUser } from '@core/models/negotiation.model';
 
-export interface NegotiationAnnotationUser {
-  id: string | number;
-  name: string;
-  avatar?: string | null;
-}
 
-export interface NegotiationAnnotation {
-  id: string | number;
-  negotiation_id: string | number;
-  user_id: string | number;
-  content: string;
-  type: 'manual' | 'system' | 'status' | 'call' | 'email' | 'meeting' | string;
-  is_pinned: boolean;
-  user?: NegotiationAnnotationUser | null;
-  created_at?: string | null;
-  updated_at?: string | null;
-}
-
-export interface NegotiationAnnotationPayload {
-  content: string;
-  type?: string;
-  is_pinned?: boolean;
-}
 
 /**
  * Service for managing negotiation annotations (notes).

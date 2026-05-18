@@ -36,7 +36,8 @@ import {
   type AutoReplyRule,
   AutoReplyService,
 } from '@core/services/auto-reply.service';
-import { type Department, DepartmentService } from '@core/services/department.service';
+import { DepartmentService } from '@core/services/department.service';
+import type { Department } from '@core/models/department.model';
 
 interface MessageTypeOption {
   id: string;

@@ -3,59 +3,10 @@ import { Injectable, inject } from '@angular/core';
 import { Device } from '@capacitor/device';
 import { catchError, from, of, switchMap, tap, type Observable } from 'rxjs';
 import { environment } from '@env/environment';
+import { type AuthResponse, type MenuResponse } from '@core/models/auth.model';
 import { AuthStorageService } from './platform/auth-storage.service';
 import { PlatformService } from './platform/platform.service';
 import { PushService } from './platform/push.service';
-
-/**
- * Resposta da API de autenticação contendo dados do usuario, plano e token.
- */
-export interface AuthResponse {
-  data: {
-    user?: {
-      id: string | number;
-      name: string;
-      email: string;
-      avatar_url?: string | null;
-      two_factor_enabled?: boolean;
-    };
-    tenant_plan?: {
-      id: string;
-      name: string;
-      slug: string;
-      ai_enabled: boolean;
-    } | null;
-    token?: string;
-    permissions?: string[];
-    requires_2fa?: boolean;
-    two_factor_required?: boolean;
-    email?: string;
-    is_impersonating?: boolean;
-    impersonated_tenant?: {
-      id: string;
-      name: string;
-    };
-  };
-}
-
-/**
- * Resposta da API de menu de navegacao.
- */
-export interface MenuResponse {
-  data: {
-    menu: {
-      label: string;
-      icon: string;
-      route: string;
-      permission?: string;
-      children?: {
-        label: string;
-        route: string;
-        permission?: string;
-      }[];
-    }[];
-  };
-}
 
 /**
  * Servico responsavel por todas as operacoes de autenticacao:

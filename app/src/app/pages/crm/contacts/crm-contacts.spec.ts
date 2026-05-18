@@ -3,7 +3,8 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { Contacts } from './crm-contacts';
-import { ContactService, type ContactListResponse } from '@core/services/crm-contact.service';
+import { ContactService } from '@core/services/crm-contact.service';
+import type { ContactListResponse } from '@core/models/contact.model';
 import { ToastService } from '@core/services/toast.service';
 import { UtilsService } from '@core/services/utils.service';
 

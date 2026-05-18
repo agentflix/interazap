@@ -43,7 +43,8 @@ import {
   type PlatformBillingInvoiceCreatePayload,
   PlatformBillingInvoiceService,
 } from '@core/services/platform-billing-invoice.service';
-import { type Company, CompanyService } from '@core/services/company.service';
+import { CompanyService } from '@core/services/company.service';
+import type { Company } from '@core/models/company.model';
 import { PlatformPlanService, type PlatformPlan } from '@platform/services/platform-plan.service';
 import { ToastService } from '@core/services/toast.service';
 

@@ -25,7 +25,8 @@ import {
 } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
 import { type Called, type CalledStatus, CalledService } from '@core/services/called.service';
-import { type User, UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/user.service';
+import { type User } from '@core/models/user.model';
 
 /**
  * Ticket page — read-only CRUD listing for supervisors.

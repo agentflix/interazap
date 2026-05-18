@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthStoreService, type AuthUser } from '../../../core/services/auth-store.service';
+import { AuthStoreService } from '../../../core/services/auth-store.service';
+import { type AuthUser } from '@core/models/auth.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { LucideAngularModule } from 'lucide-angular';

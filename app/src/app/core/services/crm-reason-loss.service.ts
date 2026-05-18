@@ -2,47 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
-
-/** Reason Loss model */
-export interface ReasonLoss {
-  id: string;
-  company_id: string;
-  name: string;
-  description?: string;
-  is_active: boolean;
-  requires_comment: boolean;
-  position?: number;
-  usage_count?: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ReasonLossFilters {
-  search?: string;
-  is_active?: boolean;
-  per_page?: number;
-  page?: number;
-  sort_by?: string;
-  sort_dir?: string;
-}
-
-export interface ReasonLossListResponse {
-  success: boolean;
-  data: ReasonLoss[];
-  meta: {
-    current_page: number;
-    from: number;
-    last_page: number;
-    per_page: number;
-    to: number;
-    total: number;
-  };
-}
-
-export interface ReasonLossResponse {
-  success: boolean;
-  data: ReasonLoss;
-}
+import type {
+  ReasonLoss,
+  ReasonLossFilters,
+  ReasonLossListResponse,
+  ReasonLossResponse,
+} from '@core/models/reason-loss.model';
 
 /**
  * Service for managing CRM reason losses.

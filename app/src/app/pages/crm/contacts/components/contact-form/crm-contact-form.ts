@@ -30,7 +30,8 @@ import {
   AfTextareaInputComponent,
   type AfSelectOption,
 } from '@shared/components';
-import { type Contact, ContactService } from '@core/services/crm-contact.service';
+import { ContactService } from '@core/services/crm-contact.service';
+import type { Contact } from '@core/models/contact.model';
 import { type CRMCompany, CRMCompanyService } from '@core/services/crm-company.service';
 import { UtilsService } from '@core/services/utils.service';
 

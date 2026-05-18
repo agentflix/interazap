@@ -2,37 +2,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { type Observable, map } from 'rxjs';
 import { environment } from '@env/environment';
+import { type PaginatedResponse } from '@core/models/pagination.model';
+import type { QuickAnswer, QuickAnswerFilters } from '@core/models/quick-answer.model';
+export type { QuickAnswer, QuickAnswerFilters } from '@core/models/quick-answer.model';
 
-export interface QuickAnswer {
-  id: string;
-  name: string;
-  content: string;
-  shortcut?: string;
-  is_active: boolean;
-  company_id?: string;
-  created_at?: string;
-  updated_at?: string;
-}
 
-export interface QuickAnswerFilters {
-  search?: string;
-  is_active?: boolean;
-  page?: number;
-  per_page?: number;
-  category?: string;
-  sort_by?: string;
-  sort_dir?: 'asc' | 'desc';
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-  };
-}
 
 /**
  * Serviço para gestão de Respostas Rápidas (atalhos de texto).

@@ -22,10 +22,8 @@ import {
   AfTextareaInputComponent,
   type AfSelectOption,
 } from '@shared/components';
-import {
-  type ProductService,
-  ProductServiceService,
-} from '@core/services/crm-product-service.service';
+import { ProductServiceService } from '@core/services/crm-product-service.service';
+import type { ProductService } from '@core/models/product-service.model';
 
 /**
  * Product/Service form component — create/edit.

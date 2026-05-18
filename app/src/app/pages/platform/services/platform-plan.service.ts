@@ -3,19 +3,13 @@ import { inject, Injectable } from '@angular/core';
 import { type Observable, map } from 'rxjs';
 import { environment } from '@env/environment';
 import { type PlatformPlan, type PlatformPlanFilters, type PlatformPlanPayload } from '../models';
+import type { Paginated } from '@platform/models/platform-plan.model';
+export type { Paginated } from '@platform/models/platform-plan.model';
+
 
 // Re-export models for backwards compatibility
 export type { PlatformPlan, PlatformPlanFilters, PlatformPlanPayload } from '../models';
 
-export interface Paginated<T> {
-  data: T[];
-  meta: {
-    current_page: number;
-    total: number;
-    per_page: number;
-    last_page: number;
-  };
-}
 
 interface ApiResponse<T> {
   success: boolean;

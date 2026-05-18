@@ -23,7 +23,8 @@ import {
   AfTextInputComponent,
   type AfSelectOption,
 } from '@shared/components';
-import { type Company, CompanyService } from '@core/services/company.service';
+import { CompanyService } from '@core/services/company.service';
+import type { Company } from '@core/models/company.model';
 import { PlatformPlanService } from '@platform/services/platform-plan.service';
 import { type AddressData, type CnpjData, UtilsService } from '@core/services/utils.service';
 import { AiGovernanceService } from '@core/services/ai-governance.service';

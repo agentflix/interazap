@@ -2,62 +2,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
+import type { NegotiationTask, NegotiationTaskPayload } from '@core/models/negotiation.model';
+export type { NegotiationTask, NegotiationTaskPayload, NegotiationTaskUser } from '@core/models/negotiation.model';
 
-export interface NegotiationTaskUser {
-  id: string | number;
-  name: string;
-  avatar?: string | null;
-}
 
-export interface NegotiationTask {
-  id: string | number;
-  negotiation_id: string | number;
-  title: string;
-  description?: string | null;
-  action_type?: string | null;
-  due_date?: string | null;
-  start_time?: string | null;
-  end_time?: string | null;
-  status?: string | null;
-  reminder_at?: string | null;
-  add_to_agenda?: boolean;
-  agenda_event_id?: string | number | null;
-  notify_ui?: boolean;
-  notify_email?: boolean;
-  notify_push?: boolean;
-  notify_whatsapp?: boolean;
-  is_completed: boolean;
-  completed_at?: string | null;
-  user_id?: string | number | null;
-  assigned_to?: string | number | null;
-  priority?: 'low' | 'medium' | 'high';
-  user?: NegotiationTaskUser;
-  negotiation?: {
-    id: string | number;
-    title: string;
-    crm_company?: {
-      id: string | number;
-      name: string;
-    } | null;
-  } | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface NegotiationTaskPayload {
-  title: string;
-  description?: string;
-  action_type?: string;
-  due_date?: string | null;
-  start_time?: string | null;
-  end_time?: string | null;
-  status?: string;
-  add_to_agenda?: boolean;
-  notify_ui?: boolean;
-  notify_email?: boolean;
-  notify_push?: boolean;
-  notify_whatsapp?: boolean;
-}
 
 @Injectable({ providedIn: 'root' })
 export class NegotiationTaskService {

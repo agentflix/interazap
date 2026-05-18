@@ -1,6 +1,9 @@
 import { Injectable, signal, type WritableSignal } from '@angular/core';
 import type { CalledMessage } from './called-message.service';
 import type { ChatMessageStatusEvent } from './chat-realtime.events';
+import type { ChatMessageCacheDelegate } from '@core/models/chat-message-cache.model';
+export type { ChatMessageCacheDelegate } from '@core/models/chat-message-cache.model';
+
 
 /**
  * Maximum number of ticket caches held in memory.
@@ -14,10 +17,6 @@ const MAX_CACHE_SIZE = 10;
  * making the delegate the central source of truth while preserving this
  * service's public API for consumers.
  */
-export interface ChatMessageCacheDelegate {
-  getMessages(ticketId: string): CalledMessage[];
-  setMessages(ticketId: string, messages: CalledMessage[]): void;
-}
 
 /**
  * In-memory message cache per chat ticket.

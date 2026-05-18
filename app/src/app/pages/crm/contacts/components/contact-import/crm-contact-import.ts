@@ -18,7 +18,8 @@ import {
   AfSelectInputComponent,
   type AfSelectOption,
 } from '@shared/components';
-import { type ContactImportSummary, ContactService } from '@core/services/crm-contact.service';
+import { ContactService } from '@core/services/crm-contact.service';
+import type { ContactImportSummary } from '@core/models/contact.model';
 
 /**
  * Contact import component — 3-step wizard: upload → mapping → summary.

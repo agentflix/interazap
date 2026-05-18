@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { AuthStoreService, type AuthUser } from './auth-store.service';
+import { AuthStoreService } from './auth-store.service';
+import { type AuthUser } from '@core/models/auth.model';
 import { ChatRewriteRolloutService } from './chat-rewrite-rollout.service';
 
 function buildUser(featureEnabled: boolean): AuthUser {

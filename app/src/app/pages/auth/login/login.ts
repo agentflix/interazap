@@ -18,7 +18,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
-import { type AuthResponse, AuthService } from '@core/services/auth.service';
+import { AuthService } from '@core/services/auth.service';
+import { type AuthResponse } from '@core/models/auth.model';
 import { AuthStoreService } from '@core/services/auth-store.service';
 import {
   AfAlertComponent,

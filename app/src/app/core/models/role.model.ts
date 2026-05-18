@@ -81,3 +81,43 @@ export interface PaginatedRoleUsers {
     total: number;
   };
 }
+
+/**
+ * Filters for listing roles.
+ */
+export interface RoleFilters {
+  search?: string;
+  page?: number;
+  per_page?: number;
+}
+
+/**
+ * Filters for listing users by role.
+ */
+export interface RoleUsersFilters {
+  search?: string;
+  page?: number;
+  per_page?: number;
+}
+
+/**
+ * Paginated response for roles listing.
+ */
+export interface PaginatedRoles {
+  data: Role[];
+  meta: {
+    current_page: number;
+    total: number;
+    per_page: number;
+    last_page: number;
+  };
+}
+
+/**
+ * Generic API response wrapper.
+ */
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}

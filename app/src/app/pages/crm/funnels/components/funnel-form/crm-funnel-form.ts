@@ -23,13 +23,13 @@ import {
   AfTextInputComponent,
   AfTextareaInputComponent,
 } from '@shared/components';
-import {
-  type Funnel,
-  type FunnelPayload,
-  type FunnelStep,
-  type FunnelStepPayload,
-  FunnelService,
-} from '@core/services/crm-funnel.service';
+import { FunnelService } from '@core/services/crm-funnel.service';
+import type {
+  Funnel,
+  FunnelPayload,
+  FunnelStep,
+  FunnelStepPayload,
+} from '@core/models/funnel.model';
 
 /**
  * Funnel form component — create/edit funnels with nested step management.
@@ -101,8 +101,9 @@ export class FunnelFormComponent {
     effect(() => {
       const item = this.funnel();
       if (item) {
-        if (this.lastLoadedId() === item.id) return;
-        this.lastLoadedId.set(item.id);
+        const itemId = String(item.id);
+        if (this.lastLoadedId() === itemId) return;
+        this.lastLoadedId.set(itemId);
         this.form.reset({
           name: item.name,
           description: item.description ?? '',
@@ -170,7 +171,7 @@ export class FunnelFormComponent {
   }
 
   // ─── Steps CRUD ────────────────────────────────────────────────────────────
-  loadSteps(funnelId: string): void {
+  loadSteps(funnelId: string | number): void {
     this.isLoadingSteps.set(true);
     this.funnelService
       .listSteps(funnelId)
@@ -230,8 +231,8 @@ export class FunnelFormComponent {
         );
       } else {
         const newStep: FunnelStep = {
-          id: Date.now(),
-          funnel_id: 0,
+          id: String(Date.now()),
+          funnel_id: '0',
           name: payload.name,
           color: payload.color ?? null,
           is_active: payload.is_active ?? true,

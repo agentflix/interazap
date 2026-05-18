@@ -1,9 +1,6 @@
-export interface TenantAddressParts {
-  street?: string | null;
-  number?: string | null;
-  complement?: string | null;
-  district?: string | null;
-}
+import type { TenantAddressParts } from '@platform/models/tenant-address.model';
+
+export type { TenantAddressParts } from '@platform/models/tenant-address.model';
 
 export function digitsOnly(value: string | null | undefined): string {
   return (value ?? '').replace(/\D+/g, '');

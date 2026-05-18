@@ -30,7 +30,7 @@ import {
 import { type Funnel, type FunnelStep, FunnelService } from 'src/app/core/services/funnel.service';
 import { type Contact } from 'src/app/core/models/contact.model';
 import { type CRMCompany } from 'src/app/core/services/crm-company.service';
-import { type User } from 'src/app/core/services/user.service';
+import { type User } from '@core/models/user.model';
 import { AuthStoreService } from 'src/app/core/services/auth-store.service';
 import { ContactService } from 'src/app/core/services/contact.service';
 

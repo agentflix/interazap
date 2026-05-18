@@ -2,34 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
+import type { ProfileImageResponse, ProfileResponse, UpdatePasswordPayload, UpdateProfilePayload } from '@core/models/profile.model';
+export type { ProfileImageResponse, ProfileResponse, ProfileUser, UpdatePasswordPayload, UpdateProfilePayload } from '@core/models/profile.model';
 
-export interface ProfileUser {
-  id: string | number;
-  name: string;
-  email: string;
-  avatar_url?: string | null;
-  two_factor_enabled?: boolean;
-}
 
-export interface ProfileResponse {
-  data: ProfileUser;
-}
-
-export interface UpdateProfilePayload {
-  name: string;
-}
-
-export interface UpdatePasswordPayload {
-  current_password: string;
-  password: string;
-  password_confirmation: string;
-}
-
-export interface ProfileImageResponse {
-  data: {
-    avatar_url?: string | null;
-  };
-}
 
 /**
  * Serviço para gestão do perfil do usuário autenticado.

@@ -10,10 +10,11 @@ import {
 import {
   type Funnel,
   type FunnelStep,
-  type PaginatedResponse as FunnelPaginatedResponse,
   FunnelService,
 } from 'src/app/core/services/funnel.service';
-import { type UserListResponse, UserService } from 'src/app/core/services/user.service';
+import { type PaginatedResponse as FunnelPaginatedResponse } from '@core/models/pagination.model';
+import { UserService } from 'src/app/core/services/user.service';
+import { type UserListResponse } from '@core/models/user.model';
 import { of, throwError } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';

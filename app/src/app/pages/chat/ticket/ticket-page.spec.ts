@@ -4,7 +4,8 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TicketPage } from './ticket-page';
 import { CalledService, type CalledListResponse, type Called } from '@core/services/called.service';
-import { UserService, type UserListResponse } from '@core/services/user.service';
+import { UserService } from '@core/services/user.service';
+import { type UserListResponse } from '@core/models/user.model';
 import { ToastService } from '@core/services/toast.service';
 
 function buildTicket(overrides: Partial<Called> = {}): Called {

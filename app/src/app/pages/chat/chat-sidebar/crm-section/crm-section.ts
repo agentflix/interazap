@@ -261,7 +261,7 @@ export class CRMSectionComponent implements OnDestroy {
               return {
                 ...deal,
                 funnel: {
-                  ...(deal.funnel ?? { id: funnelId, name: '', is_active: true }),
+                  ...(deal.funnel ?? { id: String(funnelId), name: '', is_active: true }),
                   steps,
                 },
               };

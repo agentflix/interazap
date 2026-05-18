@@ -2,91 +2,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
+import { type PaginatedResponse } from '@core/models/pagination.model';
 import { type Funnel, type FunnelStep } from './funnel.service';
+import type { KanbanStepPage, Negotiation, NegotiationFilters, NegotiationKanbanFilters, NegotiationKanbanStep, NegotiationPayload, NegotiationStatus } from '@core/models/negotiation.model';
+export type { KanbanStepPage, Negotiation, NegotiationCompanySummary, NegotiationContactSummary, NegotiationFilters, NegotiationKanbanFilters, NegotiationKanbanStep, NegotiationPayload, NegotiationStatus, NegotiationUserSummary } from '@core/models/negotiation.model';
 
-export type NegotiationStatus = 'open' | 'won' | 'lost';
 
-export interface NegotiationContactSummary {
-  id: string | number;
-  name: string;
-}
-
-export interface NegotiationCompanySummary {
-  id: string | number;
-  name: string;
-  address?: string | null;
-  city?: string | null;
-  state?: string | null;
-  zip_code?: string | null;
-  phone?: string | null;
-}
-
-export interface NegotiationUserSummary {
-  id: string | number;
-  name: string;
-}
-
-export interface Negotiation {
-  id: string | number;
-  title: string;
-  value?: number;
-  amount?: number;
-  status: NegotiationStatus;
-  position?: number;
-  expected_close_date?: string;
-  notes?: string;
-  contact_id?: string | number;
-  crm_company_id?: string | number;
-  funnel_id?: string | number;
-  step_id?: string | number;
-  user_id?: string | number;
-  auth_user_id?: string | number;
-  contact?: NegotiationContactSummary;
-  crm_company?: NegotiationCompanySummary;
-  company?: NegotiationCompanySummary;
-  step?: FunnelStep;
-  funnel?: Funnel;
-  user?: NegotiationUserSummary;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface NegotiationPayload {
-  title: string;
-  funnel_id: string | number;
-  step_id: string | number;
-  contact_id: string | number;
-  crm_company_id: string | number;
-  user_id?: string | number;
-  value?: number;
-  expected_close_date?: string;
-  notes?: string;
-  status?: NegotiationStatus;
-}
-
-export interface NegotiationFilters {
-  search?: string;
-  status?: NegotiationStatus | string | null;
-  funnel_id?: string | number | null;
-  step_id?: string | number | null;
-  crm_company_id?: string | number | null;
-  contact_id?: string | number | null;
-  user_id?: string | number | null;
-  date_from?: string;
-  date_to?: string;
-  expected_close_from?: string;
-  expected_close_to?: string;
-  amount_min?: number;
-  amount_max?: number;
-  lead_score_min?: number;
-  lead_score_max?: number;
-  tag_ids?: (string | number)[];
-  reason_loss_id?: string | number;
-  has_pending_tasks?: boolean;
-  product_id?: string | number;
-  per_page?: number;
-  page?: number;
-}
 
 interface NegotiationUpdateRequestBody {
   title?: string;
@@ -101,56 +22,8 @@ interface NegotiationUpdateRequestBody {
   status?: NegotiationStatus;
 }
 
-export interface NegotiationKanbanFilters {
-  status?: NegotiationStatus | string | null;
-  search?: string;
-  funnel_id?: string | number | null;
-  step_id?: string | number | null;
-  crm_company_id?: string | number | null;
-  contact_id?: string | number | null;
-  user_id?: string | number | null;
-  date_from?: string;
-  date_to?: string;
-  expected_close_from?: string;
-  expected_close_to?: string;
-  amount_min?: number;
-  amount_max?: number;
-  lead_score_min?: number;
-  lead_score_max?: number;
-  tag_ids?: (string | number)[];
-  reason_loss_id?: string | number;
-  has_pending_tasks?: boolean;
-  product_id?: string | number;
-}
-
-export interface NegotiationKanbanStep extends FunnelStep {
-  negotiations?: Negotiation[];
-  /** Total de negociações na etapa (independente da página). */
-  total_count?: number;
-  /** Soma dos valores de todas as negociações da etapa. */
-  total_value?: number;
-  /** Se há mais negociações além das retornadas na página inicial. */
-  has_more?: boolean;
-  /** Cursor para buscar a próxima página desta etapa. */
-  next_cursor?: string | null;
-}
 
 /** Resposta da API para uma página de cursor de uma etapa. */
-export interface KanbanStepPage {
-  negotiations: Negotiation[];
-  has_more: boolean;
-  next_cursor: string | null;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-  };
-}
 
 /**
  * Servico responsavel pelo gerenciamento completo de negociacoes no CRM.

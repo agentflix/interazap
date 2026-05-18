@@ -34,7 +34,8 @@ import { type PlatformUser, PlatformUserService } from '@core/services/platform-
 import { RoleService } from '@core/services/role.service';
 import { ToastService } from '@core/services/toast.service';
 import { AuthService } from '@core/services/auth.service';
-import { AuthStoreService, type AuthUser } from '@core/services/auth-store.service';
+import { AuthStoreService } from '@core/services/auth-store.service';
+import { type AuthUser } from '@core/models/auth.model';
 import { PlatformUserFormComponent } from './components/platform-user-form/platform-user-form';
 import { getInitials } from '@shared/utils/string.utils';
 import { Router } from '@angular/router';

@@ -25,7 +25,8 @@ import {
   AfTableActionsComponent,
 } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
-import { type OpeningHour, OpeningHourService } from '@core/services/opening-hour.service';
+import { OpeningHourService } from '@core/services/opening-hour.service';
+import type { OpeningHour } from '@core/models/opening-hour.model';
 import { OpeningHoursFormComponent } from './components/opening-hours-form/opening-hours-form';
 
 /**

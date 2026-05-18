@@ -2,34 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
+import type { AddressData, CnpjData } from '@core/models/utils.model';
+export type { AddressData, CnpjData } from '@core/models/utils.model';
+
 
 /** CNPJ lookup response data */
-export interface CnpjData {
-  cnpj: string;
-  legal_name: string | null;
-  trade_name: string | null;
-  status: string | null;
-  email: string | null;
-  phone: string | null;
-  street: string | null;
-  number: string | null;
-  complement: string | null;
-  district: string | null;
-  city: string | null;
-  state: string | null;
-  zip: string | null;
-}
 
 /** CEP lookup response data */
-export interface AddressData {
-  zip: string;
-  street: string;
-  complement: string;
-  district: string;
-  city: string;
-  state: string;
-  ibge: string;
-}
 
 /**
  * Utility service for external lookups (CNPJ, CEP) and formatting.

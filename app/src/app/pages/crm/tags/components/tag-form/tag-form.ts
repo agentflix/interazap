@@ -16,7 +16,8 @@ import {
   AfSwitchInputComponent,
   AfTextInputComponent,
 } from '@shared/components';
-import { type Tag, TagService } from '@core/services/tag.service';
+import { TagService } from '@core/services/tag.service';
+import type { Tag } from '@core/models/tag.model';
 
 /**
  * Tag form component for creating and editing CRM tags.

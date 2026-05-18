@@ -32,11 +32,13 @@ import {
   type AfSelectOption,
   type SortDirection,
 } from '@shared/components';
-import { type Company, CompanyService } from '@core/services/company.service';
+import { CompanyService } from '@core/services/company.service';
+import type { Company } from '@core/models/company.model';
 import { type TenantDetails } from '@shared/models/tenant-details.model';
 import { ToastService } from '@core/services/toast.service';
 import { AuthService } from '@core/services/auth.service';
-import { AuthStoreService, type AuthUser } from '@core/services/auth-store.service';
+import { AuthStoreService } from '@core/services/auth-store.service';
+import { type AuthUser } from '@core/models/auth.model';
 import { Router } from '@angular/router';
 import { PlatformPlanService } from '@pages/platform/services/platform-plan.service';
 import { type PlatformPlan } from '@pages/platform/models';

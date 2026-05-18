@@ -1,21 +1,7 @@
-import type { Contact, ContactFilters } from '@core/services/crm-contact.service';
-import type { SortDirection } from '@shared/components';
+import type { Contact, ContactFilters } from '@core/models/contact.model';
+import type { ContactFilterState, ContactStatusFilter } from '@crm/models/contact-filter.model';
 
-/**
- * Supported status filter values for contacts list.
- */
-export type ContactStatusFilter = 'all' | 'active' | 'inactive';
-
-/**
- * Input state required to build list filters for contacts endpoint.
- */
-export interface ContactFilterState {
-  searchTerm: string;
-  page: number;
-  sortBy: string;
-  sortDir: SortDirection;
-  status: ContactStatusFilter;
-}
+export type { ContactFilterState, ContactStatusFilter } from '@crm/models/contact-filter.model';
 
 /**
  * Maps UI status filter value to API is_active value.

@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from '@core/models/pagination.model';
+
 /**
  * Represents a CRM contact entity.
  *
@@ -13,29 +15,53 @@
  * ```
  */
 export interface Contact {
+  /** Unique identifier for the contact */
   id: string | number;
+  /** Full name of the contact */
   name: string;
+  /** Phone number */
   phone?: string;
+  /** WhatsApp number */
   whatsapp?: string;
+  /** Email address */
   email?: string;
+  /** URL to the contact's avatar image (legacy alias) */
   avatar?: string;
+  /** URL to the contact's avatar image */
+  avatar_url?: string | null;
+  /** Jabber ID for messaging */
   jid?: string;
+  /** Line ID for messaging */
   lid?: string;
+  /** Tax identification document (CPF/CNPJ) */
   document?: string;
+  /** Source where the contact originated from */
   source?: string;
+  /** Whether the contact is currently active */
   is_active: boolean;
+  /** ID of the associated company (platform tenant) */
+  company_id?: string;
+  /** ID of the associated CRM company */
   crm_company_id?: string;
+  /** Associated company details */
   company?: {
     id: string;
     name: string;
     document?: string;
   };
+  /** Dynamic key-value pair custom fields */
   custom_fields?: Record<string, unknown>;
+  /** Internal notes about the contact */
   notes?: string;
+  /** Timestamp of the last contact made */
   last_contact_at?: string;
+  /** Tags associated with the contact */
   tags?: { id: string; name: string }[] | string[];
+  /** Number of calls made to/from this contact */
   calleds_count?: number;
+  /** Creation timestamp */
   created_at: string;
+  /** Last update timestamp */
   updated_at: string;
 }
 
@@ -61,6 +87,26 @@ export interface ContactFilters {
   sort_dir?: 'asc' | 'desc';
   per_page?: number;
   page?: number;
+}
+
+/**
+ * Response structure for paginated contact list.
+ */
+export interface ContactListResponse extends PaginatedResponse<Contact> {
+  /** Success flag */
+  success: boolean;
+}
+
+/**
+ * Response structure for a single contact.
+ */
+export interface ContactResponse {
+  /** Success flag */
+  success: boolean;
+  /** Message from the API */
+  message: string;
+  /** Contact data wrapper */
+  data: Contact;
 }
 
 /**

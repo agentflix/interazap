@@ -54,7 +54,8 @@ import { type Funnel, FunnelService } from 'src/app/core/services/funnel.service
 import { type Contact } from 'src/app/core/models/contact.model';
 import { ContactService } from 'src/app/core/services/contact.service';
 import { type CRMCompany, CRMCompanyService } from 'src/app/core/services/crm-company.service';
-import { type User, UserService } from 'src/app/core/services/user.service';
+import { UserService } from 'src/app/core/services/user.service';
+import { type User } from '@core/models/user.model';
 import { NegotiationFormComponent } from './components';
 import { formatDate } from '@shared/utils/string.utils';
 

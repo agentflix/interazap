@@ -2,60 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
-
-/** Product/Service model */
-export interface ProductService {
-  id: string;
-  company_id: string;
-  category_id?: string;
-  code?: string;
-  name: string;
-  description?: string;
-  type: 'product' | 'service';
-  price?: number;
-  cost?: number;
-  unit?: string;
-  stock_quantity?: number;
-  min_stock?: number;
-  is_active: boolean;
-  is_featured?: boolean;
-  track_stock?: boolean;
-  stock?: number;
-  image?: string;
-  attributes?: Record<string, unknown>;
-  category?: { id: string; name: string };
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ProductServiceFilters {
-  search?: string;
-  type?: 'product' | 'service';
-  is_active?: boolean;
-  category_id?: string;
-  sort_by?: string;
-  sort_dir?: string;
-  per_page?: number;
-  page?: number;
-}
-
-export interface ProductServiceListResponse {
-  success: boolean;
-  data: ProductService[];
-  meta: {
-    current_page: number;
-    from: number;
-    last_page: number;
-    per_page: number;
-    to: number;
-    total: number;
-  };
-}
-
-export interface ProductServiceResponse {
-  success: boolean;
-  data: ProductService;
-}
+import type {
+  ProductService,
+  ProductServiceFilters,
+  ProductServiceListResponse,
+  ProductServiceResponse,
+} from '@core/models/product-service.model';
 
 /**
  * Service for managing CRM products and services.

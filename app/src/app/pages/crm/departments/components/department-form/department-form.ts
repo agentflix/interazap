@@ -16,7 +16,8 @@ import {
   AfTextInputComponent,
   AfTextareaInputComponent,
 } from '@shared/components';
-import { type Department, DepartmentService } from '@core/services/department.service';
+import { DepartmentService } from '@core/services/department.service';
+import type { Department } from '@core/models/department.model';
 
 /**
  * Department form component for creating and editing CRM departments.

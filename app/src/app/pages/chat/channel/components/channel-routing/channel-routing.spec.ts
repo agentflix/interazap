@@ -8,7 +8,8 @@ import {
   type ChatRoutingQueue,
   type ChatRoutingQueueAgent,
 } from '../../../services/chat-routing-queue.service';
-import { UserService, type User } from '@core/services/user.service';
+import { UserService } from '@core/services/user.service';
+import { type User } from '@core/models/user.model';
 
 describe('ChannelRoutingComponent', () => {
   let fixture: ComponentFixture<ChannelRoutingComponent>;

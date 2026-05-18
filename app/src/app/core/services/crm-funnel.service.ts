@@ -2,72 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { type Observable, map } from 'rxjs';
 import { environment } from '@env/environment';
-
-/** Funnel step model */
-export interface FunnelStep {
-  id: string | number;
-  funnel_id?: string | number;
-  name: string;
-  order: number;
-  color?: string | null;
-  is_active?: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
-
-/** Funnel model */
-export interface Funnel {
-  id: string;
-  name: string;
-  description?: string;
-  is_active: boolean;
-  is_default?: boolean;
-  steps?: FunnelStep[];
-  steps_count?: number;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface FunnelFilters {
-  search?: string;
-  is_active?: boolean;
-  per_page?: number;
-  page?: number;
-  sort_by?: string;
-  sort_dir?: string;
-}
-
-export interface FunnelListResponse {
-  success: boolean;
-  data: Funnel[];
-  meta: {
-    current_page: number;
-    from: number;
-    last_page: number;
-    per_page: number;
-    to: number;
-    total: number;
-  };
-}
-
-export interface FunnelResponse {
-  success: boolean;
-  data: Funnel;
-}
-
-export interface FunnelPayload {
-  name: string;
-  description?: string;
-  is_active?: boolean;
-  steps?: FunnelStepPayload[];
-}
-
-export interface FunnelStepPayload {
-  name: string;
-  order?: number;
-  color?: string;
-  is_active?: boolean;
-}
+import type {
+  Funnel,
+  FunnelFilters,
+  FunnelListResponse,
+  FunnelResponse,
+  FunnelPayload,
+  FunnelStepPayload,
+  FunnelStep,
+} from '@core/models/funnel.model';
 
 /**
  * Service for managing CRM funnels and funnel steps.
@@ -84,7 +27,11 @@ export class FunnelService {
   list(filters: FunnelFilters = {}): Observable<FunnelListResponse> {
     let params = new HttpParams();
     params = this.appendTrimmedString(params, 'search', filters.search);
-    params = this.appendBoolean(params, 'is_active', filters.is_active);
+    params = this.appendBoolean(
+      params,
+      'is_active',
+      typeof filters.is_active === 'boolean' ? filters.is_active : undefined,
+    );
     params = this.appendNumber(params, 'per_page', filters.per_page);
     params = this.appendNumber(params, 'page', filters.page);
     params = this.appendTrimmedString(params, 'sort_by', filters.sort_by);
@@ -104,7 +51,7 @@ export class FunnelService {
   }
 
   /** Get a single funnel by ID. */
-  get(id: string): Observable<FunnelResponse> {
+  get(id: string | number): Observable<FunnelResponse> {
     return this.http.get<FunnelResponse>(`${this.baseUrl}/${id}`);
   }
 
@@ -114,25 +61,25 @@ export class FunnelService {
   }
 
   /** Update an existing funnel. */
-  update(id: string, payload: FunnelPayload): Observable<FunnelResponse> {
+  update(id: string | number, payload: FunnelPayload): Observable<FunnelResponse> {
     return this.http.put<FunnelResponse>(`${this.baseUrl}/${id}`, payload);
   }
 
   /** Delete a funnel. */
-  delete(id: string): Observable<null> {
+  delete(id: string | number): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }
 
   // ─── Funnel Steps CRUD ─────────────────────────────────────────────────────
 
   /** List steps for a funnel. */
-  listSteps(funnelId: string): Observable<{ data: { steps: FunnelStep[] } }> {
+  listSteps(funnelId: string | number): Observable<{ data: { steps: FunnelStep[] } }> {
     return this.http.get<{ data: { steps: FunnelStep[] } }>(`${this.baseUrl}/${funnelId}/steps`);
   }
 
   /** Create a new step in a funnel. */
   createStep(
-    funnelId: string,
+    funnelId: string | number,
     payload: FunnelStepPayload,
   ): Observable<{ data: { step: FunnelStep } }> {
     return this.http.post<{ data: { step: FunnelStep } }>(
@@ -143,7 +90,7 @@ export class FunnelService {
 
   /** Update an existing step. */
   updateStep(
-    funnelId: string,
+    funnelId: string | number,
     stepId: string | number,
     payload: FunnelStepPayload,
   ): Observable<{ data: { step: FunnelStep } }> {
@@ -154,12 +101,12 @@ export class FunnelService {
   }
 
   /** Delete a step from a funnel. */
-  deleteStep(funnelId: string, stepId: string | number): Observable<null> {
+  deleteStep(funnelId: string | number, stepId: string | number): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${funnelId}/steps/${stepId}`);
   }
 
   /** Reorder steps in a funnel. */
-  reorderSteps(funnelId: string, stepIds: (string | number)[]): Observable<null> {
+  reorderSteps(funnelId: string | number, stepIds: (string | number)[]): Observable<null> {
     const steps = stepIds.map((id, index) => ({ id, order: index + 1 }));
     return this.http.post<null>(`${this.baseUrl}/${funnelId}/steps/reorder`, { steps });
   }

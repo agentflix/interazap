@@ -30,7 +30,8 @@ import {
   type SortDirection,
 } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
-import { type ReasonLoss, ReasonLossService } from '@core/services/crm-reason-loss.service';
+import { ReasonLossService } from '@core/services/crm-reason-loss.service';
+import type { ReasonLoss } from '@core/models/reason-loss.model';
 import { ReasonLossFormComponent } from './components/reason-loss-form/crm-reason-loss-form';
 
 /**

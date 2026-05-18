@@ -3,7 +3,8 @@ import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TenantSettingsComponent } from './tenant-settings';
 import { TenantSettingsService } from '@core/services/tenant-settings.service';
-import { AuthStoreService, type AuthUser } from '@core/services/auth-store.service';
+import { AuthStoreService } from '@core/services/auth-store.service';
+import { type AuthUser } from '@core/models/auth.model';
 import { ToastService } from '@core/services/toast.service';
 import type { TenantSettingsResponse } from '@shared/models/tenant-settings.model';
 

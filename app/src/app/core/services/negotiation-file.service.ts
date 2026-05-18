@@ -3,27 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '@env/environment';
+import type { NegotiationFile } from '@core/models/negotiation.model';
+export type { NegotiationFile, NegotiationFileUser } from '@core/models/negotiation.model';
 
-export interface NegotiationFileUser {
-  id: string | number;
-  name: string;
-}
 
-export interface NegotiationFile {
-  id: string | number;
-  negotiation_id: string | number;
-  user_id?: string | number | null;
-  name?: string | null;
-  filename?: string | null;
-  original_name?: string | null;
-  path?: string | null;
-  mime_type?: string | null;
-  size?: number | null;
-  formatted_size?: string | null;
-  url?: string | null;
-  user?: NegotiationFileUser | null;
-  created_at?: string | null;
-}
 
 interface NegotiationFileApiItem {
   id: string | number;

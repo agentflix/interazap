@@ -1,27 +1,15 @@
 import { Injectable, computed, signal } from '@angular/core';
+import type { BillingLockoutData } from '@core/models/billing-status.model';
+export type { BillingLockoutData, BillingLockoutInvoice } from '@core/models/billing-status.model';
+
 
 /**
  * Minimal overdue invoice payload used by the lockout screen.
  */
-export interface BillingLockoutInvoice {
-  id: string;
-  reference_month: string;
-  amount: number;
-  due_date: string;
-  payment_url?: string;
-}
 
 /**
  * Lockout response data returned by backend when tenant access is blocked.
  */
-export interface BillingLockoutData {
-  error: string;
-  message: string;
-  billing_status: string;
-  locked_at: string | null;
-  overdue_invoices: BillingLockoutInvoice[];
-  purge_deadline: string | null;
-}
 
 /**
  * Stores billing lockout state used by interceptor and lockout UI.

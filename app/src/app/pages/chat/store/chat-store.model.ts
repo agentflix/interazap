@@ -26,3 +26,9 @@ export interface ChatStoreState {
   loadingSelectedTicket: boolean;
   loadingMessages: boolean;
 }
+
+export interface ChatRealtimeAdapterEvent {
+  type: string;
+  data: unknown;
+  timestamp: number;
+}

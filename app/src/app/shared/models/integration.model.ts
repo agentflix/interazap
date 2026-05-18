@@ -55,3 +55,48 @@ export interface Integration {
   created_at?: string;
   updated_at?: string;
 }
+
+export type IntegrationConnectionUiState =
+  | 'connected'
+  | 'disconnected'
+  | 'connecting'
+  | 'qr'
+  | 'unknown';
+
+export interface IntegrationConnectionStateSource {
+  is_connected?: boolean;
+  connection_status?: string | null;
+  connected?: boolean;
+  status?: string | null;
+  qrcode?: string | null;
+  paircode?: string | null;
+}
+
+export interface IntegrationFilters {
+  search?: string;
+  is_active?: boolean;
+  page?: number;
+  per_page?: number;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+}
+
+export interface IntegrationConnectPayload {
+  mode: 'qr' | 'pair';
+  phone?: string | null;
+}
+
+export interface IntegrationConnectResponse {
+  instance: Integration;
+  connection: {
+    mode: 'qr' | 'pair';
+    qr_code?: string | null;
+    pair_code?: string | null;
+    expires_at?: string | null;
+  };
+}
+
+export interface IntegrationStatusResponse {
+  instance: Integration;
+  status: Record<string, string | number | boolean | null>;
+}

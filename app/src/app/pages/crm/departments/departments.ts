@@ -30,7 +30,8 @@ import {
   type SortDirection,
 } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
-import { type Department, DepartmentService } from '@core/services/department.service';
+import { DepartmentService } from '@core/services/department.service';
+import type { Department } from '@core/models/department.model';
 import { DepartmentFormComponent } from './components/department-form/department-form';
 
 /**

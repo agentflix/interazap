@@ -22,7 +22,8 @@ import {
   AfSwitchInputComponent,
   AfTextInputComponent,
 } from '@shared/components';
-import { UserService, type User } from '@core/services/user.service';
+import { UserService } from '@core/services/user.service';
+import { type User } from '@core/models/user.model';
 import {
   ChatRoutingQueueService,
   type ChatRoutingQueueAgent,

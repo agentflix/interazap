@@ -7,16 +7,10 @@ import {
   CalledMessageService,
 } from 'src/app/core/services/called-message.service';
 import { type MediaPreviewItem } from 'src/app/shared/models/media-preview.model';
+import type { MediaBatchEvent } from '@core/models/chat-media-batch.model';
+export type { MediaBatchEvent, MediaBatchPhase } from '@core/models/chat-media-batch.model';
 
-export type MediaBatchPhase = 'uploading' | 'uploaded' | 'sent' | 'failed';
 
-export interface MediaBatchEvent {
-  id: string;
-  phase: MediaBatchPhase;
-  loaded?: number;
-  total?: number;
-  message?: CalledMessage;
-}
 
 @Injectable({ providedIn: 'root' })
 export class ChatMediaBatchService {

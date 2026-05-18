@@ -2,17 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
+import type { PresencePayload, PresenceResponse } from '@core/models/chat-presence.model';
+export type { PresencePayload, PresenceResponse } from '@core/models/chat-presence.model';
 
-export interface PresencePayload {
-  presence: 'composing' | 'recording' | 'paused';
-  delay?: number;
-}
 
-export interface PresenceResponse {
-  success: boolean;
-  message: string;
-  data?: unknown;
-}
 
 /**
  * Service for sending presence indicators (typing, recording) to chat contacts.

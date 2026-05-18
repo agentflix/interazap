@@ -7,7 +7,7 @@ import {
   mapStatusToIsActive,
   pruneSelectionToVisibleContacts,
 } from './crm-contacts.helpers';
-import type { Contact } from '@core/services/crm-contact.service';
+import type { Contact } from '@core/models/contact.model';
 
 describe('crm-contacts.helpers', () => {
   const contacts: Contact[] = [

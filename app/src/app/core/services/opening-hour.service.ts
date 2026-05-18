@@ -2,39 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
-
-export interface OpeningHour {
-  id: string;
-  company_id: string;
-  day_of_week: number;
-  open_time: string;
-  close_time: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface OpeningHourResponse {
-  success: boolean;
-  message?: string;
-  data: OpeningHour;
-}
-
-export interface OpeningHourListResponse {
-  success: boolean;
-  data: {
-    opening_hours: OpeningHour[];
-  };
-}
-
-export interface BulkUpdateOpeningHoursRequest {
-  opening_hours: {
-    day_of_week: number;
-    open_time: string;
-    close_time: string;
-    is_active: boolean;
-  }[];
-}
+import type {
+  OpeningHour,
+  OpeningHourResponse,
+  OpeningHourListResponse,
+  BulkUpdateOpeningHoursRequest,
+} from '@core/models/opening-hour.model';
 
 /**
  * Service for managing business opening hours.

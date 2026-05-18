@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { RoutingAgentFormComponent } from './routing-agent-form';
-import { type User } from '@core/services/user.service';
+import { type User } from '@core/models/user.model';
 import { type ChatRoutingQueueAgent } from '../../../services/chat-routing-queue.service';
 
 describe('RoutingAgentFormComponent', () => {

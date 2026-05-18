@@ -1,42 +1,8 @@
 import { Injectable, computed, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { type AuthUser, type StoredAuth } from '@core/models/auth.model';
 import { PreferencesService } from './preferences.service';
 import { ThemeService } from './theme.service';
-
-export interface AuthUser {
-  id: string | number;
-  name: string;
-  email: string;
-  avatar_url?: string | null;
-  two_factor_enabled?: boolean;
-  tenant_id?: string | number | null;
-  company_id?: string | number | null;
-  is_supervisor?: boolean;
-  tenant_plan?: {
-    id: string;
-    name: string;
-    slug: string;
-    ai_enabled: boolean;
-    features?: {
-      ai_agents_v2?: boolean;
-      ai_prompts_governance?: boolean;
-      ai_knowledge_base?: boolean;
-      ai_usage_tracking?: boolean;
-      chat_rewrite_v1?: boolean;
-    };
-  } | null;
-  permissions: string[];
-  is_impersonating?: boolean;
-  impersonated_tenant?: {
-    id: string;
-    name: string;
-  };
-}
-
-interface StoredAuth {
-  user: AuthUser | null;
-  token: string | null;
-}
 
 const STORAGE_KEY = 'auth-storage';
 const TOKEN_KEY = 'token';

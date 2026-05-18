@@ -3,34 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { type Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '@env/environment';
+import type { NegotiationProductItem, NegotiationProductPayload } from '@core/models/negotiation.model';
+export type { NegotiationProductItem, NegotiationProductPayload } from '@core/models/negotiation.model';
 
-export interface NegotiationProductItem {
-  id: string | number;
-  negotiation_id: string | number;
-  product_id: string | number;
-  quantity: number;
-  price: number;
-  discount?: number | null;
-  discount_type?: string | null;
-  subtotal?: number;
-  discount_value?: number;
-  total?: number;
-  product?: {
-    id: string | number;
-    name: string;
-    price?: number | null;
-  } | null;
-}
 
-export interface NegotiationProductPayload {
-  product_id?: string | number;
-  crm_product_id?: string | number;
-  name?: string;
-  quantity?: number;
-  price?: number;
-  unit_price?: number;
-  discount?: number;
-}
 
 interface NegotiationProductApiItem {
   id: string | number;

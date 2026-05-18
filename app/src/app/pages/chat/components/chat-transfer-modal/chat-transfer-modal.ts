@@ -11,7 +11,8 @@ import {
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { UserService, type User } from 'src/app/core/services/user.service';
+import { UserService } from 'src/app/core/services/user.service';
+import { type User } from '@core/models/user.model';
 import {
   type SelectOption,
   SelectInputComponent,

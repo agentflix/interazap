@@ -2,27 +2,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '@env/environment';
 import { type Observable } from 'rxjs';
+import type { PlatformLead, PlatformLeadConvertPayload, PlatformLeadFilters, PlatformLeadListResponse } from '@core/models/platform-lead.model';
+export type { PlatformLead, PlatformLeadConvertPayload, PlatformLeadFilters, PlatformLeadListResponse } from '@core/models/platform-lead.model';
 
-export interface PlatformLead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company?: string | null;
-  lgpd_consent: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
 
-export interface PlatformLeadListResponse {
-  data: PlatformLead[];
-  meta: {
-    current_page: number;
-    total: number;
-    per_page: number;
-    last_page: number;
-  };
-}
 
 interface ApiDataResponse<T> {
   success: boolean;
@@ -30,21 +13,6 @@ interface ApiDataResponse<T> {
   data: T;
 }
 
-export interface PlatformLeadFilters {
-  search?: string;
-  page?: number;
-  per_page?: number;
-  sort_by?: 'name' | 'email' | 'created_at';
-  sort_dir?: 'asc' | 'desc';
-}
-
-export interface PlatformLeadConvertPayload {
-  name: string;
-  email: string;
-  phone: string;
-  document?: string | null;
-  plan_id?: string | null;
-}
 
 @Injectable({ providedIn: 'root' })
 export class PlatformLeadService {

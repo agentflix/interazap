@@ -17,7 +17,8 @@ import {
   AfTextInputComponent,
   type AfSelectOption,
 } from '@shared/components';
-import { type OpeningHour, OpeningHourService } from '@core/services/opening-hour.service';
+import { OpeningHourService } from '@core/services/opening-hour.service';
+import type { OpeningHour } from '@core/models/opening-hour.model';
 
 /**
  * Opening-hours form for creating and editing a single day schedule.

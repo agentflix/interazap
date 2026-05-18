@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { Funnels } from './funnels';
-import { type Funnel } from '@core/services/crm-funnel.service';
+import type { Funnel } from '@core/models/funnel.model';
 
 describe('Funnels', () => {
   let component: Funnels;

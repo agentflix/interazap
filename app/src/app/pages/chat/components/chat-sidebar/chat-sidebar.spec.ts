@@ -16,7 +16,8 @@ import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
 import { ChatStartService } from 'src/app/core/services/chat-start.service';
 import { RealtimeService } from 'src/app/core/services/realtime.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { type AuthUser, AuthStoreService } from 'src/app/core/services/auth-store.service';
+import { AuthStoreService } from 'src/app/core/services/auth-store.service';
+import { type AuthUser } from '@core/models/auth.model';
 import { toast } from 'ngx-sonner';
 
 class ChatRefreshServiceStub {

@@ -2,45 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { type Company } from './company.service';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role?: string;
-  avatar_url?: string;
-  tenant_id?: string;
-  department_id?: string | number;
-  company_id?: string | number;
-  company?: Company;
-  is_active: boolean;
-  is_primary_tenant_user?: boolean;
-}
-
-interface UserUpsertPayload extends Partial<User> {
-  password?: string;
-  password_confirmation?: string;
-}
-
-export interface UserListResponse {
-  data: User[];
-  meta?: {
-    total: number;
-    per_page: number;
-    current_page: number;
-    last_page: number;
-  };
-}
-
-export interface UserFilters {
-  search?: string | undefined;
-  is_active?: boolean;
-  page?: number;
-  per_page?: number;
-  sort_by?: string;
-  sort_dir?: string;
-}
+import {
+  type User,
+  type UserFilters,
+  type UserListResponse,
+  type UserUpsertPayload,
+} from '@core/models/user.model';
 
 /**
  * Servico responsavel pelo CRUD de usuarios da plataforma.

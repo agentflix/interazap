@@ -4,6 +4,9 @@ import { Subject } from 'rxjs';
 import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
 import { RealtimeService } from 'src/app/core/services/realtime.service';
 import { tocarNotificacao } from 'src/app/shared/utils/notifications/chat-audio';
+import type { IncomingMessageEvent } from '@chat/models/chat-realtime-listener.model';
+export type { IncomingMessageEvent } from '@chat/models/chat-realtime-listener.model';
+
 
 const CHAT_NOTIFICATION_SOUND_URL = '/assets/audio/chat-notification.mp3';
 const MESSAGE_RECEIVED_EVENT = 'message.received';
@@ -12,11 +15,6 @@ const CHAT_NEW_TICKET_EVENT = 'chat.ticket.new';
 const NOTIFICATION_COOLDOWN_MS = 600;
 const TICKET_LIST_REFRESH_COOLDOWN_MS = 300;
 
-export interface IncomingMessageEvent {
-  ticketId: string | null;
-  contactId: string | null;
-  direction: string | null;
-}
 
 interface MessageReceivedPayload {
   data?: {

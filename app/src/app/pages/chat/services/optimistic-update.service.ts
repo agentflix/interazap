@@ -1,54 +1,23 @@
 import { Injectable, signal, computed } from '@angular/core';
+import type { OptimisticOptions, PendingUpdate, RollbackCallback } from '@chat/models/optimistic-update.model';
+export type { ApplyCallback, OptimisticOptions, PendingUpdate, RollbackCallback } from '@chat/models/optimistic-update.model';
+
 
 /**
  * Representa uma operação de optimistic update pendente.
  */
-export interface PendingUpdate<T = unknown> {
-  /** Identificador único da operação */
-  readonly id: string;
-  /** Tipo da operação (contact, deal, message, etc.) */
-  readonly type: string;
-  /** ID da entidade sendo atualizada */
-  readonly entityId: string | number;
-  /** Estado anterior para rollback */
-  readonly previousState: T;
-  /** Novo estado aplicado otimisticamente */
-  readonly optimisticState: T;
-  /** Timestamp de criação */
-  readonly createdAt: number;
-  /** Status da operação */
-  readonly status: 'pending' | 'confirmed' | 'rolledback';
-}
 
 /**
  * Callback para aplicar o estado otimístico na UI.
  */
-export type ApplyCallback<T> = (state: T) => void;
 
 /**
  * Callback para reverter ao estado anterior.
  */
-export type RollbackCallback<T> = (previousState: T) => void;
 
 /**
  * Opções para criar uma operação otimística.
  */
-export interface OptimisticOptions<T> {
-  /** Tipo da operação para agrupamento */
-  type: string;
-  /** ID da entidade sendo atualizada */
-  entityId: string | number;
-  /** Estado anterior para rollback */
-  previousState: T;
-  /** Novo estado otimístico */
-  optimisticState: T;
-  /** Callback para aplicar estado na UI */
-  onApply: ApplyCallback<T>;
-  /** Callback para rollback em caso de erro */
-  onRollback: RollbackCallback<T>;
-  /** Timeout em ms para auto-rollback (default: 10000) */
-  timeout?: number;
-}
 
 /**
  * Serviço para gerenciar optimistic updates com suporte a rollback automático.

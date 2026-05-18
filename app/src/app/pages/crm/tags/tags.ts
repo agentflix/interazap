@@ -30,7 +30,8 @@ import {
   type SortDirection,
 } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
-import { type Tag, TagService } from '@core/services/tag.service';
+import { TagService } from '@core/services/tag.service';
+import type { Tag } from '@core/models/tag.model';
 import { TagFormComponent } from './components/tag-form/tag-form';
 
 /**

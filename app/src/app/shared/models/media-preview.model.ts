@@ -22,3 +22,17 @@ export interface MediaPreviewItem {
     total: number;
   };
 }
+
+export interface MediaTranscriptionSettings {
+  media_transcription_audio_enabled: boolean;
+  media_transcription_image_enabled: boolean;
+  media_transcription_video_enabled: boolean;
+  media_transcription_audio_max_minutes: number;
+  media_transcription_image_max_per_message: number;
+  media_transcription_video_max_seconds: number;
+}
+
+export interface MediaTranscriptionSettingsResponse {
+  success: boolean;
+  data: MediaTranscriptionSettings;
+}

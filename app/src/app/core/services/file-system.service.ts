@@ -1,13 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { ElectronService } from './electron.service';
+import type { FileFilter } from '@core/models/file-system.model';
+export type { FileFilter } from '@core/models/file-system.model';
+
 
 /**
  * Filter for file open dialogs specifying allowed file types.
  */
-export interface FileFilter {
-  name: string;
-  extensions: string[];
-}
 
 /**
  * Service for file system operations via Electron IPC.

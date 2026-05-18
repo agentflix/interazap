@@ -33,10 +33,8 @@ import {
   type SortDirection,
 } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
-import {
-  type ProductService,
-  ProductServiceService,
-} from '@core/services/crm-product-service.service';
+import { ProductServiceService } from '@core/services/crm-product-service.service';
+import type { ProductService } from '@core/models/product-service.model';
 import { ProductServiceFormComponent } from './components/product-service-form/crm-product-service-form';
 
 /**

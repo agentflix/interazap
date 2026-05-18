@@ -33,8 +33,9 @@ import {
   type SortDirection,
 } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
-import { type Contact, ContactService } from '@core/services/crm-contact.service';
-import { PaginationMeta } from '@shared/models/pagination.model';
+import { ContactService } from '@core/services/crm-contact.service';
+import type { Contact } from '@core/models/contact.model';
+import { PaginationMeta } from '@core/models/pagination.model';
 import { UtilsService } from '@core/services/utils.service';
 import { ContactFormComponent } from './components/contact-form/crm-contact-form';
 import { ContactExportComponent } from './components/contact-export/crm-contact-export';
@@ -400,20 +401,21 @@ export class Contacts implements OnInit {
    * @param id - Contact ID.
    * @returns The checkbox FormControl.
    */
-  getRowSelectionControl(id: string): FormControl<boolean> {
-    const existing = this.rowSelectionControls.get(id);
+  getRowSelectionControl(id: string | number): FormControl<boolean> {
+    const idStr = String(id);
+    const existing = this.rowSelectionControls.get(idStr);
     if (existing) return existing;
 
     const control = new FormControl<boolean>(false, { nonNullable: true });
     control.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((checked) => {
-      const nextSelectedIds = computeNextSelectedIds(this.selectedContactIds(), id, checked);
+      const nextSelectedIds = computeNextSelectedIds(this.selectedContactIds(), idStr, checked);
       this.selectedContactIds.set(nextSelectedIds);
       this.selectAllControl.setValue(areAllPageContactsSelected(this.contacts(), nextSelectedIds), {
         emitEvent: false,
       });
     });
 
-    this.rowSelectionControls.set(id, control);
+    this.rowSelectionControls.set(idStr, control);
     return control;
   }
 

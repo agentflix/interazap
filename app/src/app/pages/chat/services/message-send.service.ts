@@ -22,33 +22,10 @@ import {
   OfflineQueueService,
   type OfflineQueuedMessage,
 } from 'src/app/core/services/platform/offline-queue.service';
+import type { MessageSendResult, OfflineQueueDeliveredEvent, OfflineQueueFailedEvent } from '@chat/models/message-send.model';
+export type { MessageSendResult, MessageSendResultQueued, MessageSendResultSent, OfflineQueueDeliveredEvent, OfflineQueueFailedEvent } from '@chat/models/message-send.model';
 
-export interface MessageSendResultSent {
-  status: 'sent';
-  clientMessageId: string;
-  message: CalledMessage;
-}
 
-export interface MessageSendResultQueued {
-  status: 'queued';
-  clientMessageId: string;
-  queueId: string;
-}
-
-export type MessageSendResult = MessageSendResultSent | MessageSendResultQueued;
-
-export interface OfflineQueueDeliveredEvent {
-  queueId: string;
-  calledId: string;
-  clientMessageId: string;
-  message: CalledMessage;
-}
-
-export interface OfflineQueueFailedEvent {
-  queueId: string;
-  calledId: string;
-  clientMessageId: string;
-}
 
 /**
  * Responsável por envio de mensagens de texto com fallback para fila offline.

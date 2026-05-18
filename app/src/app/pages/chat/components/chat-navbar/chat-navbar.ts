@@ -13,8 +13,10 @@ import { FormControl } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthStoreService } from 'src/app/core/services/auth-store.service';
 import { type Called, CalledService } from 'src/app/core/services/called.service';
-import { type Department, DepartmentService } from 'src/app/core/services/department.service';
-import { type User, UserService } from 'src/app/core/services/user.service';
+import { DepartmentService } from 'src/app/core/services/department.service';
+import type { Department } from '@core/models/department.model';
+import { UserService } from 'src/app/core/services/user.service';
+import { type User } from '@core/models/user.model';
 import { toast } from 'ngx-sonner';
 import {
   lucideArrowRightLeft,

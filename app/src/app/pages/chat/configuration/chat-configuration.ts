@@ -26,7 +26,8 @@ import {
 import { AuthStoreService } from '@core/services/auth-store.service';
 import { TenantSettingsService } from '@core/services/tenant-settings.service';
 import { ToastService } from '@core/services/toast.service';
-import { UserService, type User } from '@core/services/user.service';
+import { UserService } from '@core/services/user.service';
+import { type User } from '@core/models/user.model';
 import type { TenantChatAutoCloseSettings } from '@shared/models/tenant-settings.model';
 import {
   ChatRoutingQueueService,

@@ -6,7 +6,7 @@ import {
   AfSelectInputComponent,
   AfTextInputComponent,
 } from '@shared/components';
-import { type User } from '@core/services/user.service';
+import { type User } from '@core/models/user.model';
 import { type ChatRoutingQueueAgent } from '../../../services/chat-routing-queue.service';
 
 @Component({

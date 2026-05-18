@@ -2,35 +2,15 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { type Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { type GroupedPermissions, type Role, type PaginatedRoleUsers } from '../models/role.model';
-
-interface RoleFilters {
-  search?: string;
-  page?: number;
-  per_page?: number;
-}
-
-interface RoleUsersFilters {
-  search?: string;
-  page?: number;
-  per_page?: number;
-}
-
-export interface PaginatedRoles {
-  data: Role[];
-  meta: {
-    current_page: number;
-    total: number;
-    per_page: number;
-    last_page: number;
-  };
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
+import {
+  type ApiResponse,
+  type GroupedPermissions,
+  type PaginatedRoleUsers,
+  type PaginatedRoles,
+  type Role,
+  type RoleFilters,
+  type RoleUsersFilters,
+} from '../models/role.model';
 
 /**
  * Serviço para gestão de perfis de acesso (roles).

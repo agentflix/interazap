@@ -1,21 +1,7 @@
 import type { Tag } from '@core/models/tag.model';
+import type { TagChip } from '@chat/models/tag-chip.model';
 
-/**
- * Represents a tag attached to a contact.
- */
-export interface ContactTag {
-  id: string;
-  name: string;
-}
-
-/**
- * Represents a tag chip for UI display with color.
- */
-export interface TagChip {
-  id?: string;
-  name: string;
-  color: string;
-}
+export type { ContactTag, TagChip } from '@chat/models/tag-chip.model';
 
 /**
  * Builds a color based on the tag name hash.

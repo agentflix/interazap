@@ -2,6 +2,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { type Observable, map } from 'rxjs';
 import { environment } from '@env/environment';
+import type { ChatTransmissionList, ChatTransmissionListListResponse, ChatTransmissionListPayload, ChatTransmissionListPreview, ChatTransmissionListResponse } from '@core/models/chat-transmission-list.model';
+export type { ChatTransmissionList, ChatTransmissionListListResponse, ChatTransmissionListPayload, ChatTransmissionListPreview, ChatTransmissionListResponse } from '@core/models/chat-transmission-list.model';
+
 
 /** Primitive metadata shape returned by transmission list API. */
 interface TransmissionListMeta {
@@ -12,52 +15,10 @@ interface TransmissionListMeta {
 }
 
 /** Chat transmission list entity used by transmission list screens. */
-export interface ChatTransmissionList {
-  id: string;
-  tenant_id: string;
-  name: string;
-  message?: string | null;
-  filter_criteria?: {
-    tags?: string[];
-    status?: string;
-    company_id?: string;
-  } | null;
-  instance_id?: string | null;
-  status: 'draft' | 'scheduled' | 'running' | 'completed' | 'failed' | 'cancelled';
-  scheduled_at?: string | null;
-  sent_at?: string | null;
-  created_at: string;
-  updated_at: string;
-  metadata?: {
-    deliveries?: number;
-  } | null;
-}
 
 /** Payload used to create/update a transmission list. */
-export interface ChatTransmissionListPayload {
-  name: string;
-  message?: string;
-  filter_criteria?: {
-    tags?: string[];
-    status?: string;
-    company_id?: string;
-  };
-  instance_id?: string;
-  scheduled_at?: string | null;
-  status?: string;
-}
 
 /** API shape returned by list endpoint after normalization. */
-export interface ChatTransmissionListListResponse {
-  success: boolean;
-  data: {
-    data: ChatTransmissionList[];
-    current_page?: number;
-    last_page?: number;
-    per_page?: number;
-    total?: number;
-  };
-}
 
 interface ChatTransmissionListListEnvelope {
   data?: ChatTransmissionList[];
@@ -73,19 +34,8 @@ interface ChatTransmissionListListNestedEnvelope {
 }
 
 /** API shape returned by single item endpoints. */
-export interface ChatTransmissionListResponse {
-  success: boolean;
-  data: ChatTransmissionList;
-}
 
 /** Preview API response payload. */
-export interface ChatTransmissionListPreview {
-  original: string;
-  preview: string;
-  vars_detected: string[];
-  sample_contact: { name: string; phone: string } | null;
-  warning?: string;
-}
 
 /** Service responsible for Chat Transmission List CRUD and helper endpoints. */
 @Injectable({ providedIn: 'root' })

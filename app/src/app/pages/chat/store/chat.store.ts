@@ -22,7 +22,8 @@ import {
   type ChatMessageCacheDelegate,
 } from '@core/services/chat-message-cache.service';
 import { compareMessagesDesc, resolveMessageOrderTimestamp as resolveStableOrderTimestamp } from '@core/utils/message-comparator.util';
-import { type ChatStoreState } from './chat-store.model';
+import { type ChatRealtimeAdapterEvent, type ChatStoreState } from './chat-store.model';
+export type { ChatRealtimeAdapterEvent } from './chat-store.model';
 
 interface StreamingState {
   runId: string;
@@ -73,11 +74,6 @@ interface MessageEventData extends Partial<CalledMessage> {
 /**
  * Event structure for realtime adapter events.
  */
-export interface ChatRealtimeAdapterEvent {
-  type: string;
-  data: unknown;
-  timestamp: number;
-}
 
 /**
  * Chat store managing ticket list state, messages, and realtime updates.

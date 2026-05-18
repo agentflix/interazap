@@ -144,7 +144,7 @@ describe('AfModalComponent', () => {
   });
 
   it('deve aplicar a classe de tamanho correta para cada size', () => {
-    const sizes: Array<'sm' | 'md' | 'lg' | 'xl'> = ['sm', 'md', 'lg', 'xl'];
+    const sizes: ('sm' | 'md' | 'lg' | 'xl')[] = ['sm', 'md', 'lg', 'xl'];
     const expectedClasses: Record<string, string> = {
       sm: 'max-w-sm',
       md: 'max-w-lg',
