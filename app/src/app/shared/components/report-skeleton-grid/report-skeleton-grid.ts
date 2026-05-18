@@ -33,11 +33,29 @@ export class AfReportSkeletonGridComponent {
   /** Array for skeleton card iteration */
   protected readonly items = computed(() => Array.from({ length: this.count() }));
 
-  protected getGridClasses(): string {
+  protected readonly gridClasses = computed(() => {
     const sm = this.smCols() ?? this.defaultSmCols();
     const lg = this.lgCols() ?? this.defaultLgCols();
-    return `grid-cols-1 sm:grid-cols-${sm} lg:grid-cols-${lg}`;
-  }
+
+    const smMap: Record<number, string> = {
+      1: 'sm:grid-cols-1',
+      2: 'sm:grid-cols-2',
+      3: 'sm:grid-cols-3',
+      4: 'sm:grid-cols-4',
+      5: 'sm:grid-cols-5',
+      6: 'sm:grid-cols-6',
+    };
+    const lgMap: Record<number, string> = {
+      1: 'lg:grid-cols-1',
+      2: 'lg:grid-cols-2',
+      3: 'lg:grid-cols-3',
+      4: 'lg:grid-cols-4',
+      5: 'lg:grid-cols-5',
+      6: 'lg:grid-cols-6',
+    };
+
+    return `grid-cols-1 ${smMap[sm] ?? 'sm:grid-cols-2'} ${lgMap[lg] ?? 'lg:grid-cols-4'}`;
+  });
 
   private defaultSmCols(): number {
     const count = this.count();
