@@ -8,7 +8,7 @@ Use estas regras ao criar ou alterar código em `api/src/Domain/{Context}/`.
 - Manter namespaces como `Domain\{Context}\...`.
 - Criar arquivos no contexto correto: `Ai`, `Auth`, `Billing`, `Chat`, `Configuration`, `CRM`, `Dashboard`, `Gateway`, `Platform`, `Reports` ou `Shared`.
 - Usar `Shared` apenas para kernel reutilizável, suporte transversal e infraestrutura comum.
-- Consultar `.context/DOCS/FEATURES/` antes de implementar e `.context/DOCS/MEMORY/` antes de decidir padrões novos.
+- Consultar a task ou documentação funcional correspondente antes de implementar e `.context/DOCS/MEMORY/` antes de decidir padrões novos.
 
 ## Estrutura Esperada
 

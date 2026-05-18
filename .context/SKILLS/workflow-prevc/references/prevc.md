@@ -8,8 +8,8 @@ Processo oficial obrigatório para toda feature do InteraZap.
 +-----------+    +--------+    +-----------+    +------------+    +---------+
 | PLANNING  |--->| REVIEW |--->| EXECUTION |--->| VALIDATION |--->| CONFIRM |
 |           |    |        |    |           |    |            |    |         |
-| Feature   |    | Doc OK?|    | Testes    |    | Gates      |    |Changelog|
-| doc       |    | Tasks  |    | Código    |    | QA/REVIEW  |    | Memory  |
+| Doc       |    | Doc OK?|    | Testes    |    | Gates      |    |Changelog|
+| funcional |    | Tasks  |    | Código    |    | QA/REVIEW  |    | Memory  |
 +-----------+    +--------+    +-----------+    +------------+    +---------+
 ```
 
@@ -28,18 +28,18 @@ Processo oficial obrigatório para toda feature do InteraZap.
 6. Estimar complexidade: P, M ou G.
 7. Se houver UI, DESIGNER especifica wireframes em `.context/LAYOUT/`.
 
-**Output:** feature doc em `.context/DOCS/FEATURES/[feature].md`.
+**Output:** documentação funcional no local definido para a demanda.
 
 **Comando:** `/new-feature [nome]`.
 
 ## Fase 2: REVIEW
 
-**Objetivo:** validar feature doc e gerar tasks.
+**Objetivo:** validar documentação funcional e gerar tasks.
 **Responsável:** REVIEWER + ARCHITECT.
 
 **Ações:**
 
-1. Verificar feature doc completo usando o checklist do REVIEWER.
+1. Verificar documentação funcional completa usando o checklist do REVIEWER.
 2. Validar contra arquitetura em `.context/ARCHITECTURE/`.
 3. Aprovar ou solicitar ajustes.
 4. Se aprovada, ARCHITECT decompõe em tasks T.A.C.E hierárquicas.

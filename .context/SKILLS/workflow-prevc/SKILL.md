@@ -26,7 +26,7 @@ PLANNING -> REVIEW -> EXECUTION -> VALIDATION -> CONFIRM
 ## Regras Essenciais
 
 - Não implemente sem entender a fase atual do PREVC.
-- Antes de codificar, leia a task T.A.C.E ou a feature doc correspondente, quando existirem.
+- Antes de codificar, leia a task T.A.C.E ou a documentação funcional correspondente, quando existirem.
 - Toda alteração de código deve ter teste no workspace afetado.
 - Toda validação deve executar os gates do workspace alterado; se não for possível, registre o motivo.
 - Tasks reprovadas voltam para EXECUTION com motivo registrado.

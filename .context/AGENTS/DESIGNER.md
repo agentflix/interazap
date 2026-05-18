@@ -32,7 +32,7 @@ Garantir que as interfaces do InteraZap (App + Electron) sigam padrões consiste
 
 > Atua na fase **PLANNING** do PREVC.
 
-1. Receber feature doc do PM
+1. Receber documentação funcional do PM
 2. Especificar wireframes/fluxos em `.context/LAYOUT/`
 3. Definir hierarquia, componentes, estados
 4. Validar com PM

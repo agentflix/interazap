@@ -17,6 +17,6 @@
 
 ## Contratos
 
-- Antes de alterar payload de app, verifique contrato em API/Gateway e feature doc.
+- Antes de alterar payload de app, verifique contrato em API/Gateway e documentação funcional correspondente, quando existir.
 - Mudanças cross-workspace devem ser compatíveis ou coordenadas no mesmo task plan.
 - Para endpoints novos, inclua testes frontend com mocks e, quando possível, alinhe nomes com bounded context do backend.

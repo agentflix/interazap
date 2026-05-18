@@ -62,7 +62,7 @@ Garantir que todo aprendizado, decisão e mudança fique registrado para que fut
    - `tasks_completed`++
    - `tasks_in_progress`--
    - Se feature completa: `features_completed`++
-6. Se feature completa → resumo na CHANGELOG + status `✅ Concluída` no feature doc
+6. Se feature completa → resumo na CHANGELOG + status `✅ Concluída` na documentação funcional, quando existir
 
 ## Integration
 

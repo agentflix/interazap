@@ -26,8 +26,6 @@ Este arquivo é apenas o índice minimalista do projeto.
 - `landing/`: site público.
 - `infra/`: infraestrutura.
 - `observability/`: métricas e logs.
-- `.context/AGENTS/`: personas especializadas.
-- `.context/SKILLS/`: skills portáteis do projeto.
 
 ## Skills
 
@@ -37,7 +35,10 @@ Este arquivo é apenas o índice minimalista do projeto.
 - Use `angular-especialista` para qualquer mudança em `app/`.
 - Use `workflow-prevc` para planejar, executar, validar ou confirmar features/tasks pelo fluxo PREVC.
 - Use `code-review-confiavel` para revisar diffs, PRs ou entregas antes de mergear.
-- Use `skill-architect` para criar ou evoluir skills.
+
+## FLOW
+
+- ** Mandatorio** sempre usar a skill `code-review-confiavel` para ao finazar uma tarefa de codigo.
 
 ## Agents
 
@@ -77,4 +78,3 @@ pnpm --filter electron build
 - Rode os gates do workspace alterado; se não rodar, informe o motivo.
 - Frontends não acessam banco direto.
 - API ↔ Gateway usa Redis Streams idempotentes.
-- Alterações relevantes devem atualizar o contexto correspondente em `.context/` quando aplicável.

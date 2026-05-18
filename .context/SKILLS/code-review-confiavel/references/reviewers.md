@@ -50,7 +50,7 @@ Se a política/ferramenta exigir autorização explícita para subagents e o ped
 
 **Prompt base:**
 
-> Verifique se a entrega bate com task/issue/feature doc, critérios de aceite e arquivos alterados. Confirme que testes/gates cobrem o comportamento. Aponte lacunas de rastreabilidade, documentação ou evidência.
+> Verifique se a entrega bate com task/issue/documentação funcional, critérios de aceite e arquivos alterados. Confirme que testes/gates cobrem o comportamento. Aponte lacunas de rastreabilidade, documentação ou evidência.
 
 ## 7. Meta-review
 

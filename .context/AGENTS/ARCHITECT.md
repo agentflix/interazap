@@ -45,7 +45,7 @@ Stack:
 > Atua nas fases **PLANNING** e **REVIEW** do PREVC.
 
 1. **Planning**: Define abordagem técnica, valida impacto arquitetural, decide bounded contexts envolvidos
-2. **Review**: Valida feature doc contra arquitetura
+2. **Review**: Valida documentação funcional contra arquitetura
 3. **Sob demanda**: Consultado em tasks que impactam múltiplos contextos ou frontends
 4. **SEMPRE**: Registra decisões em MEMORY ao final
 
