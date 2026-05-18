@@ -81,8 +81,8 @@ export class AfTextInputComponent {
   /** Error message to display when invalid */
   readonly errorMessage = input('Campo obrigatório.');
 
-  /** Input size: sm or md */
-  readonly size = input<AfInputSize>('sm');
+  /** Input size: sm for compact fields, md for the default comfortable field */
+  readonly size = input<AfInputSize>('md');
 
   /** Accessible label for screen readers */
   readonly ariaLabel = input<string>();

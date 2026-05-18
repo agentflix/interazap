@@ -71,8 +71,8 @@ export class AfColorInputComponent implements OnInit {
   /** data-test attribute */
   readonly dataTest = input<string>();
 
-  /** Input size: sm or md */
-  readonly size = input<AfInputSize>('sm');
+  /** Input size: sm for compact fields, md for the default comfortable field */
+  readonly size = input<AfInputSize>('md');
 
   /** Current color for the swatch */
   protected readonly currentColor = signal('#000000');

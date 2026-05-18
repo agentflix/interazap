@@ -18,8 +18,6 @@ import { resolveInputContainerClass } from '../input-container.util';
 import type { AfInputSize } from './document-input.model';
 export * from './document-input.model';
 
-
-
 /**
  * AfDocumentInputComponent — Auto-masking CPF/CNPJ input.
  * Detects document type by length and applies appropriate mask.
@@ -64,8 +62,8 @@ export class AfDocumentInputComponent {
   /** Error message */
   readonly errorMessage = input('Documento inválido.');
 
-  /** Input size: sm or md */
-  readonly size = input<AfInputSize>('sm');
+  /** Input size: sm for compact fields, md for the default comfortable field */
+  readonly size = input<AfInputSize>('md');
 
   protected readonly rawValue = signal('');
 

@@ -57,7 +57,7 @@
             class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
           >
             <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
-              @for (s of [50,100,200,300,400,500,600,700,800,900]; track s) {
+              @for (s of [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]; track s) {
                 <div class="text-center">
                   <div
                     class="h-10 rounded-lg border border-hairline/30"
@@ -200,7 +200,11 @@
               />
             </div>
             <p class="text-xs text-neutral-400">
-              Use <kbd class="px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-700 rounded text-xs font-mono">Tab</kbd>
+              Use
+              <kbd
+                class="px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-700 rounded text-xs font-mono"
+                >Tab</kbd
+              >
               para navegar entre os elementos e verificar o ring de foco visível.
             </p>
           </div>
@@ -221,9 +225,7 @@
             </af-card>
             <div class="card">
               <div class="card-body">
-                <h4 class="font-semibold text-neutral-900 dark:text-neutral-50 mb-2">
-                  CSS .card
-                </h4>
+                <h4 class="font-semibold text-neutral-900 dark:text-neutral-50 mb-2">CSS .card</h4>
                 <p class="text-sm text-neutral-500">Card via classe CSS global.</p>
               </div>
             </div>
@@ -265,8 +267,18 @@
                       <af-pill variant="success" [dot]="true">Ativo</af-pill>
                     </td>
                     <td class="px-3 py-2">
-                      <af-icon-button label="Editar" variant="ghost" icon="lucidePencil" size="xs" />
-                      <af-icon-button label="Excluir" variant="danger" icon="lucideTrash2" size="xs" />
+                      <af-icon-button
+                        label="Editar"
+                        variant="ghost"
+                        icon="lucidePencil"
+                        size="xs"
+                      />
+                      <af-icon-button
+                        label="Excluir"
+                        variant="danger"
+                        icon="lucideTrash2"
+                        size="xs"
+                      />
                     </td>
                   </tr>
                   <tr>
@@ -276,8 +288,18 @@
                       <af-pill variant="warning" [dot]="true">Pendente</af-pill>
                     </td>
                     <td class="px-3 py-2">
-                      <af-icon-button label="Editar" variant="ghost" icon="lucidePencil" size="xs" />
-                      <af-icon-button label="Excluir" variant="danger" icon="lucideTrash2" size="xs" />
+                      <af-icon-button
+                        label="Editar"
+                        variant="ghost"
+                        icon="lucidePencil"
+                        size="xs"
+                      />
+                      <af-icon-button
+                        label="Excluir"
+                        variant="danger"
+                        icon="lucideTrash2"
+                        size="xs"
+                      />
                     </td>
                   </tr>
                   <tr>
@@ -287,8 +309,18 @@
                       <af-pill variant="danger" [dot]="true">Bloqueado</af-pill>
                     </td>
                     <td class="px-3 py-2">
-                      <af-icon-button label="Editar" variant="ghost" icon="lucidePencil" size="xs" />
-                      <af-icon-button label="Excluir" variant="danger" icon="lucideTrash2" size="xs" />
+                      <af-icon-button
+                        label="Editar"
+                        variant="ghost"
+                        icon="lucidePencil"
+                        size="xs"
+                      />
+                      <af-icon-button
+                        label="Excluir"
+                        variant="danger"
+                        icon="lucideTrash2"
+                        size="xs"
+                      />
                     </td>
                   </tr>
                 </tbody>
@@ -299,9 +331,7 @@
 
         <!-- Form Inputs -->
         <section>
-          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
-            Form Inputs
-          </h3>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Form Inputs</h3>
           <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
             .form-input · af-text-input · radius-sm · hairline-strong border
           </p>
@@ -310,7 +340,9 @@
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1 block">
+                <label
+                  class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1 block"
+                >
                   CSS .form-input
                 </label>
                 <input
@@ -321,7 +353,7 @@
               </div>
               <af-text-input
                 [control]="nameControl"
-                label="af-text-input"
+                label="Default"
                 placeholder="João da Silva"
                 [required]="true"
                 [spacing]="false"
@@ -335,7 +367,7 @@
               />
               <af-text-input
                 [control]="nameControl"
-                label="Small"
+                label="Compacto"
                 size="sm"
                 placeholder="Tamanho sm"
                 [spacing]="false"
@@ -1296,7 +1328,7 @@
               />
               <af-text-input
                 [control]="nameControl"
-                label="Small"
+                label="Compacto"
                 size="sm"
                 placeholder="Tamanho sm"
                 [spacing]="false"
@@ -1316,11 +1348,7 @@
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <af-search-input [control]="searchControl" placeholder="Buscar contatos..." />
-              <af-search-input
-                [control]="searchControl2"
-                placeholder="Filtrar resultados..."
-                size="sm"
-              />
+              <af-search-input [control]="searchControl2" placeholder="Compacto..." size="sm" />
             </div>
           </div>
         </section>

@@ -21,10 +21,6 @@ import { resolveInputContainerClass } from '../input-container.util';
 import type { AfInputSize, AfCountryCode, Country } from './phone-input.model';
 export * from './phone-input.model';
 
-
-
-
-
 /** Default country codes */
 const DEFAULT_COUNTRIES: AfCountryCode[] = [
   { name: 'Brasil', code: '+55', iso: 'BR', flag: '🇧🇷' },
@@ -116,8 +112,8 @@ export class AfPhoneInputComponent {
   /** Legacy selected country output */
   readonly selectedCountryChange = output<AfCountryCode>();
 
-  /** Input size: sm or md */
-  readonly size = input<AfInputSize>('sm');
+  /** Input size: sm for compact fields, md for the default comfortable field */
+  readonly size = input<AfInputSize>('md');
 
   /** Selected country */
   protected readonly currentCountry = signal<AfCountryCode>(DEFAULT_COUNTRIES[0]);
@@ -275,7 +271,6 @@ export class AfPhoneInputComponent {
     }
   }
 }
-
 
 export const COUNTRIES: Country[] = DEFAULT_COUNTRIES;
 export const DEFAULT_COUNTRY: Country = DEFAULT_COUNTRIES[0];

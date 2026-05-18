@@ -25,8 +25,6 @@ import { resolveInputContainerClass } from '../input-container.util';
 import type { AfInputSize } from './currency-input.model';
 export * from './currency-input.model';
 
-
-
 /**
  * AfCurrencyInputComponent — Masked currency input for BRL (R$) values.
  * Implements ControlValueAccessor. Value is stored as number (cents / raw).
@@ -89,8 +87,8 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
   /** Thousands separator */
   readonly thousandsSeparator = input<'.' | ','>('.');
 
-  /** Input size: sm or md */
-  readonly size = input<AfInputSize>('sm');
+  /** Input size: sm for compact fields, md for the default comfortable field */
+  readonly size = input<AfInputSize>('md');
 
   /** Whether to show error */
   protected readonly containerClasses = computed(() =>

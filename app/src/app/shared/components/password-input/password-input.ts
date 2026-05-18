@@ -8,8 +8,6 @@ import { resolveInputContainerClass } from '../input-container.util';
 import type { AfInputSize } from './password-input.model';
 export * from './password-input.model';
 
-
-
 /**
  * Password input with show/hide toggle.
  *
@@ -61,8 +59,8 @@ export class AfPasswordInputComponent {
   /** data-test attribute */
   readonly dataTest = input<string>();
 
-  /** Input size: sm or md */
-  readonly size = input<AfInputSize>('sm');
+  /** Input size: sm for compact fields, md for the default comfortable field */
+  readonly size = input<AfInputSize>('md');
 
   /** Whether the input is read-only (prevents browser autofill) */
   readonly disableAutofill = input(false);

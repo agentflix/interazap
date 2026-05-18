@@ -67,8 +67,8 @@ export class AfSelectInputComponent implements OnDestroy {
   /** Label text */
   readonly label = input<string>();
 
-  /** Input size — 'sm' matches h-8 (32 px), 'md' matches h-10 (40 px) */
-  readonly size = input<'sm' | 'md'>('sm');
+  /** Input size — 'sm' matches compact h-8 (32 px), 'md' matches default h-10 (40 px) */
+  readonly size = input<'sm' | 'md'>('md');
 
   /** Container CSS class */
   readonly classContainer = input<string | null>(null);

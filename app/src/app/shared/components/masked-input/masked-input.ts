@@ -57,7 +57,7 @@ export class AfMaskedInputComponent {
   readonly dataTest = input<string>();
 
   /** Input size */
-  readonly size = input<'sm' | 'md'>('sm');
+  readonly size = input<'sm' | 'md'>('md');
 
   /** Unique ID */
   protected readonly inputId = `masked-${Math.random().toString(36).slice(2, 9)}`;

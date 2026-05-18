@@ -46,7 +46,7 @@ export class AfSearchInputComponent {
   readonly helpText = input<string>();
 
   /** Input size */
-  readonly size = input<'sm' | 'md'>('sm');
+  readonly size = input<'sm' | 'md'>('md');
 
   /** data-test attribute for E2E tests */
   readonly dataTest = input<string>();
