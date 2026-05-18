@@ -1,149 +1,147 @@
+@if (lookupFeedback()) {
+  <div class="mb-4">
+    <af-alert variant="info" [message]="lookupFeedback() ?? ''" />
+  </div>
+}
 
-    @if (lookupFeedback()) {
-      <div class="mb-4">
-        <af-alert variant="info" [message]="lookupFeedback() ?? ''" />
-      </div>
-    }
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <af-text-input
+    label="Nome"
+    [control]="form.controls.name"
+    placeholder="Ex: Minha Empresa"
+    [required]="true"
+    dataTest="tenant-form-name"
+  />
 
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <af-text-input
-        label="Nome"
-        [control]="form.controls.name"
-        placeholder="Ex: Minha Empresa"
+  <div class="flex items-end gap-2">
+    <div class="flex-1 min-w-0">
+      <af-document-input
+        [control]="form.controls.document"
+        label="Documento"
+        placeholder="Ex: 00.000.000/0001-91"
         [required]="true"
-        dataTest="tenant-form-name"
+        dataTest="tenant-form-document"
       />
+    </div>
+    <af-button
+      variant="outline"
+      size="md"
+      class="shrink-0 mb-4"
+      [disabled]="isSearchingCnpj() || !form.controls.document.value"
+      dataTest="tenant-form-search-cnpj-btn"
+      (click)="searchCnpj()"
+    >
+      @if (isSearchingCnpj()) {
+        <span
+          class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+        ></span>
+      } @else {
+        <lucide-icon name="search" [size]="16" class="block" />
+      }
+      Pesquisar CNPJ
+    </af-button>
+  </div>
 
-      <div class="flex items-end gap-2">
-        <div class="flex-1 min-w-0">
-          <af-document-input
-            [control]="form.controls.document"
-            label="Documento"
-            placeholder="Ex: 00.000.000/0001-91"
-            [required]="true"
-            dataTest="tenant-form-document"
-          />
-        </div>
-        <af-button
-          variant="outline"
-          size="md"
-          class="shrink-0"
-          [disabled]="isSearchingCnpj() || !form.controls.document.value"
-          dataTest="tenant-form-search-cnpj-btn"
-          (click)="searchCnpj()"
-        >
-          @if (isSearchingCnpj()) {
-            <span
-              class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-            ></span>
-          } @else {
-            <lucide-icon name="search" [size]="16" class="block" />
-          }
-          Pesquisar CNPJ
-        </af-button>
-      </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <af-text-input
+      label="E-mail"
+      [control]="form.controls.email"
+      type="email"
+      placeholder="Ex: contato@empresa.com"
+      dataTest="tenant-form-email"
+    />
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <af-text-input
-          label="E-mail"
-          [control]="form.controls.email"
-          type="email"
-          placeholder="Ex: contato@empresa.com"
-          dataTest="tenant-form-email"
-        />
+    <af-select-input
+      label="Segmento IA"
+      [control]="form.controls.segment_id"
+      [options]="segmentOptions()"
+      placeholder="Selecione"
+      dataTest="tenant-form-segment"
+    />
+  </div>
 
-        <af-select-input
-          label="Segmento IA"
-          [control]="form.controls.segment_id"
-          [options]="segmentOptions()"
-          placeholder="Selecione"
-          dataTest="tenant-form-segment"
-        />
-      </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <af-select-input
+      label="Plano"
+      [control]="form.controls.plan_id"
+      [options]="planOptions()"
+      placeholder="Selecione"
+      dataTest="tenant-form-plan"
+    />
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <af-select-input
-          label="Plano"
-          [control]="form.controls.plan_id"
-          [options]="planOptions()"
-          placeholder="Selecione"
-          dataTest="tenant-form-plan"
-        />
+    <af-phone-input
+      [control]="form.controls.phone"
+      [countryControl]="form.controls.phone_country_code"
+      label="Telefone"
+      dataTest="tenant-form-phone"
+    />
+  </div>
 
-        <af-phone-input
-          [control]="form.controls.phone"
-          [countryControl]="form.controls.phone_country_code"
-          label="Telefone"
-          dataTest="tenant-form-phone"
-        />
-      </div>
-
-      <div class="grid gap-4 md:grid-cols-4">
-        <div>
-          <af-masked-input
-            label="CEP"
-            mask="cep"
-            [control]="form.controls.zip_code"
-            placeholder="Ex: 00000-000"
-            dataTest="tenant-form-zip"
-          />
-          @if (isSearchingCep()) {
-            <span class="text-xs text-primary-500">Buscando endereço...</span>
-          }
-        </div>
-        <div class="md:col-span-2">
-          <af-text-input
-            label="Logradouro"
-            [control]="form.controls.street"
-            placeholder="Ex: Avenida Paulista"
-            dataTest="tenant-form-street"
-          />
-        </div>
-        <af-text-input
-          label="Número"
-          [control]="form.controls.number"
-          placeholder="Ex: 1000"
-          dataTest="tenant-form-number"
-        />
-      </div>
-
-      <div class="grid gap-4 md:grid-cols-2">
-        <af-text-input
-          label="Complemento"
-          [control]="form.controls.complement"
-          placeholder="Ex: Sala 12"
-          dataTest="tenant-form-complement"
-        />
-        <af-text-input
-          label="Bairro"
-          [control]="form.controls.district"
-          placeholder="Ex: Bela Vista"
-          dataTest="tenant-form-district"
-        />
-      </div>
-
-      <div class="grid gap-4 md:grid-cols-3">
-        <div class="md:col-span-2">
-          <af-text-input
-            label="Cidade"
-            [control]="form.controls.city"
-            placeholder="Ex: São Paulo"
-            dataTest="tenant-form-city"
-          />
-        </div>
-        <af-select-input
-          label="UF"
-          [control]="form.controls.state"
-          [options]="stateOptions()"
-          placeholder="Selecione"
-          dataTest="tenant-form-state"
-        />
-      </div>
-
-      <af-switch-input
-        label="Ativo"
-        [control]="form.controls.is_active"
-        dataTest="tenant-form-active"
+  <div class="grid gap-4 md:grid-cols-4">
+    <div>
+      <af-masked-input
+        label="CEP"
+        mask="cep"
+        [control]="form.controls.zip_code"
+        placeholder="Ex: 00000-000"
+        dataTest="tenant-form-zip"
       />
-    </form>
-  
+      @if (isSearchingCep()) {
+        <span class="text-xs text-primary-500">Buscando endereço...</span>
+      }
+    </div>
+    <div class="md:col-span-2">
+      <af-text-input
+        label="Logradouro"
+        [control]="form.controls.street"
+        placeholder="Ex: Avenida Paulista"
+        dataTest="tenant-form-street"
+      />
+    </div>
+    <af-text-input
+      label="Número"
+      [control]="form.controls.number"
+      placeholder="Ex: 1000"
+      dataTest="tenant-form-number"
+    />
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <af-text-input
+      label="Complemento"
+      [control]="form.controls.complement"
+      placeholder="Ex: Sala 12"
+      dataTest="tenant-form-complement"
+    />
+    <af-text-input
+      label="Bairro"
+      [control]="form.controls.district"
+      placeholder="Ex: Bela Vista"
+      dataTest="tenant-form-district"
+    />
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-3">
+    <div class="md:col-span-2">
+      <af-text-input
+        label="Cidade"
+        [control]="form.controls.city"
+        placeholder="Ex: São Paulo"
+        dataTest="tenant-form-city"
+      />
+    </div>
+    <af-select-input
+      label="UF"
+      [control]="form.controls.state"
+      [options]="stateOptions()"
+      placeholder="Selecione"
+      dataTest="tenant-form-state"
+    />
+  </div>
+
+  <af-switch-input
+    label="Ativo"
+    [control]="form.controls.is_active"
+    dataTest="tenant-form-active"
+  />
+</form>
