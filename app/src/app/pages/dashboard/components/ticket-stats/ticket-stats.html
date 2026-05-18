@@ -3,7 +3,7 @@
       <div header class="px-5 pt-4 pb-0">
         <div class="flex items-center justify-between w-full">
           <h6 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Tickets</h6>
-          <div class="text-xs text-neutral-500 dark:text-neutral-400">
+          <div class="text-xs text-neutral-500 dark:text-neutral-400 tabular-nums">
             SLA {{ stats().sla_compliance_rate | number: '1.0-0' }}% · 1ª resposta
             {{ stats().avg_first_response_minutes | number: '1.0-0' }}min
           </div>
@@ -26,7 +26,7 @@
           />
         }
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 tabular-nums">
           <div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2">
             <div class="text-xs text-neutral-500 dark:text-neutral-400">Baixa</div>
             <div class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">

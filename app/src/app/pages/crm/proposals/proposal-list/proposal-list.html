@@ -112,7 +112,7 @@
   </div>
 </section>
 
-<app-modal [isOpen]="isFormOpen()" title="Proposta" maxWidth="xl" (closed)="closeForm()">
+<af-modal [isOpen]="isFormOpen()" title="Proposta" maxWidth="xl" (closed)="closeForm()">
   <app-proposal-form
     [negotiationId]="negotiationId()"
     [proposal]="selectedProposal()"
@@ -120,9 +120,9 @@
     (saved)="onSaved()"
     (cancelled)="closeForm()"
   />
-</app-modal>
+</af-modal>
 
-<app-confirm-modal
+<af-confirm-modal
   [isOpen]="isDeleteOpen()"
   title="Excluir proposta"
   message="Tem certeza que deseja excluir esta proposta?"

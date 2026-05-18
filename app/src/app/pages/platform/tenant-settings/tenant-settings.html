@@ -3,9 +3,7 @@
 
   <!-- ── Loading state ─────────────────────────────────────────────── -->
   @if (isLoading()) {
-    <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
-    >
+    <section class="card card-body">
       <div class="space-y-4">
         <af-skeleton variant="text" width="30%" height="1rem" />
         <af-skeleton variant="rectangular" width="100%" height="8rem" />
@@ -16,9 +14,7 @@
 
   <!-- ── Error state ───────────────────────────────────────────────── -->
   @if (error() && !isLoading()) {
-    <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
-    >
+    <section class="card card-body">
       <af-alert variant="danger" title="Erro ao carregar configurações" [message]="error() ?? ''" />
       <af-button variant="outline" size="sm" (click)="loadSettings()" class="mt-3">
         Tentar novamente
@@ -29,9 +25,7 @@
   <!-- ── Settings form ─────────────────────────────────────────────── -->
   @if (!isLoading()) {
     <!-- ── Localization ───────────────────────────────────────────── -->
-    <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
-    >
+    <section class="card card-body">
       <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">Localização</h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -71,9 +65,7 @@
     </section>
 
     <!-- ── Privacy ────────────────────────────────────────────────── -->
-    <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
-    >
+    <section class="card card-body">
       <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">Privacidade</h2>
 
       <div class="flex flex-col gap-4 max-w-lg">
@@ -101,9 +93,7 @@
     </section>
 
     <!-- ── Auto-fechamento ────────────────────────────────────────── -->
-    <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
-    >
+    <section class="card card-body">
       <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-6">
         Auto-fechamento de atendimentos
       </h2>

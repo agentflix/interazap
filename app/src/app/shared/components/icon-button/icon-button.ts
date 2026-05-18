@@ -60,12 +60,12 @@ export class AfIconButtonComponent {
   });
 
   protected readonly buttonClasses = computed(() => {
-    const roundedMap: Record<string, string> = { md: 'rounded-md', full: 'rounded-full' };
+    const roundedMap: Record<string, string> = { md: 'rounded-sm', full: 'rounded-full' };
 
     const base = [
       'inline-flex items-center justify-center',
       roundedMap[this.rounded()],
-      'transition-all duration-150',
+      'transition-colors duration-150',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'disabled:opacity-50 disabled:cursor-not-allowed',
       'cursor-pointer',
@@ -91,21 +91,25 @@ export class AfIconButtonComponent {
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
       outline: [
-        'border border-neutral-300 dark:border-neutral-600',
+        'border border-hairline-strong dark:border-neutral-600',
         'text-neutral-600 dark:text-neutral-400',
-        'hover:bg-neutral-50 dark:hover:bg-neutral-800',
+        'hover:bg-surface-50 dark:hover:bg-neutral-800',
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
       danger: [
-        'text-red-600 dark:text-red-400',
-        'hover:bg-red-50 dark:hover:bg-red-950',
-        'focus-visible:ring-red-600/50',
+        'text-danger-600 dark:text-danger-400',
+        'hover:bg-danger-50 dark:hover:bg-danger-950',
+        'focus-visible:ring-danger-600/50',
       ].join(' '),
-      success: ['text-success', 'hover:bg-success/10', 'focus-visible:ring-success/50'].join(' '),
+      success: [
+        'text-success',
+        'hover:bg-success/10',
+        'focus-visible:ring-success/50',
+      ].join(' '),
       primary: [
-        'text-accent-600',
-        'hover:bg-accent-50 dark:hover:bg-accent-950',
-        'focus-visible:ring-accent-500/50',
+        'text-primary-600 dark:text-primary-400',
+        'hover:bg-primary-50 dark:hover:bg-primary-950',
+        'focus-visible:ring-primary-500/50',
       ].join(' '),
     };
 

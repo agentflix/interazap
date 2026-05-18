@@ -1,4 +1,4 @@
-<app-modal [isOpen]="isOpenSignal()" title="Selecionar empresa" maxWidth="lg" (closed)="close()">
+<af-modal [isOpen]="isOpenSignal()" title="Selecionar empresa" maxWidth="lg" (closed)="close()">
   <div modal-body class="space-y-4">
     <div class="flex items-center gap-2">
       <div class="relative flex-1">
@@ -75,10 +75,10 @@
       <app-button variant="ghost" size="sm" (clicked)="close()">Cancelar</app-button>
     </div>
   </div>
-</app-modal>
+</af-modal>
 
 <!-- Modal para criar nova empresa -->
-<app-modal
+<af-modal
   [isOpen]="isCreateModalOpen()"
   title="Nova empresa"
   maxWidth="sm"
@@ -118,4 +118,4 @@
       </app-loading-button>
     </div>
   </div>
-</app-modal>
+</af-modal>

@@ -27,7 +27,8 @@ export class AfBadgeComponent {
   readonly dot = input(false);
 
   protected readonly badgeClasses = computed(() => {
-    const base = 'inline-flex items-center gap-1.5 font-medium rounded-full whitespace-nowrap';
+    const base =
+      'inline-flex items-center gap-1.5 font-medium rounded-full whitespace-nowrap transition-colors duration-150';
 
     const sizes: Record<string, string> = {
       sm: 'px-2 py-0.5 text-xs',
@@ -36,10 +37,10 @@ export class AfBadgeComponent {
 
     const variants: Record<string, string> = {
       default: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
-      success: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400',
-      warning: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
-      danger: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400',
-      info: 'bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-400',
+      success: 'bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
+      warning: 'bg-warning-50 text-warning-600 dark:bg-neutral-800 dark:text-warning-500',
+      danger: 'bg-danger-50 text-danger-600 dark:bg-neutral-800 dark:text-danger-500',
+      info: 'bg-info-50 text-info-500 dark:bg-neutral-800 dark:text-info-500',
     };
 
     return `${base} ${sizes[this.size()]} ${variants[this.variant()]}`;
@@ -50,10 +51,10 @@ export class AfBadgeComponent {
 
     const variants: Record<string, string> = {
       default: 'bg-neutral-500',
-      success: 'bg-emerald-500',
-      warning: 'bg-amber-500',
-      danger: 'bg-red-500',
-      info: 'bg-sky-500',
+      success: 'bg-primary-500',
+      warning: 'bg-warning-500',
+      danger: 'bg-danger-500',
+      info: 'bg-info-500',
     };
 
     return `${base} ${variants[this.variant()]}`;

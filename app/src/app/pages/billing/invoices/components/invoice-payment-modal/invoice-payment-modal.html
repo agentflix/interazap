@@ -24,6 +24,7 @@
                     placeholder="Ex: João Silva"
                     [required]="true"
                     [spacing]="false"
+                    autocomplete="cc-name"
                   />
                 </div>
 
@@ -36,6 +37,7 @@
                     [maxLength]="23"
                     [errorMessage]="getCardFieldErrorMessage('number')"
                     [spacing]="false"
+                    autocomplete="cc-number"
                   />
                 </div>
 
@@ -47,6 +49,7 @@
                   [maxLength]="2"
                   [errorMessage]="getCardFieldErrorMessage('expiry_month')"
                   [spacing]="false"
+                  autocomplete="cc-exp-month"
                 />
 
                 <af-text-input
@@ -57,6 +60,7 @@
                   [maxLength]="4"
                   [errorMessage]="getCardFieldErrorMessage('expiry_year')"
                   [spacing]="false"
+                  autocomplete="cc-exp-year"
                 />
 
                 <af-text-input
@@ -67,6 +71,7 @@
                   [maxLength]="4"
                   [errorMessage]="getCardFieldErrorMessage('cvv')"
                   [spacing]="false"
+                  autocomplete="cc-csc"
                 />
 
                 <af-text-input
@@ -75,6 +80,7 @@
                   placeholder="123.456.789-00"
                   [required]="true"
                   [spacing]="false"
+                  autocomplete="on"
                 />
 
                 <af-text-input
@@ -84,6 +90,7 @@
                   placeholder="joao@empresa.com"
                   [required]="true"
                   [spacing]="false"
+                  autocomplete="email"
                 />
 
                 <af-text-input
@@ -92,6 +99,7 @@
                   placeholder="01310100"
                   [required]="true"
                   [spacing]="false"
+                  autocomplete="postal-code"
                 />
 
                 <af-text-input
@@ -100,6 +108,7 @@
                   placeholder="123"
                   [required]="true"
                   [spacing]="false"
+                  autocomplete="address-line2"
                 />
 
                 <div class="md:col-span-2">
@@ -109,6 +118,7 @@
                     placeholder="João Silva"
                     [required]="true"
                     [spacing]="false"
+                    autocomplete="name"
                   />
                 </div>
 
@@ -119,6 +129,7 @@
                     placeholder="11999999999"
                     [required]="true"
                     [spacing]="false"
+                    autocomplete="tel"
                   />
                 </div>
               </div>

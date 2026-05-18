@@ -164,7 +164,7 @@ electron/
 ├── shortcuts.ts          # Atalhos globais de teclado
 │
 ├── build/                # Assets do build
-│   ├── icon.png          # PNG 1024×1024 (raio InteraZap, teal #14b8a6)
+│   ├── icon.png          # PNG 1024×1024 (raio InteraZap, emerald #3ecf8e)
 │   ├── icon.icns         # macOS multi-resolução
 │   ├── icon.ico          # Windows multi-resolução (16→256)
 │   └── icons/            # Linux (16×16 → 1024×1024)

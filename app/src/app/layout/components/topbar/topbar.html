@@ -7,9 +7,9 @@
         <!-- Mobile hamburger -->
         <button
           (click)="theme.toggleMobileSidebar()"
-          class="lg:hidden size-9 inline-flex items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+          class="lg:hidden size-9 inline-flex items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           type="button"
-          aria-label="Open menu"
+          aria-label="Abrir menu"
         >
           <lucide-icon name="menu" [size]="18" />
         </button>
@@ -17,20 +17,21 @@
         <!-- Desktop sidebar toggle -->
         <button
           (click)="theme.toggleSidebar()"
-          class="hidden lg:inline-flex size-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+          class="hidden lg:inline-flex size-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           type="button"
-          aria-label="Toggle sidebar"
+          aria-label="Alternar barra lateral"
         >
           <lucide-icon name="menu" [size]="18" />
         </button>
 
         <!-- Search bar -->
         <div
-          class="hidden sm:flex items-center gap-2 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg w-64 lg:w-80 group cursor-pointer hover:bg-neutral-200/70 dark:hover:bg-neutral-700/70 transition-colors"
+          class="hidden sm:flex items-center gap-2 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg w-64 lg:w-80 group cursor-pointer hover:bg-neutral-200/70 dark:hover:bg-neutral-700/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           (click)="openSearch()"
           role="button"
           tabindex="0"
           (keydown.enter)="openSearch()"
+          aria-label="Buscar no aplicativo"
         >
           <lucide-icon
             name="search"

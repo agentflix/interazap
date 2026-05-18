@@ -21,6 +21,7 @@ function createWindow(): void {
     minHeight: 768,
     frame: true,
     titleBarStyle: isMac ? 'hidden' : 'default',
+    backgroundColor: '#fafafa', // canvas / surface-50 — design system token
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

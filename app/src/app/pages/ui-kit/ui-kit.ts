@@ -62,6 +62,7 @@ import {
   AfDescriptionListComponent,
   AfCardComponent,
   AfDataTableComponent,
+  AfPillComponent,
   AfCodeBlockComponent,
   AfMeterComponent,
   AfStatCardComponent,
@@ -194,6 +195,7 @@ import { LucideAngularModule } from 'lucide-angular';
     AfDescriptionListComponent,
     AfCardComponent,
     AfDataTableComponent,
+    AfPillComponent,
     AfCodeBlockComponent,
     AfMeterComponent,
     AfStatCardComponent,
@@ -246,7 +248,7 @@ import { LucideAngularModule } from 'lucide-angular';
 })
 export default class UiKitComponent {
   protected readonly theme = inject(ThemeService);
-  protected readonly componentCount = 112;
+  protected readonly componentCount = 113;
   protected readonly isLoading = signal(true);
   protected readonly previewPaletteOpen = signal(false);
   protected readonly previewThemeMode = signal<'light' | 'dark' | 'system'>('system');

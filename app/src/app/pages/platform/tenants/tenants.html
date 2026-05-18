@@ -224,8 +224,8 @@
     >
       <div class="space-y-4">
         <!-- Icon -->
-        <div class="mx-auto flex items-center justify-center size-12 rounded-full mb-4 bg-red-100 dark:bg-red-900/30">
-          <span aria-hidden="true" class="text-xl font-semibold text-red-600 dark:text-red-400">!</span>
+        <div class="mx-auto flex items-center justify-center size-12 rounded-full mb-4 bg-danger-50 dark:bg-danger-50/10">
+          <span aria-hidden="true" class="text-xl font-semibold text-danger-600 dark:text-danger-500">!</span>
         </div>
 
         <!-- Message -->
@@ -271,8 +271,8 @@
     >
       <div class="space-y-4">
         <!-- Icon -->
-        <div class="mx-auto flex items-center justify-center size-12 rounded-full mb-4 bg-amber-100 dark:bg-amber-900/30">
-          <lucide-icon name="log-in" [size]="20" class="text-amber-600 dark:text-amber-400" />
+        <div class="mx-auto flex items-center justify-center size-12 rounded-full mb-4 bg-warning-50 dark:bg-warning-50/10">
+          <lucide-icon name="log-in" [size]="20" class="text-warning-600 dark:text-warning-500" />
         </div>
 
         <!-- Message -->
@@ -332,7 +332,7 @@
       [attr.aria-hidden]="!isDetailsOpen()"
     >
       <div
-        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-dashed border-neutral-200 dark:border-neutral-700 px-6 gap-3"
+        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-hairline dark:border-neutral-700 px-6 gap-3"
       >
         <h5 class="text-base grow">Detalhes do inquilino</h5>
         <af-icon-button label="Fechar detalhes" variant="ghost" size="sm" (click)="closeDetails()">
@@ -437,7 +437,7 @@
             </div>
 
             <!-- Divider -->
-            <hr class="border-neutral-200 dark:border-neutral-700" />
+            <hr class="border-hairline dark:border-neutral-700" />
 
             <!-- Section: Plano contratado -->
             <div class="space-y-3">
@@ -481,7 +481,7 @@
             </div>
 
             <!-- Divider -->
-            <hr class="border-neutral-200 dark:border-neutral-700" />
+            <hr class="border-hairline dark:border-neutral-700" />
 
             <!-- Section: Recursos disponíveis -->
             <div class="space-y-4">
@@ -503,7 +503,7 @@
                   </p>
                 </div>
                 @if (tenantDetails()!.resources.users.limit !== null) {
-                  <div class="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
+                  <div class="h-2 rounded-full bg-surface-100 dark:bg-neutral-700">
                     <div
                       class="h-2 rounded-full transition-all"
                       [class]="
@@ -537,7 +537,7 @@
                   </p>
                 </div>
                 @if (tenantDetails()!.resources.instances.limit !== null) {
-                  <div class="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
+                  <div class="h-2 rounded-full bg-surface-100 dark:bg-neutral-700">
                     <div
                       class="h-2 rounded-full transition-all"
                       [class]="
@@ -574,7 +574,7 @@
                   tenantDetails()!.resources.storage.mode === 'LIMITED' &&
                   tenantDetails()!.resources.storage.limit_gb !== null
                 ) {
-                  <div class="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
+                  <div class="h-2 rounded-full bg-surface-100 dark:bg-neutral-700">
                     <div
                       class="h-2 rounded-full transition-all"
                       [class]="
@@ -626,7 +626,7 @@
                   tenantDetails()!.resources.negotiations.mode === 'LIMITED' &&
                   tenantDetails()!.resources.negotiations.limit !== null
                 ) {
-                  <div class="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700">
+                  <div class="h-2 rounded-full bg-surface-100 dark:bg-neutral-700">
                     <div
                       class="h-2 rounded-full transition-all"
                       [class]="

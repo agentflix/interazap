@@ -1,8 +1,8 @@
-<app-modal title="Iniciar atendimento" [isOpen]="isOpen()" (closed)="close()" size="md">
+<af-modal title="Iniciar atendimento" [isOpen]="isOpen()" (closed)="close()" size="md">
   <div modal-body class="space-y-4">
     <!-- Instâncias: erro ou vazio -->
     @if (instancesError()) {
-      <p class="text-sm text-danger">{{ instancesError() }}</p>
+      <p class="text-sm text-red-600 dark:text-red-400">{{ instancesError() }}</p>
     } @else if (showInstanceEmptyState()) {
       <div
         class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-400"
@@ -23,37 +23,42 @@
       />
 
       <af-scroll-area
-        class="mt-2 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-700"
+        class="mt-2 overflow-hidden rounded-md border border-hairline dark:border-neutral-700"
         maxHeight="12rem"
       >
         @if (!isContactSearchReady()) {
-          <div class="py-4 text-center text-sm text-neutral-500">
+          <div class="py-4 text-center text-sm text-neutral-500 dark:text-neutral-400">
             Digite pelo menos 3 caracteres para buscar contatos.
           </div>
         } @else if (isLoadingContacts()) {
-          <div class="py-4 text-center text-sm text-neutral-500">Carregando contatos...</div>
+          <div class="py-4 text-center text-sm text-neutral-500 dark:text-neutral-400">
+            <div class="flex items-center justify-center gap-2">
+              <div class="size-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+              <span>Carregando contatos...</span>
+            </div>
+          </div>
         } @else if (contacts().length === 0) {
-          <div class="py-4 text-center text-sm text-neutral-500">Nenhum contato encontrado.</div>
+          <div class="py-4 text-center text-sm text-neutral-500 dark:text-neutral-400">Nenhum contato encontrado.</div>
         } @else {
           @for (contact of contacts(); track contact.id) {
             <button
               type="button"
-              class="w-full px-3 py-2 text-left transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
-              [class.bg-neutral-100]="selectedContactId() === contact.id + ''"
+              class="w-full px-3 py-2 text-left transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+              [class.bg-neutral-50]="selectedContactId() === contact.id + ''"
               [class.dark:bg-neutral-800]="selectedContactId() === contact.id + ''"
               (click)="selectContact(contact.id)"
             >
               <div class="flex items-center justify-between gap-2">
                 <div class="min-w-0">
-                  <p class="truncate text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+                  <p class="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-50">
                     {{ contact.name || 'Sem nome' }}
                   </p>
-                  <p class="truncate text-xs text-neutral-500">
+                  <p class="truncate text-xs text-neutral-500 dark:text-neutral-400">
                     {{ contact.phone || contact.whatsapp || contact.email || 'Sem telefone' }}
                   </p>
                 </div>
                 @if (selectedContactId() === contact.id + '') {
-                  <span class="shrink-0 text-xs font-semibold text-success">Selecionado</span>
+                  <span class="shrink-0 text-xs font-semibold text-primary-600 dark:text-primary-400">Selecionado</span>
                 }
               </div>
             </button>
@@ -74,7 +79,7 @@
           [classSelect]="'mt-2'"
         />
         @if (requiresInstanceSelection()) {
-          <p class="mt-2 text-xs text-warning">Selecione uma instância conectada para continuar.</p>
+          <p class="mt-2 text-xs text-amber-600 dark:text-amber-400">Selecione uma instância conectada para continuar.</p>
         }
       </div>
     }
@@ -105,7 +110,7 @@
 
     <!-- Erro de envio -->
     @if (startError()) {
-      <p class="text-sm text-danger">{{ startError() }}</p>
+      <p class="text-sm text-red-600 dark:text-red-400">{{ startError() }}</p>
     }
   </div>
 
@@ -121,4 +126,4 @@
       Enviar e abrir
     </app-loading-button>
   </div>
-</app-modal>
+</af-modal>

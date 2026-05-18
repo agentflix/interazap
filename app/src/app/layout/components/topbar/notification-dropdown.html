@@ -2,9 +2,9 @@
     <div class="relative">
       <button
         (click)="toggle()"
-        class="relative size-9 inline-flex items-center justify-center rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-all duration-150 cursor-pointer"
+        class="relative size-9 inline-flex items-center justify-center rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
         type="button"
-        aria-label="Notifications"
+        aria-label="Notificações"
       >
         <lucide-icon name="bell" [size]="18" />
 
@@ -49,7 +49,7 @@
                 </p>
                 <button
                   (click)="loadNotifications()"
-                  class="text-xs text-accent-500 hover:text-accent-600 dark:hover:text-accent-400 cursor-pointer"
+                  class="text-xs text-accent-500 hover:text-accent-600 dark:hover:text-accent-400 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
                   type="button"
                 >
                   Tentar novamente
@@ -69,7 +69,7 @@
                 @for (notification of notifications(); track notification.id) {
                   <button
                     (click)="handleNotificationClick(notification)"
-                    class="flex items-start gap-3 px-4 py-3 text-left hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors border-b border-neutral-100 dark:border-neutral-700 last:border-b-0 cursor-pointer"
+                    class="flex items-start gap-3 px-4 py-3 text-left hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors border-b border-neutral-100 dark:border-neutral-700 last:border-b-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                     type="button"
                   >
                     <div class="mt-0.5 shrink-0">

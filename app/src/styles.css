@@ -1,24 +1,34 @@
 @import 'tailwindcss';
 @custom-variant dark (&:is(.dark *));
 
+/* ═══════════════════════════════════════════════════════════
+ * InteraZap Design System — Tokens Globais
+ * Fonte da verdade: DESIGN.md
+ * ═══════════════════════════════════════════════════════════ */
+
 @theme {
-  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  /* ── Typography ──────────────────────────────────────────
+   * Inter (open-source substitute for Circular/Euclid)       */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono:
     'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
     'Courier New', monospace;
 
-  --color-primary-50: #f0fdfa;
-  --color-primary-100: #ccfbf1;
-  --color-primary-200: #99f6e4;
-  --color-primary-300: #5eead4;
-  --color-primary-400: #2dd4bf;
-  --color-primary-500: #14b8a6;
-  --color-primary-600: #0d9488;
-  --color-primary-700: #245044;
-  --color-primary-800: #115e59;
-  --color-primary-900: #1a3c34;
-  --color-primary-950: #042f2e;
+  /* ── Brand / Primary (Emerald) ───────────────────────────
+   * primary: #3ecf8e  |  primary-deep: #24b47e              */
+  --color-primary-50: #eefbf5;
+  --color-primary-100: #d5f5e7;
+  --color-primary-200: #aeebd3;
+  --color-primary-300: #76dbb6;
+  --color-primary-400: #3ecf8e;
+  --color-primary-500: #24b47e;
+  --color-primary-600: #1a9466;
+  --color-primary-700: #167753;
+  --color-primary-800: #145f43;
+  --color-primary-900: #124f38;
+  --color-primary-950: #0a2e21;
 
+  /* ── Accent (reserved for secondary highlights) ───────── */
   --color-accent-50: #f0fdf4;
   --color-accent-100: #dcfce7;
   --color-accent-200: #bbf7d0;
@@ -31,21 +41,26 @@
   --color-accent-900: #14532d;
   --color-accent-950: #052e16;
 
+  /* ── Neutral / Ink ───────────────────────────────────────
+   * ink: #171717  |  muted: #707070                          */
   --color-neutral-50: #fafafa;
-  --color-neutral-100: #f4f4f5;
-  --color-neutral-200: #e4e4e7;
-  --color-neutral-300: #d4d4d8;
-  --color-neutral-400: #a1a1aa;
-  --color-neutral-500: #71717a;
-  --color-neutral-600: #52525b;
-  --color-neutral-700: #3f3f46;
-  --color-neutral-800: #27272a;
-  --color-neutral-900: #18181b;
-  --color-neutral-950: #09090b;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #707070;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+  --color-neutral-950: #0a0a0a;
 
-  --color-surface-50: #f4f4f5; /* Updated from #fafafa to increase contrast with white cards */
-  --color-surface-100: #ebebed; /* New intermediate tier */
+  /* ── Surface / Canvas ────────────────────────────────────
+   * canvas: #ffffff  |  canvas-soft: #fafafa                  */
+  --color-surface-50: #fafafa; /* canvas-soft */
+  --color-surface-100: #f0f0f0;
 
+  /* ── Semantic Status (separate from brand) ────────────── */
   --color-info-50: #f0f9ff;
   --color-info-100: #e0f2fe;
   --color-info-500: #0ea5e9;
@@ -55,19 +70,34 @@
   --color-success-500: #22c55e;
   --color-success-600: #16a34a;
 
+  --color-warning-50: #fffbeb;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+
   --color-danger: #ef4444;
   --color-danger-50: #fef2f2;
   --color-danger-500: #ef4444;
   --color-danger-600: #dc2626;
 
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
+  /* ── Border / Hairline ───────────────────────────────────
+   * hairline: #dfdfdf                                        */
+  --color-hairline: #dfdfdf;
+  --color-hairline-soft: #e8e8e8;
+  --color-hairline-strong: #c8c8c8;
+
+  /* ── Radius Scale ────────────────────────────────────────
+   * buttons/inputs: 6px  |  cards: 8-12px  |  modals: 16px  */
+  --radius-xs: 4px;
+  --radius-sm: 6px;   /* buttons, inputs */
+  --radius-md: 8px;   /* small cards, chips */
+  --radius-lg: 12px;  /* cards, panels */
+  --radius-xl: 16px;  /* modals, dialogs */
+  --radius-xxl: 24px;
   --radius-full: 9999px;
 
+  /* ── Shadows ───────────────────────────────────────────── */
   --shadow-sm:
-    0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06); /* Slightly more pronounced to lift cards */
+    0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -151,20 +181,81 @@
     margin-right: var(--safe-area-right);
   }
 
+  /* ── Card ────────────────────────────────────────────────
+   * radius-lg (12px), hairline border, canvas bg             */
   .card {
-    @apply relative rounded-lg bg-white flex flex-col wrap-break-word bg-clip-border h-fit shadow-sm dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 dark:shadow-none;
+    @apply relative rounded-lg bg-white flex flex-col wrap-break-word bg-clip-border h-fit shadow-sm dark:bg-neutral-900 border border-hairline dark:border-neutral-700 dark:shadow-none;
   }
 
   .card-body {
     @apply p-5;
   }
 
+  /* ── Form Input ──────────────────────────────────────────
+    * radius-sm (6px), hairline-strong border                  */
   .form-input {
-    @apply block w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500;
+    @apply block w-full rounded-sm border border-hairline-strong bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500;
   }
 
   .form-input-sm {
     @apply px-2.5 py-1.5 text-xs;
+  }
+
+  /* ── Buttons (CSS utility classes) ───────────────────────
+    * radius-sm (6px), dark text on primary green             */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-sm
+      bg-primary-400 text-neutral-900
+      hover:bg-primary-500 active:bg-primary-600
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
+      cursor-pointer select-none
+      transition-colors duration-150;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-sm
+      bg-primary-900 text-white
+      hover:bg-primary-700 active:bg-primary-950
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-900 focus-visible:ring-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
+      cursor-pointer select-none
+      transition-colors duration-150;
+  }
+
+  .btn-link {
+    @apply inline-flex items-center justify-center gap-2 px-2 py-1 text-sm font-medium rounded-sm
+      bg-transparent text-primary-500
+      hover:bg-primary-50 hover:text-primary-600 active:bg-primary-100
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed
+      cursor-pointer select-none
+      transition-colors duration-150
+      dark:text-primary-400 dark:hover:bg-primary-950 dark:hover:text-primary-300;
+  }
+
+  /* ── Pill ────────────────────────────────────────────────
+    * radius-full, small label/tag for status & categorization */
+  .pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full whitespace-nowrap
+      bg-neutral-100 text-neutral-700
+      dark:bg-neutral-800 dark:text-neutral-300;
+  }
+
+  .pill-success {
+    @apply bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-300;
+  }
+
+  .pill-warning {
+    @apply bg-warning-50 text-warning-600 dark:bg-neutral-800 dark:text-warning-500;
+  }
+
+  .pill-danger {
+    @apply bg-danger-50 text-danger-600 dark:bg-neutral-800 dark:text-danger-500;
+  }
+
+  .pill-info {
+    @apply bg-info-50 text-info-500 dark:bg-neutral-800 dark:text-info-500;
   }
 }
 
@@ -185,21 +276,21 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(163 163 163);
+  background-color: var(--color-neutral-400);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(113 113 122);
+  background-color: var(--color-neutral-500);
 }
 
 /* Dark mode scrollbar */
 .dark ::-webkit-scrollbar-thumb {
-  background-color: rgb(82 82 82);
+  background-color: var(--color-neutral-600);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(113 113 122);
+  background-color: var(--color-neutral-500);
 }
 
 /* ── Font size variants ─────────────────────────────────────────────────────

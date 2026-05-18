@@ -304,7 +304,7 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
       case 'connecting':
         return 'bg-yellow-400 dark:bg-yellow-500 animate-pulse';
       case 'error':
-        return 'bg-red-400 dark:bg-red-500';
+        return 'bg-danger-400 dark:bg-danger-500';
       default:
         return 'bg-neutral-400 dark:bg-neutral-500';
     }

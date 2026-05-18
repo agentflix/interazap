@@ -87,7 +87,7 @@
   </div>
 </form>
 
-<app-modal
+<af-modal
   [isOpen]="isStepModalOpen()"
   [title]="editingStep() ? 'Editar etapa' : 'Nova etapa'"
   maxWidth="sm"
@@ -131,9 +131,9 @@
       </app-loading-button>
     </div>
   </ng-container>
-</app-modal>
+</af-modal>
 
-<app-confirm-modal
+<af-confirm-modal
   [isOpen]="isDeleteStepOpen()"
   title="Remover etapa"
   [message]="'Tem certeza que deseja remover a etapa ' + (deletingStep()?.name ?? '') + '?'"

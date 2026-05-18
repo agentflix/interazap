@@ -88,7 +88,7 @@
                       />
                     } @else {
                       <div
-                        class="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center flex-shrink-0"
+                        class="w-8 h-8 rounded-full bg-surface-100 dark:bg-neutral-700 flex items-center justify-center flex-shrink-0"
                       >
                         <span class="text-xs font-medium text-neutral-500">{{
                           displayName(instance).charAt(0).toUpperCase()
@@ -231,7 +231,7 @@
           } @else {
             @for (item of statusResultEntries(); track item.key) {
               <div
-                class="flex items-start justify-between gap-3 border-b border-neutral-200 dark:border-neutral-700 pb-2"
+                class="flex items-start justify-between gap-3 border-b border-hairline dark:border-neutral-700 pb-2"
               >
                 <span class="text-neutral-500">{{ item.key }}</span>
                 <span class="text-right break-all">{{ item.value }}</span>
@@ -279,7 +279,7 @@
               <img [src]="picUrl" alt="Avatar atual" class="w-16 h-16 rounded-full object-cover" />
             } @else {
               <div
-                class="w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+                class="w-16 h-16 rounded-full bg-surface-100 dark:bg-neutral-700 flex items-center justify-center"
               >
                 <span class="text-lg font-medium text-neutral-500">{{
                   displayName(target).charAt(0).toUpperCase()
@@ -293,42 +293,30 @@
           </div>
 
           <div class="flex gap-2">
-            <button
+            <af-button
               type="button"
-              class="flex-1 py-1.5 text-xs rounded border"
-              [class]="
-                profileImageMode() === 'url'
-                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
-                  : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
-              "
+              [variant]="profileImageMode() === 'url' ? 'primary' : 'outline'"
+              size="sm"
               (click)="setProfileImageMode('url')"
             >
               URL
-            </button>
-            <button
+            </af-button>
+            <af-button
               type="button"
-              class="flex-1 py-1.5 text-xs rounded border"
-              [class]="
-                profileImageMode() === 'base64'
-                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
-                  : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
-              "
+              [variant]="profileImageMode() === 'base64' ? 'primary' : 'outline'"
+              size="sm"
               (click)="setProfileImageMode('base64')"
             >
               Base64
-            </button>
-            <button
+            </af-button>
+            <af-button
               type="button"
-              class="flex-1 py-1.5 text-xs rounded border"
-              [class]="
-                profileImageMode() === 'remove'
-                  ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
-                  : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
-              "
+              [variant]="profileImageMode() === 'remove' ? 'danger' : 'outline'"
+              size="sm"
               (click)="setProfileImageMode('remove')"
             >
               Remover
-            </button>
+            </af-button>
           </div>
 
           @if (profileImageMode() === 'url') {

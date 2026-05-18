@@ -8,9 +8,9 @@
   <!-- Roteamento automático (Round Robin)                                -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <section
-    class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+    class="rounded-xl border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
   >
-    <div class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800">
+    <div class="px-5 py-3 border-b border-hairline dark:border-neutral-700">
       <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
         Roteamento automático
       </h3>
@@ -25,7 +25,7 @@
         </div>
       } @else if (error()) {
         <div class="space-y-3">
-          <p class="text-sm text-red-500">{{ error() }}</p>
+          <p class="text-sm text-red-600 dark:text-red-400">{{ error() }}</p>
           <af-button variant="outline" size="sm" (click)="retryLoad()"> Tentar novamente </af-button>
         </div>
       } @else {
@@ -71,7 +71,7 @@
           }
 
           <!-- Agentes da fila -->
-          <div class="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+          <div class="mt-6 pt-4 border-t border-hairline dark:border-neutral-700">
             <div class="flex items-center justify-between mb-4">
               <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
                 Agentes da fila
@@ -115,9 +115,9 @@
   <!-- Auto-fechamento por inatividade                                    -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <section
-    class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+    class="rounded-xl border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
   >
-    <div class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800">
+    <div class="px-5 py-3 border-b border-hairline dark:border-neutral-700">
       <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
         Auto-fechamento por inatividade
       </h3>
@@ -132,7 +132,7 @@
         </div>
       } @else if (autoCloseError()) {
         <div class="space-y-3">
-          <p class="text-sm text-red-500">{{ autoCloseError() }}</p>
+          <p class="text-sm text-red-600 dark:text-red-400">{{ autoCloseError() }}</p>
           <af-button variant="outline" size="sm" (click)="loadAutoCloseSettings()">
             Tentar novamente
           </af-button>
@@ -150,7 +150,7 @@
 
         <!-- Campos condicionais -->
         @if (isAutoCloseEnabled()) {
-          <div class="flex flex-col gap-6 pl-6 border-l-2 border-accent-500/30">
+          <div class="flex flex-col gap-6 pl-6 border-l-2 border-primary-500/30">
             <div class="max-w-xs">
               <af-select-input
                 [control]="chatForm.controls.auto_close_inactivity_minutes"
@@ -187,7 +187,7 @@
           </div>
         }
 
-        <div class="flex justify-end mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+        <div class="flex justify-end mt-6 pt-4 border-t border-hairline dark:border-neutral-700">
           <af-loading-button
             variant="primary"
             [loading]="isAutoCloseSaving()"

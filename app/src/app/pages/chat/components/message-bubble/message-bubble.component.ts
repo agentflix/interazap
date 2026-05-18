@@ -9,7 +9,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   standalone: true,
   templateUrl: './message-bubble.component.html',
   host: {
-    class: 'block max-w-[80%]',
+    class: 'block max-w-[80%] min-w-0',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

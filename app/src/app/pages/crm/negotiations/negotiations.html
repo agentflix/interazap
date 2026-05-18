@@ -181,7 +181,7 @@
     }
 
     <!-- List create/edit modal -->
-    <app-modal
+    <af-modal
       [class.hidden]="!isListModalOpen()"
       [isOpen]="isListModalOpen()"
       [title]="listEditingItem() ? 'Editar negociação' : 'Nova Negociação'"
@@ -216,10 +216,10 @@
           </app-loading-button>
         </div>
       </div>
-    </app-modal>
+    </af-modal>
 
     <!-- Delete confirmation -->
-    <app-modal
+    <af-modal
       [class.hidden]="!isListDeleteOpen()"
       [isOpen]="isListDeleteOpen()"
       title="Excluir negociação"
@@ -249,7 +249,7 @@
           </app-loading-button>
         </div>
       </div>
-    </app-modal>
+    </af-modal>
   }
 
   <!-- ═══════════════ KANBAN VIEW ═══════════════ -->
@@ -332,46 +332,46 @@
                 (cdkDropListDropped)="onKanbanDrop($event, step)"
               >
                 @for (negotiation of step.negotiations || []; track negotiation.id) {
-                  <div
-                    class="group rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-md cursor-grab active:cursor-grabbing"
-                    cdkDrag
-                    [cdkDragData]="negotiation"
-                  >
-                    <a
-                      class="block truncate text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-tight hover:text-primary"
-                      [routerLink]="['/crm/negotiations', negotiation.id]"
-                      [title]="negotiation.title"
+                    <div
+                      class="group rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-md cursor-grab active:cursor-grabbing min-w-0"
+                      cdkDrag
+                      [cdkDragData]="negotiation"
                     >
-                      {{ negotiation.title }}
-                    </a>
+                      <a
+                        class="block truncate text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-tight hover:text-primary"
+                        [routerLink]="['/crm/negotiations', negotiation.id]"
+                        [title]="negotiation.title"
+                      >
+                        {{ negotiation.title }}
+                      </a>
 
-                    <p class="mt-1.5 text-sm font-medium text-primary">
-                      {{ negotiation.value | currency: 'BRL' }}
-                    </p>
+                      <p class="mt-1.5 text-sm font-medium text-primary truncate">
+                        {{ negotiation.value | currency: 'BRL' }}
+                      </p>
 
-                    <div class="mt-2.5 space-y-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-                      @if (negotiation.contact?.name) {
-                        <div class="flex items-center gap-1.5">
-                          <lucide-icon
-                            name="user-round"
-                            [size]="12"
-                            class="block shrink-0 text-neutral-400 dark:text-neutral-500"
-                          />
-                          <span class="truncate">{{ negotiation.contact?.name }}</span>
-                        </div>
-                      }
-                      @if (negotiation.crm_company?.name) {
-                        <div class="flex items-center gap-1.5">
-                          <lucide-icon
-                            name="building-2"
-                            [size]="12"
-                            class="block shrink-0 text-neutral-400 dark:text-neutral-500"
-                          />
-                          <span class="truncate">{{ negotiation.crm_company?.name }}</span>
-                        </div>
-                      }
+                      <div class="mt-2.5 space-y-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                        @if (negotiation.contact?.name) {
+                          <div class="flex items-center gap-1.5 min-w-0">
+                            <lucide-icon
+                              name="user-round"
+                              [size]="12"
+                              class="block shrink-0 text-neutral-400 dark:text-neutral-500"
+                            />
+                            <span class="truncate">{{ negotiation.contact?.name }}</span>
+                          </div>
+                        }
+                        @if (negotiation.crm_company?.name) {
+                          <div class="flex items-center gap-1.5 min-w-0">
+                            <lucide-icon
+                              name="building-2"
+                              [size]="12"
+                              class="block shrink-0 text-neutral-400 dark:text-neutral-500"
+                            />
+                            <span class="truncate">{{ negotiation.crm_company?.name }}</span>
+                          </div>
+                        }
+                      </div>
                     </div>
-                  </div>
                 } @empty {
                   <div
                     class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-neutral-200 dark:border-neutral-700 p-6 text-center"
@@ -413,7 +413,7 @@
     </section>
 
     <!-- Kanban create/edit modal -->
-    <app-modal
+    <af-modal
       [class.hidden]="!isKanbanModalOpen()"
       [isOpen]="isKanbanModalOpen()"
       [title]="kanbanEditingItem() ? 'Editar negociação' : 'Nova Negociação'"
@@ -449,7 +449,7 @@
           </app-loading-button>
         </div>
       </div>
-    </app-modal>
+    </af-modal>
   }
 
   <!-- ═══════════════ FILTERS DRAWER ═══════════════ -->

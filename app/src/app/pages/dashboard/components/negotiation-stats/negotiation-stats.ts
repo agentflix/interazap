@@ -26,7 +26,7 @@ export class NegotiationStatsComponent {
   protected readonly hasData = computed(() => this.chartSeries().some((value) => value > 0));
 
   protected readonly chartOptions = {
-    legend: { position: 'bottom' },
+    legend: { position: 'bottom', labels: { colors: undefined }, itemMargin: { horizontal: 6 } },
     stroke: { show: false },
   };
 }

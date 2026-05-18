@@ -46,11 +46,13 @@
       <tbody>
         @for (item of integrations(); track item.id) {
           <tr>
-            <td class="font-medium">{{ item.name }}</td>
+            <td class="font-medium min-w-0">
+              <span class="truncate block">{{ item.name }}</span>
+            </td>
             <td>
               @if (item.provider === 'telegram') {
                 <span
-                  class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                  class="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
                 >
                   <i class="pi pi-telegram text-xs"></i>
                   Telegram
@@ -166,13 +168,13 @@
 <af-modal [open]="showQrModal()" title="Conectar WhatsApp" size="md" (closed)="closeQrModal()">
   <div class="space-y-4">
     <!-- Tabs -->
-    <div class="flex border-b border-neutral-200 dark:border-neutral-700">
+    <div class="flex border-b border-hairline dark:border-neutral-700">
       <button
         type="button"
-        class="flex-1 pb-2 text-sm font-medium transition-colors"
+        class="flex-1 pb-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
         [class]="
           connectForm.controls.mode.value === 'qr'
-            ? 'border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
+            ? 'border-b-2 border-primary-500 text-primary-600 dark:text-primary-400'
             : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
         "
         (click)="connectForm.controls.mode.setValue('qr')"
@@ -181,10 +183,10 @@
       </button>
       <button
         type="button"
-        class="flex-1 pb-2 text-sm font-medium transition-colors"
+        class="flex-1 pb-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
         [class]="
           connectForm.controls.mode.value === 'pair'
-            ? 'border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
+            ? 'border-b-2 border-primary-500 text-primary-600 dark:text-primary-400'
             : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
         "
         (click)="connectForm.controls.mode.setValue('pair')"
@@ -218,15 +220,15 @@
     <!-- Results area -->
     @if (qrCodeData()) {
       <div class="flex flex-col items-center space-y-3">
-        <div class="bg-white p-4 rounded-lg shadow-sm border border-neutral-200">
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-hairline dark:border-neutral-700">
           <img [src]="qrCodeData()!" alt="QR Code" class="w-64 h-64" />
         </div>
-        <p class="text-sm text-neutral-600 text-center max-w-xs">
+        <p class="text-sm text-neutral-600 dark:text-neutral-400 text-center max-w-xs">
           Abra o WhatsApp no seu celular, vá em Aparelhos Conectados > Conectar Aparelho e escaneie o
           código acima.
         </p>
         @if (connectExpiresAt()) {
-          <p class="text-xs text-neutral-500">Expira em: {{ connectExpiresAt() }}</p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">Expira em: {{ connectExpiresAt() }}</p>
         }
       </div>
     }
@@ -234,17 +236,17 @@
     @if (pairCodeData()) {
       <div class="flex flex-col items-center space-y-3">
         <div
-          class="bg-neutral-100 dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700"
+          class="bg-neutral-50 dark:bg-neutral-800 p-6 rounded-lg border border-hairline dark:border-neutral-700"
         >
           <p class="text-3xl font-mono font-bold tracking-widest text-primary-600 dark:text-primary-400">
             {{ pairCodeData() }}
           </p>
         </div>
-        <p class="text-sm text-neutral-600 text-center max-w-xs">
+        <p class="text-sm text-neutral-600 dark:text-neutral-400 text-center max-w-xs">
           Use este código para conectar sua instância. O código expira em breve.
         </p>
         @if (connectExpiresAt()) {
-          <p class="text-xs text-neutral-500">Expira em: {{ connectExpiresAt() }}</p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">Expira em: {{ connectExpiresAt() }}</p>
         }
       </div>
     }

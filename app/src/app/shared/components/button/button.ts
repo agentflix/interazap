@@ -58,8 +58,8 @@ export class AfButtonComponent {
   protected readonly buttonClasses = computed(() => {
     const base = [
       'inline-flex items-center justify-center gap-2',
-      'font-semibold rounded-md',
-      'transition-all duration-150 ease-in-out',
+      'font-semibold rounded-sm',
+      'transition-colors duration-150',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
       'cursor-pointer select-none',
@@ -74,10 +74,10 @@ export class AfButtonComponent {
 
     const variants: Record<string, string> = {
       primary: [
-        'bg-accent-500 text-white',
-        'hover:bg-accent-600',
-        'active:bg-accent-700',
-        'focus-visible:ring-accent-500/50',
+        'bg-primary-400 text-neutral-900',
+        'hover:bg-primary-500',
+        'active:bg-primary-600',
+        'focus-visible:ring-primary-500/50',
       ].join(' '),
       secondary: [
         'bg-primary-900 text-white',
@@ -92,22 +92,22 @@ export class AfButtonComponent {
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
       danger: [
-        'bg-red-600 text-white',
-        'hover:bg-red-700',
-        'active:bg-red-800',
-        'focus-visible:ring-red-600/50',
+        'bg-danger text-white',
+        'hover:bg-danger-600',
+        'active:bg-danger-700',
+        'focus-visible:ring-danger/50',
       ].join(' '),
       outline: [
-        'border border-neutral-300 dark:border-neutral-600',
+        'border border-hairline-strong dark:border-neutral-600',
         'bg-transparent text-neutral-700 dark:text-neutral-300',
-        'hover:bg-neutral-50 dark:hover:bg-neutral-800',
+        'hover:bg-surface-50 dark:hover:bg-neutral-800',
         'active:bg-neutral-100 dark:active:bg-neutral-700',
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
       success: [
         'bg-success text-white',
-        'hover:bg-success/90',
-        'active:bg-success/80',
+        'hover:bg-success-600',
+        'active:bg-success-700',
         'focus-visible:ring-success/50',
       ].join(' '),
       default: [

@@ -1,13 +1,16 @@
-<app-modal title="Transferir chamado" [isOpen]="isOpen()" (closed)="close()" size="sm">
+<af-modal title="Transferir chamado" [isOpen]="isOpen()" (closed)="close()" size="sm">
   <div modal-body class="space-y-4">
-    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+    <p class="text-sm text-neutral-600 dark:text-neutral-400">
       Informe para quem o chamado será transferido e registre o motivo para a equipe interna.
     </p>
 
     @if (isTransferUsersLoading()) {
-      <div class="text-sm text-neutral-500 dark:text-neutral-400">Carregando atendentes...</div>
+      <div class="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
+        <div class="size-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+        <span>Carregando atendentes...</span>
+      </div>
     } @else if (transferUsersLoadError()) {
-      <div class="text-sm text-danger">Não foi possível carregar a lista de atendentes.</div>
+      <div class="text-sm text-red-600 dark:text-red-400">Não foi possível carregar a lista de atendentes.</div>
     } @else if (transferUserOptions().length === 0) {
       <div class="text-sm text-neutral-500 dark:text-neutral-400">
         Nenhum atendente disponível para transferência.
@@ -33,7 +36,7 @@
     }
 
     @if (submitError()) {
-      <p class="text-xs text-red-400">{{ submitError() }}</p>
+      <p class="text-xs text-red-600 dark:text-red-400">{{ submitError() }}</p>
     }
   </div>
 
@@ -45,4 +48,4 @@
       {{ isSubmitting() ? 'Transferindo...' : 'Transferir chamado' }}
     </app-button>
   </div>
-</app-modal>
+</af-modal>

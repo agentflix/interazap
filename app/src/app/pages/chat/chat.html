@@ -85,10 +85,10 @@
   <!-- Drag & Drop Overlay -->
   @if (isDragOver()) {
     <div
-      class="absolute inset-0 z-50 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center pointer-events-none"
+      class="absolute inset-0 z-50 bg-primary-500/10 border-2 border-dashed border-primary-500 rounded-lg flex items-center justify-center pointer-events-none"
     >
-      <div class="flex flex-col items-center gap-3 text-primary">
-        <div class="size-16 rounded-full bg-primary/20 flex items-center justify-center">
+      <div class="flex flex-col items-center gap-3 text-primary-500 dark:text-primary-400">
+        <div class="size-16 rounded-full bg-primary-500/20 flex items-center justify-center">
           <ng-icon name="lucideUploadCloud" size="32"></ng-icon>
         </div>
         <span class="text-lg font-semibold">Solte os arquivos aqui</span>
@@ -116,7 +116,7 @@
   (send)="sendMediaFiles()"
 />
 
-<app-modal
+<af-modal
   title="Pesquisar chamados"
   [isOpen]="isSearchModalOpen()"
   (closed)="closeSearchModal()"
@@ -136,7 +136,7 @@
   <div modal-footer class="flex w-full items-center justify-end gap-2">
     <app-button variant="outline" size="sm" (clicked)="closeSearchModal()">Fechar</app-button>
   </div>
-</app-modal>
+</af-modal>
 
 <app-new-conversation-modal />
 
@@ -149,7 +149,7 @@
   (confirmed)="onTransferConfirmed($event)"
 />
 
-<app-confirm-modal
+<af-confirm-modal
   [isOpen]="isCloseTicketConfirmOpen()"
   title="Encerrar atendimento"
   message="Tem certeza que deseja encerrar este atendimento? Esta ação não pode ser desfeita."

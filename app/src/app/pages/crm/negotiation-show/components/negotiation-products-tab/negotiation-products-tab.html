@@ -79,7 +79,7 @@
   }
 </div>
 
-<app-modal
+<af-modal
   [isOpen]="isProductModalOpen()"
   [title]="editingProduct() ? 'Editar item' : 'Adicionar item'"
   maxWidth="md"
@@ -152,9 +152,9 @@
       </app-loading-button>
     </div>
   </div>
-</app-modal>
+</af-modal>
 
-<app-confirm-modal
+<af-confirm-modal
   [isOpen]="!!deletingProduct()"
   title="Remover item"
   message="Tem certeza que deseja remover este item da negociação?"

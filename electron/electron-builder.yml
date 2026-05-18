@@ -7,6 +7,7 @@ directories:
 files:
     - dist/**/*
     - app/**/*
+    - build/icon.png
     - package.json
     - '!**/*.map'
 asar: true

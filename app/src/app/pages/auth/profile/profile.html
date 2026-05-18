@@ -91,12 +91,14 @@
                 [required]="true"
                 dataTest="profile-name"
                 [errorMessage]="profileError('name')"
+                autocomplete="name"
               />
               <af-text-input
                 [control]="profileForm.controls.email"
                 label="E-mail"
                 [readOnly]="true"
                 dataTest="profile-email"
+                autocomplete="email"
               />
             </div>
             <div class="flex justify-end">
@@ -136,6 +138,7 @@
                 [required]="true"
                 dataTest="profile-current-password"
                 [errorMessage]="passwordError('current_password')"
+                autocomplete="current-password"
               />
               <af-password-input
                 [control]="passwordForm.controls.password"
@@ -144,6 +147,7 @@
                 [required]="true"
                 dataTest="profile-new-password"
                 [errorMessage]="passwordError('password')"
+                autocomplete="new-password"
               />
               <af-password-input
                 [control]="passwordForm.controls.password_confirmation"
@@ -152,6 +156,7 @@
                 [required]="true"
                 dataTest="profile-confirm-password"
                 [errorMessage]="passwordMismatch() ? 'As senhas não coincidem.' : ''"
+                autocomplete="new-password"
               />
             </div>
             <div class="flex justify-end">

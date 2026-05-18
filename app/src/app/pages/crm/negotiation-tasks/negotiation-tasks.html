@@ -54,21 +54,21 @@
           </div>
         } @else {
           <div class="min-w-180 h-full">
-            <div cdkDropListGroup class="grid h-full grid-cols-3 gap-4">
+            <div cdkDropListGroup class="grid h-full grid-cols-3 gap-4 min-w-0">
               @for (column of columns; track column.id) {
                 <div
-                  class="flex h-full flex-col rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 p-3"
+                  class="flex h-full flex-col rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 p-3 min-w-0"
                   [ngClass]="column.tone"
                 >
-                  <div class="flex items-center gap-2 mb-3">
-                    <span class="inline-block size-2 rounded-full" [ngClass]="column.dot"></span>
+                  <div class="flex items-center gap-2 mb-3 min-w-0">
+                    <span class="inline-block size-2 rounded-full shrink-0" [ngClass]="column.dot"></span>
                     <p
-                      class="text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
+                      class="text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400 truncate"
                     >
                       {{ column.label }}
                     </p>
                     <span
-                      class="ml-auto inline-flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 px-1.5 text-[10px] font-medium text-neutral-600 dark:text-neutral-300 min-w-5 h-5"
+                      class="ml-auto inline-flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 px-1.5 text-[10px] font-medium text-neutral-600 dark:text-neutral-300 min-w-5 h-5 shrink-0"
                     >
                       {{ getColumnTasks(column.id).length }}
                     </span>
@@ -85,11 +85,11 @@
                   >
                     @for (task of getColumnTasks(column.id); track task.id) {
                       <div
-                        class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md"
+                        class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md min-w-0"
                         cdkDrag
                         [cdkDragData]="task"
                       >
-                        <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                        <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">
                           {{ task.title }}
                         </p>
                         <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400 truncate">
@@ -99,12 +99,12 @@
                         <div
                           class="mt-2 flex flex-wrap items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400"
                         >
-                          <span class="inline-flex items-center gap-1">
+                          <span class="inline-flex items-center gap-1 shrink-0">
                             <lucide-icon name="calendar" [size]="14" class="block" />
                             {{ formatDate(task.due_date) }}
                           </span>
                           @if (task.start_time && task.end_time) {
-                            <span>
+                            <span class="truncate">
                               {{ formatTime(task.start_time) }} – {{ formatTime(task.end_time) }}
                             </span>
                           }
@@ -112,11 +112,11 @@
 
                         @if (task.negotiation_id) {
                           <a
-                            class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                            class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline truncate"
                             [routerLink]="['/crm/negotiations', task.negotiation_id]"
                           >
                             Ver negociação
-                            <lucide-icon name="arrow-up-right" [size]="14" class="inline-block" />
+                            <lucide-icon name="arrow-up-right" [size]="14" class="inline-block shrink-0" />
                           </a>
                         }
                       </div>

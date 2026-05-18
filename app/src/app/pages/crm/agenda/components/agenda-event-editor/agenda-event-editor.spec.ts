@@ -9,7 +9,7 @@ import { AgendaFormComponent } from '../agenda-form/agenda-form';
 import { ButtonComponent, LoadingButtonComponent } from '@shared/components/buttons';
 
 @Component({
-  selector: 'app-modal',
+  selector: 'af-modal',
   standalone: true,
   template: '<ng-content></ng-content>',
 })

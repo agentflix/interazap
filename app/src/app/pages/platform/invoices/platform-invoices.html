@@ -82,9 +82,7 @@
       </af-drawer>
 
       <!-- Table -->
-      <div
-        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
-      >
+      <div class="card overflow-hidden">
         @if (isLoading()) {
           <af-skeleton-table-row [columns]="8" [rows]="6" />
         } @else if (hasError()) {

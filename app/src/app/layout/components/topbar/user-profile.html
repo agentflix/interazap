@@ -2,8 +2,9 @@
     <div class="relative">
       <button
         (click)="open.set(!open())"
-        class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors duration-150 cursor-pointer"
+        class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
         type="button"
+        aria-label="Menu do usuário"
       >
         <af-avatar [src]="avatarUrl()" [initials]="userInitials()" [alt]="userName()" size="sm" />
         <div class="hidden sm:flex flex-col items-start">
@@ -30,21 +31,21 @@
 
           <a
             [routerLink]="['/settings/profile']"
-            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors"
+            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
           >
             <lucide-icon name="user" [size]="16" class="text-neutral-400" />
             Minha Conta
           </a>
           <a
             [routerLink]="['/settings/preferences']"
-            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors"
+            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
           >
             <lucide-icon name="settings" [size]="16" class="text-neutral-400" />
             Preferências
           </a>
           <a
             [routerLink]="['/settings/my-plan']"
-            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors"
+            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
           >
             <lucide-icon name="credit-card" [size]="16" class="text-neutral-400" />
             Meu Plano
@@ -56,7 +57,7 @@
             type="button"
             (click)="logout()"
             [disabled]="isLoggingOut()"
-            class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+            class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
           >
             <lucide-icon name="log-out" [size]="16" />
             Sair

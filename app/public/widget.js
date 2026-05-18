@@ -57,7 +57,7 @@
 
   var options = {
     tenant: tenant,
-    color: ds.color || '#2563eb',
+    color: ds.color || '#3ecf8e',
     title: ds.title || 'Atendimento',
     iconUrl: ds.iconUrl || '',
     greeting: ds.greeting || '',
@@ -86,12 +86,12 @@
     '.iz-badge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#ef4444;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}',
     '.iz-greeting{position:fixed;bottom:90px;right:20px;max-width:260px;background:#fff;color:#111827;padding:12px 36px 12px 14px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,0.16);font-size:14px;line-height:1.4;cursor:pointer;animation:izFade .3s ease;}',
     '.iz-greeting-close{position:absolute;top:6px;right:8px;background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:16px;line-height:1;padding:2px;}',
-    '.iz-panel{position:fixed;bottom:90px;right:20px;width:380px;max-width:calc(100vw - 24px);height:600px;max-height:calc(100vh - 110px);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 16px 48px rgba(0,0,0,0.22);display:none;flex-direction:column;animation:izSlide .25s ease;}',
+    '.iz-panel{position:fixed;bottom:90px;right:20px;width:380px;max-width:calc(100vw - 24px);height:580px;max-height:calc(100vh - 110px);min-height:400px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 16px 48px rgba(0,0,0,0.22);display:none;flex-direction:column;animation:izSlide .25s ease;}',
     '.iz-panel.open{display:flex;}',
     '.iz-panel iframe{flex:1;width:100%;border:none;display:block;}',
     '@keyframes izSlide{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}',
     '@keyframes izFade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}',
-    '@media (max-width:480px){.iz-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0;}.iz-fab{bottom:16px;right:16px;}.iz-greeting{right:16px;bottom:86px;}}',
+    '@media (max-width:480px){.iz-panel{right:0;bottom:0;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;min-height:100dvh;border-radius:0;}.iz-fab{bottom:16px;right:16px;width:56px;height:56px;}.iz-greeting{right:16px;bottom:86px;}}',
   ].join('');
   root.appendChild(style);
 

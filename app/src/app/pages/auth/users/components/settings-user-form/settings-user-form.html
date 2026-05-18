@@ -13,6 +13,7 @@
         [required]="true"
         dataTest="user-form-name"
         [errorMessage]="nameError()"
+        autocomplete="name"
       />
 
       <af-text-input
@@ -24,6 +25,7 @@
         [readOnly]="isEditing()"
         dataTest="user-form-email"
         [errorMessage]="emailError()"
+        autocomplete="email"
       />
 
       <af-checkbox-group

@@ -1,0 +1,83 @@
+# Project State — InteraZap
+
+**Última atualização:** 2026-05-17
+**Responsável:** Rafael Silva
+
+---
+
+## Migração Design System InteraZap
+
+**Status:** ✅ Concluída
+**Data de início:** 2026-05-17
+**Data de conclusão:** 2026-05-17
+**Project ID:** 560a0d78-ae98-4650-9cc0-666fa48bf948
+
+### Tasks
+
+| Issue | Título | Status |
+|-------|--------|--------|
+| INT-6 | Design System — migrar tokens globais | ✅ Concluída |
+| INT-7 | Shared UI — migrar componentes base | ✅ Concluída |
+| INT-9 | App Shell — migrar layout, sidenav, topbar | ✅ Concluída |
+| INT-16 | WebChat Público — migrar widget, embed | ✅ Concluída |
+| INT-17 | Electron — alinhar desktop | ✅ Concluída |
+| INT-18 | Docs & Validation — registrar PREVC, changelog, memory e gates | ✅ Concluída |
+
+### Métricas
+
+- **Tasks total:** 6
+- **Tasks concluídas:** 6
+- **Tasks em progresso:** 0
+- **Features concluídas:** 1 (Migração Design System)
+
+### Design System Status
+
+**Tokens:**
+- Cores: ✅ Definidas (primary, ink, canvas, hairline, muted, canvas-night)
+- Radius: ✅ Definida (xs, sm, md, lg, xl, xxl)
+- Tipografia: ✅ Inter configurada
+- Sombras: ✅ sm, md, lg, xl definidas
+
+**Componentes:**
+- Botões: ✅ `.btn-primary`, `.btn-secondary`, `.btn-link`
+- Formulários: ✅ `.form-input`
+- Cards: ✅ `.card`
+- Pills: ✅ `.pill`
+
+**Módulos migrados:**
+- App Shell: ✅
+- WebChat Público: ✅
+- Electron Desktop: ✅
+
+### Gates
+
+| Gate | Resultado |
+|------|-----------|
+| `pnpm --filter app test` | ✅ Pass |
+| `pnpm --filter app build` | ✅ Pass |
+| `ng build` (webchat) | ✅ Pass |
+| `ng lint` (webchat) | ✅ Pass |
+| Angular build (Electron) | ✅ Pass (2.29 MB) |
+| TypeScript compile | ✅ Pass |
+| Electron prebuild | ✅ Pass |
+
+### Próximos Passos
+
+1. Monitorar adoção dos tokens em novos componentes.
+2. Avaliar migração de componentes restantes com cores hardcoded.
+3. Documentar guidelines de uso do design system para novos desenvolvedores.
+4. Avaliar expansão do design system para landing page.
+
+### Documentação
+
+- **Feature doc:** `.context/DOCS/FEATURES/migracao-design-system.md`
+- **Changelog:** `.context/DOCS/CHANGELOG/2026-05-17-migracao-design-system.md`
+- **Memory:**
+  - `.context/DOCS/MEMORY/design-system-tokens.md`
+  - `.context/DOCS/MEMORY/design-system-rollout.md`
+  - `.context/DOCS/MEMORY/design-system-accessibility.md`
+
+### Links
+
+- **Linear Project:** https://linear.app/interazap/project/migracao-design-system-interazap
+- **Linear Issues:** INT-6, INT-7, INT-9, INT-16, INT-17, INT-18

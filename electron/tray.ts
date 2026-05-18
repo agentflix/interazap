@@ -4,11 +4,9 @@ import * as path from 'path';
 let tray: Tray | null = null;
 
 export function createTray(mainWindow: BrowserWindow): Tray {
-    // Create a simple tray icon
-    // Note: In production, you'd use an actual icon file
-    const icon = nativeImage.createFromDataURL(
-        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAbwAAAG8B8aLcQwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAE8SURBVDiNpZM9SwNBEIaf3SQXYxPBgqCNYGEjFoKFhYV/gI2Njf8BLGzEwsrCxsLCP8DGxsbCwsLGwkKwsLAQLCwsBAuRBRFzXu9ibOIuuXgkFwhvdp7dM7M7O1u0gP9OoLU+C4RfhfM+8B5oA5P+/j5wB/SAl0BvmqYHkjT5b4DW+gAw8Qe4DLSBBaAF1P39t8AhcAycgRfg0V8g7wB2gXtg3gfWgW1gDqgB08A0UPH3XwPXwDnwDOwD58BboO0PcAXMA1fAA3ANnAFv/gC5ABaAa+AauAbO/cn5BGwBC8A1cAOcA4/AGbAJ7AD7wDFwCFz5E/MJ2AEW/AlyClwDZ8ALf2I2gW1gHjgHToAj4NQfnzEwB+z6E+QR2AR2/QlyBtwAp8Ar0PcnZxLYAnb9CXIKXPkTswlsA7v+BDkFbrwEOfQnZtOfoA1g05+gZ8C2P0EbnqANYN2foA1g3Z+gDWAD2PAn6C9g0x+gvh+gvkKkL8/8AAAAAElFTkSuQmCC',
-    );
+    // Load the InteraZap emerald brand icon (#3ecf8e) from build resources
+    const iconPath = path.join(__dirname, '../build/icon.png');
+    const icon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
 
     tray = new Tray(icon);
     tray.setToolTip('InteraZap Desktop');

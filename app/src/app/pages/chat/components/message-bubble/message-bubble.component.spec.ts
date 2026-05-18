@@ -34,6 +34,6 @@ describe('MessageBubbleComponent', () => {
     outgoingFixture.componentRef.setInput('direction', 'outgoing');
     outgoingFixture.detectChanges();
     const outgoingArticle = outgoingFixture.nativeElement.querySelector('article') as HTMLElement;
-    expect(outgoingArticle.className).toContain('bg-accent-600');
+    expect(outgoingArticle.className).toContain('bg-primary-500');
   });
 });

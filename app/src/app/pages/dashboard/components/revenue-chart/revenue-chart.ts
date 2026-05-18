@@ -33,7 +33,8 @@ export class RevenueChartComponent {
     plotOptions: { bar: { horizontal: false, columnWidth: '50%' } },
     fill: { opacity: 1 },
     grid: { show: true, padding: { top: -20, right: -10, bottom: -10 } },
-    legend: { position: 'bottom' },
+    legend: { position: 'bottom', labels: { colors: undefined }, itemMargin: { horizontal: 8 } },
+    tooltip: { theme: undefined },
   };
 
   private formatLabel(item: RevenueMonth): string {

@@ -31,6 +31,322 @@
 
   <div class="max-w-7xl mx-auto px-6 py-10 space-y-16">
     <!-- ══════════════════════════════════════════════ -->
+    <!-- 🎨 DESIGN TOKENS & FOUNDATION                 -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-6">
+        <h2 class="text-xl font-extrabold text-neutral-900 dark:text-neutral-50">
+          Design Tokens & Foundation
+        </h2>
+        <span
+          class="ml-2 text-xs font-mono text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded"
+          >Emerald #3ecf8e · Inter · Radius · Hairline · Focus-visible</span
+        >
+      </div>
+
+      <div class="space-y-10">
+        <!-- Color Palette -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Primary Palette — Emerald
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            Texto escuro sobre verde primário (#3ecf8e) para contraste acessível
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+              @for (s of [50,100,200,300,400,500,600,700,800,900]; track s) {
+                <div class="text-center">
+                  <div
+                    class="h-10 rounded-lg border border-hairline/30"
+                    [class]="'bg-primary-' + s"
+                  ></div>
+                  <span class="text-[10px] text-neutral-500 mt-1 block">{{ s }}</span>
+                </div>
+              }
+            </div>
+            <div class="mt-4 p-3 rounded-lg bg-primary-400 text-neutral-900 font-semibold text-sm">
+              Exemplo: texto escuro sobre primary-400 — contraste acessível ✓
+            </div>
+          </div>
+        </section>
+
+        <!-- Buttons — New Visual Language -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Buttons — Nova Linguagem Visual
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            .btn-primary (texto escuro sobre verde) · .btn-secondary · .btn-link · radius-sm (6px)
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <af-button variant="primary">Primary (dark on green)</af-button>
+              <af-button variant="secondary">Secondary</af-button>
+              <af-button variant="outline">Outline</af-button>
+              <af-button variant="ghost">Ghost</af-button>
+              <af-button variant="danger">Danger</af-button>
+              <af-button variant="ghost">Link-style</af-button>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <af-button size="xs">XS</af-button>
+              <af-button size="sm">Small</af-button>
+              <af-button size="md">Medium</af-button>
+              <af-button size="lg">Large</af-button>
+              <af-button [disabled]="true">Disabled</af-button>
+              <af-button [block]="true">Block</af-button>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-hairline">
+              <span class="text-xs text-neutral-500 font-mono">CSS classes:</span>
+              <button class="btn-primary">btn-primary</button>
+              <button class="btn-secondary">btn-secondary</button>
+              <button class="btn-link">btn-link</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Loading & Icon Buttons -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Loading & Icon Buttons
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-loading-button · af-icon-button (com aria-label obrigatório)
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <af-loading-button [loading]="isLoading()" variant="primary"
+                >Salvar</af-loading-button
+              >
+              <af-loading-button [loading]="isLoading()" variant="secondary"
+                >Processar</af-loading-button
+              >
+              <af-icon-button label="Adicionar" variant="outline" icon="lucidePlus" />
+              <af-icon-button label="Editar" variant="outline" icon="lucidePencil" />
+              <af-icon-button label="Excluir" variant="danger" icon="lucideTrash2" />
+              <af-icon-button label="Configurações" variant="ghost" icon="lucideSettings" />
+              <af-icon-button label="Primary action" variant="primary" icon="lucideStar" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Pills -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Pills</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-pill · .pill · .pill-success · .pill-warning · .pill-danger · .pill-info
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <af-pill>Default</af-pill>
+              <af-pill variant="success">Success</af-pill>
+              <af-pill variant="warning">Warning</af-pill>
+              <af-pill variant="danger">Danger</af-pill>
+              <af-pill variant="info">Info</af-pill>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <af-pill variant="success" [dot]="true">Ativo</af-pill>
+              <af-pill variant="warning" [dot]="true">Pendente</af-pill>
+              <af-pill variant="danger" [dot]="true">Bloqueado</af-pill>
+              <af-pill variant="info" [dot]="true">Novo</af-pill>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-hairline">
+              <span class="text-xs text-neutral-500 font-mono">CSS classes:</span>
+              <span class="pill">.pill</span>
+              <span class="pill pill-success">.pill-success</span>
+              <span class="pill pill-warning">.pill-warning</span>
+              <span class="pill pill-danger">.pill-danger</span>
+              <span class="pill pill-info">.pill-info</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Focus-visible States -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Focus-visible States
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            Todos os controles interativos possuem focus-visible ring — use Tab para testar
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <af-button variant="primary" ariaLabel="Botão primário focável">
+                Button (Tab)
+              </af-button>
+              <af-button variant="outline" ariaLabel="Botão outline focável">
+                Outline (Tab)
+              </af-button>
+              <af-icon-button
+                label="Ícone focável"
+                variant="ghost"
+                icon="lucideHeart"
+                ariaLabel="Favorite"
+              />
+              <input
+                class="form-input w-48"
+                placeholder="Input (Tab)"
+                aria-label="Campo de teste para foco"
+              />
+            </div>
+            <p class="text-xs text-neutral-400">
+              Use <kbd class="px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-700 rounded text-xs font-mono">Tab</kbd>
+              para navegar entre os elementos e verificar o ring de foco visível.
+            </p>
+          </div>
+        </section>
+
+        <!-- Cards -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Cards</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-card · .card · .card-body · radius-lg (12px) · hairline border
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <af-card>
+              <div header class="px-5 pt-5 pb-0">
+                <h4 class="font-semibold text-neutral-900 dark:text-neutral-50">Card Header</h4>
+              </div>
+              <p class="text-sm text-neutral-500">Conteúdo do card com padding padrão.</p>
+            </af-card>
+            <div class="card">
+              <div class="card-body">
+                <h4 class="font-semibold text-neutral-900 dark:text-neutral-50 mb-2">
+                  CSS .card
+                </h4>
+                <p class="text-sm text-neutral-500">Card via classe CSS global.</p>
+              </div>
+            </div>
+            <af-card [padded]="false">
+              <div header class="px-5 pt-5 pb-2">
+                <h4 class="font-semibold text-neutral-900 dark:text-neutral-50">Sem padding</h4>
+              </div>
+              <div class="p-5">
+                <p class="text-sm text-neutral-500">Conteúdo customizado.</p>
+              </div>
+            </af-card>
+          </div>
+        </section>
+
+        <!-- Tables -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">Tables</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            af-data-table · hover states · token-based borders
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <af-data-table [striped]="true" [hoverable]="true">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="px-3 py-2">Nome</th>
+                    <th class="px-3 py-2">Email</th>
+                    <th class="px-3 py-2">Status</th>
+                    <th class="px-3 py-2">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="px-3 py-2">Maria Silva</td>
+                    <td class="px-3 py-2">maria&#64;email.com</td>
+                    <td class="px-3 py-2">
+                      <af-pill variant="success" [dot]="true">Ativo</af-pill>
+                    </td>
+                    <td class="px-3 py-2">
+                      <af-icon-button label="Editar" variant="ghost" icon="lucidePencil" size="xs" />
+                      <af-icon-button label="Excluir" variant="danger" icon="lucideTrash2" size="xs" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="px-3 py-2">João Santos</td>
+                    <td class="px-3 py-2">joao&#64;email.com</td>
+                    <td class="px-3 py-2">
+                      <af-pill variant="warning" [dot]="true">Pendente</af-pill>
+                    </td>
+                    <td class="px-3 py-2">
+                      <af-icon-button label="Editar" variant="ghost" icon="lucidePencil" size="xs" />
+                      <af-icon-button label="Excluir" variant="danger" icon="lucideTrash2" size="xs" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="px-3 py-2">Ana Oliveira</td>
+                    <td class="px-3 py-2">ana&#64;email.com</td>
+                    <td class="px-3 py-2">
+                      <af-pill variant="danger" [dot]="true">Bloqueado</af-pill>
+                    </td>
+                    <td class="px-3 py-2">
+                      <af-icon-button label="Editar" variant="ghost" icon="lucidePencil" size="xs" />
+                      <af-icon-button label="Excluir" variant="danger" icon="lucideTrash2" size="xs" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </af-data-table>
+          </div>
+        </section>
+
+        <!-- Form Inputs -->
+        <section>
+          <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
+            Form Inputs
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4 font-mono">
+            .form-input · af-text-input · radius-sm · hairline-strong border
+          </p>
+          <div
+            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1 block">
+                  CSS .form-input
+                </label>
+                <input
+                  class="form-input"
+                  placeholder="Nome completo"
+                  aria-label="Nome completo via CSS"
+                />
+              </div>
+              <af-text-input
+                [control]="nameControl"
+                label="af-text-input"
+                placeholder="João da Silva"
+                [required]="true"
+                [spacing]="false"
+              />
+              <af-text-input
+                [control]="emailControl"
+                label="Email"
+                placeholder="joao&#64;email.com"
+                type="email"
+                [spacing]="false"
+              />
+              <af-text-input
+                [control]="nameControl"
+                label="Small"
+                size="sm"
+                placeholder="Tamanho sm"
+                [spacing]="false"
+              />
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
     <!-- � BUTTON & ACTION EXTENSIONS                 -->
     <!-- ══════════════════════════════════════════════ -->
     <div>

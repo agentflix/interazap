@@ -65,6 +65,8 @@
               [class]="menuItemClasses()"
               class="w-full"
               type="button"
+              [attr.aria-label]="'Expandir seção ' + item.label"
+              [attr.aria-expanded]="isAccordionOpen(item.label)"
             >
               @if (item.iconName) {
                 <lucide-icon [name]="item.iconName" [size]="16" class="shrink-0" />
@@ -135,11 +137,12 @@
 @if (theme.mobileSidebarOpen()) {
   <div class="fixed inset-0 z-50 lg:hidden">
     <div
-      class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+      class="absolute inset-0 bg-black/50 backdrop-blur-sm focus-visible:outline-none"
       (click)="theme.closeMobileSidebar()"
       (keydown.enter)="theme.closeMobileSidebar()"
       tabindex="0"
       role="button"
+      aria-label="Fechar menu lateral"
     ></div>
     <aside
       class="absolute left-0 top-0 h-full w-72 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col shadow-xl animate-in slide-in-from-left duration-200 pt-safe pb-safe pl-safe"
@@ -158,8 +161,9 @@
         </div>
         <button
           (click)="theme.closeMobileSidebar()"
-          class="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 p-1 rounded cursor-pointer"
+          class="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 p-1 rounded cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           type="button"
+          aria-label="Fechar menu"
         >
           <lucide-icon name="x" [size]="20" />
         </button>
@@ -193,8 +197,10 @@
             @if (item.type === 'accordion' && item.children) {
               <button
                 (click)="toggleAccordion(item.label)"
-                class="w-full flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-50 dark:hover:bg-neutral-800 rounded-md transition-colors duration-150 cursor-pointer"
+                class="w-full flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-50 dark:hover:bg-neutral-800 rounded-md transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
                 type="button"
+                [attr.aria-label]="'Expandir seção ' + item.label"
+                [attr.aria-expanded]="isAccordionOpen(item.label)"
               >
                 @if (item.iconName) {
                   <lucide-icon [name]="item.iconName" [size]="16" class="shrink-0" />
@@ -215,8 +221,10 @@
                     @if (child.type === 'accordion' && child.children) {
                       <button
                         (click)="toggleAccordion(child.label)"
-                        class="w-full flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150 cursor-pointer"
+                        class="w-full flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
                         type="button"
+                        [attr.aria-label]="'Expandir seção ' + child.label"
+                        [attr.aria-expanded]="isAccordionOpen(child.label)"
                       >
                         <span class="flex-1 text-left truncate">{{ child.label }}</span>
                         <lucide-icon

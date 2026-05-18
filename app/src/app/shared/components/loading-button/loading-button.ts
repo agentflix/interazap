@@ -57,8 +57,8 @@ export class AfLoadingButtonComponent {
   protected readonly buttonClasses = computed(() => {
     const base = [
       'relative inline-flex items-center justify-center gap-2',
-      'font-semibold rounded-md',
-      'transition-all duration-150 ease-in-out',
+      'font-semibold rounded-sm',
+      'transition-colors duration-150',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'disabled:opacity-60 disabled:cursor-not-allowed',
       'cursor-pointer select-none',
@@ -71,10 +71,12 @@ export class AfLoadingButtonComponent {
     };
 
     const variants: Record<string, string> = {
-      primary: 'bg-accent-500 text-white hover:bg-accent-600 focus-visible:ring-accent-500/50',
-      secondary: 'bg-primary-900 text-white hover:bg-primary-700 focus-visible:ring-primary-900/50',
-      danger: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600/50',
-      success: 'bg-success text-white hover:bg-success/90 focus-visible:ring-success/50',
+      primary:
+        'bg-primary-400 text-neutral-900 hover:bg-primary-500 focus-visible:ring-primary-500/50',
+      secondary:
+        'bg-primary-900 text-white hover:bg-primary-700 focus-visible:ring-primary-900/50',
+      danger: 'bg-danger text-white hover:bg-danger-600 focus-visible:ring-danger/50',
+      success: 'bg-success text-white hover:bg-success-600 focus-visible:ring-success/50',
     };
 
     const blockClass = this.block() || this.fullWidth() ? 'w-full' : '';

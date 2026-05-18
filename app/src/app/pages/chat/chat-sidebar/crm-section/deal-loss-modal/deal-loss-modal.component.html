@@ -1,4 +1,4 @@
-<app-modal [isOpen]="isOpen()" title="Marcar como Perdida" (closed)="onClose()">
+<af-modal [isOpen]="isOpen()" title="Marcar como Perdida" (closed)="onClose()">
   <form modal-body class="space-y-4" [formGroup]="form" (ngSubmit)="onConfirm()">
     <p class="text-sm text-neutral-600 dark:text-neutral-300">
       Informe o motivo da perda da negociação:
@@ -61,4 +61,4 @@
       </app-loading-button>
     </div>
   </div>
-</app-modal>
+</af-modal>

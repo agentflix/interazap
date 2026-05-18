@@ -76,7 +76,7 @@
                     </div>
                     @if (user.is_primary_tenant_user) {
                       <span
-                        class="ml-auto text-xs px-2 py-0.5 rounded-full bg-primary-500/10 text-primary-600"
+                        class="ml-auto text-xs px-2 py-0.5 rounded-full bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400"
                         >Principal</span
                       >
                     }
@@ -183,8 +183,8 @@
     >
       <div class="space-y-4">
         <!-- Icon -->
-        <div class="mx-auto flex items-center justify-center size-12 rounded-full mb-4 bg-amber-100 dark:bg-amber-900/30">
-          <lucide-icon name="log-in" [size]="20" class="text-amber-600 dark:text-amber-400" />
+        <div class="mx-auto flex items-center justify-center size-12 rounded-full mb-4 bg-warning-50 dark:bg-warning-50/10">
+          <lucide-icon name="log-in" [size]="20" class="text-warning-600 dark:text-warning-500" />
         </div>
 
         <!-- Message -->

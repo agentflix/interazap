@@ -37,7 +37,7 @@
             <div>
               <div class="flex items-center gap-2">
                 <span
-                  class="inline-flex size-6 items-center justify-center rounded-full bg-primary/10 text-primary"
+                  class="inline-flex size-6 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
                 >
                   <lucide-icon
                     [name]="getTaskActionMeta(task.action_type).icon"
@@ -98,7 +98,7 @@
   }
 </div>
 
-<app-modal
+<af-modal
   [isOpen]="isTaskModalOpen()"
   [title]="editingTask() ? 'Editar tarefa' : 'Nova Tarefa'"
   maxWidth="md"
@@ -200,9 +200,9 @@
       </app-loading-button>
     </div>
   </div>
-</app-modal>
+</af-modal>
 
-<app-confirm-modal
+<af-confirm-modal
   [isOpen]="!!deletingTask()"
   title="Excluir tarefa"
   message="Tem certeza que deseja remover esta tarefa?"

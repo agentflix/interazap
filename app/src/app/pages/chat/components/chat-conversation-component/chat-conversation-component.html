@@ -3,7 +3,7 @@
     @if (selectedTicketId()) {
       <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
         <header
-          class="shrink-0 flex items-center justify-between gap-3 px-5 py-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900"
+          class="shrink-0 flex items-center justify-between gap-3 px-5 py-3 border-b border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900"
         >
           <div class="flex gap-3 items-center min-w-0">
             <div
@@ -21,38 +21,44 @@
             </div>
 
             <div class="min-w-0">
-              <h6 class="text-neutral-900 dark:text-neutral-100 font-bold text-sm truncate mb-0.5">
+              <h6 class="text-neutral-900 dark:text-neutral-50 font-bold text-sm truncate mb-0.5">
                 {{
                   selectedTicket()?.contact?.name ||
                     selectedTicket()?.contact?.phone ||
                     'Atendimento'
                 }}
               </h6>
-              <div class="flex items-center gap-1.5 text-xs text-neutral-500">
+              <div class="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400 min-w-0">
                 @if (selectedTicket()?.contact?.phone) {
                   <span class="truncate">{{ selectedTicket()?.contact?.phone }}</span>
-                  <span>|</span>
+                  <span class="shrink-0">|</span>
                 }
                 @if (selectedTicket()?.protocol) {
                   <button
                     type="button"
-                    class="inline-flex items-center gap-0.5 font-medium hover:text-primary transition-colors group cursor-pointer"
+                    class="inline-flex items-center gap-0.5 font-medium text-neutral-600 dark:text-neutral-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
                     [title]="'Copiar protocolo ' + selectedTicket()!.protocol"
                     (click)="copyProtocol(selectedTicket()!.protocol!)"
                   >
                     #{{ selectedTicket()?.protocol }}
                   </button>
-                  <span>|</span>
+                  <span class="shrink-0">|</span>
                 }
                 @if (selectedTicket()?.status; as status) {
                   <span
                     class="rounded-full px-2 py-0.5 text-[10px] font-semibold shrink-0"
-                    [class.bg-yellow-100]="status === 'pending'"
+                    [class.bg-yellow-50]="status === 'pending'"
                     [class.text-yellow-700]="status === 'pending'"
-                    [class.bg-green-100]="status === 'in_progress' || status === 'open'"
+                    [class.dark:bg-yellow-950/30]="status === 'pending'"
+                    [class.dark:text-yellow-400]="status === 'pending'"
+                    [class.bg-green-50]="status === 'in_progress' || status === 'open'"
                     [class.text-green-700]="status === 'in_progress' || status === 'open'"
+                    [class.dark:bg-green-950/30]="status === 'in_progress' || status === 'open'"
+                    [class.dark:text-green-400]="status === 'in_progress' || status === 'open'"
                     [class.bg-neutral-100]="status === 'closed'"
                     [class.text-neutral-600]="status === 'closed'"
+                    [class.dark:bg-neutral-800]="status === 'closed'"
+                    [class.dark:text-neutral-400]="status === 'closed'"
                   >
                     @if (status === 'pending') {
                       Aguardando início
@@ -95,7 +101,7 @@
         </header>
 
         <div
-          class="flex-1 min-h-0 overflow-hidden border-x border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950"
+          class="flex-1 min-h-0 overflow-hidden border-x border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-950"
         >
           <app-user-chat
             class="block h-full overflow-hidden"
@@ -106,7 +112,7 @@
         </div>
 
         <footer
-          class="shrink-0 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-x border-t border-neutral-200 dark:border-neutral-800"
+          class="shrink-0 px-3 py-2 bg-neutral-50 dark:bg-neutral-900 border-x border-t border-hairline dark:border-neutral-700"
         >
           @if (isSelectedTicketStarted()) {
             @if (attachmentErrorMessage(); as attachmentError) {
@@ -125,7 +131,7 @@
               <div
                 class="mb-2 flex items-center justify-between rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-3 py-2"
               >
-                <div class="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-300">
+                <div class="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-300 min-w-0">
                   @if (isQueueFlushing()) {
                     <af-spinner size="xs" />
                     <span>Enviando pendencias...</span>
@@ -143,7 +149,7 @@
               <div class="flex items-center gap-1.5">
                 <button
                   type="button"
-                  class="shrink-0 size-10 inline-flex items-center justify-center rounded-full transition-colors text-danger hover:bg-danger/10"
+                  class="shrink-0 size-10 inline-flex items-center justify-center rounded-full transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   aria-label="Cancelar gravação"
                   [disabled]="isSendingAudio()"
                   (click)="cancelRecording.emit()"
@@ -152,10 +158,10 @@
                 </button>
 
                 <div
-                  class="grow flex items-center gap-3 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 min-h-10"
+                  class="grow flex items-center gap-3 rounded-3xl bg-white dark:bg-neutral-900 border border-hairline dark:border-neutral-700 px-4 min-h-10"
                 >
                   @if (!isRecordingPaused()) {
-                    <span class="size-2.5 rounded-full bg-danger animate-pulse shrink-0"></span>
+                    <span class="size-2.5 rounded-full bg-red-500 animate-pulse shrink-0"></span>
                   } @else {
                     <span class="size-2.5 rounded-full bg-neutral-400 shrink-0"></span>
                   }
@@ -164,7 +170,7 @@
                     @for (bar of bars; track bar) {
                       <span
                         class="w-0.5 rounded-full transition-all duration-150"
-                        [class.bg-danger]="!isRecordingPaused()"
+                        [class.bg-red-500]="!isRecordingPaused()"
                         [class.bg-neutral-300]="isRecordingPaused()"
                         [class.dark:bg-neutral-600]="isRecordingPaused()"
                         [class.animate-pulse]="!isRecordingPaused()"
@@ -178,7 +184,7 @@
 
                   <span
                     class="text-sm font-mono tabular-nums shrink-0"
-                    [class.text-danger]="!isRecordingPaused()"
+                    [class.text-red-500]="!isRecordingPaused()"
                     [class.text-neutral-500]="isRecordingPaused()"
                   >
                     {{ formatRecordingTime(recordingDuration()) }}
@@ -187,7 +193,7 @@
 
                 <button
                   type="button"
-                  class="shrink-0 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                  class="shrink-0 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   [attr.aria-label]="isRecordingPaused() ? 'Retomar gravação' : 'Pausar gravação'"
                   [disabled]="isSendingAudio()"
                   (click)="isRecordingPaused() ? resumeRecording.emit() : pauseRecording.emit()"
@@ -201,7 +207,7 @@
 
                 <button
                   type="button"
-                  class="shrink-0 size-10 inline-flex items-center justify-center rounded-full bg-accent-500 text-white transition-colors hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="shrink-0 size-10 inline-flex items-center justify-center rounded-full bg-primary-500 text-white transition-colors hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
                   aria-label="Enviar áudio"
                   [disabled]="isSendingAudio()"
                   (click)="sendRecording.emit()"
@@ -218,7 +224,7 @@
                     message="Janela de 24h expirada. O cliente não responde há mais de 24h. Para reabrir a conversa, envie um template aprovado pela Meta."
                   />
 
-                  <div class="m-3 p-4 rounded-lg border border-warning/20 bg-warning/5">
+                  <div class="m-3 p-4 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30">
                     <app-button
                       variant="primary"
                       size="md"
@@ -275,9 +281,9 @@
                   <div class="relative shrink-0 mb-0.5">
                     <button
                       type="button"
-                      class="size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200"
-                      [class.bg-neutral-200]="isAttachmentMenuOpen()"
-                      [class.dark:bg-neutral-700]="isAttachmentMenuOpen()"
+                      class="size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      [class.bg-neutral-100]="isAttachmentMenuOpen()"
+                      [class.dark:bg-neutral-800]="isAttachmentMenuOpen()"
                       aria-label="Anexar arquivo"
                       (click)="toggleAttachmentMenu.emit()"
                     >
@@ -327,15 +333,15 @@
                         ></button>
 
                         <div
-                          class="absolute left-0 bottom-12 z-50 w-52 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg p-1.5"
+                          class="absolute left-0 bottom-12 z-50 w-52 rounded-lg border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg p-1.5"
                         >
                           <button
                             type="button"
-                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                             (click)="selectAttachmentType.emit('document')"
                           >
                             <span
-                              class="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0"
+                              class="size-8 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-500 dark:text-primary-400 flex items-center justify-center shrink-0"
                             >
                               <ng-icon name="lucideFile" size="16"></ng-icon>
                             </span>
@@ -343,11 +349,11 @@
                           </button>
                           <button
                             type="button"
-                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                             (click)="selectAttachmentType.emit('image')"
                           >
                             <span
-                              class="size-8 rounded-full bg-success/10 text-success flex items-center justify-center shrink-0"
+                              class="size-8 rounded-full bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0"
                             >
                               <ng-icon name="lucideImage" size="16"></ng-icon>
                             </span>
@@ -355,11 +361,11 @@
                           </button>
                           <button
                             type="button"
-                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                             (click)="selectAttachmentType.emit('video')"
                           >
                             <span
-                              class="size-8 rounded-full bg-accent-500/10 text-accent-500 flex items-center justify-center shrink-0"
+                              class="size-8 rounded-full bg-accent-500/10 dark:bg-accent-500/20 text-accent-500 flex items-center justify-center shrink-0"
                             >
                               <ng-icon name="lucideVideo" size="16"></ng-icon>
                             </span>
@@ -367,11 +373,11 @@
                           </button>
                           <button
                             type="button"
-                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                             (click)="selectAttachmentType.emit('location')"
                           >
                             <span
-                              class="size-8 rounded-full bg-warning/10 text-warning flex items-center justify-center shrink-0"
+                              class="size-8 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0"
                             >
                               <ng-icon name="lucideMapPin" size="16"></ng-icon>
                             </span>
@@ -387,7 +393,7 @@
                       <button
                         trigger
                         type="button"
-                        class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200"
+                        class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                         aria-label="Enviar template aprovado"
                         title="Enviar template aprovado"
                       >
@@ -406,11 +412,11 @@
                   }
 
                   <div
-                    class="grow flex items-center rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 overflow-hidden min-h-10"
+                    class="grow flex items-center rounded-3xl bg-white dark:bg-neutral-900 border border-hairline dark:border-neutral-700 overflow-hidden min-h-10"
                   >
                     <button
                       type="button"
-                      class="shrink-0 inline-flex h-full items-center justify-center pl-3 pr-1 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                      class="shrink-0 inline-flex h-full items-center justify-center pl-3 pr-1 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                       aria-label="Emoji"
                     >
                       <ng-icon name="lucideSmile" size="20"></ng-icon>
@@ -420,7 +426,7 @@
                       [formControl]="messageControl()"
                       placeholder="Digite uma mensagem..."
                       rows="1"
-                      class="grow resize-none border-0 bg-transparent py-2 pr-3 text-sm text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-0 max-h-32 leading-5"
+                      class="grow resize-none border-0 bg-transparent py-2 pr-3 text-sm text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-0 max-h-32 leading-5 min-w-0"
                       (keydown)="messageKeydown.emit($event)"
                       (input)="messageInput.emit($event)"
                     ></textarea>
@@ -428,7 +434,7 @@
 
                   <button
                     type="button"
-                    class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                    class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full transition-colors text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     aria-label="Gravar áudio"
                     (click)="startRecording.emit()"
                   >
@@ -437,7 +443,7 @@
 
                   <button
                     type="button"
-                    class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full bg-accent-500 text-white transition-colors hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="shrink-0 mb-0.5 size-10 inline-flex items-center justify-center rounded-full bg-primary-500 text-white transition-colors hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
                     [disabled]="isSendingMessage() || (!messageControl().value.trim() && !selectedTemplate())"
                     aria-label="Enviar mensagem"
                     (click)="sendMessage.emit()"
@@ -505,7 +511,7 @@
       } @else {
         <div class="flex-1 flex flex-col items-center justify-center h-full p-4 text-center">
           <div
-            class="mx-auto mb-2 flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary"
+            class="mx-auto mb-2 flex size-9 items-center justify-center rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-500 dark:text-primary-400"
           >
             <ng-icon name="lucideHandshake" size="18"></ng-icon>
           </div>

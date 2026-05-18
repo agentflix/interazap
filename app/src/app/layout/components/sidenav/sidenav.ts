@@ -1,14 +1,15 @@
 import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ThemeService } from '../../../core/services/theme.service';
-import { LucideAngularModule, ChevronDown, ChevronRight } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { AuthStoreService } from '../../../core/services/auth-store.service';
 import { SIDEBAR_MENU, type AiFeatureFlag, type SidebarMenuItem } from './menu-config';
 import { AfScrollAreaComponent } from '../../../shared/components/scroll-area/scroll-area';
 
 /**
- * Sidebar navigation panel — collapsible, dark green (#1a3c34) background.
+ * Sidebar navigation panel — collapsible, neutral surface with hairline borders.
  * Renders menu items with icons, accordion groups, and active-route highlighting.
+ * Light mode: white canvas with hairline border. Dark mode: neutral-900 surface.
  */
 @Component({
   selector: 'af-sidenav',
@@ -35,6 +36,7 @@ export class SidenavComponent {
       'flex items-center gap-3 px-3 py-2 text-sm',
       'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:text-neutral-50 dark:hover:bg-neutral-800',
       'rounded-md transition-colors duration-150 cursor-pointer',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-900',
     ].join(' ');
   }
 

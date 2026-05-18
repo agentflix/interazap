@@ -20,7 +20,7 @@
           />
         }
 
-        <div class="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
+        <div class="mt-4 grid grid-cols-3 gap-2 text-center text-sm tabular-nums">
           <div>
             <div class="text-success font-semibold">
               {{ stats().by_status.won }}
@@ -48,7 +48,7 @@
           @if (stats().top_loss_reasons.length > 0) {
             <div class="space-y-2">
               @for (reason of stats().top_loss_reasons; track reason.name) {
-                <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center justify-between text-sm tabular-nums">
                   <span class="text-neutral-600 dark:text-neutral-400">{{ reason.name }}</span>
                   <span class="font-semibold text-neutral-900 dark:text-neutral-100">{{
                     reason.count

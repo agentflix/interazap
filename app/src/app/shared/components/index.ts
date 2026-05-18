@@ -13,6 +13,7 @@ export { AfSpinnerComponent } from './spinner/spinner';
 export { AfLoadingButtonComponent } from './loading-button/loading-button';
 export { AfIconButtonComponent } from './icon-button/icon-button';
 export { AfBadgeComponent } from './badge/badge';
+export { AfPillComponent } from './pill/pill';
 export { AfAvatarComponent } from './avatar/avatar';
 export { AfPageTitleComponent } from './page-title/page-title';
 export { AfEmptyStateComponent } from './empty-state/empty-state';

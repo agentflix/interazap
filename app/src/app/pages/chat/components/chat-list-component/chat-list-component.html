@@ -1,7 +1,7 @@
 
-    <aside class="flex flex-col h-full min-h-0 overflow-hidden bg-white dark:bg-neutral-900">
-      <div class="flex items-center justify-between px-4 py-3">
-        <h2 class="text-base font-semibold text-neutral-800 dark:text-neutral-100">Chat</h2>
+    <aside class="flex flex-col h-full min-h-0 overflow-hidden bg-white dark:bg-neutral-900 border-r border-hairline dark:border-neutral-700">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-hairline dark:border-neutral-700">
+        <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">Chat</h2>
 
         <div class="flex items-center gap-1 shrink-0">
           <app-icon-button
@@ -14,7 +14,7 @@
 
           <button
             type="button"
-            class="size-8 inline-flex items-center justify-center rounded-md transition-colors text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            class="size-8 inline-flex items-center justify-center rounded-md transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-900"
             aria-label="Recarregar atendimentos"
             (click)="refreshList.emit()"
           >
@@ -36,13 +36,14 @@
           <div class="relative shrink-0">
             <button
               type="button"
-              class="inline-flex size-8 items-center justify-center rounded-md transition-colors"
+              class="inline-flex size-8 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-900"
               [class]="
                 isEmergencyMenuOpen()
-                  ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50'
+                  : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
               "
               (click)="toggleEmergencyMenu.emit()"
+              aria-label="Filtro de emergência"
             >
               <ng-icon name="lucideFilter" size="14"></ng-icon>
               @if (emergencyFilter() !== null) {
@@ -59,7 +60,7 @@
               ></button>
 
               <div
-                class="absolute top-full right-0 mt-1 w-52 z-50 rounded-lg bg-white dark:bg-neutral-900 shadow-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+                class="absolute top-full right-0 mt-1 w-52 z-50 rounded-lg bg-white dark:bg-neutral-900 shadow-lg border border-hairline dark:border-neutral-700 overflow-hidden"
               >
                 <div class="px-3 pt-3 pb-1">
                   <div
@@ -70,23 +71,23 @@
                   <div class="flex flex-col gap-0.5">
                     <button
                       type="button"
-                      class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded transition-colors"
+                      class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                       [class]="
                         emergencyFilter() === null
-                          ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 font-medium'
+                          ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 font-medium'
                           : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
                       "
                       (click)="setEmergencyFilter.emit(null)"
                     >
                       <span>Todos</span>
                       @if (emergencyFilter() === null) {
-                        <ng-icon name="lucideCheck" size="14" class="text-primary"></ng-icon>
+                        <ng-icon name="lucideCheck" size="14" class="text-primary-500"></ng-icon>
                       }
                     </button>
 
                     <button
                       type="button"
-                      class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded transition-colors"
+                      class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                       [class]="
                         emergencyFilter() === 'critical'
                           ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 font-medium'
@@ -105,7 +106,7 @@
 
                     <button
                       type="button"
-                      class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded transition-colors"
+                      class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                       [class]="
                         emergencyFilter() === 'negative'
                           ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-medium'
@@ -150,7 +151,7 @@
         @if (loadingTickets()) {
           <div class="px-4 py-8 flex justify-center">
             <div
-              class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"
+              class="size-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"
             ></div>
           </div>
         } @else if (visibleTickets().length === 0) {
