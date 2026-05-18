@@ -61,30 +61,18 @@
       </af-drawer>
 
       @if (isLoading()) {
-        <af-card>
-          @for (row of [0, 1, 2, 3, 4, 5]; track row) {
-            <af-skeleton variant="text" width="100%" height="2.5rem" class="mb-2 block" />
-          }
-        </af-card>
+        <af-report-loading layout="table" [tableRows]="6" />
       } @else if (hasError()) {
-        <af-card>
-          <div class="py-12 text-center">
-            <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
-              Erro ao carregar dados
-            </h3>
-            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
-              Não foi possível carregar o relatório de performance de agentes.
-            </p>
-            <af-button variant="primary" size="sm" (click)="retry()">Tentar novamente</af-button>
-          </div>
-        </af-card>
+        <af-report-error
+          title="Erro ao carregar dados"
+          message="Não foi possível carregar o relatório de performance de agentes."
+          (retry)="retry()"
+        />
       } @else if (!data() || !data()!.agents || data()!.agents.length === 0) {
-        <af-card>
-          <af-empty-state
-            title="Sem dados disponíveis"
-            description="Não há dados de agentes no período selecionado"
-          />
-        </af-card>
+        <af-report-empty
+          title="Sem dados disponíveis"
+          description="Não há dados de agentes no período selecionado"
+        />
       } @else {
         <af-card [padded]="false">
           <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
@@ -179,4 +167,3 @@
         </af-card>
       }
     </div>
-  

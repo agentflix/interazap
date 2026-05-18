@@ -82,6 +82,10 @@ export {
   type AfReportFilterPayload,
 } from './report-filters/report-filters';
 export { AfReportExportComponent, type AfReportExportPayload } from './report-export/report-export';
+export { AfReportLoadingComponent, type ReportLoadingLayout } from './report-loading/report-loading';
+export { AfReportErrorComponent } from './report-error/report-error';
+export { AfReportEmptyComponent } from './report-empty/report-empty';
+export { AfReportSkeletonGridComponent } from './report-skeleton-grid/report-skeleton-grid';
 
 // ─── Chat Primitives ─────────────────────────────────────────────────
 export { AfChatBubbleComponent } from './chat-bubble/chat-bubble';

@@ -1,0 +1,13 @@
+<af-card>
+  <div class="py-12 text-center">
+    <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+      {{ title() }}
+    </h3>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+      {{ message() }}
+    </p>
+    <af-button variant="primary" size="sm" (clicked)="retry.emit()">
+      Tentar novamente
+    </af-button>
+  </div>
+</af-card>
