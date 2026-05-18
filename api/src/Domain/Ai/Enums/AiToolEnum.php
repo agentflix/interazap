@@ -16,6 +16,8 @@ class AiToolEnum
 
     public const CHECK_AVAILABILITY = 'check_availability';
 
+    public const CONFIRM_EVENT_BOOKING = 'confirm_event_booking';
+
     public const CLOSE_NEGOTIATION = 'close_negotiation';
 
     public const CLOSE_TICKET = 'close_ticket';
@@ -35,6 +37,8 @@ class AiToolEnum
     public const DELEGATE_TO_AGENT = 'delegate_to_agent';
 
     public const GET_CONTACT_INFO = 'get_contact_info';
+
+    public const GET_AVAILABLE_SLOTS = 'get_available_slots';
 
     public const GET_NEGOTIATION_INFO = 'get_negotiation_info';
 

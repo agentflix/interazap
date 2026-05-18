@@ -11,6 +11,16 @@ Gates de qualidade obrigatórios. Falhou? Volta para EXECUTION.
 5. Testes pulados (`skipped`) não passam.
 6. Build limpo é obrigatório.
 
+## Pré-requisito Obrigatório: Code Review
+
+Antes de executar qualquer gate de validação, é **MANDATÓRIO** executar a skill `.context/SKILLS/code-review-confiavel/` para revisão do código alterado. Os gates só devem ser rodados após o code review ser concluído sem achados bloqueantes.
+
+**Fluxo:**
+1. Implementar a task.
+2. Executar `code-review-confiavel` para revisão.
+3. Resolver achados bloqueantes/críticos.
+4. Executar os gates do workspace alterado.
+
 ## Gate Matrix por Workspace
 
 ### `api/` — Laravel 12 / PHP 8.2+
@@ -54,9 +64,7 @@ pnpm --filter gateway build
 ### `app/` — Angular 20 + Capacitor
 
 ```bash
-pnpm --filter app lint
-pnpm --filter app test
-pnpm --filter app build
+cd app && npm run gate:all 2>&1
 ./scripts/validate-app-gateway-boundary.sh
 ```
 

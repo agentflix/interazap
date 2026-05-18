@@ -428,14 +428,15 @@ export const routes: Routes = [
           import('./pages/auth/preferences/preferences.routes').then((m) => [m.default]),
         data: { title: 'Preferências', permission: 'settings.general.view' },
       },
+      { path: 'settings/tenant', redirectTo: '/settings/preferences', pathMatch: 'full' },
       {
-        path: 'settings/tenant',
+        path: 'settings/scheduling',
         canActivate: [permissionGuard],
-        loadChildren: () =>
-          import('./pages/platform/tenant-settings/tenant-settings.routes').then((m) => [
-            m.default,
-          ]),
-        data: { title: 'Configurações do Inquilino', permission: 'platform.tenants.manage' },
+        loadComponent: () =>
+          import('./pages/settings/scheduling/scheduling-settings.component').then(
+            (m) => m.SchedulingSettingsComponent,
+          ),
+        data: { title: 'Configurações de Agendamento', permission: 'platform.tenants.manage' },
       },
       // ─── AI Module ────────────────────────────────────────────────────────
       {

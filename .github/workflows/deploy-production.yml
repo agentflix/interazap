@@ -191,6 +191,34 @@ jobs:
               with:
                   fetch-depth: 0
 
+            - name: Validate .env templates cover all .env.example keys
+              shell: bash
+              run: |
+                  # Keys that are dev-only and intentionally absent from server templates
+                  SKIP_KEYS="MEMCACHED_HOST|VITE_APP_NAME|VITE_REVERB_APP_KEY|VITE_REVERB_HOST|VITE_REVERB_PORT|VITE_REVERB_SCHEME"
+                  fail=0
+                  check_template() {
+                    local example="$1" template="$2" label="$3"
+                    while IFS= read -r line; do
+                      [[ "$line" =~ ^[[:space:]]*# ]] && continue
+                      [[ -z "$line" ]] && continue
+                      key="${line%%=*}"
+                      [[ -z "$key" || "$key" == "$line" ]] && continue
+                      [[ "$key" =~ ^($SKIP_KEYS)$ ]] && continue
+                      if ! grep -q "^${key}=" "$template"; then
+                        echo "MISSING in ${label}: ${key}"
+                        fail=1
+                      fi
+                    done < "$example"
+                  }
+                  check_template api/.env.example \
+                    infra/ansible/roles/app-deploy/templates/api.env.j2 \
+                    "api.env.j2"
+                  check_template gateway/.env.example \
+                    infra/ansible/roles/app-deploy/templates/gateway.env.j2 \
+                    "gateway.env.j2"
+                  exit $fail
+
             - name: Setup Python
               uses: actions/setup-python@v6
               with:

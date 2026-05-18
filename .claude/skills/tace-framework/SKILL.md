@@ -73,7 +73,17 @@ Add this at the end of every phase group:
 **Gate de Qualidade Fase X:** ⏳ Pendente — `[gate command]`
 ```
 
-Gate commands: Phase 3 → `composer gate:all` | Phase 4 → `pnpm --filter gateway lint test build` | Phase 5 → `pnpm --filter app lint test build`
+Gate commands: Phase 3 → `cd api && composer gate:all 2>&1` | Phase 4 → `cd gateway && npm run gate:all 2>&1` | Phase 5 → `cd app && npm run gate:all 2>&1`
+
+## Guardrail Obrigatório: Code Review antes dos Gates
+
+Antes de executar qualquer gate de validação final (Phase 3, 4 ou 5), é **MANDATÓRIO** chamar a skill `.context/SKILLS/code-review-confiavel/` para revisão do código alterado. Os gates só devem ser executados após o code review ser concluído sem achados bloqueantes.
+
+**Fluxo obrigatório:**
+1. Implementar a task.
+2. Chamar `@.context/SKILLS/code-review-confiavel/` para revisão.
+3. Resolver achados bloqueantes/críticos identificados.
+4. Só então executar os gates de validação.
 
 ## Multi-tenancy Requirement
 

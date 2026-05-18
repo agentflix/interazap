@@ -277,13 +277,6 @@ export const SIDEBAR_MENU: SidebarMenuItem[] = [
       { type: 'item', label: 'Departamentos', link: '/settings/departments', requiredPermission: 'departments.department.view' },
       { type: 'item', label: 'Etiquetas', link: '/settings/tags', requiredPermission: 'settings.tags.manage' },
       { type: 'item', label: 'Usuários', link: '/settings/users', requiredPermission: 'users.user.view' },
-      {
-        type: 'item',
-        label: 'Configurações do Inquilino',
-        link: '/settings/tenant',
-        iconName: 'building',
-        requiredPermission: 'platform.tenants.manage',
-      },
     ],
   },
   {

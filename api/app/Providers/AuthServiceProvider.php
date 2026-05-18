@@ -40,13 +40,16 @@ use Domain\Chat\Policies\ChatTicketPolicy;
 use Domain\Chat\Policies\ChatTransmissionListPolicy;
 use Domain\Configuration\Models\ConfigurationNotificationPreference;
 use Domain\Configuration\Models\ConfigurationOpeningHour;
+use Domain\Configuration\Models\ConfigurationSchedulingSetting;
 use Domain\Configuration\Policies\ConfigurationNotificationPreferencePolicy;
 use Domain\Configuration\Policies\ConfigurationOpeningHourPolicy;
+use Domain\Configuration\Policies\ConfigurationSchedulingSettingPolicy;
 use Domain\CRM\Models\CRMCompany;
 use Domain\CRM\Models\CRMContact;
 use Domain\CRM\Models\CRMCustomField;
 use Domain\CRM\Models\CRMDepartment;
 use Domain\CRM\Models\CRMEvent;
+use Domain\CRM\Models\CRMEventClientConfirmation;
 use Domain\CRM\Models\CRMNegotiation;
 use Domain\CRM\Models\CRMNegotiationFunnel;
 use Domain\CRM\Models\CRMNote;
@@ -58,6 +61,7 @@ use Domain\CRM\Policies\CRMCompanyPolicy;
 use Domain\CRM\Policies\CRMContactPolicy;
 use Domain\CRM\Policies\CRMCustomFieldPolicy;
 use Domain\CRM\Policies\CRMDepartmentPolicy;
+use Domain\CRM\Policies\CRMEventClientConfirmationPolicy;
 use Domain\CRM\Policies\CRMEventPolicy;
 use Domain\CRM\Policies\CRMFunnelPolicy;
 use Domain\CRM\Policies\CRMNegotiationPolicy;
@@ -108,6 +112,7 @@ class AuthServiceProvider extends ServiceProvider
         // Configuration
         ConfigurationNotificationPreference::class => ConfigurationNotificationPreferencePolicy::class,
         ConfigurationOpeningHour::class => ConfigurationOpeningHourPolicy::class,
+        ConfigurationSchedulingSetting::class => ConfigurationSchedulingSettingPolicy::class,
 
         // CRM
         CRMCompany::class => CRMCompanyPolicy::class,
@@ -115,6 +120,7 @@ class AuthServiceProvider extends ServiceProvider
         CRMCustomField::class => CRMCustomFieldPolicy::class,
         CRMDepartment::class => CRMDepartmentPolicy::class,
         CRMEvent::class => CRMEventPolicy::class,
+        CRMEventClientConfirmation::class => CRMEventClientConfirmationPolicy::class,
         CRMNegotiation::class => CRMNegotiationPolicy::class,
         CRMNegotiationFunnel::class => CRMFunnelPolicy::class,
         CRMNote::class => CRMNotePolicy::class,

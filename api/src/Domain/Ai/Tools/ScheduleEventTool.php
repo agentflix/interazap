@@ -8,8 +8,11 @@ use Carbon\Carbon;
 use Domain\Ai\Contracts\AiToolInterface;
 use Domain\Ai\DTOs\ToolInputDTO;
 use Domain\Ai\DTOs\ToolResultDTO;
+use Domain\Ai\Jobs\ProcessEventConfirmationReminderJob;
+use Domain\Configuration\Models\ConfigurationSchedulingSetting;
 use Domain\CRM\Models\CRMContact;
 use Domain\CRM\Models\CRMEvent;
+use Domain\CRM\Models\CRMEventClientConfirmation;
 use Domain\CRM\Models\CRMEventParticipant;
 use Illuminate\Support\Str;
 
@@ -82,12 +85,39 @@ class ScheduleEventTool implements AiToolInterface
             ]);
         }
 
+        // Create client confirmation and schedule reminder job
+        $confirmationId = null;
+        $setting = ConfigurationSchedulingSetting::forTenant($tenantId);
+
+        if ($setting->event_confirmation_enabled) {
+            $ticketId = (string) ($input->context['ticket_id'] ?? '');
+            $confirmation = CRMEventClientConfirmation::query()->create([
+                'id' => (string) Str::orderedUuid(),
+                'tenant_id' => $tenantId,
+                'crm_event_id' => $event->id,
+                'crm_contact_id' => $contactId !== '' ? $contactId : null,
+                'chat_ticket_id' => $ticketId !== '' ? $ticketId : null,
+                'status' => CRMEventClientConfirmation::STATUS_PENDING,
+                'minutes_before' => $setting->event_confirmation_advance_minutes,
+            ]);
+
+            $scheduledAt = $event->starts_at->copy()->subMinutes($setting->event_confirmation_advance_minutes);
+
+            if ($scheduledAt->isFuture()) {
+                ProcessEventConfirmationReminderJob::dispatch($confirmation->id)
+                    ->delay($scheduledAt);
+            }
+
+            $confirmationId = $confirmation->id;
+        }
+
         return ToolResultDTO::success(
             message: "Event '{$event->title}' scheduled",
             data: [
                 'event_id' => $event->id,
                 'starts_at' => $event->starts_at?->toIso8601String(),
                 'ends_at' => $event->ends_at?->toIso8601String(),
+                'confirmation_id' => $confirmationId,
             ]
         );
     }

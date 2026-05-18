@@ -2,13 +2,16 @@ import {
   type OnInit,
   ChangeDetectionStrategy,
   Component,
+  ChangeDetectorRef,
   DestroyRef,
+  computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
-import { FormBuilder, type FormControl, ReactiveFormsModule } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, type FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { map, startWith } from 'rxjs';
 import {
   AfAlertComponent,
   AfButtonComponent,
@@ -19,11 +22,14 @@ import {
   AfSelectInputComponent,
   AfSkeletonComponent,
   AfSwitchInputComponent,
+  AfTextareaInputComponent,
 } from '@shared/components';
 import { NotificationPreferencesService } from '@core/services/notification-preferences.service';
 import { PreferencesStore } from '@core/services/preferences.store';
 import { ThemeService } from '@core/services/theme.service';
 import { ToastService } from '@core/services/toast.service';
+import { TenantSettingsService } from '@core/services/tenant-settings.service';
+import { AuthStoreService } from '@core/services/auth-store.service';
 import {
   type UserPreferences,
   type AppearancePreferences,
@@ -33,6 +39,10 @@ import {
   type NotificationPreference,
   type NotificationPreferencesBulkPayload,
 } from '@shared/models/preferences.model';
+import type {
+  TenantChatAutoCloseSettings,
+  TenantSettings,
+} from '@shared/models/tenant-settings.model';
 
 /**
  * User preferences page — appearance, behavior, CRM defaults, accessibility, and security.
@@ -52,6 +62,7 @@ import {
     AfSelectInputComponent,
     AfButtonComponent,
     AfAlertComponent,
+    AfTextareaInputComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './preferences.html',
@@ -63,12 +74,119 @@ export class PreferencesComponent implements OnInit {
   private readonly themeService: ThemeService = inject(ThemeService);
   private readonly destroyRef: DestroyRef = inject(DestroyRef);
   private readonly notifService: NotificationPreferencesService = inject(NotificationPreferencesService);
+  private readonly cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+  private readonly tenantSettingsService: TenantSettingsService = inject(TenantSettingsService);
+  private readonly authStore: AuthStoreService = inject(AuthStoreService);
 
   // Track whether we have populated the form once from loaded preferences
   private formSeeded = signal(false);
 
   /** Notification preferences loaded from the backend. */
   private readonly notifPrefs = signal<NotificationPreference[] | null>(null);
+
+  // ── Tenant state ─────────────────────────────────────────────────────────
+
+  readonly hasTenantPermission = computed(() =>
+    this.authStore.hasPermission('platform.tenants.manage'),
+  );
+
+  readonly tenantIsLoading = signal(false);
+  readonly tenantIsSaving = signal(false);
+  readonly tenantError = signal<string | null>(null);
+
+  // ── Tenant Forms ─────────────────────────────────────────────────────────
+
+  readonly localizationForm = this.fb.group({
+    timezone: this.fb.control<string>('America/Sao_Paulo', { nonNullable: true }),
+    dateFormat: this.fb.control<'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'>('DD/MM/YYYY', {
+      nonNullable: true,
+    }),
+    timeFormat: this.fb.control<'12h' | '24h'>('24h', { nonNullable: true }),
+    currencyFormat: this.fb.control<'BRL' | 'USD' | 'EUR'>('BRL', { nonNullable: true }),
+  });
+
+  readonly privacyForm = this.fb.group({
+    presence: this.fb.control<'all' | 'team' | 'hidden'>('all', { nonNullable: true }),
+    readReceipt: this.fb.control<boolean>(true, { nonNullable: true }),
+    notificationPreview: this.fb.control<boolean>(true, { nonNullable: true }),
+  });
+
+  readonly chatForm = this.fb.group({
+    auto_close_inactivity_enabled: this.fb.control(false, { nonNullable: true }),
+    auto_close_inactivity_minutes: this.fb.control(30, {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    auto_close_inactivity_target: this.fb.control<'both' | 'client' | 'agent'>('both', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    auto_close_inactivity_message: this.fb.control(
+      'Este atendimento foi encerrado automaticamente por inatividade.',
+      { nonNullable: true, validators: [Validators.maxLength(2000)] },
+    ),
+  });
+
+  // ── Derived signals ──────────────────────────────────────────────────────
+
+  readonly isAutoCloseEnabled = toSignal(
+    this.chatForm.controls.auto_close_inactivity_enabled.valueChanges.pipe(
+      startWith(this.chatForm.controls.auto_close_inactivity_enabled.value),
+      map((enabled) => enabled === true),
+    ),
+    { initialValue: false },
+  );
+
+  // ── Tenant Options ───────────────────────────────────────────────────────
+
+  readonly timezoneOptions = [
+    { value: 'America/Sao_Paulo', label: 'America/Sao_Paulo (GMT-3)' },
+    { value: 'America/New_York', label: 'America/New_York (GMT-5)' },
+    { value: 'America/Los_Angeles', label: 'America/Los_Angeles (GMT-8)' },
+    { value: 'Europe/London', label: 'Europe/London (GMT+0)' },
+    { value: 'Europe/Paris', label: 'Europe/Paris (GMT+1)' },
+    { value: 'UTC', label: 'UTC (GMT+0)' },
+    { value: 'Asia/Tokyo', label: 'Asia/Tokyo (GMT+9)' },
+  ];
+
+  readonly dateFormatOptions = [
+    { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
+    { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
+    { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' },
+  ];
+
+  readonly timeFormatOptions = [
+    { value: '12h', label: '12h' },
+    { value: '24h', label: '24h' },
+  ];
+
+  readonly currencyFormatOptions = [
+    { value: 'BRL', label: 'R$ 1.234,56' },
+    { value: 'USD', label: '$ 1,234.56' },
+    { value: 'EUR', label: '€ 1.234,56' },
+  ];
+
+  readonly presenceOptions = [
+    { value: 'all', label: 'Visível para todos' },
+    { value: 'team', label: 'Somente equipe' },
+    { value: 'hidden', label: 'Oculto' },
+  ];
+
+  readonly inactivityMinutesOptions = [
+    { value: 5, label: 'Após 5 minutos' },
+    { value: 10, label: 'Após 10 minutos' },
+    { value: 15, label: 'Após 15 minutos' },
+    { value: 30, label: 'Após 30 minutos' },
+    { value: 45, label: 'Após 45 minutos' },
+    { value: 60, label: 'Após 1 hora' },
+    { value: 120, label: 'Após 2 horas' },
+  ];
+
+  readonly inactivityTargetOptions = [
+    { value: 'both', label: 'Ambos (atendente e cliente)' },
+    { value: 'client', label: 'Apenas cliente' },
+    { value: 'agent', label: 'Apenas atendente' },
+  ];
 
   // ── Form sections ────────────────────────────────────────────────────────────
 
@@ -232,6 +350,9 @@ export class PreferencesComponent implements OnInit {
     this.subscribeToChanges();
     this.store.load();
     this.loadNotificationPreferences();
+    if (this.hasTenantPermission()) {
+      this.loadTenantSettings();
+    }
   }
 
   // ── Data loading ────────────────────────────────────────────────────────────
@@ -283,6 +404,11 @@ export class PreferencesComponent implements OnInit {
     if (this.notifPrefs() !== null) {
       this.saveNotificationPreferences();
     }
+
+    // Save tenant settings in parallel when user has permission
+    if (this.hasTenantPermission()) {
+      this.saveTenantSettings();
+    }
   }
 
   reset(): void {
@@ -293,6 +419,70 @@ export class PreferencesComponent implements OnInit {
     this.securityForm.reset();
     this.formSeeded.set(false);
     this.store.reset();
+    if (this.hasTenantPermission()) {
+      this.loadTenantSettings();
+    }
+  }
+
+  // ── Tenant settings ─────────────────────────────────────────────────────
+
+  loadTenantSettings(): void {
+    const tenantId = this.authStore.user()?.tenant_id;
+    if (!tenantId) return;
+    this.tenantIsLoading.set(true);
+    this.tenantError.set(null);
+    this.tenantSettingsService.getSettings(String(tenantId))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const s = response.data;
+          this.localizationForm.patchValue(s.settings_localization, { emitEvent: false });
+          this.privacyForm.patchValue(s.settings_privacy, { emitEvent: false });
+          if (s.settings_chat) this.chatForm.patchValue(s.settings_chat, { emitEvent: false });
+          this.tenantIsLoading.set(false);
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.tenantError.set(err.error?.message ?? 'Não foi possível carregar configurações do workspace.');
+          this.tenantIsLoading.set(false);
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private saveTenantSettings(): void {
+    const tenantId = this.authStore.user()?.tenant_id;
+    if (!tenantId) return;
+
+    // Validate chat form when auto-close is enabled
+    if (this.isAutoCloseEnabled()) {
+      this.chatForm.markAllAsTouched();
+      if (this.chatForm.invalid) {
+        this.tenantIsSaving.set(false);
+        return;
+      }
+    }
+
+    this.tenantIsSaving.set(true);
+    const settings: Partial<TenantSettings> = {
+      settings_localization: this.localizationForm.getRawValue(),
+      settings_privacy: this.privacyForm.getRawValue(),
+      settings_chat: this.chatForm.getRawValue() as TenantChatAutoCloseSettings,
+    };
+    this.tenantSettingsService.updateSettings(String(tenantId), settings)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.tenantIsSaving.set(false);
+          this.toast.success('Configurações do workspace salvas com sucesso!');
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.tenantError.set(err.error?.message ?? 'Não foi possível salvar configurações do workspace.');
+          this.tenantIsSaving.set(false);
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   // ── Notification preferences ────────────────────────────────────────────────
@@ -406,6 +596,19 @@ export class PreferencesComponent implements OnInit {
       .subscribe(() => this.store.markDirty());
 
     this.securityForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.store.markDirty());
+
+    // Tenant forms: mark dirty to integrate with unsaved changes guard
+    this.localizationForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.store.markDirty());
+
+    this.privacyForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.store.markDirty());
+
+    this.chatForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.store.markDirty());
 

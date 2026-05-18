@@ -77,9 +77,11 @@ DBA -> BACKEND -> GATEWAY -> FRONTEND
 
 **Ações:**
 
-1. Executar os gates de `.context/WORKFLOW/validation-flow.md`.
-2. Verificar critérios de aceite da seção E do T.A.C.E.
-3. Se falhar, voltar para EXECUTION.
+1. Chamar a skill `.context/SKILLS/code-review-confiavel/` para revisão do código alterado.
+2. Resolver achados bloqueantes/críticos identificados no review.
+3. Executar os gates de `.context/WORKFLOW/validation-flow.md`.
+4. Verificar critérios de aceite da seção E do T.A.C.E.
+5. Se falhar, voltar para EXECUTION.
 
 **Output:** gates passando + critérios de aceite atendidos.
 

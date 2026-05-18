@@ -258,6 +258,173 @@
       </div>
     </section>
 
+    <!-- ── Tenant Settings (conditional) ──────────────────────────── -->
+    @if (hasTenantPermission()) {
+      <!-- Tenant loading state -->
+      @if (tenantIsLoading()) {
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <div class="space-y-4">
+            <af-skeleton variant="text" width="30%" height="1rem" />
+            <af-skeleton variant="rectangular" width="100%" height="8rem" />
+            <af-skeleton variant="rectangular" width="100%" height="6rem" />
+          </div>
+        </section>
+      }
+
+      <!-- Tenant error state -->
+      @if (tenantError() && !tenantIsLoading()) {
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <af-alert variant="danger" title="Erro ao carregar configurações do workspace" [message]="tenantError() ?? ''" />
+          <af-button variant="outline" size="sm" (click)="loadTenantSettings()" class="mt-3">
+            Tentar novamente
+          </af-button>
+        </section>
+      }
+
+      <!-- ── Localização ──────────────────────────────────────────── -->
+      @if (!tenantIsLoading()) {
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">Localização</h2>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <af-select-input
+              [control]="localizationForm.controls.timezone"
+              [options]="timezoneOptions"
+              label="Fuso horário"
+              placeholder="Selecione..."
+              dataTest="prefs-tenant-timezone"
+            />
+
+            <af-select-input
+              [control]="localizationForm.controls.dateFormat"
+              [options]="dateFormatOptions"
+              label="Formato de data"
+              placeholder="Selecione..."
+              dataTest="prefs-tenant-dateformat"
+            />
+
+            <af-radio-input
+              [control]="localizationForm.controls.timeFormat"
+              [options]="timeFormatOptions"
+              name="timeFormat"
+              label="Formato de hora"
+              orientation="horizontal"
+              dataTest="prefs-tenant-timeformat"
+            />
+
+            <af-select-input
+              [control]="localizationForm.controls.currencyFormat"
+              [options]="currencyFormatOptions"
+              label="Formato de moeda"
+              placeholder="Selecione..."
+              dataTest="prefs-tenant-currencyformat"
+            />
+          </div>
+        </section>
+
+        <!-- ── Privacidade ────────────────────────────────────────── -->
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">Privacidade</h2>
+
+          <div class="flex flex-col gap-4 max-w-lg">
+            <af-radio-input
+              [control]="privacyForm.controls.presence"
+              [options]="presenceOptions"
+              name="presence"
+              label="Status de presença"
+              orientation="vertical"
+              dataTest="prefs-tenant-presence"
+            />
+
+            <af-switch-input
+              [control]="privacyForm.controls.readReceipt"
+              label="Confirmação de leitura no chat"
+              dataTest="prefs-tenant-readreceipt"
+            />
+
+            <af-switch-input
+              [control]="privacyForm.controls.notificationPreview"
+              label="Mostrar preview nas notificações"
+              dataTest="prefs-tenant-notifpreview"
+            />
+          </div>
+        </section>
+
+        <!-- ── Auto-fechamento ────────────────────────────────────── -->
+        <section
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+        >
+          <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-6">
+            Auto-fechamento de atendimentos
+          </h2>
+
+          <!-- Toggle principal -->
+          <div class="mb-6">
+            <af-switch-input
+              [control]="chatForm.controls.auto_close_inactivity_enabled"
+              label="Ativar fechamento automático por inatividade"
+              dataTest="prefs-tenant-auto-close-enabled"
+            />
+            <p class="text-xs text-neutral-400 mt-1">
+              Encerra automaticamente atendimentos que ficarem inativos por mais de X minutos
+            </p>
+          </div>
+
+          <!-- Campos condicionais: visíveis apenas quando toggle ON -->
+          @if (isAutoCloseEnabled()) {
+            <div class="flex flex-col gap-6 pl-6 border-l-2 border-accent-500/30">
+              <!-- Tempo de inatividade -->
+              <div class="max-w-xs">
+                <af-select-input
+                  [control]="chatForm.controls.auto_close_inactivity_minutes"
+                  [options]="inactivityMinutesOptions"
+                  label="Tempo de inatividade"
+                  placeholder="Após 30 minutos"
+                  dataTest="prefs-tenant-auto-close-minutes"
+                />
+              </div>
+
+              <!-- Target: quem considerar inativo -->
+              <div class="max-w-lg">
+                <af-radio-input
+                  [control]="chatForm.controls.auto_close_inactivity_target"
+                  [options]="inactivityTargetOptions"
+                  name="autoCloseTarget"
+                  label="Considerar inatividade de"
+                  orientation="vertical"
+                  dataTest="prefs-tenant-auto-close-target"
+                />
+              </div>
+
+              <!-- Mensagem ao encerrar -->
+              <div class="max-w-lg">
+                <af-textarea-input
+                  [control]="chatForm.controls.auto_close_inactivity_message"
+                  label="Mensagem ao encerrar"
+                  placeholder="Mensagem enviada ao fechar o atendimento automaticamente..."
+                  [maxLength]="2000"
+                  [rows]="3"
+                  resize="vertical"
+                  dataTest="prefs-tenant-auto-close-message"
+                />
+                <p class="text-xs text-neutral-400 mt-1">
+                  Máximo de 2000 caracteres. Será enviada ao cliente quando o atendimento for encerrado.
+                </p>
+              </div>
+            </div>
+          }
+        </section>
+      }
+    }
+
     <!-- ── Save / Reset actions ───────────────────────────────────── -->
     <div class="flex justify-end gap-3">
       <af-button
@@ -270,7 +437,7 @@
       </af-button>
       <af-loading-button
         variant="primary"
-        [loading]="store.isSaving()"
+        [loading]="store.isSaving() || tenantIsSaving()"
         [disabled]="!store.hasUnsavedChanges()"
         (click)="save()"
         dataTest="prefs-save-btn"

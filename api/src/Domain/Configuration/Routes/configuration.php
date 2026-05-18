@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Domain\Configuration\Http\Controllers\ConfigurationMediaTranscriptionController;
 use Domain\Configuration\Http\Controllers\ConfigurationNotificationController;
 use Domain\Configuration\Http\Controllers\ConfigurationOpeningHourController;
+use Domain\Configuration\Http\Controllers\ConfigurationSchedulingSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function (): void {
@@ -32,5 +33,10 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
     Route::prefix('media-transcription')->group(function (): void {
         Route::get('/', [ConfigurationMediaTranscriptionController::class, 'show']);
         Route::put('/', [ConfigurationMediaTranscriptionController::class, 'update']);
+    });
+
+    Route::prefix('scheduling')->group(function (): void {
+        Route::get('/', [ConfigurationSchedulingSettingController::class, 'index']);
+        Route::put('/', [ConfigurationSchedulingSettingController::class, 'update']);
     });
 });
