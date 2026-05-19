@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Domain\Ai\Actions\AiAutopilotRunActions;
 use Domain\Ai\Contracts\AIServiceInterface;
+use Domain\Ai\Services\AiAgentToolPermissionService;
 use Domain\Ai\Services\AiPermissionMatrixService;
 use Domain\Ai\Services\AiPromptResolverService;
 use Domain\Ai\Services\GuardrailEvaluatorService;
@@ -14,7 +15,10 @@ describe('AiAutopilotRunActions::resolveMaxTokens', function (): void {
         $this->actions = new AiAutopilotRunActions(
             aiService: mock(AIServiceInterface::class),
             promptResolver: new AiPromptResolverService,
-            toolDispatcher: new ToolDispatcherService(new AiPermissionMatrixService),
+            toolDispatcher: new ToolDispatcherService(
+                agentToolPermissionService: new AiAgentToolPermissionService,
+                permissionMatrixService: new AiPermissionMatrixService,
+            ),
             guardrailEvaluator: new GuardrailEvaluatorService,
         );
 

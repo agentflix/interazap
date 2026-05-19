@@ -174,6 +174,11 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         // QW1 + QW4: hidrata prompt/context/tools antes de publicar para evitar
         // 2–3 round-trips HTTP gateway→API por run. Falhas individuais são
         // toleradas: o gateway faz fallback HTTP normal quando o snapshot vier vazio.
+        //
+        // NOTA: agente sem tools configuradas (ai_agent_tools vazio) publica
+        // payload SEM a chave 'tools'. O gateway detecta a ausência e opera
+        // em modo conversacional puro (sem function calling). Isso NÃO é erro —
+        // é comportamento intencional para agentes de atendimento geral.
         $snapshot = $snapshotResolver->resolve($this->tenantId, $agent, $ticketId);
 
         // Substitui o contexto mínimo do snapshot pelo contexto rico com conversation_history,
@@ -470,6 +475,8 @@ final class DispatchAutopilotRunJob implements ShouldQueue
                 'source_type' => (string) ($this->context['source_type'] ?? 'ticket'),
                 'agent_id' => (string) $agent->id,
                 'agent_type' => (string) $agent->type,
+                // agent_role é APENAS observabilidade/telemetria — NÃO é usado para
+                // autorização. As tools são resolvidas via ai_agent_tools (banco).
                 'agent_role' => (string) (data_get($agent->metadata, 'role') ?? $agent->getAttribute('role') ?? ''),
                 'trigger_id' => $trigger instanceof AiAgentTrigger ? (string) $trigger->id : null,
                 'trigger_type' => $this->triggerType->value,

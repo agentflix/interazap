@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Domain\Ai\Models\AiAgent;
+use Domain\Ai\Models\AiAutopilotTool;
 use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthUser;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -210,7 +212,7 @@ class AiAgentControllerTest extends TestCase
             ->assertJsonPath('data.content', '# AGENTS');
     }
 
-    public function test_agent_tools_update_persists_pivot_and_metadata(): void
+    public function test_agent_tools_update_creates_pivot_rows(): void
     {
         $user = $this->authenticateWithAgentPermission();
 
@@ -226,6 +228,18 @@ class AiAgentControllerTest extends TestCase
             'is_active' => true,
         ]);
 
+        // Create a tool in ai_autopilot_tools for this tenant
+        $tool = AiAutopilotTool::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $user->tenant_id,
+            'name' => 'send_message',
+            'display_name' => 'Send Message',
+            'description' => 'Send a message',
+            'parameters_schema' => ['type' => 'object'],
+            'is_system' => false,
+            'is_active' => true,
+        ]);
+
         $updateResponse = $this->putJson('/api/ai/agents/'.$agent->id.'/tools', [
             'tool_names' => ['send_message'],
         ])->assertOk();
@@ -234,14 +248,189 @@ class AiAgentControllerTest extends TestCase
             ->assertJsonPath('data.0.tool_id', 'send_message')
             ->assertJsonPath('data.0.tool_name', 'send_message');
 
-        $agent->refresh();
-        $metadata = is_array($agent->metadata) ? $agent->metadata : [];
-        $this->assertSame(['send_message'], $metadata['tool_names'] ?? []);
+        // Verify pivot row was created
+        $pivotCount = DB::table('ai_agent_tools')
+            ->where('agent_id', $agent->id)
+            ->where('tool_id', $tool->id)
+            ->count();
+
+        $this->assertSame(1, $pivotCount);
+    }
+
+    public function test_agent_tools_get_reads_from_pivot(): void
+    {
+        $user = $this->authenticateWithAgentPermission();
+
+        $agent = AiAgent::query()->create([
+            'tenant_id' => $user->tenant_id,
+            'name' => 'Agent Tools Read',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.5,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        $tool = AiAutopilotTool::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $user->tenant_id,
+            'name' => 'send_message',
+            'display_name' => 'Send Message',
+            'description' => 'Send a message',
+            'parameters_schema' => ['type' => 'object'],
+            'is_system' => false,
+            'is_active' => true,
+        ]);
+
+        // Insert pivot row directly
+        DB::table('ai_agent_tools')->insert([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $user->tenant_id,
+            'agent_id' => $agent->id,
+            'tool_id' => $tool->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         $this->getJson('/api/ai/agents/'.$agent->id.'/tools')
             ->assertOk()
             ->assertJsonPath('data.0.tool_id', 'send_message')
             ->assertJsonPath('data.0.tool_name', 'send_message');
+    }
+
+    public function test_agent_tools_update_does_not_write_metadata_tool_names(): void
+    {
+        $user = $this->authenticateWithAgentPermission();
+
+        $agent = AiAgent::query()->create([
+            'tenant_id' => $user->tenant_id,
+            'name' => 'Agent Tools No Metadata',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.5,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        AiAutopilotTool::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $user->tenant_id,
+            'name' => 'send_message',
+            'display_name' => 'Send Message',
+            'description' => 'Send a message',
+            'parameters_schema' => ['type' => 'object'],
+            'is_system' => false,
+            'is_active' => true,
+        ]);
+
+        $this->putJson('/api/ai/agents/'.$agent->id.'/tools', [
+            'tool_names' => ['send_message'],
+        ])->assertOk();
+
+        $agent->refresh();
+        $metadata = is_array($agent->metadata) ? $agent->metadata : [];
+
+        // metadata.tool_names must NOT be written
+        $this->assertArrayNotHasKey('tool_names', $metadata);
+    }
+
+    public function test_agent_tools_update_removes_legacy_metadata_tool_names(): void
+    {
+        $user = $this->authenticateWithAgentPermission();
+
+        $agent = AiAgent::query()->create([
+            'tenant_id' => $user->tenant_id,
+            'name' => 'Agent Tools Legacy Cleanup',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.5,
+            'top_p' => 1.0,
+            'is_active' => true,
+            'metadata' => ['tool_names' => ['old_tool'], 'other_key' => 'value'],
+        ]);
+
+        AiAutopilotTool::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $user->tenant_id,
+            'name' => 'send_message',
+            'display_name' => 'Send Message',
+            'description' => 'Send a message',
+            'parameters_schema' => ['type' => 'object'],
+            'is_system' => false,
+            'is_active' => true,
+        ]);
+
+        $this->putJson('/api/ai/agents/'.$agent->id.'/tools', [
+            'tool_names' => ['send_message'],
+        ])->assertOk();
+
+        $agent->refresh();
+        $metadata = is_array($agent->metadata) ? $agent->metadata : [];
+
+        // tool_names must be removed, but other metadata preserved
+        $this->assertArrayNotHasKey('tool_names', $metadata);
+        $this->assertSame('value', $metadata['other_key'] ?? null);
+    }
+
+    public function test_agent_tools_tenant_isolation(): void
+    {
+        /** @var AuthUser $tenantAUser */
+        $tenantAUser = AuthUser::factory()->create();
+        /** @var AuthUser $tenantBUser */
+        $tenantBUser = AuthUser::factory()->create();
+        $permission = AuthPermission::query()->firstOrCreate(
+            ['name' => 'ai.autopilots.manage', 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+
+        $tenantAUser->givePermissionTo($permission);
+        $tenantBUser->givePermissionTo($permission);
+
+        // Tenant B creates an agent
+        $agentB = AiAgent::query()->create([
+            'tenant_id' => $tenantBUser->tenant_id,
+            'name' => 'Tenant B Agent',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'max_tokens' => 512,
+            'temperature' => 0.5,
+            'top_p' => 1.0,
+            'is_active' => true,
+        ]);
+
+        // Tenant B creates a tool
+        $toolB = AiAutopilotTool::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenantBUser->tenant_id,
+            'name' => 'send_message',
+            'display_name' => 'Send Message',
+            'description' => 'Send a message',
+            'parameters_schema' => ['type' => 'object'],
+            'is_system' => false,
+            'is_active' => true,
+        ]);
+
+        // Tenant A tries to update Tenant B's agent tools
+        $this->actingAs($tenantAUser, 'sanctum');
+
+        // Should not find the agent (tenant isolation)
+        $this->putJson('/api/ai/agents/'.$agentB->id.'/tools', [
+            'tool_names' => ['send_message'],
+        ])->assertNotFound();
+
+        // Verify no pivot rows were created for tenant B's agent
+        $pivotCount = DB::table('ai_agent_tools')
+            ->where('agent_id', $agentB->id)
+            ->count();
+
+        $this->assertSame(0, $pivotCount);
     }
 
     public function test_agent_triggers_crud_endpoints(): void

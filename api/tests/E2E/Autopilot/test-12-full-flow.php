@@ -27,9 +27,9 @@ $ctx = require __DIR__.'/setup.php';
 
 // ── Tool Catalog ──────────────────────────────────────────────────────────────
 
-e2e_run('ToolDispatcherService: catálogo retorna 29 tools para role=general', function (): void {
+e2e_run('ToolDispatcherService: catálogo retorna 29 tools para tenant', function () use ($ctx): void {
     $dispatcher = app(ToolDispatcherService::class);
-    $catalog = $dispatcher->getCatalog('general');
+    $catalog = $dispatcher->getCatalog($ctx['tenant_id']);
 
     e2e_assert(count($catalog) === 29, 'catálogo tem 29 tools (got: '.count($catalog).')');
 
@@ -42,21 +42,17 @@ e2e_run('ToolDispatcherService: catálogo retorna 29 tools para role=general', f
 
 // ── Tool Definitions (OpenAI Schema) ─────────────────────────────────────────
 
-e2e_run('ToolDispatcherService: getToolDefinitions retorna schema OpenAI para todas as roles', function () use ($ctx): void {
+e2e_run('ToolDispatcherService: getToolDefinitions retorna schema OpenAI válido', function () use ($ctx): void {
     $dispatcher = app(ToolDispatcherService::class);
-    $roles = ['general', 'sales_qualifier', 'support_l1', 'cs_retention', 'post_sales', 'appointment'];
+    $definitions = $dispatcher->getToolDefinitions($ctx['tenant_id'], $ctx['agent_id'] ?? null);
 
-    foreach ($roles as $role) {
-        $definitions = $dispatcher->getToolDefinitions($ctx['tenant_id'], $role);
+    e2e_assert(count($definitions) > 0, 'tem pelo menos 1 tool definida');
 
-        e2e_assert(count($definitions) > 0, "role={$role} tem pelo menos 1 tool definida");
-
-        foreach ($definitions as $def) {
-            e2e_assert($def['type'] === 'function', "type=function para {$def['function']['name']}");
-            e2e_assert(isset($def['function']['name']), 'function.name presente');
-            e2e_assert(isset($def['function']['description']), "function.description presente em {$def['function']['name']}");
-            e2e_assert(isset($def['function']['parameters']), "function.parameters presente em {$def['function']['name']}");
-        }
+    foreach ($definitions as $def) {
+        e2e_assert($def['type'] === 'function', "type=function para {$def['function']['name']}");
+        e2e_assert(isset($def['function']['name']), 'function.name presente');
+        e2e_assert(isset($def['function']['description']), "function.description presente em {$def['function']['name']}");
+        e2e_assert(isset($def['function']['parameters']), "function.parameters presente em {$def['function']['name']}");
     }
 });
 

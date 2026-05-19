@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Domain\Ai\Http\Controllers;
 
 use Domain\Ai\Actions\AiAgentActions;
+use Domain\Ai\Actions\AiAgentSubresourceActions;
 use Domain\Ai\DTOs\AiAgentDTO;
 use Domain\Ai\Http\Requests\AiAgentChannelStoreRequest;
 use Domain\Ai\Http\Requests\AiAgentDelegationStoreRequest;
@@ -20,10 +21,12 @@ use Domain\Ai\Models\AiAgentDelegation;
 use Domain\Ai\Models\AiAgentFile;
 use Domain\Ai\Models\AiAgentSkill;
 use Domain\Ai\Models\AiAgentTrigger;
+use Domain\Ai\Services\AiAgentToolPermissionService;
 use Domain\Ai\Services\ToolDispatcherService;
 use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
@@ -35,7 +38,9 @@ final class AiAgentController extends BaseController
 {
     public function __construct(
         private readonly AiAgentActions $actions,
+        private readonly AiAgentSubresourceActions $subresourceActions,
         private readonly ToolDispatcherService $toolDispatcher,
+        private readonly AiAgentToolPermissionService $toolPermissionService,
     ) {}
 
     /**
@@ -234,7 +239,9 @@ final class AiAgentController extends BaseController
     {
         $this->authorize('ai.autopilots.manage');
 
-        return $this->success($this->toolDispatcher->getCatalog());
+        $tenantId = $this->tenantId($request);
+
+        return $this->success($this->toolDispatcher->getCatalog($tenantId));
     }
 
     /**
@@ -258,6 +265,8 @@ final class AiAgentController extends BaseController
     /**
      * List tools configured for an agent.
      *
+     * Reads tool names from the ai_agent_tools pivot table via AiAgentToolPermissionService.
+     *
      * @param  Request  $request  HTTP request.
      * @param  string  $id  UUID of the agent.
      * @return JsonResponse List of selected tools with metadata.
@@ -268,14 +277,11 @@ final class AiAgentController extends BaseController
 
         $tenantId = $this->tenantId($request);
         $agent = $this->actions->find($tenantId, $id);
-        $metadata = is_array($agent->metadata) ? $agent->metadata : [];
-        $selectedTools = data_get($metadata, 'tool_names');
-        $selectedToolNames = is_array($selectedTools)
-            ? array_values(array_map(static fn (mixed $item): string => (string) $item, $selectedTools))
-            : [];
 
-        $catalog = $this->toolDispatcher->getCatalog((string) $agent->role);
-        $tools = $this->mapSelectedToolsToLinks($catalog, $selectedToolNames);
+        $selectedToolNames = $this->toolPermissionService->toolNamesForAgent($tenantId, (string) $agent->id);
+
+        $catalog = $this->toolDispatcher->getCatalog($tenantId);
+        $tools = $this->subresourceActions->mapSelectedToolsToLinks($catalog, $selectedToolNames);
 
         return $this->success($tools);
     }
@@ -283,7 +289,10 @@ final class AiAgentController extends BaseController
     /**
      * Update tools assigned to an agent.
      *
-     * @param  AiAgentToolsUpdateRequest  $request  Validated request with tool_names or tool_ids.
+     * Synchronizes the ai_agent_tools pivot table via AiAgentToolPermissionService
+     * and removes legacy metadata.tool_names if present.
+     *
+     * @param  AiAgentToolsUpdateRequest  $request  Validated request with tool_names.
      * @param  string  $id  UUID of the agent.
      * @return JsonResponse Updated list of selected tools.
      */
@@ -295,8 +304,8 @@ final class AiAgentController extends BaseController
         $agent = $this->actions->find($tenantId, $id);
         $validated = $request->validated();
 
-        $requestedToolNames = (array) ($validated['tool_names'] ?? $validated['tool_ids'] ?? []);
-        $catalog = $this->toolDispatcher->getCatalog((string) $agent->role);
+        $requestedToolNames = (array) ($validated['tool_names'] ?? []);
+        $catalog = $this->toolDispatcher->getCatalog($tenantId);
         $availableToolNames = array_map(
             static fn (array $tool): string => (string) data_get($tool, 'name', ''),
             $catalog,
@@ -307,42 +316,23 @@ final class AiAgentController extends BaseController
             $requestedToolNames,
         )), static fn (string $tool): bool => in_array($tool, $availableToolNames, true)));
 
-        $metadata = is_array($agent->metadata) ? $agent->metadata : [];
-        $metadata['tool_names'] = $toolNames;
-        $agent->metadata = $metadata;
-        $agent->save();
+        // Sincroniza o pivot via serviço dedicado
+        $this->toolPermissionService->syncAgentTools($tenantId, (string) $agent->id, $toolNames);
 
-        $selectedTools = $this->mapSelectedToolsToLinks($catalog, $toolNames);
+        // Remove legacy metadata.tool_names se presente
+        $metadata = is_array($agent->metadata) ? $agent->metadata : [];
+        if (array_key_exists('tool_names', $metadata)) {
+            unset($metadata['tool_names']);
+            $agent->metadata = $metadata;
+            $agent->save();
+        }
+
+        // Invalida cache de tool definitions do InternalAiController
+        Cache::forget(sprintf('internal:ai:tools:%s', $id));
+
+        $selectedTools = $this->subresourceActions->mapSelectedToolsToLinks($catalog, $toolNames);
 
         return $this->success($selectedTools, 'Ferramentas do agente atualizadas');
-    }
-
-    /**
-     * @param  list<array<string, mixed>>  $catalog
-     * @param  list<string>  $toolNames
-     * @return list<array<string, string>>
-     */
-    private function mapSelectedToolsToLinks(array $catalog, array $toolNames): array
-    {
-        $catalogByName = collect($catalog)
-            ->filter(static fn (array $tool): bool => is_string(data_get($tool, 'name')))
-            ->keyBy(static fn (array $tool): string => (string) data_get($tool, 'name'));
-
-        return array_values(array_map(
-            static function (string $toolName) use ($catalogByName): array {
-                /** @var array<string, mixed> $catalogItem */
-                $catalogItem = $catalogByName->get($toolName, []);
-
-                return [
-                    'tool_id' => $toolName,
-                    'tool_name' => $toolName,
-                    'name' => $toolName,
-                    'display_name' => (string) data_get($catalogItem, 'display_name', $toolName),
-                    'description' => (string) data_get($catalogItem, 'description', ''),
-                ];
-            },
-            $toolNames,
-        ));
     }
 
     /**

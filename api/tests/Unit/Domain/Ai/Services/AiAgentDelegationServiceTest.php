@@ -299,3 +299,136 @@ it('creates child run without dispatching execution job when create-only mode is
 
     Queue::assertNotPushed(AiRunExecutionJob::class);
 });
+
+it('sets agent_id of target agent in child run input_context', function (): void {
+    Queue::fake();
+
+    $tenant = PlatformTenant::factory()->create();
+    $tenantId = (string) $tenant->id;
+
+    $sourceAgent = AiAgent::query()->create([
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $tenantId,
+        'name' => 'Source Agent',
+        'role' => 'general',
+        'type' => 'general',
+        'model_id' => 'gpt-4o-mini',
+        'is_active' => true,
+    ]);
+
+    $targetAgent = AiAgent::query()->create([
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $tenantId,
+        'name' => 'Target Agent',
+        'role' => 'specialist',
+        'type' => 'specialist',
+        'model_id' => 'gpt-4o',
+        'is_active' => true,
+    ]);
+
+    AiAgentDelegation::query()->create([
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $tenantId,
+        'source_agent_id' => (string) $sourceAgent->id,
+        'target_agent_id' => (string) $targetAgent->id,
+        'max_depth' => 3,
+        'is_active' => true,
+    ]);
+
+    $parentRun = AiAutopilotRun::query()->create([
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $tenantId,
+        'playbook_version' => 1,
+        'status' => 'running',
+        'delegation_depth' => 0,
+        'input_context' => [
+            'agent_id' => (string) $sourceAgent->id,
+        ],
+    ]);
+
+    $result = app(AiAgentDelegationService::class)->delegate(
+        tenantId: $tenantId,
+        parentRunId: (string) $parentRun->id,
+        sourceAgentId: (string) $sourceAgent->id,
+        targetAgentId: (string) $targetAgent->id,
+        dispatchExecutionJob: false,
+    );
+
+    expect($result['success'])->toBeTrue();
+
+    $childRun = AiAutopilotRun::query()->findOrFail((string) $result['child_run_id']);
+    $inputContext = is_array($childRun->input_context) ? $childRun->input_context : [];
+
+    // agent_id must be the TARGET agent, not the source
+    expect((string) $inputContext['agent_id'])->toBe((string) $targetAgent->id)
+        ->and((string) $inputContext['delegated_from_agent_id'])->toBe((string) $sourceAgent->id)
+        ->and((string) $inputContext['delegated_from_run_id'])->toBe((string) $parentRun->id);
+});
+
+it('does not use agent role for authorization — role is observability only', function (): void {
+    Queue::fake();
+
+    $tenant = PlatformTenant::factory()->create();
+    $tenantId = (string) $tenant->id;
+
+    // Source agent with one role
+    $sourceAgent = AiAgent::query()->create([
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $tenantId,
+        'name' => 'Source Agent',
+        'role' => 'attendant',
+        'type' => 'general',
+        'model_id' => 'gpt-4o-mini',
+        'is_active' => true,
+    ]);
+
+    // Target agent with a DIFFERENT role — delegation should still work
+    // because permissions come from ai_agent_tools, not from role
+    $targetAgent = AiAgent::query()->create([
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $tenantId,
+        'name' => 'Target Agent',
+        'role' => 'specialist',
+        'type' => 'specialist',
+        'model_id' => 'gpt-4o',
+        'is_active' => true,
+    ]);
+
+    AiAgentDelegation::query()->create([
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $tenantId,
+        'source_agent_id' => (string) $sourceAgent->id,
+        'target_agent_id' => (string) $targetAgent->id,
+        'max_depth' => 3,
+        'is_active' => true,
+    ]);
+
+    $parentRun = AiAutopilotRun::query()->create([
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $tenantId,
+        'playbook_version' => 1,
+        'status' => 'running',
+        'delegation_depth' => 0,
+        'input_context' => [
+            'agent_id' => (string) $sourceAgent->id,
+        ],
+    ]);
+
+    $result = app(AiAgentDelegationService::class)->delegate(
+        tenantId: $tenantId,
+        parentRunId: (string) $parentRun->id,
+        sourceAgentId: (string) $sourceAgent->id,
+        targetAgentId: (string) $targetAgent->id,
+        dispatchExecutionJob: false,
+    );
+
+    // Delegation succeeds regardless of role differences —
+    // role is NOT used for authorization
+    expect($result['success'])->toBeTrue();
+
+    $childRun = AiAutopilotRun::query()->findOrFail((string) $result['child_run_id']);
+    $inputContext = is_array($childRun->input_context) ? $childRun->input_context : [];
+
+    // Verify agent_id is the target, confirming delegation uses ID not role
+    expect((string) $inputContext['agent_id'])->toBe((string) $targetAgent->id);
+});

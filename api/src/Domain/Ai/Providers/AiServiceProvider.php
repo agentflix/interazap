@@ -11,9 +11,11 @@ use Domain\Ai\Console\Commands\GenerateDailySummariesCommand;
 use Domain\Ai\Console\Commands\PurgeAiUsageLogsCommand;
 use Domain\Ai\Console\Commands\ReindexAllKnowledgeDocumentsCommand;
 use Domain\Ai\Console\Commands\RunScheduledTriggersCommand;
+use Domain\Ai\Contracts\AiAgentToolPermissionServiceInterface;
 use Domain\Ai\Models\AiAgentTrigger;
 use Domain\Ai\Observers\AiAgentTriggerObserver;
 use Domain\Ai\Observers\TenantPromptObserver;
+use Domain\Ai\Services\AiAgentToolPermissionService;
 use Domain\Ai\Services\AiContextBuilderService;
 use Domain\Ai\Services\AiConversationSummaryService;
 use Domain\Ai\Services\AiPromptResolverService;
@@ -48,6 +50,7 @@ class AiServiceProvider extends ServiceProvider
             DetectStaleRunsCommand::class,
         ]);
 
+        $this->app->bind(AiAgentToolPermissionServiceInterface::class, AiAgentToolPermissionService::class);
         $this->app->singleton(ToolDispatcherService::class);
         $this->app->singleton(GuardrailEvaluatorService::class);
         $this->app->singleton(AiPromptResolverService::class);

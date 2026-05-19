@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Ai\Models;
 
+use Database\Factories\AiAutopilotToolFactory;
 use Domain\Shared\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -64,5 +65,13 @@ class AiAutopilotTool extends Model
                 $item->id = (string) Str::orderedUuid();
             }
         });
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): AiAutopilotToolFactory
+    {
+        return AiAutopilotToolFactory::new();
     }
 }

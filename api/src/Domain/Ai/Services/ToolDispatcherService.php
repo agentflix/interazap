@@ -4,31 +4,47 @@ declare(strict_types=1);
 
 namespace Domain\Ai\Services;
 
+use Domain\Ai\Contracts\AiAgentToolPermissionServiceInterface;
 use Domain\Ai\Contracts\AiToolInterface;
 use Domain\Ai\DTOs\ToolInputDTO;
 use Domain\Ai\DTOs\ToolResultDTO;
-use Domain\Ai\Enums\AiAgentRole;
+use Domain\Ai\Models\AiAutopilotTool;
 use Illuminate\Support\Str;
 
 /**
  * Service responsible for exposing and dispatching Autopilot tools.
+ *
+ * Uses database-backed permissions (ai_agent_tools) for authorization
+ * instead of hardcoded role-based matrix. AiPermissionMatrixService is
+ * retained only for legacy preset fallbacks.
+ *
+ * @category Services
  */
 final class ToolDispatcherService
 {
     /** @var array<string, array{type: string, function: array{name: string, description: string, parameters: array<string, mixed>}}> */
     private static array $definitionCache = [];
 
-    public function __construct(private readonly AiPermissionMatrixService $permissionMatrixService) {}
+    public function __construct(
+        private readonly AiAgentToolPermissionServiceInterface $agentToolPermissionService,
+        private readonly AiPermissionMatrixService $permissionMatrixService,
+    ) {}
 
     /**
      * Build tenant tool definitions for LLM function calling.
      *
-     * @param  list<string>|null  $selectedTools
+     * When agentId is informed, uses AiAgentToolPermissionService to obtain
+     * tool names from the database. Falls back to role-based matrix for
+     * legacy callers when agentId is not provided.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  string|null  $agentId  UUID do agente (optional for backward compatibility)
+     * @param  list<string>|null  $selectedTools  Explicit tool filter
      * @return array<int, array{type: string, function: array{name: string, description: string, parameters: array<string, mixed>}}>
      */
-    public function getToolDefinitions(string $tenantId, ?string $agentRole = null, ?array $selectedTools = null): array
+    public function getToolDefinitions(string $tenantId, ?string $agentId = null, ?array $selectedTools = null): array
     {
-        $toolNames = $this->resolveToolNames($agentRole, $selectedTools);
+        $toolNames = $this->resolveToolNames($tenantId, $agentId, $selectedTools);
 
         return collect($toolNames)
             ->map(function (string $toolName): ?array {
@@ -88,50 +104,41 @@ final class ToolDispatcherService
     }
 
     /**
-     * @return list<array{name: string, display_name: string, description: string, handler_class: string, is_active: bool}>
-     */
-    public function getCatalog(?string $agentRole = null): array
-    {
-        $toolNames = $this->resolveToolNames($agentRole, null);
-
-        return collect($toolNames)
-            ->map(function (string $toolName): ?array {
-                $className = $this->resolveClassNameFromToolName($toolName);
-
-                if (! class_exists($className)) {
-                    return null;
-                }
-
-                return [
-                    'name' => $toolName,
-                    'display_name' => $this->humanizeToolName($toolName),
-                    'description' => $this->humanizeToolName($toolName),
-                    'handler_class' => $className,
-                    'is_active' => true,
-                ];
-            })
-            ->filter(fn (?array $item): bool => $item !== null)
-            ->values()
-            ->all();
-    }
-
-    /**
      * Dispatch an individual tool call.
      *
-     * @param  array<string, mixed>  $parameters
-     * @param  array<string, mixed>  $context
+     * Validates tenant_id, agent_id and tool_name against ai_agent_tools.
+     *
+     * @param  string  $toolName  Nome da tool a executar
+     * @param  array<string, mixed>  $parameters  Parâmetros da tool
+     * @param  array<string, mixed>  $context  Contexto de execução (deve conter tenant_id e agent_id)
      */
     public function dispatch(string $toolName, array $parameters, array $context): ToolResultDTO
     {
-        if ((string) ($context['tenant_id'] ?? '') === '') {
+        $tenantId = (string) ($context['tenant_id'] ?? '');
+        if ($tenantId === '') {
             return ToolResultDTO::failure('Tenant context not informed.');
         }
 
-        $roleValue = (string) ($context['agent_role'] ?? AiAgentRole::GENERAL->value);
-        $role = AiAgentRole::tryFrom($roleValue) ?? AiAgentRole::GENERAL;
-        $allowedTools = $this->permissionMatrixService->getAvailableTools($role);
-        if (! in_array($toolName, $allowedTools, true)) {
-            return ToolResultDTO::failure("Tool '{$toolName}' not allowed for role '{$role->value}'.");
+        $agentId = (string) ($context['agent_id'] ?? '');
+        if ($agentId === '') {
+            return ToolResultDTO::failure('Agent context not informed.');
+        }
+
+        // Primary check: single query verifies tool assignment + active status.
+        if (! $this->agentToolPermissionService->agentCanUseTool($tenantId, $agentId, $toolName)) {
+            // Only when the primary check fails, query tool names to differentiate reasons.
+            $agentToolNames = $this->agentToolPermissionService->toolNamesForAgent($tenantId, $agentId);
+            if ($agentToolNames === []) {
+                return ToolResultDTO::failure(
+                    'Agent tools not configured.',
+                    ['reason' => 'agent_tools_not_configured'],
+                );
+            }
+
+            return ToolResultDTO::failure(
+                "Tool '{$toolName}' not assigned to agent.",
+                ['reason' => 'tool_not_assigned_to_agent'],
+            );
         }
 
         $className = $this->resolveClassNameFromToolName($toolName);
@@ -152,22 +159,91 @@ final class ToolDispatcherService
     }
 
     /**
-     * @param  list<string>|null  $selectedTools
+     * Retorna catálogo completo de tools ativas do tenant.
+     *
+     * Returns all active tools from ai_autopilot_tools that have an
+     * existing handler class, without role-based filtering.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @return list<array{name: string, display_name: string, description: string, handler_class: string, is_active: bool}>
+     */
+    public function getCatalog(string $tenantId): array
+    {
+        $toolNames = $this->getActiveToolNamesFromDb($tenantId);
+
+        return collect($toolNames)
+            ->map(function (string $toolName): ?array {
+                $className = $this->resolveClassNameFromToolName($toolName);
+
+                if (! class_exists($className)) {
+                    return null;
+                }
+
+                $description = $this->humanizeToolName($toolName);
+
+                try {
+                    $handler = app()->make($className);
+                    if ($handler instanceof AiToolInterface) {
+                        $description = $handler->getDescription();
+                    }
+                } catch (\Throwable) {
+                    // Keep humanized description as fallback
+                }
+
+                return [
+                    'name' => $toolName,
+                    'display_name' => $this->humanizeToolName($toolName),
+                    'description' => $description,
+                    'handler_class' => $className,
+                    'is_active' => true,
+                ];
+            })
+            ->filter(fn (?array $item): bool => $item !== null)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Resolve tool names based on agentId or falls back to legacy behavior.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  string|null  $agentId  UUID do agente
+     * @param  list<string>|null  $selectedTools  Explicit tool filter
      * @return list<string>
      */
-    private function resolveToolNames(?string $agentRole, ?array $selectedTools): array
+    private function resolveToolNames(string $tenantId, ?string $agentId, ?array $selectedTools): array
     {
-        if ($selectedTools === null || $selectedTools === []) {
-            $role = AiAgentRole::tryFrom((string) ($agentRole ?? AiAgentRole::GENERAL->value))
-                ?? AiAgentRole::GENERAL;
-
-            return array_values(array_unique($this->permissionMatrixService->getAvailableTools($role)));
+        // Explicit filter takes precedence
+        if ($selectedTools !== null && $selectedTools !== []) {
+            return array_values(array_unique(array_filter(array_map(
+                static fn (mixed $tool): string => trim((string) $tool),
+                $selectedTools,
+            ))));
         }
 
-        return array_values(array_unique(array_filter(array_map(
-            static fn (mixed $tool): string => trim((string) $tool),
-            $selectedTools,
-        ))));
+        // Database-backed permissions when agentId is provided
+        if ($agentId !== null) {
+            return $this->agentToolPermissionService->toolNamesForAgent($tenantId, $agentId);
+        }
+
+        // Legacy fallback: role-based matrix
+        return array_values(array_unique($this->permissionMatrixService->getAllToolNames()));
+    }
+
+    /**
+     * Get all active tool names from the database for a tenant.
+     *
+     * @return list<string>
+     */
+    private function getActiveToolNamesFromDb(string $tenantId): array
+    {
+        /** @var list<string> $names */
+        $names = AiAutopilotTool::forTenant($tenantId)
+            ->where('is_active', true)
+            ->pluck('name')
+            ->toArray();
+
+        return $names;
     }
 
     private function resolveClassNameFromToolName(string $toolName): string

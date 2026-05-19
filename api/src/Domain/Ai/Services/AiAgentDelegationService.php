@@ -307,7 +307,10 @@ final class AiAgentDelegationService
             'run_id' => (string) $childRun->id,
             'tenant_id' => $tenantId,
             'agent_id' => (string) $targetAgent->id,
-            'agent_role' => (string) $targetAgent->getAttribute('role'),
+            // agent_role é APENAS observabilidade/telemetria — NÃO é usado para
+            // autorização. As tools disponíveis são resolvidas pelo
+            // AutopilotRunSnapshotResolver via ai_agent_tools (banco).
+            'agent_role' => (string) ($targetAgent->getAttribute('role') ?? ''),
             'parent_run_id' => (string) ($childRun->parent_run_id ?? ''),
             'delegation_depth' => (int) ($childRun->delegation_depth ?? 1),
             'delegation_stack' => $delegationStack,

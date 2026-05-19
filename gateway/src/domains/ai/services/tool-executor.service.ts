@@ -91,7 +91,12 @@ export class ToolExecutorService {
           ),
         ),
       ]);
-      this.aiMetrics.recordToolCall(context.agentId, name, 'success');
+      const isSuccess = result['success'] === true;
+      this.aiMetrics.recordToolCall(
+        context.agentId,
+        name,
+        isSuccess ? 'success' : 'error',
+      );
       return result;
     } catch (error) {
       this.aiMetrics.recordToolCall(context.agentId, name, 'error');

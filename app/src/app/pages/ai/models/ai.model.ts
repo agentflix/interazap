@@ -1,16 +1,25 @@
 /**
- * AI Agent roles available for configuration.
+ * Presets disponíveis para configuração de AI Agent via API.
+ *
+ * ⚠️ IMPORTANTE: Este tipo representa APENAS os valores de preset
+ * suportados pela API para carregar conjuntos padrão de tools.
+ * NÃO é uma permissão de autorização em runtime.
+ * A permissão final do agent é determinada exclusivamente pelas
+ * tools vinculadas (AiAgentToolLink) e suas configurações no backend.
  */
-export type AiAgentRole =
+export type AiAgentPreset =
   | 'sales_qualifier'
   | 'support_l1'
   | 'cs_retention'
   | 'post_sales'
   | 'appointment'
-  | 'finance'
-  | 'routing'
   | 'general'
   | 'custom';
+
+/**
+ * @deprecated Use AiAgentPreset. Mantido apenas para compatibilidade temporária.
+ */
+export type AiAgentRole = AiAgentPreset;
 
 /**
  * Channels where an agent can operate.
@@ -56,6 +65,11 @@ export interface AiAgent {
 
 /**
  * Payload for creating/updating an AI agent (V2).
+ *
+ * ⚠️ Este payload NÃO contém campo `role` de autorização runtime.
+ * A autorização do agent é determinada pelas tools vinculadas (tools[])
+ * e validada pelo backend. O campo `role`/preset serve apenas para
+ * carregar configurações padrão de tools, não para controle de acesso.
  */
 export interface AiAgentPayload {
   name: string;
@@ -100,6 +114,10 @@ export interface AiAgentFile {
 
 /**
  * Tool catalog item.
+ *
+ * ⚠️ O campo `presets` indica em quais presets esta tool está incluída
+ * por padrão. NÃO controla autorização — a permissão efetiva vem das
+ * tools vinculadas ao agent (AiAgentToolLink) validadas pelo backend.
  */
 export interface AiToolCatalogItem {
   id: string;
@@ -109,7 +127,8 @@ export interface AiToolCatalogItem {
   execution_mode: 'local' | 'remote';
   requires_approval: boolean;
   is_active: boolean;
-  permissions: AiAgentRole[];
+  /** Presets em que esta tool aparece por padrão. Não é controle de acesso. */
+  presets: AiAgentPreset[];
   locked?: boolean;
   locked_reason?: string | null;
 }

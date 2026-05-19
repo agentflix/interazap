@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Log;
  * Toda hidratação é tolerante a falhas: se algo der errado, retornamos `null`
  * para o campo correspondente e o gateway aciona o fallback HTTP normalmente.
  *
+ * Tools são resolvidas exclusivamente via `ai_agent_tools` (pivot DB) —
+ * `metadata.tool_names` é ignorado.
+ *
  * @category Services
  */
 final class AutopilotRunSnapshotResolver
@@ -27,6 +30,7 @@ final class AutopilotRunSnapshotResolver
     public function __construct(
         private readonly AiPromptResolverService $promptResolver,
         private readonly ToolDispatcherService $toolDispatcher,
+        private readonly AiAgentToolPermissionService $agentToolPermissionService,
     ) {}
 
     /**
@@ -39,7 +43,7 @@ final class AutopilotRunSnapshotResolver
         return [
             'prompt' => $this->resolvePrompt($tenantId),
             'context' => $this->resolveContext($ticketId),
-            'tools' => $this->resolveTools($agent),
+            'tools' => $this->resolveTools($tenantId, $agent),
             'hydrated_at' => now()->toIso8601String(),
         ];
     }
@@ -101,27 +105,36 @@ final class AutopilotRunSnapshotResolver
     }
 
     /**
+     * Resolve tool definitions a partir da pivot `ai_agent_tools`.
+     *
+     * Não utiliza `metadata.tool_names` — os nomes vêm exclusivamente do
+     * serviço de permissões via banco de dados.
+     *
      * @return array<int, array<string, mixed>>|null
      */
-    private function resolveTools(AiAgent $agent): ?array
+    private function resolveTools(string $tenantId, AiAgent $agent): ?array
     {
         try {
-            $metadata = is_array($agent->metadata) ? $agent->metadata : [];
-            $selected = data_get($metadata, 'tool_names');
-            $selectedNames = is_array($selected)
-                ? array_values(array_map(static fn (mixed $item): string => (string) $item, $selected))
-                : null;
+            $toolNames = $this->agentToolPermissionService->toolNamesForAgent(
+                $tenantId,
+                (string) $agent->id,
+            );
+
+            if ($toolNames === []) {
+                return null;
+            }
 
             $definitions = $this->toolDispatcher->getToolDefinitions(
-                (string) $agent->tenant_id,
-                (string) $agent->getAttribute('role'),
-                $selectedNames,
+                $tenantId,
+                null,
+                $toolNames,
             );
 
             return $definitions === [] ? null : $definitions;
         } catch (\Throwable $e) {
             Log::warning('[AutopilotRunSnapshotResolver] Failed to resolve tools', [
                 'agent_id' => (string) $agent->id,
+                'tenant_id' => $tenantId,
                 'error' => $e->getMessage(),
             ]);
 

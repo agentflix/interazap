@@ -10,8 +10,10 @@ use Domain\Ai\Models\AiAgentDelegation;
 use Domain\Ai\Models\AiAgentFile;
 use Domain\Ai\Models\AiAgentSkill;
 use Domain\Ai\Models\AiAgentTrigger;
+use Domain\Ai\Services\AiAgentToolPermissionService;
 use Domain\Ai\Services\ToolDispatcherService;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
@@ -25,6 +27,7 @@ final class AiAgentSubresourceActions
     public function __construct(
         private readonly AiAgentActions $agentActions,
         private readonly ToolDispatcherService $toolDispatcher,
+        private readonly AiAgentToolPermissionService $toolPermissions,
     ) {}
 
     /**
@@ -77,24 +80,29 @@ final class AiAgentSubresourceActions
     }
 
     /**
+     * Lista as tools do agent lendo da tabela pivot ai_agent_tools.
+     *
      * @return list<array<string, string>>
      */
     public function listTools(string $tenantId, string $agentId): array
     {
-        $agent = $this->findAgent($tenantId, $agentId);
-        $metadata = is_array($agent->metadata) ? $agent->metadata : [];
-        $selectedTools = data_get($metadata, 'tool_names');
-        $selectedToolNames = is_array($selectedTools)
-            ? array_values(array_map(static fn (mixed $item): string => (string) $item, $selectedTools))
-            : [];
+        $this->findAgent($tenantId, $agentId);
+
+        $selectedToolNames = $this->toolPermissions->toolNamesForAgent($tenantId, $agentId);
 
         return $this->mapSelectedToolsToLinks(
-            $this->toolDispatcher->getCatalog((string) $agent->role),
+            $this->toolDispatcher->getCatalog($tenantId),
             $selectedToolNames,
         );
     }
 
     /**
+     * Sincroniza as tools do agent na tabela pivot ai_agent_tools.
+     *
+     * Valida os nomes solicitados contra o catálogo de tools ativas do tenant,
+     * ignorando tools inexistentes ou inativas. Remove legacy metadata.tool_names
+     * se existir, preservando demais chaves.
+     *
      * @param  array<string, mixed>  $validated
      * @return list<array<string, string>>
      */
@@ -102,8 +110,8 @@ final class AiAgentSubresourceActions
     {
         $agent = $this->findAgent($tenantId, $agentId);
 
-        $requestedToolNames = (array) ($validated['tool_names'] ?? $validated['tool_ids'] ?? []);
-        $catalog = $this->toolDispatcher->getCatalog((string) $agent->role);
+        $requestedToolNames = (array) ($validated['tool_names'] ?? []);
+        $catalog = $this->toolDispatcher->getCatalog($tenantId);
         $availableToolNames = array_map(
             static fn (array $tool): string => (string) data_get($tool, 'name', ''),
             $catalog,
@@ -114,10 +122,18 @@ final class AiAgentSubresourceActions
             $requestedToolNames,
         )), static fn (string $tool): bool => in_array($tool, $availableToolNames, true)));
 
-        $metadata = is_array($agent->metadata) ? $agent->metadata : [];
-        $metadata['tool_names'] = $toolNames;
-        $agent->metadata = $metadata;
-        $agent->save();
+        $this->toolPermissions->syncAgentTools($tenantId, $agentId, $toolNames);
+
+        // Limpa legacy metadata.tool_names se existir, preservando demais chaves
+        if (is_array($agent->metadata) && array_key_exists('tool_names', $agent->metadata)) {
+            $metadata = $agent->metadata;
+            unset($metadata['tool_names']);
+            $agent->metadata = $metadata;
+            $agent->save();
+        }
+
+        // Invalida cache de tool definitions do InternalAiController
+        Cache::forget(sprintf('internal:ai:tools:%s', $agentId));
 
         return $this->mapSelectedToolsToLinks($catalog, $toolNames);
     }
@@ -387,11 +403,13 @@ final class AiAgentSubresourceActions
     }
 
     /**
+     * Mapeia nomes de tools selecionadas para links com metadados do catálogo.
+     *
      * @param  list<array<string, mixed>>  $catalog
      * @param  list<string>  $toolNames
      * @return list<array<string, string>>
      */
-    private function mapSelectedToolsToLinks(array $catalog, array $toolNames): array
+    public function mapSelectedToolsToLinks(array $catalog, array $toolNames): array
     {
         $catalogByName = collect($catalog)
             ->filter(static fn (array $tool): bool => is_string(data_get($tool, 'name')))

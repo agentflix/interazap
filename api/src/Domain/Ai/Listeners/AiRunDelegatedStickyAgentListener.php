@@ -9,6 +9,7 @@ use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Chat\Models\ChatTicket;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * Persiste o agente alvo da delegação como sticky agent no ticket.
@@ -33,6 +34,15 @@ final class AiRunDelegatedStickyAgentListener
         }
 
         if ($ticketId === '') {
+            return;
+        }
+
+        // Ticket ID must be a valid UUID — skip if not (e.g. legacy string IDs)
+        if (! Str::isUuid($ticketId)) {
+            Log::debug('[StickyAgent] Ticket ID is not a valid UUID, skipping sticky write', [
+                'ticket_id' => $ticketId,
+            ]);
+
             return;
         }
 

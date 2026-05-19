@@ -9,12 +9,14 @@ use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAgentDelegation;
 use Domain\Ai\Models\AiAutopilotPlaybook;
 use Domain\Ai\Models\AiAutopilotRun;
+use Domain\Ai\Models\AiAutopilotTool;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatGatewayService;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
@@ -30,6 +32,38 @@ class InternalAiControllerTest extends TestCase
         parent::setUp();
 
         config()->set('services.gateway.api_key', 'internal-test-key');
+    }
+
+    /**
+     * Helper para criar uma tool na base de dados.
+     */
+    private function createTool(string $tenantId, string $name, bool $isActive = true): AiAutopilotTool
+    {
+        return AiAutopilotTool::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenantId,
+            'name' => $name,
+            'display_name' => $name,
+            'description' => "Tool: {$name}",
+            'parameters_schema' => ['type' => 'object'],
+            'is_system' => false,
+            'is_active' => $isActive,
+        ]);
+    }
+
+    /**
+     * Helper para vincular tool ao agente na pivot ai_agent_tools.
+     */
+    private function attachToolToAgent(string $tenantId, string $agentId, AiAutopilotTool $tool): void
+    {
+        DB::table('ai_agent_tools')->insert([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenantId,
+            'agent_id' => $agentId,
+            'tool_id' => (string) $tool->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     public function test_context_endpoint_returns_ticket_context(): void
@@ -72,8 +106,11 @@ class InternalAiControllerTest extends TestCase
             'temperature' => 0.7,
             'top_p' => 1.0,
             'is_active' => true,
-            'metadata' => ['tool_names' => ['send_message']],
         ]);
+
+        // Vincula tool via pivot (ai_agent_tools)
+        $tool = $this->createTool((string) $tenant->id, 'send_message');
+        $this->attachToolToAgent((string) $tenant->id, (string) $agent->id, $tool);
 
         $this->getJson('/api/internal/ai/tools/'.$agent->id.'?tenant_id='.$tenant->id, [
             'X-Internal-Api-Key' => 'internal-test-key',
@@ -82,13 +119,66 @@ class InternalAiControllerTest extends TestCase
             ->assertJsonPath('data.agent_id', (string) $agent->id);
     }
 
+    public function test_tools_endpoint_returns_only_linked_tools_from_pivot(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $tenantId = (string) $tenant->id;
+
+        $agent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenantId,
+            'name' => 'Test Agent',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'is_active' => true,
+        ]);
+
+        // Cria duas tools, mas vincula apenas uma ao agente
+        $linkedTool = $this->createTool($tenantId, 'send_message');
+        $unlinkedTool = $this->createTool($tenantId, 'search_knowledge');
+
+        $this->attachToolToAgent($tenantId, (string) $agent->id, $linkedTool);
+
+        $response = $this->getJson('/api/internal/ai/tools/'.$agent->id, [
+            'X-Internal-Api-Key' => 'internal-test-key',
+        ])
+            ->assertOk();
+
+        $tools = $response->json('data.tools');
+        expect($tools)->toHaveCount(1);
+        expect($tools[0]['function']['name'])->toBe('send_message');
+    }
+
+    public function test_tools_endpoint_returns_empty_when_agent_has_no_tools(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $agent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenant->id,
+            'name' => 'Empty Agent',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/internal/ai/tools/'.$agent->id, [
+            'X-Internal-Api-Key' => 'internal-test-key',
+        ])
+            ->assertOk();
+
+        $tools = $response->json('data.tools');
+        expect($tools)->toBeArray()->toHaveCount(0);
+    }
+
     public function test_execute_tool_endpoint_returns_dispatch_result(): void
     {
         $this->postJson('/api/internal/ai/tool/non_existing_tool', [
             'parameters' => [],
             'context' => [
                 'tenant_id' => (string) Str::orderedUuid(),
-                'agent_role' => 'general',
+                'agent_id' => (string) Str::orderedUuid(),
             ],
         ], [
             'X-Internal-Api-Key' => 'internal-test-key',
@@ -97,19 +187,87 @@ class InternalAiControllerTest extends TestCase
             ->assertJsonPath('data.success', false);
     }
 
+    public function test_execute_tool_fails_without_agent_id_in_context(): void
+    {
+        $response = $this->postJson('/api/internal/ai/tool/some_tool', [
+            'parameters' => [],
+            'context' => [
+                'tenant_id' => (string) Str::orderedUuid(),
+                'agent_role' => 'general',
+            ],
+        ], [
+            'X-Internal-Api-Key' => 'internal-test-key',
+        ]);
+
+        $response
+            ->assertStatus(422)
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('errors.reason', 'agent_id_missing');
+    }
+
+    public function test_execute_tool_blocks_tool_without_pivot_link(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $tenantId = (string) $tenant->id;
+
+        $agent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenantId,
+            'name' => 'Test Agent',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'is_active' => true,
+        ]);
+
+        // Vincula uma tool diferente (send_message) mas tenta executar search_knowledge
+        $linkedTool = $this->createTool($tenantId, 'send_message');
+        $this->attachToolToAgent($tenantId, (string) $agent->id, $linkedTool);
+
+        $response = $this->postJson('/api/internal/ai/tool/search_knowledge', [
+            'parameters' => [],
+            'context' => [
+                'tenant_id' => $tenantId,
+                'agent_id' => (string) $agent->id,
+            ],
+        ], [
+            'X-Internal-Api-Key' => 'internal-test-key',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.success', false)
+            ->assertJsonPath('data.data.reason', 'tool_not_assigned_to_agent');
+    }
+
     public function test_execute_tool_send_message_dispatches_to_gateway_and_persists_message(): void
     {
         $tenant = PlatformTenant::factory()->create();
+        $tenantId = (string) $tenant->id;
+
         $instance = ChatInstance::factory()->create([
-            'tenant_id' => (string) $tenant->id,
+            'tenant_id' => $tenantId,
             'provider' => 'uazapi',
             'webhook_token' => 'uazapi-token-test',
         ]);
-        $ticket = ChatTicket::factory()->forTenant((string) $tenant->id)->create([
+        $ticket = ChatTicket::factory()->forTenant($tenantId)->create([
             'instance_id' => (string) $instance->id,
             'status' => 'open',
             'phone' => '5511999999999',
         ]);
+
+        // Cria e vincula a tool send_message ao agente
+        $agent = AiAgent::query()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $tenantId,
+            'name' => 'AI Agent',
+            'type' => 'general',
+            'role' => 'general',
+            'model_id' => 'gpt-4o-mini',
+            'is_active' => true,
+        ]);
+        $tool = $this->createTool($tenantId, 'send_message');
+        $this->attachToolToAgent($tenantId, (string) $agent->id, $tool);
 
         $gateway = Mockery::mock(ChatGatewayService::class);
         $gateway->shouldReceive('sendText')
@@ -126,8 +284,8 @@ class InternalAiControllerTest extends TestCase
                 'type' => 'text',
             ],
             'context' => [
-                'tenant_id' => (string) $tenant->id,
-                'agent_role' => 'general',
+                'tenant_id' => $tenantId,
+                'agent_id' => (string) $agent->id,
             ],
         ], [
             'X-Internal-Api-Key' => 'internal-test-key',
@@ -142,7 +300,7 @@ class InternalAiControllerTest extends TestCase
         $message = ChatMessage::query()->find($messageId);
 
         expect($message)->not->toBeNull();
-        expect($message?->tenant_id)->toBe((string) $tenant->id);
+        expect($message?->tenant_id)->toBe($tenantId);
         expect($message?->ticket_id)->toBe((string) $ticket->id);
         expect($message?->direction)->toBe('outgoing');
         expect($message?->source)->toBe('ai');
@@ -190,8 +348,11 @@ class InternalAiControllerTest extends TestCase
             'temperature' => 0.7,
             'top_p' => 1.0,
             'is_active' => true,
-            'metadata' => ['tool_names' => ['send_message']],
         ]);
+
+        // Vincula tool send_message ao target agent via pivot
+        $tool = $this->createTool((string) $tenant->id, 'send_message');
+        $this->attachToolToAgent((string) $tenant->id, (string) $targetAgent->id, $tool);
 
         AiAgentDelegation::query()->create([
             'id' => (string) Str::orderedUuid(),

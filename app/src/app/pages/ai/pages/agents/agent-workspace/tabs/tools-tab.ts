@@ -12,7 +12,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { AfSelectInputComponent, AfButtonComponent, type AfSelectOption } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
-import { type AiAgentToolLink, type AiToolCatalogItem } from '@ai/models/ai.model';
+import { type AiAgentToolLink, type AiToolCatalogItem, type AiAgentPreset } from '@ai/models/ai.model';
 import { AiAgentService } from '@ai/services/ai-agent.service';
 
 /** PT-BR translations for tool descriptions */
@@ -73,18 +73,19 @@ export class AgentToolsTabComponent {
   readonly error = signal<string | null>(null);
   readonly loadingPreset = signal(false);
 
-  readonly presetControl = new FormControl<string>('general');
+  readonly presetControl = new FormControl<AiAgentPreset>('general');
 
-  readonly roleOptions: AfSelectOption[] = [
+  readonly presetOptions: AfSelectOption[] = [
+    { value: 'general', label: 'Geral' },
     { value: 'sales_qualifier', label: 'Vendas / Qualificador' },
     { value: 'support_l1', label: 'Suporte L1' },
-    { value: 'cs_retention', label: 'Retenção CS' },
     { value: 'post_sales', label: 'Pós-venda' },
     { value: 'appointment', label: 'Agendamento' },
-    { value: 'finance', label: 'Financeiro' },
-    { value: 'routing', label: 'Roteamento' },
-    { value: 'general', label: 'Geral' },
+    { value: 'cs_retention', label: 'Retenção CS' },
   ];
+
+  /** @deprecated Use presetOptions instead — kept for template backward compatibility */
+  readonly roleOptions: AfSelectOption[] = this.presetOptions;
 
   readonly catalogToolNameById = computed(() => {
     const map = new Map<string, string>();
@@ -140,7 +141,9 @@ export class AgentToolsTabComponent {
   }
 
   /**
-   * Apply a role preset, checking default tools automatically.
+   * Aplica um preset de tools, carregando as tools padrão do preset selecionado.
+   * O preset é apenas um atalho de configuração — a permissão efetiva vem das
+   * tools vinculadas validadas pelo backend.
    */
   applyPreset(forceRole?: string): void {
     const roleToLoad = forceRole || this.presetControl.value;

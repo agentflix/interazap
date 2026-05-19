@@ -44,7 +44,7 @@ final class AiAgentSubresourcesController extends BaseController
     {
         $this->authorize('ai.autopilots.manage');
 
-        return $this->success($this->toolDispatcher->getCatalog());
+        return $this->success($this->toolDispatcher->getCatalog($this->tenantId($request)));
     }
 
     /**

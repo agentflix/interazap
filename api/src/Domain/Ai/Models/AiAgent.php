@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Domain\Ai\Models;
 
+use Database\Factories\AiAgentFactory;
 use Domain\Shared\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -112,5 +114,26 @@ class AiAgent extends Model
     public function targetDelegations(): HasMany
     {
         return $this->hasMany(AiAgentDelegation::class, 'target_agent_id');
+    }
+
+    /**
+     * Tools vinculadas a este agente via tabela pivot ai_agent_tools.
+     */
+    public function tools(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            AiAutopilotTool::class,
+            'ai_agent_tools',
+            'agent_id',
+            'tool_id',
+        )->withTimestamps();
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): AiAgentFactory
+    {
+        return AiAgentFactory::new();
     }
 }
