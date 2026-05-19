@@ -470,7 +470,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
                 'source_type' => (string) ($this->context['source_type'] ?? 'ticket'),
                 'agent_id' => (string) $agent->id,
                 'agent_type' => (string) $agent->type,
-                'agent_role' => (string) $agent->getAttribute('role'),
+                'agent_role' => (string) (data_get($agent->metadata, 'role') ?? $agent->getAttribute('role') ?? ''),
                 'trigger_id' => $trigger instanceof AiAgentTrigger ? (string) $trigger->id : null,
                 'trigger_type' => $this->triggerType->value,
                 'dispatch_source' => $trigger instanceof AiAgentTrigger ? 'autopilot_trigger' : 'fallback_agent',

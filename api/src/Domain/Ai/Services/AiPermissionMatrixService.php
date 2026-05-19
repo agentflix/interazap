@@ -199,7 +199,7 @@ class AiPermissionMatrixService
      */
     public function getAvailableTools(AiAgentRole $role): array
     {
-        return self::MATRIX[$role->value];
+        return self::MATRIX[$role->value] ?? self::MATRIX['sales_qualifier'];
     }
 
     /**

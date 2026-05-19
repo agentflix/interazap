@@ -50,11 +50,13 @@ class GetAvailableSlotsTool implements AiToolInterface
         }
 
         // Fetch opening hours for the tenant
-        $openingHours = ConfigurationOpeningHour::query()
+        $openingHoursRaw = ConfigurationOpeningHour::query()
             ->where('tenant_id', $tenantId)
             ->where('is_active', true)
-            ->get()
-            ->groupBy('day_of_week');
+            ->get();
+
+        $openingHours = $openingHoursRaw->groupBy('day_of_week');
+        $noHoursConfigured = $openingHoursRaw->isEmpty();
 
         // Fetch existing events in the period
         $eventsQuery = CRMEvent::query()
@@ -85,8 +87,8 @@ class GetAvailableSlotsTool implements AiToolInterface
             $dayOfWeek = $current->dayOfWeek;
             $slotEnd = $current->copy()->addMinutes($durationMinutes);
 
-            // Check if within opening hours
-            if ($this->isWithinOpeningHours($current, $slotEnd, $dayOfWeek, $openingHours)) {
+            // Check if within opening hours (skip when none configured)
+            if ($noHoursConfigured || $this->isWithinOpeningHours($current, $slotEnd, $dayOfWeek, $openingHours)) {
                 // Check for conflicts with existing events
                 if (! $this->hasConflict($current, $slotEnd, $existingEvents)) {
                     $slots[] = [
