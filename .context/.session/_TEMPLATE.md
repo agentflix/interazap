@@ -1,37 +1,42 @@
 # PREVEC Session File — Modelo
 
-> Template usado por `prevec-execute-task` ao iniciar uma task.
-> Cada subagent LÊ este arquivo em vez de re-ler os arquivos de origem.
-> Arquivado por `prevec-finalize-execution` ao confirmar a task.
+> Um único arquivo por feature. Criado quando 2+ agents são invocados para uma task.
+> Agents leem este arquivo para se interar do status atual sem re-ler arquivos de origem.
+> Tasks são seções acumuladas — append a cada nova task iniciada.
+> Arquivado por `prevec-finalize-execution` quando a feature for concluída (todas as tasks ✅).
 
 ---
 
 ## Como usar
 
-1. `prevec-execute-task` cria o arquivo em `.context/.session/[feature]-TASK-X.Y.Z.md`
-2. Preenche a seção **Context Snapshot** lendo os arquivos de origem UMA vez
-3. BUILDER lê o session — não re-lê os arquivos de origem — e preenche **BUILDER Log**
-4. `prevec-review-execution` lê o session — não re-lê contexto — e preenche **REVIEWER Log**
-5. `prevec-finalize-execution` lê o session para CHANGELOG/MEMORY, depois arquiva
+1. `prevec-execute-task` cria `.context/.session/[feature]-session.md` na primeira task da feature
+2. Preenche **Architecture Snapshot** lendo arquivos de origem UMA vez — nunca repetido
+3. Para cada task: append nova seção `## TASK-X.Y.Z` com T.A.C.E e espaço para logs
+4. BUILDER preenche **BUILDER Log** na seção da task
+5. `prevec-review-execution` lê o arquivo, localiza a seção da task, preenche **REVIEWER Log**
+6. `prevec-finalize-execution` preenche **Confirmação** na seção da task
+7. Quando todas as tasks ✅: `prevec-finalize-execution` arquiva o arquivo inteiro
 
 ---
 
 ## Template
 
 ```markdown
-# Session: [feature] [TASK-X.Y.Z]
+# Session: [feature]
 
-## Metadata
+> Criado: YYYY-MM-DD HH:MM
+> Agents: leia este arquivo para status atual — não re-ler arquivos de origem.
+
+## Metadados
 - Feature: [feature]
-- Task: TASK-X.Y.Z
-- Fase PREVC: [EXECUTION / VALIDATION / CONFIRM]
-- Iniciada: YYYY-MM-DD HH:MM
-- Status: 🔄 Em Execução
+- Feature doc: .context/DOCS/FEATURES/[feature].md
+- Tasks: .context/DOCS/TASKS/[feature]-tasks.md
+- Status: 🔄 Em Progresso
 
 ---
 
-## Context Snapshot
-> Lido de arquivos de origem UMA vez. Subagents subsequentes NÃO re-leem os originais.
+## Architecture Snapshot
+> Copiado de context-snapshot.md UMA vez. Subagents NÃO re-leem os originais.
 
 ### Stack
 - Backend: [BACKEND_LANG + BACKEND_FRAMEWORK]
@@ -40,88 +45,77 @@
 - Testes: [TESTING_STACK]
 - Arquitetura: [ARCHITECTURE] — camadas: [ARCHITECTURE_LAYERS]
 
-### Regras invioláveis (de project-brain.yaml)
+### Regras invioláveis
 - [regra 1]
-- [regra 2]
 - [regra N]
 
-### Feature (resumo)
-- ID: FEAT-NNN
-- Objetivo: [2 linhas do feature.md]
-- Bounded Context: [módulo]
-- Fases desta feature: [lista das fases marcadas]
-
-### T.A.C.E desta task
-**T — Tarefa:** [copiado de tasks.md]
-**A — Arquivos autorizados:**
-- `path/exato/arquivo1.ext` (criar/modificar)
-- `path/exato/arquivo2.ext` (criar/modificar)
-**C — Comportamento:**
-ANTES: [copiado]
-DEPOIS: [copiado]
-**E — Evidências esperadas:**
-- [ ] [critério 1]
-- [ ] [critério 2]
-
-### Dependências de módulo (de dependencies.yaml)
+### Dependências de módulo
 - [módulo A] pode importar: [módulo B, C]
 - [módulo A] NÃO pode importar: [módulo D]
 
 ---
 
-## BUILDER Log
-> Preenchido pelo BUILDER ao concluir a implementação.
+## TASK-X.Y.Z — [título da task]
 
-### Arquivos modificados
+> Status: 🔄 Em Progresso | Fase PREVC: EXECUTION
+> Iniciada: YYYY-MM-DD HH:MM
+
+### T.A.C.E
+**T — Tarefa:** [copiado de tasks.md]
+**A — Arquivos autorizados:**
+- `path/exato/arquivo1.ext` (criar/modificar)
+**Referência:** `path/arquivo-referencia.ext`
+**Imports autorizados:** [lista] — proibido: [lista]
+**C — Comportamento:**
+ANTES: [estado atual]
+DEPOIS: [estado esperado]
+**E — Evidências esperadas:**
+- [ ] [comando exato e resultado esperado]
+
+### BUILDER Log
+> Preenchido por prevec-execute-task ao concluir implementação.
+
+**Arquivos modificados:**
 - `path/arquivo1.ext` — [o que mudou em uma linha]
-- `path/arquivo2.ext` — [o que mudou em uma linha]
 
-### Decisões tomadas
-- [decisão 1 — por que esta abordagem]
-- [decisão 2]
+**Decisões tomadas:**
+- [decisão — por que esta abordagem]
 
-### Gates
-- Lint: [✅ passou / ❌ falhou — detalhes]
-- Type check: [✅ / ❌]
-- Testes: [✅ N passou / ❌ N falhou]
-- Build: [✅ / ❌]
+**Testes isolados:**
+- [comando usado]: [✅ N passou / ❌ N falhou]
 
-### Notas para REVIEWER
-- [edge cases encontrados]
-- [dívida técnica criada — se houver]
-- [áreas de risco que merecem atenção especial]
-- [o que NÃO foi feito e por quê — se dentro do escopo]
+**Notas para REVIEWER:**
+- [edge cases, riscos, dívida técnica criada]
 
----
+### REVIEWER Log
+> Preenchido por prevec-review-execution. Fase PREVC: VALIDATION
 
-## REVIEWER Log
-> Preenchido por prevec-review-execution após os 7 revisores.
+**Resultado:** [aprovado / reprovado]
+**Bloqueantes:** [N] | **Médios:** [N] | **Baixos:** [N]
 
-### Resultado
-- Aprovado: [sim / não]
-- Bloqueantes: [N]
-- Médios: [N]
-- Baixos: [N]
-
-### Achados bloqueantes (se houver)
+**Achados bloqueantes:**
 - `arquivo:linha` [severidade]: [problema] — [correção sugerida]
 
-### Para CHANGELOG
+**Para CHANGELOG:**
 - Tipo: [feat / fix / refactor / test / docs / chore]
 - Escopo: [módulo ou camada]
 - Descrição: [uma linha imperativa em português]
-- Arquivos principais: [lista]
+- Arquivos: [lista do BUILDER Log]
 
-### Para MEMORY
-- Há decisão/aprendizado relevante: [sim / não]
-- Se sim: [decisão tomada | motivo | impacto]
+**Para MEMORY:**
+- Há decisão/aprendizado: [sim / não]
+- Se sim: [decisão | motivo | impacto]
 
----
-
-## Arquivo
-> Preenchido por prevec-finalize-execution.
+### Confirmação
+> Preenchido por prevec-finalize-execution. Fase PREVC: CONFIRM
 
 - Confirmada: YYYY-MM-DD HH:MM
 - Commit: [hash]
-- Movido para: `.context/.session/.archive/[feature]-TASK-X.Y.Z.md`
+- Status: ✅ Concluída
+
+---
+
+## TASK-X.Y.W — [título da próxima task]
+
+> [seção appendada quando a próxima task for iniciada]
 ```

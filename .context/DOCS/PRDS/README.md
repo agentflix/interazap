@@ -1,22 +1,22 @@
-# PRDs — InteraZap
+# PRDs — Product Requirements Documents
 
-Documentos de requisitos de produto criados via `/prevec-new-plan`.
+Especificações de produto aprovadas antes da implementação.
 
-## Convenção de nome
+## Convenção de Nome
 
 ```
 NNNN-PRD-<topic-kebab>.md
 ```
 
-Exemplos:
-- `0001-PRD-ai-agent-escalation.md`
-- `0002-PRD-billing-usage-alerts.md`
+Numeração sequencial a 4 dígitos:
+- `0001-PRD-chat-externo-webchat.md`
+- `0002-PRD-scheduling-whatsapp.md`
 
 ## Fluxo
 
-```
-/prevec-new-plan [ideia] → brainstorming → PRD aprovado → /prevec-decompose-plan
-```
+1. PLANNER (modo BRANDING) cria PRD via `/prevec-new-plan`
+2. Rafael revisa e aprova
+3. PLANNER (modo PM) usa PRD para criar feature doc via `/prevec-decompose-plan`
 
 ## Template
 

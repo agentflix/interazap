@@ -1,51 +1,37 @@
----
-id: FEAT-NNN
-title: [Nome da Feature]
-status: [draft | review | approved | in_progress | completed]
-prd: .context/DOCS/PRDS/NNNN-PRD-<topic>.md
-created_at: YYYY-MM-DD
-updated_at: YYYY-MM-DD
----
+# [Nome da Feature]
 
-# FEAT-NNN — [Nome da Feature]
+**Status:** [ ] Em planejamento | [ ] Em execução | [x] Concluída
+**Data:** YYYY-MM-DD
+**PRD:** `.context/DOCS/PRDS/NNNN-PRD-<topic>.md` *(se existir)*
 
-## Descrição
-[O que esta feature faz e por que existe]
+## Visão Geral
 
-## Escopo
-**Inclui:**
-- [o que está dentro do escopo]
-
-**Exclui:**
-- [o que não está no escopo desta feature]
+[Descrição concisa do que esta feature entrega e por quê.]
 
 ## Módulos Afetados
-- [ ] Backend (api/): [domínios — ex: Chat, CRM]
-- [ ] Gateway (gateway/): [domínios — ex: webhooks, chat]
-- [ ] Frontend (app/): [páginas — ex: chat, crm]
-- [ ] Database: [migrations]
+
+- [ ] api/ (Laravel 12)
+- [ ] gateway/ (NestJS 11)
+- [ ] app/ (Angular 20)
+- [ ] Infraestrutura
 
 ## Critérios de Aceite
-- [ ] [critério verificável 1]
-- [ ] [critério verificável 2]
-- [ ] [critério verificável 3]
 
-## Fases Estimadas
-| Fase | Descrição | Tasks |
-|---|---|---|
-| 1 — Planning | Migrations, schemas | TASK-1.x.x |
-| 2 — Design | Wireframes, specs UI | TASK-2.x.x |
-| 3 — Backend | Domain, API | TASK-3.x.x |
-| 4 — Gateway | NestJS, BullMQ | TASK-4.x.x |
-| 5 — Frontend | Angular, Capacitor | TASK-5.x.x |
-| 6 — Integration | E2E, contratos | TASK-6.x.x |
+- [ ] [Critério verificável 1]
+- [ ] [Critério verificável 2]
 
 ## Design
-- Wireframes: `.context/DESIGN/[feature]-wireframe.md`
-- UX Flow: `.context/DESIGN/[feature]-ux-flow.md`
+
+Artefatos em `.context/DESIGN/[feature]-*.md` *(obrigatório antes de tasks de Frontend)*
+
+## Tasks
+
+Ver `.context/DOCS/TASKS/[feature]-tasks.md`
 
 ## Dependências
-- [features ou tasks que precisam estar prontas antes]
 
-## Riscos
-- [riscos identificados e mitigações]
+- [feature ou task que DEVE ser concluída antes desta]
+
+## Notas
+
+[Decisões técnicas relevantes, referências, links]

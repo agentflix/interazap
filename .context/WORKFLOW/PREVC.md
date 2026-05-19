@@ -1,148 +1,119 @@
 # Workflow PREVC — InteraZap
 
-## Visão Geral
-
-PREVC = Pré-Planning → Planning → Review → Execution → Validation → Confirm
-
-```
-/prevec-new-plan [ideia]
-  → /prevec-decompose-plan [prd]
-    → /prevec-decompose-task [feature]
-      → /prevec-execute-task [feature] TASK-X.Y.Z
-        → /prevec-review-execution [feature] TASK-X.Y.Z
-          → /prevec-finalize-execution [feature] TASK-X.Y.Z
-```
+**PREVC:** Pré-Planning → Review → Execution → Validation → Confirm
 
 ---
 
 ## Fases
 
-### PRÉ-PLANNING — Ideia → PRD
-
+### PRÉ-PLANNING
 **Agent:** PLANNER (modo BRANDING)
-**Skill:** `/prevec-new-plan [ideia]`
-**Output:** `.context/DOCS/PRDS/NNNN-PRD-<topic>.md`
+**Quando:** Ideia bruta sem escopo definido
+**Output:** PRD em `.context/DOCS/PRDS/NNNN-PRD-<topic>.md`
 
-1. PLANNER lê skill `brainstorming` (`.context/skills/brainstorming/SKILL.md`)
-2. Conduz brainstorming → 2-3 abordagens → aprovação do usuário
-3. Salva PRD em `.context/DOCS/PRDS/`
-
----
-
-### PLANNING — PRD → Feature + Tasks
-
-**Agent:** PLANNER (modos PM + ARCHITECT)
-**Skills:** `/prevec-decompose-plan [prd]` → `/prevec-decompose-task [feature]`
-**Outputs:** `.context/DOCS/FEATURES/[feature].md` + `.context/DOCS/TASKS/[feature]-tasks.md`
-
-1. PLANNER lê PRD → cria feature doc
-2. Consulta `.context/DOCS/MEMORY/` — decisões anteriores
-3. Consulta `.context/ARCHITECTURE/modules.yaml` — dependências
-4. Decompõe em tasks T.A.C.E hierárquicas (TASK-X.Y.Z)
-5. Features com Frontend: PLANNER (modo DESIGNER) cria artefatos em `.context/DESIGN/`
+```
+/prevec-new-plan [ideia]
+```
 
 ---
 
-### REVIEW (pré-EXECUTION) — Validação de Planejamento
+### PLANNING
+**Agent:** PLANNER (modo PM + ARCHITECT + DESIGNER)
+**Quando:** PRD aprovado
+**Output:**
+- Feature doc em `.context/DOCS/FEATURES/[feature].md`
+- Tasks em `.context/DOCS/TASKS/[feature]-tasks.md`
+- Design (se Frontend) em `.context/DESIGN/[feature]-*.md`
 
+```
+/prevec-decompose-plan [prd]
+/prevec-decompose-task [feature]
+```
+
+---
+
+### REVIEW (pré-execução)
 **Agent:** REVIEWER (modo REVIEW)
-**Checklist:**
-- [ ] Feature doc: todos os campos preenchidos?
-- [ ] Tasks: cada task tem T, A, C, E?
-- [ ] Seção A específica (sem "vários arquivos")?
-- [ ] Seção E verificável (sem "funciona corretamente")?
-- [ ] Dependências entre tasks corretas?
-- [ ] Artefatos de design em `.context/DESIGN/` para tasks de Frontend?
+**Quando:** Feature doc e tasks prontas
+**Output:** Feature doc e tasks aprovados ou com lista de ajustes
 
 ---
 
-### EXECUTION — Implementação
-
+### EXECUTION
 **Agent:** BUILDER
-**Skill:** `/prevec-execute-task [feature] TASK-X.Y.Z`
+**Quando:** Feature doc e tasks aprovados pelo REVIEWER
+**Output:** Código implementado + testes isolados passando
 
-Ordem por tipo de task:
-1. TASK-1.x — Planning (migrations, schemas)
-2. TASK-2.x — Design (se houver)
-3. TASK-3.x — Backend (Laravel 12)
-4. TASK-4.x — Gateway (NestJS 11)
-5. TASK-5.x — Frontend (Angular 17)
-6. TASK-6.x — Integration (cross-layer)
+```
+/prevec-execute-task [feature] TASK-X.Y.Z
+```
 
-**BUILDER Inviolable:**
-- Ler task T.A.C.E COMPLETA antes de qualquer código
-- Modificar APENAS arquivos da seção A
-- Rodar gates antes de sinalizar completo
+Session em `.context/.session/[feature]-TASK-X.Y.Z.md` criado pelo BUILDER ao iniciar.
 
 ---
 
-### VALIDATION — Code Review
+### VALIDATION
+**Agent:** REVIEWER (modo VALIDATION) — **em subagent distinto**
+**Quando:** BUILDER sinaliza task concluída
+**Output:** Achados por severidade + gates executados + risco residual
 
-**Agent:** REVIEWER (modo VALIDATION) em **subagent distinto**
-**Skill:** `/prevec-review-execution [feature] TASK-X.Y.Z`
+```
+/prevec-review-execution [feature] TASK-X.Y.Z
+```
 
-1. Carrega `.context/skills/code-review-confiavel/SKILL.md`
-2. Executa 7 revisores
-3. Roda gates reais:
-   ```bash
-   # Backend
-   composer gate:all
-   # Gateway
-   pnpm lint && pnpm test
-   # Frontend
-   pnpm lint && pnpm build && pnpm test
-   ```
-4. Second pass: reler diff
-5. Meta-review: descartar achados especulativos
+Gates obrigatórios:
+- API: `php artisan test`
+- Gateway: `pnpm --filter gateway test` + `pnpm --filter gateway build`
+- App: `pnpm --filter app test` + `pnpm --filter app build`
 
-**Resultado:**
-- Bloqueantes → BUILDER corrige → VALIDATION repete
-- Sem bloqueantes → CONFIRM
+Achados bloqueantes → volta para BUILDER.
 
 ---
 
-### CONFIRM — Fechamento
-
+### CONFIRM
 **Agent:** REVIEWER (modo CONFIRM)
-**Skill:** `/prevec-finalize-execution [feature] TASK-X.Y.Z`
+**Quando:** Validation sem bloqueantes
+**Output:** Task ✅ + MEMORY (se decisão técnica) + commit semântico
 
-Checklist obrigatório:
-- [ ] Task marcada como ✅ em `.context/DOCS/TASKS/[feature]-tasks.md`
-- [ ] REVIEWER executou `code-review-confiavel` em subagent e aprovou
+```
+/prevec-finalize-execution [feature] TASK-X.Y.Z
+```
+
+---
+
+## Checklist de CONFIRM (obrigatório)
+
+- [ ] Task marcada como ✅ no arquivo de tasks
+- [ ] **REVIEWER executou `code-review-confiavel` em subagent distinto e aprovou**
 - [ ] Evidências adicionadas (output dos testes, gates)
 - [ ] MEMORY atualizado se houve decisão/aprendizado
-- [ ] `project-state.yaml` atualizado (tasks_completed++)
-- [ ] `context-snapshot.md` regenerado se `.context/ARCHITECTURE/` foi modificado
+- [ ] `project-state.yaml` atualizado (métricas)
 - [ ] Se última task da feature → feature marcada como ✅
 
 ---
 
-## Regra Inviolável: REVIEWER obrigatório em toda task
+## Regra Inviolável
 
 > Task sem aprovação explícita do REVIEWER não avança para CONFIRM — nunca.
 
-**Por quê:**
-- Detecta alucinações do BUILDER (imports inexistentes, assinaturas erradas)
-- Verifica quebra de contrato entre camadas (API ↔ Gateway ↔ Frontend)
-- Verifica tenant isolation em dados de usuário
-- Garante que o código bate com a task T.A.C.E (grounding)
-- Reduz falsos positivos via meta-review dos 7 revisores
-
-O REVIEWER executa em **subagent distinto** para não contaminar o contexto do BUILDER.
+O REVIEWER executa em **subagent distinto** para não contaminar o contexto do BUILDER com o review.
 
 ---
 
-## Nomenclatura T.A.C.E
+## Fluxo Completo
 
 ```
-TASK-X.Y.Z
-├── X = Fase (1=Planning, 2=Design, 3=Backend, 4=Gateway, 5=Frontend, 6=Integration)
-├── Y = Feature dentro da fase
-└── Z = Etapa de codificação
+/prevec-new-plan [ideia]
+  → PLANNER cria PRD
+    → /prevec-decompose-plan [prd]
+      → PLANNER cria feature doc
+        → /prevec-decompose-task [feature]
+          → PLANNER cria tasks T.A.C.E
+            → REVIEWER revisa (modo REVIEW)
+              → /prevec-execute-task [feature] TASK-X.Y.Z
+                → BUILDER implementa
+                  → /prevec-review-execution [feature] TASK-X.Y.Z
+                    → REVIEWER valida (subagent)
+                      → /prevec-finalize-execution [feature] TASK-X.Y.Z
+                        → REVIEWER confirma + commit
 ```
-
-Cada task:
-- **T** (Tarefa): o que fazer
-- **A** (Arquivo): arquivos exatos a modificar/criar
-- **C** (Comportamento): estado antes → estado depois
-- **E** (Evidência): critério verificável de conclusão

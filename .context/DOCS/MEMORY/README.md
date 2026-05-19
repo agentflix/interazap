@@ -1,38 +1,34 @@
-# MEMORY — Decisões e Aprendizados de InteraZap
+# MEMORY — Decisões e Aprendizados
 
-Registro persistente de decisões técnicas, aprendizados e armadilhas.
-Consulte antes de tomar decisões que possam ter sido enfrentadas antes.
+Registro persistente de decisões técnicas, armadilhas e insights do projeto InteraZap.
 
 ## Tipos
 
 | Tipo | Quando usar |
 |---|---|
-| **Decisão** | Escolha arquitetural ou técnica com trade-offs |
-| **Aprendizado** | Descoberta que muda como abordamos um problema |
-| **Armadilha** | Erro ou caminho errado a evitar |
-| **Insight** | Observação útil sem ação imediata |
+| **Decisão** | Escolha técnica ou arquitetural com alternativas avaliadas |
+| **Aprendizado** | Conhecimento adquirido após erro ou experimento |
+| **Armadilha** | Problema recorrente que outros devem evitar |
+| **Insight** | Observação valiosa sobre o domínio ou stack |
 
-## Convenção de nome
+## Convenção de Nome
 
 ```
-YYYY-MM-DD-titulo-kebab.md
+YYYY-MM-DD-titulo-em-kebab-case.md
 ```
 
 Exemplos:
-- `2026-05-19-setup-ai-first.md`
-- `2026-05-20-pgvector-indexing-strategy.md`
-- `2026-05-21-tenant-scope-bypass-armadilha.md`
+- `2026-05-19-gateway-nao-acessa-postgres.md`
+- `2026-05-19-bullmq-retry-strategy.md`
 
-## Quando criar
+## Quando criar entrada
 
-- Decisão técnica com alternativas descartadas
-- Bug que demorou >1h para debugar
-- Padrão novo adotado no projeto
-- Comportamento inesperado do framework
-- Trade-off aceito conscientemente
+O REVIEWER cria entrada em MEMORY ao final de tasks que envolvem:
+- Decisão arquitetural nova
+- Bug não óbvio e sua causa raiz
+- Padrão descoberto que deve ser replicado
+- Armadilha evitada
 
-## Quando consultar
+## Template
 
-- Antes de decidir arquitetura de novo módulo
-- Antes de implementar feature em domínio conhecido
-- Quando encontrar comportamento estranho (pode já estar documentado)
+Ver `_TEMPLATE.md` nesta pasta.

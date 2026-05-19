@@ -1,61 +1,36 @@
-project: InteraZap
-updated_at: "2026-05-19"
+project:
+  name: InteraZap
+  version: "1.0.0"
+  updated: "2026-05-19"
 
 stack:
-  backend: PHP 8.3 + Laravel 12
-  gateway: TypeScript + NestJS 11
-  frontend: TypeScript + Angular 17 + Capacitor
-  database: PostgreSQL 17 + pgvector + Redis 7
-  monorepo: pnpm workspaces
+  backend_api: "PHP 8.3 + Laravel 12"
+  backend_gateway: "Node.js + NestJS 11"
+  frontend: "TypeScript + Angular 20"
+  database: "PostgreSQL 17"
+  cache_queue: "Redis 7 + BullMQ"
+  ai: "Google Generative AI"
+  infra: "Ansible + Nginx + AWS Secrets Manager"
+  package_manager: "pnpm (gateway + app)"
 
 modules:
-  api_domains:
-    - Ai
-    - Auth
-    - Billing
-    - Chat
-    - Configuration
-    - CRM
-    - Dashboard
-    - Gateway
-    - Platform
-    - Reports
-    - Shared
-  gateway_domains:
-    - ai
-    - billing
-    - chat
-    - internal
-    - realtime
-    - webhooks
-  app_pages:
-    - admin
-    - ai
-    - auth
-    - billing
-    - chat
-    - configuration
-    - crm
-    - dashboard
-    - platform
-    - public
-    - reports
-    - settings
-    - ui-kit
-    - webchat
+  active:
+    - api
+    - gateway
+    - app
+  static:
+    - landing
+    - landing-clinicas
 
 metrics:
   tasks_completed: 0
   tasks_in_progress: 0
-  last_validation: null
-  last_bootstrap: "2026-05-19"
+  features_completed: 0
+  last_validation: "2026-05-19"
 
-coverage:
-  api: "≥80% (Pest)"
-  gateway: "≥80% (Jest)"
-  app: "≥80% (Vitest)"
-
-gates:
-  api: "composer gate:all (format → analyse → test → refactor)"
-  gateway: "pnpm lint && pnpm test"
-  app: "pnpm lint && pnpm build && pnpm test"
+ci:
+  api_tests: "php artisan test"
+  gateway_tests: "pnpm --filter gateway test"
+  app_tests: "pnpm --filter app test"
+  gateway_build: "pnpm --filter gateway build"
+  app_build: "pnpm --filter app build"

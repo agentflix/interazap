@@ -1,48 +1,49 @@
-# AGENTS.md — InteraZap
+# InteraZap — AI-First + PREVC V7
 
-**InteraZap** — SaaS multi-tenant · gestão de atendimento via WhatsApp e canais.
-
-| | |
-|---|---|
-| Backend | PHP 8.3 + Laravel 12 (Octane · Horizon · Reverb · Sanctum) — `api/` |
-| Gateway | TypeScript + NestJS 11 (BullMQ · WebSocket) — `gateway/` |
-| Frontend | TypeScript + Angular 17 + Capacitor (iOS/Android) — `app/` |
-| Database | PostgreSQL 17 + pgvector · Redis 7 |
-| Arquitetura | DDD multi-tenant — `Controller → DTO → Action → Resource` |
-| Monorepo | pnpm workspaces (app, gateway) |
+**Stack:** Laravel 12 (api) · NestJS 11 (gateway) · Angular 20 (app) · PostgreSQL 17 · Redis 7
+**Arquitetura:** Microservices — Presentation → Gateway → Domain/Application → Infrastructure
 
 ## Regras Absolutas
 
-1. **Todo plano, PRD, feature doc, task e documentação DEVE ser escrito em português** — nunca em inglês
-2. `declare(strict_types=1)` em **todo** PHP
-2. `final class` em Controllers, Actions e DTOs
-3. UUID como PK — **nunca** auto-increment
-4. `$fillable` explícito — **NUNCA** `$guarded = []`
-5. Eager loading obrigatório — **NUNCA** N+1
-6. Todo Model com dados de tenant usa `BelongsToTenant`
-7. Todo Controller action chama `$this->authorize()`
-8. `composer gate:all` antes de qualquer commit (API)
-9. Webhook ACK < 150ms no Gateway — processamento via BullMQ
-10. **REVIEWER executa `code-review-confiavel` ao final de toda task**
+- REVIEWER executa `code-review-confiavel` ao final de **toda** task — sem exceção
+- Todo agent mostra o próximo comando com argumentos reais ao final de cada ação concluída
+- Gateway nunca acessa PostgreSQL diretamente — sempre via api REST
+- Migrations somente em api/ via `php artisan make:migration`
+- BullMQ queues somente em gateway/
+- PSR-12 (PHP) · Angular Style Guide (TS) · Conventional Commits (git)
+- Tenant isolation obrigatória em toda query
 
-## Mapa de Contexto
+## 🗂️ Contexto
 
-| Caminho | Conteúdo |
+| Path | Conteúdo |
 |---|---|
-| `.context/agents/` | ORCHESTRATOR, PLANNER, BUILDER, REVIEWER |
-| `.context/skills/` | PREVEC + code-review-confiavel + brainstorming |
-| `.context/ARCHITECTURE/` | Diagramas, módulos, dependências, brain |
-| `.context/DESIGN/` | Wireframes, specs UI, ux-flows |
-| `.context/DOCS/FEATURES/` | Feature docs aprovados |
-| `.context/DOCS/TASKS/` | Tasks T.A.C.E |
-| `.context/DOCS/PRDS/` | PRDs |
-| `.context/DOCS/MEMORY/` | Decisões, aprendizados, armadilhas |
-| `.context/WORKFLOW/` | PREVC.md + validation-flow.md |
-| `.context/.session/` | Sessions ativos |
+| `.context/agents/` | Agents ORCHESTRATOR, PLANNER, BUILDER, REVIEWER |
+| `.context/skills/` | Skills PREVEC + code-review-confiavel + brainstorming |
+| `.context/ARCHITECTURE/` | Arquitetura, módulos, dependências, brain, snapshot |
+| `.context/DESIGN/` | Wireframes, specs de UI, fluxos visuais |
+| `.context/DOCS/` | Features, Tasks, PRDs, Memory |
+| `.context/WORKFLOW/` | PREVC.md, validation-flow.md |
 
-> Decisão técnica → consultar `project-brain.yaml` + `architecture.md` primeiro.
+## 🏗️ Architecture
 
-## Agents
+| Arquivo | Descrição |
+|---|---|
+| `.context/ARCHITECTURE/architecture.md` | Diagrama de camadas |
+| `.context/ARCHITECTURE/modules.md` | Mapa de módulos e dependências |
+| `.context/ARCHITECTURE/user-flow.md` | Fluxos principais do usuário |
+| `.context/ARCHITECTURE/modules.yaml` | Definição dos módulos/bounded contexts |
+| `.context/ARCHITECTURE/dependencies.yaml` | Regras de dependência entre módulos |
+| `.context/ARCHITECTURE/project-state.yaml` | Estado atual: stack, métricas |
+| `.context/ARCHITECTURE/project-brain.yaml` | Identidade, decisões, regras de negócio |
+| `.context/ARCHITECTURE/context-version.yaml` | Versionamento dos arquivos de contexto |
+
+> Antes de qualquer decisão técnica: consultar `project-brain.yaml` e `architecture.md`.
+
+## 🎨 Design
+
+> **OBRIGATÓRIO para tasks de Frontend:** consultar `.context/DESIGN/` antes de implementar qualquer componente, página ou fluxo visual.
+
+## 🤖 Agents
 
 | Agent | Fase PREVC | Absorve |
 |---|---|---|
@@ -51,43 +52,21 @@
 | BUILDER | Execution | BACKEND + GATEWAY + FRONTEND + DBA + DEBUG |
 | REVIEWER | Review + Validation + Confirm | REVIEWER + DOC + GIT_COMMIT |
 
-## Workflow PREVC
+## 🔄 Workflow PREVC
 
 ```
-/prevec-new-plan [ideia]                  → PRD aprovado
-/prevec-decompose-plan [prd]              → Feature doc
-/prevec-decompose-task [feature]          → Tasks T.A.C.E
-/prevec-execute-task [feature] TASK-X     → Implementação
-/prevec-review-execution [feature] TASK-X → Code review (subagent)
-/prevec-finalize-execution [feature] TASK-X → CONFIRM + commit
+/prevec-new-plan [ideia]
+  → /prevec-decompose-plan [prd]
+    → /prevec-decompose-task [feature]
+      → /prevec-execute-task [feature] TASK-X.Y.Z
+        → /prevec-review-execution [feature] TASK-X.Y.Z
+          → /prevec-finalize-execution [feature] TASK-X.Y.Z
 ```
 
-> Task sem REVIEWER aprovado não avança para CONFIRM.
+## 📋 T.A.C.E
 
-## Architecture
+Cada task: **T**arefa · **A**rquivo · **C**omportamento (antes→depois) · **E**vidência verificável
 
-> Todos em `.context/ARCHITECTURE/`
+## 🧠 Memory
 
-| Arquivo | Descrição |
-|---|---|
-| `architecture.md` | Diagrama de camadas |
-| `modules.md` | Mapa de módulos |
-| `user-flow.md` | Fluxos do usuário |
-| `modules.yaml` | Módulos/bounded contexts |
-| `dependencies.yaml` | Regras de dependência |
-| `project-state.yaml` | Stack, métricas, status |
-| `project-brain.yaml` | Identidade, decisões, regras |
-| `context-version.yaml` | Versionamento |
-| `context-snapshot.md` | Cache lean |
-
-## Design · Memory
-
-> **Frontend:** consultar `.context/DESIGN/` antes de qualquer componente ou fluxo.
-> **Memory:** REVIEWER registra em `.context/DOCS/MEMORY/` ao detectar decisão técnica.
-
-## T.A.C.E
-
-- **T** — Tarefa: o que fazer (1 frase)
-- **A** — Arquivo: path exato — nunca "vários arquivos"
-- **C** — Comportamento: antes → depois
-- **E** — Evidência: comando verificável
+Decisões técnicas e aprendizados: `.context/DOCS/MEMORY/`

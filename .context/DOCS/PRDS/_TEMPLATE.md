@@ -1,61 +1,64 @@
----
-id: NNNN
-title: [Título do PRD]
-status: [draft | review | approved]
-created_at: YYYY-MM-DD
-updated_at: YYYY-MM-DD
----
+# 0001-PRD-[topic-kebab]
 
-# NNNN-PRD — [Título do PRD]
+**Versão:** 1.0
+**Data:** YYYY-MM-DD
+**Autor:** [nome]
+**Status:** [ ] Rascunho | [ ] Em revisão | [x] Aprovado
+
+---
 
 ## Visão Geral
-[Resumo executivo em 2-3 frases]
+
+[Uma frase descrevendo o que este PRD propõe.]
 
 ## Problema
-[Qual problema estamos resolvendo? Para quem? Por que agora?]
+
+[Qual problema de negócio ou usuário esta feature resolve? Por que agora?]
 
 ## Solução
-[Descrição da solução proposta]
 
-## Usuários Alvo
-| Persona | Necessidade |
-|---|---|
-| [Atendente] | [...] |
-| [Admin do Tenant] | [...] |
+[Descrição da solução proposta. O quê, não o como.]
+
+## Usuários
+
+- **Primário:** [perfil principal — ex: operador de atendimento]
+- **Secundário:** [outros perfis afetados]
 
 ## Requisitos Funcionais
-1. [RF-01] [requisito funcional]
-2. [RF-02] [requisito funcional]
+
+1. [RF01] [requisito verificável]
+2. [RF02] [requisito verificável]
 
 ## Requisitos Não-Funcionais
-1. [RNF-01] Performance: [...]
-2. [RNF-02] Segurança: [...]
-3. [RNF-03] Tenant isolation: [...]
+
+1. [RNF01] [performance, segurança, escalabilidade]
 
 ## Critérios de Aceite
-- [ ] [critério verificável]
-- [ ] [critério verificável]
 
-## Wireframes / Design
-- `.context/DESIGN/[feature]-wireframe.md`
+- [ ] [critério verificável pelo REVIEWER]
+
+## Wireframes / Fluxos
+
+Ver `.context/DESIGN/[feature]-wireframe.md`
 
 ## Dependências
-- [features, integrações ou dados que precisam existir]
+
+- [feature ou serviço que deve existir antes]
 
 ## Riscos
+
 | Risco | Probabilidade | Impacto | Mitigação |
 |---|---|---|---|
-| [risco] | Alta/Média/Baixa | Alto/Médio/Baixo | [mitigação] |
+| [risco] | Alta/Média/Baixa | Alto/Médio/Baixo | [ação] |
 
 ## Cronograma Estimado
-| Fase | Estimativa |
-|---|---|
-| Planning + Design | Xd |
-| Backend | Xd |
-| Frontend | Xd |
-| Integração + Review | Xd |
+
+- Planejamento: X dias
+- Execução: X dias
+- Validação: X dias
 
 ## Revisões
+
 | Data | Autor | Mudança |
 |---|---|---|
-| YYYY-MM-DD | [nome] | Criação inicial |
+| YYYY-MM-DD | [nome] | Criação |

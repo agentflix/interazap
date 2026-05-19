@@ -44,3 +44,8 @@ CLAUDE.md
 package-lock.json
 # Assets do bootstrap AI-First (podem ser commitados se desejado)
 # builder/prevec-assets/
+# BOOTSTRAP/prevec-assets/
+/.playwright-mcp
+
+# PREVEC session files — comunicacao temporaria entre agents
+.context/.session/

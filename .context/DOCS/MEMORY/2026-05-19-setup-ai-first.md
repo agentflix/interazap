@@ -1,33 +1,35 @@
----
-tipo: Decisão
-data: 2026-05-19
-autor: Rafael Silva
-contexto: Bootstrap AI-First PREVEC V7
-tags: [setup, ai-first, prevc, workflow]
----
+# Setup AI-First PREVEC V7
 
-# Setup AI-First com PREVEC V7
+**Tipo:** Decisão
+**Data:** 2026-05-19
+**Autor:** PREVEC Bootstrap (Rafael Silva)
+**Tags:** ai-first, prevec, setup, arquitetura, agents
 
 ## Situação
-Projeto InteraZap existente sem documentação AI-First estruturada.
-Necessidade de workflow consistente para planejamento e execução de features.
+
+Projeto InteraZap precisava de estrutura AI-First para escalar o desenvolvimento com múltiplos agents (ORCHESTRATOR, PLANNER, BUILDER, REVIEWER) e workflow PREVC estruturado.
+Setup anterior foi deletado e recriado do zero com PREVEC V7.
 
 ## Decisão / Aprendizado
-Adotar PREVEC V7 com 4 agents consolidados (ORCHESTRATOR, PLANNER, BUILDER, REVIEWER)
-e workflow completo: new-plan → decompose-plan → decompose-task → execute-task → review-execution → finalize-execution.
 
-Ferramentas ativas: .claude/ + .opencode/ + .codex/ (todas apontando para .context/ via symlinks).
-MEMORY ativo. CHANGELOG desativado.
+Adotado PREVEC V7 como workflow de desenvolvimento:
+- `.context/` como fonte única de agents, skills e documentação
+- Symlinks em `.claude/`, `.codex/`, `.opencode/` apontando para `.context/`
+- 4 agents consolidados (ORCHESTRATOR, PLANNER, BUILDER, REVIEWER)
+- 7 skills PREVEC + code-review-confiavel + brainstorming
+
+Stack detectada: Laravel 12 (api) + NestJS 11 (gateway) + Angular 20 (app).
+Sem Capacitor (web only). CHANGELOG desativado. MEMORY ativo.
 
 ## Alternativas Consideradas
-- **Agents individuais por especialidade** — descartada: muita fragmentação de contexto
-- **Sem workflow estruturado** — descartada: inconsistência na qualidade de implementação
+
+| Alternativa | Por que descartada |
+|---|---|
+| Manter arquivos separados por ferramenta | Divergência entre .claude/ e .codex/ — manutenção dupla |
+| Usar CHANGELOG | Rafael optou por não usar nesta iteração |
 
 ## Consequências
-- **Positivas:** contexto centralizado em .context/, skills compartilhadas entre ferramentas, workflow rastreável
-- **Negativas / Trade-offs:** overhead de documentação por feature — compensado pela redução de erros
 
-## Referências
-- Bootstrap: `builder/prompt-prevec-cli.md`
-- Agents: `.context/agents/`
-- Skills: `.context/skills/`
+- **Positivas:** Agentes compartilham a mesma fonte de contexto em qualquer ferramenta
+- **Negativas / Trade-offs:** Symlinks podem ser ignorados por algumas ferramentas em Windows
+- **Ação necessária:** Revisar AGENTS.md e agents após qualquer mudança arquitetural relevante

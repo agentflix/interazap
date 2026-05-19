@@ -1,99 +1,101 @@
 # Validation Flow — InteraZap
 
-> Gates reais da stack. Executar na ordem antes de qualquer CONFIRM.
+Gates executados pelo REVIEWER (modo VALIDATION) após cada task implementada.
 
-## Backend (api/) — PHP 8.3 + Laravel 12
+---
+
+## API — Laravel 12 (api/)
 
 ```bash
-# Todos os gates de uma vez (recomendado):
-cd api && composer gate:all
+# Lint/format (se configurado)
+cd api && ./vendor/bin/pint --test
 
-# Individualmente:
-composer format     # Laravel Pint (auto-fix)
-composer analyse    # PHPStan L6 + Larastan
-composer test       # Pest (≥80% coverage)
-# composer refactor # Rector (auto-refactor)
+# Testes unitários e de integração
+php artisan test
+
+# Testes com coverage (opcional)
+php artisan test --coverage
+
+# Verificar migration sem erros
+php artisan migrate:fresh --seed
+
+# Static analysis (se configurado)
+./vendor/bin/phpstan analyse
 ```
 
-**Critérios de aprovação:**
-- Zero erros PHPStan L6
-- Todos os testes Pest passando (0 skipped)
-- Cobertura ≥80%
-- `declare(strict_types=1)` em todos os arquivos novos/editados
-- Nenhuma violação de tenant isolation
+**Gates mínimos:** `php artisan test` deve passar sem falhas.
 
 ---
 
-## Gateway (gateway/) — TypeScript + NestJS 11
+## Gateway — NestJS 11 (gateway/)
 
 ```bash
-cd gateway && pnpm lint && pnpm test
+# Build (detecta erros de tipo TypeScript)
+pnpm --filter gateway build
+
+# Testes unitários
+pnpm --filter gateway test
+
+# Testes com coverage
+pnpm --filter gateway test:cov
+
+# Lint
+pnpm --filter gateway lint
 ```
 
-**Critérios de aprovação:**
-- Zero erros ESLint
-- Todos os testes Jest passando (0 skipped)
-- Cobertura ≥80%
-- Webhook handlers com ACK < 150ms verificado
-- Nenhum log de dados sensíveis
+**Gates mínimos:** `pnpm --filter gateway build` + `pnpm --filter gateway test` sem falhas.
 
 ---
 
-## Frontend (app/) — Angular 17 + Capacitor
+## App — Angular 20 (app/)
 
 ```bash
-cd app && pnpm lint && pnpm build && pnpm test
+# Build de produção (detecta erros de tipo e template)
+pnpm --filter app build
+
+# Testes unitários
+pnpm --filter app test
+
+# Lint
+pnpm --filter app lint
 ```
 
-**Critérios de aprovação:**
-- Zero erros Angular ESLint
-- Build sem erros TypeScript
-- Todos os testes Vitest passando
-- Cobertura ≥80%
+**Gates mínimos:** `pnpm --filter app build` + `pnpm --filter app test` sem falhas.
 
 ---
 
-## Code Review Confiável (REVIEWER em subagent)
+## Code Review — code-review-confiavel
 
-Executar APÓS todos os gates passarem:
+```bash
+# 1. Ler a skill
+cat .context/skills/code-review-confiavel/SKILL.md
 
-```
-1. Abrir subagent REVIEWER
-2. Fornecer: feature doc + task T.A.C.E + diff do BUILDER
-3. REVIEWER carrega: .context/skills/code-review-confiavel/SKILL.md
-4. Executa 7 revisores conforme references/reviewers.md
-5. Executa second pass + meta-review
-6. Retorna: achados por severidade + risco residual
+# 2. Abrir 7 subagents (um por revisor em references/reviewers.md)
+# 3. Consolidar achados com severidade
+# 4. Executar meta-review (descartar especulativos)
 ```
 
-**Achados bloqueantes:** CRITICAL ou HIGH com evidência → volta para BUILDER
-**Sem bloqueantes:** avançar para CONFIRM
+**Achados bloqueantes:** task volta para BUILDER com lista de correções.
+**Sem bloqueantes:** avançar para CONFIRM.
 
 ---
 
-## Checklist Pré-CONFIRM
+## Verificação de Dependências (antes do commit)
 
+```bash
+# Verificar que gateway não importa módulos de DB diretamente
+grep -r "pg\|postgres\|knex\|typeorm\|prisma" gateway/src/ --include="*.ts" | grep -v "node_modules"
+
+# Verificar que migrations existem apenas em api/
+find gateway/ -name "*migration*" -o -name "*migrate*" | grep -v "node_modules"
 ```
-Gates Backend:
-  □ composer gate:all passou sem erros
 
-Gates Gateway (se modificado):
-  □ pnpm lint passou
-  □ pnpm test passou (0 skipped)
+---
 
-Gates Frontend (se modificado):
-  □ pnpm lint passou
-  □ pnpm build passou
-  □ pnpm test passou (0 skipped)
+## Ordem de Execução
 
-Code Review:
-  □ REVIEWER executou code-review-confiavel em subagent
-  □ Zero achados bloqueantes (CRITICAL/HIGH)
-  □ Risco residual documentado (se houver MEDIUM)
-
-Verificações manuais:
-  □ Tenant isolation: dados do tenant X não visíveis para tenant Y
-  □ Auth: endpoints protegidos com authorize()
-  □ N+1: nenhuma query N+1 nova
-  □ Secrets: nenhum token/senha/key no código ou logs
-```
+1. Gates isolados da task (BUILDER — testes do arquivo modificado)
+2. `code-review-confiavel` em subagent (REVIEWER — 7 revisores)
+3. Gates completos da camada afetada (REVIEWER)
+4. Verificação de dependências (REVIEWER)
+5. CONFIRM se tudo passou

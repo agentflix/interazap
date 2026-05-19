@@ -1,27 +1,27 @@
----
-tipo: [Decisão | Aprendizado | Armadilha | Insight]
-data: YYYY-MM-DD
-autor: [nome]
-contexto: [feature ou task relacionada — ex: FEAT-001 / TASK-3.2.1]
-tags: [domínio, padrão, tecnologia]
----
+# [Título da Decisão/Aprendizado]
 
-# [Título Conciso]
+**Tipo:** [Decisão | Aprendizado | Armadilha | Insight]
+**Data:** YYYY-MM-DD
+**Autor:** [nome ou agent]
+**Tags:** [lista de tags relevantes]
 
 ## Situação
-[O que estava acontecendo — contexto que levou à decisão ou aprendizado]
+
+[Contexto que levou a esta decisão ou aprendizado. O que estava acontecendo?]
 
 ## Decisão / Aprendizado
-[O que foi decidido ou aprendido]
+
+[O que foi decidido ou aprendido? Seja específico.]
 
 ## Alternativas Consideradas
-- **[Opção A]** — descartada por: [razão]
-- **[Opção B]** — descartada por: [razão]
+
+| Alternativa | Por que descartada |
+|---|---|
+| [opção A] | [razão] |
+| [opção B] | [razão] |
 
 ## Consequências
-- **Positivas:** [o que melhora]
-- **Negativas / Trade-offs:** [o que piora ou requer atenção]
 
-## Referências
-- Task: [TASK-X.Y.Z]
-- Arquivo: [path/to/file.php:linha]
+- **Positivas:** [o que melhora]
+- **Negativas / Trade-offs:** [o que piora ou limita]
+- **Ação necessária:** [o que precisa ser feito como resultado]

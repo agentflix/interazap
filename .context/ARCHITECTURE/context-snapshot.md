@@ -3,43 +3,38 @@
 > Fonte: project-brain.yaml + architecture.md + modules.yaml + dependencies.yaml
 
 ## Stack
-Backend: PHP 8.3 + Laravel 12 (Octane + Horizon + Reverb + Sanctum) | Gateway: TypeScript + NestJS 11 (BullMQ + WebSocket)
-Frontend: TypeScript + Angular 17 + Capacitor (iOS/Android) | Database: PostgreSQL 17 + pgvector + Redis 7
-Testes: Pest (api) · Jest (gateway) · Vitest (app) | Monorepo: pnpm workspaces
-Arquitetura: DDD multi-tenant | Camadas API: Controller → DTO → Action → Resource (src/Domain/{Domain}/)
+Backend: PHP 8.3 + Laravel 12 (api/) | Gateway: Node.js + NestJS 11 (gateway/)
+Frontend: TypeScript + Angular 20 (app/) | Database: PostgreSQL 17 + Redis 7
+Testes: PHPUnit (api) · Jest (gateway + app) | Queue: BullMQ
+Arquitetura: Microservices | Camadas: Presentation → Gateway → Domain/Application → Infrastructure
 
 ## Regras Invioláveis
-1. `declare(strict_types=1)` em todo arquivo PHP
-2. `final class` em Controllers, Actions e DTOs
-3. UUID como PK — nunca auto-increment
-4. `$fillable` explícito — NUNCA `$guarded = []`
-5. Eager loading obrigatório — NUNCA N+1
-6. Todo Model com dados de tenant usa `BelongsToTenant` trait
-7. Todo Controller action chama `$this->authorize()`
-8. `composer gate:all` deve passar antes de qualquer commit (API)
-9. `pnpm lint && pnpm test` deve passar antes de qualquer commit (Gateway)
-10. Webhook ACK < 150ms no Gateway — processamento via BullMQ
-11. Idempotência via Redis SETNX em todo webhook handler
-12. `ValidationPipe whitelist:true` em todos os controllers NestJS
+1. Gateway nunca acessa PostgreSQL diretamente — sempre via api REST
+2. Migrations somente em api/ via Laravel Artisan
+3. BullMQ queues definidas e processadas somente em gateway/
+4. AI (Google Generative AI) integrada somente em gateway/
+5. Secrets (AWS Secrets Manager) consumidos somente em gateway/
+6. Frontend (app/) nunca acessa banco ou Redis diretamente
+7. PSR-12 obrigatório para todo PHP em api/
+8. Angular Style Guide obrigatório para todo TypeScript em app/
+9. Conventional Commits obrigatório em todos os commits
+10. Tenant isolation: toda query deve filtrar por tenant_id
+11. Sessão de chat expirada não pode ser reaberta
+12. Webhook WhatsApp processado via BullMQ para garantir idempotência
+13. Rate limiting no gateway por tenant para chamadas de AI
 
-## Módulos e Dependências (API)
+## Módulos e Dependências
 | Módulo | Pode importar | Proibido |
 |---|---|---|
-| Shared | — | todos |
-| Auth | Shared | Chat, Ai, Billing, CRM, Configuration, Dashboard, Gateway, Platform, Reports |
-| Billing | Shared, Auth | Chat, Ai, CRM, Configuration, Dashboard, Gateway, Reports |
-| Configuration | Shared, Auth | Chat, Ai, Billing, CRM, Dashboard, Gateway, Platform, Reports |
-| Gateway | Shared, Auth, Configuration | Chat, Ai, Billing, CRM, Dashboard, Platform, Reports |
-| Platform | Shared, Auth, Billing | Chat, Ai, CRM, Configuration, Dashboard, Gateway, Reports |
-| CRM | Shared, Auth, Chat | Ai, Billing, Configuration, Dashboard, Gateway, Platform, Reports |
-| Chat | Shared, Auth, Ai, CRM | Billing, Configuration, Dashboard, Gateway, Platform, Reports |
-| Ai | Shared, Chat | Auth, Billing, CRM, Configuration, Dashboard, Gateway, Platform, Reports |
-| Dashboard | Shared, Auth, Chat, Reports | Ai, Billing, CRM, Configuration, Gateway, Platform |
-| Reports | Shared, Auth, Chat, CRM | Ai, Billing, Configuration, Dashboard, Gateway, Platform |
+| gateway | api (HTTP), Redis, Google AI, AWS, WhatsApp | PostgreSQL direto |
+| api | PostgreSQL, Redis | Google AI, WhatsApp, gateway |
+| app | gateway (WS+REST), api (REST) | PostgreSQL, Redis direto |
+| landing | — | api, gateway, banco |
+| landing-clinicas | — | api, gateway, banco |
 
 ## Convenções
-- PHP: PSR-12, strict_types=1, final classes, UUID PKs, BelongsToTenant
-- NestJS: ValidationPipe whitelist:true, Logger por controller, circuit breaker em HTTP externas
-- Angular: standalone components, signals, Tailwind CSS, mobile-first (Capacitor)
-- Commits: Conventional Commits em português, escopo = módulo afetado
-- Gates API: `composer gate:all` | Gates Gateway: `pnpm lint && pnpm test` | Gates App: `pnpm lint && pnpm build && pnpm test`
+- PSR-12 para PHP (api/)
+- Angular Style Guide para TypeScript (app/)
+- Conventional Commits: tipo(escopo): descrição em português
+- pnpm para gateway/ e app/ | Composer para api/
+- Scoped DI no NestJS; Service Providers no Laravel

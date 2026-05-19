@@ -1,29 +1,31 @@
-# Features — InteraZap
+# Features
 
-Features documentadas antes de qualquer implementação.
+Documentação de features planejadas e implementadas em InteraZap.
 
 ## Fluxo
 
+1. PLANNER (modo PM) cria feature doc a partir de PRD aprovado
+2. REVIEWER revisa e aprova feature doc antes de EXECUTION
+3. BUILDER implementa tasks da feature
+4. REVIEWER confirma e marca feature como ✅
+
+## Convenção de Nome
+
 ```
-PRD aprovado → /prevec-decompose-plan → Feature Doc → /prevec-decompose-task → Tasks T.A.C.E
+[feature-kebab-case].md
 ```
 
-## Convenção de nome
-
-```
-FEAT-NNN-titulo-kebab.md
-```
-
-## Status
-
-| Status | Descrição |
-|---|---|
-| `draft` | Em elaboração pelo PLANNER |
-| `review` | Aguardando revisão do REVIEWER |
-| `approved` | Aprovado, pronto para decomposição |
-| `in_progress` | Em execução (tasks iniciadas) |
-| `completed` | Todas as tasks ✅ |
+Exemplos:
+- `chat-externo-webchat.md`
+- `scheduling-via-whatsapp.md`
+- `painel-operador-realtime.md`
 
 ## Template
 
 Ver `_TEMPLATE.md` nesta pasta.
+
+## Status dos Campos
+
+- `[ ] Em planejamento` — feature doc criado, ainda sem tasks
+- `[ ] Em execução` — tasks em andamento
+- `[x] Concluída` — todas as tasks ✅ e REVIEWER confirmou

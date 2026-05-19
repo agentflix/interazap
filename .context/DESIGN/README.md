@@ -1,33 +1,30 @@
-# Design — InteraZap
+# Design
 
-Wireframes, mockups e specs de UI criados pelo PLANNER (modo DESIGNER).
+Wireframes, mockups, specs de UI e fluxos visuais de InteraZap.
 
-## Como usar
+## Regra
 
-1. PLANNER (modo DESIGNER) cria artefato antes da EXECUTION
-2. BUILDER (modo FRONTEND) lê artefato antes de implementar — **obrigatório**
-3. Todo artefato DEVE ser aprovado antes do BUILDER iniciar tasks Frontend
+> Todo artefato aqui deve ser aprovado pelo PLANNER (modo DESIGNER) antes do BUILDER iniciar tasks de Frontend.
 
-## Convenção de nome
+## Convenção de Nome
 
 ```
-[feature]-[tipo].md
+[feature-kebab]-[tipo].md
 ```
 
 Tipos: `wireframe`, `component-spec`, `ux-flow`
 
 Exemplos:
-- `chat-inbox-wireframe.md`
-- `ai-agent-config-ux-flow.md`
-- `billing-plans-component-spec.md`
+- `chat-externo-wireframe.md`
+- `painel-operador-ux-flow.md`
+- `card-conversa-component-spec.md`
+
+## Como Usar
+
+1. PLANNER (modo DESIGNER) cria artefato a partir do template
+2. Rafael aprova o design
+3. BUILDER lê o artefato antes de implementar qualquer componente Angular
 
 ## Template
 
 Ver `_TEMPLATE.md` nesta pasta.
-
-## Stack de referência
-
-- **Framework:** Angular 17 (standalone components, signals)
-- **Styling:** Tailwind CSS
-- **Mobile:** Capacitor (iOS + Android) — mobile-first
-- **UI Kit:** `.app/src/app/pages/ui-kit/`

@@ -1,15 +1,15 @@
 ---
 name: prevec-execute-task
-description: Implementa uma task T.A.C.E específica no workflow PREVEC usando o BUILDER. Cria o session file da task para compartilhar contexto com subagents subsequentes. Triggers: "implementar task", "executar task", "prevec-execute-task", "TASK-X.Y.Z". Do NOT use sem task T.A.C.E definida ou para revisar código (use prevec-review-execution).
+description: Implementa uma task T.A.C.E específica no workflow PREVEC usando o BUILDER. Cria ou atualiza o session file da feature para compartilhar contexto com subagents. Triggers: "implementar task", "executar task", "prevec-execute-task", "TASK-X.Y.Z". Do NOT use sem task T.A.C.E definida ou para revisar código (use prevec-review-execution).
 metadata:
   author: prevec
-  version: '1.0.0'
+  version: '2.0.0'
 ---
 
 # prevec-execute-task
 
 Implementa uma task T.A.C.E auto-suficiente — a task já contém Referência, Imports autorizados e comandos de Evidência.
-Cria session file para passar contexto acumulado aos subagents seguintes.
+Usa um único session file por feature para acumular contexto entre agents.
 
 ## Input
 
@@ -27,44 +27,53 @@ Exemplo: `/prevec-execute-task importacao-csv TASK-3.1.1`
 
 ## Processo
 
-### 1. Verificar session existente
+### 1. Verificar session da feature
 
 ```bash
-ls .context/.session/[feature]-TASK-X.Y.Z.md 2>/dev/null
+ls .context/.session/[feature]-session.md 2>/dev/null
 ```
 
-- **Session existe:** ler o session file — não re-ler arquivos de origem. Ir direto para Passo 3.
-- **Session não existe:** continuar para Passo 2.
+**Session existe:** ler o arquivo — Architecture Snapshot já está lá. Ir para Passo 3.
+**Session não existe:** continuar para Passo 2.
 
-### 2. Criar session file
+### 2. Criar session da feature
 
-Criar `.context/.session/` se não existir:
+Criar apenas quando houver handoff para outro agent (BUILDER → REVIEWER é sempre o caso no PREVEC).
 
 ```bash
 mkdir -p .context/.session
 ```
 
 Ler e serializar no session:
-
-1. `.context/DOCS/TASKS/[feature]-tasks.md` — extrair a task específica completa (T, A, Referência, Imports, C, E)
-2. `.context/ARCHITECTURE/context-snapshot.md` — stack e regras invioláveis (substitui project-brain + dependencies)
-
-**A task já contém Referência e Imports autorizados** — não ler arquivos de arquitetura adicionais para derivar isso.
+1. `.context/ARCHITECTURE/context-snapshot.md` — stack e regras invioláveis (lido UMA vez para toda a feature)
 
 Se `context-snapshot.md` ausente: ler `project-brain.yaml` + `dependencies.yaml` diretamente e avisar para regenerar o snapshot.
 
-Se modo FRONTEND: confirmar que `.context/DESIGN/[feature]-*.md` existe (task já tem link — só verificar).
+Criar `.context/.session/[feature]-session.md` seguindo o template em `prevec-assets/session-model.md`.
+Preencher seções **Metadados** e **Architecture Snapshot**.
 
-Criar `.context/.session/[feature]-TASK-X.Y.Z.md` seguindo o template em `prevec-assets/session-model.md`.
-Preencher completamente as seções **Metadata** e **Context Snapshot**.
-Deixar **BUILDER Log** e **REVIEWER Log** em branco — serão preenchidos pelos passos seguintes.
+### 3. Append seção da task no session
 
-### 3. Atualizar status
+Adicionar ao final de `.context/.session/[feature]-session.md` a seção `## TASK-X.Y.Z`:
 
-Marcar task como 🔄 Em Progresso no arquivo de tasks.
-Atualizar campo `Fase PREVC: EXECUTION` no session file.
+Ler a task completa de `.context/DOCS/TASKS/[feature]-tasks.md` (apenas a task específica).
+Preencher a subseção **T.A.C.E** da seção.
+Deixar **BUILDER Log** e **REVIEWER Log** em branco — serão preenchidos nos passos seguintes.
 
-### 4. Determinar modo do BUILDER
+Atualizar cabeçalho da task no session:
+```
+> Status: 🔄 Em Progresso | Fase PREVC: EXECUTION
+```
+
+**A task já contém Referência e Imports autorizados** — não ler arquivos de arquitetura adicionais.
+
+### 4. Marcar task em progresso
+
+Em `.context/DOCS/TASKS/[feature]-tasks.md`:
+- `[ ] **TASK-X.Y.Z** ⏳` → `[ ] **TASK-X.Y.Z** 🔄`
+- `**Status:** ⏳ Pendente` → `**Status:** 🔄 Em Progresso`
+
+### 5. Determinar modo do BUILDER
 
 | Tipo de task | Modo |
 |---|---|
@@ -77,9 +86,9 @@ Atualizar campo `Fase PREVC: EXECUTION` no session file.
 **Se modo FRONTEND:** verificar se `.context/DESIGN/[feature]-*.md` existe.
 Se não existir: parar e solicitar PLANNER (modo DESIGNER) antes de prosseguir.
 
-### 5. Implementar
+### 6. Implementar
 
-A task é auto-suficiente — implementar usando apenas o que está no session file (task + context-snapshot).
+A task é auto-suficiente — implementar usando apenas o que está na seção da task no session.
 
 Sequência obrigatória:
 1. Ler a **Referência** da task — entender o padrão existente
@@ -91,34 +100,40 @@ Sequência obrigatória:
 
 Se surgir necessidade de pesquisar algo não previsto na task: parar, registrar no BUILDER Log como escopo não coberto, criar nova task para o resto.
 
-Não começar nova task enquanto esta não estiver completa.
+### 7. Rodar testes isolados
 
-### 6. Verificar gates locais
+Rodar apenas os testes dos arquivos modificados nesta task — não a suite completa.
 
-Rodar antes de passar para review:
-- Lint: sem erros
-- Type check: sem erros
-- Testes da task: passando
-- Build: sem quebra
+```bash
+# Exemplos — adaptar para a stack real:
+# PHP:  php artisan test --filter NomeDaClasseTest
+# Jest: npx jest path/do/arquivo.test.ts
+# Pytest: pytest tests/path/to/test_file.py
+```
 
-Se qualquer gate falhar: corrigir antes de prosseguir.
+Gates completos (lint, build, suite inteira) são responsabilidade do REVIEWER — não rodar aqui.
 
-### 7. Preencher BUILDER Log no session
+Se os testes isolados falharem: corrigir antes de prosseguir.
 
-Atualizar `.context/.session/[feature]-TASK-X.Y.Z.md` — seção **BUILDER Log**:
+### 8. Preencher BUILDER Log no session
+
+Atualizar a subseção **BUILDER Log** na seção `## TASK-X.Y.Z` do session:
 
 - Arquivos modificados com descrição de uma linha cada
 - Decisões tomadas durante a implementação
-- Resultado de cada gate (✅ / ❌)
+- Testes isolados: comando usado + resultado
 - Notas para REVIEWER: edge cases, riscos, dívida técnica
 
-Atualizar campo `Fase PREVC: VALIDATION` no session file.
+Atualizar cabeçalho da seção:
+```
+> Status: 🔄 Em Progresso | Fase PREVC: VALIDATION
+```
 
-### 8. Handoff
+### 9. Handoff
 
 ```
-Task implementada. Session file atualizado.
-Session: .context/.session/[feature]-TASK-X.Y.Z.md
+Task implementada. Session atualizado.
+Session: .context/.session/[feature]-session.md (seção TASK-X.Y.Z)
 Próximo passo: /prevec-review-execution [feature] TASK-[X.Y.Z]
 ```
 
@@ -128,7 +143,7 @@ Próximo passo: /prevec-review-execution [feature] TASK-[X.Y.Z]
 ✅ TASK-[X.Y.Z] implementada
 📋 Arquivos modificados: [lista]
 📋 Gates: lint ✅ | types ✅ | tests ✅ | build ✅
-📋 Session: .context/.session/[feature]-TASK-X.Y.Z.md
+📋 Session: .context/.session/[feature]-session.md
 ➡️  Próximo: /prevec-review-execution [feature] TASK-[X.Y.Z]
 ```
 

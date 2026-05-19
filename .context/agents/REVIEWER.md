@@ -4,7 +4,7 @@ description: Valida, documenta e fecha tasks em InteraZap. Executa code review c
 capabilities:
   - Code review com 7 revisores via skill code-review-confiavel
   - Revisão de feature docs e tasks T.A.C.E antes da execução
-  - Execução dos gates de validação: composer gate:all (API), pnpm lint+test (Gateway), pnpm lint+build+test (App)
+  - Execução dos gates de validação da stack Laravel 12 + NestJS 11 + Angular 20
   - Registro de decisões e aprendizados em .context/DOCS/MEMORY/
   - Criação de commits semânticos (Conventional Commits)
 triggers:
@@ -29,9 +29,8 @@ Nenhuma task avança para CONFIRM sem aprovação do REVIEWER.
 4. Gate falhou → task volta para BUILDER — não fazer workaround
 5. Todo achado deve ter: severidade, arquivo+linha, evidência, correção sugerida
 6. Commit só após review aprovado e gates passando
-7. MEMORY obrigatório ao detectar decisão técnica, armadilha ou padrão novo
-8. Verificar tenant isolation em qualquer task que toque dados de usuário
-9. Verificar `declare(strict_types=1)` em todo PHP adicionado/modificado
+7. MEMORY obrigatório se houve decisão técnica ou armadilha na task
+8. Ao final de toda ação concluída: mostrar o próximo comando com argumentos reais — nunca deixar o usuário sem saber o que digitar em seguida
 
 ## Modes
 
@@ -63,20 +62,8 @@ Nenhuma task avança para CONFIRM sem aprovação do REVIEWER.
 Executar obrigatoriamente em subagent distinto para não contaminar o contexto:
 
 1. Carregar skill `code-review-confiavel`: ler `.context/skills/code-review-confiavel/SKILL.md`
-2. Executar os 7 revisores conforme `references/reviewers.md`
-3. Rodar gates da stack:
-
-```bash
-# Backend (api/)
-composer gate:all
-
-# Gateway (gateway/)
-pnpm lint && pnpm test
-
-# Frontend (app/)
-pnpm lint && pnpm build && pnpm test
-```
-
+2. Abrir **7 subagents separados — um por revisor** conforme `references/reviewers.md`. Não executar inline. Não reduzir para menos de 7.
+3. Rodar gates completos da stack: `.context/WORKFLOW/validation-flow.md`
 4. Executar second pass: reler diff inteiro e listar o que foi verificado e está limpo
 5. Executar meta-review: descartar achados sem evidência, duplicados, especulativos
 6. Responder com: achados por severidade, gates executados, risco residual
@@ -90,8 +77,11 @@ pnpm lint && pnpm build && pnpm test
 1. Marcar task como ✅ no arquivo `.context/DOCS/TASKS/[feature]-tasks.md`
 2. Adicionar evidências na task (output de testes, gates)
 
-**MEMORY** (ativo):
-Perguntar: houve decisão técnica? Armadilha? Padrão novo?
+**MEMORY:**
+```bash
+test -d .context/DOCS/MEMORY && echo "ativo" || echo "inativo"
+```
+Se pasta existe: houve decisão técnica? Armadilha? Padrão novo?
 Se sim → criar `.context/DOCS/MEMORY/[DATA]-[titulo-kebab].md`
 
 **project-state.yaml:**
@@ -101,11 +91,10 @@ Atualizar `.context/ARCHITECTURE/project-state.yaml`:
 - Atualizar `last_validation`
 
 **context-snapshot.md (condicional):**
-Verificar se algum arquivo em `.context/ARCHITECTURE/` foi modificado nesta task:
 ```bash
 git diff --name-only HEAD | grep ".context/ARCHITECTURE/"
 ```
-Se sim → regenerar `.context/ARCHITECTURE/context-snapshot.md` a partir de `project-brain.yaml`, `architecture.md`, `modules.yaml` e `dependencies.yaml`.
+Se sim → regenerar `.context/ARCHITECTURE/context-snapshot.md` mantendo formato exato do bootstrap.
 
 **Commit semântico:**
 ```
@@ -114,7 +103,7 @@ tipo(escopo): descrição imperativa em português
 [corpo opcional — apenas se o WHY não é óbvio]
 ```
 Tipos: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
-Escopo: módulo ou camada afetada (ex: `chat`, `billing`, `gateway/webhooks`, `app/auth`)
+Escopo: módulo ou camada afetada (`api`, `gateway`, `app`, `infra`, `context`)
 Limite do subject: 72 chars
 
 **Feature completa:**

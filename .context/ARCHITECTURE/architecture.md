@@ -1,57 +1,46 @@
-# Arquitetura InteraZap
+# Arquitetura — InteraZap
 
-> Plataforma multi-tenant SaaS para gestão de conversas via WhatsApp e outros canais.
+> Microservices com separação clara entre gateway de realtime/AI e API de negócio.
 
 ```mermaid
 graph TB
-    subgraph Clients["Clientes"]
-        APP["app/\nAngular 17 + Capacitor\n(Web + iOS + Android)"]
-        WEBCHAT["Webchat Widget\n(embed externo)"]
-        EXT["APIs Externas\n(WhatsApp, Meta, etc.)"]
+    subgraph Client["Cliente"]
+        APP["Angular 20<br/>app/"]
+        LAND["Landing Pages<br/>landing/ + landing-clinicas/"]
     end
 
-    subgraph Gateway["gateway/ — NestJS 11"]
-        GW_WEBHOOK["Webhook Handler\n(ACK < 150ms)"]
-        GW_AI["AI Consumer\n(BullMQ)"]
-        GW_BILLING["Billing Consumer"]
-        GW_CHAT["Chat Service"]
-        GW_REALTIME["Realtime\n(WebSocket + Redis Streams)"]
-        GW_INTERNAL["Internal Bridge\n(API ↔ Gateway)"]
+    subgraph Infra["Infraestrutura (Nginx)"]
+        NGINX["Nginx Reverse Proxy"]
     end
 
-    subgraph API["api/ — Laravel 12 + PHP 8.3"]
-        subgraph DDD["DDD — src/Domain/{Domain}/"]
-            AUTH["Auth\nController→DTO→Action→Resource"]
-            CHAT_D["Chat\nController→DTO→Action→Resource"]
-            AI_D["Ai\nController→DTO→Action→Resource"]
-            BILLING_D["Billing\nController→DTO→Action→Resource"]
-            CRM_D["CRM\nController→DTO→Action→Resource"]
-            CFG["Configuration"]
-            PLATFORM["Platform"]
-            REPORTS["Reports"]
-            SHARED["Shared\n(Traits, Contracts, Support)"]
-        end
-        HORIZON["Laravel Horizon\n(Queue Manager)"]
-        REVERB["Laravel Reverb\n(WebSocket Server)"]
-        OCTANE["Laravel Octane\n(HTTP Performance)"]
+    subgraph Services["Serviços"]
+        GW["NestJS 11 Gateway<br/>gateway/<br/>WebSocket · BullMQ · Google AI"]
+        API["Laravel 12 API<br/>api/<br/>REST · Domain · Business Logic"]
     end
 
     subgraph Data["Persistência"]
-        PG["PostgreSQL 17\n+ pgvector"]
-        REDIS["Redis 7\n(Cache, Queues, Streams, PubSub)"]
+        PG["PostgreSQL 17"]
+        REDIS["Redis 7<br/>BullMQ Queues"]
     end
 
-    APP -->|REST + WebSocket| API
-    APP -->|WebSocket| REVERB
-    WEBCHAT -->|REST| Gateway
-    EXT -->|Webhooks| GW_WEBHOOK
-    GW_WEBHOOK -->|BullMQ Jobs| REDIS
-    GW_AI -->|HTTP| API
-    GW_BILLING -->|HTTP| API
-    GW_CHAT -->|HTTP| API
-    GW_REALTIME -->|Redis Streams/PubSub| REDIS
-    GW_INTERNAL -->|HTTP| API
-    API -->|Queries| PG
-    API -->|Cache/Queues| REDIS
-    HORIZON -->|Workers| REDIS
+    subgraph External["Externo"]
+        WA["WhatsApp API"]
+        GOOG["Google Generative AI"]
+        AWS["AWS Secrets Manager"]
+    end
+
+    APP --> NGINX
+    LAND --> NGINX
+    NGINX --> GW
+    NGINX --> API
+
+    GW --> API
+    GW --> REDIS
+    GW --> GOOG
+    GW --> AWS
+
+    API --> PG
+    API --> REDIS
+
+    WA --> GW
 ```

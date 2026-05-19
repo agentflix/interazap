@@ -1,88 +1,52 @@
-project:
+identity:
   name: InteraZap
   description: >
-    Plataforma SaaS multi-tenant para gestão de atendimento via WhatsApp e
-    outros canais de mensagem. Oferece inbox unificado, automação com AI,
-    CRM integrado, relatórios e suporte a múltiplas equipes por tenant.
-  domain: Customer Communication Platform / Conversational CRM
-  status: production
+    Plataforma de atendimento conversacional via WhatsApp e webchat,
+    com AI generativa para automação de respostas, agendamento e suporte a clínicas.
+  domain: Conversational AI + CRM para pequenas e médias empresas
 
-identity:
-  architecture: DDD (Domain-Driven Design)
-  pattern: >
-    API: Controller → DTO → Action → Resource (dentro de src/Domain/{Domain}/)
-    Gateway: Controller → Service → External APIs / Redis / Laravel API
-  multi_tenant: true
-  tenant_isolation: BelongsToTenant trait + Sanctum + Spatie Permissions
-
-stack:
-  backend:
-    language: PHP 8.3
-    framework: Laravel 12
-    performance: Laravel Octane
-    queues: Laravel Horizon + Redis
-    websocket_server: Laravel Reverb
-    auth: Laravel Sanctum + Spatie Permissions (RBAC)
-    static_analysis: PHPStan L6 + Larastan + Rector
-    testing: Pest
-
-  gateway:
-    language: TypeScript 5.7
-    framework: NestJS 11
-    queues: BullMQ + Redis
-    realtime: WebSocket (socket.io) + Redis Streams + PubSub
-    testing: Jest
-
-  frontend:
-    language: TypeScript
-    framework: Angular 17
-    mobile: Capacitor (iOS + Android)
-    styling: Tailwind CSS
-    state: Angular Signals
-    testing: Vitest
-
-  database:
-    primary: PostgreSQL 17
-    vector: pgvector (AI embeddings / RAG)
-    cache_queues: Redis 7
-
-  infra:
-    monorepo: pnpm workspaces (app, gateway)
-    ci: GitHub Actions
-    deployment: Ansible + Nginx
+architecture:
+  pattern: Microservices
+  layers:
+    - Presentation (Angular 20 — app/)
+    - Gateway (NestJS 11 — realtime, filas, AI)
+    - Domain/Application (Laravel 12 — business logic, REST)
+    - Infrastructure (PostgreSQL 17, Redis 7)
 
 decisions:
-  - date: 2026-05-19
-    decision: Separar processamento de webhooks em Gateway (NestJS) independente do API (Laravel)
-    reason: Webhooks externos precisam de ACK < 150ms; Laravel não adequado para isso sem Octane
+  - id: D01
+    title: Gateway separado da API principal
+    decision: NestJS 11 como gateway de realtime — Laravel fica exclusivo para domain/business
+    rationale: Separação de responsabilidades; NestJS nativo para WebSocket e BullMQ
 
-  - date: 2026-05-19
-    decision: pgvector para RAG no domínio Ai
-    reason: Evitar serviço externo (Pinecone/Weaviate) — embeddings co-localizados com dados
+  - id: D02
+    title: BullMQ para processamento assíncrono
+    decision: Todas as filas em Redis via BullMQ no gateway
+    rationale: Suporte a retry, dead-letter, concorrência configurável por queue
 
-  - date: 2026-05-19
-    decision: BelongsToTenant trait em todo Model
-    reason: Garantia de isolamento de dados multi-tenant via query scope automático
+  - id: D03
+    title: AI centralizada no gateway
+    decision: Google Generative AI integrado apenas no gateway
+    rationale: Isolamento de custo e rate-limiting; api fica agnóstica de AI
 
 inviolable_rules:
-  - declare(strict_types=1) em todo arquivo PHP
-  - final class em Controllers, Actions e DTOs
-  - UUID como PK — nunca auto-increment
-  - $fillable explícito — NUNCA $guarded = []
-  - Eager loading obrigatório — NUNCA N+1
-  - BelongsToTenant em todo Model com dados de tenant
-  - $this->authorize() em todo Controller action
-  - composer gate:all deve passar antes de qualquer commit (API)
-  - pnpm lint && pnpm test antes de qualquer commit (Gateway)
-  - Webhook ACK < 150ms no Gateway
-  - Idempotência via Redis SETNX em todo webhook handler
-  - ValidationPipe whitelist:true em todo Controller NestJS
-  - Nunca logar tokens, senhas ou API keys
+  - Gateway nunca acessa PostgreSQL diretamente — sempre via api REST
+  - Migrations somente em api/ via Laravel Artisan
+  - BullMQ queues definidas e processadas somente em gateway/
+  - AI (Google Generative AI) integrada somente em gateway/
+  - Secrets (AWS Secrets Manager) consumidos somente em gateway/
+  - Frontend (app/) nunca acessa banco ou Redis diretamente
+  - PSR-12 obrigatório para todo PHP em api/
+  - Angular Style Guide obrigatório para todo TypeScript em app/
+  - Conventional Commits obrigatório em todos os commits
 
-ai_context:
-  agent_architecture: >
-    Domínio Ai usa AiAgent model com ferramentas configuráveis por tenant.
-    RAG via pgvector com AiKnowledgeChunk. Execução via jobs BullMQ no Gateway.
-  key_patterns:
-    - skill_system: Ferramentas do agente como classes PHP registradas por tenant
-    - rag_pipeline: Upload → Parse → Chunk → Embed (pgvector) → Search on demand
+business_rules:
+  - Tenant isolation: toda query deve filtrar por tenant_id
+  - Sessões de chat têm TTL; sessão expirada não pode ser reaberta
+  - Webhook de WhatsApp processado via BullMQ para garantir idempotência
+  - Rate limiting no gateway por tenant para chamadas de AI
+
+testing:
+  api: PHPUnit (php artisan test)
+  gateway: Jest (pnpm --filter gateway test)
+  app: Jest + Angular Testing Library (pnpm --filter app test)

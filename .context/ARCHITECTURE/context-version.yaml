@@ -1,6 +1,6 @@
 version: "1.0.0"
-created_at: "2026-05-19"
-updated_at: "2026-05-19"
+generated: "2026-05-19"
+generator: "PREVEC Bootstrap V7"
 
 files:
   architecture.md: "1.0.0"
@@ -15,4 +15,4 @@ files:
 changelog:
   - version: "1.0.0"
     date: "2026-05-19"
-    description: Bootstrap AI-First inicial via PREVEC
+    note: "Setup inicial PREVEC V7 — stack inferida do código"
