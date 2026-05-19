@@ -1,6 +1,13 @@
 ---
 name: autopilot
-description: Deep knowledge of the InteraZap Autopilot module — its architecture, data flow, key files, caching layers, and known invariants. Use when working on autopilot bugs, features, or analysis. Triggers on: "autopilot", "AI agent", "DispatchAutopilotRunJob", "AiContextBuilderService", "conversation_history", "ai.run.request", "snapshot", or any task involving the AI response flow from inbound message to AI reply. Do NOT use for general Laravel/NestJS questions unrelated to the autopilot pipeline.
+description: >-
+  Deep knowledge of the InteraZap Autopilot module, including its architecture,
+  data flow, key files, caching layers, and known invariants. Use when working
+  on autopilot bugs, features, or analysis. Triggers on: "autopilot",
+  "AI agent", "DispatchAutopilotRunJob", "AiContextBuilderService",
+  "conversation_history", "ai.run.request", "snapshot", or any task involving
+  the AI response flow from inbound message to AI reply. Do NOT use for general
+  Laravel/NestJS questions unrelated to the autopilot pipeline.
 license: CC-BY-4.0
 metadata:
   author: Rafael Silva
