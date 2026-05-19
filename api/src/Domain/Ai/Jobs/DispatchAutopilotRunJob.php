@@ -13,9 +13,11 @@ use Domain\Ai\Models\AiAutopilotPlaybook;
 use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Ai\Models\AiAutopilotTriggerLog;
 use Domain\Ai\Observers\AiAgentTriggerObserver;
+use Domain\Ai\Services\AiContextBuilderService;
 use Domain\Ai\Services\AutopilotRunSnapshotResolver;
 use Domain\Ai\Services\AutopilotRunStreamPublisher;
 use Domain\Chat\Models\ChatInstance;
+use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatAiActivityService;
 use Illuminate\Bus\Queueable;
@@ -75,6 +77,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         ChatAiActivityService $chatAiActivity,
         AutopilotRunSnapshotResolver $snapshotResolver,
         AutopilotRunStreamPublisher $streamPublisher,
+        AiContextBuilderService $contextBuilder,
     ): void {
         $ticketId = (string) ($this->context['ticket_id'] ?? '');
         $messageId = (string) ($this->context['message_id'] ?? '');
@@ -172,6 +175,28 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         // 2–3 round-trips HTTP gateway→API por run. Falhas individuais são
         // toleradas: o gateway faz fallback HTTP normal quando o snapshot vier vazio.
         $snapshot = $snapshotResolver->resolve($this->tenantId, $agent, $ticketId);
+
+        // Substitui o contexto mínimo do snapshot pelo contexto rico com conversation_history,
+        // pois o AutopilotRunSnapshotResolver não inclui histórico de mensagens.
+        try {
+            $ticket = ChatTicket::query()
+                ->where('tenant_id', $this->tenantId)
+                ->find($ticketId);
+            $currentMessage = $messageId !== ''
+                ? ChatMessage::query()->find($messageId)
+                : null;
+
+            if ($ticket instanceof ChatTicket && $currentMessage instanceof ChatMessage) {
+                $snapshot['context'] = $contextBuilder->build($ticket, $currentMessage);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('[DispatchAutopilotRunJob] Failed to build rich context, falling back to minimal snapshot', [
+                'ticket_id' => $ticketId,
+                'message_id' => $messageId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         $streamPayload['hydrated_at'] = $snapshot['hydrated_at'];
 
         if (is_string($snapshot['prompt']) && $snapshot['prompt'] !== '') {

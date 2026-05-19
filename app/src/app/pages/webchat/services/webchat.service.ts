@@ -595,6 +595,11 @@ function compareWebChatMessagesAsc(a: WebChatMessage, b: WebChatMessage): number
   if (tsDiff !== 0) {
     return tsDiff;
   }
-  // Desempate por id (comparação lexicográfica)
+  // Desempate por id: numérico quando possível (evita "10" < "9"), lexicográfico para UUIDs
+  const numA = Number(a.id);
+  const numB = Number(b.id);
+  if (Number.isFinite(numA) && Number.isFinite(numB)) {
+    return numA - numB;
+  }
   return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
