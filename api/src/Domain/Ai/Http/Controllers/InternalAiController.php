@@ -8,18 +8,18 @@ use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAgentFile;
 use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Ai\Services\AiAgentDelegationService;
+use Domain\Ai\Services\AiAgentToolPermissionService;
 use Domain\Ai\Services\AiPromptResolverService;
 use Domain\Ai\Services\AiRagService;
+use Domain\Ai\Services\AutopilotRunStreamPublisher;
 use Domain\Ai\Services\ToolDispatcherService;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Redis\Connections\PredisConnection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
 /**
@@ -37,6 +37,8 @@ final class InternalAiController extends BaseController
         private readonly AiPromptResolverService $promptResolver,
         private readonly AiRagService $ragService,
         private readonly AiAgentDelegationService $delegationService,
+        private readonly AiAgentToolPermissionService $agentToolPermissionService,
+        private readonly AutopilotRunStreamPublisher $streamPublisher,
     ) {
         $this->middleware('internal.api.key');
     }
@@ -90,6 +92,8 @@ final class InternalAiController extends BaseController
     /**
      * Obter definicoes de ferramentas disponiveis para um agente.
      *
+     * Lê permissões do pivot ai_agent_tools via AiAgentToolPermissionService.
+     *
      * @param  string  $agentId  UUID do agente.
      * @return JsonResponse Lista de ferramentas do agente.
      */
@@ -99,16 +103,15 @@ final class InternalAiController extends BaseController
 
         $payload = Cache::remember($cacheKey, now()->addHour(), function () use ($agentId): array {
             $agent = AiAgent::query()->findOrFail($agentId);
-            $metadata = is_array($agent->metadata) ? $agent->metadata : [];
-            $selectedTools = data_get($metadata, 'tool_names');
-            $selectedToolNames = is_array($selectedTools)
-                ? array_values(array_map(static fn (mixed $item): string => (string) $item, $selectedTools))
-                : null;
+
+            $toolNames = $this->agentToolPermissionService->toolNamesForAgent(
+                (string) $agent->tenant_id,
+                (string) $agent->id,
+            );
 
             $definitions = $this->toolDispatcher->getToolDefinitions(
                 (string) $agent->tenant_id,
-                (string) $agent->role,
-                $selectedToolNames,
+                (string) $agent->id,
             );
 
             return [
@@ -123,6 +126,8 @@ final class InternalAiController extends BaseController
     /**
      * Executar uma ferramenta especifica.
      *
+     * Exige context.agent_id para validação de permissão via ai_agent_tools.
+     *
      * @param  Request  $request  Solicitacao com parameters e context.
      * @param  string  $toolName  Nome da ferramenta a executar.
      * @return JsonResponse Resultado da execucao da ferramenta.
@@ -134,10 +139,20 @@ final class InternalAiController extends BaseController
             'context' => ['required', 'array'],
         ]);
 
+        $context = (array) $validated['context'];
+
+        if (! isset($context['agent_id']) || (string) $context['agent_id'] === '') {
+            return $this->error(
+                'Agent context not informed. Required: context.agent_id',
+                422,
+                ['reason' => 'agent_id_missing'],
+            );
+        }
+
         $result = $this->toolDispatcher->dispatch(
             toolName: $toolName,
             parameters: (array) ($validated['parameters'] ?? []),
-            context: (array) $validated['context'],
+            context: $context,
         );
 
         return $this->success($result->toArray());
@@ -378,9 +393,7 @@ final class InternalAiController extends BaseController
             $streamPayload['model'] = $modelId;
         }
 
-        /** @var \Illuminate\Redis\Connections\Connection $redis */
-        $redis = Redis::connection(config('gateway.redis.connection', 'gateway'));
-        $this->publishRunRequestToStream($redis, $streamPayload);
+        $this->streamPublisher->publish($streamPayload);
 
         return $this->accepted([
             'child_run_id' => $childRunId,
@@ -456,79 +469,9 @@ final class InternalAiController extends BaseController
      */
     private function resolveAgentToolsSnapshot(AiAgent $agent): array
     {
-        $metadata = is_array($agent->metadata) ? $agent->metadata : [];
-        $toolNames = $metadata['tool_names'] ?? [];
-
-        if (! is_array($toolNames)) {
-            return [];
-        }
-
-        return array_values(array_filter(array_map(
-            static fn (mixed $tool): string => trim((string) $tool),
-            $toolNames,
-        ), static fn (string $tool): bool => $tool !== ''));
-    }
-
-    /**
-     * @param  \Illuminate\Redis\Connections\Connection  $redis
-     * @param  array<string, mixed>  $streamPayload
-     */
-    private function publishRunRequestToStream($redis, array $streamPayload): void
-    {
-        $fields = $this->normalizeStreamFields($streamPayload);
-
-        if ($redis instanceof PredisConnection) {
-            $arguments = ['XADD', 'ai.run.request', '*'];
-
-            foreach ($fields as $key => $value) {
-                $arguments[] = (string) $key;
-                $arguments[] = $value;
-            }
-
-            $redis->client()->executeRaw($arguments);
-
-            return;
-        }
-
-        $redis->xadd('ai.run.request', '*', $fields);
-    }
-
-    /**
-     * @param  array<string, mixed>  $fields
-     * @return array<string, string>
-     */
-    private function normalizeStreamFields(array $fields): array
-    {
-        $normalized = [];
-
-        foreach ($fields as $key => $value) {
-            if (is_string($value)) {
-                $normalized[$key] = $value;
-
-                continue;
-            }
-
-            if (is_int($value) || is_float($value)) {
-                $normalized[$key] = (string) $value;
-
-                continue;
-            }
-
-            if (is_bool($value)) {
-                $normalized[$key] = $value ? '1' : '0';
-
-                continue;
-            }
-
-            if ($value === null) {
-                $normalized[$key] = '';
-
-                continue;
-            }
-
-            $normalized[$key] = json_encode($value, JSON_THROW_ON_ERROR);
-        }
-
-        return $normalized;
+        return $this->agentToolPermissionService->toolNamesForAgent(
+            (string) $agent->tenant_id,
+            (string) $agent->id,
+        );
     }
 }

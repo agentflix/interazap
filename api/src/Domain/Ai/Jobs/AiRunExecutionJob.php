@@ -18,8 +18,8 @@ use Illuminate\Support\Str;
 /**
  * Async execution job for autopilot runs.
  *
- * Sets up the initial messages and dispatches the first AiToolCallJob.
- * Each tool call iteration runs in its own job (AiToolCallJob) to avoid
+ * Sets up the initial messages and self-dispatches for multi-iteration runs.
+ * Each tool call iteration self-dispatches via AiRunExecutionJob to avoid
  * PHP max_execution_time timeout when OpenAI takes minutes to respond.
  */
 final class AiRunExecutionJob implements ShouldQueue
@@ -68,7 +68,7 @@ final class AiRunExecutionJob implements ShouldQueue
         ]);
 
         try {
-            // Execute first iteration; subsequent iterations self-dispatch via AiToolCallJob
+            // Execute first iteration; subsequent iterations self-dispatch via AiRunExecutionJob
             $result = $actions->executeWithEvents($run, function (string $eventType, array $data) use ($run): void {
                 $this->publishEvent($eventType, $run, $data);
             });
@@ -77,8 +77,8 @@ final class AiRunExecutionJob implements ShouldQueue
             $hasMore = (bool) data_get($output, 'hasMoreIterations', false);
 
             if ($hasMore) {
-                // More tool calls needed — dispatch AiToolCallJob for next iteration
-                AiToolCallJob::dispatch($this->runId);
+                // More tool calls needed — self-dispatch for next iteration
+                self::dispatch($this->runId);
             } else {
                 // No more iterations — finalize the run
                 $actions->finalizeRun($run, $output, function (string $eventType, array $data) use ($run): void {

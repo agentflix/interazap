@@ -113,7 +113,7 @@ final class AiAutopilotRunActions
      *
      * Reads accumulated messages from $run->input_context['messages'],
      * appends new messages from this iteration, and saves back to DB.
-     * If more tool calls remain, caller (AiToolCallJob) self-dispatches.
+     * If more tool calls remain, caller (AiRunExecutionJob) self-dispatches.
      * If this is the final iteration, saves output and emits completion event.
      *
      * @param  callable(string, array<string, mixed>):void|null  $emitEvent
@@ -124,8 +124,36 @@ final class AiAutopilotRunActions
         $emit = $emitEvent ?? static function (string $eventType, array $data): void {};
 
         $runtimeContext = $run->input_context ?? [];
-        $agentRole = (string) data_get($runtimeContext, 'agent_role', 'general');
-        $toolDefinitions = $this->toolDispatcher->getToolDefinitions((string) $run->tenant_id, $agentRole);
+        $agentId = (string) data_get($runtimeContext, 'agent_id', '');
+
+        if ($agentId === '') {
+            $output = [
+                'response' => 'Agent context not informed.',
+                'error' => 'Agent context not informed.',
+                'blocked' => true,
+                'hasMoreIterations' => false,
+                'raw' => [
+                    'model' => 'unknown',
+                    'prompt_tokens' => 0,
+                    'completion_tokens' => 0,
+                    'total_tokens' => 0,
+                    'finish_reason' => null,
+                    'tool_iterations' => 0,
+                ],
+                'tool_trace' => [],
+                'skill_trace' => [],
+            ];
+
+            $this->finalizeRun($run, $output, $emit);
+
+            return [
+                'messages' => [],
+                'output' => $output,
+                'hasMore' => false,
+            ];
+        }
+
+        $toolDefinitions = $this->toolDispatcher->getToolDefinitions((string) $run->tenant_id, $agentId);
 
         // Load accumulated messages from previous iterations (persisted in input_context)
         $messages = is_array(data_get($runtimeContext, 'messages'))
@@ -353,6 +381,7 @@ final class AiAutopilotRunActions
                         'tenant_id' => $tenantId,
                         'current_run_id' => (string) $run->id,
                         'delegation_depth' => (int) ($run->delegation_depth ?? 0),
+                        'agent_id' => $agentId,
                         'agent_role' => $agentRole,
                     ]),
                 );

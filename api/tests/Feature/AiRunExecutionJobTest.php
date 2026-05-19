@@ -35,7 +35,7 @@ final class AiRunExecutionJobTest extends TestCase
 
                     return is_array($decoded)
                         && ($decoded['child_run_id'] ?? null) === (string) $run->id
-                        && ($decoded['status'] ?? null) === 'failed'
+                        && ($decoded['status'] ?? null) === 'blocked'
                         && is_string($decoded['output']['error'] ?? null);
                 })
             )

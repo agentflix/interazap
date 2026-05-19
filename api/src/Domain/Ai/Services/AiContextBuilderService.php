@@ -63,7 +63,11 @@ final class AiContextBuilderService
             ? ($contact->whatsapp ?? $contact->phone ?? '')
             : ($ticket->phone_e164 ?? $ticket->phone ?? '');
 
-        $now = now()->setTimezone($ticket->tenant?->timezone ?? 'America/Sao_Paulo');
+        $timezone = 'America/Sao_Paulo';
+        if ($ticket->tenant instanceof \Domain\Platform\Models\PlatformTenant && is_string($ticket->tenant->timezone) && $ticket->tenant->timezone !== '') {
+            $timezone = $ticket->tenant->timezone;
+        }
+        $now = now()->setTimezone($timezone);
 
         return [
             'system_info' => [
