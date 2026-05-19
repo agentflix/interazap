@@ -13,7 +13,8 @@
 
 ## Regras Absolutas
 
-1. `declare(strict_types=1)` em **todo** PHP
+1. **Todo plano, PRD, feature doc, task e documentação DEVE ser escrito em português** — nunca em inglês
+2. `declare(strict_types=1)` em **todo** PHP
 2. `final class` em Controllers, Actions e DTOs
 3. UUID como PK — **nunca** auto-increment
 4. `$fillable` explícito — **NUNCA** `$guarded = []`
