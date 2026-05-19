@@ -1,0 +1,87 @@
+project: InteraZap
+
+# Regras de dependência entre módulos e camadas
+# allowed: módulos que podem ser importados
+# forbidden: módulos que NUNCA podem ser importados
+
+api_domain_rules:
+  Shared:
+    allowed: []
+    forbidden: [Auth, Chat, Ai, Billing, CRM, Configuration, Dashboard, Gateway, Platform, Reports]
+    note: Shared não depende de ninguém — base pura
+
+  Auth:
+    allowed: [Shared]
+    forbidden: [Chat, Ai, Billing, CRM, Configuration, Dashboard, Gateway, Platform, Reports]
+
+  Billing:
+    allowed: [Shared, Auth]
+    forbidden: [Chat, Ai, CRM, Configuration, Dashboard, Gateway, Reports]
+
+  Configuration:
+    allowed: [Shared, Auth]
+    forbidden: [Chat, Ai, Billing, CRM, Dashboard, Gateway, Platform, Reports]
+
+  Gateway:
+    allowed: [Shared, Auth, Configuration]
+    forbidden: [Chat, Ai, Billing, CRM, Dashboard, Platform, Reports]
+
+  Platform:
+    allowed: [Shared, Auth, Billing]
+    forbidden: [Chat, Ai, CRM, Configuration, Dashboard, Gateway, Reports]
+
+  CRM:
+    allowed: [Shared, Auth, Chat]
+    forbidden: [Ai, Billing, Configuration, Dashboard, Gateway, Platform, Reports]
+    note: CRM pode importar Chat para histórico de conversas
+
+  Chat:
+    allowed: [Shared, Auth, Ai, CRM]
+    forbidden: [Billing, Configuration, Dashboard, Gateway, Platform, Reports]
+    note: Chat depende de Ai para automação e CRM para dados do contato
+
+  Ai:
+    allowed: [Shared, Chat]
+    forbidden: [Auth, Billing, CRM, Configuration, Dashboard, Gateway, Platform, Reports]
+
+  Dashboard:
+    allowed: [Shared, Auth, Chat, Reports]
+    forbidden: [Ai, Billing, CRM, Configuration, Gateway, Platform]
+
+  Reports:
+    allowed: [Shared, Auth, Chat, CRM]
+    forbidden: [Ai, Billing, Configuration, Dashboard, Gateway, Platform]
+
+# Regras de camadas dentro de cada domínio (DDD)
+layer_rules:
+  - layer: Http/Controllers
+    can_use: [DTOs, Http/Requests, Http/Resources, Actions]
+    cannot_use: [Models diretamente, Repositories, external_services_directly]
+
+  - layer: Actions
+    can_use: [Models, DTOs, Events, Jobs, Services, Repositories]
+    cannot_use: [Http/Requests, Http/Resources, Http/Controllers]
+
+  - layer: Models
+    can_use: [Shared/Traits, Shared/Contracts]
+    cannot_use: [Actions, Http/Controllers, Http/Requests]
+
+  - layer: DTOs
+    can_use: []
+    cannot_use: [Models, Actions, Http/Controllers]
+    note: DTOs são PHP puro — sem dependências de framework ou ORM
+
+# Regras de tenant isolation
+tenant_rules:
+  - rule: Todo Model DEVE usar BelongsToTenant trait
+  - rule: Todo Controller DEVE chamar $this->authorize() antes de qualquer ação
+  - rule: Queries NUNCA devem ser feitas sem tenant scope ativo
+  - rule: Testes DEVEM usar actingAs() com usuário de tenant específico
+
+# Regras do Gateway (NestJS)
+gateway_rules:
+  - rule: Webhook handlers DEVEM responder em < 150ms (ACK imediato, processamento assíncrono)
+  - rule: Idempotência obrigatória em todos os handlers (Redis SETNX + TTL)
+  - rule: Circuit breaker obrigatório em todas as chamadas HTTP externas
+  - rule: ValidationPipe com whitelist:true em todos os controllers
+  - rule: Nunca logar tokens, senhas ou API keys

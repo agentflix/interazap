@@ -42,3 +42,5 @@ CLAUDE.md
 # --- Backup files (never commit) ---
 *.bak
 package-lock.json
+# Assets do bootstrap AI-First (podem ser commitados se desejado)
+# builder/prevec-assets/

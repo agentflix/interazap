@@ -1,0 +1,18 @@
+version: "1.0.0"
+created_at: "2026-05-19"
+updated_at: "2026-05-19"
+
+files:
+  architecture.md: "1.0.0"
+  modules.yaml: "1.0.0"
+  modules.md: "1.0.0"
+  dependencies.yaml: "1.0.0"
+  project-state.yaml: "1.0.0"
+  project-brain.yaml: "1.0.0"
+  user-flow.md: "1.0.0"
+  context-snapshot.md: "1.0.0"
+
+changelog:
+  - version: "1.0.0"
+    date: "2026-05-19"
+    description: Bootstrap AI-First inicial via PREVEC

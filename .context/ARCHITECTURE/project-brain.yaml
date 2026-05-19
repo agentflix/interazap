@@ -1,0 +1,88 @@
+project:
+  name: InteraZap
+  description: >
+    Plataforma SaaS multi-tenant para gestão de atendimento via WhatsApp e
+    outros canais de mensagem. Oferece inbox unificado, automação com AI,
+    CRM integrado, relatórios e suporte a múltiplas equipes por tenant.
+  domain: Customer Communication Platform / Conversational CRM
+  status: production
+
+identity:
+  architecture: DDD (Domain-Driven Design)
+  pattern: >
+    API: Controller → DTO → Action → Resource (dentro de src/Domain/{Domain}/)
+    Gateway: Controller → Service → External APIs / Redis / Laravel API
+  multi_tenant: true
+  tenant_isolation: BelongsToTenant trait + Sanctum + Spatie Permissions
+
+stack:
+  backend:
+    language: PHP 8.3
+    framework: Laravel 12
+    performance: Laravel Octane
+    queues: Laravel Horizon + Redis
+    websocket_server: Laravel Reverb
+    auth: Laravel Sanctum + Spatie Permissions (RBAC)
+    static_analysis: PHPStan L6 + Larastan + Rector
+    testing: Pest
+
+  gateway:
+    language: TypeScript 5.7
+    framework: NestJS 11
+    queues: BullMQ + Redis
+    realtime: WebSocket (socket.io) + Redis Streams + PubSub
+    testing: Jest
+
+  frontend:
+    language: TypeScript
+    framework: Angular 17
+    mobile: Capacitor (iOS + Android)
+    styling: Tailwind CSS
+    state: Angular Signals
+    testing: Vitest
+
+  database:
+    primary: PostgreSQL 17
+    vector: pgvector (AI embeddings / RAG)
+    cache_queues: Redis 7
+
+  infra:
+    monorepo: pnpm workspaces (app, gateway)
+    ci: GitHub Actions
+    deployment: Ansible + Nginx
+
+decisions:
+  - date: 2026-05-19
+    decision: Separar processamento de webhooks em Gateway (NestJS) independente do API (Laravel)
+    reason: Webhooks externos precisam de ACK < 150ms; Laravel não adequado para isso sem Octane
+
+  - date: 2026-05-19
+    decision: pgvector para RAG no domínio Ai
+    reason: Evitar serviço externo (Pinecone/Weaviate) — embeddings co-localizados com dados
+
+  - date: 2026-05-19
+    decision: BelongsToTenant trait em todo Model
+    reason: Garantia de isolamento de dados multi-tenant via query scope automático
+
+inviolable_rules:
+  - declare(strict_types=1) em todo arquivo PHP
+  - final class em Controllers, Actions e DTOs
+  - UUID como PK — nunca auto-increment
+  - $fillable explícito — NUNCA $guarded = []
+  - Eager loading obrigatório — NUNCA N+1
+  - BelongsToTenant em todo Model com dados de tenant
+  - $this->authorize() em todo Controller action
+  - composer gate:all deve passar antes de qualquer commit (API)
+  - pnpm lint && pnpm test antes de qualquer commit (Gateway)
+  - Webhook ACK < 150ms no Gateway
+  - Idempotência via Redis SETNX em todo webhook handler
+  - ValidationPipe whitelist:true em todo Controller NestJS
+  - Nunca logar tokens, senhas ou API keys
+
+ai_context:
+  agent_architecture: >
+    Domínio Ai usa AiAgent model com ferramentas configuráveis por tenant.
+    RAG via pgvector com AiKnowledgeChunk. Execução via jobs BullMQ no Gateway.
+  key_patterns:
+    - skill_system: Ferramentas do agente como classes PHP registradas por tenant
+    - rag_pipeline: Upload → Parse → Chunk → Embed (pgvector) → Search on demand

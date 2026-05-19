@@ -1,0 +1,102 @@
+project: InteraZap
+
+# Módulos do Backend (api/src/Domain/)
+api_domains:
+  - name: Auth
+    path: api/src/Domain/Auth
+    description: Autenticação, autorização RBAC, gestão de usuários e tenants
+    key_models: [User, Tenant, Role, Permission]
+    dependencies: [Shared]
+
+  - name: Chat
+    path: api/src/Domain/Chat
+    description: Gestão de conversas, mensagens, atendentes e filas de atendimento
+    key_models: [Conversation, Message, Agent, Queue]
+    dependencies: [Shared, Auth, Ai, CRM]
+
+  - name: Ai
+    path: api/src/Domain/Ai
+    description: Agentes AI, RAG com pgvector, base de conhecimento, automações
+    key_models: [AiAgent, AiKnowledgeChunk, AiConversation]
+    dependencies: [Shared, Chat]
+
+  - name: Billing
+    path: api/src/Domain/Billing
+    description: Planos, assinaturas, faturas, consumo e limites por tenant
+    key_models: [Plan, Subscription, Invoice]
+    dependencies: [Shared, Auth]
+
+  - name: CRM
+    path: api/src/Domain/CRM
+    description: Contatos, empresas, tags, funis e histórico de interações
+    key_models: [Contact, Company, Tag, Pipeline]
+    dependencies: [Shared, Auth, Chat]
+
+  - name: Configuration
+    path: api/src/Domain/Configuration
+    description: Configurações de canais, integrações e templates de mensagem
+    key_models: [Channel, Integration, MessageTemplate]
+    dependencies: [Shared, Auth]
+
+  - name: Dashboard
+    path: api/src/Domain/Dashboard
+    description: Métricas em tempo real e KPIs de atendimento por tenant
+    dependencies: [Shared, Auth, Chat, Reports]
+
+  - name: Gateway
+    path: api/src/Domain/Gateway
+    description: Gestão de conexões com WhatsApp Business API e outros canais
+    key_models: [GatewayConnection, GatewayAccount]
+    dependencies: [Shared, Auth, Configuration]
+
+  - name: Platform
+    path: api/src/Domain/Platform
+    description: Gestão da plataforma: tenants, planos, onboarding (admin)
+    dependencies: [Shared, Auth, Billing]
+
+  - name: Reports
+    path: api/src/Domain/Reports
+    description: Relatórios exportáveis, analytics histórico, exports CSV/Excel
+    dependencies: [Shared, Auth, Chat, CRM]
+
+  - name: Shared
+    path: api/src/Domain/Shared
+    description: Traits, contratos, suporte e utilitários compartilhados
+    key_traits: [BelongsToTenant, HasUuid]
+    dependencies: []
+
+# Módulos do Gateway (gateway/src/domains/)
+gateway_domains:
+  - name: webhooks
+    path: gateway/src/domains/webhooks
+    description: Recebe e processa webhooks externos (WhatsApp, Meta, etc.)
+    dependencies: [ai, billing, chat]
+
+  - name: chat
+    path: gateway/src/domains/chat
+    description: Processamento de mensagens e roteamento para API
+    dependencies: []
+
+  - name: ai
+    path: gateway/src/domains/ai
+    description: Consumidores BullMQ para tasks de AI
+    dependencies: []
+
+  - name: billing
+    path: gateway/src/domains/billing
+    description: Consumidores BullMQ para eventos de billing
+    dependencies: []
+
+  - name: realtime
+    path: gateway/src/domains/realtime
+    description: WebSocket e Redis Streams para eventos em tempo real
+    dependencies: []
+
+  - name: internal
+    path: gateway/src/domains/internal
+    description: Bridge interno entre gateway e API Laravel
+    dependencies: []
+
+# Módulos do Frontend (app/src/app/pages/)
+app_pages:
+  - [auth, billing, chat, configuration, crm, dashboard, platform, reports, settings, ai, admin, webchat, ui-kit]

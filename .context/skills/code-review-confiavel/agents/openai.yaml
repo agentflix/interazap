@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Review Confiável"
+  short_description: "Review com 7 revisores, gates, second pass e meta-review"
+  default_prompt: "Use esta skill para revisar diffs e entregas do InteraZap com 7 revisores especializados, gates obrigatórios, baixa taxa de falso positivo e evidências verificáveis."

@@ -1,0 +1,61 @@
+project: InteraZap
+updated_at: "2026-05-19"
+
+stack:
+  backend: PHP 8.3 + Laravel 12
+  gateway: TypeScript + NestJS 11
+  frontend: TypeScript + Angular 17 + Capacitor
+  database: PostgreSQL 17 + pgvector + Redis 7
+  monorepo: pnpm workspaces
+
+modules:
+  api_domains:
+    - Ai
+    - Auth
+    - Billing
+    - Chat
+    - Configuration
+    - CRM
+    - Dashboard
+    - Gateway
+    - Platform
+    - Reports
+    - Shared
+  gateway_domains:
+    - ai
+    - billing
+    - chat
+    - internal
+    - realtime
+    - webhooks
+  app_pages:
+    - admin
+    - ai
+    - auth
+    - billing
+    - chat
+    - configuration
+    - crm
+    - dashboard
+    - platform
+    - public
+    - reports
+    - settings
+    - ui-kit
+    - webchat
+
+metrics:
+  tasks_completed: 0
+  tasks_in_progress: 0
+  last_validation: null
+  last_bootstrap: "2026-05-19"
+
+coverage:
+  api: "≥80% (Pest)"
+  gateway: "≥80% (Jest)"
+  app: "≥80% (Vitest)"
+
+gates:
+  api: "composer gate:all (format → analyse → test → refactor)"
+  gateway: "pnpm lint && pnpm test"
+  app: "pnpm lint && pnpm build && pnpm test"
