@@ -568,6 +568,10 @@ export class WebChatService implements OnDestroy {
           (msgData['mimeType'] as string | undefined),
         fileName:
           (msgData['file_name'] as string | undefined) ?? (msgData['fileName'] as string | undefined),
+        createdAt:
+          (msgData['created_at'] as string | undefined) ??
+          (msgData['createdAt'] as string | undefined) ??
+          new Date().toISOString(),
       };
       this.addMessage(message);
       this._aiResponse$.next(message);
@@ -594,6 +598,10 @@ export class WebChatService implements OnDestroy {
           (msgData['mimeType'] as string | undefined),
         fileName:
           (msgData['file_name'] as string | undefined) ?? (msgData['fileName'] as string | undefined),
+        createdAt:
+          (msgData['created_at'] as string | undefined) ??
+          (msgData['createdAt'] as string | undefined) ??
+          new Date().toISOString(),
       };
       this.addMessage(message);
     });

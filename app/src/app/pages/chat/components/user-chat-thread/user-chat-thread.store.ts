@@ -12,7 +12,7 @@ import { ChatMessageCacheService } from 'src/app/core/services/chat-message-cach
 import { ChatRealtimeService } from 'src/app/core/services/chat-realtime.service';
 import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
 import { ChatStartService } from 'src/app/core/services/chat-start.service';
-import { mergeAndSortMessagesDesc } from 'src/app/core/utils/message-comparator.util';
+import { mergeAndSortMessagesAsc } from 'src/app/core/utils/message-comparator.util';
 
 @Injectable()
 export class UserChatThreadStore {
@@ -220,7 +220,7 @@ export class UserChatThreadStore {
   }
 
   private mergeAndSort(current: CalledMessage[], incoming: CalledMessage[]): CalledMessage[] {
-    return mergeAndSortMessagesDesc(current, incoming);
+    return mergeAndSortMessagesAsc(current, incoming);
   }
 
   private setupRealtimeEffects(): void {
