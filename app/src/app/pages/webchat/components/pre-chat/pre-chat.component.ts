@@ -34,6 +34,9 @@ export class PreChatComponent implements OnInit {
   /** Tenant ID resolved from route (/chat/external/:tenantId or /embed/:tenantId) */
   readonly tenantId = input<string | null>(null);
 
+  /** Tenant name resolved from route query param or API validation */
+  readonly tenantName = input<string | null>(null);
+
   /** Emits when session is created and ready to show chat */
   readonly sessionReady = output<{
     token: string;

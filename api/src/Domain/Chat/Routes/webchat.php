@@ -13,6 +13,7 @@ use Domain\Chat\Http\Controllers\WebChatMediaController;
 use Domain\Chat\Http\Controllers\WebChatMessageController;
 use Domain\Chat\Http\Controllers\WebChatMessagesController;
 use Domain\Chat\Http\Controllers\WebChatSessionController;
+use Domain\Chat\Http\Controllers\WebChatTenantController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +22,9 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::middleware(['throttle:webchat'])->group(function (): void {
+    // Tenant info
+    Route::get('/webchat/tenant/{tenantId}', [WebChatTenantController::class, '__invoke']);
+
     // Health check
     Route::get('/webchat/health', [WebChatHealthController::class, '__invoke']);
 

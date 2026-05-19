@@ -104,6 +104,40 @@ export class WebChatProxyService {
     }
   }
 
+  /**
+   * Busca informações do tenant para o webchat.
+   * GET /api/webchat/tenant/:tenantId
+   */
+  async getTenantInfo(tenantId: string): Promise<unknown> {
+    this.logger.log(`Proxying GET /api/webchat/tenant/${tenantId}`);
+    try {
+      const response = await axios.get(
+        `${this.apiUrl}/api/webchat/tenant/${tenantId}`,
+        { timeout: this.timeoutMs },
+      );
+      return response.data;
+    } catch (error: unknown) {
+      this.handleProxyError(`GET /api/webchat/tenant/${tenantId}`, error);
+    }
+  }
+
+  /**
+   * Busca uma sessão de webchat por ID.
+   * GET /api/webchat/sessions/:id?tenant_id=:tenantId
+   */
+  async getSession(sessionId: string, tenantId: string): Promise<unknown> {
+    this.logger.log(`Proxying GET /api/webchat/sessions/${sessionId}`);
+    try {
+      const response = await axios.get(
+        `${this.apiUrl}/api/webchat/sessions/${sessionId}`,
+        { params: { tenant_id: tenantId }, timeout: this.timeoutMs },
+      );
+      return response.data;
+    } catch (error: unknown) {
+      this.handleProxyError(`GET /api/webchat/sessions/${sessionId}`, error);
+    }
+  }
+
   // ─── Private helpers ────────────────────────────────────────────────────────
 
   private async post(

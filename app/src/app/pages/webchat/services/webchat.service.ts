@@ -13,6 +13,8 @@ import {
   type WebChatCloseResponse,
   type WebChatConnectionState,
   type WebChatTicketStatus,
+  type WebChatTenantInfo,
+  type WebChatSessionDetail,
 } from '../webchat.model';
 import { environment } from '@env/environment';
 
@@ -344,6 +346,37 @@ export class WebChatService implements OnDestroy {
         }),
         catchError((err) => {
           // Não sobrescreve erro global — falha silenciosa para não bloquear UI
+          return throwError(() => err);
+        }),
+      );
+  }
+
+  /**
+   * Busca informações públicas do tenant para validação antes de iniciar sessão.
+   * GET /api/webchat/tenant/:tenantId
+   */
+  getTenantInfo(tenantId: string): Observable<WebChatTenantInfo> {
+    return this.http
+      .get<unknown>(`${this.apiBase}/api/webchat/tenant/${tenantId}`)
+      .pipe(
+        map((response) => this.unwrapData<WebChatTenantInfo>(response)),
+        catchError((err) => {
+          return throwError(() => err);
+        }),
+      );
+  }
+
+  /**
+   * Busca detalhes de uma sessão existente (status, ticket, últimas mensagens).
+   * GET /api/webchat/sessions/:id?tenant_id=:tenantId
+   */
+  getSession(sessionId: string, tenantId: string): Observable<WebChatSessionDetail> {
+    const params = new URLSearchParams({ tenant_id: tenantId });
+    return this.http
+      .get<unknown>(`${this.apiBase}/api/webchat/sessions/${sessionId}?${params}`)
+      .pipe(
+        map((response) => this.unwrapData<WebChatSessionDetail>(response)),
+        catchError((err) => {
           return throwError(() => err);
         }),
       );

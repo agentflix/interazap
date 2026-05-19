@@ -69,10 +69,12 @@ class CloseTicketDto {
  *
  * Rotas:
  *   POST   /api/webchat/sessions
+ *   GET    /api/webchat/sessions/:id
  *   GET    /api/webchat/sessions/:id/messages
  *   POST   /api/webchat/messages
  *   POST   /api/webchat/media
  *   POST   /api/webchat/close
+ *   GET    /api/webchat/tenant/:tenantId
  */
 @Controller('api/webchat')
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
@@ -94,6 +96,19 @@ export class WebChatController {
   }
 
   /**
+   * Busca uma sessão de webchat pelo ID.
+   * GET /api/webchat/sessions/:id
+   */
+  @Get('sessions/:id')
+  getSession(
+    @Param('id') id: string,
+    @Query('tenant_id') tenantId: string,
+  ): Promise<unknown> {
+    this.logger.log(`Fetching session ${id}`);
+    return this.webchatProxy.getSession(id, tenantId);
+  }
+
+  /**
    * Busca histórico de mensagens de uma sessão.
    * GET /api/webchat/sessions/:id/messages
    */
@@ -104,6 +119,16 @@ export class WebChatController {
   ): Promise<unknown> {
     this.logger.log(`Fetching messages for session ${id}`);
     return this.webchatProxy.getSessionMessages(id, token);
+  }
+
+  /**
+   * Busca informações de um tenant pelo ID.
+   * GET /api/webchat/tenant/:tenantId
+   */
+  @Get('tenant/:tenantId')
+  getTenantInfo(@Param('tenantId') tenantId: string): Promise<unknown> {
+    this.logger.log(`Fetching tenant info for ${tenantId}`);
+    return this.webchatProxy.getTenantInfo(tenantId);
   }
 
   /**

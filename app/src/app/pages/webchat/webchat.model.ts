@@ -98,3 +98,14 @@ export interface PreChatFormState {
     whatsapp?: string;
   };
 }
+
+/** Public tenant information for the webchat widget */
+export interface WebChatTenantInfo {
+  name: string;
+}
+
+/** Detail of an active webchat session */
+export interface WebChatSessionDetail {
+  id: string;
+  ticket: { id: string; status: string; protocol?: string } | null;
+}

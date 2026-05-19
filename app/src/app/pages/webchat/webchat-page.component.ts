@@ -10,6 +10,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { lastValueFrom } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PreChatComponent } from './components/pre-chat/pre-chat.component';
@@ -50,11 +51,15 @@ export class WebChatPageComponent implements OnInit, OnDestroy {
   /** Call protocol */
   readonly protocol = signal<string | undefined>(undefined);
 
-  /** Whether we are restoring a session from sessionStorage */
-  readonly isRestoring = signal(true);
+  /** Tenant name fetched from backend */
+  readonly tenantName = signal<string | null>(null);
+  /** Whether tenant validation failed */
+  readonly tenantError = signal(false);
+  /** Whether we are loading (validating tenant / restoring session) */
+  readonly isCarregando = signal(true);
 
   // ─── Computed ───────────────────────────────────────────────────────────────
-  readonly showPreChat = computed(() => !this.hasSession() && !this.isRestoring());
+  readonly showPreChat = computed(() => !this.hasSession() && !this.isCarregando());
   readonly showChat = computed(() => this.hasSession());
 
   // ─── Tenant ID from route ───────────────────────────────────────────────────
@@ -78,7 +83,7 @@ export class WebChatPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     // Force light mode for the public-facing webchat.
     // The app-level ThemeService may have applied `.dark` to <html> based on
     // the agent's preference. Visitors should always see the light theme.
@@ -88,7 +93,68 @@ export class WebChatPageComponent implements OnInit, OnDestroy {
     // Extract tenantId from route params
     const tenantIdFromRoute = this.route.snapshot.paramMap.get('tenantId');
     this.tenantId.set(tenantIdFromRoute);
-    this.attemptSessionRestore();
+
+    this.isCarregando.set(true);
+
+    // Step 1: Validate tenant
+    if (!tenantIdFromRoute) {
+      this.tenantError.set(true);
+      this.isCarregando.set(false);
+      return;
+    }
+
+    try {
+      const tenantInfo = await lastValueFrom(this.webchatService.getTenantInfo(tenantIdFromRoute));
+      this.tenantName.set(tenantInfo.name);
+    } catch {
+      this.tenantError.set(true);
+      this.isCarregando.set(false);
+      return;
+    }
+
+    // Step 2: Attempt to restore local session
+    const sessionIdFromUrl = this.route.snapshot.queryParamMap.get('s') ?? undefined;
+    const restored = this.webchatService.restoreSession(sessionIdFromUrl);
+
+    if (!restored) {
+      this.isCarregando.set(false);
+      return;
+    }
+
+    // Step 3: Verify session status with backend
+    try {
+      const sessionDetail = await lastValueFrom(
+        this.webchatService.getSession(restored.sessionId, tenantIdFromRoute),
+      );
+
+      const closedStatuses = ['closed', 'resolved'];
+      if (sessionDetail.ticket?.status && closedStatuses.includes(sessionDetail.ticket.status)) {
+        this.webchatService.clearSession();
+        this.isCarregando.set(false);
+        return;
+      }
+
+      // Session is valid — proceed with normal restore flow
+      this.webchatService.connectWebSocket(restored.token, restored.sessionId);
+      this.visitorName.set(restored.contactName ?? 'Visitante');
+      this.visitorPhone.set(restored.contactPhone);
+      this.protocol.set(restored.protocol);
+      this.hasSession.set(true);
+      this.writeSessionToUrl(restored.sessionId);
+      this.pendingSessionId.set(restored.sessionId);
+
+      // Fetch message history from backend
+      this.webchatService.fetchSessionMessages(restored.sessionId, restored.token).subscribe({
+        error: () => {
+          /* silently ignored — messages from sessionStorage already loaded */
+        },
+      });
+    } catch {
+      // On error verifying session, clear and show pre-chat
+      this.webchatService.clearSession();
+    }
+
+    this.isCarregando.set(false);
   }
 
   ngOnDestroy(): void {
@@ -96,41 +162,6 @@ export class WebChatPageComponent implements OnInit, OnDestroy {
     if (this.wasDark) {
       this.document.documentElement.classList.add('dark');
     }
-  }
-
-  /**
-   * Attempts to restore a session from sessionStorage.
-   * If found and valid, connects WebSocket and shows chat window.
-   * Also fetches message history from the backend so messages are
-   * visible even if sessionStorage was cleared or the session is opened
-   * on a different device/browser.
-   */
-  private attemptSessionRestore(): void {
-    // Prefer sessionId from URL query param (?s=) so a bookmarked URL
-    // always opens the correct session even if sessionStorage was cleared.
-    const sessionIdFromUrl = this.route.snapshot.queryParamMap.get('s') ?? undefined;
-    const restored = this.webchatService.restoreSession(sessionIdFromUrl);
-    if (restored) {
-      // Pass sessionId so the service can emit webchat:join on socket connect.
-      this.webchatService.connectWebSocket(restored.token, restored.sessionId);
-      this.visitorName.set(restored.contactName ?? 'Visitante');
-      this.visitorPhone.set(restored.contactPhone);
-      this.protocol.set(restored.protocol);
-      this.hasSession.set(true);
-      // Ensure URL reflects the active session.
-      this.writeSessionToUrl(restored.sessionId);
-      // pendingSessionId dispara o effect que chama init() quando chatWindowRef estiver disponível.
-      this.pendingSessionId.set(restored.sessionId);
-
-      // Busca histórico do banco para garantir que mensagens estejam completas,
-      // mesmo que sessionStorage esteja vazio ou seja de outro dispositivo.
-      this.webchatService.fetchSessionMessages(restored.sessionId, restored.token).subscribe({
-        error: () => {
-          /* silently ignored — mensagens do sessionStorage já carregadas */
-        },
-      });
-    }
-    this.isRestoring.set(false);
   }
 
   /**
