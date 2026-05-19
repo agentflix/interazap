@@ -1,1 +1,0 @@
-/Users/rafael.silva/.claude/agents/vibe-coder.md

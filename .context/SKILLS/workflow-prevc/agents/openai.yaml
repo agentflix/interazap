@@ -1,4 +1,0 @@
-interface:
-  display_name: "Workflow PREVC"
-  short_description: "Fluxo oficial de planejamento, execução, validação e confirmação do InteraZap"
-  default_prompt: "Use esta skill para conduzir features e tasks do InteraZap seguindo PREVC, T.A.C.E, gates obrigatórios, evidências, changelog, memória e atualização de contexto."
