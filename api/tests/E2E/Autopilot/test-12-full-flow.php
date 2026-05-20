@@ -165,13 +165,13 @@ e2e_run('AiPermissionMatrixService: todas as roles retornam lista não-vazia', f
     foreach (AiAgentRole::cases() as $role) {
         $tools = $service->getAvailableTools($role);
         e2e_assert(count($tools) > 0, "role={$role->value} tem tools definidas");
-        e2e_assert(count($tools) <= 29, "role={$role->value} não excede 29 tools (got: ".count($tools).')');
+        e2e_assert(count($tools) <= 32, "role={$role->value} não excede 32 tools (got: ".count($tools).')');
     }
 });
 
-e2e_run('AiPermissionMatrixService: general tem 29 tools (máximo)', function (): void {
+e2e_run('AiPermissionMatrixService: general tem 32 tools (máximo)', function (): void {
     $service = app(\Domain\Ai\Services\AiPermissionMatrixService::class);
     $tools = $service->getAvailableTools(AiAgentRole::GENERAL);
 
-    e2e_assert(count($tools) === 29, '29 tools para role=general (got: '.count($tools).')');
+    e2e_assert(count($tools) === 32, '32 tools para role=general (got: '.count($tools).')');
 });
