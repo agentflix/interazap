@@ -8,6 +8,7 @@ use Domain\Ai\Contracts\AiToolInterface;
 use Domain\Ai\DTOs\ToolInputDTO;
 use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\Ai\Tools\CreateTaskTool;
+use Domain\Chat\Models\ChatTicket;
 use Domain\CRM\Models\CRMNegotiation;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -25,7 +26,7 @@ class CreateTaskToolTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tool = new CreateTaskTool;
+        $this->tool = app(CreateTaskTool::class);
     }
 
     public function test_it_implements_ai_tool_interface(): void
@@ -51,7 +52,7 @@ class CreateTaskToolTest extends TestCase
 
         expect($params)->toHaveKeys(['title', 'description', 'due_date', 'negotiation_id', 'assigned_to']);
         expect($params['title']['required'])->toBeTrue();
-        expect($params['negotiation_id']['required'])->toBeTrue();
+        expect($params['negotiation_id']['required'])->toBeFalse();
         expect($params['due_date']['required'])->toBeFalse();
         expect($params['assigned_to']['required'])->toBeFalse();
     }
@@ -101,6 +102,29 @@ class CreateTaskToolTest extends TestCase
 
         expect($result->success)->toBeTrue();
         expect($result->data)->toHaveKey('task_id');
+    }
+
+    public function test_it_resolves_negotiation_from_ticket_when_negotiation_id_is_not_available(): void
+    {
+        $negotiation = CRMNegotiation::factory()->create();
+        $ticket = ChatTicket::factory()->create([
+            'tenant_id' => $negotiation->tenant_id,
+            'contact_id' => $negotiation->crm_contact_id,
+        ]);
+
+        $input = new ToolInputDTO(
+            toolName: 'create_task',
+            parameters: [
+                'title' => 'Follow up from ticket',
+                'ticket_id' => (string) $ticket->id,
+            ],
+            context: ['tenant_id' => (string) $negotiation->tenant_id],
+        );
+
+        $result = $this->tool->handle($input);
+
+        expect($result->success)->toBeTrue();
+        expect($result->data['negotiation_id'])->toBe((string) $negotiation->id);
     }
 
     public function test_it_fails_when_title_is_empty(): void
@@ -157,5 +181,7 @@ class CreateTaskToolTest extends TestCase
 
         expect($result->success)->toBeFalse();
         expect($result->message)->toContain('Negotiation not found');
+        expect($result->data['error_code'])->toBe('negotiation_not_found');
+        expect($result->data['recoverable'])->toBeTrue();
     }
 }

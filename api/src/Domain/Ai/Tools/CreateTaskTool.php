@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Domain\Ai\Contracts\AiToolInterface;
 use Domain\Ai\DTOs\ToolInputDTO;
 use Domain\Ai\DTOs\ToolResultDTO;
-use Domain\CRM\Models\CRMNegotiation;
+use Domain\Ai\Services\AiToolEntityResolver;
 use Domain\CRM\Models\CRMNegotiationTask;
 use Illuminate\Support\Str;
 
@@ -17,12 +17,18 @@ use Illuminate\Support\Str;
  */
 class CreateTaskTool implements AiToolInterface
 {
+    public function __construct(
+        private readonly AiToolEntityResolver $entityResolver,
+    ) {}
+
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $title = $input->parameters['title'] ?? '';
         $description = $input->parameters['description'] ?? null;
         $dueDate = $input->parameters['due_date'] ?? null;
         $negotiationId = $input->parameters['negotiation_id'] ?? null;
+        $ticketId = $input->parameters['ticket_id'] ?? $input->context['ticket_id'] ?? null;
+        $contactId = $input->parameters['contact_id'] ?? $input->context['contact_id'] ?? null;
         $assignedTo = $input->parameters['assigned_to'] ?? null;
         $tenantId = $input->context['tenant_id'] ?? null;
 
@@ -31,12 +37,22 @@ class CreateTaskTool implements AiToolInterface
             return ToolResultDTO::failure('Title is required');
         }
 
-        // Tenant isolation: only access negotiations from the same tenant
-        $negotiation = CRMNegotiation::query()
-            ->where('tenant_id', $tenantId)
-            ->find($negotiationId);
+        $negotiation = $this->entityResolver->resolveNegotiation(
+            (string) $tenantId,
+            $input->parameters,
+            is_string($ticketId) ? $ticketId : null,
+            is_string($contactId) ? $contactId : null,
+        );
+
         if (! $negotiation) {
-            return ToolResultDTO::failure('Negotiation not found');
+            return ToolResultDTO::failure('Negotiation not found', [
+                'error_code' => 'negotiation_not_found',
+                'recoverable' => true,
+                'hint' => 'Create or identify a negotiation before creating a negotiation task, or send a message to the customer and transfer to a human.',
+                'provided_negotiation_id' => is_string($negotiationId) ? $negotiationId : null,
+                'ticket_id' => is_string($ticketId) ? $ticketId : null,
+                'contact_id' => is_string($contactId) ? $contactId : null,
+            ]);
         }
 
         // Parse due date if provided
@@ -105,8 +121,18 @@ class CreateTaskTool implements AiToolInterface
             ],
             'negotiation_id' => [
                 'type' => 'string',
-                'required' => true,
-                'description' => 'UUID of the negotiation',
+                'required' => false,
+                'description' => 'UUID of the negotiation. Optional when ticket_id/contact_id can resolve an open negotiation.',
+            ],
+            'ticket_id' => [
+                'type' => 'string',
+                'required' => false,
+                'description' => 'Ticket UUID used to resolve the contact and active negotiation.',
+            ],
+            'contact_id' => [
+                'type' => 'string',
+                'required' => false,
+                'description' => 'Contact UUID used to resolve an active negotiation.',
             ],
             'assigned_to' => [
                 'type' => 'string',
