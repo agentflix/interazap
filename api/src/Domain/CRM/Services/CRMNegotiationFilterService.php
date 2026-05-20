@@ -150,12 +150,12 @@ final class CRMNegotiationFilterService
      * @param  Builder<CRMNegotiation>  $query
      * @param  array<string, mixed>  $filters
      */
-    public function applyForAggregate(Builder $query, array $filters): void
+    public function applyForAggregate(Builder $query, array $filters, bool $defaultOpenStatus = true): void
     {
         $status = isset($filters['status']) ? trim((string) $filters['status']) : '';
         if ($status !== '') {
             $query->where('status', $status);
-        } else {
+        } elseif ($defaultOpenStatus) {
             $query->where('status', \Domain\CRM\Enums\CRMNegotiationStatus::OPEN->value);
         }
 

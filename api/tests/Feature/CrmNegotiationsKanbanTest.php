@@ -115,4 +115,55 @@ class CRMNegotiationsKanbanTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors(['funnel_id']);
     }
+
+    public function test_kanban_includes_won_and_lost_negotiations(): void
+    {
+        [$user, $tenantId] = $this->acting();
+        $funnel = CRMNegotiationFunnel::factory()->create(['tenant_id' => $tenantId]);
+        $step = CRMNegotiationFunnelStep::factory()->create([
+            'tenant_id' => $tenantId,
+            'crm_negotiation_funnel_id' => $funnel->id,
+            'order' => 1,
+        ]);
+
+        $openNegotiation = CRMNegotiation::factory()->create([
+            'tenant_id' => $tenantId,
+            'crm_negotiation_funnel_id' => $funnel->id,
+            'crm_negotiation_funnel_step_id' => $step->id,
+            'status' => 'open',
+            'amount' => 0,
+        ]);
+
+        $wonNegotiation = CRMNegotiation::factory()->create([
+            'tenant_id' => $tenantId,
+            'crm_negotiation_funnel_id' => $funnel->id,
+            'crm_negotiation_funnel_step_id' => $step->id,
+            'status' => 'won',
+            'amount' => 0,
+            'closed_at' => now(),
+        ]);
+
+        $lostNegotiation = CRMNegotiation::factory()->create([
+            'tenant_id' => $tenantId,
+            'crm_negotiation_funnel_id' => $funnel->id,
+            'crm_negotiation_funnel_step_id' => $step->id,
+            'status' => 'lost',
+            'amount' => 0,
+            'closed_at' => now(),
+        ]);
+
+        $response = $this->getJson('/api/crm/negotiations-kanban?funnel_id='.$funnel->id)
+            ->assertStatus(200)
+            ->json('data');
+
+        $steps = collect($response['steps'] ?? []);
+        $stepData = $steps->first(fn (array $item): bool => ($item['id'] ?? null) === $step->id);
+        $this->assertNotNull($stepData);
+
+        $negotiationIds = collect($stepData['negotiations'] ?? [])->pluck('id')->all();
+
+        $this->assertContains($openNegotiation->id, $negotiationIds, 'Negociacao aberta deve aparecer no kanban');
+        $this->assertContains($wonNegotiation->id, $negotiationIds, 'Negociacao ganha deve aparecer no kanban');
+        $this->assertContains($lostNegotiation->id, $negotiationIds, 'Negociacao perdida deve aparecer no kanban');
+    }
 }

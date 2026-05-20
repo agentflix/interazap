@@ -66,7 +66,7 @@ final class ListCRMNegotiationsByStepAction
             });
         }
 
-        $this->filterService->apply($query, $filters, true);
+        $this->filterService->apply($query, $filters, false);
 
         // Negociações com amount > 0 devem ter ao menos um produto vinculado
         // (crm_negotiation_products com crm_product_id não nulo)
