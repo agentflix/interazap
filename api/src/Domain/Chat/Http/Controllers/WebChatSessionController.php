@@ -197,23 +197,26 @@ final class WebChatSessionController extends BaseController
         ?string $email,
         ?string $phone,
     ): ?string {
-        $query = CRMContact::query()
-            ->where('tenant_id', $tenantId)
-            ->where('is_active', true);
+        $cleanPhone = $phone ? preg_replace('/[^0-9]/', '', $phone) : null;
 
-        if ($email) {
-            $query->orWhere('email', $email);
-        }
-        if ($phone) {
-            $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
-            $query->orWhere('phone', 'like', "%{$cleanPhone}%");
-            $query->orWhere('whatsapp', 'like', "%{$cleanPhone}%");
-        }
+        if ($email || $cleanPhone) {
+            $contact = CRMContact::query()
+                ->where('tenant_id', $tenantId)
+                ->where('is_active', true)
+                ->where(function ($q) use ($email, $cleanPhone): void {
+                    if ($email) {
+                        $q->orWhere('email', $email);
+                    }
+                    if ($cleanPhone) {
+                        $q->orWhere('phone', 'like', "%{$cleanPhone}%");
+                        $q->orWhere('whatsapp', 'like', "%{$cleanPhone}%");
+                    }
+                })
+                ->first();
 
-        $contact = $query->first();
-
-        if ($contact) {
-            return $contact->id;
+            if ($contact) {
+                return $contact->id;
+            }
         }
 
         $newContact = CRMContact::query()->create([
