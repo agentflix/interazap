@@ -57,8 +57,9 @@ describe('AiPermissionMatrixService', function (): void {
     it('returns all tool names with expanded inventory', function (): void {
         $allTools = $this->service->getAllToolNames();
 
-        expect($allTools)->toHaveCount(29)
+        expect($allTools)->toHaveCount(32)
             ->and($allTools)->toContain('move_pipeline')
+            ->and($allTools)->toContain('register_sales_interest')
             ->and($allTools)->toContain('create_proposal')
             ->and($allTools)->toContain('link_contact_to_company')
             ->and($allTools)->toContain('delegate_to_agent');

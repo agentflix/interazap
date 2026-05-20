@@ -22,6 +22,7 @@ class AiPermissionMatrixService
             \Domain\Ai\Enums\AiToolEnum::CREATE_NOTE,
             \Domain\Ai\Enums\AiToolEnum::CREATE_TASK,
             \Domain\Ai\Enums\AiToolEnum::NOTIFY_SELLER,
+            \Domain\Ai\Enums\AiToolEnum::REGISTER_SALES_INTEREST,
             \Domain\Ai\Enums\AiToolEnum::TRANSFER_TO_HUMAN,
             // \Domain\Ai\Enums\AiToolEnum::CLOSE_TICKET => NÃO permitido
             \Domain\Ai\Enums\AiToolEnum::SEARCH_KNOWLEDGE,
@@ -55,6 +56,7 @@ class AiPermissionMatrixService
             \Domain\Ai\Enums\AiToolEnum::CREATE_NOTE,
             \Domain\Ai\Enums\AiToolEnum::CREATE_TASK,
             \Domain\Ai\Enums\AiToolEnum::NOTIFY_SELLER,
+            \Domain\Ai\Enums\AiToolEnum::REGISTER_SALES_INTEREST,
             \Domain\Ai\Enums\AiToolEnum::TRANSFER_TO_HUMAN,
             \Domain\Ai\Enums\AiToolEnum::CLOSE_TICKET,
             \Domain\Ai\Enums\AiToolEnum::SEARCH_KNOWLEDGE,
@@ -76,6 +78,7 @@ class AiPermissionMatrixService
             \Domain\Ai\Enums\AiToolEnum::CREATE_NOTE,
             \Domain\Ai\Enums\AiToolEnum::CREATE_TASK,
             \Domain\Ai\Enums\AiToolEnum::NOTIFY_SELLER,
+            \Domain\Ai\Enums\AiToolEnum::REGISTER_SALES_INTEREST,
             \Domain\Ai\Enums\AiToolEnum::TRANSFER_TO_HUMAN,
             \Domain\Ai\Enums\AiToolEnum::CLOSE_TICKET,
             \Domain\Ai\Enums\AiToolEnum::SEARCH_KNOWLEDGE,
@@ -100,6 +103,7 @@ class AiPermissionMatrixService
             \Domain\Ai\Enums\AiToolEnum::CREATE_NOTE,
             \Domain\Ai\Enums\AiToolEnum::CREATE_TASK,
             \Domain\Ai\Enums\AiToolEnum::NOTIFY_SELLER,
+            \Domain\Ai\Enums\AiToolEnum::REGISTER_SALES_INTEREST,
             \Domain\Ai\Enums\AiToolEnum::TRANSFER_TO_HUMAN,
             // \Domain\Ai\Enums\AiToolEnum::CLOSE_TICKET => NÃO permitido
             \Domain\Ai\Enums\AiToolEnum::SEARCH_KNOWLEDGE,
@@ -123,6 +127,7 @@ class AiPermissionMatrixService
             \Domain\Ai\Enums\AiToolEnum::CREATE_NOTE,
             \Domain\Ai\Enums\AiToolEnum::CREATE_TASK,
             \Domain\Ai\Enums\AiToolEnum::NOTIFY_SELLER,
+            \Domain\Ai\Enums\AiToolEnum::REGISTER_SALES_INTEREST,
             \Domain\Ai\Enums\AiToolEnum::TRANSFER_TO_HUMAN,
             \Domain\Ai\Enums\AiToolEnum::CLOSE_TICKET,
             \Domain\Ai\Enums\AiToolEnum::SEARCH_KNOWLEDGE,
@@ -163,6 +168,7 @@ class AiPermissionMatrixService
         \Domain\Ai\Enums\AiToolEnum::CREATE_NOTE,
         \Domain\Ai\Enums\AiToolEnum::CREATE_TASK,
         \Domain\Ai\Enums\AiToolEnum::NOTIFY_SELLER,
+        \Domain\Ai\Enums\AiToolEnum::REGISTER_SALES_INTEREST,
         \Domain\Ai\Enums\AiToolEnum::TRANSFER_TO_HUMAN,
         \Domain\Ai\Enums\AiToolEnum::CLOSE_TICKET,
         \Domain\Ai\Enums\AiToolEnum::SEARCH_KNOWLEDGE,
@@ -199,6 +205,10 @@ class AiPermissionMatrixService
      */
     public function getAvailableTools(AiAgentRole $role): array
     {
+        if ($role === AiAgentRole::GENERAL) {
+            return self::ALL_TOOLS;
+        }
+
         return self::MATRIX[$role->value] ?? self::MATRIX['sales_qualifier'];
     }
 

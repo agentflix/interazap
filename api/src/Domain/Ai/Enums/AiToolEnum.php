@@ -56,6 +56,8 @@ class AiToolEnum
 
     public const READ_TICKET = 'read_ticket';
 
+    public const REGISTER_SALES_INTEREST = 'register_sales_interest';
+
     public const SCHEDULE_EVENT = 'schedule_event';
 
     public const SEARCH_CONTACTS = 'search_contacts';
