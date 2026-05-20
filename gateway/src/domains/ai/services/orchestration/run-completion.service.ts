@@ -52,24 +52,33 @@ export class RunCompletionService {
     const normalizedContent =
       this.extractContentFromSendMessagePayload(completionContent) ??
       completionContent;
-    const postGuard = this.guardrail.evaluateFinalOutput(normalizedContent);
+    const shouldUseToolFallback =
+      this.isSerializedToolCallPayload(normalizedContent) ||
+      (completionFinishReason === 'tool_calls' &&
+        normalizedContent.trim() === '');
+    const safeContent = shouldUseToolFallback
+      ? this.defaultToolCallFallbackMessage()
+      : normalizedContent;
+    const postGuard = this.guardrail.evaluateFinalOutput(safeContent);
     const finalContent = postGuard.allowed
-      ? normalizedContent
+      ? safeContent
       : 'Desculpe, não posso responder essa solicitação.';
 
-    const sendMessageAlreadySent = toolCalls.some(
-      (tc) =>
-        tc['name'] === 'send_message' &&
-        (tc['result'] as Record<string, unknown> | undefined)?.['success'] ===
-          true,
-    );
+    const sendMessageAlreadySent = this.hasSuccessfulToolCall(toolCalls, [
+      'send_message',
+    ]);
+    const terminalActionAlreadyCompleted =
+      this.hasSuccessfulToolCall(toolCalls, [
+        'transfer_to_human',
+        'close_ticket',
+      ]) || this.hasCompletedHandoff(toolCalls);
 
     if (
       !sendMessageAlreadySent &&
+      !terminalActionAlreadyCompleted &&
       finalContent.trim() !== '' &&
       request.ticketId &&
-      earlyExitReason !== 'delegation_completed' &&
-      completionFinishReason !== 'tool_calls'
+      earlyExitReason !== 'delegation_completed'
     ) {
       const sendResult = await this.toolExecutor.executeTool(
         'send_message',
@@ -143,6 +152,70 @@ export class RunCompletionService {
     } catch {
       return null;
     }
+  }
+
+  private hasSuccessfulToolCall(
+    toolCalls: Array<Record<string, unknown>>,
+    names: string[],
+  ): boolean {
+    return toolCalls.some((tc) => {
+      if (!names.includes((tc['name'] as string) ?? '')) {
+        return false;
+      }
+
+      const result = this.toRecord(tc['result']);
+      return result['success'] === true;
+    });
+  }
+
+  private hasCompletedHandoff(
+    toolCalls: Array<Record<string, unknown>>,
+  ): boolean {
+    return toolCalls.some((tc) => {
+      if (tc['name'] !== 'delegate_to_agent') {
+        return false;
+      }
+
+      const result = this.toRecord(tc['result']);
+      if (result['success'] !== true) {
+        return false;
+      }
+
+      const data = this.toRecord(result['data']);
+      const args = this.toRecord(tc['arguments']);
+
+      return (
+        data['return_after'] === false ||
+        args['return_after'] === false ||
+        data['handoff'] === true
+      );
+    });
+  }
+
+  private isSerializedToolCallPayload(content: string): boolean {
+    try {
+      const parsed = JSON.parse(content) as unknown;
+      const candidate = Array.isArray(parsed) ? parsed[0] : parsed;
+      if (!candidate || typeof candidate !== 'object') {
+        return false;
+      }
+
+      const record = candidate as Record<string, unknown>;
+      if (record.type === 'function' && typeof record.function === 'object') {
+        return true;
+      }
+
+      return (
+        typeof record.name === 'string' &&
+        (record.arguments !== undefined || record.result !== undefined)
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  private defaultToolCallFallbackMessage(): string {
+    return 'Perfeito, registrei seu interesse e vou acionar nosso time comercial para continuar com você.';
   }
 
   /**
