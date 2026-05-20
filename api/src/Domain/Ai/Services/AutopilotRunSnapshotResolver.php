@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Domain\Ai\Services;
 
 use Domain\Ai\Models\AiAgent;
+use Domain\Auth\Models\AuthUser;
 use Domain\Chat\Models\ChatTicket;
+use Domain\CRM\Models\CRMNegotiation;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -87,12 +89,24 @@ final class AutopilotRunSnapshotResolver
                     return null;
                 }
 
-                return [
+                $context = [
                     'ticket_id' => (string) $ticket->id,
                     'tenant_id' => (string) $ticket->tenant_id,
                     'status' => (string) $ticket->status,
                     'subject' => (string) ($ticket->subject ?? ''),
                 ];
+
+                $contactId = $ticket->contact_id ? (string) $ticket->contact_id : null;
+                $context['contact_id'] = $contactId;
+                $context['assigned_seller'] = $this->resolveAssignedSeller($ticket);
+                $context['default_seller'] = $this->resolveDefaultSeller((string) $ticket->tenant_id);
+                $context['active_negotiation'] = $this->resolveActiveNegotiation(
+                    (string) $ticket->tenant_id,
+                    $contactId,
+                );
+                $context['available_agents'] = $this->resolveAvailableAgents((string) $ticket->tenant_id);
+
+                return $context;
             });
         } catch (\Throwable $e) {
             Log::warning('[AutopilotRunSnapshotResolver] Failed to resolve context', [
@@ -102,6 +116,97 @@ final class AutopilotRunSnapshotResolver
 
             return null;
         }
+    }
+
+    /**
+     * @return array{id: string, name: string, email: ?string}|null
+     */
+    private function resolveAssignedSeller(ChatTicket $ticket): ?array
+    {
+        if (! is_string($ticket->assigned_to) || $ticket->assigned_to === '') {
+            return null;
+        }
+
+        $seller = AuthUser::query()
+            ->where('tenant_id', (string) $ticket->tenant_id)
+            ->where('is_active', true)
+            ->find($ticket->assigned_to);
+
+        return $seller instanceof AuthUser ? $this->formatSeller($seller) : null;
+    }
+
+    /**
+     * @return array{id: string, name: string, email: ?string}|null
+     */
+    private function resolveDefaultSeller(string $tenantId): ?array
+    {
+        $seller = AuthUser::query()
+            ->where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->orderByRaw("CASE WHEN lower(name) LIKE '%rosa%' THEN 0 ELSE 1 END")
+            ->orderBy('created_at')
+            ->first();
+
+        return $seller instanceof AuthUser ? $this->formatSeller($seller) : null;
+    }
+
+    /**
+     * @return array{id: string, title: string, status: string}|null
+     */
+    private function resolveActiveNegotiation(string $tenantId, ?string $contactId): ?array
+    {
+        if ($contactId === null || $contactId === '') {
+            return null;
+        }
+
+        $negotiation = CRMNegotiation::query()
+            ->where('tenant_id', $tenantId)
+            ->where('crm_contact_id', $contactId)
+            ->where('status', 'open')
+            ->orderByDesc('created_at')
+            ->first();
+
+        if (! $negotiation instanceof CRMNegotiation) {
+            return null;
+        }
+
+        return [
+            'id' => (string) $negotiation->id,
+            'title' => (string) $negotiation->title,
+            'status' => $negotiation->status instanceof \BackedEnum
+                ? (string) $negotiation->status->value
+                : (string) $negotiation->status,
+        ];
+    }
+
+    /**
+     * @return list<array{id: string, name: string, role: ?string}>
+     */
+    private function resolveAvailableAgents(string $tenantId): array
+    {
+        return AiAgent::query()
+            ->where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'metadata'])
+            ->map(static fn (AiAgent $agent): array => [
+                'id' => (string) $agent->id,
+                'name' => (string) $agent->name,
+                'role' => is_array($agent->metadata) ? ($agent->metadata['role'] ?? null) : null,
+            ])
+            ->all();
+    }
+
+    /**
+     * @return array{id: string, name: string, email: ?string}
+     */
+    private function formatSeller(AuthUser $seller): array
+    {
+        return [
+            'id' => (string) $seller->id,
+            'name' => (string) $seller->name,
+            'email' => $seller->email ? (string) $seller->email : null,
+        ];
     }
 
     /**
