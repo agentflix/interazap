@@ -1,6 +1,11 @@
 ---
 name: prevec-execute-task
-description: Implementa uma task T.A.C.E específica no workflow PREVEC usando o BUILDER. Cria ou atualiza o session file da feature para compartilhar contexto com subagents. Triggers: "implementar task", "executar task", "prevec-execute-task", "TASK-X.Y.Z". Do NOT use sem task T.A.C.E definida ou para revisar código (use prevec-review-execution).
+description: >-
+  Implementa uma task T.A.C.E específica no workflow PREVEC usando o BUILDER.
+  Cria ou atualiza o session file da feature para compartilhar contexto com
+  subagents. Triggers: "implementar task", "executar task",
+  "prevec-execute-task", "TASK-X.Y.Z". Do NOT use sem task T.A.C.E definida ou
+  para revisar código (use prevec-review-execution).
 metadata:
   author: prevec
   version: '2.0.0'

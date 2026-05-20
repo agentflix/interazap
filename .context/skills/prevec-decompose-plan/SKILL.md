@@ -1,6 +1,11 @@
 ---
 name: prevec-decompose-plan
-description: Ponto de entrada unificado do planejamento PREVEC. Pergunta o que gerar — PRD, Feature doc, Tasks ou qualquer combinação — e executa apenas o solicitado. Absorve prevec-new-plan e prevec-decompose-task. Triggers: "decompor plano", "criar feature", "gerar tasks", "novo plano", "prevec-decompose-plan", "quero planejar". Do NOT use para implementar código (use prevec-execute-task).
+description: >-
+  Ponto de entrada unificado do planejamento PREVEC. Pergunta o que gerar — PRD,
+  Feature doc, Tasks ou qualquer combinação — e executa apenas o solicitado.
+  Absorve prevec-new-plan e prevec-decompose-task. Triggers: "decompor plano",
+  "criar feature", "gerar tasks", "novo plano", "prevec-decompose-plan",
+  "quero planejar". Do NOT use para implementar código (use prevec-execute-task).
 metadata:
   author: prevec
   version: '2.0.0'

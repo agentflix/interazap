@@ -1,6 +1,10 @@
 ---
 name: prevec-decompose-task
-description: Decompõe feature doc em tasks T.A.C.E ricas e auto-suficientes — cada task contém tudo que o BUILDER precisa para implementar sem pesquisar contexto adicional. Triggers: "decompor feature", "criar tasks", "prevec-decompose-task". Do NOT use sem feature doc aprovada.
+description: >-
+  Decompõe feature doc em tasks T.A.C.E ricas e auto-suficientes — cada task
+  contém tudo que o BUILDER precisa para implementar sem pesquisar contexto
+  adicional. Triggers: "decompor feature", "criar tasks",
+  "prevec-decompose-task". Do NOT use sem feature doc aprovada.
 metadata:
   author: prevec
   version: '1.0.0'

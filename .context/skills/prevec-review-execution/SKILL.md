@@ -1,6 +1,13 @@
 ---
 name: prevec-review-execution
-description: Revisa a implementação de uma task no workflow PREVEC usando code-review-confiavel com 7 subagents separados. Lê a seção da task no session file da feature — não re-lê arquivos de origem. Detecta alucinações, quebras de contrato, erros e regressões antes do CONFIRM. Obrigatório após todo prevec-execute-task. Triggers: "revisar task", "review da execução", "prevec-review-execution". Do NOT use para revisar feature docs ou tasks não implementadas (use PLANNER/REVIEWER diretamente).
+description: >-
+  Revisa a implementação de uma task no workflow PREVEC usando
+  code-review-confiavel com 7 subagents separados. Lê a seção da task no session
+  file da feature — não re-lê arquivos de origem. Detecta alucinações, quebras
+  de contrato, erros e regressões antes do CONFIRM. Obrigatório após todo
+  prevec-execute-task. Triggers: "revisar task", "review da execução",
+  "prevec-review-execution". Do NOT use para revisar feature docs ou tasks não
+  implementadas (use PLANNER/REVIEWER diretamente).
 metadata:
   author: prevec
   version: '2.1.0'

@@ -1,6 +1,10 @@
 ---
 name: prevec-new-plan
-description: Inicia plano no PREVEC — amadurece ideia em PRD via brainstorming e cria planning session para reusar contexto nos skills seguintes. Triggers: "nova ideia", "novo plano", "prevec-new-plan", "quero planejar". Do NOT use para features já documentadas.
+description: >-
+  Inicia plano no PREVEC — amadurece ideia em PRD via brainstorming e cria
+  planning session para reusar contexto nos skills seguintes. Triggers: "nova
+  ideia", "novo plano", "prevec-new-plan", "quero planejar". Do NOT use para
+  features já documentadas.
 metadata:
   author: prevec
   version: '1.0.0'

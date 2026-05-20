@@ -1,6 +1,12 @@
 ---
 name: prevec-finalize-execution
-description: Finaliza uma task aprovada no workflow PREVEC — lê o session file da feature para dados prontos de CHANGELOG/MEMORY, marca task concluída, cria commit e abre PR se feature completa. Arquiva o session file apenas quando TODAS as tasks da feature forem ✅. Triggers: "finalizar task", "confirmar task", "prevec-finalize-execution". Do NOT use antes do prevec-review-execution aprovar ou para tasks reprovadas.
+description: >-
+  Finaliza uma task aprovada no workflow PREVEC — lê o session file da feature
+  para dados prontos de CHANGELOG/MEMORY, marca task concluída, cria commit e
+  abre PR se feature completa. Arquiva o session file apenas quando TODAS as
+  tasks da feature forem ✅. Triggers: "finalizar task", "confirmar task",
+  "prevec-finalize-execution". Do NOT use antes do prevec-review-execution
+  aprovar ou para tasks reprovadas.
 metadata:
   author: prevec
   version: '2.0.0'
