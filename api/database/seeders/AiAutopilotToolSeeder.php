@@ -171,7 +171,23 @@ class AiAutopilotToolSeeder extends Seeder
                     'properties' => [
                         'seller_id' => [
                             'type' => 'string',
-                            'description' => 'UUID of the seller to notify',
+                            'description' => 'Optional UUID of the seller. If unknown, use seller, seller_name, seller_email, or ticket_id.',
+                        ],
+                        'seller' => [
+                            'type' => 'string',
+                            'description' => 'Optional seller name or alias, e.g. Rosa.',
+                        ],
+                        'seller_name' => [
+                            'type' => 'string',
+                            'description' => 'Optional seller full name.',
+                        ],
+                        'seller_email' => [
+                            'type' => 'string',
+                            'description' => 'Optional seller email.',
+                        ],
+                        'ticket_id' => [
+                            'type' => 'string',
+                            'description' => 'Optional ticket UUID used to resolve assigned/default seller.',
                         ],
                         'message' => [
                             'type' => 'string',
@@ -190,7 +206,54 @@ class AiAutopilotToolSeeder extends Seeder
                             'description' => 'Priority level: low, normal, high, urgent',
                         ],
                     ],
-                    'required' => ['seller_id', 'message', 'reason'],
+                    'required' => ['message', 'reason'],
+                ],
+            ],
+            [
+                'handler_class' => 'RegisterSalesInterestTool',
+                'display_name' => 'Registrar Interesse Comercial',
+                'description' => 'Register sales interest, resolve seller/negotiation from context, create follow-up artifacts, and send a customer-facing message.',
+                'parameters_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'ticket_id' => [
+                            'type' => 'string',
+                            'description' => 'Current ticket UUID. Defaults to tool context when available.',
+                        ],
+                        'plan' => [
+                            'type' => 'string',
+                            'description' => 'Interested plan name, e.g. Starter, Professional, Business.',
+                        ],
+                        'team_size' => [
+                            'type' => 'integer',
+                            'description' => 'Number of attendants/users mentioned by the customer.',
+                        ],
+                        'urgency' => [
+                            'type' => 'string',
+                            'description' => 'Customer urgency, e.g. today, this_week, no_urgency.',
+                        ],
+                        'intent' => [
+                            'type' => 'string',
+                            'description' => 'Commercial intent, e.g. close_deal, schedule_demo, ask_proposal.',
+                        ],
+                        'message_to_customer' => [
+                            'type' => 'string',
+                            'description' => 'Message that must be sent to the customer after registering interest.',
+                        ],
+                        'seller' => [
+                            'type' => 'string',
+                            'description' => 'Optional seller name or alias.',
+                        ],
+                        'seller_id' => [
+                            'type' => 'string',
+                            'description' => 'Optional seller UUID.',
+                        ],
+                        'negotiation_id' => [
+                            'type' => 'string',
+                            'description' => 'Optional negotiation UUID.',
+                        ],
+                    ],
+                    'required' => ['message_to_customer'],
                 ],
             ],
             [
@@ -237,14 +300,22 @@ class AiAutopilotToolSeeder extends Seeder
                         ],
                         'negotiation_id' => [
                             'type' => 'string',
-                            'description' => 'UUID of the negotiation',
+                            'description' => 'Optional UUID of the negotiation. If unknown, use ticket_id/contact_id.',
+                        ],
+                        'ticket_id' => [
+                            'type' => 'string',
+                            'description' => 'Ticket UUID used to resolve the active negotiation.',
+                        ],
+                        'contact_id' => [
+                            'type' => 'string',
+                            'description' => 'Contact UUID used to resolve the active negotiation.',
                         ],
                         'assigned_to' => [
                             'type' => 'string',
                             'description' => 'UUID of the user to assign the task to',
                         ],
                     ],
-                    'required' => ['title', 'negotiation_id'],
+                    'required' => ['title'],
                 ],
             ],
             [
@@ -579,13 +650,15 @@ class AiAutopilotToolSeeder extends Seeder
 
         foreach ($tenants as $tenant) {
             foreach ($tools as $toolData) {
-                AiAutopilotTool::query()->updateOrCreate(
+                $toolName = Str::snake(str_replace('Tool', '', $toolData['handler_class']));
+
+                AiAutopilotTool::query()->withoutGlobalScopes()->updateOrCreate(
                     [
                         'tenant_id' => $tenant->id,
-                        'handler_class' => $toolData['handler_class'],
+                        'name' => $toolName,
                     ],
                     [
-                        'name' => Str::snake(str_replace('Tool', '', $toolData['handler_class'])),
+                        'handler_class' => $toolData['handler_class'],
                         'display_name' => $toolData['display_name'],
                         'description' => $toolData['description'],
                         'parameters_schema' => $toolData['parameters_schema'],

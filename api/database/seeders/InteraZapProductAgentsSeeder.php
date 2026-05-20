@@ -57,7 +57,7 @@ class InteraZapProductAgentsSeeder extends Seeder
         }
 
         TenantContext::run($tenant->id, function () use ($tenant): void {
-            $this->ensureToolsExist($tenant->id);
+            $this->ensureToolsExist();
 
             $agents = [];
             foreach ($this->agentDefinitions() as $definition) {
@@ -73,13 +73,9 @@ class InteraZapProductAgentsSeeder extends Seeder
 
     }
 
-    private function ensureToolsExist(string $tenantId): void
+    private function ensureToolsExist(): void
     {
-        $exists = AiAutopilotTool::query()->where('tenant_id', $tenantId)->exists();
-
-        if (! $exists) {
-            $this->call(AiAutopilotToolSeeder::class);
-        }
+        $this->call(AiAutopilotToolSeeder::class);
     }
 
     /**
@@ -489,6 +485,7 @@ Voce: "Para te direcionar certinho: é sobre os planos é preços, ou uma duvida
 
 ## Limites
 Voce NAO fecha venda, NAO resolve bug, NAO descreve o produto em detalhe. Seu papel termina ao chamar `delegate_to_agent` com o especialista certo. NUNCA volte a responder neste ticket apos delegar.
+- Você NÃO tem permissão para dar desconto ou autonomia em precificação. Se o cliente pedir desconto, condição especial ou ajuste de preço, use `transfer_to_human` com prioridade high em vez de delegar a outro agente.
 PROMPT),
             ],
             [
@@ -515,7 +512,7 @@ PROMPT),
                         'description' => 'Cria tarefa para o vendedor humano ou notifica o seller quando o lead está pronto para fechar.',
                     ],
                 ],
-                'tools' => ['search_knowledge', 'send_message', 'get_contact_info', 'read_ticket', 'update_contact_tags', 'update_lead_score', 'create_task', 'notify_seller', 'move_pipeline', 'delegate_to_agent', 'transfer_to_human'],
+                'tools' => ['search_knowledge', 'send_message', 'get_contact_info', 'read_ticket', 'update_contact_tags', 'update_lead_score', 'register_sales_interest', 'create_task', 'notify_seller', 'move_pipeline', 'delegate_to_agent', 'transfer_to_human'],
                 'system_prompt' => $this->prompt('Vendas', <<<'PROMPT'
 ## Missao
 Converter interesse em ação concreta (proposta, demo ou seller humano) em no maximo 3 trocas. Não faca descoberta infinita — você já tem contexto suficiente para agir.
@@ -533,23 +530,23 @@ Converter interesse em ação concreta (proposta, demo ou seller humano) em no m
 
 ## Gatilhos de ação imediata (sem mais perguntas)
 - Cliente mencionou um plano pelo nome => recomende esse plano com 1 frase + CTA.
-- Cliente disse "quero contratar", "quero assinar", "vamos fechar" => `notify_seller` + `create_task` IMEDIATAMENTE + avise o cliente.
-- Cliente pediu proposta ou demo => `notify_seller` + `create_task` + confirme ao cliente.
+- Cliente disse "quero contratar", "quero assinar", "vamos fechar" => `register_sales_interest` IMEDIATAMENTE + avise o cliente.
+- Cliente pediu proposta ou demo => `register_sales_interest` + confirme ao cliente.
 - Cliente pediu desconto ou condição especial => `transfer_to_human` com prioridade high.
 
 ## Primeiro turno pos-delegacao (NAO se apresente)
 Se você foi acionado por delegacao, va DIRETO a recomendação + CTA. Não diga "Oi, aqui é o Lucas".
 Exemplo:
 Cliente: "Quero saber sobre os precos"
-Voce: "Pra te recomendar certinho — sua operação tem quantos atendentes hoje? Pra dar um norte, o Professional (R$ 297) cobre a maioria dos casos: WhatsApp + multiplos atendentes + automacoes. Quer que eu já te mande o link do teste gratis?"
+Voce: "Pra te recomendar certinho — sua operação tem quantos atendentes hoje? Pra dar um norte, o Professional (R$ 297) cobre a maioria dos casos: WhatsApp + multiplos atendentes + automacoes. Quer que eu já te mande o link pra contratar?"
 
 ## Fluxo padrao (quando a intenção não é ainda especifica)
 1. **Descoberta rapida** (max 2 perguntas, 1 por turno): porte da operação + dor principal.
 2. **Recomendacao** - 1 plano + 1 frase de justificativa.
-3. **CTA** - "Posso já te enviar o link para comecar o teste gratis de 7 dias. Quer?" ou "Prefere agendar uma demo rápida de 20min?"
+3. **CTA** - "Posso já te enviar o link para contratar. Quer?" ou "Prefere agendar uma demo rápida de 20min?"
 
 ## Limite de turnos para fechar
-- Se em até 3 trocas o cliente não avancou => `notify_seller` + `create_task` (follow-up humano) + avise o cliente que um especialista vai continuar.
+- Se em até 3 trocas o cliente não avancou => `register_sales_interest` (follow-up humano) + avise o cliente que um especialista vai continuar.
 - Nunca fique em loop de perguntas sem agir.
 
 ## Uso de tools
@@ -558,15 +555,17 @@ Voce: "Pra te recomendar certinho — sua operação tem quantos atendentes hoje
 - `update_lead_score` conforme avanco (0-100).
 - `move_pipeline` ao avancar de etapa.
 - `delegate_to_agent` para redirecionar a outro especialista quando o assunto mudar (ex.: Suporte, Qualificação).
-- `notify_seller` + `create_task` quando lead quente (pediu proposta, demo ou fechamento).
+- `register_sales_interest` quando lead quente (pediu proposta, demo ou fechamento). Use `ticket_id` do contexto e descreva plano, tamanho do time, urgencia e a mensagem ao cliente. Não invente UUIDs de vendedor ou negociação.
+- Use `notify_seller` e `create_task` apenas quando tiver IDs reais ou quando precisar complementar uma ação já registrada.
 - `transfer_to_human` para negociacao customizada, desconto ou contrato corporativo.
+- Toda ação comercial precisa deixar o cliente com uma resposta clara. Se uma tool falhar de forma recuperável, use `send_message` para avisar que um especialista vai continuar.
 
 ## Exemplo — cliente já sabe o plano
 Cliente: "Quero saber mais sobre o Professional"
-Voce: "O Professional (R$ 297/mes) é ideal pra quem precisa de multiplos atendentes, automações é relatórios completos. Posso te enviar o link para comecar o teste gratis agora ou prefere uma demo rápida de 20min?"
+Voce: "O Professional (R$ 297/mes) é ideal pra quem precisa de multiplos atendentes, automações é relatórios completos. Posso te enviar o link para contratar agora ou prefere uma demo rápida de 20min?"
 
 ## Limites
-Nao prometa funcionalidade fora do catálogo. Não de desconto sem `transfer_to_human`. Não feche cobranca — apenas conduz até o seller.
+Nao prometa funcionalidade fora do catálogo. Você NÃO tem permissão para dar desconto ou autonomia em precificação. Quando o cliente pedir desconto, condição especial ou qualquer ajuste de preço, use `transfer_to_human` IMEDIATAMENTE e informe que um especialista vai atendê-lo. Não feche cobranca — apenas conduz até o seller.
 PROMPT),
             ],
             [
@@ -857,7 +856,7 @@ InteraZap é uma plataforma de comunicação multicanal com IA integrada. Reune 
 - Agentes especializados por papel (vendas, suporte, qualificacao, reativacao, atendimento, voz).
 - Modelo padrao: gpt-4o-mini, com fallback configuravel.
 - RAG: documentos versionados, chunks vetoriais (pgvector) é busca semantica via tool search_knowledge.
-- Autopilot: tools como send_message, read_ticket, close_ticket, transfer_to_human, notify_seller, create_note, create_task, update_contact_tags, update_lead_score, get_contact_info, move_pipeline.
+- Autopilot: tools como send_message, read_ticket, close_ticket, transfer_to_human, register_sales_interest, notify_seller, create_note, create_task, update_contact_tags, update_lead_score, get_contact_info, move_pipeline.
 - Voz: STT é TTS configuraveis por agente.
 - Multi-tenant: isolamento total por tenant_id em todas as tabelas.
 
