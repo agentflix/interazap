@@ -27,7 +27,7 @@ class NotifySellerToolTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tool = new NotifySellerTool;
+        $this->tool = app(NotifySellerTool::class);
     }
 
     public function test_it_implements_ai_tool_interface(): void
@@ -52,7 +52,7 @@ class NotifySellerToolTest extends TestCase
         $params = $this->tool->getParameters();
 
         expect($params)->toHaveKeys(['seller_id', 'message', 'reason', 'channel', 'priority']);
-        expect($params['seller_id']['required'])->toBeTrue();
+        expect($params['seller_id']['required'])->toBeFalse();
         expect($params['message']['required'])->toBeTrue();
         expect($params['reason']['required'])->toBeTrue();
         expect($params['channel']['required'])->toBeFalse();
@@ -71,7 +71,7 @@ class NotifySellerToolTest extends TestCase
             parameters: [
                 'seller_id' => (string) $seller->id,
                 'message' => 'New lead assigned to you!',
-                'reason' => 'high_value_lead',
+                'reason' => 'hot_lead',
                 'channel' => 'email',
                 'priority' => 'high',
             ],
@@ -105,15 +105,40 @@ class NotifySellerToolTest extends TestCase
         expect($result->message)->toContain('cannot be empty');
     }
 
-    public function test_it_fails_when_seller_id_is_missing(): void
+    public function test_it_resolves_seller_by_name_when_uuid_is_not_available(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $seller = AuthUser::factory()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Rosa Comercial',
+        ]);
+
+        $input = new ToolInputDTO(
+            toolName: 'notify_seller',
+            parameters: [
+                'seller' => 'Rosa Comercial',
+                'message' => 'Test message',
+                'reason' => 'hot_lead',
+            ],
+            context: ['tenant_id' => (string) $tenant->id],
+        );
+
+        $result = $this->tool->handle($input);
+
+        expect($result->success)->toBeTrue();
+        expect($result->data['seller_id'])->toBe((string) $seller->id);
+    }
+
+    public function test_it_returns_recoverable_failure_when_seller_cannot_be_resolved(): void
     {
         $tenant = PlatformTenant::factory()->create();
 
         $input = new ToolInputDTO(
             toolName: 'notify_seller',
             parameters: [
+                'seller' => 'Pessoa Inexistente',
                 'message' => 'Test message',
-                'reason' => 'test',
+                'reason' => 'hot_lead',
             ],
             context: ['tenant_id' => (string) $tenant->id],
         );
@@ -121,6 +146,7 @@ class NotifySellerToolTest extends TestCase
         $result = $this->tool->handle($input);
 
         expect($result->success)->toBeFalse();
-        expect($result->message)->toContain('Seller ID is required');
+        expect($result->data['error_code'])->toBe('seller_not_found');
+        expect($result->data['recoverable'])->toBeTrue();
     }
 }

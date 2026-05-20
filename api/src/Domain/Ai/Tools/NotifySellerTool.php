@@ -10,15 +10,22 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\Ai\Enums\AiNotificationChannel;
 use Domain\Ai\Enums\AiNotificationReason;
 use Domain\Ai\Models\AiSellerNotification;
+use Domain\Ai\Services\AiToolEntityResolver;
+use Illuminate\Support\Str;
 
 /**
  * Ferramenta para notificar vendedores.
  */
 class NotifySellerTool implements AiToolInterface
 {
+    public function __construct(
+        private readonly AiToolEntityResolver $entityResolver,
+    ) {}
+
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $sellerId = $input->parameters['seller_id'] ?? null;
+        $ticketId = $input->parameters['ticket_id'] ?? $input->context['ticket_id'] ?? null;
         $message = $input->parameters['message'] ?? '';
         $reason = $input->parameters['reason'] ?? 'general';
         $channel = $input->parameters['channel'] ?? 'email';
@@ -29,12 +36,22 @@ class NotifySellerTool implements AiToolInterface
             return ToolResultDTO::failure('Tenant ID is required');
         }
 
-        if (empty($sellerId)) {
-            return ToolResultDTO::failure('Seller ID is required');
-        }
-
         if (empty(trim($message))) {
             return ToolResultDTO::failure('Message cannot be empty');
+        }
+
+        $seller = $this->entityResolver->resolveSeller(
+            (string) $tenantId,
+            $input->parameters,
+            is_string($ticketId) && Str::isUuid($ticketId) ? $ticketId : null,
+        );
+
+        if (! $seller) {
+            return ToolResultDTO::failure('Seller could not be resolved for this tenant.', [
+                'error_code' => 'seller_not_found',
+                'recoverable' => true,
+                'hint' => 'Use send_message to tell the customer a specialist will follow up, or transfer_to_human.',
+            ]);
         }
 
         // Map string reason to enum if possible
@@ -43,7 +60,7 @@ class NotifySellerTool implements AiToolInterface
 
         $notification = AiSellerNotification::query()->create([
             'tenant_id' => (string) $tenantId,
-            'seller_id' => (string) $sellerId,
+            'seller_id' => (string) $seller->id,
             'message' => (string) $message,
             'reason' => ($reasonEnum ?? AiNotificationReason::CUSTOM)->value,
             'channel' => ($channelEnum ?? AiNotificationChannel::EMAIL)->value,
@@ -58,7 +75,8 @@ class NotifySellerTool implements AiToolInterface
             message: 'Notification persisted and queued for delivery',
             data: [
                 'notification_id' => $notification->id,
-                'seller_id' => $sellerId,
+                'seller_id' => (string) $seller->id,
+                'seller_name' => $seller->name,
                 'channel' => $channelEnum !== null ? $channelEnum->value : $channel,
                 'reason' => $reasonEnum !== null ? $reasonEnum->value : $reason,
                 'priority' => $priority,
@@ -85,8 +103,28 @@ class NotifySellerTool implements AiToolInterface
         return [
             'seller_id' => [
                 'type' => 'string',
-                'required' => true,
-                'description' => 'UUID of the seller to notify',
+                'required' => false,
+                'description' => 'UUID of the seller to notify. Optional when seller, seller_name, seller_email, ticket_id, or default tenant seller can resolve it.',
+            ],
+            'seller' => [
+                'type' => 'string',
+                'required' => false,
+                'description' => 'Human-readable seller name or alias, e.g. "Rosa".',
+            ],
+            'seller_name' => [
+                'type' => 'string',
+                'required' => false,
+                'description' => 'Human-readable seller name.',
+            ],
+            'seller_email' => [
+                'type' => 'string',
+                'required' => false,
+                'description' => 'Seller email address.',
+            ],
+            'ticket_id' => [
+                'type' => 'string',
+                'required' => false,
+                'description' => 'Ticket UUID used to resolve assigned/default seller.',
             ],
             'message' => [
                 'type' => 'string',
