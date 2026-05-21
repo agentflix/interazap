@@ -4,6 +4,7 @@
 export interface ToolExecutionContext {
   tenantId: string;
   runId: string;
+  correlationId?: string;
   agentId: string;
   traceId?: string;
   ticketId?: string;

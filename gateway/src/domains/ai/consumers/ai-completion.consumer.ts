@@ -232,7 +232,10 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
     streamMessage: StreamMessage<AICompletionRequest>,
   ): Promise<void> {
     const { id, message } = streamMessage;
-    const correlationId = message.correlationId;
+    const payloadCorrelationId =
+      this.getStringField(message.payload, 'correlation_id') ??
+      this.getStringField(message.payload, 'correlationId');
+    const correlationId = payloadCorrelationId ?? message.correlationId;
     const startTime = Date.now();
 
     try {

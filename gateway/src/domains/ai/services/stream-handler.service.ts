@@ -30,17 +30,20 @@ export class StreamHandlerService {
     agentId: string,
     chunk: string,
     traceId?: string,
+    correlationId?: string,
   ): Promise<void> {
     this.aiMetrics.recordStreamChunk(agentId);
 
     await this.redisService.publish(this.gatewayConfigService.wsEventsChannel, {
       event: AI_EVENTS.RUN_STREAMING,
       tenant_id: tenantId,
+      correlation_id: correlationId,
       trace_id: traceId,
       rooms: [tenantRoom(tenantId), runRoom(runId)],
       data: {
         tenant_id: tenantId,
         run_id: runId,
+        correlation_id: correlationId,
         trace_id: traceId,
         chunk,
         streaming: true,
@@ -61,15 +64,18 @@ export class StreamHandlerService {
     runId: string,
     content: string,
     traceId?: string,
+    correlationId?: string,
   ): Promise<void> {
     await this.redisService.publish(this.gatewayConfigService.wsEventsChannel, {
       event: AI_EVENTS.RUN_COMPLETED,
       tenant_id: tenantId,
+      correlation_id: correlationId,
       trace_id: traceId,
       rooms: [tenantRoom(tenantId), runRoom(runId)],
       data: {
         tenant_id: tenantId,
         run_id: runId,
+        correlation_id: correlationId,
         trace_id: traceId,
         content,
       },

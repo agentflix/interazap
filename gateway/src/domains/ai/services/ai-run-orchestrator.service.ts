@@ -16,6 +16,7 @@ import { ToolExecutionContext } from '../interfaces/tool-execution-context.inter
 import type { AICompletionRequest } from '../models/ai-completion.model';
 import type { OrchestratorRequest } from '../models/orchestrator.model';
 import type { PreparedToolCall } from '../models/tool-call.model';
+import { AiCancellationRegistry } from '../ai-cancellation.registry';
 
 /**
  * Serviço responsável por orquestrar a execução completa de uma run de AI no gateway.
@@ -43,7 +44,8 @@ export class AiRunOrchestratorService {
     private readonly guardrail: GuardrailEvaluatorService,
     private readonly streamHandler: StreamHandlerService,
     private readonly aiMetrics: AiMetricsService,
-    private readonly configService?: ConfigService,
+    private readonly configService: ConfigService | undefined,
+    private readonly cancellationRegistry: AiCancellationRegistry,
   ) {
     const configured = this.configService?.get<string | number>(
       'AI_MAX_TOOL_HISTORY_MESSAGES',
@@ -74,8 +76,9 @@ export class AiRunOrchestratorService {
     request: OrchestratorRequest,
   ): Promise<Record<string, unknown>> {
     const startedAt = Date.now();
+    const correlationId = request.correlationId;
     const agentId = request.agentId ?? 'default';
-    const runId = request.runId || request.correlationId;
+    const runId = request.runId || correlationId;
     const maxTokens = this.resolvePositiveInteger(
       request.maxTokens,
       AiRunOrchestratorService.DEFAULT_MAX_TOKENS,
@@ -89,6 +92,10 @@ export class AiRunOrchestratorService {
       AiRunOrchestratorService.DEFAULT_RUN_TOKEN_BUDGET,
     );
     const shouldCompactToolResults = request.compactToolResults !== false;
+
+    this.logger.debug(
+      `Executing AI run ${runId} (tenant=${request.tenantId}, correlation_id=${correlationId})`,
+    );
 
     const prefetchStart = Date.now();
     const hydratedAt =
@@ -198,6 +205,7 @@ export class AiRunOrchestratorService {
     const executionContext: ToolExecutionContext = {
       tenantId: request.tenantId,
       runId,
+      correlationId,
       agentId,
       traceId: request.traceId,
       agentRole: request.agentRole,
@@ -212,6 +220,11 @@ export class AiRunOrchestratorService {
       completion.finishReason === 'tool_calls' &&
       loopCount < maxToolIterations
     ) {
+      if (await this.cancellationRegistry.isCancelled(runId)) {
+        earlyExitReason = 'cancelled';
+        break;
+      }
+
       loopCount += 1;
 
       if (totalTokensUsed >= runTokenBudget) {
@@ -295,6 +308,11 @@ export class AiRunOrchestratorService {
         break;
       }
 
+      if (await this.cancellationRegistry.isCancelled(runId)) {
+        earlyExitReason = 'cancelled';
+        break;
+      }
+
       // Após primeira iteração, filtrar tools para apenas as usadas + send_message
       if (
         loopCount > 0 &&
@@ -314,6 +332,35 @@ export class AiRunOrchestratorService {
       completionRequest.stream = false;
       completion = await this.completeOnce(completionRequest);
       totalTokensUsed += completion.totalTokens;
+    }
+
+    if (earlyExitReason === 'cancelled') {
+      await this.cancellationRegistry.clear(runId);
+
+      return {
+        run_id: runId,
+        tenant_id: request.tenantId,
+        ticket_id: request.ticketId,
+        agent_id: request.agentId,
+        iterations_count: loopCount,
+        total_tokens_used: totalTokensUsed,
+        early_exit_reason: 'cancelled',
+        status: 'cancelled',
+        output: {
+          content: 'Run cancelled by user request.',
+          model: completion.model,
+          finish_reason: completion.finishReason,
+          tool_calls: toolCalls,
+        },
+        prompt_tokens: completion.promptTokens,
+        completion_tokens: completion.completionTokens,
+        total_tokens: completion.totalTokens,
+        correlation_id: correlationId,
+        trace_id: request.traceId,
+        streaming_enabled: request.streamingEnabled === true,
+        classifier_result: null,
+        completed_at: new Date().toISOString(),
+      };
     }
 
     if (
@@ -355,12 +402,14 @@ export class AiRunOrchestratorService {
         agentId,
         completion.content,
         request.traceId,
+        correlationId,
       );
       await this.streamHandler.emitFinal(
         request.tenantId,
         runId,
         completion.content,
         request.traceId,
+        correlationId,
       );
     }
 
@@ -410,6 +459,8 @@ export class AiRunOrchestratorService {
       this.aiMetrics.recordEarlyExit(agentId, earlyExitReason);
     }
 
+    await this.cancellationRegistry.clear(runId);
+
     return {
       run_id: runId,
       tenant_id: request.tenantId,
@@ -428,6 +479,7 @@ export class AiRunOrchestratorService {
       prompt_tokens: completion.promptTokens,
       completion_tokens: completion.completionTokens,
       total_tokens: completion.totalTokens,
+      correlation_id: correlationId,
       trace_id: request.traceId,
       streaming_enabled: request.streamingEnabled === true,
       classifier_result: null,
@@ -599,6 +651,7 @@ export class AiRunOrchestratorService {
     agentId: string,
     content: string,
     traceId?: string,
+    correlationId?: string,
   ): Promise<void> {
     const chunkSize = 512;
     let index = 0;
@@ -622,6 +675,7 @@ export class AiRunOrchestratorService {
         agentId,
         chunk,
         traceId,
+        correlationId,
       );
       index = end;
     }

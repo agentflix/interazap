@@ -88,4 +88,14 @@ export class GatewayConfigService {
       'ai.tool.request'
     );
   }
+
+  /**
+   * Redis PubSub channel used by API to request cancellation of active AI runs.
+   */
+  get aiRunCancelChannel(): string {
+    return (
+      this.configService.get<string>('AI_RUN_CANCEL_CHANNEL') ??
+      'ai.run.cancel_requested'
+    );
+  }
 }

@@ -26,6 +26,8 @@ import { StreamHandlerService } from './services/stream-handler.service';
 import { AiRunOrchestratorService } from './services/ai-run-orchestrator.service';
 import { AiRunRequestConsumer, ClassifierConsumer } from './consumers/index';
 import { AiMetricsService } from './services/ai-metrics.service';
+import { AiCancellationRegistry } from './ai-cancellation.registry';
+import { AiRunCancelListener } from './listeners/ai-run-cancel.listener';
 import { ToolStrategyRegistry } from './services/tool-strategies/tool-strategy.registry';
 import { RpcFallbackToolStrategy } from './services/tool-strategies/rpc-fallback.tool-strategy';
 import { SendMessageToolStrategy } from './services/tool-strategies/send-message.tool-strategy';
@@ -83,6 +85,8 @@ const AI_TOOL_STRATEGIES = 'AI_TOOL_STRATEGIES';
     ToolExecutorService,
     GuardrailEvaluatorService,
     StreamHandlerService,
+    AiCancellationRegistry,
+    AiRunCancelListener,
     AiRunOrchestratorService,
     AiRunRequestConsumer,
     ClassifierConsumer,

@@ -345,6 +345,7 @@ export class ToolExecutorService {
       tenant_id: context.tenantId,
       run_id: context.runId,
       current_run_id: context.runId,
+      correlation_id: context.correlationId,
       agent_id: context.agentId,
       agent_role: context.agentRole ?? 'general',
       ticket_id: context.ticketId,
@@ -375,6 +376,10 @@ export class ToolExecutorService {
 
     if (!('trace_id' in inputContext) && context.traceId) {
       inputContext['trace_id'] = context.traceId;
+    }
+
+    if (!('correlation_id' in inputContext) && context.correlationId) {
+      inputContext['correlation_id'] = context.correlationId;
     }
 
     if (!('body' in inputContext)) {
@@ -411,11 +416,13 @@ export class ToolExecutorService {
         {
           event: eventName,
           tenant_id: context.tenantId,
+          correlation_id: context.correlationId,
           trace_id: context.traceId,
           rooms: [tenantRoom(context.tenantId), runRoom(context.runId)],
           data: {
             tenant_id: context.tenantId,
             run_id: context.runId,
+            correlation_id: context.correlationId,
             trace_id: context.traceId,
             ...data,
           },
