@@ -85,6 +85,8 @@ final class RolePermissionSeeder extends Seeder
             // AI
             'ai.autopilot.view',
             'ai.autopilot.manage',
+            'ai.autopilots.view',
+            'ai.autopilots.run',
             'ai.autopilots.manage',
             'ai.knowledge.view',
             'ai.knowledge.manage',
@@ -133,6 +135,8 @@ final class RolePermissionSeeder extends Seeder
             'settings.tags.manage',
             // AI (read-only)
             'ai.autopilot.view',
+            'ai.autopilots.view',
+            'ai.autopilots.run',
             'ai.autopilots.manage',
             'ai.knowledge.view',
         ]);

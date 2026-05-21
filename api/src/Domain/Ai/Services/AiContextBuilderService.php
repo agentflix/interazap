@@ -8,6 +8,7 @@ use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatTicket;
 use Domain\CRM\Actions\CRMContactActions;
 use Domain\CRM\Models\CRMContact;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -97,9 +98,49 @@ final class AiContextBuilderService
                 ] : null,
             ],
             'conversation_history' => $formattedHistory,
-            'current_input' => $this->resolveMessageContent($currentMessage),
+            'current_input' => $this->sanitizeUserInput($this->resolveMessageContent($currentMessage)),
             'user_context' => $this->getCRMSummary($contact, $ticket),
         ];
+    }
+
+    public function sanitizeUserInput(string $body): string
+    {
+        $maxChars = (int) config('ai.autopilot.input_sanitization.max_chars', 4000);
+        $delimiters = config('ai.autopilot.input_sanitization.delimiters', ['<<<', '>>>', '<|', '|>']);
+        $patterns = config('ai.autopilot.input_sanitization.injection_patterns', []);
+
+        $sanitized = Str::substr($body, 0, max(1, $maxChars));
+
+        foreach ((array) $patterns as $pattern) {
+            if (! is_string($pattern) || $pattern === '') {
+                continue;
+            }
+
+            $matched = @preg_match($pattern, $sanitized);
+            if ($matched === false) {
+                Log::warning('[AiContextBuilderService] Invalid input sanitization regex pattern', [
+                    'pattern' => $pattern,
+                ]);
+
+                continue;
+            }
+
+            if ($matched === 1) {
+                Log::warning('[AiContextBuilderService] Potential prompt injection pattern detected', [
+                    'pattern' => $pattern,
+                ]);
+            }
+        }
+
+        foreach ((array) $delimiters as $delimiter) {
+            if (! is_string($delimiter) || $delimiter === '') {
+                continue;
+            }
+
+            $sanitized = str_replace($delimiter, '\\'.$delimiter, $sanitized);
+        }
+
+        return "<<<USER_INPUT>>>\n{$sanitized}\n<<<END>>>";
     }
 
     /**

@@ -153,6 +153,73 @@ class MetricsService
         $gauge->set($ratio, array_values($labels));
     }
 
+    /**
+     * Record run duration observed in autopilot execution lifecycle.
+     *
+     * @param  array<string, string>  $labels
+     */
+    public function recordAutopilotRunDuration(float $seconds, array $labels = []): void
+    {
+        $histogram = $this->histogram(
+            'autopilot_run_duration_seconds',
+            'Autopilot run duration in seconds',
+            array_keys($labels),
+            [0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0, 120.0]
+        );
+
+        $histogram->observe($seconds, array_values($labels));
+    }
+
+    /**
+     * Record tool iterations count observed in a run.
+     *
+     * @param  array<string, string>  $labels
+     */
+    public function recordAutopilotToolIterations(int $count, array $labels = []): void
+    {
+        $histogram = $this->histogram(
+            'autopilot_tool_iterations',
+            'Autopilot tool iteration count per run',
+            array_keys($labels),
+            [0, 1, 2, 3, 5, 8, 13, 21]
+        );
+
+        $histogram->observe((float) $count, array_values($labels));
+    }
+
+    /**
+     * Record time spent waiting for approval resolution.
+     *
+     * @param  array<string, string>  $labels
+     */
+    public function recordAutopilotApprovalWaitTime(float $seconds, array $labels = []): void
+    {
+        $histogram = $this->histogram(
+            'autopilot_approval_wait_time_seconds',
+            'Autopilot approval wait time in seconds',
+            array_keys($labels),
+            [1, 5, 10, 30, 60, 300, 900, 3600, 86400]
+        );
+
+        $histogram->observe($seconds, array_values($labels));
+    }
+
+    /**
+     * Record lock contention events on message dispatch idempotency lock.
+     *
+     * @param  array<string, string>  $labels
+     */
+    public function recordAutopilotLockContention(int $count = 1, array $labels = []): void
+    {
+        $counter = $this->counter(
+            'autopilot_lock_contention_total',
+            'Total autopilot lock contention events',
+            array_keys($labels)
+        );
+
+        $counter->incBy($count, array_values($labels));
+    }
+
     private function recordAppInfo(CollectorRegistry $registry): void
     {
         $gauge = $registry->getOrRegisterGauge(

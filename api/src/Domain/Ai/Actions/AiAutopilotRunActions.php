@@ -17,6 +17,7 @@ use Domain\Gateway\DTOs\AI\AICompletionRequest;
 use Domain\Gateway\DTOs\AI\AICompletionResponse;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Redis;
 
 /**
  * Orquestrador de Execuções e Simulações para Autopilot.
@@ -80,6 +81,16 @@ final class AiAutopilotRunActions
             $run->status = 'cancelled';
             $run->completed_at = now();
             $run->save();
+
+            Redis::connection(config('gateway.redis.connection', 'gateway'))->publish(
+                'ai.run.cancel_requested',
+                json_encode([
+                    'run_id' => (string) $run->id,
+                    'tenant_id' => (string) $run->tenant_id,
+                    'correlation_id' => (string) ($run->correlation_id ?? ''),
+                    'requested_at' => now()->toIso8601String(),
+                ], JSON_THROW_ON_ERROR)
+            );
         }
 
         return $run;

@@ -16,7 +16,8 @@ class AiAutopilotRunRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('ai.autopilots.manage');
+        return $this->user()->can('ai.autopilots.run')
+            || $this->user()->can('ai.autopilots.manage');
     }
 
     /**

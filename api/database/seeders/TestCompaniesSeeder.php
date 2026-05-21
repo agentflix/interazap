@@ -62,6 +62,8 @@ class TestCompaniesSeeder extends Seeder
             'settings.tags.manage',
             'ai.autopilot.view',
             'ai.autopilot.manage',
+            'ai.autopilots.view',
+            'ai.autopilots.run',
             'ai.knowledge.view',
             'ai.knowledge.manage',
             'ai.prompts.view',

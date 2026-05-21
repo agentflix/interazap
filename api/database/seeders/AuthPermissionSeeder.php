@@ -55,6 +55,8 @@ class AuthPermissionSeeder extends Seeder
         'settings.tags.manage',
         'ai.autopilot.view',
         'ai.autopilot.manage',
+        'ai.autopilots.view',
+        'ai.autopilots.run',
         'ai.autopilots.manage',
         'ai.knowledge.view',
         'ai.knowledge.manage',

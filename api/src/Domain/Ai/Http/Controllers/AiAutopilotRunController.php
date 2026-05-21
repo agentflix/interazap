@@ -32,7 +32,7 @@ final class AiAutopilotRunController extends BaseController
      */
     public function store(AiAutopilotRunRequest $request): JsonResponse
     {
-        $this->authorize('ai.autopilots.manage');
+        $this->authorizeForRun($request);
 
         $tenantId = (string) $request->user()->tenant_id;
         $dto = AiAutopilotRunDTO::fromRequest($request, '');
@@ -51,7 +51,7 @@ final class AiAutopilotRunController extends BaseController
      */
     public function runPlaybook(AiAutopilotRunRequest $request, string $playbookId): JsonResponse
     {
-        $this->authorize('ai.autopilots.manage');
+        $this->authorizeForRun($request);
 
         $tenantId = (string) $request->user()->tenant_id;
         $dto = AiAutopilotRunDTO::fromRequest($request, $playbookId);
@@ -69,7 +69,7 @@ final class AiAutopilotRunController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('ai.autopilots.manage');
+        $this->authorizeForView($request);
 
         $tenantId = (string) $request->user()->tenant_id;
         $paginator = $this->actions->list($tenantId);
@@ -87,7 +87,7 @@ final class AiAutopilotRunController extends BaseController
      */
     public function show(Request $request, string $id): JsonResponse
     {
-        $this->authorize('ai.autopilots.manage');
+        $this->authorizeForView($request);
 
         $tenantId = (string) $request->user()->tenant_id;
         $run = $this->actions->find($tenantId, $id);
@@ -104,11 +104,29 @@ final class AiAutopilotRunController extends BaseController
      */
     public function cancel(Request $request, string $id): JsonResponse
     {
-        $this->authorize('ai.autopilots.manage');
+        $this->authorizeForRun($request);
 
         $tenantId = (string) $request->user()->tenant_id;
         $run = $this->actions->cancel($tenantId, $id);
 
         return $this->success(new AiAutopilotRunResource($run), 'Execução cancelada');
+    }
+
+    private function authorizeForView(Request $request): void
+    {
+        if ($request->user()->can('ai.autopilots.view') || $request->user()->can('ai.autopilots.manage')) {
+            return;
+        }
+
+        $this->authorize('ai.autopilots.view');
+    }
+
+    private function authorizeForRun(Request $request): void
+    {
+        if ($request->user()->can('ai.autopilots.run') || $request->user()->can('ai.autopilots.manage')) {
+            return;
+        }
+
+        $this->authorize('ai.autopilots.run');
     }
 }

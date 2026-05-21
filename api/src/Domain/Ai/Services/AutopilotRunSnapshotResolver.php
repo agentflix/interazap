@@ -27,7 +27,9 @@ use Illuminate\Support\Facades\Log;
  */
 final class AutopilotRunSnapshotResolver
 {
-    private const int CONTEXT_CACHE_TTL_SECONDS = 300;
+    private const int SNAPSHOT_CACHE_TTL_SECONDS = 60;
+
+    private const int SNAPSHOT_INDEX_TTL_SECONDS = 3600;
 
     public function __construct(
         private readonly AiPromptResolverService $promptResolver,
@@ -42,12 +44,110 @@ final class AutopilotRunSnapshotResolver
      */
     public function resolve(string $tenantId, AiAgent $agent, string $ticketId): array
     {
+        if ($ticketId === '') {
+            return $this->buildSnapshot($tenantId, $agent, $ticketId);
+        }
+
+        $cacheKey = self::snapshotKey($tenantId, (string) $agent->id, $ticketId);
+
+        return Cache::remember(
+            $cacheKey,
+            self::SNAPSHOT_CACHE_TTL_SECONDS,
+            function () use ($tenantId, $agent, $ticketId, $cacheKey): array {
+                $snapshot = $this->buildSnapshot($tenantId, $agent, $ticketId);
+                $this->rememberSnapshotIndex($tenantId, (string) $agent->id, $ticketId, $cacheKey);
+
+                return $snapshot;
+            }
+        );
+    }
+
+    public static function forgetForTicket(string $tenantId, string $ticketId): void
+    {
+        if ($tenantId === '' || $ticketId === '') {
+            return;
+        }
+
+        $indexKey = self::ticketIndexKey($tenantId, $ticketId);
+        $keys = Cache::get($indexKey, []);
+
+        if (is_array($keys)) {
+            foreach ($keys as $key) {
+                if (is_string($key) && $key !== '') {
+                    Cache::forget($key);
+                }
+            }
+        }
+
+        Cache::forget($indexKey);
+    }
+
+    public static function forgetForAgent(string $tenantId, string $agentId): void
+    {
+        if ($tenantId === '' || $agentId === '') {
+            return;
+        }
+
+        $indexKey = self::agentIndexKey($tenantId, $agentId);
+        $keys = Cache::get($indexKey, []);
+
+        if (is_array($keys)) {
+            foreach ($keys as $key) {
+                if (is_string($key) && $key !== '') {
+                    Cache::forget($key);
+                }
+            }
+        }
+
+        Cache::forget($indexKey);
+    }
+
+    private function buildSnapshot(string $tenantId, AiAgent $agent, string $ticketId): array
+    {
         return [
             'prompt' => $this->resolvePrompt($tenantId),
             'context' => $this->resolveContext($ticketId),
             'tools' => $this->resolveTools($tenantId, $agent),
             'hydrated_at' => now()->toIso8601String(),
         ];
+    }
+
+    private static function snapshotKey(string $tenantId, string $agentId, string $ticketId): string
+    {
+        return sprintf('autopilot:snapshot:%s:%s:%s', $tenantId, $agentId, $ticketId);
+    }
+
+    private static function ticketIndexKey(string $tenantId, string $ticketId): string
+    {
+        return sprintf('autopilot:snapshot:index:ticket:%s:%s', $tenantId, $ticketId);
+    }
+
+    private static function agentIndexKey(string $tenantId, string $agentId): string
+    {
+        return sprintf('autopilot:snapshot:index:agent:%s:%s', $tenantId, $agentId);
+    }
+
+    private function rememberSnapshotIndex(string $tenantId, string $agentId, string $ticketId, string $cacheKey): void
+    {
+        $ticketIndexKey = self::ticketIndexKey($tenantId, $ticketId);
+        $agentIndexKey = self::agentIndexKey($tenantId, $agentId);
+
+        $ticketKeys = Cache::get($ticketIndexKey, []);
+        $agentKeys = Cache::get($agentIndexKey, []);
+
+        $ticketKeys = is_array($ticketKeys) ? $ticketKeys : [];
+        $agentKeys = is_array($agentKeys) ? $agentKeys : [];
+
+        if (! in_array($cacheKey, $ticketKeys, true)) {
+            $ticketKeys[] = $cacheKey;
+        }
+
+        if (! in_array($cacheKey, $agentKeys, true)) {
+            $agentKeys[] = $cacheKey;
+        }
+
+        Cache::put($ticketIndexKey, $ticketKeys, self::SNAPSHOT_INDEX_TTL_SECONDS);
+        Cache::put($agentIndexKey, $agentKeys, self::SNAPSHOT_INDEX_TTL_SECONDS);
     }
 
     private function resolvePrompt(string $tenantId): ?string
@@ -80,34 +180,30 @@ final class AutopilotRunSnapshotResolver
         }
 
         try {
-            $cacheKey = sprintf('autopilot:snapshot:context:%s', $ticketId);
+            $ticket = ChatTicket::query()->find($ticketId);
 
-            return Cache::remember($cacheKey, self::CONTEXT_CACHE_TTL_SECONDS, function () use ($ticketId): ?array {
-                $ticket = ChatTicket::query()->find($ticketId);
+            if (! $ticket instanceof ChatTicket) {
+                return null;
+            }
 
-                if (! $ticket instanceof ChatTicket) {
-                    return null;
-                }
+            $context = [
+                'ticket_id' => (string) $ticket->id,
+                'tenant_id' => (string) $ticket->tenant_id,
+                'status' => (string) $ticket->status,
+                'subject' => (string) ($ticket->subject ?? ''),
+            ];
 
-                $context = [
-                    'ticket_id' => (string) $ticket->id,
-                    'tenant_id' => (string) $ticket->tenant_id,
-                    'status' => (string) $ticket->status,
-                    'subject' => (string) ($ticket->subject ?? ''),
-                ];
+            $contactId = $ticket->contact_id ? (string) $ticket->contact_id : null;
+            $context['contact_id'] = $contactId;
+            $context['assigned_seller'] = $this->resolveAssignedSeller($ticket);
+            $context['default_seller'] = $this->resolveDefaultSeller((string) $ticket->tenant_id);
+            $context['active_negotiation'] = $this->resolveActiveNegotiation(
+                (string) $ticket->tenant_id,
+                $contactId,
+            );
+            $context['available_agents'] = $this->resolveAvailableAgents((string) $ticket->tenant_id);
 
-                $contactId = $ticket->contact_id ? (string) $ticket->contact_id : null;
-                $context['contact_id'] = $contactId;
-                $context['assigned_seller'] = $this->resolveAssignedSeller($ticket);
-                $context['default_seller'] = $this->resolveDefaultSeller((string) $ticket->tenant_id);
-                $context['active_negotiation'] = $this->resolveActiveNegotiation(
-                    (string) $ticket->tenant_id,
-                    $contactId,
-                );
-                $context['available_agents'] = $this->resolveAvailableAgents((string) $ticket->tenant_id);
-
-                return $context;
-            });
+            return $context;
         } catch (\Throwable $e) {
             Log::warning('[AutopilotRunSnapshotResolver] Failed to resolve context', [
                 'ticket_id' => $ticketId,

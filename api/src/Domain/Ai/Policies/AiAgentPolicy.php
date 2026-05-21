@@ -10,26 +10,31 @@ final class AiAgentPolicy
 {
     public function viewAny(AuthUser $user): bool
     {
-        return $user->can('ai.autopilots.manage');
+        return $this->canWithManageFallback($user, 'ai.autopilots.view');
     }
 
     public function view(AuthUser $user): bool
     {
-        return $user->can('ai.autopilots.manage');
+        return $this->canWithManageFallback($user, 'ai.autopilots.view');
     }
 
     public function create(AuthUser $user): bool
     {
-        return $user->can('ai.autopilots.manage');
+        return $this->canWithManageFallback($user, 'ai.autopilots.manage');
     }
 
     public function update(AuthUser $user): bool
     {
-        return $user->can('ai.autopilots.manage');
+        return $this->canWithManageFallback($user, 'ai.autopilots.manage');
     }
 
     public function delete(AuthUser $user): bool
     {
-        return $user->can('ai.autopilots.manage');
+        return $this->canWithManageFallback($user, 'ai.autopilots.manage');
+    }
+
+    private function canWithManageFallback(AuthUser $user, string $permission): bool
+    {
+        return $user->can($permission) || $user->can('ai.autopilots.manage');
     }
 }
