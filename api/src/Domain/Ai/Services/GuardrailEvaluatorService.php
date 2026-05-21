@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Domain\Ai\Services;
 
 use Domain\Ai\DTOs\GuardrailEvaluationResult;
+use Domain\Ai\Models\AiAutopilotGuardrail;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -22,7 +25,7 @@ final class GuardrailEvaluatorService
         array $input,
         array $output = [],
     ): GuardrailEvaluationResult {
-        $guardrails = $this->resolveGuardrails();
+        $guardrails = $this->resolveGuardrails($tenantId);
 
         $evaluations = [];
 
@@ -57,11 +60,49 @@ final class GuardrailEvaluatorService
     /**
      * @return list<array<string, mixed>>
      */
-    private function resolveGuardrails(): array
+    private function resolveGuardrails(string $tenantId): array
+    {
+        return Cache::remember(
+            $this->guardrailsCacheKey($tenantId),
+            300,
+            fn (): array => $this->mergeGuardrails($tenantId),
+        );
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function mergeGuardrails(string $tenantId): array
     {
         $configured = config('ai.autopilot.static_guardrails', []);
+        $staticGuardrails = is_array($configured) ? array_values($configured) : [];
 
-        return is_array($configured) ? array_values($configured) : [];
+        if ($tenantId === '') {
+            return $staticGuardrails;
+        }
+
+        /** @var Collection<int, AiAutopilotGuardrail> $databaseGuardrails */
+        $databaseGuardrails = AiAutopilotGuardrail::query()
+            ->where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->get();
+
+        $dbGuardrails = $databaseGuardrails
+            ->map(static fn (AiAutopilotGuardrail $guardrail): array => [
+                'id' => (string) $guardrail->id,
+                'name' => (string) $guardrail->name,
+                'rule_type' => (string) $guardrail->rule_type,
+                'conditions' => is_array($guardrail->conditions) ? $guardrail->conditions : [],
+            ])
+            ->values()
+            ->all();
+
+        return array_values([...$staticGuardrails, ...$dbGuardrails]);
+    }
+
+    private function guardrailsCacheKey(string $tenantId): string
+    {
+        return "autopilot:guardrails:tenant:{$tenantId}";
     }
 
     /**

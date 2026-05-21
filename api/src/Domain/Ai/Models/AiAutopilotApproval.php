@@ -37,6 +37,8 @@ final class AiAutopilotApproval extends Model
         'run_id',
         'status',
         'requested_action',
+        'expires_at',
+        'expired_at',
         'approved_by',
         'approved_at',
         'rejected_at',
@@ -50,6 +52,8 @@ final class AiAutopilotApproval extends Model
      */
     protected $casts = [
         'requested_action' => 'array',
+        'expires_at' => 'datetime',
+        'expired_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
     ];

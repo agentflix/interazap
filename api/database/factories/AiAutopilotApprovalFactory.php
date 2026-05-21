@@ -30,6 +30,8 @@ class AiAutopilotApprovalFactory extends Factory
                 'type' => 'tool_call',
                 'tool' => 'TransferToHumanTool',
             ],
+            'expires_at' => now()->addDay(),
+            'expired_at' => null,
             'approved_by' => null,
             'approved_at' => null,
             'rejected_at' => null,
@@ -46,6 +48,7 @@ class AiAutopilotApprovalFactory extends Factory
             'status' => 'approved',
             'approved_by' => $user?->id,
             'approved_at' => now(),
+            'expired_at' => null,
             'rejected_at' => null,
             'rejected_reason' => null,
         ]);
@@ -60,6 +63,7 @@ class AiAutopilotApprovalFactory extends Factory
             'status' => 'rejected',
             'approved_by' => null,
             'approved_at' => null,
+            'expired_at' => null,
             'rejected_at' => now(),
             'rejected_reason' => $reason,
         ]);

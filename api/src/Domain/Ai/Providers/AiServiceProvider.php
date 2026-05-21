@@ -12,7 +12,10 @@ use Domain\Ai\Console\Commands\PurgeAiUsageLogsCommand;
 use Domain\Ai\Console\Commands\ReindexAllKnowledgeDocumentsCommand;
 use Domain\Ai\Console\Commands\RunScheduledTriggersCommand;
 use Domain\Ai\Contracts\AiAgentToolPermissionServiceInterface;
+use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAgentTrigger;
+use Domain\Ai\Models\AiAutopilotGuardrail;
+use Domain\Ai\Observers\AiAgentObserver;
 use Domain\Ai\Observers\AiAgentTriggerObserver;
 use Domain\Ai\Observers\TenantPromptObserver;
 use Domain\Ai\Services\AiAgentToolPermissionService;
@@ -23,6 +26,8 @@ use Domain\Ai\Services\AiSummarizationService;
 use Domain\Ai\Services\ContextWindowManagerService;
 use Domain\Ai\Services\GuardrailEvaluatorService;
 use Domain\Ai\Services\ToolDispatcherService;
+use Domain\Chat\Models\ChatMessage;
+use Domain\Chat\Observers\MessageObserver;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
@@ -66,6 +71,9 @@ class AiServiceProvider extends ServiceProvider
     public function boot(): void
     {
         AiAgentTrigger::observe(AiAgentTriggerObserver::class);
+        AiAgent::observe(AiAgentObserver::class);
+        AiAutopilotGuardrail::observe(\Domain\Ai\Observers\AiAutopilotGuardrailObserver::class);
+        ChatMessage::observe(MessageObserver::class);
         PlatformTenant::observe(TenantPromptObserver::class);
 
         // Schedule LGPD purge job to run daily at 3 AM
