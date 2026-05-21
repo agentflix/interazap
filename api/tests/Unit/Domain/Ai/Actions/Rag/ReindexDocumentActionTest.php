@@ -9,7 +9,7 @@ use Domain\Ai\Models\AiKnowledgeChunk;
 use Domain\Ai\Models\AiKnowledgeDocument;
 use Illuminate\Support\Facades\Queue;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(\Illuminate\Foundation\Testing\LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     Queue::fake();

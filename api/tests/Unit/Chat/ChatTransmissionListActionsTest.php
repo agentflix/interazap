@@ -12,7 +12,7 @@ use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Validation\ValidationException;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(\Illuminate\Foundation\Testing\LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     Queue::fake();

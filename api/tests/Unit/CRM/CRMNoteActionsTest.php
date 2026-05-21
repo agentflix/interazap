@@ -10,7 +10,7 @@ use Domain\CRM\Models\CRMNegotiation;
 use Domain\CRM\Models\CRMNote;
 use Domain\Platform\Models\PlatformTenant;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(\Illuminate\Foundation\Testing\LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->tenant = PlatformTenant::factory()->create();

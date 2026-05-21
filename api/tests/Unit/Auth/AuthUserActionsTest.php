@@ -13,7 +13,7 @@ use Domain\Auth\Repositories\EloquentAuthUserRepository;
 use Domain\Auth\Services\AuthAvatarManager;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -22,7 +22,7 @@ use Tests\TestCase;
 
 class AuthUserActionsTest extends TestCase
 {
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
 
     public function test_create_assigns_role_and_hashes_password(): void
     {

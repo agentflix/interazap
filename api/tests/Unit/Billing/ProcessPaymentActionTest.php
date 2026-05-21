@@ -10,7 +10,7 @@ use Domain\Billing\Enums\BillingInvoiceStatus;
 use Domain\Billing\Models\BillingInvoice;
 use Domain\Billing\Models\BillingPayment;
 use Domain\Platform\Models\PlatformTenant;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;
@@ -18,7 +18,7 @@ use Tests\TestCase;
 
 class ProcessPaymentActionTest extends TestCase
 {
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
 
     private ProcessPaymentAction $action;
 

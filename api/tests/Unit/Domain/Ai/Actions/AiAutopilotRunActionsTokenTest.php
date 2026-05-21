@@ -17,10 +17,10 @@ use Domain\Ai\Services\ToolDispatcherService;
 use Domain\Gateway\DTOs\AI\AICompletionResponse;
 use Domain\Gateway\Enums\AIFinishReason;
 use Domain\Platform\Models\PlatformTenant;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 
-uses(RefreshDatabase::class);
+uses(LazilyRefreshDatabase::class);
 
 describe('AiAutopilotRunActions token aggregation', function (): void {
     it('aggregates tokens across tool iterations', function (): void {

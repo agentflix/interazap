@@ -10,7 +10,7 @@ use Domain\CRM\Models\CRMCustomFieldValue;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Validation\ValidationException;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(\Illuminate\Foundation\Testing\LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     $this->tenant = PlatformTenant::factory()->create();

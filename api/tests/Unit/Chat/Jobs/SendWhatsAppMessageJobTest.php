@@ -6,7 +6,7 @@ namespace Tests\Unit\Chat\Jobs;
 
 use Domain\Chat\Contracts\ChatWhatsAppGatewayInterface;
 use Domain\Chat\Jobs\SendWhatsAppMessageJob;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
 use PHPUnit\Framework\Attributes\Test;
@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 class SendWhatsAppMessageJobTest extends TestCase
 {
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
 
     protected function setUp(): void
     {
