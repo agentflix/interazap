@@ -6,12 +6,12 @@ namespace Domain\Ai\Jobs;
 
 use Carbon\Carbon;
 use Domain\Ai\Enums\AutopilotTriggerType;
+use Domain\Ai\Events\AiRunFailed;
 use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAgentFile;
 use Domain\Ai\Models\AiAgentTrigger;
 use Domain\Ai\Models\AiAutopilotPlaybook;
 use Domain\Ai\Models\AiAutopilotRun;
-use Domain\Ai\Models\AiAutopilotTriggerLog;
 use Domain\Ai\Observers\AiAgentTriggerObserver;
 use Domain\Ai\Services\AiContextBuilderService;
 use Domain\Ai\Services\AutopilotRunSnapshotResolver;
@@ -20,6 +20,7 @@ use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatAiActivityService;
+use Domain\Shared\Services\MetricsService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,6 +31,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * Job assíncrono para execução do dispatcher de Autopilot.
@@ -46,12 +48,18 @@ final class DispatchAutopilotRunJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $timeout = 300;
+    private const int LOCK_TTL_SECONDS = 300;
+
+    private const int RUN_ID_CACHE_TTL_SECONDS = 21600;
+
+    public int $timeout = self::LOCK_TTL_SECONDS;
 
     public int $tries = 3;
 
     /** @var array<int, int> */
     public array $backoff = [10, 60];
+
+    public ?string $runId = null;
 
     public function retryUntil(): Carbon
     {
@@ -66,6 +74,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         public readonly AutopilotTriggerType $triggerType,
         public readonly array $context,
         public readonly string $sourceId,
+        public readonly ?string $correlationId = null,
     ) {
         $this->onQueue(config('ai.autopilot.queue_name', 'ai'));
     }
@@ -79,6 +88,14 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         AutopilotRunStreamPublisher $streamPublisher,
         AiContextBuilderService $contextBuilder,
     ): void {
+        $startedAt = microtime(true);
+        $resolvedCorrelationId = $this->correlationId ?? (string) Str::orderedUuid();
+        Log::withContext([
+            'tenant_id' => $this->tenantId,
+            'source_id' => $this->sourceId,
+            'correlation_id' => $resolvedCorrelationId,
+        ]);
+
         $ticketId = (string) ($this->context['ticket_id'] ?? '');
         $messageId = (string) ($this->context['message_id'] ?? '');
         $inputText = (string) ($this->context['body'] ?? '');
@@ -86,6 +103,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
 
         // Idempotency: skip if another job already acquired the lock
         if (! $this->acquireMessageDispatchLock($messageId)) {
+            $this->recordLockContentionMetric($messageId);
             Log::info('[DispatchAutopilotRunJob] Skipping: lock already acquired', [
                 'tenant_id' => $this->tenantId,
                 'message_id' => $messageId,
@@ -125,8 +143,21 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         }
 
         $runId = (string) Str::orderedUuid();
+        // Nota de domínio: em fluxos ad-hoc/simulator o playbook_id pode ficar nulo
+        // (ver migration 2026-03-22). Neste dispatcher sempre resolvemos um playbook fallback.
         $playbookId = $this->resolvePlaybookId($agent);
-        $run = $this->createRunRecord($runId, $agent, $trigger, $ticketId, $messageId, $inputText, $instanceId);
+        $run = $this->createRunRecord(
+            $runId,
+            $resolvedCorrelationId,
+            $agent,
+            $trigger,
+            $ticketId,
+            $messageId,
+            $inputText,
+            $instanceId
+        );
+        $this->runId = $runId;
+        $this->persistRunIdForFailedHandler($runId);
         $contactId = $this->resolveContactId($ticketId);
         $modelId = is_string($agent->model_id) && $agent->model_id !== ''
             ? $agent->model_id
@@ -155,6 +186,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
             'source' => $trigger instanceof AiAgentTrigger ? 'autopilot_trigger' : 'fallback_agent',
             'trigger_type' => $this->triggerType->value,
             'source_id' => $this->sourceId,
+            'correlation_id' => $resolvedCorrelationId,
             'instance_id' => $instanceId,
             'playbook_id' => $playbookId,
             'streaming_enabled' => true,
@@ -218,6 +250,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
 
         try {
             $streamPublisher->publish($streamPayload);
+            $this->recordRunMetrics($startedAt, 'queued');
 
             $chatAiActivity->emitProcessingStarted(
                 $this->tenantId,
@@ -234,6 +267,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
             ];
             $run->completed_at = now();
             $run->save();
+            $this->recordRunMetrics($startedAt, 'failed');
 
             $chatAiActivity->emitProcessingFailed(
                 $this->tenantId,
@@ -247,6 +281,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         }
 
         $this->logTriggerExecution($trigger, $runId);
+        $this->forgetPersistedRunIdForFailedHandler();
 
         Log::info('[DispatchAutopilotRunJob] Published ai.run.request', [
             'run_id' => $runId,
@@ -452,6 +487,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
 
     private function createRunRecord(
         string $runId,
+        string $correlationId,
         AiAgent $agent,
         ?AiAgentTrigger $trigger,
         string $ticketId,
@@ -464,6 +500,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
             'tenant_id' => $this->tenantId,
             'playbook_id' => $this->resolvePlaybookId($agent),
             'status' => 'queued',
+            'correlation_id' => $correlationId,
             'playbook_version' => 1,
             'streaming_enabled' => true,
             'input_context' => [
@@ -481,6 +518,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
                 'trigger_id' => $trigger instanceof AiAgentTrigger ? (string) $trigger->id : null,
                 'trigger_type' => $this->triggerType->value,
                 'dispatch_source' => $trigger instanceof AiAgentTrigger ? 'autopilot_trigger' : 'fallback_agent',
+                'correlation_id' => $correlationId,
             ],
             'started_at' => now(),
         ]);
@@ -491,26 +529,6 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         if ($trigger instanceof AiAgentTrigger) {
             $trigger->last_run_at = now();
             $trigger->save();
-        }
-
-        if ($trigger && class_exists(AiAutopilotTriggerLog::class)) {
-            try {
-                AiAutopilotTriggerLog::query()->create([
-                    'tenant_id' => $this->tenantId,
-                    'trigger_id' => (string) $trigger->id,
-                    'run_id' => $runId,
-                    'trigger_type' => $this->triggerType->value,
-                    'source_id' => $this->sourceId,
-                    'source_type' => (string) ($this->context['source_type'] ?? 'ticket'),
-                    'playbook_id' => $trigger->getAttribute('playbook_id'),
-                    'context' => $this->context,
-                    'status' => 'dispatched',
-                ]);
-            } catch (\Throwable $e) {
-                Log::warning('[DispatchAutopilotRunJob] Failed to log trigger execution', [
-                    'error' => $e->getMessage(),
-                ]);
-            }
         }
     }
 
@@ -525,10 +543,157 @@ final class DispatchAutopilotRunJob implements ShouldQueue
         /** @var \Illuminate\Redis\Connections\Connection $redis */
         $redis = Redis::connection(config('gateway.redis.connection', 'gateway'));
         $acquired = $redis instanceof PredisConnection
-            ? $redis->client()->executeRaw(['SET', $lockKey, '1', 'EX', '60', 'NX'])
-            : $redis->set($lockKey, '1', ['EX' => 60, 'NX']);
+            ? $redis->client()->executeRaw(['SET', $lockKey, '1', 'EX', '300', 'NX'])
+            : $redis->set($lockKey, '1', ['EX' => self::LOCK_TTL_SECONDS, 'NX']);
 
         return $acquired === true || $acquired === 'OK';
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        $resolvedCorrelationId = $this->correlationId ?? $this->sourceId;
+        Log::withContext([
+            'tenant_id' => $this->tenantId,
+            'source_id' => $this->sourceId,
+            'correlation_id' => $resolvedCorrelationId,
+        ]);
+
+        if (! is_string($this->runId) || $this->runId === '') {
+            $this->runId = $this->resolvePersistedRunIdForFailedHandler();
+        }
+
+        if (! is_string($this->runId) || $this->runId === '') {
+            Log::error('[DispatchAutopilotRunJob] Job failed without persisted run id', [
+                'tenant_id' => $this->tenantId,
+                'source_id' => $this->sourceId,
+                'exception_class' => $exception::class,
+                'exception_message' => $exception->getMessage(),
+            ]);
+
+            return;
+        }
+
+        $run = AiAutopilotRun::query()
+            ->where('tenant_id', $this->tenantId)
+            ->find($this->runId);
+
+        if (! $run instanceof AiAutopilotRun) {
+            Log::error('[DispatchAutopilotRunJob] Job failed but run was not found', [
+                'run_id' => $this->runId,
+                'tenant_id' => $this->tenantId,
+                'source_id' => $this->sourceId,
+                'exception_class' => $exception::class,
+                'exception_message' => $exception->getMessage(),
+            ]);
+
+            return;
+        }
+
+        $output = is_array($run->output) ? $run->output : [];
+        $output['error'] = $exception->getMessage();
+        $output['error_code'] = 'dispatch_job_failed';
+        $output['exception_class'] = $exception::class;
+
+        $run->status = 'failed';
+        $run->output = $output;
+        $run->completed_at = now();
+        $run->save();
+        $this->recordRunMetrics(
+            $run->started_at !== null ? (float) $run->started_at->getTimestamp() : microtime(true),
+            'failed'
+        );
+
+        $inputContext = is_array($run->input_context) ? $run->input_context : [];
+        $correlationId = (string) ($inputContext['correlation_id'] ?? $this->correlationId ?? $this->sourceId);
+        $ticketId = (string) ($inputContext['ticket_id'] ?? '');
+
+        Log::error('[DispatchAutopilotRunJob] Job failed after retries exhausted', [
+            'run_id' => (string) $run->id,
+            'tenant_id' => (string) $run->tenant_id,
+            'correlation_id' => $correlationId,
+            'exception_class' => $exception::class,
+            'exception_message' => $exception->getMessage(),
+        ]);
+
+        AiRunFailed::dispatch(
+            (string) $run->tenant_id,
+            $ticketId,
+            (string) $run->id,
+            $correlationId,
+            $exception->getMessage(),
+            'dispatch_job_failed',
+        );
+        $this->forgetPersistedRunIdForFailedHandler();
+    }
+
+    private function recordRunMetrics(float $startedAt, string $status): void
+    {
+        try {
+            /** @var MetricsService $metrics */
+            $metrics = app(MetricsService::class);
+            $durationSeconds = max(0.0, microtime(true) - $startedAt);
+
+            $metrics->recordAutopilotRunDuration($durationSeconds, [
+                'tenant_id' => $this->tenantId,
+                'trigger_type' => $this->triggerType->value,
+                'status' => $status,
+            ]);
+            $metrics->recordAutopilotToolIterations(0, [
+                'tenant_id' => $this->tenantId,
+                'trigger_type' => $this->triggerType->value,
+                'status' => $status,
+            ]);
+        } catch (\Throwable) {
+            // Best effort metrics only.
+        }
+    }
+
+    private function recordLockContentionMetric(string $messageId): void
+    {
+        try {
+            /** @var MetricsService $metrics */
+            $metrics = app(MetricsService::class);
+            $metrics->recordAutopilotLockContention(1, [
+                'tenant_id' => $this->tenantId,
+                'trigger_type' => $this->triggerType->value,
+                'has_message_id' => $messageId !== '' ? 'true' : 'false',
+            ]);
+        } catch (\Throwable) {
+            // Best effort metrics only.
+        }
+    }
+
+    private function persistRunIdForFailedHandler(string $runId): void
+    {
+        Cache::put(
+            $this->runIdCacheKeyForFailedHandler(),
+            $runId,
+            now()->addSeconds(self::RUN_ID_CACHE_TTL_SECONDS)
+        );
+    }
+
+    private function resolvePersistedRunIdForFailedHandler(): ?string
+    {
+        $resolved = Cache::get($this->runIdCacheKeyForFailedHandler());
+
+        return is_string($resolved) && $resolved !== '' ? $resolved : null;
+    }
+
+    private function forgetPersistedRunIdForFailedHandler(): void
+    {
+        Cache::forget($this->runIdCacheKeyForFailedHandler());
+    }
+
+    private function runIdCacheKeyForFailedHandler(): string
+    {
+        $messageId = (string) ($this->context['message_id'] ?? '');
+        $sourceDiscriminator = $messageId !== '' ? $messageId : $this->sourceId;
+
+        return sprintf(
+            'autopilot:dispatch:run-id:tenant:%s:source:%s',
+            $this->tenantId,
+            $sourceDiscriminator
+        );
     }
 
     /**

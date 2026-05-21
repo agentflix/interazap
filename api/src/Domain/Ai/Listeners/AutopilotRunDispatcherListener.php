@@ -35,6 +35,7 @@ final class AutopilotRunDispatcherListener
             triggerType: $event->triggerType,
             context: $event->context,
             sourceId: $event->sourceId,
+            correlationId: $event->correlationId,
         );
     }
 }

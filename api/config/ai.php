@@ -11,6 +11,15 @@ return [
         'compact_tool_results' => (bool) env('AI_COMPACT_TOOL_RESULTS', true),
         'queue_connection' => (string) env('AI_AUTOPILOT_QUEUE_CONNECTION', 'redis'),
         'queue_name' => (string) env('AI_AUTOPILOT_QUEUE_NAME', 'ai'),
+        'input_sanitization' => [
+            'max_chars' => (int) env('AI_AUTOPILOT_INPUT_MAX_CHARS', 4000),
+            'delimiters' => ['<<<', '>>>', '<|', '|>'],
+            'injection_patterns' => [
+                '/ignore\s+previous\s+instructions/i',
+                '/system\s+prompt/i',
+                '/you\s+are\s+now/i',
+            ],
+        ],
     ],
     'autopilot_v2' => [
         'enabled' => (bool) env('AI_AUTOPILOT_CORE_V2_ENABLED', false),

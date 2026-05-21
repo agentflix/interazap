@@ -44,6 +44,7 @@ class AiAutopilotRun extends Model
         'classifier_result',
         'classifier_tokens',
         'status',
+        'correlation_id',
         'playbook_version',
         'input_context',
         'output',
@@ -92,5 +93,17 @@ class AiAutopilotRun extends Model
     public function parentRun(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_run_id');
+    }
+
+    /**
+     * `playbook_id` nulo representa uma run ad-hoc.
+     *
+     * Decisão introduzida na migration 2026-03-22 (V2 ad-hoc runs e simulator):
+     * a execução pode nascer sem playbook explícito quando disparada por gatilho
+     * dinâmico/simulação e o fluxo define o roteiro em runtime.
+     */
+    public function isAdHoc(): bool
+    {
+        return $this->playbook_id === null;
     }
 }
