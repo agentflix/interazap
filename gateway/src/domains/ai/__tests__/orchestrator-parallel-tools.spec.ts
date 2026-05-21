@@ -7,6 +7,7 @@ import { ToolExecutorService } from '../services/tool-executor.service';
 import { GuardrailEvaluatorService } from '../services/guardrail-evaluator.service';
 import { StreamHandlerService } from '../services/stream-handler.service';
 import { AiMetricsService } from '../services/ai-metrics.service';
+import { AiCancellationRegistry } from '../ai-cancellation.registry';
 
 type CompletionResponse = {
   content: string;
@@ -59,6 +60,12 @@ const buildMocks = () => {
     recordSnapshotResolution: jest.fn(),
   } as unknown as jest.Mocked<AiMetricsService>;
 
+  const cancellationRegistry = {
+    markCancelled: jest.fn().mockResolvedValue(undefined),
+    isCancelled: jest.fn().mockResolvedValue(false),
+    clear: jest.fn().mockResolvedValue(undefined),
+  } as unknown as jest.Mocked<AiCancellationRegistry>;
+
   return {
     openaiProvider,
     promptAssembler,
@@ -68,6 +75,7 @@ const buildMocks = () => {
     guardrail,
     streamHandler,
     aiMetrics,
+    cancellationRegistry,
   };
 };
 
@@ -96,6 +104,8 @@ describe('AiRunOrchestratorService parallel tools', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete
@@ -151,6 +161,8 @@ describe('AiRunOrchestratorService parallel tools', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete
@@ -201,6 +213,8 @@ describe('AiRunOrchestratorService parallel tools', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -252,6 +266,8 @@ describe('AiRunOrchestratorService parallel tools', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({

@@ -8,6 +8,7 @@ use Domain\Ai\Enums\AutopilotTriggerType;
 use Domain\Ai\Jobs\DispatchAutopilotRunJob;
 use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAgentTrigger;
+use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Ai\Models\AiAutopilotTool;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Services\ChatActivityBroadcastService;
@@ -130,6 +131,7 @@ final class DispatchAutopilotRunJobExecutionTest extends TestCase
                 'source_type' => 'ticket',
             ],
             sourceId: $ticketId,
+            correlationId: (string) Str::orderedUuid(),
         );
 
         $job->handle(
@@ -143,7 +145,12 @@ final class DispatchAutopilotRunJobExecutionTest extends TestCase
             ->and($capturedPayload)->toHaveKey('agent_id')
             ->and($capturedPayload['agent_id'])->toBe((string) $agent->id)
             ->and($capturedPayload)->toHaveKey('event', 'ai.run.request')
-            ->and($capturedPayload)->toHaveKey('tenant_id', (string) $tenant->id);
+            ->and($capturedPayload)->toHaveKey('tenant_id', (string) $tenant->id)
+            ->and($capturedPayload)->toHaveKey('correlation_id');
+
+        $run = AiAutopilotRun::query()->find($capturedPayload['run_id']);
+        expect($run)->not->toBeNull()
+            ->and($run?->correlation_id)->toBe($capturedPayload['correlation_id']);
     }
 
     public function test_job_payload_does_not_depend_on_agent_role(): void

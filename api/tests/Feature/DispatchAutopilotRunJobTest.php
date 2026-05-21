@@ -25,6 +25,8 @@ final class DispatchAutopilotRunJobTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
+    private const int TIMEOUT = 300;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -56,7 +58,9 @@ final class DispatchAutopilotRunJobTest extends TestCase
             && $job->triggerType === AutopilotTriggerType::INBOUND_MESSAGE
             && ($job->context['ticket_id'] ?? '') === $ticketId
             && ($job->context['message_id'] ?? '') === $messageId
-            && $job->sourceId === $ticketId);
+            && $job->sourceId === $ticketId
+            && is_string($job->correlationId)
+            && $job->correlationId !== '');
     }
 
     public function test_listener_does_not_dispatch_when_tenant_id_is_empty(): void
@@ -131,5 +135,47 @@ final class DispatchAutopilotRunJobTest extends TestCase
         app(AutopilotRunDispatcherListener::class)->handle($event);
 
         Bus::assertDispatched(DispatchAutopilotRunJob::class, fn (DispatchAutopilotRunJob $job): bool => $job->tries === 3);
+    }
+
+    public function test_lock_ttl_matches_job_timeout(): void
+    {
+        $job = new DispatchAutopilotRunJob(
+            tenantId: (string) Str::orderedUuid(),
+            triggerType: AutopilotTriggerType::INBOUND_MESSAGE,
+            context: ['ticket_id' => (string) Str::orderedUuid()],
+            sourceId: (string) Str::orderedUuid(),
+        );
+
+        $reflection = new \ReflectionClass($job);
+        $lockTtlSeconds = $reflection->getConstant('LOCK_TTL_SECONDS');
+
+        $this->assertSame(self::TIMEOUT, $lockTtlSeconds);
+        $this->assertSame(self::TIMEOUT, $job->timeout);
+    }
+
+    public function test_event_generates_correlation_id_when_not_provided(): void
+    {
+        $event = new AutopilotTriggerFired(
+            tenantId: (string) Str::orderedUuid(),
+            triggerType: AutopilotTriggerType::INBOUND_MESSAGE,
+            context: ['ticket_id' => (string) Str::orderedUuid()],
+            sourceId: (string) Str::orderedUuid(),
+        );
+
+        $this->assertNotSame('', $event->correlationId);
+    }
+
+    public function test_event_keeps_custom_correlation_id(): void
+    {
+        $correlationId = (string) Str::orderedUuid();
+        $event = new AutopilotTriggerFired(
+            tenantId: (string) Str::orderedUuid(),
+            triggerType: AutopilotTriggerType::INBOUND_MESSAGE,
+            context: ['ticket_id' => (string) Str::orderedUuid()],
+            sourceId: (string) Str::orderedUuid(),
+            correlationId: $correlationId,
+        );
+
+        $this->assertSame($correlationId, $event->correlationId);
     }
 }

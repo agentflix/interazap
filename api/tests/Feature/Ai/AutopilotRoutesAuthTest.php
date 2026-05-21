@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Ai;
 
+use Domain\Ai\Models\AiAutopilotRun;
+use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthUser;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -120,5 +122,58 @@ final class AutopilotRoutesAuthTest extends TestCase
             [401, 403],
             'Internal route must reject requests without the internal API key'
         );
+    }
+
+    public function test_user_with_view_permission_can_list_runs_but_cannot_start_run(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $user = AuthUser::factory()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+        ]);
+
+        $this->grantPermission($user, 'ai.autopilots.view');
+        Sanctum::actingAs($user);
+
+        $listResponse = $this->getJson('/api/ai/runs');
+        $createResponse = $this->postJson('/api/ai/runs', ['context' => []]);
+
+        $this->assertNotSame(403, $listResponse->getStatusCode(), 'view permission should allow listing runs');
+        $createResponse->assertStatus(403);
+    }
+
+    public function test_user_with_run_permission_can_start_and_cancel_run_but_cannot_list_runs(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $user = AuthUser::factory()->create([
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => (string) $tenant->id,
+        ]);
+
+        $this->grantPermission($user, 'ai.autopilots.run');
+        Sanctum::actingAs($user);
+
+        $run = AiAutopilotRun::factory()->create([
+            'tenant_id' => (string) $tenant->id,
+            'status' => 'queued',
+        ]);
+
+        $listResponse = $this->getJson('/api/ai/runs');
+        $createResponse = $this->postJson('/api/ai/runs', ['context' => ['agent_role' => 'general']]);
+        $cancelResponse = $this->patchJson("/api/ai/runs/{$run->id}/cancel");
+
+        $listResponse->assertStatus(403);
+        $this->assertNotSame(403, $createResponse->getStatusCode(), 'run permission should allow creating runs');
+        $this->assertNotSame(403, $cancelResponse->getStatusCode(), 'run permission should allow cancelling runs');
+    }
+
+    private function grantPermission(AuthUser $user, string $permissionName): void
+    {
+        $permission = AuthPermission::query()->firstOrCreate(
+            ['name' => $permissionName, 'guard_name' => 'sanctum'],
+            ['id' => (string) Str::orderedUuid()]
+        );
+
+        $user->givePermissionTo($permission);
     }
 }

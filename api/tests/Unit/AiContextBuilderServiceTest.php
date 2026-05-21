@@ -99,7 +99,7 @@ class AiContextBuilderServiceTest extends TestCase
         $this->assertSame('support', $context['ticket']['department']);
         $this->assertSame('Maria Silva', $context['contact']['name']);
         $this->assertSame('5511999999999', $context['contact']['phone']);
-        $this->assertSame('Olá', $context['current_input']);
+        $this->assertSame("<<<USER_INPUT>>>\nOlá\n<<<END>>>", $context['current_input']);
 
         $this->assertContains('User: Olá', $context['conversation_history']);
         $this->assertContains('Agent: Como posso ajudar?', $context['conversation_history']);

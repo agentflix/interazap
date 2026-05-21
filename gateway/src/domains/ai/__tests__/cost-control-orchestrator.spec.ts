@@ -7,6 +7,7 @@ import { ToolExecutorService } from '../services/tool-executor.service';
 import { GuardrailEvaluatorService } from '../services/guardrail-evaluator.service';
 import { StreamHandlerService } from '../services/stream-handler.service';
 import { AiMetricsService } from '../services/ai-metrics.service';
+import { AiCancellationRegistry } from '../ai-cancellation.registry';
 
 type CompletionResponse = {
   content: string;
@@ -89,6 +90,12 @@ const buildMocks = () => {
     recordSnapshotResolution: jest.fn(),
   } as unknown as jest.Mocked<AiMetricsService>;
 
+  const cancellationRegistry = {
+    markCancelled: jest.fn().mockResolvedValue(undefined),
+    isCancelled: jest.fn().mockResolvedValue(false),
+    clear: jest.fn().mockResolvedValue(undefined),
+  } as unknown as jest.Mocked<AiCancellationRegistry>;
+
   return {
     openaiProvider,
     promptAssembler,
@@ -98,6 +105,7 @@ const buildMocks = () => {
     guardrail,
     streamHandler,
     aiMetrics,
+    cancellationRegistry,
   };
 };
 
@@ -125,6 +133,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete
@@ -215,6 +225,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -261,6 +273,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -280,7 +294,15 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       maxToolIterations: 5,
     });
 
-    expect(mocks.toolExecutor.executeTool).not.toHaveBeenCalled();
+    expect(mocks.toolExecutor.executeTool).toHaveBeenCalledTimes(1);
+    expect(mocks.toolExecutor.executeTool).toHaveBeenCalledWith(
+      'send_message',
+      expect.any(Object),
+      expect.objectContaining({
+        runId: 'run-1',
+        tenantId: 'tenant-1',
+      }),
+    );
     expect(response['early_exit_reason']).toBe('token_budget_exceeded');
     expect(response['iterations_count']).toBe(1);
     expect(mocks.aiMetrics.recordIterationsPerRun).toHaveBeenCalledWith(
@@ -309,6 +331,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -363,6 +387,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete
@@ -412,6 +438,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     const longText = 'x'.repeat(2000);
@@ -473,6 +501,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -518,6 +548,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -552,6 +584,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -597,6 +631,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.promptAssembler.resolvePrompt.mockResolvedValueOnce(
@@ -642,6 +678,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     const warnSpy = jest
@@ -687,6 +725,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete
@@ -746,6 +786,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -763,8 +805,16 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       runTokenBudget: 1000,
     });
 
-    // Loop should break immediately — no tool executions, 1 iteration recorded
-    expect(mocks.toolExecutor.executeTool).not.toHaveBeenCalled();
+    // Loop should break immediately; finalizer may emit implicit send_message.
+    expect(mocks.toolExecutor.executeTool).toHaveBeenCalledTimes(1);
+    expect(mocks.toolExecutor.executeTool).toHaveBeenCalledWith(
+      'send_message',
+      expect.any(Object),
+      expect.objectContaining({
+        runId: 'run-1',
+        tenantId: 'tenant-1',
+      }),
+    );
     expect(response['iterations_count']).toBe(1);
     expect(response['early_exit_reason']).toBeNull();
   });
@@ -780,6 +830,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     const bigPayload = { key: 'x'.repeat(1000) };
@@ -842,6 +894,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete
@@ -901,6 +955,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     // OpenAI native format with type:'function' and arguments as JSON string
@@ -958,6 +1014,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     // Valid JSON but not an array — parseToolCalls should return []
@@ -976,7 +1034,15 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       runTokenBudget: 1000,
     });
 
-    expect(mocks.toolExecutor.executeTool).not.toHaveBeenCalled();
+    expect(mocks.toolExecutor.executeTool).toHaveBeenCalledTimes(1);
+    expect(mocks.toolExecutor.executeTool).toHaveBeenCalledWith(
+      'send_message',
+      expect.any(Object),
+      expect.objectContaining({
+        runId: 'run-1',
+        tenantId: 'tenant-1',
+      }),
+    );
     expect(response['iterations_count']).toBe(1);
     expect(response['early_exit_reason']).toBeNull();
   });
@@ -992,6 +1058,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     // args containing array and multi-key object → exercises normalizeForHash array+sort paths
@@ -1046,6 +1114,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     // null arguments — toObject(null) returns {} defensively
@@ -1083,6 +1153,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     // First item is a number (non-object), second is valid — only second runs
@@ -1124,6 +1196,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     // fn.arguments is a string but NOT valid JSON
@@ -1184,6 +1258,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -1214,6 +1290,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -1236,6 +1314,7 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       'run-1',
       'streaming response content',
       undefined,
+      'corr-1',
     );
   });
 
@@ -1250,6 +1329,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     // arguments is an array — toObject([]) returns {} defensively (L474)
@@ -1304,6 +1385,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -1339,6 +1422,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     const timeoutError = new Error('timeout of 20000ms exceeded');
@@ -1372,6 +1457,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete
@@ -1426,6 +1513,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
@@ -1473,6 +1562,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     // 3 iterations of tool_calls (maxToolIterations=3), then fallback completion
@@ -1568,6 +1659,8 @@ describe('Cost control orchestrator (PRD-AI-004 phase 2)', () => {
       mocks.guardrail,
       mocks.streamHandler,
       mocks.aiMetrics,
+      undefined,
+      mocks.cancellationRegistry,
     );
 
     mocks.openaiProvider.complete.mockResolvedValueOnce({
