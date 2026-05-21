@@ -48,6 +48,7 @@ All files live in `src/Domain/{Domain}/` following this structure:
 ## Testing
 
 - Pest feature tests in `tests/Feature/{Domain}{Entity}Test.php`
+- Official API test execution must use `vendor/bin/pest --parallel --exclude-testsuite=E2E` (through `composer test` / `composer gate:all`); run `composer test:e2e` separately when E2E validation is required
 - `actingAs()` with tenant-scoped user
 - Assert response structure, status codes, DB state
 - 0 skipped tests, ≥80% coverage
@@ -55,8 +56,11 @@ All files live in `src/Domain/{Domain}/` following this structure:
 ## Gates
 
 ```bash
-composer gate:all    # format → analyse → test → refactor
+composer gate:fast   # format + analyse:changed (loop rápido de desenvolvimento/IA)
+composer gate:all    # format → analyse(full) → test (pest --parallel --exclude-testsuite=E2E) → refactor
 ```
+
+Opcional: para incluir também mudanças já commitadas da branch no incremental, use `PHPSTAN_BASE_REF=origin/main composer analyse:changed`.
 
 Auto-fix: `composer format`
 

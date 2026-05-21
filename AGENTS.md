@@ -12,6 +12,8 @@
 - BullMQ queues somente em gateway/
 - PSR-12 (PHP) · Angular Style Guide (TS) · Conventional Commits (git)
 - Tenant isolation obrigatória em toda query
+- Testes oficiais da `api/` devem usar Pest com `--parallel` e `--exclude-testsuite=E2E` (via `composer test` e `composer gate:all`); E2E roda separado com `composer test:e2e`
+- Durante desenvolvimento em `api/`, IA pode usar `composer analyse:changed` (ou `composer gate:fast`) para feedback rápido; antes de concluir deve executar `composer gate:all`
 
 ## 🗂️ Contexto
 

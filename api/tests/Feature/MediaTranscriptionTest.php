@@ -228,15 +228,15 @@ class MediaTranscriptionTest extends TestCase
             'media_transcription_status' => AiMediaTranscriptionStatus::COMPLETED->value,
             'media_transcription_tokens' => 150,
             'media_transcription_cost' => 0.005,
-            'media_transcribed_at' => now(),
         ]);
 
-        $message->refresh();
-        $this->assertSame('Test transcription', $message->media_transcription);
-        $this->assertSame('openai', $message->media_transcription_provider);
-        $this->assertSame(AiMediaTranscriptionStatus::COMPLETED->value, $message->media_transcription_status);
-        $this->assertSame(150, $message->media_transcription_tokens);
-        $this->assertEqualsWithDelta(0.005, $message->media_transcription_cost, 0.0001);
+        $extended = $message->extended()->first();
+        $this->assertNotNull($extended);
+        $this->assertSame('Test transcription', $extended->media_transcription);
+        $this->assertSame('openai', $extended->media_transcription_provider);
+        $this->assertSame(AiMediaTranscriptionStatus::COMPLETED->value, $extended->media_transcription_status);
+        $this->assertSame(150, $extended->media_transcription_tokens);
+        $this->assertEqualsWithDelta(0.005, (float) $extended->media_transcription_cost, 0.0001);
     }
 
     // ─── Job Tests ───

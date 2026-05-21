@@ -49,3 +49,4 @@ package-lock.json
 
 # PREVEC session files — comunicacao temporaria entre agents
 .context/.session/
+/api/--cache-directory

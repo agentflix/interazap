@@ -8,6 +8,10 @@ Rode apenas os gates dos workspaces alterados. Se um comando não puder rodar, r
 cd api && composer gate:all
 ```
 
+`composer gate:all` na API executa `composer test`, que deve usar Pest com `--parallel --exclude-testsuite=E2E`. E2E roda separado via `composer test:e2e` quando necessário.
+Para ciclo rápido de desenvolvimento/IA, é permitido `cd api && composer gate:fast`, mas não substitui o gate completo.
+Se precisar incluir commits já feitos na branch no incremental: `cd api && PHPSTAN_BASE_REF=origin/main composer analyse:changed`.
+
 Quando precisar isolar falha:
 
 ```bash

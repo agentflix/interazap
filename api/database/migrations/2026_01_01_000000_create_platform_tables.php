@@ -22,8 +22,15 @@ return new class extends Migration
     public function up(): void
     {
         if (! Schema::hasTable('platform_plans')) {
-            DB::statement('DROP TYPE IF EXISTS platform_reports_mode');
-            DB::statement("CREATE TYPE platform_reports_mode AS ENUM ('BASIC', 'ADVANCED', 'FULL')");
+            DB::statement(<<<'SQL'
+DO $$
+BEGIN
+    CREATE TYPE platform_reports_mode AS ENUM ('BASIC', 'ADVANCED', 'FULL');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END
+$$;
+SQL);
 
             Schema::create('platform_plans', function (Blueprint $table): void {
                 $table->uuid('id')->primary()->comment('Identificador único do plano (UUID v7)');
@@ -166,5 +173,6 @@ return new class extends Migration
         Schema::dropIfExists('platform_uazapi_instances');
         Schema::dropIfExists('platform_tenants');
         Schema::dropIfExists('platform_plans');
+        DB::statement('DROP TYPE IF EXISTS platform_reports_mode');
     }
 };

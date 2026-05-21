@@ -31,6 +31,8 @@ Nenhuma task avança para CONFIRM sem aprovação do REVIEWER.
 6. Commit só após review aprovado e gates passando
 7. MEMORY obrigatório se houve decisão técnica ou armadilha na task
 8. Ao final de toda ação concluída: mostrar o próximo comando com argumentos reais — nunca deixar o usuário sem saber o que digitar em seguida
+9. Em validações da `api/`, executar testes pelo fluxo oficial com Pest `--parallel --exclude-testsuite=E2E` (via `composer gate:all` ou `composer test`); E2E deve rodar separado com `composer test:e2e` quando aplicável
+10. `composer analyse:changed`/`composer gate:fast` é apenas aceleração de desenvolvimento; aprovação final exige gate completo
 
 ## Modes
 
@@ -63,7 +65,7 @@ Executar obrigatoriamente em subagent distinto para não contaminar o contexto:
 
 1. Carregar skill `code-review-confiavel`: ler `.context/skills/code-review-confiavel/SKILL.md`
 2. Abrir **7 subagents separados — um por revisor** conforme `references/reviewers.md`. Não executar inline. Não reduzir para menos de 7.
-3. Rodar gates completos da stack: `.context/WORKFLOW/validation-flow.md`
+3. Rodar gates completos da stack: `.context/WORKFLOW/validation-flow.md` (na `api/`, usar `composer gate:all`, que inclui Pest `--parallel --exclude-testsuite=E2E`)
 4. Executar second pass: reler diff inteiro e listar o que foi verificado e está limpo
 5. Executar meta-review: descartar achados sem evidência, duplicados, especulativos
 6. Responder com: achados por severidade, gates executados, risco residual

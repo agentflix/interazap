@@ -7,23 +7,29 @@ Gates executados pelo REVIEWER (modo VALIDATION) após cada task implementada.
 ## API — Laravel 12 (api/)
 
 ```bash
-# Lint/format (se configurado)
-cd api && ./vendor/bin/pint --test
+# Gate oficial completo (inclui Pest com --parallel --exclude-testsuite=E2E)
+cd api && composer gate:all
 
-# Testes unitários e de integração
-php artisan test
+# Quando precisar isolar falha
+cd api && composer format
+cd api && composer analyse
+cd api && composer test
+
+# E2E (se necessário para a task)
+cd api && composer test:e2e
+cd api && composer refactor
 
 # Testes com coverage (opcional)
-php artisan test --coverage
+cd api && composer test:coverage
 
 # Verificar migration sem erros
-php artisan migrate:fresh --seed
+cd api && php artisan migrate:fresh --seed
 
 # Static analysis (se configurado)
-./vendor/bin/phpstan analyse
+cd api && composer analyse
 ```
 
-**Gates mínimos:** `php artisan test` deve passar sem falhas.
+**Gates mínimos:** `cd api && composer gate:all` deve passar sem falhas.
 
 ---
 

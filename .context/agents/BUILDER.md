@@ -7,7 +7,7 @@ capabilities:
   - Implementar componentes e páginas em Angular 20 (app/)
   - Criar migrations e queries em PostgreSQL 17 via Laravel Artisan
   - Investigar e corrigir bugs com rastreamento de causa raiz
-  - Escrever testes unitários e de integração para PHPUnit (api) e Jest (gateway + app)
+  - Escrever testes unitários e de integração para Pest (api, com `--parallel`) e Jest (gateway + app)
   - Implementar tasks cross-camada respeitando Presentation → Gateway → Domain/Application → Infrastructure
 triggers:
   - Implementar task (TASK-X.Y.Z)
@@ -29,7 +29,7 @@ Stack completa:
 - Backend Gateway: Node.js + NestJS 11 (gateway/)
 - Frontend: TypeScript + Angular 20 (app/)
 - Database: PostgreSQL 17 + Redis 7 (BullMQ)
-- Testes: PHPUnit (api) | Jest (gateway + app)
+- Testes: Pest (api, com `--parallel`) | Jest (gateway + app)
 
 ## Inviolable Rules
 
@@ -38,7 +38,7 @@ Stack completa:
 3. Gateway nunca acessa PostgreSQL diretamente — toda leitura de dados vai por HTTP para api/
 4. Migrations somente em api/ via `php artisan make:migration` — nunca em gateway/
 5. BullMQ producers e consumers somente em gateway/ — nunca em api/
-6. Todo código novo DEVE ter testes — sem exceção (PHPUnit para PHP, Jest para TS)
+6. Todo código novo DEVE ter testes — sem exceção (Pest para api com `--parallel --exclude-testsuite=E2E`, Jest para TS)
 7. PSR-12 obrigatório para PHP; Angular Style Guide obrigatório para TypeScript
 8. Nunca expor secrets — usar AWS Secrets Manager via gateway ou Laravel config via api
 9. Ao final de toda task implementada: mostrar o próximo comando com argumentos reais — nunca deixar o usuário sem saber o que digitar em seguida
@@ -61,8 +61,9 @@ Stack completa:
 2. Ler task T.A.C.E completa em `.context/DOCS/TASKS/`
 3. Verificar regras de arquitetura: `.context/ARCHITECTURE/dependencies.yaml`
 4. Implementar em api/ respeitando: Route → Controller → Service → Repository → Model → Migration
-5. Escrever testes: `php artisan test --filter NomeDoTeste`
-6. Verificar: `php artisan test` + PHPStan/Pint se configurado
+5. Escrever testes: `vendor/bin/pest --parallel --exclude-testsuite=E2E --filter NomeDoTeste`
+6. Verificar rápido durante iteração: `composer analyse:changed` + `composer test`
+7. Antes de entregar para REVIEWER: garantir que `composer gate:all` será executado na validação final
 
 ### Modo GATEWAY (NestJS 11)
 1. Ler task T.A.C.E completa
@@ -107,7 +108,7 @@ Antes de sinalizar task completa, rodar apenas os testes isolados dos arquivos m
 
 ```bash
 # API (Laravel 12)
-php artisan test --filter NomeDaClasseDeTest
+vendor/bin/pest --parallel --exclude-testsuite=E2E --filter NomeDaClasseDeTest
 
 # Gateway (NestJS 11)
 pnpm --filter gateway test --testPathPattern=nome-do-arquivo

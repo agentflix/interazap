@@ -72,7 +72,7 @@ final class RegisterSalesInterestTool implements AiToolInterface
 
         if ($negotiation === null && $ticket->contact_id !== null) {
             $negotiation = $this->createNegotiationFromTicket($tenantId, $input->parameters, $ticket, $seller?->id);
-            $createdNegotiation = $negotiation instanceof CRMNegotiation;
+            $createdNegotiation = true;
         }
 
         $notification = null;
@@ -199,7 +199,7 @@ final class RegisterSalesInterestTool implements AiToolInterface
         array $parameters,
         ChatTicket $ticket,
         ?string $sellerId,
-    ): ?CRMNegotiation {
+    ): CRMNegotiation {
         $step = CRMNegotiationFunnelStep::query()
             ->where('tenant_id', $tenantId)
             ->where('is_active', true)

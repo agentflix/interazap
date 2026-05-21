@@ -75,8 +75,18 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
         ],
-        "test": "vendor/bin/pest --parallel",
-        "test:no-parallel": "vendor/bin/pest",
+        "test": [
+            "Composer\\Config::disableProcessTimeout",
+            "vendor/bin/pest --parallel --exclude-testsuite=E2E"
+        ],
+        "test:no-parallel": [
+            "Composer\\Config::disableProcessTimeout",
+            "vendor/bin/pest --exclude-testsuite=E2E"
+        ],
+        "test:e2e": [
+            "Composer\\Config::disableProcessTimeout",
+            "vendor/bin/pest --testsuite=E2E"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
@@ -99,7 +109,10 @@
         ],
         "format": "vendor/bin/pint",
         "format:test": "vendor/bin/pint --test",
-        "analyse": "@php ./bin/larastan analyse --memory-limit=2G",
+        "analyse": "@analyse:full",
+        "analyse:full": "@php ./bin/larastan analyse --memory-limit=2G",
+        "analyse:changed": "@php ./bin/phpstan-changed --memory-limit=2G",
+        "analyse:ci": "@php ./bin/larastan analyse --memory-limit=2G --fail-without-result-cache",
         "test:coverage": "XDEBUG_MODE=coverage php -d memory_limit=512M vendor/bin/pest --coverage",
         "test:coverage:min": "XDEBUG_MODE=coverage php -d memory_limit=512M vendor/bin/pest --coverage --min=80",
         "refactor": "vendor/bin/rector process",
@@ -112,8 +125,15 @@
             "sh -c \"composer analyse || (echo '\\n❌ Análise estática falhou!\\n' && exit 1)\"",
             "echo '✅ Gate 2/4: Análise estática OK'"
         ],
+        "gate:fast": [
+            "echo '\n⚡ Executando gate rápido (IA/dev loop)...\n'",
+            "@gate:format",
+            "sh -c \"composer analyse:changed || (echo '\\n❌ Análise incremental falhou!\\n' && exit 1)\"",
+            "echo '\n✅ Gate rápido OK. Antes de concluir, execute: composer gate:all\\n'"
+        ],
         "gate:test": [
-            "sh -c \"php -d pcov.enabled=0 -d memory_limit=2G vendor/bin/pest --parallel || (echo '\\n❌ Testes falharam!\\n' && exit 1)\"",
+            "Composer\\Config::disableProcessTimeout",
+            "sh -c \"php -d pcov.enabled=0 -d memory_limit=2G vendor/bin/pest --parallel --exclude-testsuite=E2E || (echo '\\n❌ Testes falharam!\\n' && exit 1)\"",
             "echo '✅ Gate 3/4: Testes OK'"
         ],
         "gate:refactor": [

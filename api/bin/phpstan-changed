@@ -1,0 +1,189 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Run PHPStan only on changed PHP files in analysis paths.
+ *
+ * Uses only local changed files by default (fastest dev loop).
+ * If PHPSTAN_BASE_REF is set, also includes diff against that base ref.
+ */
+
+$projectRoot = dirname(__DIR__);
+chdir($projectRoot);
+
+/** @var list<string> $analysisRoots */
+$analysisRoots = ['app/', 'config/', 'database/', 'routes/', 'src/'];
+
+/**
+ * @return list<string>
+ */
+function collectFilesFromCommand(string $command): array
+{
+    $output = shell_exec($command);
+
+    if (! is_string($output) || trim($output) === '') {
+        return [];
+    }
+
+    $lines = preg_split('/\R/', trim($output));
+    if (! is_array($lines)) {
+        return [];
+    }
+
+    /** @var list<string> $files */
+    $files = [];
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line !== '') {
+            $files[] = $line;
+        }
+    }
+
+    return $files;
+}
+
+function isValidGitRef(string $ref): bool
+{
+    if ($ref === '') {
+        return false;
+    }
+
+    $command = sprintf(
+        'git rev-parse --verify --quiet %s >/dev/null 2>&1',
+        escapeshellarg($ref)
+    );
+
+    exec($command, $ignoredOutput, $exitCode);
+
+    return $exitCode === 0;
+}
+
+/**
+ * @param  list<string>  $roots
+ */
+function isInAnalysisRoots(string $path, array $roots): bool
+{
+    foreach ($roots as $root) {
+        if (str_starts_with($path, $root)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function normalizeToApiRelativePath(string $path): string
+{
+    $normalized = ltrim($path, './');
+
+    if (str_starts_with($normalized, 'api/')) {
+        $normalized = substr($normalized, 4);
+    }
+
+    return $normalized;
+}
+
+$preferredBase = getenv('PHPSTAN_BASE_REF');
+
+/** @var list<string> $baseCandidates */
+$baseCandidates = [];
+if (is_string($preferredBase) && trim($preferredBase) !== '') {
+    $baseCandidates = array_values(array_unique(array_filter([
+        trim($preferredBase),
+        'origin/main',
+        'main',
+        'origin/master',
+        'master',
+    ])));
+}
+
+$resolvedBaseRef = null;
+foreach ($baseCandidates as $candidate) {
+    if (isValidGitRef($candidate)) {
+        $resolvedBaseRef = $candidate;
+        break;
+    }
+}
+
+/** @var list<string> $changedFiles */
+$changedFiles = [];
+
+if (is_string($resolvedBaseRef) && $resolvedBaseRef !== '') {
+    $changedFiles = array_merge(
+        $changedFiles,
+        collectFilesFromCommand(sprintf(
+            'git diff --name-only --diff-filter=ACMR %s...HEAD',
+            escapeshellarg($resolvedBaseRef)
+        ))
+    );
+}
+
+$changedFiles = array_merge(
+    $changedFiles,
+    collectFilesFromCommand('git diff --name-only --diff-filter=ACMR'),
+    collectFilesFromCommand('git diff --name-only --cached --diff-filter=ACMR'),
+    collectFilesFromCommand('git ls-files --others --exclude-standard')
+);
+
+$changedFiles = array_values(array_unique($changedFiles));
+
+/** @var list<string> $phpFiles */
+$phpFiles = [];
+foreach ($changedFiles as $file) {
+    $normalizedFile = normalizeToApiRelativePath($file);
+
+    if (! str_ends_with($normalizedFile, '.php')) {
+        continue;
+    }
+
+    if (! isInAnalysisRoots($normalizedFile, $analysisRoots)) {
+        continue;
+    }
+
+    if (! is_file($normalizedFile)) {
+        continue;
+    }
+
+    $phpFiles[] = $normalizedFile;
+}
+
+/** @var list<string> $phpFiles */
+$phpFiles = array_values(array_unique($phpFiles));
+
+if ($phpFiles === []) {
+    echo "No changed PHP files in app/, config/, database/, routes/, src/. Skipping PHPStan.\n";
+    exit(0);
+}
+
+sort($phpFiles);
+
+$phpBinary = escapeshellarg(PHP_BINARY);
+$phpstanBin = escapeshellarg($projectRoot . '/vendor/bin/phpstan');
+
+$args = array_slice($_SERVER['argv'], 1);
+$escapedArgs = array_map('escapeshellarg', $args);
+$escapedFiles = array_map('escapeshellarg', $phpFiles);
+
+echo sprintf(
+    "Running PHPStan on %d changed PHP file(s)%s\n",
+    count($phpFiles),
+    is_string($resolvedBaseRef) ? " (base: {$resolvedBaseRef})" : ''
+);
+
+$commandParts = [
+    $phpBinary,
+    $phpstanBin,
+    'analyse',
+];
+
+if ($escapedArgs !== []) {
+    $commandParts[] = implode(' ', $escapedArgs);
+}
+
+$commandParts[] = implode(' ', $escapedFiles);
+$command = implode(' ', $commandParts);
+
+passthru($command, $exitCode);
+
+exit($exitCode);
