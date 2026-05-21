@@ -37,6 +37,7 @@ $scripts = [
     'test-11-permissions',
     'test-12-full-flow',
     'test-13-chat-simulation',
+    'test-14-chat-fullstack',
 ];
 
 foreach ($scripts as $script) {
