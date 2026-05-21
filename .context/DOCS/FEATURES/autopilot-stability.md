@@ -1,6 +1,6 @@
 # Feature: autopilot-stability
 
-**Status:** [x] Em planejamento | [ ] Em execução | [ ] Concluída
+**Status:** [ ] Em planejamento | [ ] Em execução | [x] Concluída
 **Data:** 2026-05-20
 **PRD:** `.context/DOCS/PRDS/0001-PRD-autopilot-stability.md`
 
@@ -9,7 +9,7 @@
 - PRD: .context/DOCS/PRDS/0001-PRD-autopilot-stability.md
 - Bounded Context: ai/autopilot (api/src/Domain/Ai + gateway/src/domains/ai)
 - Complexidade: G
-- Status: 🟡 Em Planning
+- Status: ✅ Concluída
 
 ## Visão Geral
 
