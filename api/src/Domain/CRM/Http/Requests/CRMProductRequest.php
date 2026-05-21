@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Domain\CRM\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
  * Validação para produto/serviço do CRM.
@@ -22,15 +23,23 @@ class CRMProductRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
+        $tenantId = $this->user()?->tenant_id;
+        $productId = $this->route('id');
+
+        $uniqueCodeRule = Rule::unique('crm_products', 'code')
+            ->where(fn ($query) => $query->where('tenant_id', $tenantId));
+
+        if (is_string($productId) && $productId !== '') {
+            $uniqueCodeRule = $uniqueCodeRule->ignore($productId, 'id');
+        }
+
         return [
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['nullable', 'string', 'max:100'],
+            'code' => ['nullable', 'string', 'max:100', $uniqueCodeRule],
             'description' => ['nullable', 'string'],
             'type' => ['nullable', 'string', 'in:product,service'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -42,6 +51,13 @@ class CRMProductRequest extends FormRequest
             'is_featured' => ['nullable', 'boolean'],
             'track_stock' => ['nullable', 'boolean'],
             'stock' => ['nullable', 'integer', 'min:0'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'code.unique' => 'Este código já está sendo usado por outro produto da sua empresa.',
         ];
     }
 }
