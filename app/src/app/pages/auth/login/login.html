@@ -54,11 +54,6 @@
             autocomplete="off"
           />
 
-          <div class="mb-2 flex justify-end">
-            <a routerLink="/auth/reset-password" class="text-primary-500 font-medium text-sm">
-              Esqueceu a senha?
-            </a>
-          </div>
           <af-password-input
             [control]="form.controls.password"
             label="Senha"
@@ -69,8 +64,11 @@
             autocomplete="off"
           />
 
-          <div class="mb-4">
+          <div class="mb-4 flex items-center justify-between">
             <af-checkbox-input [control]="form.controls.remember" label="Lembrar de mim" />
+            <a routerLink="/auth/reset-password" class="text-primary-500 font-medium text-sm">
+              Esqueceu a senha?
+            </a>
           </div>
         } @else {
           <af-otp-input
