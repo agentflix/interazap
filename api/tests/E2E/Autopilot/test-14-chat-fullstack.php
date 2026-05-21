@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Domain\Ai\Enums\AiToolEnum;
-use Domain\Ai\Enums\AutopilotTriggerType;
 use Domain\Ai\Models\AiAgent;
 use Domain\Ai\Models\AiAgentDelegation;
 use Domain\Ai\Models\AiAutopilotRun;
@@ -13,7 +12,6 @@ use Domain\Chat\Models\ChatTicket;
 use Domain\Platform\Models\PlatformPlan;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
 require_once __DIR__.'/helpers.php';

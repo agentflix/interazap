@@ -55,25 +55,25 @@ Cinco fases priorizadas por impacto em produção:
 5. [RF05] Migration adiciona coluna `expires_at` em `ai_autopilot_approvals`. Backfill: `UPDATE ai_autopilot_approvals SET expires_at = LEAST(created_at + INTERVAL '24 hours', NOW()) WHERE status='pending'`. Approvals com `created_at + 24h < now()` ficam expirados imediatamente — cleanup job marca como `expired` (não `rejected`, para distinguir cause). Default em novas approvals: `created_at + 24h`.
 6. [RF06] Job `AutopilotApprovalExpiryJob` (cron hourly): para cada approval `status=pending` com `expires_at < now()` → status=`expired`, run associada → `status=failed` + log estruturado.
 7. [RF07] UUID `correlation_id` gerado no `AutopilotTriggerFired` deve ser:
-   - Persistido em `ai_autopilot_runs.correlation_id` (nova coluna nullable, indexed).
-   - Propagado em payload `ai.run.request` Redis/BullMQ → gateway.
-   - Adicionado em todos `Log::*` calls do job/listener (via `Log::withContext`).
-   - Logado em gateway (`gateway/src/domains/ai/`) em todos eventos do run lifecycle.
-   - Propagado em request HTTP de volta ao api se houver callback.
+    - Persistido em `ai_autopilot_runs.correlation_id` (nova coluna nullable, indexed).
+    - Propagado em payload `ai.run.request` Redis/BullMQ → gateway.
+    - Adicionado em todos `Log::*` calls do job/listener (via `Log::withContext`).
+    - Logado em gateway (`gateway/src/domains/ai/`) em todos eventos do run lifecycle.
+    - Propagado em request HTTP de volta ao api se houver callback.
 8. [RF08] **Expandir** `MetricsService` existente (`api/src/Domain/Shared/Services/MetricsService.php`) com novos métodos:
-   - `recordAutopilotRunDuration(float $seconds, array $labels)` — emitido em `failed()`/completion.
-   - `recordAutopilotToolIterations(int $count, array $labels)`.
-   - `recordAutopilotApprovalWaitTime(float $seconds, array $labels)`.
-   - `recordAutopilotLockContention(array $labels)` — incrementado em `acquireMessageDispatchLock` quando retorna false.
-   - Validar dashboards Grafana (`observability/grafana/dashboards/autopilot-*.json`) consumindo métricas.
+    - `recordAutopilotRunDuration(float $seconds, array $labels)` — emitido em `failed()`/completion.
+    - `recordAutopilotToolIterations(int $count, array $labels)`.
+    - `recordAutopilotApprovalWaitTime(float $seconds, array $labels)`.
+    - `recordAutopilotLockContention(array $labels)` — incrementado em `acquireMessageDispatchLock` quando retorna false.
+    - Validar dashboards Grafana (`observability/grafana/dashboards/autopilot-*.json`) consumindo métricas.
 9. [RF09] Testes Feature/E2E novos:
-   - `test_run_marked_failed_when_gateway_timeout()` — mock gateway timeout > stale threshold.
-   - `test_tool_handler_exception_marks_action_failed()`.
-   - `test_guardrail_block_aborts_run_with_reason()`.
-   - `test_approval_expired_marks_run_failed()`.
-   - `test_approval_rejected_marks_run_failed()`.
-   - `test_concurrent_webhooks_create_single_run()` — Redis real, 2 dispatches paralelos.
-   - `test_correlation_id_persisted_and_logged()`.
+    - `test_run_marked_failed_when_gateway_timeout()` — mock gateway timeout > stale threshold.
+    - `test_tool_handler_exception_marks_action_failed()`.
+    - `test_guardrail_block_aborts_run_with_reason()`.
+    - `test_approval_expired_marks_run_failed()`.
+    - `test_approval_rejected_marks_run_failed()`.
+    - `test_concurrent_webhooks_create_single_run()` — Redis real, 2 dispatches paralelos.
+    - `test_correlation_id_persisted_and_logged()`.
 10. [RF10] Criar permissões granulares no seeder de permissions:
     - `ai.autopilots.view` (GET endpoints).
     - `ai.autopilots.run` (POST run/cancel).
@@ -153,10 +153,10 @@ Sem UI nova. Diagrama do fluxo Autopilot estabilizado:
          → Gemini Provider (@google/generative-ai)  [NOTE: provider real, não Claude]
          → tool loop (max 5 iter, max 800 tokens)
          → publish ai.run.completed | ai.run.failed | ai.run.blocked
-  
+
   on failure → DispatchAutopilotRunJob::failed()  ← FIX RF01
   on cancel → ai.run.cancel_requested → gateway aborta  ← FIX RF15
-  
+
 Background:
   → AutopilotZombieRunCleanupJob (cron 1min)  ← FIX RF03
   → AutopilotApprovalExpiryJob (cron 1h)  ← FIX RF06
@@ -172,16 +172,16 @@ Background:
 
 ## Riscos
 
-| ID | Risco | Probabilidade | Impacto | Mitigação | Responsável |
-|---|---|---|---|---|---|
-| R1 | TTL=300s bloqueia retry legítimo da mesma msg | Baixa | Médio | Trade-off documentado: idempotência > retry manual em janela 5min | Backend |
-| R2 | Lock multi-pod sem SET NX atômico | Baixa | Alto | Já usa `SET NX EX` (atômico) — validar em staging com Redis Sentinel | Backend |
-| R3 | Guardrails DB-driven aumenta latência | Baixa | Médio | Cache Redis TTL=5min, invalidado por observer | Backend |
-| R4 | Backfill `expires_at` afeta approvals históricas | Alta | Baixo | Migration usa `LEAST()` + status=`expired` para stale antigas | Backend |
-| R5 | Permission split quebra deploy zero-downtime | Média | Alto | Migration adiciona perms, mantém `manage` como superset temporário; remoção em fase 2 | Backend |
-| R6 | Remover TriggerLog tem referência não encontrada | Baixa | Médio | Grep completo + busca por string em factories/seeders | Backend |
-| R7 | Cancelamento propagado sem ack do gateway | Média | Médio | Implementar com timeout + retry; aceita inconsistência transiente | Gateway |
-| R8 | Sanitização de prompt remove conteúdo legítimo | Média | Baixo | Lista de regex versionada via config + observabilidade de matches | Backend |
+| ID  | Risco                                            | Probabilidade | Impacto | Mitigação                                                                             | Responsável |
+| --- | ------------------------------------------------ | ------------- | ------- | ------------------------------------------------------------------------------------- | ----------- |
+| R1  | TTL=300s bloqueia retry legítimo da mesma msg    | Baixa         | Médio   | Trade-off documentado: idempotência > retry manual em janela 5min                     | Backend     |
+| R2  | Lock multi-pod sem SET NX atômico                | Baixa         | Alto    | Já usa `SET NX EX` (atômico) — validar em staging com Redis Sentinel                  | Backend     |
+| R3  | Guardrails DB-driven aumenta latência            | Baixa         | Médio   | Cache Redis TTL=5min, invalidado por observer                                         | Backend     |
+| R4  | Backfill `expires_at` afeta approvals históricas | Alta          | Baixo   | Migration usa `LEAST()` + status=`expired` para stale antigas                         | Backend     |
+| R5  | Permission split quebra deploy zero-downtime     | Média         | Alto    | Migration adiciona perms, mantém `manage` como superset temporário; remoção em fase 2 | Backend     |
+| R6  | Remover TriggerLog tem referência não encontrada | Baixa         | Médio   | Grep completo + busca por string em factories/seeders                                 | Backend     |
+| R7  | Cancelamento propagado sem ack do gateway        | Média         | Médio   | Implementar com timeout + retry; aceita inconsistência transiente                     | Gateway     |
+| R8  | Sanitização de prompt remove conteúdo legítimo   | Média         | Baixo   | Lista de regex versionada via config + observabilidade de matches                     | Backend     |
 
 ## Cronograma Estimado
 
@@ -198,7 +198,9 @@ Complexidade: **G (Grande)** — 16 RFs, alteração em api + gateway, migration
 
 ## Revisões
 
-| Data | Autor | Mudança |
-|---|---|---|
-| 2026-05-20 | Rafael Silva | Criação baseada em análise estática do módulo |
+| Data       | Autor        | Mudança                                                                                                                                                                                                                                                                      |
+| ---------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-05-20 | Rafael Silva | Criação baseada em análise estática do módulo                                                                                                                                                                                                                                |
 | 2026-05-20 | Rafael Silva | v1.1: correção provider Gemini (não Claude); MetricsService expansão (não criação); RF13 → RF14 documentação playbook nullable; novos RF15 (cancel propagation) e RF16 (cleanup backup); critérios verificáveis com comandos; cronograma +20% buffer; riscos com responsável |
+
+/d

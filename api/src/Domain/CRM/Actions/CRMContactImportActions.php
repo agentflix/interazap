@@ -36,10 +36,7 @@ final class CRMContactImportActions
 
         $instance = $this->resolveInstance($dto->tenantId, $dto->instanceId);
         $token = $instance?->token;
-
-        if (! $token) {
-            throw new RuntimeException('Nenhuma instância Uazapi ativa configurada.');
-        }
+        // Uazapi é opcional — sem instância conectada, importa só no banco local
 
         $summary = [
             'processed' => 0,
@@ -53,7 +50,7 @@ final class CRMContactImportActions
         $seen = [];
         $batch = [];
         $batchSize = 200;
-        $remoteNumbers = $this->fetchRemoteNumbers($token);
+        $remoteNumbers = $token ? $this->fetchRemoteNumbers($token) : [];
 
         foreach ($this->readCsvRows($dto->filePath, $dto->delimiter) as $index => $row) {
             $row = array_values($row);
@@ -120,7 +117,9 @@ final class CRMContactImportActions
             $this->persistBatch($dto->tenantId, $token, $batch, $summary);
         }
 
-        return $summary;
+        return array_merge($summary, [
+            'uazapi_synced' => $token !== null,
+        ]);
     }
 
     /**
@@ -210,7 +209,7 @@ final class CRMContactImportActions
      * @param  array<int, array{name: string, phone: string, email: string|null, company: string|null}>  $batch
      * @param  array{processed:int,imported:int,skipped:int,failed:int,errors:list<array{line?:int,message:string}>}  $summary
      */
-    private function persistBatch(string $tenantId, string $token, array $batch, array &$summary): void
+    private function persistBatch(string $tenantId, ?string $token, array $batch, array &$summary): void
     {
         try {
             $payload = array_map(static fn (array $item) => [
@@ -218,7 +217,9 @@ final class CRMContactImportActions
                 'name' => $item['name'],
             ], $batch);
 
-            $this->uazapi->syncContactsList($token, $payload);
+            if ($token) {
+                $this->uazapi->syncContactsList($token, $payload);
+            }
 
             DB::transaction(function () use ($tenantId, $batch, &$summary): void {
                 $now = now();
