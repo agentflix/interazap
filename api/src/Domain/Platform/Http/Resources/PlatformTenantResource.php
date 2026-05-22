@@ -43,6 +43,7 @@ final class PlatformTenantResource extends BaseJsonResource
             'zipcode' => $this->zip_code,
             'is_active' => (bool) $this->is_active,
             'segment_id' => $this->segment_id,
+            'segment_name' => $this->segment?->name,
             'plan_id' => $this->plan_id,
             'created_at' => $this->iso($this->created_at),
             'updated_at' => $this->iso($this->updated_at),

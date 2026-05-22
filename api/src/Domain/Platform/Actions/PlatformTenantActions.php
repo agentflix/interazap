@@ -33,7 +33,7 @@ final class PlatformTenantActions
         $sortDir = $this->sanitizeSortDirection($filters['sort_dir'] ?? 'asc');
         $perPage = $this->sanitizePerPage((int) ($filters['per_page'] ?? 15));
 
-        return $query->orderBy($sortBy, $sortDir)->paginate($perPage);
+        return $query->with('segment')->orderBy($sortBy, $sortDir)->paginate($perPage);
     }
 
     /**
@@ -87,6 +87,10 @@ final class PlatformTenantActions
             return $dto->segmentId;
         }
 
+        if ($dto->segmentId !== null) {
+            return $dto->segmentId;
+        }
+
         $forcedSegment = AiPromptSegment::query()
             ->where('code', PlatformTenantBootstrapCatalogService::FORCED_SUPER_ADMIN_SEGMENT_CODE)
             ->first();
@@ -101,7 +105,7 @@ final class PlatformTenantActions
             return $generalSegment->id;
         }
 
-        return $dto->segmentId;
+        return null;
     }
 
     public function update(PlatformTenant $tenant, PlatformTenantDTO $dto): PlatformTenant

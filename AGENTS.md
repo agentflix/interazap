@@ -26,6 +26,37 @@
 | `.context/DOCS/` | Features, Tasks, PRDs, Memory |
 | `.context/WORKFLOW/` | PREVC.md, validation-flow.md |
 
+## 🗂️ Mapa de Diretórios
+
+### Backend (api/)
+| Path | Conteúdo |
+|---|---|
+| `api/src/Domain/{Feature}/Actions/` | Business logic — ponto de entrada do controller |
+| `api/src/Domain/{Feature}/Http/Controllers/` | Controllers REST |
+| `api/src/Domain/{Feature}/Http/Resources/` | Transformers de resposta JSON |
+| `api/src/Domain/{Feature}/Http/Requests/` | Form requests + validação |
+| `api/src/Domain/{Feature}/Models/` | Eloquent models |
+| `api/src/Domain/{Feature}/Routes/` | Definição de rotas |
+| `api/database/migrations/` | Migrations — nunca criar fora daqui |
+
+### Frontend (app/)
+| Path | Conteúdo |
+|---|---|
+| `app/src/app/pages/{domain}/` | Páginas Angular por domínio |
+| `app/src/app/core/models/` | Interfaces TypeScript (Company, Auth, etc.) |
+| `app/src/app/core/services/` | Services HTTP |
+| `app/src/app/shared/` | Componentes e models compartilhados |
+| `app/src/app/pages/platform/` | Área de plataforma (super admin) |
+| `app/src/app/pages/ai/` | Área de IA — models em `ai.model.ts` |
+
+## 📖 Glossário de Aliases
+
+| Termo de negócio | Backend | Frontend |
+|---|---|---|
+| Inquilino / Tenant | `PlatformTenant` (`Domain/Platform`) | `Company` (`core/models/company.model.ts`) |
+| Seguimento / Segment | `AiPromptSegment` (`Domain/Ai`) | `SegmentPrompt` (`pages/ai/models/ai.model.ts`) |
+| Plano | `PlatformPlan` (`Domain/Platform`) | `PlatformPlan` (`pages/platform/models`) |
+
 ## 🏗️ Architecture
 
 | Arquivo | Descrição |

@@ -31,7 +31,7 @@ return new class extends Migration
                 $suffix = substr($ids[$i], 0, 8);
                 DB::table('crm_products')
                     ->where('id', $ids[$i])
-                    ->update(['code' => $duplicate->code . '-' . $suffix]);
+                    ->update(['code' => $duplicate->code.'-'.$suffix]);
             }
         }
 

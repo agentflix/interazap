@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
   inject,
@@ -29,7 +30,7 @@ import { PlatformPlanService } from '@platform/services/platform-plan.service';
 import { type AddressData, type CnpjData, UtilsService } from '@core/services/utils.service';
 import { AiGovernanceService } from '@core/services/ai-governance.service';
 import { ToastService } from '@core/services/toast.service';
-import { buildAddressLine, digitsOnly, normalizeUf } from './tenant-form.utils';
+import { buildAddressLine, digitsOnly, formatCepForForm, normalizeUf } from './tenant-form.utils';
 
 @Component({
   selector: 'app-tenant-form',
@@ -70,6 +71,7 @@ export class TenantFormComponent {
   readonly isSaving = signal(false);
   readonly isSearchingCnpj = signal(false);
   readonly isSearchingCep = signal(false);
+  readonly isCreateMode = computed(() => this.tenant() === null);
   readonly lookupFeedback = signal<string | null>(null);
   readonly segmentOptions = signal<AfSelectOption[]>([]);
   readonly planOptions = signal<AfSelectOption[]>([]);
@@ -133,10 +135,16 @@ export class TenantFormComponent {
     state: this.fb.control('', { nonNullable: true }),
     zip_code: this.fb.control('', {
       nonNullable: true,
-      validators: [Validators.pattern(/^\d{8}$/)],
+      validators: [Validators.pattern(/^\d{8}$|^\d{5}-\d{3}$/)],
     }),
-    segment_id: this.fb.control('', { nonNullable: true }),
-    plan_id: this.fb.control('', { nonNullable: true }),
+    segment_id: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    plan_id: this.fb.control('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
     is_active: this.fb.control(true, { nonNullable: true }),
   });
 
@@ -197,6 +205,8 @@ export class TenantFormComponent {
       });
 
       this.form.controls.plan_id.disable();
+      this.form.controls.segment_id.removeValidators(Validators.required);
+      this.form.controls.segment_id.updateValueAndValidity();
       this.resetAutofillState();
       this.form.markAsPristine();
     });
@@ -371,7 +381,7 @@ export class TenantFormComponent {
     this.patchIfNotManual('district', data.district || '');
     this.patchIfNotManual('city', data.city || '');
     this.patchIfNotManual('state', normalizeUf(data.state || ''));
-    this.patchIfNotManual('zip_code', digitsOnly(data.zip || ''));
+    this.patchIfNotManual('zip_code', formatCepForForm(data.zip || ''));
     const normalizedPhone = this.splitPhone(data.phone ?? undefined);
     this.patchIfNotManual('phone', normalizedPhone.local);
 
@@ -451,6 +461,8 @@ export class TenantFormComponent {
     });
 
     this.form.controls.plan_id.enable();
+    this.form.controls.segment_id.setValidators([Validators.required]);
+    this.form.controls.segment_id.updateValueAndValidity();
     this.resetAutofillState();
     this.form.markAsPristine();
   }

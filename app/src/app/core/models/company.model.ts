@@ -6,6 +6,7 @@ export interface Company {
   id: string | number;
   name: string;
   segment_id?: string | null;
+  segment_name?: string | null;
   document?: string;
   email?: string;
   phone?: string;

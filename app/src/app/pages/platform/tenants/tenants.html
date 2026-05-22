@@ -8,7 +8,7 @@
       [empty]="isEmpty()"
       emptyTitle="Nenhum inquilino encontrado"
       emptyDescription="Comece adicionando seu primeiro inquilino ao sistema."
-      [skeletonColumns]="7"
+      [skeletonColumns]="6"
       [skeletonRows]="6"
       [currentPage]="meta().current_page"
       [lastPage]="meta().last_page"
@@ -75,8 +75,7 @@
                 [currentDir]="sortDir()"
                 (sortChange)="onSort($event)"
               ></th>
-              <th>E-mail</th>
-              <th>Telefone</th>
+              <th>Seguimento</th>
               <th>Plano</th>
               <th>Status</th>
               <th class="text-right">Ações</th>
@@ -103,10 +102,7 @@
                   </div>
                 </td>
                 <td class="text-sm text-neutral-600 dark:text-neutral-400">
-                  {{ tenant.email || tenant.primary_email || '—' }}
-                </td>
-                <td class="text-sm text-neutral-600 dark:text-neutral-400">
-                  {{ formatPhone(tenant.phone) }}
+                  {{ tenant.segment_name || '—' }}
                 </td>
                 <td class="text-sm text-neutral-600 dark:text-neutral-400">
                   {{ planLabel(tenant) }}

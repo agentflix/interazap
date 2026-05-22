@@ -56,6 +56,7 @@
       [control]="form.controls.segment_id"
       [options]="segmentOptions()"
       placeholder="Selecione"
+      [required]="isCreateMode()"
       dataTest="tenant-form-segment"
     />
   </div>
@@ -66,6 +67,7 @@
       [control]="form.controls.plan_id"
       [options]="planOptions()"
       placeholder="Selecione"
+      [required]="isCreateMode()"
       dataTest="tenant-form-plan"
     />
 
