@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OpenAIProviderAdapter } from '../providers/openai/openai-provider.adapter';
 import { PromptAssemblerService } from './prompt-assembler.service';
@@ -44,7 +44,7 @@ export class AiRunOrchestratorService {
     private readonly guardrail: GuardrailEvaluatorService,
     private readonly streamHandler: StreamHandlerService,
     private readonly aiMetrics: AiMetricsService,
-    private readonly configService: ConfigService | undefined,
+    @Optional() private readonly configService: ConfigService,
     private readonly cancellationRegistry: AiCancellationRegistry,
   ) {
     const configured = this.configService?.get<string | number>(
