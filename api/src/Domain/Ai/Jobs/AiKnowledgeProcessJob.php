@@ -74,6 +74,7 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
 
     public function __construct(
         public readonly string $documentId,
+        public readonly string $tenantId,
     ) {}
 
     /**
@@ -94,7 +95,7 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
     ): void {
         $gatewayBroadcastService = $broadcastService ?? app(GatewayBroadcastService::class);
 
-        $document = AiKnowledgeDocument::find($this->documentId);
+        $document = AiKnowledgeDocument::query()->where('tenant_id', $this->tenantId)->find($this->documentId);
 
         if (! $document) {
             Log::warning('Document not found for processing', ['document_id' => $this->documentId]);
@@ -527,7 +528,7 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
             'error' => $normalizedErrorMessage,
         ]);
 
-        $document = AiKnowledgeDocument::find($this->documentId);
+        $document = AiKnowledgeDocument::query()->where('tenant_id', $this->tenantId)->find($this->documentId);
         if ($document) {
             $document->update([
                 'embedding_status' => AiEmbeddingStatus::FAILED,

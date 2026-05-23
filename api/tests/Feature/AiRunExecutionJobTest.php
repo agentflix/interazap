@@ -50,7 +50,7 @@ final class AiRunExecutionJobTest extends TestCase
             ->with('gateway')
             ->andReturn($redis);
 
-        (new AiRunExecutionJob((string) $run->id))->handle(app(\Domain\Ai\Actions\AiAutopilotRunActions::class));
+        (new AiRunExecutionJob((string) $run->id, (string) $run->tenant_id))->handle(app(\Domain\Ai\Actions\AiAutopilotRunActions::class));
     }
 
     public function test_does_not_publish_delegation_result_without_parent_run(): void
@@ -70,6 +70,6 @@ final class AiRunExecutionJobTest extends TestCase
             ->with('gateway')
             ->andReturn($redis);
 
-        (new AiRunExecutionJob((string) $run->id))->handle(app(\Domain\Ai\Actions\AiAutopilotRunActions::class));
+        (new AiRunExecutionJob((string) $run->id, (string) $run->tenant_id))->handle(app(\Domain\Ai\Actions\AiAutopilotRunActions::class));
     }
 }

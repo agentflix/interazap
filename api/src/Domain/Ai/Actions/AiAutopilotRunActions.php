@@ -244,7 +244,7 @@ final class AiAutopilotRunActions
     {
         $run = $this->initiate($tenantId, $dto);
 
-        AiRunExecutionJob::dispatch($run->id);
+        AiRunExecutionJob::dispatch($run->id, (string) $run->tenant_id);
 
         return $run;
     }

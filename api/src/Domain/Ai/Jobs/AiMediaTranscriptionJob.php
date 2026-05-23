@@ -68,7 +68,7 @@ final class AiMediaTranscriptionJob implements ShouldQueue
             'mime_type' => $this->mimeType,
         ]);
 
-        $message = ChatMessage::find($this->messageId);
+        $message = ChatMessage::query()->where('tenant_id', $this->tenantId)->find($this->messageId);
         if (! $message) {
             logger()->warning('[AiMediaTranscriptionJob] Mensagem não encontrada', [
                 'message_id' => $this->messageId,

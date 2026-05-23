@@ -42,7 +42,7 @@ final class ReindexDocumentAction
         ]);
 
         // Dispatch processing job
-        AiKnowledgeProcessJob::dispatch($document->id);
+        AiKnowledgeProcessJob::dispatch($document->id, (string) $document->tenant_id);
 
         return $document->fresh() ?? $document;
     }

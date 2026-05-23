@@ -51,7 +51,7 @@ describe('AiKnowledgeProcessJob', function (): void {
                 array_fill(0, $dimensions, 0.2),
             ]);
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();
@@ -90,7 +90,7 @@ describe('AiKnowledgeProcessJob', function (): void {
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.2)]);
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();
@@ -127,7 +127,7 @@ describe('AiKnowledgeProcessJob', function (): void {
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.2)]);
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();
@@ -136,7 +136,7 @@ describe('AiKnowledgeProcessJob', function (): void {
     });
 
     it('declares retry configuration explicitly', function (): void {
-        $job = new AiKnowledgeProcessJob('doc-id');
+        $job = new AiKnowledgeProcessJob('doc-id', '');
 
         expect($job->maxTries)->toBe(3)
             ->and($job->backoff)->toBe([60, 300, 600]);
@@ -174,7 +174,7 @@ describe('AiKnowledgeProcessJob', function (): void {
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.9)]);
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();
@@ -222,7 +222,7 @@ describe('AiKnowledgeProcessJob', function (): void {
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.3)]);
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();
@@ -260,7 +260,7 @@ describe('AiKnowledgeProcessJob', function (): void {
                 array_fill(0, 1536, 0.1),
             ]);
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();
@@ -286,7 +286,7 @@ describe('AiKnowledgeProcessJob', function (): void {
 
         $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
 
         expect(fn () => $job->handle($chunkingService, $embeddingService))
             ->toThrow(RuntimeException::class);
@@ -321,7 +321,7 @@ describe('AiKnowledgeProcessJob', function (): void {
         $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
         $embeddingService->shouldNotReceive('embedBatch');
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();
@@ -347,7 +347,7 @@ describe('AiKnowledgeProcessJob', function (): void {
         $embeddingService = \Mockery::mock(AiEmbeddingServiceInterface::class);
         $embeddingService->shouldNotReceive('embedBatch');
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();
@@ -363,7 +363,7 @@ describe('AiKnowledgeProcessJob', function (): void {
             ->pending()
             ->create();
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->failed(new RuntimeException('Failure'));
 
         $document->refresh();

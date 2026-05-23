@@ -94,7 +94,7 @@ final class GuardrailBlockTest extends TestCase
             guardrailEvaluator: new GuardrailEvaluatorService
         );
 
-        (new AiRunExecutionJob((string) $run->id))->handle($actions);
+        (new AiRunExecutionJob((string) $run->id, (string) $run->tenant_id))->handle($actions);
 
         $run->refresh();
         $this->assertSame('blocked', (string) $run->status);

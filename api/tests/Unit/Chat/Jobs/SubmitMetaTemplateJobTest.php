@@ -43,7 +43,7 @@ it('atualiza external_id e status em sucesso', function (): void {
         ], 200),
     ]);
 
-    (new SubmitMetaTemplateJob((string) $this->template->id))->handle();
+    (new SubmitMetaTemplateJob((string) $this->template->id, (string) $this->template->tenant_id))->handle();
 
     $this->template->refresh();
     expect($this->template->external_id)->toBe('meta_ext_999')
@@ -61,11 +61,11 @@ it('lança exceção quando gateway retorna erro HTTP', function (): void {
         '*/channels/*/templates' => Http::response(['error' => 'invalid'], 400),
     ]);
 
-    (new SubmitMetaTemplateJob((string) $this->template->id))->handle();
+    (new SubmitMetaTemplateJob((string) $this->template->id, (string) $this->template->tenant_id))->handle();
 })->throws(RuntimeException::class);
 
 it('marca template como rejected em failed()', function (): void {
-    $job = new SubmitMetaTemplateJob((string) $this->template->id);
+    $job = new SubmitMetaTemplateJob((string) $this->template->id, (string) $this->template->tenant_id);
     $job->failed(new RuntimeException('Meta API rejected: invalid components'));
 
     $this->template->refresh();

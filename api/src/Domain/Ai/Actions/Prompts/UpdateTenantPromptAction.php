@@ -69,7 +69,7 @@ final class UpdateTenantPromptAction
         }
 
         // 4. Dispatch Guardian Job
-        AiPromptGuardianJob::dispatch($tenantPrompt->id);
+        AiPromptGuardianJob::dispatch($tenantPrompt->id, (string) $tenantPrompt->tenant_id);
 
         return $tenantPrompt->refresh();
     }

@@ -30,8 +30,10 @@ final class SubmitMetaTemplateJob implements ShouldQueue
 
     public int $timeout = 30;
 
-    public function __construct(private readonly string $templateId)
-    {
+    public function __construct(
+        private readonly string $templateId,
+        private readonly string $tenantId,
+    ) {
         $this->onQueue('meta-templates');
     }
 
@@ -47,7 +49,7 @@ final class SubmitMetaTemplateJob implements ShouldQueue
 
     public function handle(): void
     {
-        $template = ChatMessageTemplate::query()->find($this->templateId);
+        $template = ChatMessageTemplate::query()->where('tenant_id', $this->tenantId)->find($this->templateId);
 
         if (! $template instanceof ChatMessageTemplate) {
             Log::warning('[SubmitMetaTemplateJob] Template não encontrado', [
@@ -116,7 +118,7 @@ final class SubmitMetaTemplateJob implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
-        $template = ChatMessageTemplate::query()->find($this->templateId);
+        $template = ChatMessageTemplate::query()->where('tenant_id', $this->tenantId)->find($this->templateId);
 
         if (! $template instanceof ChatMessageTemplate) {
             return;

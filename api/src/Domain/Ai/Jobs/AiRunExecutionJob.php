@@ -36,7 +36,10 @@ final class AiRunExecutionJob implements ShouldQueue
     /** @var array<int,int> */
     public array $backoff = [5, 15, 30];
 
-    public function __construct(public readonly string $runId) {}
+    public function __construct(
+        public readonly string $runId,
+        public readonly string $tenantId,
+    ) {}
 
     public function handle(AiAutopilotRunActions $actions): void
     {
@@ -47,7 +50,7 @@ final class AiRunExecutionJob implements ShouldQueue
             return; // Another worker is already processing
         }
 
-        $run = AiAutopilotRun::query()->findOrFail($this->runId);
+        $run = AiAutopilotRun::query()->where('tenant_id', $this->tenantId)->findOrFail($this->runId);
 
         // Skip if already processed
         if (! in_array((string) $run->status, ['queued', 'running'], true)) {
@@ -78,7 +81,7 @@ final class AiRunExecutionJob implements ShouldQueue
 
             if ($hasMore) {
                 // More tool calls needed — self-dispatch for next iteration
-                self::dispatch($this->runId);
+                self::dispatch($this->runId, $this->tenantId);
             } else {
                 // No more iterations — finalize the run
                 $actions->finalizeRun($run, $output, function (string $eventType, array $data) use ($run): void {

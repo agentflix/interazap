@@ -64,7 +64,7 @@ describe('AiKnowledgeProcessJob deduplication', function (): void {
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.5)]);
 
-        $job = new AiKnowledgeProcessJob($newDocument->id);
+        $job = new AiKnowledgeProcessJob($newDocument->id, (string) $newDocument->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $newDocument->refresh();
@@ -106,7 +106,7 @@ describe('AiKnowledgeProcessJob deduplication', function (): void {
             ->once()
             ->andReturn([array_fill(0, $dimensions, 0.5)]);
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();
@@ -162,7 +162,7 @@ describe('AiKnowledgeProcessJob deduplication', function (): void {
         // Simulate reindex by setting status to processing
         $document->update(['embedding_status' => AiEmbeddingStatus::PROCESSING]);
 
-        $job = new AiKnowledgeProcessJob($document->id);
+        $job = new AiKnowledgeProcessJob($document->id, (string) $document->tenant_id);
         $job->handle($chunkingService, $embeddingService);
 
         $document->refresh();

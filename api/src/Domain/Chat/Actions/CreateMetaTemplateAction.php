@@ -89,7 +89,7 @@ final readonly class CreateMetaTemplateAction
             'is_active' => true,
         ]);
 
-        SubmitMetaTemplateJob::dispatch((string) $template->id);
+        SubmitMetaTemplateJob::dispatch((string) $template->id, (string) $template->tenant_id);
 
         return $template->refresh();
     }

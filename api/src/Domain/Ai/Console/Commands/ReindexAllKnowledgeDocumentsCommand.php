@@ -51,9 +51,9 @@ class ReindexAllKnowledgeDocumentsCommand extends Command
         $query->chunkById($chunkSize, function ($documents) use (&$processed, $sync): void {
             foreach ($documents as $document) {
                 if ($sync) {
-                    AiKnowledgeProcessJob::dispatchSync((string) $document->id);
+                    AiKnowledgeProcessJob::dispatchSync((string) $document->id, (string) $document->tenant_id);
                 } else {
-                    AiKnowledgeProcessJob::dispatch((string) $document->id);
+                    AiKnowledgeProcessJob::dispatch((string) $document->id, (string) $document->tenant_id);
                 }
 
                 $processed++;

@@ -45,17 +45,19 @@ final class SendNotificationJob implements ShouldQueue
     /**
      * @param  string  $notificationId  Identificador da notificação.
      * @param  string  $channel  Canal alvo.
+     * @param  string  $tenantId  Identificador do tenant.
      */
     public function __construct(
         public readonly string $notificationId,
         public readonly string $channel,
+        public readonly string $tenantId,
     ) {}
 
     public function handle(
         GatewayBroadcastService $broadcastService,
         ChatGatewayService $chatGatewayService,
     ): void {
-        $notification = ConfigurationNotification::query()->find($this->notificationId);
+        $notification = ConfigurationNotification::query()->where('tenant_id', $this->tenantId)->find($this->notificationId);
 
         if (! $notification) {
             return;

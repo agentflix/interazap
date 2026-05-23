@@ -65,7 +65,7 @@ final class IngestUrlAction
             'is_active' => true,
         ]);
 
-        AiKnowledgeProcessJob::dispatch($document->id);
+        AiKnowledgeProcessJob::dispatch($document->id, (string) $document->tenant_id);
 
         return $document;
     }

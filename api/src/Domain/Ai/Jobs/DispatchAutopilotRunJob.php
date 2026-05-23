@@ -220,7 +220,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
                 ->where('tenant_id', $this->tenantId)
                 ->find($ticketId);
             $currentMessage = $messageId !== ''
-                ? ChatMessage::query()->find($messageId)
+                ? ChatMessage::query()->where('tenant_id', $this->tenantId)->find($messageId)
                 : null;
 
             if ($ticket instanceof ChatTicket && $currentMessage instanceof ChatMessage) {

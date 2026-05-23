@@ -367,7 +367,7 @@ final class AiAgentDelegationService
             ]);
 
             // Fallback: caminho lento PHP (mantém confiabilidade se o stream falhar).
-            AiRunExecutionJob::dispatch((string) $childRun->id)
+            AiRunExecutionJob::dispatch((string) $childRun->id, (string) $childRun->tenant_id)
                 ->onConnection(config('ai.autopilot.queue_connection', 'redis'))
                 ->onQueue(config('ai.autopilot.queue_name', 'ai'));
         }

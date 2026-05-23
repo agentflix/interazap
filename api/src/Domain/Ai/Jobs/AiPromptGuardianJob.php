@@ -37,6 +37,7 @@ class AiPromptGuardianJob implements ShouldQueue
 
     public function __construct(
         public readonly string $tenantPromptId,
+        public readonly string $tenantId,
     ) {}
 
     public function handle(
@@ -44,7 +45,7 @@ class AiPromptGuardianJob implements ShouldQueue
         AiPromptHashServiceInterface $hashService,
         MetricsService $metricsService,
     ): void {
-        $tenantPrompt = AiPromptTenant::query()->find($this->tenantPromptId);
+        $tenantPrompt = AiPromptTenant::query()->where('tenant_id', $this->tenantId)->find($this->tenantPromptId);
 
         if (! $tenantPrompt) {
             Log::warning('AiPromptGuardianJob: Tenant prompt not found', [
@@ -106,9 +107,10 @@ class AiPromptGuardianJob implements ShouldQueue
     private function notifySuperAdmins(AiPromptTenant $tenantPrompt, string $reason): void
     {
         $admins = AuthUser::query()
+            ->where('tenant_id', $tenantPrompt->tenant_id)
             ->whereHas('roles', static function ($query): void {
                 $query->where('guard_name', 'sanctum')
-                    ->whereIn('id', [AuthRole::ADMINISTRADOR_ID]);
+                    ->whereIn('id', [AuthRole::ADMINISTRADOR_ID, AuthRole::INQUILINO_ID]);
             })
             ->get();
 

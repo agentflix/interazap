@@ -108,7 +108,7 @@ final class NotificationDispatcherService
                     continue;
                 }
 
-                SendNotificationJob::dispatch((string) $notification->id, $channel);
+                SendNotificationJob::dispatch((string) $notification->id, $channel, $tenantId);
                 NotificationCreatedEvent::dispatch((string) $notification->id, $channel);
 
                 // Broadcast via WebSocket for UI channel

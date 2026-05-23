@@ -55,7 +55,7 @@ describe('AiPromptGuardianJob', function (): void {
         $mockMetricsService = Mockery::mock(MetricsService::class);
         $mockMetricsService->shouldNotReceive('recordAutopilotGuardrailBlock');
 
-        $job = new AiPromptGuardianJob($prompt->id);
+        $job = new AiPromptGuardianJob($prompt->id, (string) $this->tenant->id);
         $job->handle($mockGuardian, $mockHashService, $mockMetricsService);
 
         $prompt->refresh();
@@ -88,7 +88,7 @@ describe('AiPromptGuardianJob', function (): void {
             ->once()
             ->with(['stage' => 'post_response']);
 
-        $job = new AiPromptGuardianJob($prompt->id);
+        $job = new AiPromptGuardianJob($prompt->id, (string) $this->tenant->id);
         $job->handle($mockGuardian, $mockHashService, $mockMetricsService);
 
         $prompt->refresh();
@@ -114,7 +114,7 @@ describe('AiPromptGuardianJob', function (): void {
         $mockMetricsService = Mockery::mock(MetricsService::class);
         $mockMetricsService->shouldNotReceive('recordAutopilotGuardrailBlock');
 
-        $job = new AiPromptGuardianJob($prompt->id);
+        $job = new AiPromptGuardianJob($prompt->id, (string) $this->tenant->id);
         $job->handle($mockGuardian, $mockHashService, $mockMetricsService);
 
         $prompt->refresh();

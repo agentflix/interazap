@@ -413,7 +413,7 @@ class InteraZapProductAgentsSeeder extends Seeder
             ]
         );
 
-        dispatch(new \Domain\Ai\Jobs\AiKnowledgeProcessJob($document->id));
+        dispatch(new \Domain\Ai\Jobs\AiKnowledgeProcessJob($document->id, $tenantId));
     }
 
     /**
