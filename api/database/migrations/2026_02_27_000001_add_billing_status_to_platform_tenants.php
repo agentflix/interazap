@@ -36,19 +36,45 @@ return new class extends Migration
 
     public function down(): void
     {
-        DB::statement('DROP INDEX IF EXISTS idx_tenants_billing_purge_deadline_not_null');
+        if (! Schema::hasTable('platform_tenants')) {
+            return;
+        }
 
-        Schema::table('platform_tenants', function (Blueprint $table): void {
-            $table->dropIndex(['billing_status']);
-            $table->dropColumn([
-                'billing_status',
-                'billing_locked_at',
-                'billing_lock_reason',
-                'billing_grace_deadline',
-                'billing_purge_deadline',
-                'last_collection_sent_at',
-                'collection_count',
-            ]);
-        });
+        // This index is created only when up() actually runs (not in no-op path).
+        $hasMigrationMarker = DB::selectOne("
+            SELECT 1
+            FROM pg_indexes
+            WHERE schemaname = current_schema()
+              AND tablename = 'platform_tenants'
+              AND indexname = 'idx_tenants_billing_purge_deadline_not_null'
+            LIMIT 1
+        ");
+
+        if (! $hasMigrationMarker) {
+            return;
+        }
+
+        DB::statement('DROP INDEX IF EXISTS idx_tenants_billing_purge_deadline_not_null');
+        DB::statement('DROP INDEX IF EXISTS platform_tenants_billing_status_index');
+
+        $columns = [
+            'billing_status',
+            'billing_locked_at',
+            'billing_lock_reason',
+            'billing_grace_deadline',
+            'billing_purge_deadline',
+            'last_collection_sent_at',
+            'collection_count',
+        ];
+
+        foreach ($columns as $column) {
+            if (! Schema::hasColumn('platform_tenants', $column)) {
+                continue;
+            }
+
+            Schema::table('platform_tenants', function (Blueprint $table) use ($column): void {
+                $table->dropColumn($column);
+            });
+        }
     }
 };

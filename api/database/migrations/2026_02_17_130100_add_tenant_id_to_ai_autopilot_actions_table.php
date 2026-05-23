@@ -43,9 +43,14 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasTable('ai_autopilot_actions') || ! Schema::hasColumn('ai_autopilot_actions', 'tenant_id')) {
+            return;
+        }
+
+        DB::statement('ALTER TABLE ai_autopilot_actions DROP CONSTRAINT IF EXISTS ai_autopilot_actions_tenant_id_foreign');
+        DB::statement('DROP INDEX IF EXISTS ai_autopilot_actions_tenant_id_run_id_index');
+
         Schema::table('ai_autopilot_actions', function (Blueprint $table): void {
-            $table->dropForeign(['tenant_id']);
-            $table->dropIndex(['tenant_id', 'run_id']);
             $table->dropColumn('tenant_id');
         });
     }

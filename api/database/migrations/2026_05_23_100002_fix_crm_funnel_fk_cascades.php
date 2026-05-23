@@ -69,22 +69,22 @@ return new class extends Migration
         Schema::table('crm_negotiation_tags', function (Blueprint $table): void {
             $table->dropForeign(['crm_negotiation_id']);
             $table->dropForeign(['crm_tag_id']);
-            $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations');
-            $table->foreignUuid('crm_tag_id')->constrained('crm_tags');
+            $table->foreign('crm_negotiation_id')->references('id')->on('crm_negotiations');
+            $table->foreign('crm_tag_id')->references('id')->on('crm_tags');
         });
 
         Schema::table('crm_negotiation_products', function (Blueprint $table): void {
             $table->dropForeign(['crm_negotiation_id']);
             $table->dropForeign(['crm_product_id']);
-            $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations');
-            $table->foreignUuid('crm_product_id')->nullable()->constrained('crm_products');
+            $table->foreign('crm_negotiation_id')->references('id')->on('crm_negotiations');
+            $table->foreign('crm_product_id')->references('id')->on('crm_products');
         });
 
         Schema::table('crm_negotiation_tasks', function (Blueprint $table): void {
             $table->dropForeign(['crm_negotiation_id']);
             $table->dropForeign(['auth_user_id']);
-            $table->foreignUuid('crm_negotiation_id')->constrained('crm_negotiations');
-            $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users');
+            $table->foreign('crm_negotiation_id')->references('id')->on('crm_negotiations');
+            $table->foreign('auth_user_id')->references('id')->on('auth_users');
         });
 
         Schema::table('crm_negotiations', function (Blueprint $table): void {
@@ -94,17 +94,17 @@ return new class extends Migration
             $table->dropForeign(['crm_negotiation_funnel_step_id']);
             $table->dropForeign(['crm_reason_loss_id']);
             $table->dropForeign(['auth_user_id']);
-            $table->foreignUuid('crm_company_id')->nullable()->constrained('crm_companies');
-            $table->foreignUuid('crm_contact_id')->constrained('crm_contacts');
-            $table->foreignUuid('crm_negotiation_funnel_id')->constrained('crm_negotiation_funnels');
-            $table->foreignUuid('crm_negotiation_funnel_step_id')->constrained('crm_negotiation_funnel_steps');
-            $table->foreignUuid('crm_reason_loss_id')->nullable()->constrained('crm_reason_losses');
-            $table->foreignUuid('auth_user_id')->nullable()->constrained('auth_users');
+            $table->foreign('crm_company_id')->references('id')->on('crm_companies');
+            $table->foreign('crm_contact_id')->references('id')->on('crm_contacts');
+            $table->foreign('crm_negotiation_funnel_id')->references('id')->on('crm_negotiation_funnels');
+            $table->foreign('crm_negotiation_funnel_step_id')->references('id')->on('crm_negotiation_funnel_steps');
+            $table->foreign('crm_reason_loss_id')->references('id')->on('crm_reason_losses');
+            $table->foreign('auth_user_id')->references('id')->on('auth_users');
         });
 
         Schema::table('crm_negotiation_funnel_steps', function (Blueprint $table): void {
             $table->dropForeign(['crm_negotiation_funnel_id']);
-            $table->foreignUuid('crm_negotiation_funnel_id')->constrained('crm_negotiation_funnels');
+            $table->foreign('crm_negotiation_funnel_id')->references('id')->on('crm_negotiation_funnels');
         });
     }
 };

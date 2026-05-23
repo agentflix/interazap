@@ -52,32 +52,32 @@ return new class extends Migration
         Schema::table('crm_company_tags', function (Blueprint $table): void {
             $table->dropForeign(['crm_company_id']);
             $table->dropForeign(['crm_tag_id']);
-            $table->foreignUuid('crm_company_id')->constrained('crm_companies');
-            $table->foreignUuid('crm_tag_id')->constrained('crm_tags');
+            $table->foreign('crm_company_id')->references('id')->on('crm_companies');
+            $table->foreign('crm_tag_id')->references('id')->on('crm_tags');
         });
 
         Schema::table('crm_contact_tags', function (Blueprint $table): void {
             $table->dropForeign(['crm_contact_id']);
             $table->dropForeign(['crm_tag_id']);
-            $table->foreignUuid('crm_contact_id')->constrained('crm_contacts');
-            $table->foreignUuid('crm_tag_id')->constrained('crm_tags');
+            $table->foreign('crm_contact_id')->references('id')->on('crm_contacts');
+            $table->foreign('crm_tag_id')->references('id')->on('crm_tags');
         });
 
         Schema::table('crm_company_contacts', function (Blueprint $table): void {
             $table->dropForeign(['crm_company_id']);
             $table->dropForeign(['crm_contact_id']);
-            $table->foreignUuid('crm_company_id')->constrained('crm_companies');
-            $table->foreignUuid('crm_contact_id')->constrained('crm_contacts');
+            $table->foreign('crm_company_id')->references('id')->on('crm_companies');
+            $table->foreign('crm_contact_id')->references('id')->on('crm_contacts');
         });
 
         Schema::table('crm_contact_phones', function (Blueprint $table): void {
             $table->dropForeign(['crm_contact_id']);
-            $table->foreignUuid('crm_contact_id')->constrained('crm_contacts');
+            $table->foreign('crm_contact_id')->references('id')->on('crm_contacts');
         });
 
         Schema::table('crm_contacts', function (Blueprint $table): void {
             $table->dropForeign(['crm_company_id']);
-            $table->foreignUuid('crm_company_id')->nullable()->constrained('crm_companies');
+            $table->foreign('crm_company_id')->references('id')->on('crm_companies');
         });
     }
 };

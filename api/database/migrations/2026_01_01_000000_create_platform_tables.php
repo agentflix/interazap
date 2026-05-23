@@ -168,6 +168,13 @@ SQL);
 
     public function down(): void
     {
+        // Legacy tables can be recreated by newer migrations during full rollback
+        // and still reference platform_tenants via FK.
+        Schema::dropIfExists('chat_webhook_events');
+        Schema::dropIfExists('billing_webhook_events');
+        Schema::dropIfExists('ai_autopilot_trigger_logs');
+        Schema::dropIfExists('shared_webhook_events');
+
         Schema::dropIfExists('platform_tenant_bootstrap_catalogs');
         Schema::dropIfExists('platform_leads');
         Schema::dropIfExists('platform_uazapi_instances');

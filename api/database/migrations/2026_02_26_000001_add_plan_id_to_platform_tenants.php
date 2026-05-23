@@ -7,6 +7,7 @@ use Domain\Billing\Models\BillingInvoice;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -57,9 +58,28 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasTable('platform_tenants') || ! Schema::hasColumn('platform_tenants', 'plan_id')) {
+            return;
+        }
+
+        // Base schema already contains plan_id with canonical index name.
+        $hasCanonicalIndex = DB::selectOne("
+            SELECT 1
+            FROM pg_indexes
+            WHERE schemaname = current_schema()
+              AND tablename = 'platform_tenants'
+              AND indexname = 'idx_platform_tenants_plan_id'
+            LIMIT 1
+        ");
+
+        if ($hasCanonicalIndex) {
+            return;
+        }
+
+        DB::statement('ALTER TABLE platform_tenants DROP CONSTRAINT IF EXISTS platform_tenants_plan_id_foreign');
+        DB::statement('DROP INDEX IF EXISTS platform_tenants_plan_id_index');
+
         Schema::table('platform_tenants', function (Blueprint $table): void {
-            $table->dropForeign(['plan_id']);
-            $table->dropIndex(['plan_id']);
             $table->dropColumn('plan_id');
         });
     }

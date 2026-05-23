@@ -50,9 +50,29 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasTable('ai_knowledge_chunk_refs') || ! Schema::hasColumn('ai_knowledge_chunk_refs', 'tenant_id')) {
+            return;
+        }
+
+        // If the canonical FK from the base migration exists, this migration
+        // likely no-op'ed in up() and must not drop the original tenant_id.
+        $hasCanonicalForeignKey = DB::selectOne("
+            SELECT 1
+            FROM information_schema.table_constraints
+            WHERE table_name = 'ai_knowledge_chunk_refs'
+              AND constraint_name = 'fk_ai_knowledge_chunk_refs_tenant_id'
+              AND constraint_type = 'FOREIGN KEY'
+            LIMIT 1
+        ");
+
+        if ($hasCanonicalForeignKey) {
+            return;
+        }
+
+        DB::statement('ALTER TABLE ai_knowledge_chunk_refs DROP CONSTRAINT IF EXISTS ai_knowledge_chunk_refs_tenant_id_foreign');
+        DB::statement('DROP INDEX IF EXISTS ai_knowledge_chunk_refs_tenant_id_index');
+
         Schema::table('ai_knowledge_chunk_refs', function (Blueprint $table): void {
-            $table->dropForeign(['tenant_id']);
-            $table->dropIndex('ai_knowledge_chunk_refs_tenant_id_index');
             $table->dropColumn('tenant_id');
         });
     }
