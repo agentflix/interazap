@@ -42,10 +42,8 @@ final class BillingCriticalEventListenersTest extends TestCase
     {
         Log::shouldReceive('info')
             ->once()
-            ->withArgs(function (string $message, array $context): bool {
-                return $message === 'billing.tenant_locked'
-                    && isset($context['tenant_id'], $context['reason'], $context['locked_at']);
-            });
+            ->withArgs(fn (string $message, array $context): bool => $message === 'billing.tenant_locked'
+                && isset($context['tenant_id'], $context['reason'], $context['locked_at']));
 
         $tenantId = (string) Str::orderedUuid();
 
@@ -73,10 +71,8 @@ final class BillingCriticalEventListenersTest extends TestCase
     {
         Log::shouldReceive('info')
             ->once()
-            ->withArgs(function (string $message, array $context): bool {
-                return $message === 'billing.tenant_unlocked'
-                    && isset($context['tenant_id'], $context['unlocked_at']);
-            });
+            ->withArgs(fn (string $message, array $context): bool => $message === 'billing.tenant_unlocked'
+                && isset($context['tenant_id'], $context['unlocked_at']));
 
         app(BillingTenantUnlockedListener::class)->handle(
             new BillingTenantUnlockedEvent(
@@ -101,15 +97,13 @@ final class BillingCriticalEventListenersTest extends TestCase
     {
         Log::shouldReceive('info')
             ->once()
-            ->withArgs(function (string $message, array $context): bool {
-                return $message === 'billing.tenant_grace'
-                    && isset(
-                        $context['tenant_id'],
-                        $context['invoice_id'],
-                        $context['grace_deadline'],
-                        $context['days_overdue'],
-                    );
-            });
+            ->withArgs(fn (string $message, array $context): bool => $message === 'billing.tenant_grace'
+                && isset(
+                    $context['tenant_id'],
+                    $context['invoice_id'],
+                    $context['grace_deadline'],
+                    $context['days_overdue'],
+                ));
 
         app(BillingTenantGraceListener::class)->handle(
             new BillingTenantGraceEvent(
@@ -136,10 +130,8 @@ final class BillingCriticalEventListenersTest extends TestCase
     {
         Log::shouldReceive('info')
             ->once()
-            ->withArgs(function (string $message, array $context): bool {
-                return $message === 'billing.tenant_purged'
-                    && isset($context['tenant_id'], $context['report_id'], $context['purged_at']);
-            });
+            ->withArgs(fn (string $message, array $context): bool => $message === 'billing.tenant_purged'
+                && isset($context['tenant_id'], $context['report_id'], $context['purged_at']));
 
         app(BillingTenantPurgedListener::class)->handle(
             new BillingTenantPurgedEvent(
@@ -165,10 +157,8 @@ final class BillingCriticalEventListenersTest extends TestCase
     {
         Log::shouldReceive('info')
             ->once()
-            ->withArgs(function (string $message, array $context): bool {
-                return $message === 'billing.purge_warning'
-                    && isset($context['tenant_id'], $context['purge_deadline']);
-            });
+            ->withArgs(fn (string $message, array $context): bool => $message === 'billing.purge_warning'
+                && isset($context['tenant_id'], $context['purge_deadline']));
 
         app(BillingPurgeWarningListener::class)->handle(
             new BillingPurgeWarningEvent(
@@ -193,17 +183,15 @@ final class BillingCriticalEventListenersTest extends TestCase
     {
         Log::shouldReceive('info')
             ->once()
-            ->withArgs(function (string $message, array $context): bool {
-                return $message === 'billing.collection_sent'
-                    && isset(
-                        $context['tenant_id'],
-                        $context['invoice_id'],
-                        $context['template_id'],
-                        $context['channel'],
-                        $context['recipient'],
-                        $context['status'],
-                    );
-            });
+            ->withArgs(fn (string $message, array $context): bool => $message === 'billing.collection_sent'
+                && isset(
+                    $context['tenant_id'],
+                    $context['invoice_id'],
+                    $context['template_id'],
+                    $context['channel'],
+                    $context['recipient'],
+                    $context['status'],
+                ));
 
         app(BillingCollectionSentListener::class)->handle(
             new BillingCollectionSentEvent(

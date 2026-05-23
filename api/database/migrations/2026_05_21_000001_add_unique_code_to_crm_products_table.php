@@ -26,8 +26,9 @@ return new class extends Migration
 
         foreach ($duplicates as $duplicate) {
             $ids = explode(',', (string) $duplicate->ids);
+            $counter = count($ids);
             // Manter o primeiro (mais antigo), suffixar os demais
-            for ($i = 1; $i < count($ids); $i++) {
+            for ($i = 1; $i < $counter; $i++) {
                 $suffix = substr($ids[$i], 0, 8);
                 DB::table('crm_products')
                     ->where('id', $ids[$i])

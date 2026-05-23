@@ -62,13 +62,11 @@ final class DispatchAutopilotRunJobFailedHandlerTest extends TestCase
             ->once()
             ->with(
                 '[DispatchAutopilotRunJob] Job failed after retries exhausted',
-                Mockery::on(function (array $context) use ($run): bool {
-                    return ($context['run_id'] ?? null) === (string) $run->id
-                        && ($context['tenant_id'] ?? null) === (string) $run->tenant_id
-                        && ($context['correlation_id'] ?? null) === 'corr-failed-1'
-                        && ($context['exception_class'] ?? null) === \RuntimeException::class
-                        && ($context['exception_message'] ?? null) === 'Retries exhausted';
-                }),
+                Mockery::on(fn (array $context): bool => ($context['run_id'] ?? null) === (string) $run->id
+                    && ($context['tenant_id'] ?? null) === (string) $run->tenant_id
+                    && ($context['correlation_id'] ?? null) === 'corr-failed-1'
+                    && ($context['exception_class'] ?? null) === \RuntimeException::class
+                    && ($context['exception_message'] ?? null) === 'Retries exhausted'),
             );
     }
 

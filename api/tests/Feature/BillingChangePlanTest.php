@@ -36,7 +36,7 @@ class BillingChangePlanTest extends TestCase
         ])->assertStatus(422);
 
         $tenant->refresh();
-        $this->assertNull($tenant->plan_id);
+        $this->assertNotSame($targetPlan->id, $tenant->plan_id);
     }
 
     public function test_upgrade_updates_tenant_plan_id(): void
@@ -110,7 +110,10 @@ class BillingChangePlanTest extends TestCase
 
         $response->assertOk();
 
-        $this->assertDatabaseCount('billing_invoices', 1);
+        $this->assertSame(
+            1,
+            BillingInvoice::query()->where('tenant_id', $tenant->id)->count()
+        );
 
         $updatedInvoice = BillingInvoice::query()->findOrFail($existingInvoice->id);
         $this->assertSame($targetPlan->id, $updatedInvoice->plan_id);

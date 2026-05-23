@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use Domain\Auth\Models\AuthUser;
 use Domain\CRM\Models\CRMContact;
+use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -17,7 +18,8 @@ final class RbacCrmControllerTest extends TestCase
     public function test_contact_show_returns_404_for_cross_tenant_access(): void
     {
         $user = AuthUser::factory()->create();
-        $contact = CRMContact::factory()->create();
+        $otherTenant = PlatformTenant::factory()->create();
+        $contact = CRMContact::factory()->create(['tenant_id' => $otherTenant->id]);
 
         Sanctum::actingAs($user, abilities: []);
 

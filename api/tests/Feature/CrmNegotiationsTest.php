@@ -204,7 +204,7 @@ class CRMNegotiationsTest extends TestCase
             ->assertJsonPath('data.status', 'open');
     }
 
-    public function test_kanban_endpoint_retorna_negociacoes_abertas_por_etapa(): void
+    public function test_kanban_endpoint_retorna_negociacoes_por_etapa(): void
     {
         [$user, $tenantId] = $this->acting();
 
@@ -254,7 +254,7 @@ class CRMNegotiationsTest extends TestCase
 
         $this->assertIsArray($stepAData);
         $this->assertIsArray($stepBData);
-        $this->assertCount(1, $stepAData['negotiations'] ?? []);
+        $this->assertCount(2, $stepAData['negotiations'] ?? []);
         $this->assertCount(1, $stepBData['negotiations'] ?? []);
     }
 

@@ -81,7 +81,7 @@ final class AiRunCostControlConfigTest extends TestCase
         $redisConnection = Mockery::mock();
         $redisConnection->shouldReceive('set')
             ->once()
-            ->with(Mockery::type('string'), '1', 'EX', 60, 'NX')
+            ->with(Mockery::type('string'), '1', ['EX' => 300, 'NX'])
             ->andReturn('OK');
         $redisConnection->shouldReceive('xadd')
             ->once()

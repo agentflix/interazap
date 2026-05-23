@@ -68,7 +68,15 @@ final class PlatformBillingInvoiceController extends BaseController
         $tenantId = $validated['tenant_id'];
 
         $dto = BillingInvoiceDTO::fromRequest($request);
-        $invoice = $this->actions->create($tenantId, $dto);
+
+        try {
+            $invoice = $this->actions->create($tenantId, $dto);
+        } catch (\DomainException $exception) {
+            return $this->error($exception->getMessage(), 422, [
+                'reference_month' => [$exception->getMessage()],
+            ]);
+        }
+
         $invoice->load('plan', 'tenant');
 
         return $this->created(

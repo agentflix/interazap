@@ -41,6 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Global middleware - applies to all routes
         $middleware->append(\Domain\Shared\Http\Middleware\SecurityHeadersMiddleware::class);
+        $middleware->append(\Domain\Shared\Http\Middleware\TraceIdMiddleware::class);
 
         $middleware->group('web', [
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
@@ -51,7 +52,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->group('api', [
-            \Domain\Shared\Http\Middleware\TraceIdMiddleware::class,
             \Domain\Shared\Http\Middleware\MetricsMiddleware::class,
             \Domain\Shared\Http\Middleware\TenantContextMiddleware::class,
             \Domain\Shared\Http\Middleware\LogAccessDeniedMiddleware::class,
@@ -77,6 +77,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'billing.delinquency' => \Domain\Billing\Http\Middleware\BillingDelinquencyMiddleware::class,
             'internal.api.key' => \Domain\Shared\Http\Middleware\InternalApiKeyMiddleware::class,
             'gateway.secret' => \Domain\Chat\Http\Middleware\GatewaySecretGuard::class,
+            'force.password.change' => \Domain\Auth\Http\Middleware\ForcePasswordChangeMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

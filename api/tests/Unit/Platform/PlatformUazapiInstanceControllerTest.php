@@ -39,7 +39,11 @@ class PlatformUazapiInstanceControllerTest extends TestCase
 
     protected function tearDown(): void
     {
-        Mockery::close();
+        try {
+            Mockery::close();
+        } catch (\Throwable) {
+            // Mockery container já é resetado antes do throw; engole p/ garantir parent::tearDown roda.
+        }
         parent::tearDown();
     }
 
@@ -89,12 +93,14 @@ class PlatformUazapiInstanceControllerTest extends TestCase
         $actions = new PlatformUazapiInstanceActions($gateway);
 
         $controller = new PlatformUazapiInstanceController($actions);
-        $request = Mockery::mock(PlatformUazapiInstanceRequest::class);
-        $request->shouldReceive('validated')->once()->andReturn([
+        $request = PlatformUazapiInstanceRequest::create('/instances', 'POST', [
             'name' => 'Created',
             'system_name' => 'uazapi',
         ]);
-        $request->shouldReceive('user')->once()->andReturn($user);
+        $request->setUserResolver(fn (): \Domain\Auth\Models\AuthUser => $user);
+        $request->setContainer($this->app);
+        $request->setRedirector($this->app->make(\Illuminate\Routing\Redirector::class));
+        $request->validateResolved();
 
         $response = $controller->store($request);
         $payload = $response->getData(true);
@@ -187,9 +193,13 @@ class PlatformUazapiInstanceControllerTest extends TestCase
         $actions = new PlatformUazapiInstanceActions($gateway);
 
         $controller = new PlatformUazapiInstanceController($actions);
-        $request = Mockery::mock(PlatformUazapiConnectRequest::class);
-        $request->shouldReceive('validated')->once()->andReturn(['mode' => 'qr']);
-        $request->shouldReceive('user')->once()->andReturn($user);
+        $request = PlatformUazapiConnectRequest::create('/instances/'.$instance->id.'/connect', 'POST', [
+            'mode' => 'qr',
+        ]);
+        $request->setUserResolver(fn (): \Domain\Auth\Models\AuthUser => $user);
+        $request->setContainer($this->app);
+        $request->setRedirector($this->app->make(\Illuminate\Routing\Redirector::class));
+        $request->validateResolved();
 
         $response = $controller->connect($request, $instance->id);
         $payload = $response->getData(true);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthUser;
 use Domain\Chat\Jobs\ProcessTransmissionListJob;
 use Domain\Chat\Models\ChatInstance;
@@ -37,11 +38,10 @@ class ChatTransmissionListJobTest extends TestCase
         ];
 
         foreach ($permissions as $perm) {
-            \Domain\Auth\Models\AuthPermission::query()->firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
-            \Domain\Auth\Models\AuthPermission::query()->firstOrCreate(['name' => $perm, 'guard_name' => 'sanctum']);
+            AuthPermission::query()->firstOrCreate(['name' => $perm], ['guard_name' => 'sanctum']);
         }
         $this->user->givePermissionTo($permissions);
-        $this->actingAs($this->user);
+        $this->actingAs($this->user, 'sanctum');
 
         // Instance
         $this->instance = ChatInstance::factory()->create([

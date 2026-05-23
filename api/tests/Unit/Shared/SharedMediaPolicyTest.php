@@ -63,7 +63,7 @@ class SharedMediaPolicyTest extends TestCase
         $admin->shouldReceive('isSuperAdmin')->andReturn(true);
 
         $tenantUser = Mockery::mock(AuthUser::class)->makePartial();
-        $tenantUser->tenant_id = 'tenant-2';
+        $tenantUser->tenant_id = (string) Str::uuid();
         $tenantUser->shouldReceive('isSuperAdmin')->andReturn(false);
 
         $noTenantUser = Mockery::mock(AuthUser::class)->makePartial();
@@ -78,16 +78,18 @@ class SharedMediaPolicyTest extends TestCase
     public function test_view_update_and_delete_require_same_tenant_for_regular_user(): void
     {
         $policy = new SharedMediaPolicy(new PlatformPlanEnforcementService);
+        $tenantId = (string) Str::uuid();
+        $otherTenantId = (string) Str::uuid();
 
         $user = Mockery::mock(AuthUser::class)->makePartial();
-        $user->tenant_id = 'tenant-3';
+        $user->tenant_id = $tenantId;
         $user->shouldReceive('isSuperAdmin')->times(6)->andReturn(false);
 
         $mediaSameTenant = new SharedMedia;
-        $mediaSameTenant->tenant_id = 'tenant-3';
+        $mediaSameTenant->tenant_id = $tenantId;
 
         $mediaOtherTenant = new SharedMedia;
-        $mediaOtherTenant->tenant_id = 'tenant-4';
+        $mediaOtherTenant->tenant_id = $otherTenantId;
 
         $this->assertTrue($policy->view($user, $mediaSameTenant));
         $this->assertTrue($policy->update($user, $mediaSameTenant));
@@ -107,7 +109,7 @@ class SharedMediaPolicyTest extends TestCase
         $admin->shouldReceive('isSuperAdmin')->times(3)->andReturn(true);
 
         $media = new SharedMedia;
-        $media->tenant_id = 'other-tenant';
+        $media->tenant_id = (string) Str::uuid();
 
         $this->assertTrue($policy->view($admin, $media));
         $this->assertTrue($policy->update($admin, $media));

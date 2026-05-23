@@ -35,7 +35,7 @@ use Spatie\Permission\Traits\HasRoles;
  *
  * @category Models
  */
-final class AuthUser extends Authenticatable implements AuditableContract
+class AuthUser extends Authenticatable implements AuditableContract
 {
     use Auditable;
     use BelongsToTenant;

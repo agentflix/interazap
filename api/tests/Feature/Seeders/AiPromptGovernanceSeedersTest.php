@@ -21,9 +21,9 @@ beforeEach(function (): void {
 });
 
 test('creates expected platform plans for prompt governance', function (): void {
-    expect(PlatformPlan::query()->where('slug', 'medium')->exists())->toBeTrue()
-        ->and(PlatformPlan::query()->where('slug', 'master')->exists())->toBeTrue()
-        ->and(PlatformPlan::query()->where('slug', 'enterprise')->exists())->toBeTrue();
+    expect(PlatformPlan::query()->where('slug', 'starter')->exists())->toBeTrue()
+        ->and(PlatformPlan::query()->where('slug', 'professional')->exists())->toBeTrue()
+        ->and(PlatformPlan::query()->where('slug', 'business')->exists())->toBeTrue();
 });
 
 test('creates production prompt masters and keeps expected keywords', function (): void {
@@ -70,18 +70,18 @@ test('creates expected segments including new business verticals', function (): 
     }
 });
 
-test('creates differentiated plan prompts for medium and master plans', function (): void {
-    $mediumPlan = PlatformPlan::query()->where('slug', 'medium')->firstOrFail();
-    $masterPlan = PlatformPlan::query()->where('slug', 'master')->firstOrFail();
+test('creates differentiated plan prompts for professional and business plans', function (): void {
+    $professionalPlan = PlatformPlan::query()->where('slug', 'professional')->firstOrFail();
+    $businessPlan = PlatformPlan::query()->where('slug', 'business')->firstOrFail();
 
-    $mediumPrompt = AiPromptPlan::query()->where('plan_id', $mediumPlan->id)->first();
-    $masterPrompt = AiPromptPlan::query()->where('plan_id', $masterPlan->id)->first();
+    $professionalPrompt = AiPromptPlan::query()->where('plan_id', $professionalPlan->id)->first();
+    $businessPrompt = AiPromptPlan::query()->where('plan_id', $businessPlan->id)->first();
 
-    expect($mediumPrompt)->not()->toBeNull()
-        ->and($masterPrompt)->not()->toBeNull();
+    expect($professionalPrompt)->not()->toBeNull()
+        ->and($businessPrompt)->not()->toBeNull();
 
-    expect($mediumPrompt?->content)->toContain('150 palavras')
-        ->and($masterPrompt?->content)->toContain('sem limite rígido');
+    expect($professionalPrompt?->content)->toContain('300 palavras')
+        ->and($businessPrompt?->content)->toContain('sem limite rígido');
 });
 
 test('seeders are idempotent for prompt governance records', function (): void {

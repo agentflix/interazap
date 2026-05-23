@@ -132,9 +132,7 @@ class ChatChannelConnectorTest extends TestCase
         // set-webhook response
         $http->shouldReceive('post')
             ->once()
-            ->with('/telegram/set-webhook', Mockery::on(function (array $payload) {
-                return isset($payload['bot_token'], $payload['webhook_url'], $payload['webhook_secret']);
-            }))
+            ->with('/telegram/set-webhook', Mockery::on(fn (array $payload): bool => isset($payload['bot_token'], $payload['webhook_url'], $payload['webhook_secret'])))
             ->andReturn(['ok' => true]);
 
         $connector = new ChatChannelConnector($uazapi, $http);

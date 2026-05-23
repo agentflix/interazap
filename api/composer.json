@@ -133,7 +133,7 @@
         ],
         "gate:test": [
             "Composer\\Config::disableProcessTimeout",
-            "sh -c \"php -d pcov.enabled=0 -d memory_limit=2G vendor/bin/pest --parallel --exclude-testsuite=E2E || (echo '\\n❌ Testes falharam!\\n' && exit 1)\"",
+            "sh -c \"php -d pcov.enabled=0 -d memory_limit=2G vendor/bin/pest --exclude-testsuite=E2E || (echo '\\n❌ Testes falharam!\\n' && exit 1)\"",
             "echo '✅ Gate 3/4: Testes OK'"
         ],
         "gate:refactor": [

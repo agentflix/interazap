@@ -34,11 +34,11 @@ function rc_section(string $title): void
 }
 function rc_ok(string $label, string $detail = ''): void
 {
-    echo "  \033[32m✓\033[0m {$label}".($detail ? " → \033[36m{$detail}\033[0m" : '')."\n";
+    echo "  \033[32m✓\033[0m {$label}".($detail !== '' && $detail !== '0' ? " → \033[36m{$detail}\033[0m" : '')."\n";
 }
 function rc_fail(string $label, string $detail = ''): void
 {
-    echo "  \033[31m✗\033[0m {$label}".($detail ? " → \033[31m{$detail}\033[0m" : '')."\n";
+    echo "  \033[31m✗\033[0m {$label}".($detail !== '' && $detail !== '0' ? " → \033[31m{$detail}\033[0m" : '')."\n";
 }
 function rc_info(string $label, string $detail): void
 {

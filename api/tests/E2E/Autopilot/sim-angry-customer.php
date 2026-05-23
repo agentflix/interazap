@@ -40,11 +40,11 @@ function section(string $title): void
 }
 function ok(string $label, string $detail = ''): void
 {
-    echo "  \033[32m✓\033[0m {$label}".($detail ? " → \033[36m{$detail}\033[0m" : '')."\n";
+    echo "  \033[32m✓\033[0m {$label}".($detail !== '' && $detail !== '0' ? " → \033[36m{$detail}\033[0m" : '')."\n";
 }
 function fail(string $label, string $detail = ''): void
 {
-    echo "  \033[31m✗\033[0m {$label}".($detail ? " → {$detail}" : '')."\n";
+    echo "  \033[31m✗\033[0m {$label}".($detail !== '' && $detail !== '0' ? " → {$detail}" : '')."\n";
 }
 function simInfo(string $label, string $detail): void
 {
@@ -301,7 +301,7 @@ $conversationScript = [
     ['in',  'que absurdo! to cancelando agora',                             'carlos'],
 ];
 
-foreach ($conversationScript as $i => [$dir, $content, $who]) {
+foreach ($conversationScript as [$dir, $content]) {
     $msgNum = ++$msgCount;
     if ($dir === 'out') {
         $r = dispatch_tool('send_message', ['ticket_id' => $ticket->id, 'content' => $content], $sofiaCtx);
@@ -864,7 +864,7 @@ if (is_object($rawTags)) {
 }
 // flatten: tags podem ser strings ou arrays aninhados
 $flatTags = [];
-array_walk_recursive($rawTags, function ($v) use (&$flatTags) {
+array_walk_recursive($rawTags, function ($v) use (&$flatTags): void {
     if (is_string($v)) {
         $flatTags[] = $v;
     }
@@ -875,7 +875,7 @@ simInfo('Contato tags', implode(', ', $flatTags) ?: '(sem tags)');
 $negDb = CRMNegotiation::query()->find($retentionNegId);
 if ($negDb) {
     assertOk(true, 'Negociação de retenção existe', $retentionNegId);
-    $negStatus = $negDb->getRawOriginal('status') ?? (is_object($negDb->status) ? $negDb->status->value ?? get_class($negDb->status) : (string) $negDb->status);
+    $negStatus = $negDb->getRawOriginal('status') ?? (is_object($negDb->status) ? $negDb->status->value ?? $negDb->status::class : (string) $negDb->status);
     simInfo('Negociação status', $negStatus);
     simInfo('Negociação título', (string) $negDb->title);
 } else {
@@ -939,13 +939,13 @@ line("  │   → Incoming (Carlos):  {$incomingCount}");
 line("  │   → Outgoing (Agentes): {$outgoingCount}");
 line('  ├─────────────────────────────────────────────────────────────────');
 
-if (! empty($evidence['notes'])) {
+if (isset($evidence['notes']) && $evidence['notes'] !== []) {
     line('  │ Notas criadas:');
     foreach ($evidence['notes'] as $noteId) {
         line("  │   · {$noteId}");
     }
 }
-if (! empty($evidence['tasks'])) {
+if (isset($evidence['tasks']) && $evidence['tasks'] !== []) {
     line('  │ Tasks criadas:');
     foreach ($evidence['tasks'] as $taskId) {
         line("  │   · {$taskId}");
@@ -957,8 +957,7 @@ line();
 
 line("\033[1;37m  ÚLTIMAS 5 MENSAGENS NO BANCO (evidência do histórico):\033[0m");
 $lastFive = ChatMessage::query()
-    ->where('ticket_id', $ticket->id)
-    ->orderByDesc('created_at')
+    ->where('ticket_id', $ticket->id)->latest()
     ->orderByDesc('id')
     ->limit(5)
     ->get()

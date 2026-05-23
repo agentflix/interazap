@@ -20,7 +20,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 
         $isLocal = $this->app->environment('local');
 
-        Telescope::filter(fn (IncomingEntry $entry) => $isLocal ||
+        Telescope::filter(fn (IncomingEntry $entry): bool => $isLocal ||
                $entry->isReportableException() ||
                $entry->isFailedRequest() ||
                $entry->isFailedJob() ||
@@ -53,6 +53,6 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
      */
     protected function gate(): void
     {
-        Gate::define('viewTelescope', fn ($user = null) => in_array(request()->ip(), ['127.0.0.1', '::1']));
+        Gate::define('viewTelescope', fn ($user = null): bool => in_array(request()->ip(), ['127.0.0.1', '::1']));
     }
 }

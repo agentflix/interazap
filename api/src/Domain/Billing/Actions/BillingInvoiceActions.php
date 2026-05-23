@@ -112,6 +112,18 @@ final class BillingInvoiceActions
      */
     public function create(?string $tenantId, BillingInvoiceDTO $dto): BillingInvoice
     {
+        if (is_string($tenantId) && $tenantId !== '') {
+            $exists = BillingInvoice::query()
+                ->withoutGlobalScope(TenantScope::class)
+                ->where('tenant_id', $tenantId)
+                ->where('reference_month', $dto->referenceMonth)
+                ->exists();
+
+            if ($exists) {
+                throw new \DomainException('Já existe uma fatura para o mês informado.');
+            }
+        }
+
         $invoice = BillingInvoice::create([
             'tenant_id' => $tenantId,
             ...$dto->toArray(),

@@ -92,7 +92,7 @@ class BillingSubscriptionTest extends TestCase
 
         // Create a plan without AI (like Starter)
         $starterSlug = 'starter-test-'.Str::lower(Str::random(6));
-        $starterPlan = PlatformPlan::factory()->create([
+        PlatformPlan::factory()->create([
             'name' => 'Starter',
             'slug' => $starterSlug,
             'price_monthly' => 97,
@@ -103,7 +103,7 @@ class BillingSubscriptionTest extends TestCase
 
         // Create a plan with AI (like Professional)
         $proSlug = 'pro-test-'.Str::lower(Str::random(6));
-        $proPlan = PlatformPlan::factory()->create([
+        PlatformPlan::factory()->create([
             'name' => 'Professional',
             'slug' => $proSlug,
             'price_monthly' => 297,

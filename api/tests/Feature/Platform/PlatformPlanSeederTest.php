@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
 uses()->group('seeders', 'platform');
 
 beforeEach(function (): void {
+    PlatformPlan::query()->delete();
+
     $this->seed(PlatformPlanSeeder::class);
     $this->seed(PlatformPlanExtraSeeder::class);
 });

@@ -80,7 +80,6 @@ final class ChatMessageStableOrderTest extends TestCase
         $action = app(ListChatMessagesAction::class);
         $result = $this->createTicketWithSameTimestampMessages(5);
         $ticket = $result['ticket'];
-        $messages = $result['messages'];
 
         $paginator = $action->listByTicket($this->tenantId, (string) $ticket->id);
 
@@ -121,7 +120,6 @@ final class ChatMessageStableOrderTest extends TestCase
         $action = app(ListChatMessagesAction::class);
         $result = $this->createTicketWithSameTimestampMessages(5);
         $ticket = $result['ticket'];
-        $messages = $result['messages'];
 
         $response = $action->listByTicketCursor(
             tenantId: $this->tenantId,
@@ -267,9 +265,10 @@ final class ChatMessageStableOrderTest extends TestCase
 
         $response->assertOk();
         $data = $response->json('data');
+        $counter = count($data);
 
         // Verifica ordem ASC: created_at ASC, id ASC
-        for ($i = 1; $i < count($data); $i++) {
+        for ($i = 1; $i < $counter; $i++) {
             $prevCreatedAt = $data[$i - 1]['createdAt'];
             $currCreatedAt = $data[$i]['createdAt'];
             $prevId = $data[$i - 1]['id'];

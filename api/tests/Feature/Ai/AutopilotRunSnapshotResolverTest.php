@@ -265,7 +265,7 @@ class AutopilotRunSnapshotResolverTest extends TestCase
         $tenant = $this->createTenant();
         $tenantId = (string) $tenant->id;
 
-        $agent = $this->createAgent($tenantId);
+        $this->createAgent($tenantId);
 
         // Agent inválido (ID inexistente) → service retorna array vazio
         $invalidAgent = $this->createAgent($tenantId, 'Invalid');

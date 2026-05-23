@@ -49,7 +49,7 @@ it('atualiza external_id e status em sucesso', function (): void {
     expect($this->template->external_id)->toBe('meta_ext_999')
         ->and($this->template->status)->toBe('pending');
 
-    Http::assertSent(fn ($request) => $request->url() === 'http://gateway.test/channels/'.$this->instance->id.'/templates'
+    Http::assertSent(fn ($request): bool => $request->url() === 'http://gateway.test/channels/'.$this->instance->id.'/templates'
         && $request->hasHeader('x-api-key', 'secret-key')
         && $request['name'] === 'welcome_v1'
         && $request['language'] === 'pt_BR'

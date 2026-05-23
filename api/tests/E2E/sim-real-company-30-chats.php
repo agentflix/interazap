@@ -215,22 +215,20 @@ if (! function_exists('sim30_runs_for_ticket')) {
     {
         $query = AiAutopilotRun::query()
             ->where('tenant_id', $tenantId)
-            ->where('input_context->ticket_id', $ticketId)
-            ->orderBy('created_at');
+            ->where('input_context->ticket_id', $ticketId)->oldest();
 
         if ($since instanceof Carbon) {
             $query->where('created_at', '>=', $since->copy()->subSecond());
         }
 
         $runs = $query->get();
-        $seen = $runs->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $seen = $runs->pluck('id')->map(fn ($id): string => (string) $id)->all();
 
         do {
             $children = AiAutopilotRun::query()
                 ->where('tenant_id', $tenantId)
                 ->whereIn('parent_run_id', $seen === [] ? ['00000000-0000-0000-0000-000000000000'] : $seen)
-                ->whereNotIn('id', $seen === [] ? ['00000000-0000-0000-0000-000000000000'] : $seen)
-                ->orderBy('created_at')
+                ->whereNotIn('id', $seen === [] ? ['00000000-0000-0000-0000-000000000000'] : $seen)->oldest()
                 ->get();
 
             foreach ($children as $child) {
@@ -315,7 +313,7 @@ if (! function_exists('sim30_wait_for_processing')) {
                 ->count();
 
             $newRuns = $runs->count() > $baselineRunCount;
-            $activeRuns = $runs->filter(fn (AiAutopilotRun $run) => in_array((string) $run->status, [
+            $activeRuns = $runs->filter(fn (AiAutopilotRun $run): bool => in_array((string) $run->status, [
                 'queued',
                 'running',
                 'processing',
@@ -337,7 +335,7 @@ if (! function_exists('sim30_wait_for_processing')) {
                 return $last;
             }
 
-            usleep(750000);
+            \Illuminate\Support\Sleep::usleep(750000);
         } while (microtime(true) < $deadline);
 
         return $last;
@@ -370,7 +368,7 @@ if (! function_exists('sim30_find_agent_by_name')) {
         return AiAgent::query()
             ->where('tenant_id', $tenantId)
             ->get()
-            ->first(fn (AiAgent $agent) => sim30_agent_key((string) $agent->name) === sim30_agent_key($name));
+            ->first(fn (AiAgent $agent): bool => sim30_agent_key((string) $agent->name) === sim30_agent_key($name));
     }
 }
 
@@ -430,8 +428,7 @@ if (! function_exists('sim30_validate_scenario')) {
         $messages = ChatMessage::query()
             ->where('tenant_id', $tenantId)
             ->where('ticket_id', $ticket->id)
-            ->with('extended')
-            ->orderBy('created_at')
+            ->with('extended')->oldest()
             ->orderBy('id')
             ->get();
         $runs = sim30_runs_for_ticket($tenantId, (string) $ticket->id, $startedAt);
@@ -442,16 +439,16 @@ if (! function_exists('sim30_validate_scenario')) {
         $lastOutgoing = $outgoingMessages->sortBy('created_at')->last();
         $outgoingContents = $outgoingMessages
             ->pluck('content')
-            ->filter(fn ($content) => is_string($content) && trim($content) !== '')
-            ->map(fn ($content) => (string) $content)
+            ->filter(fn ($content): bool => is_string($content) && trim($content) !== '')
+            ->map(fn ($content): string => (string) $content)
             ->values()
             ->all();
-        $mediaCount = $messages->filter(fn (ChatMessage $message) => $message->type !== 'text' || $message->file_url !== null)->count();
+        $mediaCount = $messages->filter(fn (ChatMessage $message): bool => $message->type !== 'text' || $message->file_url !== null)->count();
         $terminalStatuses = ['completed', 'failed', 'blocked', 'cancelled'];
-        $nonTerminalRuns = $runs->filter(fn (AiAutopilotRun $run) => ! in_array((string) $run->status, $terminalStatuses, true));
-        $delegationRuns = $runs->filter(fn (AiAutopilotRun $run) => $run->parent_run_id !== null);
+        $nonTerminalRuns = $runs->filter(fn (AiAutopilotRun $run): bool => ! in_array((string) $run->status, $terminalStatuses, true));
+        $delegationRuns = $runs->filter(fn (AiAutopilotRun $run): bool => $run->parent_run_id !== null);
         $toolNames = array_values(array_filter(array_map(
-            fn (array $item) => is_string($item['tool'] ?? null) ? (string) $item['tool'] : null,
+            fn (array $item): ?string => is_string($item['tool'] ?? null) ? $item['tool'] : null,
             $trace
         )));
 
@@ -491,10 +488,8 @@ if (! function_exists('sim30_validate_scenario')) {
             $reasons[] = 'Midia nao persistida em chat_messages/chat_messages_extended.';
         }
 
-        if ((bool) ($scenario['expect_human'] ?? false)) {
-            if ($ticket->human_takeover_at === null && (bool) $ticket->is_bot_active) {
-                $reasons[] = 'Handoff humano esperado, mas ticket segue com bot ativo e sem human_takeover_at.';
-            }
+        if ((bool) $scenario['expect_human'] ?? false && ($ticket->human_takeover_at === null && (bool) $ticket->is_bot_active)) {
+            $reasons[] = 'Handoff humano esperado, mas ticket segue com bot ativo e sem human_takeover_at.';
         }
 
         if ((bool) ($scenario['expect_closed'] ?? false) && (string) $ticket->status !== 'closed') {
@@ -510,12 +505,10 @@ if (! function_exists('sim30_validate_scenario')) {
         }
 
         if (is_string($scenario['expect_delegation_to'] ?? null)) {
-            $targetName = (string) $scenario['expect_delegation_to'];
+            $targetName = $scenario['expect_delegation_to'];
             $targetAgent = sim30_find_agent_by_name($tenantId, $targetName);
             $targetAgentId = $targetAgent instanceof AiAgent ? (string) $targetAgent->id : null;
-            $hasDelegationRun = $targetAgentId
-                ? $runs->contains(fn (AiAutopilotRun $run) => data_get($run->input_context, 'agent_id') === (string) $targetAgentId)
-                : false;
+            $hasDelegationRun = $targetAgentId && $runs->contains(fn (AiAutopilotRun $run): bool => data_get($run->input_context, 'agent_id') === $targetAgentId);
             $hasDelegateTool = in_array('delegate_to_agent', $toolNames, true);
 
             if (! $hasDelegationRun && ! $hasDelegateTool && $ticket->current_ai_agent_id !== $targetAgentId) {
@@ -553,7 +546,7 @@ if (! function_exists('sim30_validate_scenario')) {
             $success = data_get($item, 'result.success');
             $nestedSuccess = data_get($item, 'result.data.success');
             if ($tool !== '' && ($success === false || $nestedSuccess === false)) {
-                $reviews[] = "Tool {$tool} retornou falha: ".(string) (data_get($item, 'result.message') ?? data_get($item, 'result.data.message') ?? data_get($item, 'result.error') ?? 'sem mensagem');
+                $reviews[] = "Tool {$tool} retornou falha: ".data_get($item, 'result.message', data_get($item, 'result.data.message', data_get($item, 'result.error', 'sem mensagem')));
             }
         }
 
@@ -584,7 +577,7 @@ if (! function_exists('sim30_validate_scenario')) {
                 'name' => $ticket->contact?->name,
                 'email' => $ticket->contact?->email,
             ],
-            'runs' => $runs->map(fn (AiAutopilotRun $run) => [
+            'runs' => $runs->map(fn (AiAutopilotRun $run): array => [
                 'id' => (string) $run->id,
                 'parent_run_id' => $run->parent_run_id ? (string) $run->parent_run_id : null,
                 'status' => (string) $run->status,
@@ -596,7 +589,7 @@ if (! function_exists('sim30_validate_scenario')) {
             ])->values()->all(),
             'tool_trace' => $trace,
             'delegations' => $delegationRuns->count(),
-            'messages' => $messages->map(fn (ChatMessage $message) => [
+            'messages' => $messages->map(fn (ChatMessage $message): array => [
                 'id' => (string) $message->id,
                 'direction' => (string) $message->direction,
                 'is_from_contact' => (bool) $message->is_from_contact,
@@ -1084,7 +1077,7 @@ foreach ($scenarios as $scenario) {
         $kind = (string) ($message['type'] ?? 'text');
         $label = $kind === 'text'
             ? Str::limit((string) $message['content'], 90)
-            : "{$kind}: ".(string) ($message['file_name'] ?? $message['file_url']);
+            : "{$kind}: ".($message['file_name'] ?? $message['file_url']);
 
         $sent = sim30_send_message((string) $session['token'], $message);
         sim30_line('  IN  '.($position + 1).': '.$label.' ['.($sent['messageId'] ?? 'no-id').']');
@@ -1116,7 +1109,7 @@ foreach ($scenarios as $scenario) {
         }
 
         if ($betweenMessagesSeconds > 0 && ! $isLast) {
-            usleep((int) ($betweenMessagesSeconds * 1000000));
+            \Illuminate\Support\Sleep::usleep((int) ($betweenMessagesSeconds * 1000000));
         }
     }
 
@@ -1151,11 +1144,11 @@ $summary = [
     'generated_at' => now()->toIso8601String(),
     'counts' => [
         'total' => count($results),
-        'pass' => count(array_filter($results, fn (array $result) => $result['status'] === 'PASS')),
-        'fail' => count(array_filter($results, fn (array $result) => $result['status'] === 'FAIL')),
-        'review' => count(array_filter($results, fn (array $result) => $result['status'] === 'REVIEW')),
+        'pass' => count(array_filter($results, fn (array $result): bool => $result['status'] === 'PASS')),
+        'fail' => count(array_filter($results, fn (array $result): bool => $result['status'] === 'FAIL')),
+        'review' => count(array_filter($results, fn (array $result): bool => $result['status'] === 'REVIEW')),
     ],
-    'results' => array_map(fn (array $result) => [
+    'results' => array_map(fn (array $result): array => [
         'scenario_id' => $result['scenario_id'],
         'title' => $result['scenario_title'],
         'status' => $result['status'],
@@ -1193,11 +1186,11 @@ foreach ($summary['results'] as $row) {
         str_pad((string) ($row['last_agent'] ?? '-'), 18).
         str_pad((string) $row['runs'], 7).
         str_pad((string) $row['delegations'], 7).
-        (string) $row['title']
+        $row['title']
     );
 }
 
-$failures = array_filter($summary['results'], fn (array $row) => $row['status'] !== 'PASS');
+$failures = array_filter($summary['results'], fn (array $row): bool => $row['status'] !== 'PASS');
 if ($failures !== []) {
     sim30_section('Falhas e revisoes');
     foreach ($failures as $row) {

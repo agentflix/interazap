@@ -114,11 +114,9 @@ final class WebChatMessageControllerTest extends TestCase
         $response->assertStatus(201);
 
         Event::assertNotDispatched(AiRunRequested::class);
-        Bus::assertDispatched(ChatAutoReplyRespondJob::class, function (ChatAutoReplyRespondJob $job): bool {
-            return $this->readPrivateProperty($job, 'isFirstInteraction') === true
-                && $this->readPrivateProperty($job, 'tenantId') === $this->tenantId
-                && $this->readPrivateProperty($job, 'body') === 'Mensagem sem IA';
-        });
+        Bus::assertDispatched(ChatAutoReplyRespondJob::class, fn (ChatAutoReplyRespondJob $job): bool => $this->readPrivateProperty($job, 'isFirstInteraction') === true
+            && $this->readPrivateProperty($job, 'tenantId') === $this->tenantId
+            && $this->readPrivateProperty($job, 'body') === 'Mensagem sem IA');
     }
 
     public function test_receives_message_and_skips_automation_when_ticket_is_under_human_takeover(): void
@@ -193,7 +191,6 @@ final class WebChatMessageControllerTest extends TestCase
     private function readPrivateProperty(object $object, string $property): mixed
     {
         $reflection = new \ReflectionProperty($object, $property);
-        $reflection->setAccessible(true);
 
         return $reflection->getValue($object);
     }

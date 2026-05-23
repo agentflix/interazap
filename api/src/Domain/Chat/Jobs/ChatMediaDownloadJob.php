@@ -81,7 +81,9 @@ final class ChatMediaDownloadJob implements ShouldBeUnique, ShouldQueue
             'original_url' => $this->originalUrl,
         ]);
 
-        $message = ChatMessage::find($this->messageId);
+        $message = ChatMessage::query()
+            ->where('tenant_id', $this->tenantId)
+            ->find($this->messageId);
         if (! $message) {
             logger()->warning('[ChatMediaDownloadJob] Mensagem não encontrada', [
                 'message_id' => $this->messageId,

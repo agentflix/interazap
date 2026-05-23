@@ -17,7 +17,7 @@ $tenantTables = [
     // Adicionar novas tabelas auditáveis aqui
 ];
 
-test('tenant_id é NOT NULL nas tabelas críticas de multi-tenancy', function (string $table) {
+test('tenant_id é NOT NULL nas tabelas críticas de multi-tenancy', function (string $table): void {
     $row = DB::selectOne("
         SELECT is_nullable
         FROM   information_schema.columns

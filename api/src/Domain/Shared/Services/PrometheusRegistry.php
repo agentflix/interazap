@@ -29,6 +29,7 @@ final class PrometheusRegistry
         $options = [
             'host' => $connection['host'] ?? '127.0.0.1',
             'port' => (int) ($connection['port'] ?? 6379),
+            'timeout' => 2.0,
         ];
 
         if (! empty($connection['password'])) {

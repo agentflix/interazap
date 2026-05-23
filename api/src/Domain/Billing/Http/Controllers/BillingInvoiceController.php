@@ -82,8 +82,8 @@ final class BillingInvoiceController extends BaseController
                 $tenantId,
                 BillingInvoiceDTO::fromRequest($request)
             );
-        } catch (\Illuminate\Database\UniqueConstraintViolationException) {
-            return $this->error('Já existe uma fatura para o mês informado.', 422);
+        } catch (\DomainException|\Illuminate\Database\UniqueConstraintViolationException $exception) {
+            return $this->error($exception->getMessage(), 422);
         }
 
         return $this->created(

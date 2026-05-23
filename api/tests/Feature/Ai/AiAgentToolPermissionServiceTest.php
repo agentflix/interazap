@@ -229,8 +229,8 @@ class AiAgentToolPermissionServiceTest extends TestCase
 
         $oldTool1 = $this->createTool($tenantId, 'OldTool1');
         $oldTool2 = $this->createTool($tenantId, 'OldTool2');
-        $newTool1 = $this->createTool($tenantId, 'NewTool1');
-        $newTool2 = $this->createTool($tenantId, 'NewTool2');
+        $this->createTool($tenantId, 'NewTool1');
+        $this->createTool($tenantId, 'NewTool2');
 
         // Vincula tools antigas
         $this->attachTool($agent, $oldTool1);
@@ -261,7 +261,7 @@ class AiAgentToolPermissionServiceTest extends TestCase
         $tenantId = (string) $tenant->id;
 
         $agent = $this->createAgent($tenantId);
-        $validTool = $this->createTool($tenantId, 'ValidTool');
+        $this->createTool($tenantId, 'ValidTool');
 
         $this->service->syncAgentTools(
             $tenantId,
@@ -283,8 +283,8 @@ class AiAgentToolPermissionServiceTest extends TestCase
         $tenantId = (string) $tenant->id;
 
         $agent = $this->createAgent($tenantId);
-        $activeTool = $this->createTool($tenantId, 'ActiveTool', isActive: true);
-        $inactiveTool = $this->createTool($tenantId, 'InactiveTool', isActive: false);
+        $this->createTool($tenantId, 'ActiveTool', isActive: true);
+        $this->createTool($tenantId, 'InactiveTool', isActive: false);
 
         $this->service->syncAgentTools(
             $tenantId,
@@ -397,7 +397,7 @@ class AiAgentToolPermissionServiceTest extends TestCase
         $agentB = $this->createAgent($tenantBId, 'Agent B');
 
         $toolA1 = $this->createTool($tenantAId, 'ToolA1');
-        $toolA2 = $this->createTool($tenantAId, 'ToolA2');
+        $this->createTool($tenantAId, 'ToolA2');
         $toolB1 = $this->createTool($tenantBId, 'ToolB1');
 
         $this->attachTool($agentA, $toolA1);
@@ -434,8 +434,8 @@ class AiAgentToolPermissionServiceTest extends TestCase
 
         $agentA = $this->createAgent($tenantAId, 'Agent A');
 
-        $toolA = $this->createTool($tenantAId, 'ToolA');
-        $toolB = $this->createTool($tenantBId, 'ToolB');
+        $this->createTool($tenantAId, 'ToolA');
+        $this->createTool($tenantBId, 'ToolB');
 
         // Tenta sincronizar agent A com tools de ambos os tenants
         $this->service->syncAgentTools(

@@ -57,7 +57,7 @@ class ChatWebhookMediaTest extends TestCase
 
         app(ChatWebhookIngestor::class)->ingest($tenantId, $locationPayload);
 
-        // Video treated as file
+        // Video keeps its media type.
         $videoPayload = [
             'tenant_id' => $tenantId,
             'direction' => 'incoming',
@@ -95,7 +95,7 @@ class ChatWebhookMediaTest extends TestCase
 
         $this->assertDatabaseHas('chat_messages', [
             'external_id' => 'vid-1',
-            'type' => 'file',
+            'type' => 'video',
         ]);
 
         $videoMessage = \Domain\Chat\Models\ChatMessage::query()

@@ -46,10 +46,8 @@ final class AiContextBuilderSanitizationTest extends TestCase
         Log::shouldHaveReceived('warning')
             ->atLeast()
             ->once()
-            ->withArgs(function (string $message, array $context): bool {
-                return str_contains($message, 'Potential prompt injection pattern detected')
-                    && isset($context['pattern']);
-            });
+            ->withArgs(fn (string $message, array $context): bool => str_contains($message, 'Potential prompt injection pattern detected')
+                && isset($context['pattern']));
     }
 
     public function test_sanitize_user_input_skips_invalid_regex_patterns_without_failing(): void
@@ -63,9 +61,7 @@ final class AiContextBuilderSanitizationTest extends TestCase
         $this->assertSame("<<<USER_INPUT>>>\nnormal content\n<<<END>>>", $sanitized);
         Log::shouldHaveReceived('warning')
             ->once()
-            ->withArgs(function (string $message, array $context): bool {
-                return str_contains($message, 'Invalid input sanitization regex pattern')
-                    && ($context['pattern'] ?? null) === 'invalid-regex-without-delimiter';
-            });
+            ->withArgs(fn (string $message, array $context): bool => str_contains($message, 'Invalid input sanitization regex pattern')
+                && ($context['pattern'] ?? null) === 'invalid-regex-without-delimiter');
     }
 }

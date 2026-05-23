@@ -27,7 +27,9 @@ final class UpdateTicketActivityTimestampsListener
      */
     public function handle(MessagePersisted $event): void
     {
-        $ticket = ChatTicket::find($event->ticketId);
+        $ticket = ChatTicket::query()
+            ->where('tenant_id', $event->tenantId)
+            ->find($event->ticketId);
 
         if (! $ticket instanceof ChatTicket) {
             Log::warning('[UpdateTicketActivityTimestampsListener] Ticket não encontrado', [

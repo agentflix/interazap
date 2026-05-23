@@ -69,7 +69,7 @@ final class ListCRMNegotiationsByStepAction
         $this->filterService->apply($query, $filters, false);
 
         // Negociações com amount > 0 devem ter ao menos um produto vinculado
-        // (crm_negotiation_products com crm_product_id não nulo)
+        // (crm_negotiation_products com crm_product_id não nulo).
         $query->where(function (Builder $builder): void {
             $builder->where('amount', '<=', 0)
                 ->orWhereHas('products', fn (Builder $productQuery) => $productQuery->whereNotNull('crm_product_id'));

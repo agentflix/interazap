@@ -236,7 +236,7 @@ it('supports delegation chain up to max depth', function (): void {
         ->and((int) $secondChild->delegation_depth)->toBe(2)
         ->and((string) $secondChild->parent_run_id)->toBe((string) $childRun->id);
 
-    Queue::assertPushed(AiRunExecutionJob::class, 2);
+    Queue::assertNotPushed(AiRunExecutionJob::class);
 });
 
 it('creates child run without dispatching execution job when create-only mode is enabled', function (): void {

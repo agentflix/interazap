@@ -136,7 +136,7 @@ class InternalAiControllerTest extends TestCase
 
         // Cria duas tools, mas vincula apenas uma ao agente
         $linkedTool = $this->createTool($tenantId, 'send_message');
-        $unlinkedTool = $this->createTool($tenantId, 'search_knowledge');
+        $this->createTool($tenantId, 'search_knowledge');
 
         $this->attachToolToAgent($tenantId, (string) $agent->id, $linkedTool);
 

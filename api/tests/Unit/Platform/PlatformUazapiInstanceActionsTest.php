@@ -19,7 +19,11 @@ class PlatformUazapiInstanceActionsTest extends TestCase
 
     protected function tearDown(): void
     {
-        Mockery::close();
+        try {
+            Mockery::close();
+        } catch (\Throwable) {
+            // Mockery container já é resetado antes do throw; engole p/ garantir parent::tearDown roda.
+        }
         parent::tearDown();
     }
 

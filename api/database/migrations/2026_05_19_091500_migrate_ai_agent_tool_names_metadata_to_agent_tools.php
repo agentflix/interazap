@@ -9,11 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-/**
- * Migra os nomes de tools salvos em ai_agents.metadata->tool_names
- * para a tabela pivot ai_agent_tools, removendo apenas a chave tool_names.
- */
-final class MigrateAiAgentToolNamesMetadataToAgentTools extends Migration
+return new class extends Migration
 {
     /**
      * Executa a migração: backfill de ai_agent_tools a partir de metadata.tool_names.
@@ -129,4 +125,4 @@ final class MigrateAiAgentToolNamesMetadataToAgentTools extends Migration
             DB::table('ai_agent_tools')->whereIn('agent_id', $agentIds)->delete();
         }
     }
-}
+};

@@ -12,6 +12,7 @@ use Domain\CRM\Models\CRMContact;
 use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -49,8 +50,14 @@ final class WebChatSessionController extends BaseController
 
         // Tentar encontrar sessão ativa pelo token (idempotência)
         if (isset($validated['token']) && $validated['token'] !== '') {
+            $tokenPayload = $this->jwtService->validateToken($validated['token']);
+
             $existingSession = ChatSession::query()
-                ->where('token', $validated['token'])
+                ->when(
+                    is_array($tokenPayload),
+                    fn ($query) => $query->where('id', (string) ($tokenPayload['session_id'] ?? '')),
+                    fn ($query) => $query->where('token', $validated['token'])
+                )
                 ->where('tenant_id', $tenantId)
                 ->first();
 
@@ -189,7 +196,7 @@ final class WebChatSessionController extends BaseController
     }
 
     /**
-     * Encontrar ou criar contato para o visitante webchat.
+     * Encontrar ou criar contato para o visitante webchat dentro de uma transação.
      */
     private function findOrCreateContact(
         string $tenantId,
@@ -197,38 +204,41 @@ final class WebChatSessionController extends BaseController
         ?string $email,
         ?string $phone,
     ): ?string {
-        $cleanPhone = $phone ? preg_replace('/[^0-9]/', '', $phone) : null;
+        return DB::transaction(function () use ($tenantId, $name, $email, $phone): ?string {
+            $cleanPhone = $phone ? preg_replace('/[^0-9]/', '', $phone) : null;
 
-        if ($email || $cleanPhone) {
-            $contact = CRMContact::query()
-                ->where('tenant_id', $tenantId)
-                ->where('is_active', true)
-                ->where(function ($q) use ($email, $cleanPhone): void {
-                    if ($email) {
-                        $q->orWhere('email', $email);
-                    }
-                    if ($cleanPhone) {
-                        $q->orWhere('phone', 'like', "%{$cleanPhone}%");
-                        $q->orWhere('whatsapp', 'like', "%{$cleanPhone}%");
-                    }
-                })
-                ->first();
+            if ($email || $cleanPhone) {
+                $contact = CRMContact::query()
+                    ->where('tenant_id', $tenantId)
+                    ->where('is_active', true)
+                    ->where(function ($q) use ($email, $cleanPhone): void {
+                        if ($email) {
+                            $q->orWhere('email', $email);
+                        }
+                        if ($cleanPhone) {
+                            $q->orWhere('phone', 'like', "%{$cleanPhone}%");
+                            $q->orWhere('whatsapp', 'like', "%{$cleanPhone}%");
+                        }
+                    })
+                    ->lockForUpdate()
+                    ->first();
 
-            if ($contact) {
-                return $contact->id;
+                if ($contact) {
+                    return $contact->id;
+                }
             }
-        }
 
-        $newContact = CRMContact::query()->create([
-            'id' => (string) Str::orderedUuid(),
-            'tenant_id' => $tenantId,
-            'name' => $name,
-            'email' => $email,
-            'phone' => $phone,
-            'is_active' => true,
-        ]);
+            $newContact = CRMContact::query()->create([
+                'id' => (string) Str::orderedUuid(),
+                'tenant_id' => $tenantId,
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+                'is_active' => true,
+            ]);
 
-        return $newContact->id;
+            return $newContact->id;
+        });
     }
 
     /**

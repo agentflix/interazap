@@ -37,7 +37,6 @@ class AiCatalogSeeder extends Seeder
     {
         $general = [
             'prompt_suffix' => 'Atue com foco em atendimento consultivo, segurança e geração de oportunidades qualificadas.',
-            'agents' => [],
             'funnels' => [
                 [
                     'name' => 'Vendas Padrão',
@@ -58,6 +57,22 @@ class AiCatalogSeeder extends Seeder
             ],
             'tags' => ['Quente', 'Morno', 'Frio', 'VIP', 'Acompanhamento'],
             'departments' => ['Comercial', 'Suporte', 'Customer Success', 'Financeiro'],
+            'agents' => [
+                [
+                    'name' => 'Assistente Geral',
+                    'type' => 'general',
+                    'model_id' => 'gpt-4o-mini',
+                    'system_prompt' => 'Atue como assistente geral de atendimento com foco em qualificação e handoff seguro.',
+                    'is_active' => true,
+                ],
+                [
+                    'name' => 'Qualificador Geral',
+                    'type' => 'general',
+                    'model_id' => 'gpt-4o-mini',
+                    'system_prompt' => 'Qualifique contatos, organize contexto e registre próximos passos comerciais.',
+                    'is_active' => true,
+                ],
+            ],
         ];
 
         $saas = $general;
@@ -66,6 +81,9 @@ class AiCatalogSeeder extends Seeder
         $saas['departments'] = ['Pré-vendas', 'Vendas', 'Onboarding', 'Customer Success'];
         $saasIdentity = <<<'MD'
 # IDENTIDADE - Assistente SaaS
+
+## Quem sou eu
+Sou o assistente virtual comercial da operacao SaaS, preparado para qualificar leads, apoiar ativacao e organizar o handoff para o time humano.
 
 ## Missao
 Voce e o assistente virtual comercial de uma operacao SaaS.
@@ -110,6 +128,26 @@ Encaminhe para humano quando:
 "Posso te ajudar a avancar agora. Me confirma [dado necessario] e eu ja preparo o proximo passo."
 MD;
         $saas['agents'] = [
+            [
+                'name' => 'Super Admin - SAAS',
+                'type' => 'general',
+                'model_id' => 'gpt-4o-mini',
+                'system_prompt' => 'Atue como orquestrador SaaS com acesso às ferramentas essenciais de atendimento e handoff.',
+                'classifier_model' => 'gpt-4o-mini',
+                'max_tokens' => 2048,
+                'temperature' => 0.5,
+                'top_p' => 1.0,
+                'token_budget_input' => 5000,
+                'token_budget_output' => 2000,
+                'fallback_message' => 'Vou acionar um especialista humano para continuidade.',
+                'is_active' => true,
+                'channels' => ['whatsapp'],
+                'tools' => [
+                    AiToolEnum::SEARCH_KNOWLEDGE,
+                    AiToolEnum::SEND_MESSAGE,
+                    AiToolEnum::TRANSFER_TO_HUMAN,
+                ],
+            ],
             [
                 'name' => 'Assistente - SaaS',
                 'type' => 'general',

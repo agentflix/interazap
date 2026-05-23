@@ -94,6 +94,8 @@ final class GenerateReportExportJob implements ShouldQueue
             ]);
 
             throw $exception;
+        } finally {
+            TenantContext::clear();
         }
     }
 

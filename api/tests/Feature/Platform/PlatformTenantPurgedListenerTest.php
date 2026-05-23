@@ -28,10 +28,8 @@ final class PlatformTenantPurgedListenerTest extends TestCase
     {
         Log::shouldReceive('info')
             ->once()
-            ->withArgs(function (string $message, array $context): bool {
-                return $message === 'platform.tenant_purged'
-                    && isset($context['tenant_id'], $context['purged_at']);
-            });
+            ->withArgs(fn (string $message, array $context): bool => $message === 'platform.tenant_purged'
+                && isset($context['tenant_id'], $context['purged_at']));
 
         app(PlatformTenantPurgedListener::class)->handle(
             new PlatformTenantPurgedEvent(
@@ -47,10 +45,8 @@ final class PlatformTenantPurgedListenerTest extends TestCase
 
         Log::shouldReceive('info')
             ->once()
-            ->withArgs(function (string $message, array $context) use ($tenantId): bool {
-                return $message === 'platform.tenant_purged'
-                    && $context['tenant_id'] === $tenantId;
-            });
+            ->withArgs(fn (string $message, array $context): bool => $message === 'platform.tenant_purged'
+                && $context['tenant_id'] === $tenantId);
 
         app(PlatformTenantPurgedListener::class)->handle(
             new PlatformTenantPurgedEvent(

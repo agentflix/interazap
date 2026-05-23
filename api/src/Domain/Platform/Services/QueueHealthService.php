@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Redis;
  * Provides methods to check queue sizes, worker status,
  * and stuck jobs for alerting purposes.
  */
-final class QueueHealthService
+class QueueHealthService
 {
     /**
      * Default queues to monitor.

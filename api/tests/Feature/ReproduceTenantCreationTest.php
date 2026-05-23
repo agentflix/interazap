@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Database\Seeders\AiPromptMasterSeeder;
+use Database\Seeders\AiPromptSegmentSeeder;
 use Domain\Auth\Models\AuthRole;
 use Domain\Auth\Models\AuthUser;
 use Domain\Platform\Actions\PlatformTenantActions;
@@ -10,6 +12,9 @@ use Domain\Platform\DTOs\PlatformTenantDTO;
 use Domain\Platform\Models\PlatformTenant;
 
 test('reproduce tenant creation error via actions', function (): void {
+    $this->seed(AiPromptMasterSeeder::class);
+    $this->seed(AiPromptSegmentSeeder::class);
+
     $role = \Domain\Auth\Models\AuthRole::query()->firstOrCreate(['id' => AuthRole::ADMINISTRADOR_ID], ['name' => AuthRole::ADMINISTRADOR_NAME, 'guard_name' => 'sanctum']);
 
     $tenant = PlatformTenant::factory()->create();

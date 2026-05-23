@@ -7,6 +7,7 @@ use Domain\CRM\Models\CRMContact;
 use Domain\CRM\Models\CRMTag;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Str;
 
 uses(LazilyRefreshDatabase::class);
 
@@ -36,7 +37,10 @@ test('can detach tag from contact', function (): void {
     $contact = CRMContact::factory()->create(['tenant_id' => $this->tenant->id]);
     $tag = CRMTag::factory()->create(['tenant_id' => $this->tenant->id]);
 
-    $contact->tags()->attach($tag->id);
+    $contact->tags()->attach($tag->id, [
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => $this->tenant->id,
+    ]);
 
     $response = $this->deleteJson("/api/crm/contacts/{$contact->id}/tags/{$tag->id}");
 
@@ -53,7 +57,16 @@ test('listing contacts includes tags', function (): void {
     $tag1 = CRMTag::factory()->create(['tenant_id' => $this->tenant->id, 'name' => 'VIP']);
     $tag2 = CRMTag::factory()->create(['tenant_id' => $this->tenant->id, 'name' => 'Hot Lead']);
 
-    $contact->tags()->attach([$tag1->id, $tag2->id]);
+    $contact->tags()->attach([
+        $tag1->id => [
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $this->tenant->id,
+        ],
+        $tag2->id => [
+            'id' => (string) Str::orderedUuid(),
+            'tenant_id' => $this->tenant->id,
+        ],
+    ]);
 
     $response = $this->getJson("/api/crm/contacts/{$contact->id}");
 

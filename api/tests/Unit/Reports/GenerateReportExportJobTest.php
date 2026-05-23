@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Reports;
 
 use Domain\Reports\Actions\GetSalesFunnelReportAction;
+use Domain\Reports\Contracts\ReportActionInterface;
+use Domain\Reports\DTOs\ReportsFilterDTO;
 use Domain\Reports\Jobs\GenerateReportExportJob;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Storage;
@@ -24,12 +26,12 @@ class GenerateReportExportJobTest extends TestCase
         Storage::fake('local');
         Date::setTestNow('2026-03-01 12:34:56');
 
-        $fakeAction = new class
+        $fakeAction = new class implements ReportActionInterface
         {
             /**
              * @return array<string, mixed>
              */
-            public function execute(object $dto): array
+            public function execute(ReportsFilterDTO $dto): array
             {
                 return [
                     'summary' => [
@@ -65,12 +67,12 @@ class GenerateReportExportJobTest extends TestCase
     {
         Date::setTestNow('2026-03-01 12:34:56');
 
-        $fakeAction = new class
+        $fakeAction = new class implements ReportActionInterface
         {
             /**
              * @return array<string, mixed>
              */
-            public function execute(object $dto): array
+            public function execute(ReportsFilterDTO $dto): array
             {
                 return [
                     'summary' => [

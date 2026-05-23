@@ -10,6 +10,7 @@ use Domain\Auth\Models\AuthUser;
 use Domain\Platform\Models\PlatformPlan;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 

@@ -115,7 +115,6 @@ final class ChatMessageResource extends BaseJsonResource
             'event_type' => $metadata['event_type'] ?? null,
             'direction' => $metadata['direction'] ?? null,
             'instance_id' => $metadata['instance_id'] ?? null,
-            'instance_webhook_token' => $metadata['instance_webhook_token'] ?? null,
             'message' => [
                 'id' => $message['id'] ?? null,
                 'type' => $message['type'] ?? null,
@@ -204,8 +203,13 @@ final class ChatMessageResource extends BaseJsonResource
             // Tentar buscar do quoted_message_id (quando enviado pelo nosso sistema)
             $quotedMessageId = $metadata['quoted_message_id'] ?? null;
             if ($quotedMessageId) {
+                $currentTenantId = $this->tenant_id ?? $this->resource->tenant_id ?? null;
                 $quotedMessage = $this->quotedMap[$quotedMessageId]
-                    ?? \Domain\Chat\Models\ChatMessage::find($quotedMessageId);
+                    ?? ($currentTenantId
+                        ? \Domain\Chat\Models\ChatMessage::query()
+                            ->where('tenant_id', $currentTenantId)
+                            ->find($quotedMessageId)
+                        : null);
                 if ($quotedMessage) {
                     return $this->formatQuotedMessage($quotedMessage);
                 }

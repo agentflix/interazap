@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use Domain\Auth\Models\AuthPermission;
 use Domain\Auth\Models\AuthUser;
 use Domain\Chat\Models\ChatTransmissionList;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -29,13 +30,12 @@ class ChatTransmissionListTest extends TestCase
         ];
 
         foreach ($permissions as $perm) {
-            \Domain\Auth\Models\AuthPermission::query()->firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
-            \Domain\Auth\Models\AuthPermission::query()->firstOrCreate(['name' => $perm, 'guard_name' => 'sanctum']);
+            AuthPermission::query()->firstOrCreate(['name' => $perm], ['guard_name' => 'sanctum']);
         }
 
         $this->user->givePermissionTo($permissions);
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->user, 'sanctum');
     }
 
     public function test_can_create_transmission_list(): void

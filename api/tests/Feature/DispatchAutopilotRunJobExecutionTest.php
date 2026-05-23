@@ -106,7 +106,7 @@ final class DispatchAutopilotRunJobExecutionTest extends TestCase
             'settings_json' => [],
         ]);
 
-        return compact('tenant', 'agent', 'trigger', 'instance');
+        return ['tenant' => $tenant, 'agent' => $agent, 'trigger' => $trigger, 'instance' => $instance];
     }
 
     public function test_job_publishes_agent_id_in_stream_payload(): void

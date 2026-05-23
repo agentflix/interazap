@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 /**
@@ -35,6 +36,7 @@ use Illuminate\Support\Str;
 class AiPromptSegment extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     public const CODE_GENERAL = 'GENERAL';
 

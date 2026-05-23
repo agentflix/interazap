@@ -406,7 +406,7 @@ class AiAgentControllerTest extends TestCase
         ]);
 
         // Tenant B creates a tool
-        $toolB = AiAutopilotTool::query()->create([
+        AiAutopilotTool::query()->create([
             'id' => (string) Str::orderedUuid(),
             'tenant_id' => $tenantBUser->tenant_id,
             'name' => 'send_message',

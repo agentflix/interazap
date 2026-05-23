@@ -94,22 +94,28 @@ final class CriticalDataCacheService
     {
         $key = "instance:token:{$token}";
 
-        /** @var string|null $instanceId */
-        $instanceId = Cache::remember($key, self::INSTANCE_TOKEN_TTL, function () use ($token): ?string {
+        /** @var array{id: string, tenant_id: string}|null $cached */
+        $cached = Cache::remember($key, self::INSTANCE_TOKEN_TTL, function () use ($token): ?array {
             $instance = ChatInstance::query()
                 ->where('webhook_token', $token)
                 ->where('is_active', true)
                 ->first();
 
-            return $instance?->id;
+            if (! $instance) {
+                return null;
+            }
+
+            return ['id' => $instance->id, 'tenant_id' => $instance->tenant_id];
         });
 
-        if (! $instanceId) {
+        if (! $cached) {
             return null;
         }
 
         /** @var ChatInstance|null */
-        return ChatInstance::find($instanceId);
+        return ChatInstance::query()
+            ->where('tenant_id', $cached['tenant_id'])
+            ->find($cached['id']);
     }
 
     /**

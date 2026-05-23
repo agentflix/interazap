@@ -41,6 +41,12 @@ return new class extends Migration
         // 8. Acelera listagens de contatos ativos dentro de um tenant.
         DB::statement('CREATE INDEX IF NOT EXISTS idx_crm_contacts_tenant_active ON crm_contacts(tenant_id, is_active)');
 
+        // 8.1. Acelera listagens paginadas de contatos por tenant.
+        DB::statement('CREATE INDEX IF NOT EXISTS idx_crm_contacts_list ON crm_contacts(tenant_id, is_active, name)');
+
+        // 8.2. Acelera filtros de contatos ativos por empresa dentro do tenant.
+        DB::statement('CREATE INDEX IF NOT EXISTS idx_crm_contacts_tenant_company_active ON crm_contacts(tenant_id, crm_company_id, is_active)');
+
         // 9. Otimiza carregamento de contatos vinculados a uma empresa.
         DB::statement('CREATE INDEX IF NOT EXISTS idx_crm_contacts_company ON crm_contacts(crm_company_id)');
 
@@ -117,6 +123,12 @@ return new class extends Migration
 
         // 34. Otimiza análises de custo e consumo por modelo de IA.
         DB::statement('CREATE INDEX IF NOT EXISTS idx_ai_usage_logs_model ON ai_usage_logs(ai_model_pricing_id)');
+
+        // 34.1. Otimiza relatórios temporais extensos de logs de IA.
+        DB::statement('CREATE INDEX IF NOT EXISTS idx_ai_usage_logs_created_brin ON ai_usage_logs USING brin(created_at)');
+
+        // 34.2. Otimiza filtros ad hoc em metadados JSONB dos logs de IA.
+        DB::statement('CREATE INDEX IF NOT EXISTS idx_ai_usage_logs_metadata_gin ON ai_usage_logs USING gin(metadata)');
 
         // 35. Acelera carregamento de chunks vinculados a um documento (RAG).
         DB::statement('CREATE INDEX IF NOT EXISTS idx_ai_knowledge_chunks_document ON ai_knowledge_chunks(document_id)');
@@ -206,6 +218,10 @@ return new class extends Migration
         DB::statement('DROP INDEX IF EXISTS idx_ai_knowledge_chunks_document');
 
         // 34. Drop de logs de uso por modelo de IA.
+        DB::statement('DROP INDEX IF EXISTS idx_ai_usage_logs_metadata_gin');
+
+        DB::statement('DROP INDEX IF EXISTS idx_ai_usage_logs_created_brin');
+
         DB::statement('DROP INDEX IF EXISTS idx_ai_usage_logs_model');
 
         // 33. Drop de logs de uso por tenant e feature.
@@ -284,6 +300,10 @@ return new class extends Migration
         DB::statement('DROP INDEX IF EXISTS idx_crm_contacts_company');
 
         // 8. Drop de contatos por tenant e ativo.
+        DB::statement('DROP INDEX IF EXISTS idx_crm_contacts_tenant_company_active');
+
+        DB::statement('DROP INDEX IF EXISTS idx_crm_contacts_list');
+
         DB::statement('DROP INDEX IF EXISTS idx_crm_contacts_tenant_active');
 
         // 7. Drop de empresas por documento.

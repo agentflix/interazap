@@ -7,6 +7,7 @@ namespace Domain\Shared\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TenantExistsRule implements ValidationRule
 {
@@ -17,6 +18,10 @@ class TenantExistsRule implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        if ($this->column === 'id' && (! is_string($value) || ! Str::isUuid($value))) {
+            return;
+        }
+
         $exists = DB::table($this->table)
             ->where($this->column, $value)
             ->where('tenant_id', auth()->user()->tenant_id)

@@ -92,7 +92,7 @@ final class CorrelationIdEndToEndTest extends TestCase
 
         foreach ($entries as $streamId => $entry) {
             if (is_array($entry) && array_is_list($entry) && count($entry) >= 2 && is_string($entry[0] ?? null) && is_array($entry[1] ?? null)) {
-                $resolvedStreamId = (string) $entry[0];
+                $resolvedStreamId = $entry[0];
                 $normalizedFields = $this->normalizeStreamFields($entry[1]);
             } elseif (is_string($streamId) && is_array($entry)) {
                 $resolvedStreamId = $streamId;

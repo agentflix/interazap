@@ -45,6 +45,7 @@ class CRMNegotiationKanbanPaginationTest extends TestCase
                 'tenant_id' => $tenantId,
                 'crm_negotiation_funnel_id' => $funnelId,
                 'crm_negotiation_funnel_step_id' => $stepId,
+                'amount' => 0,
                 'position' => $i,
                 'status' => 'open',
             ]);

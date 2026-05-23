@@ -226,8 +226,7 @@ $ok = e2e_run('pipeline: segunda mensagem cria outro run', function () use ($ctx
     ]);
 
     $runs = AiAutopilotRun::query()
-        ->where('tenant_id', $ctx['tenant_id'])
-        ->orderByDesc('created_at')
+        ->where('tenant_id', $ctx['tenant_id'])->latest()
         ->take(2)
         ->get();
 
@@ -261,13 +260,13 @@ if (! $gatewayOnline) {
 
         // Teste 1: AiRunExecutionJob completa o run
         $ok = e2e_run('execução: AiRunExecutionJob dispatch', function () use ($runIdGrupo2): void {
-            \Domain\Ai\Jobs\AiRunExecutionJob::dispatch($runIdGrupo2);
+            dispatch(new \Domain\Ai\Jobs\AiRunExecutionJob($runIdGrupo2));
 
             // Aguarda run completar (com timeout)
             $run = AiAutopilotRun::query()->find($runIdGrupo2);
             $retries = 0;
             while ($retries < 30 && in_array($run->status, ['queued', 'running'], true)) {
-                usleep(500000); // 500ms
+                \Illuminate\Support\Sleep::usleep(500000); // 500ms
                 $run->refresh();
                 $retries++;
             }
@@ -404,12 +403,12 @@ if (! $gatewayOnline) {
         ->first();
 
     if ($sofiaRun && in_array($sofiaRun->status, ['queued', 'running'], true)) {
-        \Domain\Ai\Jobs\AiRunExecutionJob::dispatch($sofiaRun->id);
+        dispatch(new \Domain\Ai\Jobs\AiRunExecutionJob($sofiaRun->id));
 
         // Aguarda completar
         $retries = 0;
         while ($retries < 30 && in_array($sofiaRun->status, ['queued', 'running'], true)) {
-            usleep(500000);
+            \Illuminate\Support\Sleep::usleep(500000);
             $sofiaRun->refresh();
             $retries++;
         }
@@ -435,12 +434,12 @@ if (! $gatewayOnline) {
         ->where('parent_run_id', $sofiaRun->id)
         ->first();
 
-    if ($childRun && in_array($childRun->status, ['queued'], true)) {
-        \Domain\Ai\Jobs\AiRunExecutionJob::dispatch($childRun->id);
+    if ($childRun && $childRun->status === 'queued') {
+        dispatch(new \Domain\Ai\Jobs\AiRunExecutionJob($childRun->id));
 
         $retries = 0;
         while ($retries < 30 && in_array($childRun->status, ['queued', 'running'], true)) {
-            usleep(500000);
+            \Illuminate\Support\Sleep::usleep(500000);
             $childRun->refresh();
             $retries++;
         }
@@ -472,8 +471,7 @@ trackResultT14($g4Pass, $g4Fail, $ok['pass']);
 $ok = e2e_run('cleanup: remove runs criados pelo test-14', function () use ($ctx): void {
     // Remove todos os runs criados neste teste (os mais recentes)
     $runs = AiAutopilotRun::query()
-        ->where('tenant_id', $ctx['tenant_id'])
-        ->orderByDesc('created_at')
+        ->where('tenant_id', $ctx['tenant_id'])->latest()
         ->get();
 
     foreach ($runs as $run) {
@@ -500,7 +498,7 @@ $ok = e2e_run('cleanup: remove delegações T14', function () use ($ctx): void {
     if ($sofiaAgent || $lucasAgent) {
         AiAgentDelegation::query()
             ->where('tenant_id', $ctx['tenant_id'])
-            ->where(function ($q) use ($sofiaAgent, $lucasAgent) {
+            ->where(function ($q) use ($sofiaAgent, $lucasAgent): void {
                 if ($sofiaAgent) {
                     $q->orWhere('source_agent_id', $sofiaAgent->id);
                 }

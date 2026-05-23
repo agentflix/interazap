@@ -1337,7 +1337,7 @@ $ok = e2e_run('cleanup: remove fixtures do teste', function () use (
     // Remove negotiation_products antes das negociações (FK)
     $negotiationIdsToDelete = CRMNegotiation::query()
         ->where('tenant_id', $ctx['tenant_id'])
-        ->where(function ($q) use ($simNegotiationId, $simNegotiationCloseId, $flowNegotiationId) {
+        ->where(function ($q) use ($simNegotiationId, $simNegotiationCloseId, $flowNegotiationId): void {
             if ($simNegotiationId) {
                 $q->orWhere('id', $simNegotiationId);
             }
@@ -1363,7 +1363,7 @@ $ok = e2e_run('cleanup: remove fixtures do teste', function () use (
     // Remove chat messages criados neste teste
     ChatMessage::query()
         ->where('ticket_id', $ctx['ticket_id'])
-        ->where(function ($q) {
+        ->where(function ($q): void {
             $q->where('source', 'ai')
                 ->orWhere('direction', 'incoming');
         })

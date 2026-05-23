@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Domain\Ai\Models\AiAgent;
-use Domain\Ai\Models\AiAutopilotTool;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -25,14 +23,14 @@ beforeEach(function (): void {
     $this->tenantB = PlatformTenant::factory()->create(['name' => 'Tenant B']);
 
     // Tools do Tenant A
-    $this->toolA1 = AiAutopilotTool::create([
+    $this->toolA1 = \Domain\Ai\Models\AiAutopilotTool::query()->create([
         'tenant_id' => $this->tenantA->id,
         'name' => 'search_knowledge_base',
         'display_name' => 'Search KB',
         'is_active' => true,
     ]);
 
-    $this->toolA2 = AiAutopilotTool::create([
+    $this->toolA2 = \Domain\Ai\Models\AiAutopilotTool::query()->create([
         'tenant_id' => $this->tenantA->id,
         'name' => 'create_ticket',
         'display_name' => 'Create Ticket',
@@ -40,7 +38,7 @@ beforeEach(function (): void {
     ]);
 
     // Tools do Tenant B
-    $this->toolB1 = AiAutopilotTool::create([
+    $this->toolB1 = \Domain\Ai\Models\AiAutopilotTool::query()->create([
         'tenant_id' => $this->tenantB->id,
         'name' => 'search_knowledge_base',
         'display_name' => 'Search KB',
@@ -48,7 +46,7 @@ beforeEach(function (): void {
     ]);
 
     // Agent do Tenant A com tool_names no metadata
-    $this->agentA = AiAgent::create([
+    $this->agentA = \Domain\Ai\Models\AiAgent::query()->create([
         'tenant_id' => $this->tenantA->id,
         'name' => 'Agent A',
         'type' => 'support',
@@ -60,7 +58,7 @@ beforeEach(function (): void {
     ]);
 
     // Agent do Tenant B com tool_names no metadata
-    $this->agentB = AiAgent::create([
+    $this->agentB = \Domain\Ai\Models\AiAgent::query()->create([
         'tenant_id' => $this->tenantB->id,
         'name' => 'Agent B',
         'type' => 'sales',
@@ -187,7 +185,7 @@ test('migration is idempotent and does not duplicate records', function (): void
  * Teste 6: Agent sem metadata.tool_names não é afetado
  */
 test('agent without tool_names in metadata is not affected', function (): void {
-    $agentNoTools = AiAgent::create([
+    $agentNoTools = \Domain\Ai\Models\AiAgent::query()->create([
         'tenant_id' => $this->tenantA->id,
         'name' => 'Agent No Tools',
         'type' => 'support',
@@ -211,7 +209,7 @@ test('agent without tool_names in metadata is not affected', function (): void {
  * Teste 7: Agent com metadata vazio ou nulo não quebra
  */
 test('agent with null metadata does not break migration', function (): void {
-    $agentNullMetadata = AiAgent::create([
+    $agentNullMetadata = \Domain\Ai\Models\AiAgent::query()->create([
         'tenant_id' => $this->tenantA->id,
         'name' => 'Agent Null Metadata',
         'type' => 'support',
@@ -239,8 +237,8 @@ test('rollback restores tool_names in metadata and removes pivots', function ():
     $pivotsBefore = DB::table('ai_agent_tools')->where('agent_id', $this->agentA->id)->get();
     expect($pivotsBefore)->toHaveCount(2);
 
-    // Call down() directly
-    $migration = new \MigrateAiAgentToolNamesMetadataToAgentTools;
+    /** @var \Illuminate\Database\Migrations\Migration $migration */
+    $migration = require base_path('database/migrations/2026_05_19_091500_migrate_ai_agent_tool_names_metadata_to_agent_tools.php');
     $migration->down();
 
     // Debug: check pivots after rollback

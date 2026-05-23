@@ -10,6 +10,7 @@ use Domain\Configuration\Events\NegotiationLostEvent;
 use Domain\Configuration\Events\NegotiationWonEvent;
 use Domain\CRM\Enums\CRMNegotiationStatus;
 use Domain\CRM\Models\CRMNegotiation;
+use Domain\CRM\Models\CRMNegotiationFunnelStep;
 use Domain\CRM\Services\CRMNegotiationHistoryService;
 use Domain\CRM\Services\CRMNegotiationPositionService;
 use Domain\CRM\Services\CRMNegotiationStatusService;
@@ -35,6 +36,11 @@ final class ChangeNegotiationStageAction
         return DB::transaction(function () use ($tenantId, $id, $stepId, $position): CRMNegotiation {
             $negotiation = $this->listAction->find($tenantId, $id);
             $currentStepId = (string) ($negotiation->crm_negotiation_funnel_step_id ?? '');
+
+            CRMNegotiationFunnelStep::query()
+                ->where('tenant_id', $tenantId)
+                ->where('crm_negotiation_funnel_id', $negotiation->crm_negotiation_funnel_id)
+                ->findOrFail($stepId);
 
             $targetNegotiations = CRMNegotiation::query()
                 ->where('tenant_id', $tenantId)

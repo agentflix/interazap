@@ -25,7 +25,8 @@ final class ReportsPolicy
     public function viewCrm(AuthUser $user): bool
     {
         return (bool) $user->tenant_id
-            && $this->planEnforcement->canViewReport($user->tenant_id, 'reports.crm.funnel');
+            && ($this->hasPermission($user, 'reports.crm.view')
+                || $this->planEnforcement->canViewReport($user->tenant_id, 'reports.crm.funnel'));
     }
 
     /**
@@ -36,7 +37,8 @@ final class ReportsPolicy
     public function viewChat(AuthUser $user): bool
     {
         return (bool) $user->tenant_id
-            && $this->planEnforcement->canViewReport($user->tenant_id, 'reports.chat.volume');
+            && ($this->hasPermission($user, 'reports.chat.view')
+                || $this->planEnforcement->canViewReport($user->tenant_id, 'reports.chat.volume'));
     }
 
     /**
@@ -47,7 +49,8 @@ final class ReportsPolicy
     public function viewAi(AuthUser $user): bool
     {
         return (bool) $user->tenant_id
-            && $this->planEnforcement->canViewReport($user->tenant_id, 'reports.ai.autopilot_performance');
+            && ($this->hasPermission($user, 'reports.ai.view')
+                || $this->planEnforcement->canViewReport($user->tenant_id, 'reports.ai.autopilot_performance'));
     }
 
     /**
@@ -58,7 +61,8 @@ final class ReportsPolicy
     public function viewBilling(AuthUser $user): bool
     {
         return (bool) $user->tenant_id
-            && $this->planEnforcement->canViewReport($user->tenant_id, 'reports.billing.revenue');
+            && ($this->hasPermission($user, 'reports.billing.view')
+                || $this->planEnforcement->canViewReport($user->tenant_id, 'reports.billing.revenue'));
     }
 
     /**
@@ -69,7 +73,8 @@ final class ReportsPolicy
     public function viewAdmin(AuthUser $user): bool
     {
         return (bool) $user->tenant_id
-            && $this->planEnforcement->isAdmin($user);
+            && ($this->hasPermission($user, 'reports.admin.view')
+                || $this->planEnforcement->isAdmin($user));
     }
 
     /**
@@ -80,6 +85,12 @@ final class ReportsPolicy
     public function export(AuthUser $user): bool
     {
         return (bool) $user->tenant_id
-            && $this->planEnforcement->canViewReport($user->tenant_id, 'reports.export');
+            && ($this->hasPermission($user, 'reports.export')
+                || $this->planEnforcement->canViewReport($user->tenant_id, 'reports.export'));
+    }
+
+    private function hasPermission(AuthUser $user, string $permission): bool
+    {
+        return $user->getAllPermissions()->contains('name', $permission);
     }
 }

@@ -101,7 +101,7 @@ test('create_note tool creates a note for contact', function (): void {
 });
 
 test('create_task tool creates a negotiation task', function (): void {
-    $tool = new CreateTaskTool;
+    $tool = app(CreateTaskTool::class);
     $input = new ToolInputDTO(
         toolName: 'create_task',
         parameters: [

@@ -224,7 +224,7 @@ final class AuthUserActions
         $user = $this->authUserRepository->findOrFail($id);
 
         if ($user->isSuperAdmin()) {
-            throw new HttpException(422, 'Não é permitido alterar o status de um usuário super-admin.');
+            throw new AuthorizationException('Não é permitido alterar o status de um usuário super-admin.');
         }
 
         $user->is_active = ! $user->is_active;
