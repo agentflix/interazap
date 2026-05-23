@@ -1,12 +1,14 @@
 <form class="space-y-4" (submit)="$event.preventDefault()">
-  <af-select-input
-    label="Empresa"
-    [control]="form.controls.company_id"
-    [options]="companyOptions()"
-    [required]="true"
-    placeholder="Selecione uma empresa"
-    dataTest="platform-user-form-company"
-  />
+  @if (!fixedTenantId()) {
+    <af-select-input
+      label="Empresa"
+      [control]="form.controls.company_id"
+      [options]="companyOptions()"
+      [required]="true"
+      placeholder="Selecione uma empresa"
+      dataTest="platform-user-form-company"
+    />
+  }
 
   <af-text-input
     label="Nome"
@@ -55,5 +57,11 @@
     label="Ativo"
     [control]="form.controls.is_active"
     dataTest="platform-user-form-active"
+  />
+
+  <af-checkbox-input
+    label="Obrigar redefinição de senha ao primeiro login"
+    [control]="form.controls.force_password_change"
+    dataTest="platform-user-form-force-password-change"
   />
 </form>

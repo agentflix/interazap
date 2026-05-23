@@ -9,6 +9,7 @@ use Domain\Auth\Actions\GetUserPreferencesAction;
 use Domain\Auth\Actions\UpdateUserPreferencesAction;
 use Domain\Auth\DTOs\AuthProfileDTO;
 use Domain\Auth\DTOs\AuthUpdatePasswordDTO;
+use Domain\Auth\Http\Requests\AuthForcePasswordChangeRequest;
 use Domain\Auth\Http\Requests\AuthPasswordUpdateRequest;
 use Domain\Auth\Http\Requests\AuthProfileImageRequest;
 use Domain\Auth\Http\Requests\AuthProfileUpdateRequest;
@@ -80,6 +81,24 @@ final class AuthProfileController extends BaseController
         $this->profileActions->updatePassword($user, AuthUpdatePasswordDTO::fromRequest($request));
 
         return $this->success(null, 'Senha atualizada com sucesso');
+    }
+
+    /**
+     * Forçar troca de senha sem exigir senha atual.
+     *
+     * @param  AuthForcePasswordChangeRequest  $request  Requisição com nova senha.
+     * @return JsonResponse Confirmação.
+     */
+    public function forcePasswordChange(AuthForcePasswordChangeRequest $request): JsonResponse
+    {
+        /** @var AuthUser $user */
+        $user = $request->user();
+
+        /** @var string $password */
+        $password = $request->input('password');
+        $this->profileActions->forcePasswordChange($user, $password);
+
+        return $this->success(null, 'Senha redefinida com sucesso');
     }
 
     /**

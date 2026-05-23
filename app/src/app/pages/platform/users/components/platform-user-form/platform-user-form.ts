@@ -19,6 +19,7 @@ import {
   AfSwitchInputComponent,
   AfTextInputComponent,
   AfCheckboxGroupComponent,
+  AfCheckboxInputComponent,
   type AfSelectOption,
   type AfCheckboxOption,
 } from '@shared/components';
@@ -34,6 +35,7 @@ import {
     AfSelectInputComponent,
     AfCheckboxGroupComponent,
     AfSwitchInputComponent,
+    AfCheckboxInputComponent,
 /**
  * Platform user form component for the Platform module.
  * @selector app-platform-user-form
@@ -51,6 +53,7 @@ export class PlatformUserFormComponent {
   readonly user = input<PlatformUser | null>(null);
   readonly companyOptions = input<AfSelectOption[]>([]);
   readonly roleOptions = input<readonly AfCheckboxOption[]>([]);
+  readonly fixedTenantId = input<string | undefined>(undefined);
 
   readonly saved = output<PlatformUser>();
   readonly cancelled = output<undefined>();
@@ -85,6 +88,7 @@ export class PlatformUserFormComponent {
     password_confirmation: this.fb.control('', { nonNullable: true }),
     company_id: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
     is_active: this.fb.control(true, { nonNullable: true }),
+    force_password_change: this.fb.control(false, { nonNullable: true }),
   });
 
   constructor() {
@@ -101,12 +105,20 @@ export class PlatformUserFormComponent {
           password_confirmation: '',
           company_id: this.resolveCompanyId(item),
           is_active: item.is_active,
+          force_password_change: item.force_password_change ?? false,
         });
         this.setPasswordValidators(false);
       } else {
         this.lastLoadedId.set(null);
         this.resetForm();
         this.setPasswordValidators(true);
+      }
+
+      // Apply fixed tenant if provided
+      const fixedId = this.fixedTenantId();
+      if (fixedId) {
+        this.form.controls.company_id.setValue(fixedId);
+        this.form.controls.company_id.disable();
       }
     });
   }
@@ -118,13 +130,14 @@ export class PlatformUserFormComponent {
     }
 
     const formValue = this.form.getRawValue();
-    const payload: Partial<PlatformUser> & { password?: string; password_confirmation?: string } = {
+    const payload: Partial<PlatformUser> & { password?: string; password_confirmation?: string; force_password_change?: boolean } = {
       name: formValue.name.trim(),
       email: formValue.email.trim(),
       roles: formValue.roles,
       company_id: formValue.company_id,
       tenant_id: formValue.company_id,
       is_active: formValue.is_active,
+      force_password_change: formValue.force_password_change,
     };
 
     const editing = this.user();
@@ -198,8 +211,15 @@ export class PlatformUserFormComponent {
       roles: [],
       password: '',
       password_confirmation: '',
-      company_id: '',
+      company_id: this.fixedTenantId() ?? '',
       is_active: true,
+      force_password_change: false,
     });
+
+    // Re-disable if fixed tenant is set
+    if (this.fixedTenantId()) {
+      this.form.controls.company_id.setValue(this.fixedTenantId()!);
+      this.form.controls.company_id.disable();
+    }
   }
 }

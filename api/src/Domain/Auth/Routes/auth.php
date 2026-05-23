@@ -40,6 +40,7 @@ Route::middleware(['auth:sanctum'])
         Route::get('/profile', [AuthProfileController::class, 'show']);
         Route::put('/profile', [AuthProfileController::class, 'update']);
         Route::put('/profile/password', [AuthProfileController::class, 'updatePassword']);
+        Route::put('/force-password-change', [AuthProfileController::class, 'forcePasswordChange']);
         Route::post('/profile/avatar', [AuthProfileController::class, 'uploadAvatar']);
         Route::delete('/profile/avatar', [AuthProfileController::class, 'deleteAvatar']);
         Route::get('/profile/preferences', [AuthProfileController::class, 'preferences']);

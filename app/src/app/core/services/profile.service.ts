@@ -30,6 +30,11 @@ export class ProfileService {
     return this.http.put<null>(`${this.baseUrl}/password`, payload);
   }
 
+  /** Forçar troca de senha (sem exigir senha atual). */
+  forcePasswordChange(payload: { password: string; password_confirmation: string }): Observable<null> {
+    return this.http.put<null>(`${environment.apiUrl}/auth/force-password-change`, payload);
+  }
+
   /** Enviar novo avatar do usuário. */
   updateProfileImage(formData: FormData): Observable<ProfileImageResponse> {
     return this.http.post<ProfileImageResponse>(`${this.baseUrl}/avatar`, formData);

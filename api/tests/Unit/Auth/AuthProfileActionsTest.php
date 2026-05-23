@@ -79,6 +79,40 @@ class AuthProfileActionsTest extends TestCase
         $this->assertTrue(Hash::check('newpass', $user->fresh()->password));
     }
 
+    public function test_update_password_clears_force_password_change_flag(): void
+    {
+        $user = AuthUser::factory()->create([
+            'password' => Hash::make('secret'),
+            'force_password_change' => true,
+        ]);
+        $actions = new AuthProfileActions(new AuthAvatarManager);
+
+        $actions->updatePassword($user, AuthUpdatePasswordDTO::fromArray([
+            'current_password' => 'secret',
+            'password' => 'newpass',
+            'password_confirmation' => 'newpass',
+        ]));
+
+        $fresh = $user->fresh();
+        $this->assertTrue(Hash::check('newpass', $fresh->password));
+        $this->assertFalse($fresh->force_password_change);
+    }
+
+    public function test_force_password_change_updates_password_and_clears_flag(): void
+    {
+        $user = AuthUser::factory()->create([
+            'password' => Hash::make('old-secret'),
+            'force_password_change' => true,
+        ]);
+        $actions = new AuthProfileActions(new AuthAvatarManager);
+
+        $actions->forcePasswordChange($user, 'forced-new-pass');
+
+        $fresh = $user->fresh();
+        $this->assertTrue(Hash::check('forced-new-pass', $fresh->password));
+        $this->assertFalse($fresh->force_password_change);
+    }
+
     public function test_update_and_delete_avatar(): void
     {
         Storage::fake('public');

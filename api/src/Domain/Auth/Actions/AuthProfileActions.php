@@ -9,6 +9,7 @@ use Domain\Auth\DTOs\AuthUpdatePasswordDTO;
 use Domain\Auth\Models\AuthUser;
 use Domain\Auth\Services\AuthAvatarManager;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -40,6 +41,12 @@ final class AuthProfileActions
     }
 
     /**
+     * Atualiza a senha do usuário com verificação da senha atual.
+     *
+     * A atualização da senha e o clear do flag force_password_change
+     * ocorrem em transação atômica para evitar redirect loop caso
+     * a segunda operação falhe.
+     *
      * @throws ValidationException
      */
     public function updatePassword(AuthUser $user, AuthUpdatePasswordDTO $dto): void
@@ -50,9 +57,29 @@ final class AuthProfileActions
             ]);
         }
 
-        $user->update([
-            'password' => Hash::make($dto->password),
-        ]);
+        DB::transaction(function () use ($user, $dto): void {
+            $user->update([
+                'password' => Hash::make($dto->password),
+                'force_password_change' => false,
+            ]);
+        });
+    }
+
+    /**
+     * Força a troca de senha sem exigir a senha atual.
+     *
+     * Utilizado quando o administrador exige que o usuário troque a senha
+     * no próximo login. Atualiza a senha e limpa o flag force_password_change
+     * em transação atômica.
+     */
+    public function forcePasswordChange(AuthUser $user, string $password): void
+    {
+        DB::transaction(function () use ($user, $password): void {
+            $user->update([
+                'password' => Hash::make($password),
+                'force_password_change' => false,
+            ]);
+        });
     }
 
     /**

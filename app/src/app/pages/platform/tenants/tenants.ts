@@ -44,6 +44,7 @@ import { PlatformPlanService } from '@pages/platform/services/platform-plan.serv
 import { type PlatformPlan } from '@pages/platform/models';
 import { TenantExportComponent } from './components/tenant-export/tenant-export';
 import { TenantFormComponent } from './components/tenant-form/tenant-form';
+import { PlatformUserFormComponent } from '../users/components/platform-user-form/platform-user-form';
 
 type TenantSortField = 'name' | 'document' | 'is_active' | 'created_at';
 
@@ -71,6 +72,7 @@ type TenantSortField = 'name' | 'document' | 'is_active' | 'created_at';
     AfPasswordInputComponent,
     TenantExportComponent,
     TenantFormComponent,
+    PlatformUserFormComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tenants.html',
@@ -88,6 +90,9 @@ export class Tenants implements OnInit {
 
   readonly tenantFormRef = viewChild<TenantFormComponent>('tenantForm');
   readonly isFormSaving = computed(() => this.tenantFormRef()?.isSaving() ?? false);
+
+  readonly userFormRef = viewChild<PlatformUserFormComponent>('userForm');
+  readonly isUserFormSaving = computed(() => this.userFormRef()?.isSaving() ?? false);
 
   readonly tenants = signal<Company[]>([]);
   readonly plansById = signal<Map<string, PlatformPlan>>(new Map());
@@ -151,6 +156,26 @@ export class Tenants implements OnInit {
   readonly impersonatePasswordControl = new FormControl<string>('', { nonNullable: true });
 
   readonly adminPasswordControl = new FormControl<string>('', { nonNullable: true });
+
+  // ─── User creation modal ─────────────────────────────────────────────────
+  readonly showUserFormModal = signal(false);
+  readonly tenantForUser = signal<Company | null>(null);
+
+  openCreateUser(tenant: Company): void {
+    this.tenantForUser.set(tenant);
+    this.showUserFormModal.set(true);
+  }
+
+  handleUserFormSaved(): void {
+    this.showUserFormModal.set(false);
+    this.tenantForUser.set(null);
+    this.toast.success('Usuário criado com sucesso');
+  }
+
+  handleUserFormCancelled(): void {
+    this.showUserFormModal.set(false);
+    this.tenantForUser.set(null);
+  }
 
   // ─── Details panel ─────────────────────────────────────────────────────────
   readonly isDetailsOpen = signal(false);

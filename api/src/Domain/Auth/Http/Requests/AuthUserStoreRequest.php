@@ -97,6 +97,7 @@ final class AuthUserStoreRequest extends FormRequest
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', 'exists:auth_roles,name'],
             'is_active' => ['boolean'],
+            'force_password_change' => ['nullable', 'boolean'],
         ];
     }
 }

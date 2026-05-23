@@ -24,6 +24,7 @@ final readonly class AuthUserDTO
         /** @var list<string> */
         public array $roles,
         public bool $isActive,
+        public bool $forcePasswordChange = false,
     ) {}
 
     /**
@@ -49,6 +50,7 @@ final readonly class AuthUserDTO
             role: $payload['role'] ?? null,
             roles: (array) ($payload['roles'] ?? []),
             isActive: (bool) ($payload['is_active'] ?? true),
+            forcePasswordChange: (bool) ($payload['force_password_change'] ?? false),
         );
     }
 
@@ -64,6 +66,7 @@ final readonly class AuthUserDTO
             'department_id' => $this->departmentId,
             'phone' => $this->phone,
             'is_active' => $this->isActive,
+            'force_password_change' => $this->forcePasswordChange,
         ];
 
         if ($this->password !== null && $this->password !== '') {

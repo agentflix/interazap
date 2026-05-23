@@ -144,6 +144,15 @@
                       >
                         <lucide-icon name="eye" [size]="14" />
                       </af-icon-button>
+                      <af-icon-button
+                        label="Novo usuário"
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        (click)="openCreateUser(tenant); $event.stopPropagation()"
+                      >
+                        <lucide-icon name="user-plus" [size]="14" />
+                      </af-icon-button>
                       @if (isSuperAdmin() && tenant.is_active && !tenant.deleted_at) {
                         <af-icon-button
                           label="Entrar como empresa"
@@ -303,6 +312,36 @@
           (click)="handleImpersonateConfirmed()"
         >
           Entrar como empresa
+        </af-loading-button>
+      </div>
+    </af-modal>
+
+    <!-- New User Modal -->
+    <af-modal
+      [open]="showUserFormModal()"
+      title="Novo Usuário"
+      size="md"
+      (closed)="handleUserFormCancelled()"
+    >
+      <app-platform-user-form
+        #userForm
+        [fixedTenantId]="tenantForUser()?.id?.toString()"
+        (saved)="handleUserFormSaved()"
+        (cancelled)="handleUserFormCancelled()"
+      />
+
+      <div footer class="flex justify-end gap-2">
+        <af-button variant="ghost" size="sm" (click)="userFormRef()?.cancel()">
+          Cancelar
+        </af-button>
+        <af-loading-button
+          variant="primary"
+          size="sm"
+          [loading]="isUserFormSaving()"
+          [disabled]="userFormRef()?.form?.invalid ?? true"
+          (click)="userFormRef()?.submit()"
+        >
+          Criar Usuário
         </af-loading-button>
       </div>
     </af-modal>

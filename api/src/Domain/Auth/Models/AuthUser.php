@@ -30,6 +30,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $tenant_id
  * @property string $name
  * @property string $email
+ * @property bool $force_password_change
  * @property PlatformTenant|null $tenant
  *
  * @category Models
@@ -110,6 +111,7 @@ final class AuthUser extends Authenticatable implements AuditableContract
         'phone',
         'avatar_url',
         'is_active',
+        'force_password_change',
         'two_factor_enabled',
         'two_factor_secret',
         'two_factor_recovery_codes',
@@ -138,6 +140,7 @@ final class AuthUser extends Authenticatable implements AuditableContract
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'force_password_change' => 'boolean',
             'two_factor_enabled' => 'boolean',
             'preferences' => 'array',
         ];

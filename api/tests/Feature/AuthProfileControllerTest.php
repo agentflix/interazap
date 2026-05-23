@@ -60,4 +60,41 @@ class AuthProfileControllerTest extends TestCase
             ->deleteJson('/api/auth/profile/avatar')
             ->assertOk();
     }
+
+    public function test_force_password_change_clears_flag(): void
+    {
+        $user = AuthUser::factory()->create([
+            'password' => Hash::make('old-password'),
+            'force_password_change' => true,
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson('/api/auth/force-password-change', [
+                'password' => 'new-forced-password',
+                'password_confirmation' => 'new-forced-password',
+            ])
+            ->assertOk();
+
+        $fresh = $user->fresh();
+        $this->assertTrue(Hash::check('new-forced-password', $fresh->password));
+        $this->assertFalse($fresh->force_password_change);
+    }
+
+    public function test_update_password_clears_force_password_change_flag(): void
+    {
+        $user = AuthUser::factory()->create([
+            'password' => Hash::make('password'),
+            'force_password_change' => true,
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson('/api/auth/profile/password', [
+                'current_password' => 'password',
+                'password' => 'newpassword',
+                'password_confirmation' => 'newpassword',
+            ])
+            ->assertOk();
+
+        $this->assertFalse($user->fresh()->force_password_change);
+    }
 }

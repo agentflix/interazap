@@ -8,6 +8,7 @@ export interface PlatformUser {
   department_id?: string | number;
   company_id?: string | number;
   is_active: boolean;
+  force_password_change?: boolean;
   is_primary_tenant_user?: boolean;
   tenant?: {
     id: string;

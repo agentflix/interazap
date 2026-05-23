@@ -10,6 +10,7 @@ export interface AuthUser {
   tenant_id?: string | number | null;
   company_id?: string | number | null;
   is_supervisor?: boolean;
+  force_password_change?: boolean;
   tenant_plan?: {
     id: string;
     name: string;
@@ -50,6 +51,7 @@ export interface AuthResponse {
       email: string;
       avatar_url?: string | null;
       two_factor_enabled?: boolean;
+      force_password_change?: boolean;
     };
     tenant_plan?: {
       id: string;

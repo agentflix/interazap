@@ -6,6 +6,10 @@ import { authChildGuard, authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { aiFeatureGuard } from './core/guards/ai-feature.guard';
 import { autoReplyAvailabilityGuard } from './core/guards/auto-reply-availability.guard';
+import {
+  forceChangePasswordCanDeactivate,
+  forceChangePasswordGuard,
+} from './core/guards/force-change-password.guard';
 import { Starter } from './pages/platform/starter/starter';
 
 export const routes: Routes = [
@@ -69,6 +73,16 @@ export const routes: Routes = [
         path: 'auth/create-password',
         loadComponent: () => import('./pages/auth/create-password/create-password'),
         data: { title: 'Reset Password' },
+      },
+      {
+        path: 'auth/force-change-password',
+        loadComponent: () =>
+          import('./pages/auth/force-change-password/force-change-password').then(
+            (m) => m.ForceChangePassword,
+          ),
+        canActivate: [forceChangePasswordGuard],
+        canDeactivate: [forceChangePasswordCanDeactivate],
+        data: { title: 'Redefinir Senha' },
       },
     ],
   },

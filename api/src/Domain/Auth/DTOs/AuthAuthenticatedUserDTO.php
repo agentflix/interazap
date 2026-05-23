@@ -22,6 +22,7 @@ final readonly class AuthAuthenticatedUserDTO
         public ?CarbonInterface $emailVerifiedAt,
         public ?string $avatarUrl,
         public bool $twoFactorEnabled,
+        public bool $forcePasswordChange = false,
     ) {}
 
     /**
@@ -40,11 +41,12 @@ final readonly class AuthAuthenticatedUserDTO
             emailVerifiedAt: $verifiedAt,
             avatarUrl: $user->avatar_url,
             twoFactorEnabled: (bool) ($user->two_factor_enabled ?? false),
+            forcePasswordChange: (bool) ($user->force_password_change ?? false),
         );
     }
 
     /**
-     * @return array{id:string,tenant_id:?string,name:string,email:string,email_verified_at:?string,avatar_url:?string,two_factor_enabled:bool}
+     * @return array{id:string,tenant_id:?string,name:string,email:string,email_verified_at:?string,avatar_url:?string,two_factor_enabled:bool,force_password_change:bool}
      */
     public function toArray(): array
     {
@@ -56,6 +58,7 @@ final readonly class AuthAuthenticatedUserDTO
             'email_verified_at' => $this->emailVerifiedAt?->toISOString(),
             'avatar_url' => $this->avatarUrl,
             'two_factor_enabled' => $this->twoFactorEnabled,
+            'force_password_change' => $this->forcePasswordChange,
         ];
     }
 }
