@@ -1,6 +1,15 @@
 ---
 name: deep-plan
-description: Deep codebase investigation followed by a machine-executable implementation plan. Launches parallel Explore agents to trace full data pipelines, discover hidden prerequisites, and map existing patterns — then writes a structured plan file another LLM can execute without additional context. Triggers: "planejar implementação", "criar plano técnico", "deep plan", "implementation plan", "como implementar isso", "plan this", "plan before implementing". NOT for direct code implementation (use prevec-execute-task), high-level feature ideation (use prevec-new-plan), or simple single-file edits.
+description: >-
+  Deep codebase investigation followed by a machine-executable implementation
+  plan. Launches parallel Explore agents to trace full data pipelines, discover
+  hidden prerequisites, and map existing patterns — then writes a structured
+  plan file another LLM can execute without additional context. Triggers:
+  "planejar implementação", "criar plano técnico", "deep plan",
+  "implementation plan", "como implementar isso", "plan this",
+  "plan before implementing". NOT for direct code implementation
+  (use prevec-execute-task), high-level feature ideation (use prevec-new-plan),
+  or simple single-file edits.
 metadata:
   author: Rafael Silva
   version: 1.0.0

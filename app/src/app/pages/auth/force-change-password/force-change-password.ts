@@ -94,14 +94,10 @@ export class ForceChangePassword {
       .pipe(finalize(() => this.isSaving.set(false)))
       .subscribe({
         next: () => {
-          // Update user in store: clear force_password_change flag
-          const user = this.authStore.user();
-          if (user) {
-            this.authStore.updateUser({ force_password_change: false });
-          }
           this.submitted.set(true);
-          this.toast.success('Senha redefinida com sucesso');
-          void this.router.navigate(['/dashboard']);
+          this.toast.success('Senha redefinida com sucesso. Faça login novamente.');
+          this.authStore.logout();
+          void this.router.navigate(['/auth/login']);
         },
         error: (err) => {
           const msg = err?.error?.message || 'Erro ao redefinir senha. Tente novamente.';

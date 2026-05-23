@@ -111,7 +111,12 @@ export class InstanceResolverService {
 
     if (staleInstance) {
       this.writeProcessCache(token, staleInstance);
-      void this.revalidateInBackground(token);
+      this.revalidateInBackground(token).catch((err: unknown) =>
+        this.logger.warn(
+          'cache revalidation failed',
+          (err as Error)?.message ?? String(err),
+        ),
+      );
       return staleInstance;
     }
 

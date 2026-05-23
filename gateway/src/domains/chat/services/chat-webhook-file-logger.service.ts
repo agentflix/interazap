@@ -68,7 +68,12 @@ export class ChatWebhookFileLoggerService
     await this.purgeExpiredFiles();
     this.purgeInterval = setInterval(
       () => {
-        void this.purgeExpiredFiles();
+        this.purgeExpiredFiles().catch((err: unknown) =>
+          this.logger.error(
+            'purgeExpiredFiles failed',
+            (err as Error)?.stack ?? String(err),
+          ),
+        );
       },
       60 * 60 * 1000,
     );

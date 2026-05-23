@@ -128,7 +128,12 @@ export class SendMessageConsumer implements OnModuleInit, OnModuleDestroy {
     this.isRunning = true;
     this.logger.log(`Starting outbound message consumer: ${this.consumerName}`);
 
-    void this.consumeLoop();
+    this.consumeLoop().catch((err: unknown) =>
+      this.logger.error(
+        'consumeLoop crashed',
+        (err as Error)?.stack ?? String(err),
+      ),
+    );
   }
 
   /**

@@ -25,7 +25,7 @@ export const authGuard: CanActivateFn = () => {
 
   if (token && user) {
     // Redirect to force password change if flag is set
-    if (user.force_password_change && !router.url.includes('/auth/force-change-password')) {
+    if (user.force_password_change && !router.url.startsWith('/auth/force-change-password')) {
       return router.createUrlTree(['/auth/force-change-password']);
     }
     return true;

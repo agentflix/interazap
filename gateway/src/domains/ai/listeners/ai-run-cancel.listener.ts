@@ -13,14 +13,22 @@ import { toRecord } from '../../../shared/utils/payload-reader.util';
 export class AiRunCancelListener implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(AiRunCancelListener.name);
 
-  private readonly messageHandler = (channel: string, message: string): void => {
+  private readonly messageHandler = (
+    channel: string,
+    message: string,
+  ): void => {
     if (channel !== this.gatewayConfigService.aiRunCancelChannel) {
       return;
     }
 
     try {
       const payload = toRecord(JSON.parse(message) as unknown);
-      const runId = String(payload['run_id'] ?? '').trim();
+      const rawRunId = payload['run_id'];
+      const runId = (
+        typeof rawRunId === 'string' || typeof rawRunId === 'number'
+          ? String(rawRunId)
+          : ''
+      ).trim();
 
       if (runId === '') {
         return;

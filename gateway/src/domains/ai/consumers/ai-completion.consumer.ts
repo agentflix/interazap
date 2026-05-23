@@ -124,7 +124,12 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
         this.consumerGroup,
       );
       this.isRunning = true;
-      void this.consumeLoop();
+      this.consumeLoop().catch((err: unknown) =>
+        this.logger.error(
+          'consumeLoop crashed',
+          (err as Error)?.stack ?? String(err),
+        ),
+      );
     } catch (error) {
       this.logger.error(
         'Failed to initialize AI consumer — Redis may be unavailable',

@@ -1,7 +1,7 @@
 import { type CanActivateFn, type CanDeactivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthStoreService } from '@core/services/auth-store.service';
-import { ForceChangePassword } from '@pages/auth/force-change-password/force-change-password';
+import type { ForceChangePassword } from '@pages/auth/force-change-password/force-change-password';
 
 /**
  * Guard that restricts access to /auth/force-change-password.

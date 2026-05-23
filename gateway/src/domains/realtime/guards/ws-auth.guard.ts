@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { WsException } from '@nestjs/websockets';
-import jwt, { Algorithm } from 'jsonwebtoken';
+import jwt, { Algorithm, TokenExpiredError } from 'jsonwebtoken';
 import { Socket } from 'socket.io';
 import {
   AuthenticatedSocket,
@@ -54,6 +54,12 @@ export class WsAuthGuard implements CanActivate {
       this.logger.warn(
         `WebSocket auth failed: ${error instanceof Error ? error.message : String(error)}`,
       );
+      if (error instanceof TokenExpiredError) {
+        throw new WsException({
+          code: 'token_expired',
+          message: 'Authentication token has expired',
+        });
+      }
       throw new WsException('Invalid authentication token');
     }
   }
@@ -132,6 +138,9 @@ export class WsAuthGuard implements CanActivate {
       this.logger.error(
         `Token verification error: ${error instanceof Error ? error.message : String(error)}`,
       );
+      if (error instanceof TokenExpiredError) {
+        throw error;
+      }
       throw new Error('Invalid token');
     }
   }

@@ -250,7 +250,9 @@ export class PlatformUsers implements OnInit {
     if (ids.length === 0) return;
 
     this.isDeleting.set(true);
-    forkJoin(ids.map((id) => this.userService.delete(id))).subscribe({
+    forkJoin(ids.map((id) => this.userService.delete(id)))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.isDeleting.set(false);
         this.showDeleteModal.set(false);

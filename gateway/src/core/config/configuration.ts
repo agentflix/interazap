@@ -148,14 +148,19 @@ export const asaasConfig = registerAs(
   }),
 );
 
-export const jwtConfig = registerAs(
-  'jwt',
-  (): JwtConfiguration => ({
-    secret: process.env.JWT_SECRET ?? '',
-    webchatSecret: process.env.WEBCHAT_JWT_SECRET ?? '',
+export const jwtConfig = registerAs('jwt', (): JwtConfiguration => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  if (!process.env.WEBCHAT_JWT_SECRET) {
+    throw new Error('WEBCHAT_JWT_SECRET environment variable is required');
+  }
+  return {
+    secret: process.env.JWT_SECRET,
+    webchatSecret: process.env.WEBCHAT_JWT_SECRET,
     algorithm: process.env.JWT_ALGORITHM ?? 'HS256',
-  }),
-);
+  };
+});
 
 export const corsConfig = registerAs(
   'cors',

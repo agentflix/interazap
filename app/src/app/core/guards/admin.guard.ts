@@ -15,9 +15,9 @@ export const adminGuard: CanActivateFn = (route) => {
 
   const hasAdminPermission = authStore.hasPermission(adminPermission);
   const isSupervisor = Boolean(user?.is_supervisor);
-  const isPlatformUser = user?.tenant_id === null || user?.tenant_id === undefined;
+  const isPlatformUser = (user?.tenant_id === null || user?.tenant_id === undefined) && Boolean(user);
 
-  if (hasAdminPermission || isSupervisor || isPlatformUser) {
+  if (hasAdminPermission || isPlatformUser || isSupervisor) {
     return true;
   }
 

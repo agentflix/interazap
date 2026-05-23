@@ -51,7 +51,10 @@ export class InternalAiClientService {
   async fetchPrompt(tenantId: string, traceId?: string): Promise<string> {
     const response = await this.http.get<
       InternalApiEnvelope<{ prompt?: string }>
-    >(`/internal/ai/prompt/${tenantId}`, this.buildRequestConfig(traceId));
+    >(
+      `/internal/ai/prompt/${tenantId}`,
+      this.buildRequestConfig(traceId, tenantId),
+    );
 
     return response.data?.data?.prompt ?? '';
   }
@@ -217,7 +220,7 @@ export class InternalAiClientService {
   ): Promise<Array<Record<string, unknown>>> {
     try {
       const requestConfig: AxiosRequestConfig = {
-        ...this.buildRequestConfig(traceId),
+        ...this.buildRequestConfig(traceId, tenantId),
         params: {
           tenant_id: tenantId,
           query,
@@ -237,20 +240,30 @@ export class InternalAiClientService {
   }
 
   /**
-   * Constrói a configuração base da requisição Axios com cabeçalho de rastreamento opcional.
+   * Constrói a configuração base da requisição Axios com cabeçalhos de rastreamento e tenant.
    * @param traceId - Identificador opcional de rastreamento distribuído.
-   * @returns Configuração Axios com cabeçalho de trace quando fornecido.
+   * @param tenantId - Identificador opcional do tenant para propagação do escopo.
+   * @returns Configuração Axios com cabeçalhos quando fornecidos.
    */
-  private buildRequestConfig(traceId?: string): AxiosRequestConfig {
-    if (!traceId || traceId.trim() === '') {
+  private buildRequestConfig(
+    traceId?: string,
+    tenantId?: string,
+  ): AxiosRequestConfig {
+    const headers: Record<string, string> = {};
+
+    if (traceId && traceId.trim() !== '') {
+      headers['X-Trace-Id'] = traceId;
+      headers['X-Trace-ID'] = traceId;
+    }
+
+    if (tenantId && tenantId.trim() !== '') {
+      headers['X-Tenant-Id'] = tenantId;
+    }
+
+    if (Object.keys(headers).length === 0) {
       return {};
     }
 
-    return {
-      headers: {
-        'X-Trace-Id': traceId,
-        'X-Trace-ID': traceId,
-      },
-    };
+    return { headers };
   }
 }

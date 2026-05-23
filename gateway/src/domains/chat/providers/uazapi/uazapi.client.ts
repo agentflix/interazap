@@ -60,7 +60,7 @@ export class UazapiClient {
     );
     this.webhookRetries =
       Number.isFinite(retries) && retries > 0 ? Math.trunc(retries) : 3;
-    this.http = axios.create({ baseURL });
+    this.http = axios.create({ baseURL, timeout: 30000 });
     this.circuitBreaker = circuitBreaker ?? new CircuitBreakerService();
 
     if (this.debugHttp) {
