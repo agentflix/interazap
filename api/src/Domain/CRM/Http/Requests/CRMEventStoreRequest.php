@@ -6,6 +6,7 @@ namespace Domain\CRM\Http\Requests;
 
 use Carbon\CarbonImmutable;
 use Domain\CRM\Models\CRMEvent;
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -44,13 +45,13 @@ class CRMEventStoreRequest extends FormRequest
             'recurrence' => ['nullable', "in:{$recurrences}"],
             'recurrence_ends_at' => ['nullable', 'date', 'after:starts_at'],
             'color' => ['nullable', 'string', 'max:7'],
-            'auth_user_id' => ['nullable', 'uuid', 'exists:auth_users,id'],
+            'auth_user_id' => ['nullable', 'uuid', new TenantExistsRule('auth_users')],
             'links' => ['nullable', 'array'],
             'links.*.type' => ['required_with:links', 'in:contact,company,deal,ticket'],
             'links.*.id' => ['required_with:links', 'uuid'],
             'participants' => ['nullable', 'array'],
-            'participants.*.auth_user_id' => ['nullable', 'uuid', 'exists:auth_users,id'],
-            'participants.*.crm_contact_id' => ['nullable', 'uuid', 'exists:crm_contacts,id'],
+            'participants.*.auth_user_id' => ['nullable', 'uuid', new TenantExistsRule('auth_users')],
+            'participants.*.crm_contact_id' => ['nullable', 'uuid', new TenantExistsRule('crm_contacts')],
             'participants.*.is_organizer' => ['nullable', 'boolean'],
             'participants.*.name' => ['nullable', 'string', 'max:255'],
             'participants.*.email' => ['nullable', 'email', 'max:255'],

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\CRM\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -30,7 +31,7 @@ class CRMNegotiationReorderRequest extends FormRequest
     {
         return [
             'items' => ['required', 'array'],
-            'items.*.id' => ['required', 'uuid', 'exists:crm_negotiations,id'],
+            'items.*.id' => ['required', 'uuid', new TenantExistsRule('crm_negotiations')],
             'items.*.position' => ['required', 'integer', 'min:1'],
         ];
     }

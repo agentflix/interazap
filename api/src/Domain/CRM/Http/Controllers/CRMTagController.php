@@ -11,6 +11,7 @@ use Domain\CRM\Http\Resources\CRMTagResource;
 use Domain\CRM\Models\CRMTag;
 use Domain\Shared\Http\Controllers\BaseController;
 use Domain\Shared\Http\Controllers\Concerns\HandlesCrudOperations;
+use Domain\Shared\Rules\TenantExistsRule;
 use Domain\Shared\Support\ListFilterNormalizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -154,7 +155,7 @@ final class CRMTagController extends BaseController
         $this->authorize('update', CRMTag::class);
 
         $tenantId = $this->tenantId();
-        $request->validate(['tag_id' => ['required', 'uuid', 'exists:crm_tags,id']]);
+        $request->validate(['tag_id' => ['required', 'uuid', new TenantExistsRule('crm_tags')]]);
         $this->actions->attachToContact($tenantId, $contactId, (string) $request->string('tag_id'));
 
         return $this->success([], 'Tag vinculada ao contato');
@@ -190,7 +191,7 @@ final class CRMTagController extends BaseController
         $this->authorize('update', CRMTag::class);
 
         $tenantId = $this->tenantId();
-        $request->validate(['tag_id' => ['required', 'uuid', 'exists:crm_tags,id']]);
+        $request->validate(['tag_id' => ['required', 'uuid', new TenantExistsRule('crm_tags')]]);
         $this->actions->attachToCompany($tenantId, $companyId, (string) $request->string('tag_id'));
 
         return $this->success([], 'Tag vinculada à empresa');
@@ -226,7 +227,7 @@ final class CRMTagController extends BaseController
         $this->authorize('update', CRMTag::class);
 
         $tenantId = $this->tenantId();
-        $request->validate(['tag_id' => ['required', 'uuid', 'exists:crm_tags,id']]);
+        $request->validate(['tag_id' => ['required', 'uuid', new TenantExistsRule('crm_tags')]]);
         $this->actions->attachToNegotiation($tenantId, $negotiationId, (string) $request->string('tag_id'));
 
         return $this->success([], 'Tag vinculada à negociação');

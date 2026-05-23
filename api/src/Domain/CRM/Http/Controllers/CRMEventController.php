@@ -12,6 +12,7 @@ use Domain\CRM\Http\Requests\CRMEventUpdateRequest;
 use Domain\CRM\Http\Resources\CRMEventResource;
 use Domain\CRM\Models\CRMEvent;
 use Domain\Shared\Http\Controllers\BaseController;
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -44,10 +45,10 @@ final class CRMEventController extends BaseController
             'search' => ['nullable', 'string'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date'],
-            'user_id' => ['nullable', 'uuid', 'exists:auth_users,id'],
+            'user_id' => ['nullable', 'uuid', new TenantExistsRule('auth_users')],
             'status' => ['nullable', 'in:'.implode(',', CRMEvent::statuses())],
             'type' => ['nullable', 'in:'.implode(',', CRMEvent::types())],
-            'participant_id' => ['nullable', 'uuid', 'exists:auth_users,id'],
+            'participant_id' => ['nullable', 'uuid', new TenantExistsRule('auth_users')],
             'linkable_type' => ['nullable', 'string'],
             'linkable_id' => ['nullable', 'uuid'],
             'is_all_day' => ['nullable', 'boolean'],
@@ -188,7 +189,7 @@ final class CRMEventController extends BaseController
         $validated = $request->validate([
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'user_id' => ['nullable', 'uuid', 'exists:auth_users,id'],
+            'user_id' => ['nullable', 'uuid', new TenantExistsRule('auth_users')],
         ]);
 
         $events = $this->actions->calendar(

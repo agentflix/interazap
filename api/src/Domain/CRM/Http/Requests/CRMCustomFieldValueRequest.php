@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\CRM\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -27,7 +28,7 @@ class CRMCustomFieldValueRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'crm_custom_field_id' => ['required', 'uuid', 'exists:crm_custom_fields,id'],
+            'crm_custom_field_id' => ['required', 'uuid', new TenantExistsRule('crm_custom_fields')],
             'value' => ['nullable'],
         ];
     }

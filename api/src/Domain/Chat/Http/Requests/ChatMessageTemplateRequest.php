@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -39,7 +40,7 @@ class ChatMessageTemplateRequest extends FormRequest
         $required = $isUpdate ? 'sometimes' : 'required';
 
         return [
-            'chat_instance_id' => ['nullable', 'string', 'uuid', 'exists:chat_instances,id'],
+            'chat_instance_id' => ['nullable', 'string', 'uuid', new TenantExistsRule('chat_instances')],
             'name' => ['required', 'string', 'max:255'],
             'content' => [$required, 'string'],
             'language' => [$required, 'string', 'max:10'],

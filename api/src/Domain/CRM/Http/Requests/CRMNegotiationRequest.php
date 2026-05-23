@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Domain\CRM\Http\Requests;
 
 use Domain\CRM\Policies\CRMNegotiationPolicy;
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -60,7 +61,7 @@ class CRMNegotiationRequest extends FormRequest
                         ->where('crm_negotiation_funnel_id', (string) $this->input('crm_negotiation_funnel_id'))
                 ),
             ],
-            'crm_company_id' => ['nullable', 'uuid', 'exists:crm_companies,id'],
+            'crm_company_id' => ['nullable', 'uuid', new TenantExistsRule('crm_companies')],
             'crm_contact_id' => [
                 'required',
                 'uuid',
@@ -68,8 +69,8 @@ class CRMNegotiationRequest extends FormRequest
                     fn ($query) => $query->where('tenant_id', $tenantId)
                 ),
             ],
-            'auth_user_id' => ['nullable', 'uuid', 'exists:auth_users,id'],
-            'crm_reason_loss_id' => ['nullable', 'uuid', 'exists:crm_reason_losses,id', 'required_if:status,lost'],
+            'auth_user_id' => ['nullable', 'uuid', new TenantExistsRule('auth_users')],
+            'crm_reason_loss_id' => ['nullable', 'uuid', new TenantExistsRule('crm_reason_losses'), 'required_if:status,lost'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'status' => ['nullable', 'string', 'in:open,won,lost'],
             'position' => ['nullable', 'integer', 'min:1'],

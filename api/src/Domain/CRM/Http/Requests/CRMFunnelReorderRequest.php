@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\CRM\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -30,7 +31,7 @@ class CRMFunnelReorderRequest extends FormRequest
     {
         return [
             'steps' => ['required', 'array'],
-            'steps.*.id' => ['required', 'uuid', 'exists:crm_negotiation_funnel_steps,id'],
+            'steps.*.id' => ['required', 'uuid', new TenantExistsRule('crm_negotiation_funnel_steps')],
             'steps.*.order' => ['required', 'integer', 'min:1'],
         ];
     }

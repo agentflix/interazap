@@ -14,6 +14,7 @@ use Domain\CRM\Http\Resources\CRMFunnelStepResource;
 use Domain\CRM\Models\CRMNegotiationFunnel;
 use Domain\Shared\Http\Controllers\BaseController;
 use Domain\Shared\Support\ListFilterNormalizer;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -133,7 +134,15 @@ final class CRMFunnelController extends BaseController
         $funnel = $this->actions->find($tenantId, $id);
         $this->authorize('delete', $funnel);
 
-        $this->actions->delete($tenantId, $id);
+        try {
+            $this->actions->delete($tenantId, $id);
+        } catch (QueryException $e) {
+            if (str_contains($e->getMessage(), '23503')) {
+                return $this->error('Não é possível excluir um funil que possui negociações vinculadas.', 422);
+            }
+
+            throw $e;
+        }
 
         return $this->noContent();
     }

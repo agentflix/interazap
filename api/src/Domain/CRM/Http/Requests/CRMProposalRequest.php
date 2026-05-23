@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\CRM\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -40,7 +41,7 @@ class CRMProposalRequest extends FormRequest
             'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
             'items.*.discount' => ['nullable', 'numeric', 'min:0'],
             'items.*.position' => ['nullable', 'integer', 'min:1'],
-            'items.*.crm_product_id' => ['nullable', 'uuid', 'exists:crm_products,id'],
+            'items.*.crm_product_id' => ['nullable', 'uuid', new TenantExistsRule('crm_products')],
         ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\CRM\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -29,7 +30,7 @@ class CRMNegotiationStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'crm_reason_loss_id' => ['nullable', 'uuid', 'exists:crm_reason_losses,id'],
+            'crm_reason_loss_id' => ['nullable', 'uuid', new TenantExistsRule('crm_reason_losses')],
         ];
     }
 }

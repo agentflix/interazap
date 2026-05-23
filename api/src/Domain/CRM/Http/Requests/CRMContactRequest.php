@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\CRM\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -38,7 +39,7 @@ class CRMContactRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:500'],
             'custom_fields' => ['nullable', 'array'],
             'custom_fields.*' => ['nullable', 'string', 'max:500'],
-            'crm_company_id' => ['nullable', 'uuid', 'exists:crm_companies,id'],
+            'crm_company_id' => ['nullable', 'uuid', new TenantExistsRule('crm_companies')],
             'is_active' => ['nullable', 'boolean'],
         ];
     }

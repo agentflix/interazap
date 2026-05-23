@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -30,7 +31,7 @@ final class SendTemplateMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'template_id' => ['nullable', 'uuid', 'exists:chat_message_templates,id'],
+            'template_id' => ['nullable', 'uuid', new TenantExistsRule('chat_message_templates')],
             'template_name' => ['nullable', 'string', 'max:255'],
             'variables' => ['nullable', 'array'],
             'variables.*' => ['nullable', 'string', 'max:1024'],

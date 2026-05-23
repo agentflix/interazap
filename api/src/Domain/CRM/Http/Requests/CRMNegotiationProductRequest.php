@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\CRM\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -32,7 +33,7 @@ class CRMNegotiationProductRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'quantity' => ['required', 'integer', 'min:1'],
             'unit_price' => ['required', 'numeric', 'min:0'],
-            'crm_product_id' => ['nullable', 'string', 'exists:crm_products,id'],
+            'crm_product_id' => ['nullable', 'string', new TenantExistsRule('crm_products')],
         ];
     }
 }

@@ -19,7 +19,6 @@ final class CRMProposalResource extends BaseJsonResource
     {
         return [
             'id' => $this->id,
-            'tenant_id' => $this->tenant_id,
             'crm_negotiation_id' => $this->crm_negotiation_id,
             'title' => $this->title,
             'number' => $this->number,

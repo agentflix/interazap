@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Chat\Http\Requests;
 
+use Domain\Shared\Rules\TenantExistsRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -45,7 +46,7 @@ final class ChatRoutingQueueRequest extends FormRequest
             'strategy' => [$isStoreQueue ? 'required' : 'sometimes', 'string', 'in:round_robin,least_busy,skill_based'],
             'is_enabled' => ['sometimes', 'boolean'],
             'max_open_tickets_per_agent' => ['nullable', 'integer', 'min:1'],
-            'user_id' => [$isStoreAgent ? 'required' : 'sometimes', 'uuid', 'exists:auth_users,id'],
+            'user_id' => [$isStoreAgent ? 'required' : 'sometimes', 'uuid', new TenantExistsRule('auth_users')],
             'agents' => [$isReorder ? 'required' : 'sometimes', 'array'],
             'agents.*.user_id' => ['required_with:agents', 'uuid'],
             'agents.*.position' => ['required_with:agents', 'integer', 'min:0'],
