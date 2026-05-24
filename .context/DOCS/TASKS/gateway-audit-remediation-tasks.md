@@ -373,7 +373,7 @@ Depois: `DatabaseModule` nao existe. `gateway/src/infrastructure/database/` remo
 ### TASK-5.1.1 — Validar SLO de performance e ajustar TTLs se necessario
 
 **Modo BUILDER:** `dev`
-**Status:** Pendente
+**Status:** 🚫 Bloqueada — aguarda deploy em staging
 **Depende de:** TASK-4.1.1
 
 **T — Tarefa:**
