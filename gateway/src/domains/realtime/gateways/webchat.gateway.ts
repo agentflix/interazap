@@ -119,30 +119,33 @@ export class WebChatGateway
    * Também entra na tenant room para eventos globais.
    *
    * Event: webchat:join
-   * Payload: { sessionId: string }
+   * Payload: { sessionId?: string } — campo ignorado; a sessão é sempre lida do token JWT do handshake.
    */
   @SubscribeMessage('webchat:join')
   async handleWebChatJoin(
-    @MessageBody() data: { sessionId: string },
+    @MessageBody() data: { sessionId?: string },
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
     const clientData = (
       client as Socket & { data: { sessionId?: string; tenantId?: string } }
     ).data;
-    const sessionId = data?.sessionId ?? clientData.sessionId;
-    const tenantId = clientData.tenantId;
-
+    // Security: always derive sessionId from the validated JWT stored on the socket.
+    // Any sessionId supplied in the event payload is intentionally ignored to prevent
+    // a client from joining rooms of other sessions.
+    const sessionId = clientData.sessionId;
     if (!sessionId) {
       this.logger.warn(
-        `WebChat client ${client.id} sent webchat:join without sessionId`,
+        `WebChat client ${client.id} has no sessionId in token — disconnecting`,
       );
       client.emit('webchat:error', {
         code: 'INVALID_SESSION',
-        message: 'sessionId is required',
+        message: 'Session not found in token',
       });
+      client.disconnect();
       return;
     }
 
+    const tenantId = clientData.tenantId;
     const sessionRoom = `session:${sessionId}`;
     await client.join(sessionRoom);
 
@@ -184,14 +187,19 @@ export class WebChatGateway
    * Cliente webchat sai da room da sessão.
    *
    * Event: webchat:leave
-   * Payload: { sessionId: string }
+   * Payload: { sessionId?: string } — campo ignorado; a sessão é sempre lida do token JWT do handshake.
    */
   @SubscribeMessage('webchat:leave')
   handleWebChatLeave(
-    @MessageBody() data: { sessionId: string },
+    @MessageBody() data: { sessionId?: string },
     @ConnectedSocket() client: Socket,
   ): void {
-    const sessionId = data?.sessionId;
+    // Security: always use sessionId from the validated JWT, not from the payload.
+    const clientData = (
+      client as Socket & { data: { sessionId?: string; tenantId?: string } }
+    ).data;
+    const sessionId = clientData.sessionId;
+
     if (!sessionId) return;
 
     const sessionRoom = `session:${sessionId}`;

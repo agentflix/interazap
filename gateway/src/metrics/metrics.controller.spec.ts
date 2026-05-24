@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { MetricsController } from './metrics.controller';
 import { MetricsService } from './metrics.service';
+import { InternalApiKeyGuard } from '../domains/realtime/guards/internal-api-key.guard';
 
 describe('MetricsController', () => {
   let controller: MetricsController;
@@ -16,6 +18,11 @@ describe('MetricsController', () => {
             getMetrics: jest.fn(),
           },
         },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn() },
+        },
+        InternalApiKeyGuard,
       ],
     }).compile();
 

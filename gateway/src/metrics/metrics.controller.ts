@@ -2,9 +2,11 @@ import {
   Controller,
   Get,
   Header,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { InternalApiKeyGuard } from '../domains/realtime/guards/internal-api-key.guard';
 import { MetricsService } from './metrics.service';
 
 /**
@@ -14,6 +16,7 @@ import { MetricsService } from './metrics.service';
  * Utilizado para monitoramento e alerting via Alertmanager.
  */
 @Controller({ path: 'metrics', version: '1' })
+@UseGuards(InternalApiKeyGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class MetricsController {
   /**

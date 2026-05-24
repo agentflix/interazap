@@ -47,11 +47,7 @@ export class BillingUsageMetrics {
    * @param mode     - Modo de billing (stop, overage, fail_open)
    * @param allowed  - Se a mensagem foi permitida
    */
-  recordAiMessage(
-    tenantId: string,
-    mode: string,
-    allowed: boolean,
-  ): void {
+  recordAiMessage(tenantId: string, mode: string, allowed: boolean): void {
     this.aiMessagesTotal.inc({
       tenant_id: tenantId,
       mode,

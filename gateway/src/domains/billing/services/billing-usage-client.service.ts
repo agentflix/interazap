@@ -86,7 +86,11 @@ export class BillingUsageClient {
         const result = response.data.data;
         const durationMs = Date.now() - startTime;
         this.billingMetrics?.recordUsageCheckDuration(tenantId, durationMs);
-        this.billingMetrics?.recordAiMessage(tenantId, result.mode, result.allowed);
+        this.billingMetrics?.recordAiMessage(
+          tenantId,
+          result.mode,
+          result.allowed,
+        );
 
         this.logger.log({
           event: 'usage.check',
@@ -111,9 +115,7 @@ export class BillingUsageClient {
           aiTurnId,
           attempt: attempt + 1,
           status,
-          error: isAxiosError
-            ? (error as AxiosError).message
-            : String(error),
+          error: isAxiosError ? (error as AxiosError).message : String(error),
         });
 
         if (attempt < delays.length - 1) {
@@ -181,8 +183,7 @@ export class BillingUsageClient {
         tenantId: payload.tenant_id,
       });
     } catch (error: unknown) {
-      const msg =
-        error instanceof Error ? error.message : String(error);
+      const msg = error instanceof Error ? error.message : String(error);
       this.logger.error({
         event: 'usage.fail_open_log_failed',
         aiTurnId: payload.ai_turn_id,
