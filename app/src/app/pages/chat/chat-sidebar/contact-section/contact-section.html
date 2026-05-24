@@ -6,31 +6,27 @@
     <h6 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Contato</h6>
   </div>
 
-  <af-scroll-area class="flex-1 min-h-0" maxHeight="100%">
-    <div class="p-4">
-      @if (isLoading()) {
+  @if (isLoading()) {
+    <af-scroll-area class="flex-1 min-h-0" maxHeight="100%">
+      <div class="p-4">
         <div class="space-y-2">
           @for (row of skeletonRows; track row) {
             <div class="h-8 rounded bg-neutral-150 dark:bg-neutral-800 animate-pulse"></div>
           }
         </div>
-      } @else if (showEmpty()) {
-        <div
-          class="rounded border border-dashed border-neutral-200 dark:border-neutral-700 p-6 text-center"
-        >
-          <div
-            class="mx-auto mb-2 flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary"
-          >
-            <ng-icon name="lucideUserX" class="size-4"></ng-icon>
-          </div>
-          <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
-            Nenhum contato selecionado
-          </p>
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">
-            Escolha um atendimento para ver os dados do contato.
-          </p>
-        </div>
-      } @else {
+      </div>
+    </af-scroll-area>
+  } @else if (showEmpty()) {
+    <div class="flex-1 flex items-center justify-center">
+      <af-empty-state
+        title="Nenhum contato selecionado"
+        description="Escolha um atendimento para ver os dados do contato."
+        iconName="lucideUser"
+      />
+    </div>
+  } @else {
+    <af-scroll-area class="flex-1 min-h-0" maxHeight="100%">
+      <div class="p-4">
         <form class="space-y-3" [formGroup]="form">
           <app-text-input
             [control]="form.controls.name"
@@ -124,9 +120,9 @@
             </app-loading-button>
           </div>
         </form>
-      }
-    </div>
-  </af-scroll-area>
+      </div>
+    </af-scroll-area>
+  }
 </div>
 
 <app-tags-modal

@@ -419,6 +419,7 @@ export class Chat implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.appShell.disableContentScroll();
+    this.appShell.hideFooter();
     this.ticketList.loadTickets();
 
     this.router.events
@@ -432,6 +433,7 @@ export class Chat implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.appShell.enableContentScroll();
+    this.appShell.showFooter();
   }
 
   setTab(tab: 'chat' | 'contact' | 'negotiation'): void {

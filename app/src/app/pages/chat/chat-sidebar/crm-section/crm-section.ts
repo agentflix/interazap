@@ -21,6 +21,7 @@ import { DealWinModalComponent } from './deal-win-modal/deal-win-modal.component
 import { IconButtonComponent } from 'src/app/shared/components/buttons';
 import { type CRMNegotiation } from './crm-negotiation.model';
 import { AfScrollAreaComponent } from 'src/app/shared/components/scroll-area/scroll-area';
+import { AfEmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state';
 
 /**
  * Componente container da secao CRM do sidebar.
@@ -49,8 +50,9 @@ import { AfScrollAreaComponent } from 'src/app/shared/components/scroll-area/scr
     DealLossModalComponent,
     DealWinModalComponent,
     AfScrollAreaComponent,
+    AfEmptyStateComponent,
   ],
-  host: { class: 'block' },
+  host: { class: 'block h-full' },
   viewProviders: [provideIcons({ lucideHandshake, lucidePlus })],
 })
 export class CRMSectionComponent implements OnDestroy {

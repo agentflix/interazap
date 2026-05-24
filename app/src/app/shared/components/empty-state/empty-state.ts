@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { NgIcon } from '@ng-icons/core';
 
 /**
  * Empty state placeholder for pages/sections with no data.
@@ -18,6 +19,7 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './empty-state.html',
+  imports: [NgIcon],
 })
 export class AfEmptyStateComponent {
   /** Empty state heading */
@@ -28,4 +30,7 @@ export class AfEmptyStateComponent {
 
   /** Whether a custom icon is projected */
   readonly icon = input(false);
+
+  /** Lucide icon name to render (e.g. "lucideUser"). Overrides default SVG when set. */
+  readonly iconName = input<string | null>(null);
 }

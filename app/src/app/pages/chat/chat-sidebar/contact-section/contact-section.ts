@@ -28,6 +28,7 @@ import { TextInputComponent } from 'src/app/shared/components/text-input/text-in
 import { AfPhoneInputComponent } from 'src/app/shared/components/phone-input/phone-input';
 import { AfDocumentInputComponent } from 'src/app/shared/components/document-input/document-input';
 import { AfScrollAreaComponent } from 'src/app/shared/components/scroll-area/scroll-area';
+import { AfEmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state';
 
 /**
  * Secao de contato no sidebar do chat.
@@ -56,13 +57,14 @@ import { AfScrollAreaComponent } from 'src/app/shared/components/scroll-area/scr
     AfPhoneInputComponent,
     AfDocumentInputComponent,
     AfScrollAreaComponent,
+    AfEmptyStateComponent,
     TagsModalComponent,
     CompanyModalComponent,
   ],
   templateUrl: './contact-section.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'block',
+    class: 'block h-full',
   },
 })
 export class ContactSectionComponent {

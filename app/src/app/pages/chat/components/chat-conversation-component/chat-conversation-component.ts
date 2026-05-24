@@ -30,6 +30,7 @@ import { ContactSectionComponent } from '../../chat-sidebar/contact-section/cont
 import { CRMSectionComponent } from '../../chat-sidebar/crm-section/crm-section';
 import { UserChat } from '../user-chat/user-chat';
 import { type ComposerMode } from '../../chat.store';
+import { AfEmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state';
 
 /**
  * Main conversation area extracted from chat page.
@@ -53,6 +54,7 @@ import { type ComposerMode } from '../../chat.store';
     UserChat,
     ContactSectionComponent,
     CRMSectionComponent,
+    AfEmptyStateComponent,
   ],
   templateUrl: './chat-conversation-component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
