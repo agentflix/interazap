@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Console\Commands\ChatUazapiSendMediaCommand::class,
         Domain\Platform\Console\Commands\QueueHealthCommand::class,
         Domain\Platform\Console\Commands\TenantBootstrapDefaultsCommand::class,
+        Domain\Platform\Console\Commands\ChatMessagesPartitionMaintenanceCommand::class,
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',

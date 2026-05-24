@@ -30,6 +30,7 @@ use Illuminate\Support\Str;
  * @property int $message_limit_monthly
  * @property \Domain\Billing\Enums\OverageMode $overage_mode
  * @property float|null $overage_price_per_message
+ * @property int|null $message_retention_days
  * @property int|null $chat_channels_limit
  * @property \Domain\Platform\Enums\PlatformNegotiationsMode $negotiations_mode
  * @property int|null $negotiations_limit
@@ -63,6 +64,7 @@ final class PlatformPlan extends Model
         'message_limit_monthly',
         'overage_mode',
         'overage_price_per_message',
+        'message_retention_days',
         'chat_channels_limit',
         'negotiations_mode',
         'negotiations_limit',
@@ -83,6 +85,7 @@ final class PlatformPlan extends Model
         'message_limit_monthly' => 'integer',
         'overage_mode' => OverageMode::class,
         'overage_price_per_message' => 'decimal:4',
+        'message_retention_days' => 'integer',
         'chat_channels_limit' => 'integer',
         'negotiations_mode' => PlatformNegotiationsMode::class,
         'negotiations_limit' => 'integer',

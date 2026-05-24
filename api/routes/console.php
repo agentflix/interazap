@@ -12,6 +12,9 @@ Schedule::job(AutopilotApprovalExpiryJob::class)->hourly();
 Schedule::job(new CloseExpiredCyclesJob)->dailyAt('03:00')->name('close-expired-cycles');
 Schedule::job(new ReconcileFailedUsageJob)->dailyAt('04:00')->name('reconcile-failed-usage');
 
+// Maintain chat_messages partitions and enforce message retention per plan
+Schedule::command('chat:partitions:maintain')->dailyAt('02:00')->name('chat-partitions-maintain')->withoutOverlapping();
+
 // Prune idempotency keys older than 90 days — prevents unbounded table growth
 Schedule::call(function (): void {
     DB::table('ai_usage_idempotency_keys')

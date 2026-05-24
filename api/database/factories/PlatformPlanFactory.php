@@ -31,6 +31,7 @@ class PlatformPlanFactory extends Factory
             'storage_limit_bytes' => 1024 * 1024 * 1024,
             'ai_enabled' => false,
             'message_limit_monthly' => $this->faker->randomElement([90, 180, 730]),
+            'message_retention_days' => null,
             'overage_mode' => 'stop',
             'overage_price_per_message' => null,
             'chat_channels_limit' => 1,
