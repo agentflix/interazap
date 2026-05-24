@@ -21,7 +21,7 @@ class CRMCompaniesTest extends TestCase
 
         $create = $this->postJson('/api/crm/companies', [
             'name' => 'ACME',
-            'document' => '123456789',
+            'document' => '11.222.333/0001-81',
             'email' => 'acme@example.com',
         ])->assertStatus(201)->json('data');
 

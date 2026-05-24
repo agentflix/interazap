@@ -23,6 +23,19 @@ final class PlatformLeadStoreRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($phone = $this->input('phone')) {
+            $digits = preg_replace('/\D/', '', (string) $phone);
+            $formatted = match (strlen($digits)) {
+                11 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 5), substr($digits, 7)),
+                10 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 4), substr($digits, 6)),
+                default => $phone,
+            };
+            $this->merge(['phone' => $formatted]);
+        }
+    }
+
     /**
      * Regras de validação.
      *
@@ -32,13 +45,7 @@ final class PlatformLeadStoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:2', 'max:150'],
-            'phone' => [
-                'required',
-                'string',
-                // Aceita formatos BR com/sem máscara (10 ou 11 dígitos):
-                // (11) 91234-5678 / 11912345678 / 11 91234 5678 / 1132345678
-                'regex:/^\(?\d{2}\)?[\s-]?9?\d{4}[\s-]?\d{4}$/',
-            ],
+            'phone' => ['required', 'celular_com_ddd'],
             'email' => ['required', 'email:rfc', 'max:180'],
             'company' => ['nullable', 'string', 'max:150'],
             'lgpd_consent' => ['required', 'accepted'],
@@ -62,7 +69,7 @@ final class PlatformLeadStoreRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone.regex' => 'Telefone inválido. Use o formato brasileiro, ex: (11) 91234-5678.',
+            'phone.celular_com_ddd' => 'Telefone inválido. Use DDD + número, ex: 11912345678.',
             'lgpd_consent.accepted' => 'É necessário aceitar os termos de privacidade (LGPD).',
         ];
     }

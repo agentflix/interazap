@@ -36,6 +36,16 @@ final class AuthUserStoreRequest extends FormRequest
         if (! $this->filled('tenant_id') && $this->filled('company_id')) {
             $this->merge(['tenant_id' => $this->input('company_id')]);
         }
+
+        if ($phone = $this->input('phone')) {
+            $digits = preg_replace('/\D/', '', (string) $phone);
+            $formatted = match (strlen($digits)) {
+                11 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 5), substr($digits, 7)),
+                10 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 4), substr($digits, 6)),
+                default => $phone,
+            };
+            $this->merge(['phone' => $formatted]);
+        }
     }
 
     private function isPlatformUsersRoute(): bool
@@ -92,7 +102,7 @@ final class AuthUserStoreRequest extends FormRequest
                 Rule::unique('auth_users', 'email')->where(fn ($q) => $q->where('tenant_id', $this->input('tenant_id'))),
             ],
             'password' => ['required', 'string', 'min:8'],
-            'phone' => ['nullable', 'string', 'max:50'],
+            'phone' => ['nullable', 'celular_com_ddd'],
             'role' => ['nullable', 'string', 'max:100'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', 'exists:auth_roles,name'],

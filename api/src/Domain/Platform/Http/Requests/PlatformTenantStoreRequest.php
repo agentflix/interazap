@@ -37,6 +37,16 @@ final class PlatformTenantStoreRequest extends FormRequest
                 'state' => strtoupper((string) $this->input('state')),
             ]);
         }
+
+        if ($phone = $this->input('phone')) {
+            $digits = preg_replace('/\D/', '', (string) $phone);
+            $formatted = match (strlen($digits)) {
+                11 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 5), substr($digits, 7)),
+                10 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 4), substr($digits, 6)),
+                default => $phone,
+            };
+            $this->merge(['phone' => $formatted]);
+        }
     }
 
     /**
@@ -48,11 +58,11 @@ final class PlatformTenantStoreRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'tenant_code' => ['nullable', 'string', 'max:12', Rule::unique('platform_tenants', 'tenant_code')],
             'email' => ['nullable', 'email', 'max:255'],
-            'document' => ['nullable', 'string', 'max:32'],
+            'document' => ['nullable', 'cnpj'],
             'is_active' => ['sometimes', 'boolean'],
             'segment_id' => ['required', 'uuid', 'exists:ai_prompt_segments,id'],
             'plan_id' => ['required', 'uuid', 'exists:platform_plans,id'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'celular_com_ddd'],
             'address' => ['nullable', 'string', 'max:255'],
             'street' => ['nullable', 'string', 'max:255'],
             'number' => ['nullable', 'string', 'max:20'],

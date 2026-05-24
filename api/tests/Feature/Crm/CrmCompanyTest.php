@@ -28,7 +28,7 @@ test('can create company', function (): void {
     $payload = [
         'name' => 'Acme Corp',
         'email' => 'contact@acme.com',
-        'phone' => '+5511988888888',
+        'phone' => '11988888888',
         'is_active' => false,
         'website' => 'https://acme.com',
     ];

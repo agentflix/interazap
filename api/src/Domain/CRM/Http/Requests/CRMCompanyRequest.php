@@ -11,6 +11,19 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class CRMCompanyRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($phone = $this->input('phone')) {
+            $digits = preg_replace('/\D/', '', (string) $phone);
+            $formatted = match (strlen($digits)) {
+                11 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 5), substr($digits, 7)),
+                10 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 4), substr($digits, 6)),
+                default => $phone,
+            };
+            $this->merge(['phone' => $formatted]);
+        }
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -30,9 +43,9 @@ class CRMCompanyRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'document' => ['nullable', 'string', 'max:32'],
+            'document' => ['nullable', 'cnpj'],
             'email' => ['nullable', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:32'],
+            'phone' => ['nullable', 'celular_com_ddd'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:100'],
             'state' => ['nullable', 'string', 'max:2'],

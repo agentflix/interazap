@@ -178,7 +178,7 @@ test('can create and update contact notes and custom fields', function (): void 
 
     $createResponse = $this->postJson('/api/crm/contacts', [
         'name' => 'Contact With Notes',
-        'phone' => '+5511999999999',
+        'phone' => '11999999999',
         'crm_company_id' => $company->id,
         'notes' => 'Primeira observação',
         'custom_fields' => [
@@ -196,7 +196,7 @@ test('can create and update contact notes and custom fields', function (): void 
 
     $updateResponse = $this->putJson("/api/crm/contacts/{$contactId}", [
         'name' => 'Contact With Notes Updated',
-        'phone' => '+5511888888888',
+        'phone' => '11988888888',
         'crm_company_id' => $company->id,
         'notes' => 'Observação atualizada',
         'custom_fields' => [

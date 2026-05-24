@@ -25,6 +25,19 @@ final class PlatformLeadConvertRequest extends FormRequest
         return Gate::forUser($user)->check('create', PlatformLead::class);
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($phone = $this->input('phone')) {
+            $digits = preg_replace('/\D/', '', (string) $phone);
+            $formatted = match (strlen($digits)) {
+                11 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 5), substr($digits, 7)),
+                10 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 4), substr($digits, 6)),
+                default => $phone,
+            };
+            $this->merge(['phone' => $formatted]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -33,8 +46,8 @@ final class PlatformLeadConvertRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'email' => ['required', 'email:rfc', 'max:255'],
-            'phone' => ['required', 'string', 'max:20'],
-            'document' => ['nullable', 'string', 'max:32'],
+            'phone' => ['required', 'celular_com_ddd'],
+            'document' => ['nullable', 'cpf_ou_cnpj'],
             'plan_id' => ['nullable', 'uuid', Rule::exists('platform_plans', 'id')],
         ];
     }

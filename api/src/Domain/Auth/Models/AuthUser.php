@@ -54,6 +54,18 @@ class AuthUser extends Authenticatable implements AuditableContract
 
     protected $keyType = 'string';
 
+    public function sendPasswordResetNotification($token): void
+    {
+        $frontendUrl = config('app.frontend_url', 'http://localhost:4200');
+        $email = $this->email;
+
+        \Domain\Auth\Notifications\ResetPasswordNotification::createUrlUsing(
+            static fn () => $frontendUrl . '/auth/reset-password?token=' . $token . '&email=' . urlencode($email)
+        );
+
+        $this->notify(new \Domain\Auth\Notifications\ResetPasswordNotification($token));
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->hasRoleId(AuthRole::ADMINISTRADOR_ID);
