@@ -2,13 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import {
   AfAlertComponent,
@@ -17,10 +18,6 @@ import {
 } from '@shared/components';
 import { AuthPageWrapperComponent } from '@layout/auth-layout/auth-page-wrapper.component';
 
-/**
- * Reset password page component for the Auth module.
- * @selector app-reset-password
- */
 @Component({
   selector: 'app-reset-password',
   standalone: true,
@@ -35,43 +32,71 @@ import { AuthPageWrapperComponent } from '@layout/auth-layout/auth-page-wrapper.
   templateUrl: './reset-password.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class ResetPasswordComponent {
+export default class ResetPasswordComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly isSubmitting = signal(false);
   readonly successMessage = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
 
-  readonly form = this.fb.group({
+  readonly token = signal<string | null>(null);
+  readonly emailFromParams = signal<string>('');
+
+  readonly forgotForm = this.fb.group({
     email: this.fb.control('', [Validators.required, Validators.email]),
   });
 
+  readonly resetForm = this.fb.group(
+    {
+      password: this.fb.control('', [Validators.required, Validators.minLength(8)]),
+      password_confirmation: this.fb.control('', [Validators.required]),
+    },
+    { validators: this.passwordsMatchValidator },
+  );
+
   readonly emailErrorMessage = computed(() => {
-    const errors = this.form.controls.email.errors;
-
-    if (errors?.['required']) {
-      return 'E-mail é obrigatório.';
-    }
-
-    if (errors?.['email']) {
-      return 'E-mail inválido.';
-    }
-
+    const errors = this.forgotForm.controls.email.errors;
+    if (errors?.['required']) return 'E-mail é obrigatório.';
+    if (errors?.['email']) return 'E-mail inválido.';
     return 'Campo inválido.';
   });
 
-  submit(): void {
-    if (this.form.invalid || this.isSubmitting()) {
-      this.form.markAllAsTouched();
+  readonly passwordErrorMessage = computed(() => {
+    const errors = this.resetForm.controls.password.errors;
+    if (errors?.['required']) return 'Senha é obrigatória.';
+    if (errors?.['minlength']) return 'Mínimo de 8 caracteres.';
+    return 'Campo inválido.';
+  });
+
+  readonly confirmErrorMessage = computed(() => {
+    const errors = this.resetForm.controls.password_confirmation.errors;
+    if (errors?.['required']) return 'Confirmação é obrigatória.';
+    if (this.resetForm.errors?.['passwordsMismatch']) return 'As senhas não coincidem.';
+    return 'Campo inválido.';
+  });
+
+  ngOnInit(): void {
+    const token = this.route.snapshot.queryParamMap.get('token');
+    const email = this.route.snapshot.queryParamMap.get('email') ?? '';
+    this.token.set(token);
+    this.emailFromParams.set(email);
+  }
+
+  submitForgot(): void {
+    if (this.forgotForm.invalid || this.isSubmitting()) {
+      this.forgotForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting.set(true);
     this.successMessage.set(null);
     this.errorMessage.set(null);
-    const email = this.form.getRawValue().email ?? '';
+
+    const email = this.forgotForm.getRawValue().email ?? '';
 
     this.authService
       .forgotPassword(email)
@@ -80,12 +105,51 @@ export default class ResetPasswordComponent {
         next: () => {
           this.isSubmitting.set(false);
           this.successMessage.set('Link de redefinição enviado com sucesso.');
-          this.form.reset({ email: '' });
+          this.forgotForm.reset({ email: '' });
         },
         error: () => {
           this.isSubmitting.set(false);
           this.errorMessage.set('Não foi possível enviar o link de redefinição.');
         },
       });
+  }
+
+  submitReset(): void {
+    if (this.resetForm.invalid || this.isSubmitting()) {
+      this.resetForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    const { password, password_confirmation } = this.resetForm.getRawValue();
+
+    this.authService
+      .resetPassword({
+        token: this.token()!,
+        email: this.emailFromParams(),
+        password: password!,
+        password_confirmation: password_confirmation!,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.successMessage.set('Senha redefinida com sucesso!');
+          setTimeout(() => this.router.navigate(['/auth/login']), 2000);
+        },
+        error: () => {
+          this.isSubmitting.set(false);
+          this.errorMessage.set('Link inválido ou expirado. Solicite um novo link de redefinição.');
+        },
+      });
+  }
+
+  private passwordsMatchValidator(group: import('@angular/forms').AbstractControl) {
+    const password = group.get('password')?.value;
+    const confirmation = group.get('password_confirmation')?.value;
+    return password === confirmation ? null : { passwordsMismatch: true };
   }
 }

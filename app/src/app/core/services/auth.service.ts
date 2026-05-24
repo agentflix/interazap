@@ -174,6 +174,19 @@ export class AuthService {
     );
   }
 
+  resetPassword(payload: {
+    token: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(
+      `${this.baseUrl}/auth/reset-password`,
+      payload,
+      { withCredentials: true },
+    );
+  }
+
   /**
    * Constrói o payload de login adicionando `device_name` apenas em mobile.
    *
