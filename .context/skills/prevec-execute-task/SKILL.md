@@ -5,16 +5,16 @@ description: >-
   Cria ou atualiza o session file da feature para compartilhar contexto com
   subagents. Triggers: "implementar task", "executar task",
   "prevec-execute-task", "TASK-X.Y.Z". Do NOT use sem task T.A.C.E definida ou
-  para revisar código (use prevec-review-execution).
+  para revisar código (use prevec-phase-close).
 metadata:
   author: prevec
-  version: '2.0.0'
+  version: '3.0.0'
 ---
 
 # prevec-execute-task
 
-Implementa uma task T.A.C.E auto-suficiente — a task já contém Referência, Imports autorizados e comandos de Evidência.
-Usa um único session file por feature para acumular contexto entre agents.
+Implementa uma task T.A.C.E auto-suficiente — sem rodar testes.
+Testes rodam no `/prevec-phase-close` ao final de cada fase.
 
 ## Input
 
@@ -43,8 +43,6 @@ ls .context/.session/[feature]-session.md 2>/dev/null
 
 ### 2. Criar session da feature
 
-Criar apenas quando houver handoff para outro agent (BUILDER → REVIEWER é sempre o caso no PREVEC).
-
 ```bash
 mkdir -p .context/.session
 ```
@@ -54,16 +52,45 @@ Ler e serializar no session:
 
 Se `context-snapshot.md` ausente: ler `project-brain.yaml` + `dependencies.yaml` diretamente e avisar para regenerar o snapshot.
 
-Criar `.context/.session/[feature]-session.md` seguindo o template em `prevec-assets/session-model.md`.
-Preencher seções **Metadados** e **Architecture Snapshot**.
+Criar `.context/.session/[feature]-session.md` seguindo o template em `.context/.session/_TEMPLATE.md`.
+Estrutura: Architecture Snapshot primeiro (Bloco 1) → Metadados (Bloco 2).
 
-### 3. Append seção da task no session
+### 3. Verificação defensiva + paginação do session
+
+**3a. Verificação de saúde:**
+```bash
+wc -c .context/.session/[feature]-session.md
+```
+
+SE tamanho > 15.000 bytes:
+- **PARAR** — não iniciar a task
+- Alertar: `⚠️ Session inflado ([N] bytes). Execute /session-archive [feature] antes de continuar.`
+- Motivo: paginação automática pode ter falhado silenciosamente em phase-close anterior
+- Não prosseguir mesmo que tasks_concluidas ≤ 2
+
+**3b. Paginação automática (somente se tamanho ≤ 15.000 bytes):**
+
+```bash
+grep -c "Status: ✅ Concluída" .context/.session/[feature]-session.md
+```
+
+SE tasks_concluidas > 2:
+1. Identificar as seções `## TASK-X.Y.Z` com `Status: ✅ Concluída` (mais antigas primeiro)
+2. Para cada task além das 2 mais recentes concluídas:
+   - Fazer append do conteúdo em `.context/.session/archive/[feature]-archive.md`
+   - Substituir no session pelo resumo:
+     ```
+     ### [TASK-X.Y.Z] — ✅ [título] (commit: [hash])
+     > [tipo(escopo): descrição] | Gates: api ✅ gateway ✅ app ✅
+     ```
+
+**3c. Append da nova seção:**
 
 Adicionar ao final de `.context/.session/[feature]-session.md` a seção `## TASK-X.Y.Z`:
 
 Ler a task completa de `.context/DOCS/TASKS/[feature]-tasks.md` (apenas a task específica).
 Preencher a subseção **T.A.C.E** da seção.
-Deixar **BUILDER Log** e **REVIEWER Log** em branco — serão preenchidos nos passos seguintes.
+Deixar **BUILDER Log** em branco — será preenchido no Passo 7.
 
 Atualizar cabeçalho da task no session:
 ```
@@ -101,45 +128,29 @@ Sequência obrigatória:
 3. Respeitar **Imports autorizados** — nunca importar o que está na lista de proibidos
 4. **T:** exatamente o descrito — nada mais, nada menos
 5. **C:** garantir que DEPOIS corresponde ao descrito
-6. **E:** rodar os comandos exatos listados — capturar output
+6. **E:** verificar critérios listados — capturar output se necessário
 
 Se surgir necessidade de pesquisar algo não previsto na task: parar, registrar no BUILDER Log como escopo não coberto, criar nova task para o resto.
 
-### 7. Rodar testes isolados
-
-Rodar apenas os testes dos arquivos modificados nesta task — não a suite completa.
-
-```bash
-# Exemplos — adaptar para a stack real:
-# PHP:  php artisan test --filter NomeDaClasseTest
-# Jest: npx jest path/do/arquivo.test.ts
-# Pytest: pytest tests/path/to/test_file.py
-```
-
-Gates completos (lint, build, suite inteira) são responsabilidade do REVIEWER — não rodar aqui.
-
-Se os testes isolados falharem: corrigir antes de prosseguir.
-
-### 8. Preencher BUILDER Log no session
+### 7. Preencher BUILDER Log no session
 
 Atualizar a subseção **BUILDER Log** na seção `## TASK-X.Y.Z` do session:
 
 - Arquivos modificados com descrição de uma linha cada
 - Decisões tomadas durante a implementação
-- Testes isolados: comando usado + resultado
-- Notas para REVIEWER: edge cases, riscos, dívida técnica
+- Notas para phase-close: edge cases, riscos, dívida técnica criada
+- NÃO incluir resultado de testes — testes rodam no `/prevec-phase-close`
 
 Atualizar cabeçalho da seção:
 ```
-> Status: 🔄 Em Progresso | Fase PREVC: VALIDATION
+> Status: 🔄 Em Progresso | Fase PREVC: AGUARDANDO PHASE-CLOSE
 ```
 
-### 9. Handoff
+### 8. Handoff
 
 ```
 Task implementada. Session atualizado.
 Session: .context/.session/[feature]-session.md (seção TASK-X.Y.Z)
-Próximo passo: /prevec-review-execution [feature] TASK-[X.Y.Z]
 ```
 
 ## Output
@@ -147,9 +158,9 @@ Próximo passo: /prevec-review-execution [feature] TASK-[X.Y.Z]
 ```
 ✅ TASK-[X.Y.Z] implementada
 📋 Arquivos modificados: [lista]
-📋 Gates: lint ✅ | types ✅ | tests ✅ | build ✅
 📋 Session: .context/.session/[feature]-session.md
-➡️  Próximo: /prevec-review-execution [feature] TASK-[X.Y.Z]
+➡️  Mesma fase? /prevec-execute-task [feature] TASK-[X.Y.próxima]
+➡️  Última task da fase [X]? /prevec-phase-close [feature] [X]
 ```
 
 ## Error Handling
@@ -157,5 +168,5 @@ Próximo passo: /prevec-review-execution [feature] TASK-[X.Y.Z]
 - Session corrompido: deletar e recriar do zero
 - Task anterior não concluída: alertar dependência e não prosseguir
 - Arquivo da seção A não existe: criar apenas se a task diz "criar" — nunca inferir
-- Gate falhou: corrigir e re-rodar antes de handoff — nunca passar gate quebrado
 - Escopo além da task: parar, registrar no session (Notas BUILDER), criar nova task para o resto
+- NÃO rodar testes ou gates aqui — responsabilidade do `/prevec-phase-close`

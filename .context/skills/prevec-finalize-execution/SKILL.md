@@ -14,6 +14,9 @@ metadata:
 
 # prevec-finalize-execution
 
+> **Fluxo PREVC normal:** chamado internamente por `prevec-phase-close`. Não usar diretamente — o phase-close confirma todas as tasks da fase de uma vez com 1 commit por fase.
+> Use diretamente apenas para confirmar tasks avulsas fora do fluxo de fases.
+
 Confirma task aprovada usando dados do session file — zero re-derivação de contexto.
 O session file só é arquivado quando a feature inteira for concluída.
 
@@ -96,6 +99,24 @@ Verificar **REVIEWER Log → Para MEMORY** no session:
 
 Salvar em `.context/DOCS/MEMORY/[feature]-decisions.md`.
 
+### 4b. Paginação automática pós-conclusão
+
+Após marcar a task como ✅ no session, verificar se é hora de paginar:
+
+```bash
+grep -c "Status: ✅ Concluída" .context/.session/[feature]-session.md
+```
+
+SE tasks_concluidas > 2:
+1. Identificar as seções `## TASK-X.Y.Z` mais antigas além das 2 mais recentes concluídas
+2. Para cada uma:
+   - Fazer append do conteúdo completo em `.context/.session/archive/[feature]-archive.md`
+   - Substituir no session pelo resumo:
+     ```
+     ### [TASK-X.Y.Z] — ✅ [título] (commit: [hash])
+     > [tipo(escopo): descrição] | Gates: api ✅ gateway ✅ app ✅
+     ```
+
 ### 5. Criar commit
 
 Usar dados do **REVIEWER Log → Para CHANGELOG** do session para construir a mensagem:
@@ -130,7 +151,7 @@ Verificar se algum arquivo de arquitetura foi modificado nesta task:
 git diff --name-only HEAD | grep ".context/ARCHITECTURE/"
 ```
 
-Se sim → regenerar `.context/ARCHITECTURE/context-snapshot.md` a partir dos arquivos fonte (`project-brain.yaml`, `architecture.md`, `modules.yaml`, `dependencies.yaml`), preservando o formato exato com as seções: Stack, Regras Invioláveis, Módulos e Dependências, Convenções.
+Se sim → regenerar `.context/ARCHITECTURE/context-snapshot.md` a partir dos arquivos fonte (`project-brain.yaml`, `architecture.md`, `modules.yaml`, `dependencies.yaml`), preservando o formato exato com as seções: Stack, Regras Invioláveis, Módulos e Dependências (incluindo linha de Gates ao final).
 
 Incluir o snapshot regenerado no commit da task.
 

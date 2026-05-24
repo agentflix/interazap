@@ -5,7 +5,7 @@
 ## Stack
 Backend: PHP 8.3 + Laravel 12 (api/) | Gateway: Node.js + NestJS 11 (gateway/)
 Frontend: TypeScript + Angular 20 (app/) | Database: PostgreSQL 17 + Redis 7
-Testes: PHPUnit (api) · Jest (gateway + app) | Queue: BullMQ
+Testes: Pest --parallel (api) · Jest (gateway + app) | Queue: BullMQ
 Arquitetura: Microservices | Camadas: Presentation → Gateway → Domain/Application → Infrastructure
 
 ## Regras Invioláveis
@@ -17,7 +17,7 @@ Arquitetura: Microservices | Camadas: Presentation → Gateway → Domain/Applic
 6. Frontend (app/) nunca acessa banco ou Redis diretamente
 7. PSR-12 obrigatório para todo PHP em api/
 8. Angular Style Guide obrigatório para todo TypeScript em app/
-9. Conventional Commits obrigatório em todos os commits
+9. Conventional Commits: tipo(escopo): descrição em português
 10. Tenant isolation: toda query deve filtrar por tenant_id
 11. Sessão de chat expirada não pode ser reaberta
 12. Webhook WhatsApp processado via BullMQ para garantir idempotência
@@ -32,9 +32,4 @@ Arquitetura: Microservices | Camadas: Presentation → Gateway → Domain/Applic
 | landing | — | api, gateway, banco |
 | landing-clinicas | — | api, gateway, banco |
 
-## Convenções
-- PSR-12 para PHP (api/)
-- Angular Style Guide para TypeScript (app/)
-- Conventional Commits: tipo(escopo): descrição em português
-- pnpm para gateway/ e app/ | Composer para api/
-- Scoped DI no NestJS; Service Providers no Laravel
+Gates: api=`composer gate:all` · gateway=`pnpm --filter gateway build && test` · app=`pnpm --filter app build && test`

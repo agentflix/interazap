@@ -39,64 +39,64 @@
 
 ---
 
-### EXECUTION
+### EXECUTION (por task)
 **Agent:** BUILDER
 **Quando:** Feature doc e tasks aprovados pelo REVIEWER
-**Output:** Código implementado + testes isolados passando
+**Output:** Código implementado + BUILDER Log no session
 
 ```
 /prevec-execute-task [feature] TASK-X.Y.Z
 ```
 
-Session em `.context/.session/[feature]-TASK-X.Y.Z.md` criado pelo BUILDER ao iniciar.
+Repetir para todas as tasks da fase. Sem testes por task.
 
 ---
 
-### VALIDATION
-**Agent:** REVIEWER (modo VALIDATION) — **em subagent distinto**
-**Quando:** BUILDER sinaliza task concluída
-**Output:** Achados por severidade + gates executados + risco residual
+### PHASE-CLOSE (por fase)
+**Agent:** —
+**Quando:** Todas as tasks da fase estão implementadas
+**Output:** Testes da fase ✅ + commit da fase + (última fase: review + gates + PR)
 
 ```
-/prevec-review-execution [feature] TASK-X.Y.Z
+/prevec-phase-close [feature] [N]
 ```
 
-Gates obrigatórios:
-- API: `php artisan test`
+Gates da fase:
+- API: `composer gate:fast`
 - Gateway: `pnpm --filter gateway test` + `pnpm --filter gateway build`
 - App: `pnpm --filter app test` + `pnpm --filter app build`
 
-Achados bloqueantes → volta para BUILDER.
+Se testes falharem → BUILDER corrige → rodar novamente.
+
+**Última fase:** review automático com 7 subagents + `composer gate:all` + Builder fix loop + PR.
 
 ---
 
-### CONFIRM
-**Agent:** REVIEWER (modo CONFIRM)
-**Quando:** Validation sem bloqueantes
-**Output:** Task ✅ + MEMORY (se decisão técnica) + commit semântico
+### VALIDATION + CONFIRM (embutidos em phase-close)
 
-```
-/prevec-finalize-execution [feature] TASK-X.Y.Z
-```
+Não são mais comandos separados por task.
+- Validação: executada pelo phase-close na última fase (7 subagents)
+- Confirmação: fase intermediária = commit da fase; última fase = PR
 
 ---
 
-## Checklist de CONFIRM (obrigatório)
+## Checklist de PHASE-CLOSE (obrigatório)
 
-- [ ] Task marcada como ✅ no arquivo de tasks
-- [ ] **REVIEWER executou `code-review-confiavel` em subagent distinto e aprovou**
-- [ ] Evidências adicionadas (output dos testes, gates)
-- [ ] MEMORY atualizado se houve decisão/aprendizado
-- [ ] `project-state.yaml` atualizado (métricas)
-- [ ] Se última task da feature → feature marcada como ✅
+- [ ] Todas as tasks da fase estão 🔄 Em Progresso (nenhuma ⏳ Pendente)
+- [ ] Testes da fase passando
+- [ ] BUILDER Log preenchido no session para cada task
+- [ ] 1 commit por fase com todas as tasks
+- [ ] MEMORY atualizado se houve decisão técnica
+- [ ] `project-state.yaml` atualizado
+- [ ] **Última fase:** review 7 subagents + `composer gate:all` + PR
 
 ---
 
 ## Regra Inviolável
 
-> Task sem aprovação explícita do REVIEWER não avança para CONFIRM — nunca.
+> Fase não fecha sem testes da fase passando — nunca commitar com gates vermelhos.
 
-O REVIEWER executa em **subagent distinto** para não contaminar o contexto do BUILDER com o review.
+O review final (7 subagents) executa em **subagent distinto** na última fase para não contaminar o contexto.
 
 ---
 
@@ -106,14 +106,13 @@ O REVIEWER executa em **subagent distinto** para não contaminar o contexto do B
 /prevec-new-plan [ideia]
   → PLANNER cria PRD
     → /prevec-decompose-plan [prd]
-      → PLANNER cria feature doc
-        → /prevec-decompose-task [feature]
-          → PLANNER cria tasks T.A.C.E
-            → REVIEWER revisa (modo REVIEW)
-              → /prevec-execute-task [feature] TASK-X.Y.Z
-                → BUILDER implementa
-                  → /prevec-review-execution [feature] TASK-X.Y.Z
-                    → REVIEWER valida (subagent)
-                      → /prevec-finalize-execution [feature] TASK-X.Y.Z
-                        → REVIEWER confirma + commit
+      → PLANNER cria feature doc + tasks T.A.C.E por fase
+        → REVIEWER revisa (modo REVIEW) — inalterado
+          → Para cada task da fase em ordem:
+              /prevec-execute-task [feature] TASK-X.Y.Z
+              → BUILDER implementa (sem testes)
+            → Ao final de cada fase:
+              /prevec-phase-close [feature] [N]
+              → Testes da fase → 1 commit
+              → Se última fase: review 7 subagents + gates finais + Builder fix + PR
 ```

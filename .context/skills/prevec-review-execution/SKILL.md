@@ -15,6 +15,8 @@ metadata:
 
 # prevec-review-execution
 
+> **Fluxo PREVC normal:** o review com 7 subagents é executado automaticamente por `prevec-phase-close` na última fase. Use este skill diretamente apenas para review pontual de task avulsa fora do fluxo de fases.
+
 Valida a implementação de uma task com 7 revisores especializados antes do CONFIRM.
 Lê a seção da task no session file da feature — zero re-leitura de arquivos de origem.
 
