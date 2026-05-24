@@ -172,7 +172,7 @@ Depois: `GatewayCacheService.getOrFetch(key, fetcher, strategy)` — verifica L1
 ### TASK-3.1.1 — Criar endpoints internos api/ para dominio chat (5 endpoints)
 
 **Modo BUILDER:** `backend`
-**Status:** 🔄 AGUARDANDO PHASE-CLOSE
+**Status:** ✅ Concluída
 
 **T — Tarefa:**
 Criar 5 endpoints internos na api/ para substituir os call-sites de DB direto do gateway no dominio chat. Todos protegidos por `InternalApiKeyGuard` (ou middleware equivalente de `x-api-key`). Seguir padrao de rotas internas existentes (`GET /api/internal/chat/instances/by-waba/{wabaId}`).
@@ -208,7 +208,7 @@ Depois: 5 endpoints funcionais com autenticacao, retornando JSON conforme contra
 ### TASK-3.1.2 — Criar endpoints internos api/ para dominio billing (3 endpoints)
 
 **Modo BUILDER:** `backend`
-**Status:** 🔄 AGUARDANDO PHASE-CLOSE
+**Status:** ✅ Concluída
 
 **T — Tarefa:**
 Criar 3 endpoints internos na api/ para substituir os call-sites de DB direto do gateway no dominio billing.
@@ -240,7 +240,7 @@ Depois: 3 endpoints funcionais com autenticacao e tenant scope.
 ### TASK-3.2.1 — Migrar dominio chat no gateway: instance-resolver + channels + connection-status
 
 **Modo BUILDER:** `gateway`
-**Status:** 🔄 AGUARDANDO PHASE-CLOSE
+**Status:** ✅ Concluída
 **Depende de:** TASK-2.1.1, TASK-2.2.1, TASK-3.1.1
 
 **T — Tarefa:**
@@ -276,7 +276,7 @@ Depois: `DatabaseService` removido dos 3 servicos. `instance-resolver` usa cache
 ### TASK-3.3.1 — Migrar dominio billing no gateway: tenant-resolver + webhook + collection
 
 **Modo BUILDER:** `gateway`
-**Status:** 🔄 AGUARDANDO PHASE-CLOSE
+**Status:** ✅ Concluída
 **Depende de:** TASK-2.1.1, TASK-2.2.1, TASK-3.1.2
 
 **T — Tarefa:**
@@ -308,7 +308,7 @@ Depois: `DatabaseService` removido dos 3 servicos. Cache gerenciado por `Gateway
 ### TASK-3.4.1 — Migrar dominio realtime no gateway: ws-room-access
 
 **Modo BUILDER:** `gateway`
-**Status:** 🔄 AGUARDANDO PHASE-CLOSE
+**Status:** ✅ Concluída
 **Depende de:** TASK-2.1.1, TASK-2.2.1, TASK-3.1.1
 
 **T — Tarefa:**

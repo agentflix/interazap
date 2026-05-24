@@ -15,7 +15,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InternalApiKeyGuard } from '../realtime/guards/internal-api-key.guard';
 import { MetaAdapter } from './providers/meta/meta.adapter';
-import { DatabaseService } from '../../infrastructure/database/database.service';
+import { InternalApiClientService } from '../../infrastructure/internal-api/internal-api-client.service';
 import { MetaTemplate } from './contracts/meta-provider.interface';
 import type { MetaTemplateCreatePayload } from './providers/meta/meta.dto';
 
@@ -31,7 +31,7 @@ export class ChannelsController {
   private readonly logger = new Logger(ChannelsController.name);
 
   constructor(
-    private readonly databaseService: DatabaseService,
+    private readonly internalApiClient: InternalApiClientService,
     private readonly metaAdapter: MetaAdapter,
     private readonly configService: ConfigService,
   ) {}
@@ -212,7 +212,7 @@ export class ChannelsController {
   }
 
   /**
-   * Busca um canal pelo ID no banco de dados.
+   * Busca um canal pelo ID via api/ HTTP.
    */
   private async fetchChannel(id: string): Promise<{
     id: string;
@@ -220,23 +220,20 @@ export class ChannelsController {
     settings: Record<string, unknown>;
   } | null> {
     try {
-      const result = await this.databaseService.query<{
-        id: string;
-        provider: string;
-        settings_json: Record<string, unknown>;
+      const response = await this.internalApiClient.get<{
+        data: {
+          id: string;
+          provider: string;
+          settings_json: Record<string, unknown>;
+        };
       }>(
-        `SELECT id, provider, settings_json
-         FROM chat_instances
-         WHERE id = $1
-         LIMIT 1`,
-        [id],
+        `/api/internal/chat/instances/${encodeURIComponent(id)}`,
+        'instance_by_id',
       );
 
-      if (!result || !result.rows || result.rows.length === 0) {
-        return null;
-      }
+      const row = response.data;
+      if (!row) return null;
 
-      const row = result.rows[0];
       return {
         id: row.id,
         provider: row.provider,

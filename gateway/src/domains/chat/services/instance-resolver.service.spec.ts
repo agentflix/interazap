@@ -6,11 +6,11 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InstanceResolverService } from './instance-resolver.service';
 import { RedisService } from '../../../infrastructure/redis/redis.service';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
+import { InternalApiClientService } from '../../../infrastructure/internal-api/internal-api-client.service';
 
 describe('InstanceResolverService', () => {
   let service: InstanceResolverService;
-  let databaseService: jest.Mocked<DatabaseService>;
+  let internalApiClient: jest.Mocked<{ get: jest.Mock }>;
   type RedisClientMock = {
     get: jest.Mock<Promise<string | null>, [string]>;
     setex: jest.Mock<Promise<void>, [string, number, string]>;
@@ -36,15 +36,15 @@ describe('InstanceResolverService', () => {
       getClient: jest.fn(() => mockRedisClient),
     };
 
-    const mockDatabaseService = {
-      query: jest.fn(),
-    };
+    internalApiClient = {
+      get: jest.fn(),
+    } as unknown as jest.Mocked<{ get: jest.Mock }>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InstanceResolverService,
         { provide: RedisService, useValue: mockRedisService },
-        { provide: DatabaseService, useValue: mockDatabaseService },
+        { provide: InternalApiClientService, useValue: internalApiClient },
         {
           provide: ConfigService,
           useValue: { get: jest.fn().mockReturnValue(undefined) },
@@ -53,7 +53,6 @@ describe('InstanceResolverService', () => {
     }).compile();
 
     service = module.get<InstanceResolverService>(InstanceResolverService);
-    databaseService = module.get(DatabaseService);
   });
 
   it('returns active cache immediately', async () => {
@@ -70,10 +69,10 @@ describe('InstanceResolverService', () => {
     const result = await service.resolveByWebhookToken('token-123');
 
     expect(result).toEqual(cachedInstance);
-    expect(databaseService.query).not.toHaveBeenCalled();
+    expect(internalApiClient.get).not.toHaveBeenCalled();
   });
 
-  it('returns stale cache and triggers background revalidate', async () => {
+  it('returns stale cache and triggers background revalidation', async () => {
     const staleInstance = {
       instance_id: 'inst-2',
       tenant_id: 'tenant-2',
@@ -84,10 +83,7 @@ describe('InstanceResolverService', () => {
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce(JSON.stringify(staleInstance));
     mockRedisClient.set.mockResolvedValue('OK');
-    databaseService.query.mockResolvedValue({
-      rows: [staleInstance],
-      rowCount: 1,
-    } as never);
+    internalApiClient.get.mockResolvedValue({ data: staleInstance });
 
     const result = await service.resolveByWebhookToken('token-stale');
 
@@ -101,27 +97,22 @@ describe('InstanceResolverService', () => {
     );
   });
 
-  it('queries database on full cache miss and writes active/stale cache', async () => {
+  it('queries api on full cache miss and writes active/stale cache', async () => {
     const instance = {
       instance_id: 'inst-3',
       tenant_id: 'tenant-3',
       provider: 'uazapi',
-      status: 'connected',
     };
 
     mockRedisClient.get.mockResolvedValue(null);
-    databaseService.query.mockResolvedValue({
-      rows: [instance],
-      rowCount: 1,
-    } as never);
+    internalApiClient.get.mockResolvedValue({ data: instance });
 
     const result = await service.resolveByWebhookToken('token-db');
 
     expect(result.instance_id).toBe('inst-3');
-    expect(databaseService.query).toHaveBeenCalledTimes(1);
-    expect(databaseService.query).toHaveBeenCalledWith(
-      expect.stringContaining('webhook_token'),
-      ['token-db'],
+    expect(internalApiClient.get).toHaveBeenCalledWith(
+      expect.stringContaining('by-webhook-token/token-db'),
+      'instance_resolve',
     );
     expect(mockRedisClient.setex).toHaveBeenCalledWith(
       'chat.instance_by_webhook_token:token-db:active',
@@ -137,69 +128,36 @@ describe('InstanceResolverService', () => {
 
   it('throws UnauthorizedException when instance not found', async () => {
     mockRedisClient.get.mockResolvedValue(null);
-    databaseService.query.mockResolvedValue({
-      rows: [],
-      rowCount: 0,
-    } as never);
+    internalApiClient.get.mockResolvedValue({ data: null });
 
     await expect(
       service.resolveByWebhookToken('invalid-token'),
     ).rejects.toThrow(UnauthorizedException);
   });
 
-  it('deduplicates concurrent DB resolution for the same token (single-flight)', async () => {
-    const uuidToken = '123e4567-e89b-12d3-a456-426614174000';
+  it('deduplicates concurrent API resolution for the same token (single-flight)', async () => {
     const instance = {
       instance_id: 'inst-4',
       tenant_id: 'tenant-4',
       provider: 'uazapi',
-      status: 'connected',
     };
 
     mockRedisClient.get.mockResolvedValue(null);
-    databaseService.query.mockImplementation(
-      async (): Promise<{ rows: (typeof instance)[]; rowCount: number }> => {
+    internalApiClient.get.mockImplementation(
+      async (): Promise<{ data: typeof instance }> => {
         await new Promise((resolve) => setTimeout(resolve, 25));
-        return { rows: [instance], rowCount: 1 };
+        return { data: instance };
       },
     );
 
     const [resultA, resultB] = await Promise.all([
-      service.resolveByWebhookToken(uuidToken),
-      service.resolveByWebhookToken(uuidToken),
+      service.resolveByWebhookToken('token-concurrent'),
+      service.resolveByWebhookToken('token-concurrent'),
     ]);
 
     expect(resultA).toEqual(instance);
     expect(resultB).toEqual(instance);
-    expect(databaseService.query).toHaveBeenCalledTimes(1);
-    expect(databaseService.query).toHaveBeenCalledWith(
-      expect.stringContaining('webhook_token'),
-      [uuidToken],
-    );
-  });
-
-  it('does not execute settings_json token fallback for UUID tokens', async () => {
-    const uuidToken = '123e4567-e89b-12d3-a456-426614174000';
-
-    mockRedisClient.get.mockResolvedValue(null);
-    databaseService.query.mockResolvedValue({
-      rows: [],
-      rowCount: 0,
-    } as never);
-
-    await expect(service.resolveByWebhookToken(uuidToken)).rejects.toThrow(
-      UnauthorizedException,
-    );
-
-    expect(databaseService.query).toHaveBeenCalledTimes(1);
-    expect(databaseService.query).toHaveBeenCalledWith(
-      expect.stringContaining('webhook_token'),
-      [uuidToken],
-    );
-    expect(databaseService.query).not.toHaveBeenCalledWith(
-      expect.stringContaining("settings_json->>'token'"),
-      [uuidToken],
-    );
+    expect(internalApiClient.get).toHaveBeenCalledTimes(1);
   });
 
   it('invalidates active and stale cache keys', async () => {
@@ -213,15 +171,12 @@ describe('InstanceResolverService', () => {
     );
   });
 
-  it('fails fast with ServiceUnavailableException when DB lookup exceeds timeout budget', async () => {
-    const previousTimeout = process.env.INSTANCE_RESOLVER_DB_LOOKUP_TIMEOUT_MS;
-    process.env.INSTANCE_RESOLVER_DB_LOOKUP_TIMEOUT_MS = '30';
-
+  it('fails fast with ServiceUnavailableException when API lookup exceeds timeout budget', async () => {
     const timeoutModule: TestingModule = await Test.createTestingModule({
       providers: [
         InstanceResolverService,
         { provide: RedisService, useValue: mockRedisService },
-        { provide: DatabaseService, useValue: databaseService },
+        { provide: InternalApiClientService, useValue: internalApiClient },
         {
           provide: ConfigService,
           useValue: {
@@ -238,21 +193,15 @@ describe('InstanceResolverService', () => {
     );
 
     mockRedisClient.get.mockResolvedValue(null);
-    databaseService.query.mockImplementation(
-      async (): Promise<{ rows: never[]; rowCount: number }> => {
+    internalApiClient.get.mockImplementation(
+      async (): Promise<{ data: null }> => {
         await new Promise((resolve) => setTimeout(resolve, 120));
-        return { rows: [], rowCount: 0 };
+        return { data: null };
       },
     );
 
     await expect(
       timeoutService.resolveByWebhookToken('slow-token'),
     ).rejects.toThrow(ServiceUnavailableException);
-
-    if (previousTimeout === undefined) {
-      delete process.env.INSTANCE_RESOLVER_DB_LOOKUP_TIMEOUT_MS;
-    } else {
-      process.env.INSTANCE_RESOLVER_DB_LOOKUP_TIMEOUT_MS = previousTimeout;
-    }
   });
 });

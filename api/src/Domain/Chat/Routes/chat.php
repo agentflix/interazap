@@ -25,6 +25,8 @@ use Domain\Chat\Http\Controllers\ChatTransmissionListController;
 use Domain\Chat\Http\Controllers\ChatWebhookController;
 use Domain\Chat\Http\Controllers\ChatWindowController;
 use Domain\Chat\Http\Controllers\Internal\InternalChannelLookupController;
+use Domain\Chat\Http\Controllers\Internal\InternalChatInstanceController;
+use Domain\Chat\Http\Controllers\Internal\InternalRealtimeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,6 +55,14 @@ Route::middleware(['gateway.secret'])->prefix('chat')->group(function (): void {
 
 Route::middleware(['gateway.secret'])->prefix('internal/chat')->group(function (): void {
     Route::get('instances/by-waba/{wabaId}', [InternalChannelLookupController::class, 'byWaba']);
+    Route::get('instances/by-webhook-token/{token}', [InternalChatInstanceController::class, 'byWebhookToken']);
+    Route::get('instances/{id}', [InternalChatInstanceController::class, 'show']);
+    Route::patch('instances/{id}/connection-status', [InternalChatInstanceController::class, 'updateConnectionStatus']);
+    Route::get('instances', [InternalChatInstanceController::class, 'index']);
+});
+
+Route::middleware(['gateway.secret'])->prefix('internal/realtime')->group(function (): void {
+    Route::get('room-access', [InternalRealtimeController::class, 'roomAccess']);
 });
 
 Route::middleware(['auth:sanctum', 'throttle:chat'])->withoutMiddleware('throttle:api')->group(function (): void {

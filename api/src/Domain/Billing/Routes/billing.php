@@ -8,6 +8,7 @@ use Domain\Billing\Http\Controllers\BillingInvoiceReceiptController;
 use Domain\Billing\Http\Controllers\BillingPrefsController;
 use Domain\Billing\Http\Controllers\BillingSubscriptionController;
 use Domain\Billing\Http\Controllers\BillingUsageController;
+use Domain\Billing\Http\Controllers\Internal\InternalBillingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'billing.delinquency'])
@@ -45,4 +46,12 @@ Route::middleware(['internal.api.key'])
 Route::middleware(['auth:sanctum'])
     ->group(function (): void {
         Route::patch('/tenants/me/billing-prefs', [BillingPrefsController::class, 'update']);
+    });
+
+Route::middleware(['internal.api.key'])
+    ->prefix('internal/billing')
+    ->group(function (): void {
+        Route::get('tenants/by-webhook-token/{token}', [InternalBillingController::class, 'tenantByWebhookToken']);
+        Route::post('webhook-events', [InternalBillingController::class, 'createWebhookEvent']);
+        Route::patch('webhook-events/{eventId}/stream-id', [InternalBillingController::class, 'updateStreamId']);
     });

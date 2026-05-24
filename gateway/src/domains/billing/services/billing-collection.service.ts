@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
+import { InternalApiClientService } from '../../../infrastructure/internal-api/internal-api-client.service';
+import { GatewayCacheService } from '../../../infrastructure/cache/gateway-cache.service';
+import { CacheStrategies } from '../../../infrastructure/cache/gateway-cache.types';
 import { SendMessageService } from '../../chat/outbound/send-message.service';
 import {
   BillingCollectionInstance,
@@ -19,7 +21,8 @@ export class BillingCollectionService {
   private readonly logger = new Logger(BillingCollectionService.name);
 
   constructor(
-    private readonly databaseService: DatabaseService,
+    private readonly internalApiClient: InternalApiClientService,
+    private readonly cacheService: GatewayCacheService,
     private readonly sendMessageService: SendMessageService,
   ) {}
 
@@ -77,36 +80,45 @@ export class BillingCollectionService {
   }
 
   /**
-   * Busca a instância WhatsApp ativa (conectada) do tenant no banco de dados.
-   *
-   * @param tenantId - Identificador do tenant
-   * @returns Instância conectada ou null se não houver nenhuma disponível
+   * Busca a instância WhatsApp ativa (conectada) do tenant via api/ HTTP.
+   * Cache L2 Redis 60s (WARM strategy L2 TTL = 300s, mas para instâncias de cobrança usamos HOT).
    */
   private async resolveTenantInstance(
     tenantId: string,
   ): Promise<BillingCollectionInstance | null> {
-    const result = await this.databaseService.query<BillingCollectionInstance>(
-      `SELECT
-        id,
-        tenant_id,
-        provider,
-        COALESCE(settings_json->>'token', webhook_token, '') AS token
-       FROM chat_instances
-       WHERE tenant_id = $1
-         AND provider IN ('uazapi', 'zapi')
-         AND status = 'connected'
-       ORDER BY updated_at DESC
-       LIMIT 1`,
-      [tenantId],
-    );
+    const cacheKey = `billing:collection-instance:${tenantId}`;
 
-    const instance = result.rows[0] ?? null;
-    if (!instance || instance.token.trim() === '') {
-      this.logger.warn(`No connected instance token for tenant ${tenantId}`);
+    try {
+      const response = await this.cacheService.getOrFetch<{
+        data: BillingCollectionInstance[];
+      }>(
+        cacheKey,
+        async () => {
+          const result = await this.internalApiClient.get<{
+            data: BillingCollectionInstance[];
+          }>(
+            `/api/internal/chat/instances?tenant_id=${encodeURIComponent(tenantId)}&provider=uazapi&status=connected`,
+            'billing_instances_list',
+          );
+          return result;
+        },
+        CacheStrategies.HOT,
+        'billing_instances_list',
+      );
+
+      const instance = response.data?.[0] ?? null;
+      if (!instance || !instance.token || instance.token.trim() === '') {
+        this.logger.warn(`No connected instance token for tenant ${tenantId}`);
+        return null;
+      }
+
+      return instance;
+    } catch (error) {
+      this.logger.warn(
+        `Failed to resolve tenant instance: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return null;
     }
-
-    return instance;
   }
 
   /**

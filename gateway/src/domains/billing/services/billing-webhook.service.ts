@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { Job, Queue } from 'bullmq';
 import { RedisService } from '../../../infrastructure/redis/redis.service';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
+import { InternalApiClientService } from '../../../infrastructure/internal-api/internal-api-client.service';
 import { BillingTenantResolverService } from './billing-tenant-resolver.service';
 import { AsaasNormalizer } from '../providers/asaas/asaas.normalizer';
 import { composeIdempotencyKey } from '../../../shared/utils/idempotency-key.util';
@@ -21,6 +21,7 @@ type BillingWebhookPersistenceJob = {
   payloadHash: string;
   idempotencyKey: string;
   streamId: string | null;
+  eventId?: string | null;
 };
 
 /**
@@ -42,7 +43,7 @@ export class BillingWebhookService {
 
   constructor(
     private readonly redisService: RedisService,
-    private readonly databaseService: DatabaseService,
+    private readonly internalApiClient: InternalApiClientService,
     private readonly tenantResolver: BillingTenantResolverService,
     private readonly asaasNormalizer: AsaasNormalizer,
     private readonly queueFactory: BullMQQueueFactory,
@@ -221,7 +222,7 @@ export class BillingWebhookService {
     correlationId: string,
   ): Promise<void> {
     try {
-      await this.persistRawEvent({
+      const eventId = await this.persistRawEvent({
         tenant_id: jobData.tenant_id,
         token: jobData.token,
         provider: jobData.provider,
@@ -232,12 +233,9 @@ export class BillingWebhookService {
         idempotencyKey: jobData.idempotencyKey,
       });
 
-      if (jobData.streamId) {
-        await this.setStreamId(
-          jobData.tenant_id,
-          jobData.idempotencyKey,
-          jobData.streamId,
-        );
+      const resolvedEventId = eventId ?? jobData.eventId ?? null;
+      if (jobData.streamId && resolvedEventId) {
+        await this.setStreamId(resolvedEventId, jobData.streamId);
       }
 
       this.logger.warn('Billing persistence fallback completed', {
@@ -278,14 +276,14 @@ export class BillingWebhookService {
   }
 
   /**
-   * Worker de persistência para escrever rastreabilidade no PostgreSQL.
+   * Worker de persistência para escrever rastreabilidade via api/ HTTP.
    */
   private async processPersistenceJob(
     job: Job<BillingWebhookPersistenceJob>,
   ): Promise<void> {
     const { data } = job;
 
-    await this.persistRawEvent({
+    const eventId = await this.persistRawEvent({
       tenant_id: data.tenant_id,
       token: data.token,
       provider: data.provider,
@@ -296,12 +294,9 @@ export class BillingWebhookService {
       idempotencyKey: data.idempotencyKey,
     });
 
-    if (data.streamId) {
-      await this.setStreamId(
-        data.tenant_id,
-        data.idempotencyKey,
-        data.streamId,
-      );
+    const resolvedEventId = eventId ?? data.eventId ?? null;
+    if (data.streamId && resolvedEventId) {
+      await this.setStreamId(resolvedEventId, data.streamId);
     }
   }
 
@@ -325,10 +320,8 @@ export class BillingWebhookService {
   }
 
   /**
-   * Persiste o evento bruto de webhook no banco de dados utilizando idempotência.
-   * A idempotência no caminho de ACK é controlada no Redis.
-   *
-   * @param params - Dados do evento a serem persistidos
+   * Persiste o evento bruto de webhook via api/ HTTP.
+   * Retorna o event_id criado ou null em caso de conflito idempotente.
    */
   private async persistRawEvent(params: {
     tenant_id: string;
@@ -339,39 +332,52 @@ export class BillingWebhookService {
     payload: Record<string, unknown>;
     payloadHash: string;
     idempotencyKey: string;
-  }): Promise<void> {
-    await this.databaseService.query<{ id: string }>(
-      'INSERT INTO billing_webhook_events (id, tenant_id, idempotency_key, provider, instance_webhook_token, provider_event_id, event_type, payload, payload_hash, payload_json, received_at, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, NOW(), NOW(), NOW()) ON CONFLICT (tenant_id, idempotency_key) DO NOTHING RETURNING id',
-      [
-        randomUUID(),
-        params.tenant_id,
-        params.idempotencyKey,
-        params.provider.toUpperCase(),
-        params.token,
-        params.providerEventId,
-        params.eventType,
-        JSON.stringify(params.payload),
-        params.payloadHash,
-        JSON.stringify(params.payload),
-      ],
-    );
+  }): Promise<string | null> {
+    try {
+      const response = await this.internalApiClient.post<{
+        success: boolean;
+        data: { event_id: string; created_at: string };
+      }>(
+        '/api/internal/billing/webhook-events',
+        {
+          tenant_id: params.tenant_id,
+          event_type: params.eventType,
+          payload: {
+            ...params.payload,
+            provider: params.provider.toUpperCase(),
+            token: params.token,
+            provider_event_id: params.providerEventId,
+            idempotency_key: params.idempotencyKey,
+            payload_hash: params.payloadHash,
+          },
+          external_id: params.providerEventId ?? params.idempotencyKey,
+        },
+        'billing_event_create',
+      );
+
+      return response.data?.event_id ?? null;
+    } catch (error) {
+      this.logger.warn(
+        `persistRawEvent failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return null;
+    }
   }
 
   /**
-   * Atualiza o registro do evento no banco de dados com o ID do stream Redis gerado.
-   *
-   * @param tenantId - Identificador do tenant
-   * @param idempotencyKey - Chave de idempotência do evento
-   * @param streamId - ID retornado pelo Redis após publicação no stream
+   * Atualiza o stream_id do evento via api/ HTTP.
    */
-  private async setStreamId(
-    tenantId: string,
-    idempotencyKey: string,
-    streamId: string,
-  ): Promise<void> {
-    await this.databaseService.query(
-      'UPDATE billing_webhook_events SET stream_id = $1 WHERE tenant_id = $2 AND idempotency_key = $3',
-      [streamId, tenantId, idempotencyKey],
-    );
+  private async setStreamId(eventId: string, streamId: string): Promise<void> {
+    try {
+      await this.internalApiClient.patch(
+        `/api/internal/billing/webhook-events/${encodeURIComponent(eventId)}/stream-id`,
+        { stream_id: streamId },
+        'billing_event_stream_id',
+      );
+    } catch (error) {
+      this.logger.warn(
+        `setStreamId failed for event ${eventId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 }

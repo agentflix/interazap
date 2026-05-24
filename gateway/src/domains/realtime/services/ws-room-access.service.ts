@@ -1,30 +1,36 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
+import { InternalApiClientService } from '../../../infrastructure/internal-api/internal-api-client.service';
+import { GatewayCacheService } from '../../../infrastructure/cache/gateway-cache.service';
+import { CacheStrategies } from '../../../infrastructure/cache/gateway-cache.types';
 import { RoomPrefix } from '../../../shared/constants/gateway.constants';
+
+interface RoomAccessResponse {
+  allowed: boolean;
+}
 
 /**
  * WsRoomAccessService
  *
  * Validates WebSocket room join requests against tenant permissions.
- * Checks ownership for tenant, ticket, and AI run rooms.
+ * Checks ownership via api/ HTTP endpoint (replaces direct DB access).
+ * Cache L1+L2 with REALTIME strategy (L1 10s, L2 60s).
  */
 @Injectable()
 export class WsRoomAccessService {
   private readonly logger = new Logger(WsRoomAccessService.name);
 
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly internalApiClient: InternalApiClientService,
+    private readonly cacheService: GatewayCacheService,
+  ) {}
 
   /**
    * Checks whether a user may join a given WebSocket room.
    *
    * Supports three room prefixes:
-   * - `tenant:{id}` — direct tenant match
-   * - `ticket:{id}` — validates ticket ownership via database
-   * - `run:{id}`    — validates AI run ownership via database
-   *
-   * @param room        - Full room name (e.g. `ticket:uuid`)
-   * @param userTenantId - Tenant ID of the requesting user
-   * @returns `true` when access is allowed, `false` otherwise
+   * - `tenant:{id}` — direct tenant match (no HTTP call)
+   * - `ticket:{id}` — validates via api/ with cache
+   * - `run:{id}`    — validates via api/ with cache
    */
   async canJoinRoom(room: string, userTenantId: string): Promise<boolean> {
     if (room.startsWith(`${RoomPrefix.TENANT}:`)) {
@@ -36,78 +42,39 @@ export class WsRoomAccessService {
       return roomTenantId === userTenantId;
     }
 
-    if (room.startsWith(`${RoomPrefix.TICKET}:`)) {
-      const ticketId = room.split(':')[1];
-      if (!ticketId) {
-        this.logger.warn(`Invalid ticket room format: ${room}`);
-        return false;
-      }
-      return await this.validateTicketOwnership(ticketId, userTenantId);
-    }
-
-    if (room.startsWith(`${RoomPrefix.RUN}:`)) {
-      const runId = room.split(':')[1];
-      if (!runId) {
-        this.logger.warn(`Invalid run room format: ${room}`);
-        return false;
-      }
-      return await this.validateRunOwnership(runId, userTenantId);
+    if (
+      room.startsWith(`${RoomPrefix.TICKET}:`) ||
+      room.startsWith(`${RoomPrefix.RUN}:`)
+    ) {
+      return this.checkRoomAccess(room, userTenantId);
     }
 
     this.logger.warn(`Unknown room format: ${room}`);
     return false;
   }
 
-  /**
-   * Validates that a chat ticket belongs to the given tenant.
-   * Queries `chat_tickets.tenant_id` directly from the database.
-   */
-  private async validateTicketOwnership(
-    ticketId: string,
+  private async checkRoomAccess(
+    room: string,
     tenantId: string,
   ): Promise<boolean> {
+    const cacheKey = `realtime:room-access:${room}:${tenantId}`;
+
     try {
-      const result = await this.databaseService.query<{ tenant_id: string }>(
-        'SELECT tenant_id FROM chat_tickets WHERE id = $1 LIMIT 1',
-        [ticketId],
+      const result = await this.cacheService.getOrFetch<RoomAccessResponse>(
+        cacheKey,
+        () =>
+          this.internalApiClient.get<RoomAccessResponse>(
+            `/api/internal/realtime/room-access?room=${encodeURIComponent(room)}&tenant_id=${encodeURIComponent(tenantId)}`,
+            'realtime_room_access',
+          ),
+        CacheStrategies.REALTIME,
+        'realtime_room_access',
       );
 
-      if (result.rows.length === 0) {
-        this.logger.warn(`Ticket ${ticketId} not found`);
-        return false;
-      }
-
-      return result.rows[0].tenant_id === tenantId;
+      return result.allowed === true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger?.error(`Failed to validate ticket ownership: ${message}`);
-      return false;
-    }
-  }
-
-  /**
-   * Validates that an AI autopilot run belongs to the given tenant.
-   * Queries `ai_autopilot_runs.tenant_id` directly from the database.
-   */
-  private async validateRunOwnership(
-    runId: string,
-    tenantId: string,
-  ): Promise<boolean> {
-    try {
-      const result = await this.databaseService.query<{ tenant_id: string }>(
-        'SELECT tenant_id FROM ai_autopilot_runs WHERE id = $1 LIMIT 1',
-        [runId],
-      );
-
-      if (result.rows.length === 0) {
-        this.logger.warn(`Run ${runId} not found`);
-        return false;
-      }
-
-      return result.rows[0].tenant_id === tenantId;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger?.error(`Failed to validate run ownership: ${message}`);
+      this.logger.error(`Failed to validate room access: ${message}`);
       return false;
     }
   }

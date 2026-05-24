@@ -3,7 +3,7 @@ import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChannelsController } from './channels.controller';
 import { MetaAdapter } from './providers/meta/meta.adapter';
-import { DatabaseService } from '../../infrastructure/database/database.service';
+import { InternalApiClientService } from '../../infrastructure/internal-api/internal-api-client.service';
 import { InternalApiKeyGuard } from '../realtime/guards/internal-api-key.guard';
 import { MetaTemplate } from './contracts/meta-provider.interface';
 import type { MetaTemplateCreatePayload } from './providers/meta/meta.dto';
@@ -16,7 +16,7 @@ describe('ChannelsController', () => {
     createTemplate: jest.Mock;
     deleteTemplate: jest.Mock;
   };
-  let databaseService: { query: jest.Mock };
+  let internalApiClient: { get: jest.Mock };
 
   const channelId = 'channel-123';
   const accessToken = 'access-token-xyz';
@@ -41,15 +41,15 @@ describe('ChannelsController', () => {
       createTemplate: jest.fn(),
       deleteTemplate: jest.fn(),
     };
-    databaseService = {
-      query: jest.fn().mockResolvedValue({ rows: [channelRow] }),
+    internalApiClient = {
+      get: jest.fn().mockResolvedValue({ data: channelRow }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChannelsController],
       providers: [
         { provide: MetaAdapter, useValue: metaAdapter },
-        { provide: DatabaseService, useValue: databaseService },
+        { provide: InternalApiClientService, useValue: internalApiClient },
         { provide: ConfigService, useValue: { get: jest.fn() } },
         InternalApiKeyGuard,
       ],
@@ -88,7 +88,7 @@ describe('ChannelsController', () => {
     });
 
     it('throws 404 when channel not found', async () => {
-      databaseService.query.mockResolvedValueOnce({ rows: [] });
+      internalApiClient.get.mockResolvedValueOnce({ data: null });
 
       await expect(controller.listTemplates(channelId)).rejects.toBeInstanceOf(
         NotFoundException,
@@ -97,8 +97,8 @@ describe('ChannelsController', () => {
     });
 
     it('throws 404 when channel is not Meta', async () => {
-      databaseService.query.mockResolvedValueOnce({
-        rows: [{ ...channelRow, provider: 'wuzapi' }],
+      internalApiClient.get.mockResolvedValueOnce({
+        data: { ...channelRow, provider: 'wuzapi' },
       });
 
       await expect(controller.listTemplates(channelId)).rejects.toBeInstanceOf(
@@ -107,8 +107,8 @@ describe('ChannelsController', () => {
     });
 
     it('throws 404 when access_token is missing', async () => {
-      databaseService.query.mockResolvedValueOnce({
-        rows: [{ ...channelRow, settings_json: {} }],
+      internalApiClient.get.mockResolvedValueOnce({
+        data: { ...channelRow, settings_json: {} },
       });
 
       await expect(controller.listTemplates(channelId)).rejects.toBeInstanceOf(
@@ -160,8 +160,8 @@ describe('ChannelsController', () => {
     });
 
     it('throws 404 when channel has no waba_id configured', async () => {
-      databaseService.query.mockResolvedValueOnce({
-        rows: [{ ...channelRow, settings_json: { access_token: accessToken } }],
+      internalApiClient.get.mockResolvedValueOnce({
+        data: { ...channelRow, settings_json: { access_token: accessToken } },
       });
 
       await expect(
@@ -212,7 +212,7 @@ describe('ChannelsController', () => {
     });
 
     it('throws 404 when channel does not exist', async () => {
-      databaseService.query.mockResolvedValueOnce({ rows: [] });
+      internalApiClient.get.mockResolvedValueOnce({ data: null });
 
       await expect(controller.syncTemplates(channelId)).rejects.toBeInstanceOf(
         NotFoundException,

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { QueueModule } from '../../shared/services/queue/queue.module';
 import { ChatWebhookController } from './controllers/chat-webhook.controller';
 import { ChatWebhookService } from './services/chat-webhook.service';
 import { ChatWebhookEventNormalizer } from './services/chat-webhook-event-normalizer.service';
@@ -44,9 +45,16 @@ import { ChannelsController } from './channels.controller';
 import { SendMessageService } from './outbound/send-message.service';
 import { SendMessageConsumer } from './outbound/send-message.consumer';
 import { RetryPolicy } from './outbound/retry-policy';
+import { UpdateConnectionStatusProcessor } from './processors/update-connection-status.processor';
 
 @Module({
-  imports: [RealtimeModule, RedisModule, MetricsModule, MetaModule],
+  imports: [
+    RealtimeModule,
+    RedisModule,
+    MetricsModule,
+    MetaModule,
+    QueueModule,
+  ],
   controllers: [
     ChatWebhookController,
     UazapiInstancesController,
@@ -85,6 +93,8 @@ import { RetryPolicy } from './outbound/retry-policy';
     RetryPolicy,
     SendMessageService,
     SendMessageConsumer,
+    // Processors
+    UpdateConnectionStatusProcessor,
   ],
   exports: [ProviderFactory, SendMessageService],
 })

@@ -4,7 +4,6 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { RedisService } from '../src/infrastructure/redis/redis.service';
 import { InstanceResolverService } from '../src/domains/chat/services/instance-resolver.service';
-import { DatabaseService } from '../src/infrastructure/database/database.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { WebhookEventDto } from '../src/domains/chat/dto/webhook-event.dto';
@@ -85,11 +84,6 @@ describe('Chat Webhook (e2e)', () => {
           tenant_id: 'tenant-default',
           provider: 'uazapi',
         }),
-      })
-      .overrideProvider(DatabaseService)
-      .useValue({
-        query: jest.fn().mockResolvedValue({ rows: [] }),
-        onModuleDestroy: jest.fn(),
       })
       .compile();
 

@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../../infrastructure/redis/redis.service';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
 import { EventsGateway } from '../../realtime/gateways/events.gateway';
 import {
   JsonRecord,
@@ -31,7 +30,6 @@ export class ChatWebhookRealtimeProcessor {
   constructor(
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
-    private readonly databaseService: DatabaseService,
     private readonly eventsGateway: EventsGateway,
     private readonly eventNormalizer: ChatWebhookEventNormalizer,
     readonly realtimeEmitter: WebhookRealtimeEmitter,

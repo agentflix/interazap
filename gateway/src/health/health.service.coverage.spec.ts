@@ -1,13 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthService } from './health.service';
 import { RedisService } from '../infrastructure/redis/redis.service';
-import { DatabaseService } from '../infrastructure/database/database.service';
 import { Logger } from '@nestjs/common';
 
 describe('HealthService Coverage', () => {
   let service: HealthService;
   let redisService: RedisService;
-  let databaseService: DatabaseService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,12 +22,6 @@ describe('HealthService Coverage', () => {
           },
         },
         {
-          provide: DatabaseService,
-          useValue: {
-            query: jest.fn(),
-          },
-        },
-        {
           provide: Logger,
           useValue: {
             log: jest.fn(),
@@ -41,20 +33,16 @@ describe('HealthService Coverage', () => {
 
     service = module.get<HealthService>(HealthService);
     redisService = module.get<RedisService>(RedisService);
-    databaseService = module.get<DatabaseService>(DatabaseService);
   });
 
   describe('checkConsumers', () => {
     it('should handle exceptions, log error, and return unhealthy status', async () => {
-      // Arrange
       jest.spyOn(redisService, 'getClient').mockImplementation(() => {
         throw new Error('Redis Client Error');
       });
 
-      // Act
       const result = await service.checkConsumers();
 
-      // Assert
       expect(result).toEqual({
         status: 'unhealthy',
         message: 'Redis Client Error',
@@ -62,16 +50,13 @@ describe('HealthService Coverage', () => {
     });
 
     it('should handle non-Error exceptions and return unhealthy status', async () => {
-      // Arrange
       jest.spyOn(redisService, 'getClient').mockImplementation(() => {
         // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw 'String Error';
       });
 
-      // Act
       const result = await service.checkConsumers();
 
-      // Assert
       expect(result).toEqual({
         status: 'unhealthy',
         message: 'Unknown error',

@@ -7,7 +7,7 @@ import { UazapiProvider } from '../providers/uazapi/uazapi.provider';
 import { ZapiAdapter } from '../providers/zapi/zapi.adapter';
 import { MetaAdapter } from '../providers/meta/meta.adapter';
 import { InstanceResolverService } from './instance-resolver.service';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
+import { BullMQQueueFactory } from '../../../shared/services/queue/bullmq-queue-factory.service';
 import { EventsGateway } from '../../realtime/gateways/events.gateway';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -61,8 +61,13 @@ describe('ChatWebhookService Coverage', () => {
           },
         },
         {
-          provide: DatabaseService,
-          useValue: { query: jest.fn() },
+          provide: BullMQQueueFactory,
+          useValue: {
+            createQueue: jest
+              .fn()
+              .mockReturnValue({ add: jest.fn().mockResolvedValue(undefined) }),
+            createWorker: jest.fn(),
+          },
         },
         {
           provide: ChatWebhookFileLoggerService,

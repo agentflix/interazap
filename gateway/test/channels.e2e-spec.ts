@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { DatabaseService } from '../src/infrastructure/database/database.service';
+import { InternalApiClientService } from '../src/infrastructure/internal-api/internal-api-client.service';
 import { MetaAdapter } from '../src/domains/chat/providers/meta/meta.adapter';
 import { InternalApiKeyGuard } from '../src/domains/realtime/guards/internal-api-key.guard';
 
@@ -36,17 +36,18 @@ describe('ChannelsController (e2e)', () => {
     deleteTemplate: jest.fn(),
   };
 
-  const databaseService = {
-    query: jest.fn().mockResolvedValue({ rows: [channelRow] }),
-    onModuleDestroy: jest.fn(),
+  const internalApiClient = {
+    get: jest.fn().mockResolvedValue({ data: channelRow }),
+    post: jest.fn(),
+    patch: jest.fn(),
   };
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideProvider(DatabaseService)
-      .useValue(databaseService)
+      .overrideProvider(InternalApiClientService)
+      .useValue(internalApiClient)
       .overrideProvider(MetaAdapter)
       .useValue(metaAdapter)
       .overrideGuard(InternalApiKeyGuard)
@@ -63,7 +64,7 @@ describe('ChannelsController (e2e)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    databaseService.query.mockResolvedValue({ rows: [channelRow] });
+    internalApiClient.get.mockResolvedValue({ data: channelRow });
   });
 
   describe('GET /channels/:id/templates', () => {
@@ -110,7 +111,7 @@ describe('ChannelsController (e2e)', () => {
     });
 
     it('returns 404 when channel not found', async () => {
-      databaseService.query.mockResolvedValueOnce({ rows: [] });
+      internalApiClient.get.mockResolvedValueOnce({ data: null });
 
       await request(getRequestTarget(app))
         .get(`/channels/${channelId}/templates`)
@@ -213,7 +214,7 @@ describe('ChannelsController (e2e)', () => {
     });
 
     it('returns 404 when channel does not exist', async () => {
-      databaseService.query.mockResolvedValueOnce({ rows: [] });
+      internalApiClient.get.mockResolvedValueOnce({ data: null });
 
       await request(getRequestTarget(app))
         .post(`/channels/${channelId}/templates/sync`)

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../../infrastructure/redis/redis.service';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
+import { InternalApiClientService } from '../../../infrastructure/internal-api/internal-api-client.service';
 import { isRecord } from '../../../shared/utils/type-guards';
 import { ProviderType, ResolvedInstance } from '../models/instance.model';
 
@@ -22,8 +22,6 @@ export class InstanceResolverService {
   private readonly processCacheTtlMs = 3_600_000; // 1 hour
   private readonly cacheGetTimeoutMs: number;
   private readonly dbLookupTimeoutMs: number;
-  private readonly uuidTokenRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   private readonly processCache = new Map<
     string,
     { instance: ResolvedInstance; expiresAt: number }
@@ -36,7 +34,7 @@ export class InstanceResolverService {
   constructor(
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
-    private readonly databaseService: DatabaseService,
+    private readonly internalApiClient: InternalApiClientService,
   ) {
     this.cacheGetTimeoutMs =
       this.configService.get<number>(
@@ -281,79 +279,37 @@ export class InstanceResolverService {
   }
 
   /**
-   * Consulta o banco de dados pelo token usando webhook_token ou settings_json->>'token'.
-   *
-   * @param token - Token do webhook da instancia
-   * @returns Instancia encontrada ou null
+   * Consulta a instancia via api/ HTTP (substitui queries diretas ao banco).
+   * O endpoint aceita webhook_token (lookup primário) e settings_json->>'token' como fallback.
    */
   private async findByAnyToken(
     token: string,
   ): Promise<ResolvedInstance | null> {
-    const lookupStartedAt = Date.now();
-
-    // 1. Try direct webhook_token (unique index, instant)
-    const byWebhookToken: unknown =
-      await this.queryWithTimeout<ResolvedInstance>(
-        `SELECT id as instance_id, tenant_id, provider, status
-         FROM chat_instances
-         WHERE webhook_token = $1
-         LIMIT 1`,
-        [token],
+    try {
+      const response = await this.withTimeout(
+        this.internalApiClient.get<{ data: ResolvedInstance }>(
+          `/api/internal/chat/instances/by-webhook-token/${encodeURIComponent(token)}`,
+          'instance_resolve',
+        ),
         this.dbLookupTimeoutMs,
-        'webhook_token',
+        `HTTP lookup timeout after ${this.dbLookupTimeoutMs}ms`,
       );
-    const primary = this.extractRows(byWebhookToken)[0];
-    if (primary) return primary;
 
-    if (this.uuidTokenRegex.test(token)) {
+      const instance = response.data;
+      if (this.isResolvedInstance(instance)) {
+        return instance;
+      }
+      return null;
+    } catch (error) {
+      if (this.isLookupTimeoutError(error)) {
+        throw error;
+      }
       return null;
     }
-
-    // 2. Fallback: settings_json->>'token' (expression index)
-    const elapsedMs = Date.now() - lookupStartedAt;
-    const remainingBudgetMs = Math.max(100, this.dbLookupTimeoutMs - elapsedMs);
-    const bySettingsToken: unknown =
-      await this.queryWithTimeout<ResolvedInstance>(
-        `SELECT id as instance_id, tenant_id, provider, status
-         FROM chat_instances
-         WHERE settings_json->>'token' = $1
-         LIMIT 1`,
-        [token],
-        remainingBudgetMs,
-        "settings_json->>'token'",
-      );
-    return this.extractRows(bySettingsToken)[0] ?? null;
-  }
-
-  /**
-   * Executa uma query no banco de dados com timeout configuravel.
-   *
-   * @param query - SQL a executar
-   * @param params - Parametros da query
-   * @param timeoutMs - Limite de tempo em milissegundos
-   * @param lookupName - Nome do lookup para logging
-   * @returns Resultado da query
-   */
-  private async queryWithTimeout<T>(
-    query: string,
-    params: ReadonlyArray<unknown>,
-    timeoutMs: number,
-    lookupName: string,
-  ): Promise<unknown> {
-    return this.withTimeout(
-      this.databaseService.query<T>(query, params),
-      timeoutMs,
-      `DB lookup timeout (${lookupName}) after ${timeoutMs}ms`,
-    );
   }
 
   /**
    * Envolve uma Promise com um timeout rejeitando caso o prazo expire.
-   *
-   * @param promise - Promise a ser protegida
-   * @param timeoutMs - Prazo maximo em milissegundos
-   * @param message - Mensagem de erro ao expirar
-   * @returns Promise protegida por timeout
    */
   private withTimeout<T>(
     promise: Promise<T>,
@@ -381,36 +337,10 @@ export class InstanceResolverService {
     });
   }
 
-  /**
-   * Verifica se o erro e de timeout de lookup de instancia.
-   *
-   * @param error - Erro a inspecionar
-   * @returns true quando o erro e de timeout de lookup
-   */
   private isLookupTimeoutError(error: unknown): boolean {
     return (
       error instanceof Error &&
       error.message.startsWith('INSTANCE_LOOKUP_TIMEOUT:')
-    );
-  }
-
-  /**
-   * Extrai array de instancias de um resultado de query do banco.
-   *
-   * @param value - Resultado bruto da query
-   * @returns Array de instancias validas
-   */
-  private extractRows(value: unknown): ReadonlyArray<ResolvedInstance> {
-    if (!isRecord(value)) {
-      return [];
-    }
-    const rows = value.rows;
-    if (!Array.isArray(rows)) {
-      return [];
-    }
-
-    return rows.filter((row): row is ResolvedInstance =>
-      this.isResolvedInstance(row),
     );
   }
 

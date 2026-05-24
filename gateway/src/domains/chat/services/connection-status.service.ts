@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
+import { Queue } from 'bullmq';
 import { RedisService } from '../../../infrastructure/redis/redis.service';
+import { BullMQQueueFactory } from '../../../shared/services/queue/bullmq-queue-factory.service';
 import { getString } from '../../../shared/utils/type-guards';
 import { StreamPayload } from './chat-webhook.types';
 import { WebhookRealtimeEmitter } from './webhook-realtime-emitter.service';
@@ -37,16 +38,16 @@ export class ConnectionStatusService {
     ReturnType<typeof setTimeout>
   >();
 
-  private readonly connectionBufferMs: number;
+  static readonly CONNECTION_STATUS_QUEUE = 'update-connection-status';
 
-  /**
-   * Initializes the service with buffered connection event timing configuration.
-   */
+  private readonly connectionBufferMs: number;
+  private connectionStatusQueue: Queue | null = null;
+
   constructor(
     private readonly configService: ConfigService,
-    private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService,
     private readonly realtimeEmitter: WebhookRealtimeEmitter,
+    private readonly queueFactory: BullMQQueueFactory,
   ) {
     this.connectionBufferMs = Number(
       this.configService.get<string | number>('CONNECTION_BUFFER_MS') ?? '120',
@@ -133,41 +134,37 @@ export class ConnectionStatusService {
       return;
     }
 
-    try {
-      const lastConnection = JSON.stringify({
+    const queue = this.ensureConnectionStatusQueue();
+    void queue
+      .add('update-connection-status', {
+        instanceId,
         status: normalizedStatus,
-        connected: normalizedStatus === 'connected',
-        updated_at: new Date().toISOString(),
+        connectedAt: new Date().toISOString(),
         owner: getString(connection, 'owner') ?? undefined,
-      });
-
-      await this.databaseService.query(
-        `UPDATE chat_instances
-         SET status = $1,
-             last_status_at = NOW(),
-             settings_json = jsonb_set(
-               COALESCE(settings_json::jsonb, '{}'::jsonb),
-               '{last_connection}',
-               $2::jsonb
-             )::json,
-             updated_at = NOW()
-         WHERE id = $3`,
-        [normalizedStatus, lastConnection, instanceId],
+        webhookToken: payload.instance_webhook_token ?? undefined,
+      })
+      .catch((err: unknown) =>
+        this.logger.error(
+          `Failed to enqueue UpdateConnectionStatusJob: ${err instanceof Error ? err.message : String(err)}`,
+        ),
       );
 
-      const token = payload.instance_webhook_token ?? '';
-      if (token) {
-        const cacheKeyBase = `chat.instance_by_webhook_token:${token}`;
-        await this.redisService
-          .getClient()
-          .del(cacheKeyBase, `${cacheKeyBase}:active`, `${cacheKeyBase}:stale`);
-      }
-    } catch (error) {
-      this.logger.error(
-        `Failed to update instance status: ${(error as Error)?.message}`,
-        (error as Error)?.stack,
+    const token = payload.instance_webhook_token ?? '';
+    if (token) {
+      const cacheKeyBase = `chat.instance_by_webhook_token:${token}`;
+      await this.redisService
+        .getClient()
+        .del(cacheKeyBase, `${cacheKeyBase}:active`, `${cacheKeyBase}:stale`);
+    }
+  }
+
+  private ensureConnectionStatusQueue(): Queue {
+    if (!this.connectionStatusQueue) {
+      this.connectionStatusQueue = this.queueFactory.createQueue(
+        ConnectionStatusService.CONNECTION_STATUS_QUEUE,
       );
     }
+    return this.connectionStatusQueue;
   }
 
   /**

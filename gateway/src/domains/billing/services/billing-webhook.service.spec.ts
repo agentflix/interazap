@@ -2,19 +2,18 @@ import { TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { BillingWebhookService } from './billing-webhook.service';
 import { RedisService } from '../../../infrastructure/redis/redis.service';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
+import { InternalApiClientService } from '../../../infrastructure/internal-api/internal-api-client.service';
 import { BillingTenantResolverService } from './billing-tenant-resolver.service';
 import { AsaasNormalizer } from '../providers/asaas/asaas.normalizer';
 import { BullMQQueueFactory } from '../../../shared/services/queue/bullmq-queue-factory.service';
 import { buildTestingModule } from '../../../test-utils/testing-module.util';
 import { ResolvedTenant } from '../models/billing-tenant-resolver.model';
 import { NormalizedPaymentEvent } from '../models/payment-event.model';
-import { DatabaseQueryResult } from '../../../infrastructure/models/database.model';
 
 describe('BillingWebhookService', () => {
   let service: BillingWebhookService;
   let redisService: jest.Mocked<RedisService>;
-  let databaseService: jest.Mocked<DatabaseService>;
+  let internalApiClient: { post: jest.Mock; patch: jest.Mock };
   let tenantResolver: jest.Mocked<BillingTenantResolverService>;
   let asaasNormalizer: jest.Mocked<AsaasNormalizer>;
   let queueFactory: jest.Mocked<BullMQQueueFactory>;
@@ -29,8 +28,12 @@ describe('BillingWebhookService', () => {
       delete: jest.fn(),
     };
 
-    const mockDatabaseService = {
-      query: jest.fn(),
+    const mockInternalApiClient = {
+      post: jest.fn().mockResolvedValue({
+        success: true,
+        data: { event_id: 'evt-1', created_at: new Date().toISOString() },
+      }),
+      patch: jest.fn().mockResolvedValue({ success: true }),
     };
 
     const mockTenantResolver = {
@@ -54,7 +57,7 @@ describe('BillingWebhookService', () => {
       providers: [
         BillingWebhookService,
         { provide: RedisService, useValue: mockRedisService },
-        { provide: DatabaseService, useValue: mockDatabaseService },
+        { provide: InternalApiClientService, useValue: mockInternalApiClient },
         { provide: BillingTenantResolverService, useValue: mockTenantResolver },
         { provide: AsaasNormalizer, useValue: mockAsaasNormalizer },
         { provide: BullMQQueueFactory, useValue: mockQueueFactory },
@@ -63,7 +66,7 @@ describe('BillingWebhookService', () => {
 
     service = module.get<BillingWebhookService>(BillingWebhookService);
     redisService = module.get(RedisService);
-    databaseService = module.get(DatabaseService);
+    internalApiClient = module.get(InternalApiClientService);
     tenantResolver = module.get(BillingTenantResolverService);
     asaasNormalizer = module.get(AsaasNormalizer);
     queueFactory = module.get(BullMQQueueFactory);
@@ -107,11 +110,6 @@ describe('BillingWebhookService', () => {
       redisService.get.mockResolvedValue(null);
       redisService.set.mockResolvedValue(undefined);
       redisService.delete.mockResolvedValue(1);
-      const emptyQueryResult: DatabaseQueryResult<Record<string, unknown>> = {
-        rows: [],
-        rowCount: 0,
-      };
-      databaseService.query.mockResolvedValue(emptyQueryResult);
     });
 
     it('should throw BadRequestException for unsupported provider', async () => {
@@ -165,7 +163,7 @@ describe('BillingWebhookService', () => {
           streamId: 'stream-id-123',
         }),
       );
-      expect(databaseService.query).not.toHaveBeenCalled();
+      expect(internalApiClient.post).not.toHaveBeenCalled();
     });
 
     it('should skip duplicate events', async () => {
@@ -300,10 +298,10 @@ describe('BillingWebhookService', () => {
         'persist-billing-webhook-event',
         expect.objectContaining({ streamId: null }),
       );
-      expect(databaseService.query).not.toHaveBeenCalled();
+      expect(internalApiClient.post).not.toHaveBeenCalled();
     });
 
-    it('should use async DB fallback when enqueue fails to preserve traceability', async () => {
+    it('should use async api fallback when enqueue fails to preserve traceability', async () => {
       persistenceQueue.add.mockRejectedValueOnce(
         new Error('queue unavailable'),
       );
@@ -312,15 +310,10 @@ describe('BillingWebhookService', () => {
 
       await new Promise<void>((resolve) => setImmediate(resolve));
 
-      expect(databaseService.query).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO billing_webhook_events'),
-        expect.arrayContaining(['tenant-123', 'idempo:key']),
-      );
-      expect(databaseService.query).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'UPDATE billing_webhook_events SET stream_id = $1',
-        ),
-        ['stream-id-123', 'tenant-123', 'idempo:key'],
+      expect(internalApiClient.post).toHaveBeenCalledWith(
+        '/api/internal/billing/webhook-events',
+        expect.objectContaining({ tenant_id: 'tenant-123' }),
+        'billing_event_create',
       );
     });
   });

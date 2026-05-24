@@ -6,7 +6,7 @@ import { ChatWebhookRealtimeProcessor } from './chat-webhook-realtime-processor.
 import { RedisService } from '../../../infrastructure/redis/redis.service';
 import { UazapiProvider } from '../providers/uazapi/uazapi.provider';
 import { InstanceResolverService } from './instance-resolver.service';
-import { DatabaseService } from '../../../infrastructure/database/database.service';
+import { BullMQQueueFactory } from '../../../shared/services/queue/bullmq-queue-factory.service';
 import { EventsGateway } from '../../realtime/gateways/events.gateway';
 import { ZapiAdapter } from '../providers/zapi/zapi.adapter';
 import { MetaAdapter } from '../providers/meta/meta.adapter';
@@ -64,8 +64,13 @@ const buildTestProviders = () => [
     useValue: { resolveByWebhookToken: jest.fn() },
   },
   {
-    provide: DatabaseService,
-    useValue: { query: jest.fn() },
+    provide: BullMQQueueFactory,
+    useValue: {
+      createQueue: jest
+        .fn()
+        .mockReturnValue({ add: jest.fn().mockResolvedValue(undefined) }),
+      createWorker: jest.fn(),
+    },
   },
   {
     provide: ChatWebhookFileLoggerService,
