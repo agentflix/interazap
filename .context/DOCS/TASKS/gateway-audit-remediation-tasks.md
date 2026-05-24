@@ -341,7 +341,7 @@ Depois: `DatabaseService` removido. Cache L1(10s)+L2(60s) absorve conexoes repet
 ### TASK-4.1.1 — Remover DatabaseModule, DatabaseService e dependencia pg
 
 **Modo BUILDER:** `gateway`
-**Status:** 🔄 AGUARDANDO PHASE-CLOSE
+**Status:** ✅ Concluída
 **Depende de:** TASK-3.2.1, TASK-3.3.1, TASK-3.4.1
 
 **T — Tarefa:**
