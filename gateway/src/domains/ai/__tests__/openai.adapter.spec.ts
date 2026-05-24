@@ -15,8 +15,6 @@ import { OpenAIConfigService } from '../providers/openai/openai.config';
 import { OpenAITranslator } from '../providers/openai/openai.translator';
 import { AICompletionRequest } from '../interfaces/ai-completion-request.dto';
 
-// Mock OpenAI SDK - usa __esModule para compatibilidade com ts-jest
-// As classes de erro são definidas DENTRO do mock para evitar hoisting issues
 jest.mock('openai', () => {
   // Mock error classes - DEVEM ser definidas dentro do factory
   class APIError extends Error {

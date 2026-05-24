@@ -76,11 +76,12 @@ export class ToolExecutorService {
     args: Record<string, unknown>,
     context: ToolExecutionContext,
   ): Promise<Record<string, unknown>> {
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
     try {
       const result = await Promise.race([
         this.executeToolInternal(name, args, context),
-        new Promise<never>((_, reject) =>
-          setTimeout(
+        new Promise<never>((_, reject) => {
+          timeoutHandle = setTimeout(
             () =>
               reject(
                 new Error(
@@ -88,8 +89,8 @@ export class ToolExecutorService {
                 ),
               ),
             ToolExecutorService.TOOL_TIMEOUT_MS,
-          ),
-        ),
+          );
+        }),
       ]);
       const isSuccess = result['success'] === true;
       this.aiMetrics.recordToolCall(
@@ -104,6 +105,10 @@ export class ToolExecutorService {
         success: false,
         error: (error as Error).message,
       };
+    } finally {
+      if (timeoutHandle !== undefined) {
+        clearTimeout(timeoutHandle);
+      }
     }
   }
 

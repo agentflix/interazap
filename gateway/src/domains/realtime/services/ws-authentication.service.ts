@@ -39,6 +39,7 @@ export class WsAuthenticationService {
     this.cleanupInterval = setInterval(() => {
       this.pruneTokenCache(Date.now());
     }, 60_000);
+    this.cleanupInterval.unref();
     this.pruneTokenCache(Date.now());
   }
 

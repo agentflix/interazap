@@ -77,6 +77,7 @@ export class ChatWebhookFileLoggerService
       },
       60 * 60 * 1000,
     );
+    this.purgeInterval.unref();
   }
 
   /**
