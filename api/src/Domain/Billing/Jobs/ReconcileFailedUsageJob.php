@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Job that reconciles failed AI message usage log entries by re-running
@@ -34,8 +35,12 @@ final class ReconcileFailedUsageJob implements ShouldQueue
                     try {
                         $counter->checkAndIncrement($log->tenant_id, $log->channel, $log->ai_turn_id);
                         $log->update(['reconciled_at' => Carbon::now()]);
-                    } catch (\Throwable) {
-                        // Skip — retry on next scheduled run
+                    } catch (\Throwable $e) {
+                        Log::warning('[ReconcileFailedUsageJob] Reconciliation failed', [
+                            'log_id' => $log->id,
+                            'ai_turn_id' => $log->ai_turn_id,
+                            'error' => $e->getMessage(),
+                        ]);
                     }
                 }
             });

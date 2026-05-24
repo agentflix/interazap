@@ -30,7 +30,7 @@ class PlatformPlanFactory extends Factory
             'storage_mode' => PlatformStorageMode::LIMITED,
             'storage_limit_bytes' => 1024 * 1024 * 1024,
             'ai_enabled' => false,
-            'message_limit_monthly' => $this->faker->randomElement([500, 2000, 10000]),
+            'message_limit_monthly' => $this->faker->randomElement([90, 180, 730]),
             'overage_mode' => 'stop',
             'overage_price_per_message' => null,
             'chat_channels_limit' => 1,
