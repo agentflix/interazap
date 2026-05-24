@@ -14,6 +14,8 @@ import { AuthService } from '@core/services/auth.service';
 import {
   AfAlertComponent,
   AfLoadingButtonComponent,
+  AfPasswordInputComponent,
+  AfPasswordStrengthComponent,
   AfTextInputComponent,
 } from '@shared/components';
 import { AuthPageWrapperComponent } from '@layout/auth-layout/auth-page-wrapper.component';
@@ -26,6 +28,8 @@ import { AuthPageWrapperComponent } from '@layout/auth-layout/auth-page-wrapper.
     ReactiveFormsModule,
     AfLoadingButtonComponent,
     AfTextInputComponent,
+    AfPasswordStrengthComponent,
+    AfPasswordInputComponent,
     AfAlertComponent,
     AuthPageWrapperComponent,
   ],
@@ -52,8 +56,8 @@ export default class ResetPasswordComponent implements OnInit {
 
   readonly resetForm = this.fb.group(
     {
-      password: this.fb.control('', [Validators.required, Validators.minLength(8)]),
-      password_confirmation: this.fb.control('', [Validators.required]),
+      password: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(8)]),
+      password_confirmation: this.fb.nonNullable.control('', [Validators.required]),
     },
     { validators: this.passwordsMatchValidator },
   );
@@ -62,13 +66,6 @@ export default class ResetPasswordComponent implements OnInit {
     const errors = this.forgotForm.controls.email.errors;
     if (errors?.['required']) return 'E-mail é obrigatório.';
     if (errors?.['email']) return 'E-mail inválido.';
-    return 'Campo inválido.';
-  });
-
-  readonly passwordErrorMessage = computed(() => {
-    const errors = this.resetForm.controls.password.errors;
-    if (errors?.['required']) return 'Senha é obrigatória.';
-    if (errors?.['minlength']) return 'Mínimo de 8 caracteres.';
     return 'Campo inválido.';
   });
 
@@ -128,10 +125,10 @@ export default class ResetPasswordComponent implements OnInit {
 
     this.authService
       .resetPassword({
-        token: this.token()!,
+        token: this.token() ?? '',
         email: this.emailFromParams(),
-        password: password!,
-        password_confirmation: password_confirmation!,
+        password,
+        password_confirmation,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
