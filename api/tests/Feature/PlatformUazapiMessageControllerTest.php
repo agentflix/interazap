@@ -44,7 +44,10 @@ class PlatformUazapiMessageControllerTest extends TestCase
                 'text' => 'hello world',
             ])
             ->assertOk()
-            ->assertJson(['success' => true]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Mensagem enviada',
+            ]);
 
         Http::assertSent(fn ($request): bool => $request->url() === 'https://free.uazapi.com/send/text'
             && $request->hasHeader('token', 'token-xyz')
@@ -72,7 +75,10 @@ class PlatformUazapiMessageControllerTest extends TestCase
                 'caption' => 'logo',
             ])
             ->assertOk()
-            ->assertJson(['success' => true]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Arquivo enviado',
+            ]);
 
         Http::assertSent(fn ($request): bool => $request->url() === 'https://free.uazapi.com/send/file'
             && $request->hasHeader('token', 'token-abc')

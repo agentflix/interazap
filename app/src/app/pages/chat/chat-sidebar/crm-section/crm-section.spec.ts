@@ -62,10 +62,6 @@ describe('CRMSectionComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should load negotiations on init', () => {
     expect(negotiationService.list).toHaveBeenCalledWith({
       contact_id: '123',

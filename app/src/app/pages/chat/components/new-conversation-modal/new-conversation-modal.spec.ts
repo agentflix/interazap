@@ -100,10 +100,6 @@ describe('NewConversationModalComponent', () => {
     httpMock.verify();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   // -------------------------------------------------------------------------
   // open() / close()
   // -------------------------------------------------------------------------

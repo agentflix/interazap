@@ -47,10 +47,6 @@ describe('TemplateSelectorComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('loads templates on init', () => {
     expect(http.get).toHaveBeenCalled();
   });

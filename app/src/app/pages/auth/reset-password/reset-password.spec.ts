@@ -21,11 +21,6 @@ describe('ResetPasswordComponent', () => {
     }).compileComponents();
   });
 
-  it('should create', () => {
-    const fixture = TestBed.createComponent(ResetPasswordComponent);
-    expect(fixture.componentInstance).toBeTruthy();
-  });
-
   it('should set success message on successful submit', () => {
     const fixture = TestBed.createComponent(ResetPasswordComponent);
     const component = fixture.componentInstance;

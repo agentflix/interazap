@@ -142,6 +142,16 @@ class PlatformPlanEnforcementServiceTest extends TestCase
         expect($isAiEnabled)->toBeFalse();
     }
 
+    public function test_get_current_plan_returns_null_when_tenant_not_found(): void
+    {
+        $nonExistentTenantId = (string) Str::orderedUuid();
+
+        $currentPlan = $this->service->getCurrentPlan($nonExistentTenantId);
+
+        expect($currentPlan)->toBeNull();
+        expect($this->service->isAiEnabled($nonExistentTenantId))->toBeFalse();
+    }
+
     public function test_is_ai_enabled_returns_true_when_plan_allows_ai(): void
     {
         $plan = PlatformPlan::factory()->create(['ai_enabled' => true]);

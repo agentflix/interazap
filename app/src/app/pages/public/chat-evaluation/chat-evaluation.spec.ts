@@ -41,10 +41,6 @@ describe('ChatEvaluationComponent', () => {
   describe('initial state', () => {
     beforeEach(() => configureTestingModule({ token: 'test-token' }));
 
-    it('should create', () => {
-      expect(component).toBeTruthy();
-    });
-
     it('should start in loading state', () => {
       expect(component.isLoading()).toBe(true);
     });

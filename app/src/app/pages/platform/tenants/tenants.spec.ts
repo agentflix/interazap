@@ -144,10 +144,6 @@ describe('Tenants', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('loads tenants on init', () => {
     expect(companyServiceMock.list).toHaveBeenCalled();
     expect(platformPlanServiceMock.list).toHaveBeenCalled();

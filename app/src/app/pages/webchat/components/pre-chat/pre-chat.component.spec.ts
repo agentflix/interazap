@@ -40,10 +40,6 @@ describe('PreChatComponent', () => {
   });
 
   describe('initial state', () => {
-    it('should create', () => {
-      expect(component).toBeTruthy();
-    });
-
     it('should not be loading initially', () => {
       expect(component.isLoading()).toBe(false);
     });

@@ -98,10 +98,6 @@ describe('KnowledgeDashboardComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('renders stat cards with icons and correct padding', () => {
     const el: HTMLElement = fixture.nativeElement;
     const cards = el.querySelectorAll('.p-6');

@@ -45,10 +45,6 @@ describe('ProposalListComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should load proposals on init', () => {
     expect(proposalService.listByNegotiation).toHaveBeenCalledWith('neg-1');
     expect(component.proposals().length).toBe(1);

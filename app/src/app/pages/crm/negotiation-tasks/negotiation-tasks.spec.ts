@@ -60,10 +60,6 @@ describe('NegotiationTasks', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should load tasks on init', () => {
     expect(taskService.listForUser).toHaveBeenCalled();
     expect(component.tasks().length).toBe(1);

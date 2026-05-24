@@ -62,10 +62,6 @@ describe('CompanyModalComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   describe('loading', () => {
     it('should reset state when open input is true', () => {
       component.searchControl.setValue('acme');

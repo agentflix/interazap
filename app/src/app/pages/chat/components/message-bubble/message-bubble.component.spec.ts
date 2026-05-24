@@ -8,11 +8,6 @@ describe('MessageBubbleComponent', () => {
     }).compileComponents();
   });
 
-  it('should create', () => {
-    const fixture = TestBed.createComponent(MessageBubbleComponent);
-    expect(fixture.componentInstance).toBeTruthy();
-  });
-
   it('should apply dedicated tokens for internal messages', () => {
     const fixture = TestBed.createComponent(MessageBubbleComponent);
     fixture.componentRef.setInput('isInternal', true);

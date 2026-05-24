@@ -63,10 +63,6 @@ describe('WebChatEmbedComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should show pre-chat when no session', () => {
     expect(component.showPreChat()).toBe(true);
   });

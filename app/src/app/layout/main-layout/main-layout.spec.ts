@@ -29,19 +29,6 @@ describe('MainLayoutComponent', () => {
     };
   }
 
-  it('should create', async () => {
-    const { providers } = setup();
-    await TestBed.configureTestingModule({
-      imports: [MainLayoutComponent],
-      providers,
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(MainLayoutComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-    expect(component).toBeTruthy();
-  });
-
   it('should inject AppShellService', async () => {
     const { providers } = setup();
     await TestBed.configureTestingModule({

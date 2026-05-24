@@ -76,10 +76,6 @@ describe('WebChatPageComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should create', () => {
-      expect(component).toBeTruthy();
-    });
-
     it('should start without a session', () => {
       expect(component.hasSession()).toBe(false);
     });

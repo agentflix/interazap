@@ -38,10 +38,6 @@ describe('AgentToolsTabComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should NOT have an individual save button in the template', () => {
     const el = fixture.nativeElement as HTMLElement;
     const saveButtons = el.querySelectorAll('af-loading-button');

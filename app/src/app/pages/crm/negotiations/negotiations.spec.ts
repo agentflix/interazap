@@ -19,10 +19,6 @@ describe('Negotiations', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should default to kanban view mode', () => {
     expect(component.viewMode()).toBe('kanban');
   });

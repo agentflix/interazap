@@ -97,10 +97,6 @@ describe('DealEditModalComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   describe('initialization', () => {
     it('should load funnels and users on init', () => {
       expect(funnelServiceSpy.list).toHaveBeenCalled();

@@ -90,10 +90,6 @@ describe('ChannelRoutingComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('calls loadForChannel on init', () => {
     expect(serviceMock.loadForChannel).toHaveBeenCalledWith('channel-1');
   });

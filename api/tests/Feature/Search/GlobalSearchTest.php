@@ -10,12 +10,15 @@ use Domain\CRM\Models\CRMCompany;
 use Domain\CRM\Models\CRMContact;
 use Domain\CRM\Models\CRMNegotiation;
 use Domain\Platform\Models\PlatformTenant;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 final class GlobalSearchTest extends TestCase
 {
+    use LazilyRefreshDatabase;
+
     private PlatformTenant $tenant;
 
     private AuthUser $user;

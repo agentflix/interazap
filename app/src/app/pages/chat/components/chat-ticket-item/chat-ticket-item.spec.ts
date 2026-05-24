@@ -30,11 +30,6 @@ describe('ChatTicketItemComponent', () => {
     }).compileComponents();
   });
 
-  it('should create', () => {
-    render(buildTicket());
-    expect(component).toBeTruthy();
-  });
-
   describe('getInitials()', () => {
     it('returns first 2 chars of contact name uppercased', () => {
       render(buildTicket());

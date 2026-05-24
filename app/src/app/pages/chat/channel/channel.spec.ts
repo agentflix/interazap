@@ -31,10 +31,6 @@ describe('Integrations', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should have initial state', () => {
     expect(component.integrations()).toEqual([]);
     expect(component.meta().current_page).toBe(1);

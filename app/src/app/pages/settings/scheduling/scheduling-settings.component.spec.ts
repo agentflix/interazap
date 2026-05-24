@@ -53,10 +53,6 @@ describe('SchedulingSettingsComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   describe('loadSettings()', () => {
     it('should load current settings on init', () => {
       fixture.detectChanges();

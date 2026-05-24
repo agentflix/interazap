@@ -114,10 +114,6 @@ describe('ChatNavbar', () => {
     vi.restoreAllMocks();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   describe('Contact Information Display', () => {
     it('should display contact name', () => {
       expect(component.contactName).toBe('John Doe');

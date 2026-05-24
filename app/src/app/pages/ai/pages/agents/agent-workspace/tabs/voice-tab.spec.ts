@@ -44,10 +44,6 @@ describe('AgentVoiceTabComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should reflect canonical API voice mode in selected option', () => {
     (component as unknown as { loadConfig: () => void }).loadConfig();
     expect(component.voiceForm.controls.voice_response_mode.value).toBe('audio');

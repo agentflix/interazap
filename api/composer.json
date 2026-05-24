@@ -118,35 +118,51 @@
         "refactor": "vendor/bin/rector process",
         "refactor:dry": "vendor/bin/rector process --dry-run",
         "gate:format": [
+            "echo '\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓'",
+            "echo '┃  🎨  Gate 1/4 · Formatação (Pint)                  ┃'",
+            "echo '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n'",
             "sh -c \"vendor/bin/pint --test || (echo '\\n❌ Formatação falhou! Execute: composer format\\n' && exit 1)\"",
-            "echo '✅ Gate 1/4: Formatação OK'"
+            "echo '\n✅ Gate 1/4 · Formatação OK\n'"
         ],
         "gate:analyse": [
+            "echo '\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓'",
+            "echo '┃  🔍  Gate 2/4 · Análise estática (Larastan)        ┃'",
+            "echo '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n'",
             "sh -c \"composer analyse || (echo '\\n❌ Análise estática falhou!\\n' && exit 1)\"",
-            "echo '✅ Gate 2/4: Análise estática OK'"
+            "echo '\n✅ Gate 2/4 · Análise estática OK\n'"
         ],
         "gate:fast": [
-            "echo '\n⚡ Executando gate rápido (IA/dev loop)...\n'",
+            "echo '\n⚡ Gate rápido (IA/dev loop)\n'",
             "@gate:format",
             "sh -c \"composer analyse:changed || (echo '\\n❌ Análise incremental falhou!\\n' && exit 1)\"",
             "echo '\n✅ Gate rápido OK. Antes de concluir, execute: composer gate:all\\n'"
         ],
         "gate:test": [
             "Composer\\Config::disableProcessTimeout",
-            "sh -c \"php -d pcov.enabled=0 -d memory_limit=2G vendor/bin/pest --exclude-testsuite=E2E || (echo '\\n❌ Testes falharam!\\n' && exit 1)\"",
-            "echo '✅ Gate 3/4: Testes OK'"
+            "echo '\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓'",
+            "echo '┃  🧪  Gate 3/4 · Testes (Pest --parallel)           ┃'",
+            "echo '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n'",
+            "sh -c \"php -d pcov.enabled=0 -d memory_limit=2G vendor/bin/pest --parallel --colors=always --profile --exclude-testsuite=E2E || (echo '\\n❌ Testes falharam!\\n' && exit 1)\"",
+            "echo '\n✅ Gate 3/4 · Testes OK\n'"
         ],
         "gate:refactor": [
+            "echo '\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓'",
+            "echo '┃  🛠   Gate 4/4 · Refatoração (Rector --dry-run)     ┃'",
+            "echo '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n'",
             "sh -c \"vendor/bin/rector process --dry-run || (echo '\\n⚠️  Rector sugere melhorias. Revise: composer refactor\\n' && exit 1)\"",
-            "echo '✅ Gate 4/4: Refatoração OK'"
+            "echo '\n✅ Gate 4/4 · Refatoração OK\n'"
         ],
         "gate:all": [
-            "echo '\n🚀 Executando todos os gates...\n'",
+            "echo '\n╔═══════════════════════════════════════════════════════╗'",
+            "echo '║  🚀  Executando todos os gates                       ║'",
+            "echo '╚═══════════════════════════════════════════════════════╝\n'",
             "@gate:format",
             "@gate:analyse",
             "@gate:test",
             "@gate:refactor",
-            "echo '\n🎉 TODOS OS GATES PASSARAM!\n'"
+            "echo '\n╔═══════════════════════════════════════════════════════╗'",
+            "echo '║  🎉  TODOS OS GATES PASSARAM                         ║'",
+            "echo '╚═══════════════════════════════════════════════════════╝\n'"
         ],
         "ci": "@gate:all"
     },

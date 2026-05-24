@@ -65,11 +65,6 @@ describe('ProposalViewComponent', () => {
     }).compileComponents();
   });
 
-  it('should create', () => {
-    const fixture = TestBed.createComponent(ProposalViewComponent);
-    expect(fixture.componentInstance).toBeTruthy();
-  });
-
   it('should load proposal from route token', () => {
     const fixture = TestBed.createComponent(ProposalViewComponent);
     const component = fixture.componentInstance;

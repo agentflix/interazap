@@ -76,6 +76,22 @@ class InMemoryRedisClient {
   quit(): Promise<'OK'> {
     return Promise.resolve('OK');
   }
+
+  subscribe(): Promise<number> {
+    return Promise.resolve(1);
+  }
+
+  unsubscribe(): Promise<number> {
+    return Promise.resolve(1);
+  }
+
+  on(): this {
+    return this;
+  }
+
+  off(): this {
+    return this;
+  }
 }
 
 class FakeRedisService {

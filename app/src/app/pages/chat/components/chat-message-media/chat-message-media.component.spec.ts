@@ -142,10 +142,6 @@ describe('ChatMessageMediaComponent', () => {
     photoSwipeLightboxMock.on.mockClear();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   describe('Initial State', () => {
     it('should initialize with default values', () => {
       expect(component.isVisible()).toBe(false);

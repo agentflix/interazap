@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature;
+namespace Tests\Unit\Ai;
 
 use Domain\Ai\Console\Commands\ConsumeToolRequestsCommand;
 use Illuminate\Support\Facades\Artisan;

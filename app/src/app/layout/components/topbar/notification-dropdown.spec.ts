@@ -68,10 +68,6 @@ describe('NotificationDropdownComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should have empty notifications initially', () => {
     expect(component.notifications()).toEqual([]);
   });

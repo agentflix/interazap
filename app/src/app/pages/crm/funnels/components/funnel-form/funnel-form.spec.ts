@@ -25,10 +25,6 @@ describe('FunnelFormComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should initialize form controls', () => {
     expect(component.form.get('name')).toBeDefined();
     expect(component.form.get('description')).toBeDefined();

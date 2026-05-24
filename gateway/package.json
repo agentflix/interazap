@@ -18,7 +18,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typecheck:specs": "tsc --project tsconfig.spec.json --noEmit"
+    "typecheck:specs": "tsc --project tsconfig.spec.json --noEmit",
+    "gate:lint": "printf '\\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\\n┃  🎨  Gate 1/3 · ESLint                             ┃\\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\\n\\n' && pnpm lint && printf '\\n✅ Gate 1/3 · ESLint OK\\n\\n'",
+    "gate:test": "printf '\\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\\n┃  🧪  Gate 2/3 · Testes (Jest + @swc/jest)          ┃\\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\\n\\n' && jest --forceExit && printf '\\n✅ Gate 2/3 · Testes OK\\n\\n'",
+    "gate:build": "printf '\\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\\n┃  🛠   Gate 3/3 · Build (nest build)                 ┃\\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\\n\\n' && nest build && printf '\\n✅ Gate 3/3 · Build OK\\n\\n'",
+    "gate:all": "printf '\\n╔═══════════════════════════════════════════════════════╗\\n║  🚀  Executando todos os gates                       ║\\n╚═══════════════════════════════════════════════════════╝\\n' && pnpm gate:lint && pnpm gate:test && pnpm gate:build && printf '\\n╔═══════════════════════════════════════════════════════╗\\n║  🎉  TODOS OS GATES PASSARAM                         ║\\n╚═══════════════════════════════════════════════════════╝\\n'"
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.1030.0",
@@ -54,6 +58,8 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@swc/core": "^1.15.40",
+    "@swc/jest": "^0.2.39",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/multer": "^2.1.0",
@@ -87,16 +93,12 @@
       "/dist/",
       "\\.real\\.e2e-spec\\.ts$"
     ],
+    "setupFiles": [
+      "<rootDir>/test/jest.setup.ts"
+    ],
     "transform": {
       "^.+\\.(t|j)s$": [
-        "ts-jest",
-        {
-          "useESM": false,
-          "tsconfig": {
-            "esModuleInterop": true,
-            "allowSyntheticDefaultImports": true
-          }
-        }
+        "@swc/jest"
       ]
     },
     "collectCoverageFrom": [

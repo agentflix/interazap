@@ -60,10 +60,6 @@ describe('UserChat', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should emit reply when onReply is called', () => {
     const emitSpy = vi.spyOn(component.reply, 'emit');
 

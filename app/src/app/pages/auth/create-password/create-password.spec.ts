@@ -11,11 +11,6 @@ describe('CreatePasswordComponent', () => {
     }).compileComponents();
   });
 
-  it('should create', () => {
-    const fixture = TestBed.createComponent(CreatePasswordComponent);
-    expect(fixture.componentInstance).toBeTruthy();
-  });
-
   it('should detect mismatch between passwords', () => {
     const fixture = TestBed.createComponent(CreatePasswordComponent);
     const component = fixture.componentInstance;

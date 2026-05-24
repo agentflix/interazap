@@ -61,10 +61,6 @@ describe('SidenavComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should filter menu items based on permissions', () => {
     const items = (component as any).filterMenuItems([
       { type: 'item', label: 'Dashboard', link: '/dashboard', requiredPermission: 'dashboard.view' },

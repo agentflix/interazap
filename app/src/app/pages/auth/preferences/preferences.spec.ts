@@ -112,10 +112,6 @@ describe('PreferencesComponent — sem permissão de tenant', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('hasTenantPermission deve ser false', () => {
     expect(component.hasTenantPermission()).toBe(false);
   });

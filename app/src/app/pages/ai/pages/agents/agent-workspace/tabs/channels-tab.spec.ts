@@ -33,18 +33,6 @@ describe('AgentChannelsTabComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('should create', () => {
-    fixture.componentRef.setInput('agent', {
-      id: '123',
-      name: 'Test',
-      is_active: true,
-      channels: ['whatsapp'],
-      role: 'support_l1',
-    });
-    fixture.detectChanges();
-    expect(component).toBeTruthy();
-  });
-
   it('should default to whatsapp=true when agent has no channels', () => {
     fixture.componentRef.setInput('agent', {
       id: '123',

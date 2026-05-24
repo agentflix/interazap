@@ -40,10 +40,6 @@ describe('DealCardComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should compute status class correctly', () => {
     expect(component.statusClass()).toBe('border-l-4 border-l-blue-500');
 

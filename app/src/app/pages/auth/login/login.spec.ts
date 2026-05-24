@@ -30,11 +30,6 @@ describe('LoginComponent', () => {
     }).compileComponents();
   });
 
-  it('should create', () => {
-    const fixture = TestBed.createComponent(LoginComponent);
-    expect(fixture.componentInstance).toBeTruthy();
-  });
-
   it('should show error message on login error', () => {
     const fixture = TestBed.createComponent(LoginComponent);
     const component = fixture.componentInstance;

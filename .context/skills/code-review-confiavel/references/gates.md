@@ -38,14 +38,17 @@ pnpm --filter gateway typecheck:specs
 ## App — `app/`
 
 ```bash
-pnpm --filter app test && pnpm --filter app build
+cd app && npm run gate:all
 ```
 
-Quando aplicável:
+Equivale a lint + test + production build em sequência. Rodar dentro de `app/`.
+
+Quando precisar isolar falha:
 
 ```bash
-pnpm --filter app lint
-./scripts/validate-app-gateway-boundary.sh
+cd app && npm run gate:lint
+cd app && npm run gate:test
+cd app && npm run gate:build
 ```
 
 ## Electron — `electron/`

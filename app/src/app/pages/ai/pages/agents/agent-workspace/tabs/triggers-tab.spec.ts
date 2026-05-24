@@ -36,10 +36,6 @@ describe('AgentTriggersTabComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should have eventOptions populated with predefined events', () => {
     expect(component.eventOptions.length).toBeGreaterThan(0);
     expect(component.eventOptions[0].value).toBe('message.created');

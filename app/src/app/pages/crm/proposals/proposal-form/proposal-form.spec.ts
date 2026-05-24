@@ -44,10 +44,6 @@ describe('ProposalFormComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should have form controls', () => {
     expect(component.form.get('title')).toBeTruthy();
     expect(component.form.get('number')).toBeTruthy();

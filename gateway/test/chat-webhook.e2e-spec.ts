@@ -71,6 +71,7 @@ describe('Chat Webhook (e2e)', () => {
         }),
         getPubSubClient: () => ({
           on: jest.fn(),
+          off: jest.fn(),
           subscribe: jest.fn().mockResolvedValue(1),
           unsubscribe: jest.fn().mockResolvedValue(1),
           quit: jest.fn(),

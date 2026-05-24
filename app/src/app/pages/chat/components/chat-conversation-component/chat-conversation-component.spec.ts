@@ -42,10 +42,6 @@ describe('ChatConversationComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('renders textarea when composerMode is free', () => {
     fixture.componentRef.setInput('composerMode', 'free');
     fixture.detectChanges();

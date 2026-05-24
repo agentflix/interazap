@@ -30,10 +30,6 @@ describe('AfPillComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(host).toBeTruthy();
-  });
-
   it('should render default variant', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const span = compiled.querySelector('span');

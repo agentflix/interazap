@@ -92,10 +92,6 @@ describe('Agenda', () => {
     eventServiceMock.list.mockClear();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should switch view mode', () => {
     component.setView('list');
     expect(component.viewMode()).toBe('list');

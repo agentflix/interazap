@@ -47,10 +47,17 @@ class PlatformUazapiInstanceControllerTest extends TestCase
             'name' => 'Instance',
             'system_name' => 'uazapi',
             'token' => 'tok-list',
+            'status' => 'connected',
         ]);
 
         $this->actingAs($user, 'sanctum')
             ->getJson('/api/platform/uazapi/instances')
+            ->assertOk()
+            ->assertJson(['message' => 'Instâncias listadas'])
+            ->assertJsonFragment(['id' => $instance->id]);
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/platform/uazapi/instances?status=connected')
             ->assertOk()
             ->assertJsonFragment(['id' => $instance->id]);
 

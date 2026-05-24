@@ -1,11 +1,20 @@
 <!-- Logo -->
 <div class="text-center">
   <a routerLink="/" class="inline-flex self-start">
-    <img src="/logo-interazap-dark.png" alt="InteraZap" class="h-25 object-contain" />
+    <img
+      src="/logo-interazap-dark.png"
+      alt="InteraZap"
+      class="h-25 object-contain hidden dark:block"
+    />
+    <img src="/logo-interazap-light.png" alt="InteraZap" class="h-25 object-contain" />
   </a>
 </div>
-
-<app-auth-page-wrapper title="Bem-vindo de volta" subtitle="" eyebrow="Entrar" highlight="">
+<app-auth-page-wrapper
+  title="Bem-vindo de volta"
+  subtitle=""
+  eyebrow="Entrar"
+  highlight="Ambiente seguro e criptográfado."
+>
   @if (message()) {
     <div class="mb-6">
       <af-alert variant="danger" [message]="message() ?? ''" />

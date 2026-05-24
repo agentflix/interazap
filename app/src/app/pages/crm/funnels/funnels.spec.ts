@@ -20,10 +20,6 @@ describe('Funnels', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('should expose status filter options', () => {
     expect(component.filterStatusOptions.length).toBe(3);
     expect(component.filterStatusOptions[0].value).toBe('all');

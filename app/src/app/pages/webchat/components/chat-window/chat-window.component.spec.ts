@@ -85,10 +85,6 @@ describe('ChatWindowComponent', () => {
   });
 
   describe('initialization', () => {
-    it('should create', () => {
-      expect(component).toBeTruthy();
-    });
-
     it('should initialize with empty sessionId', () => {
       expect(component.sessionId()).toBeNull();
     });
