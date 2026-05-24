@@ -75,6 +75,8 @@ export interface CorsConfiguration {
 /** Configurações de comunicação interna entre serviços. */
 export interface InternalConfiguration {
   apiKey: string;
+  apiUrl: string;
+  timeoutMs?: number;
 }
 
 /** Configuração da API principal do ecossistema. */

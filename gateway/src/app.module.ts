@@ -7,7 +7,6 @@ import { BillingModule } from './domains/billing/billing.module';
 import { RealtimeModule } from './domains/realtime/realtime.module';
 import { InternalModule } from './domains/internal/internal.module';
 import { RedisModule } from './infrastructure/redis/redis.module';
-import { DatabaseModule } from './infrastructure/database/database.module';
 import { AIModule } from './domains/ai/ai.module';
 import { WebhooksModule } from './domains/webhooks/webhooks.module';
 import { HealthModule } from './health/health.module';
@@ -21,6 +20,8 @@ import { IdempotencyModule } from './shared/services/idempotency';
 import { SharedModule } from './shared/shared.module';
 import { BotModule } from './bot/bot.module';
 import { SecretsModule } from './common/secrets/secrets.module';
+import { InternalApiModule } from './infrastructure/internal-api/internal-api.module';
+import { GatewayCacheModule } from './infrastructure/cache/gateway-cache.module';
 import { configFactories } from './core/config/configuration';
 import { ThrottlerTrackerRequest } from './common/models/app.model';
 import { ThrottlerConfiguration } from './core/config/models/configuration.model';
@@ -67,9 +68,10 @@ import { ThrottlerConfiguration } from './core/config/models/configuration.model
       },
     }),
     RedisModule,
-    DatabaseModule,
     HealthModule,
     MetricsModule,
+    InternalApiModule,
+    GatewayCacheModule,
     ChatModule,
     BillingModule,
     AIModule, // AI module with provider factory pattern

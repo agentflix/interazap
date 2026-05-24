@@ -173,6 +173,13 @@ export const internalConfig = registerAs(
   'internal',
   (): InternalConfiguration => ({
     apiKey: process.env.INTERNAL_API_KEY ?? '',
+    apiUrl:
+      process.env.INTERNAL_API_URL ??
+      process.env.API_URL ??
+      'http://localhost:8000',
+    timeoutMs: process.env.INTERNAL_API_TIMEOUT_MS
+      ? parseInt(process.env.INTERNAL_API_TIMEOUT_MS, 10)
+      : undefined,
   }),
 );
 

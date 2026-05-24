@@ -113,7 +113,7 @@ Depois: `pnpm audit --prod` reporta 0 HIGH CVEs. Build e testes passam.
 ### TASK-2.1.1 — Criar InternalApiModule com InternalApiClientService
 
 **Modo BUILDER:** `gateway`
-**Status:** 🔄 AGUARDANDO PHASE-CLOSE
+**Status:** ✅ Concluída
 
 **T — Tarefa:**
 Criar o modulo global `InternalApiModule` com `InternalApiClientService` — cliente axios configurado com HTTP keep-alive, connection pooling, retries exponenciais, circuit breaker simples (5 erros em 10s) e histograma Prometheus `gateway_internal_api_duration_seconds{operation,status_code}`.
@@ -140,7 +140,7 @@ Depois: `InternalApiClientService` disponivel em toda a aplicacao via injecao de
 ### TASK-2.2.1 — Criar GatewayCacheModule com GatewayCacheService (L1 LRU + L2 Redis)
 
 **Modo BUILDER:** `gateway`
-**Status:** 🔄 AGUARDANDO PHASE-CLOSE
+**Status:** ✅ Concluída
 
 **T — Tarefa:**
 Criar `GatewayCacheModule` global com `GatewayCacheService` — facade de cache em duas camadas: L1 LRU em memoria (lru-cache) e L2 Redis. Implementar `getOrFetch<T>`, subscriber de invalidacao Redis pub/sub (`cache:invalidate:instance`), e contadores Prometheus `gateway_cache_hits_total{level,operation}` e `gateway_cache_misses_total{operation}`.
