@@ -54,7 +54,7 @@
             Texto escuro sobre verde primário (#3ecf8e) para contraste acessível
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
               @for (s of [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]; track s) {
@@ -82,7 +82,7 @@
             .btn-primary (texto escuro sobre verde) · .btn-secondary · .btn-link · radius-sm (6px)
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <div class="flex flex-wrap items-center gap-3">
               <af-button variant="primary">Primary (dark on green)</af-button>
@@ -118,7 +118,7 @@
             af-loading-button · af-icon-button (com aria-label obrigatório)
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <div class="flex flex-wrap items-center gap-3">
               <af-loading-button [loading]="isLoading()" variant="primary"
@@ -143,7 +143,7 @@
             af-pill · .pill · .pill-success · .pill-warning · .pill-danger · .pill-info
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <div class="flex flex-wrap items-center gap-3">
               <af-pill>Default</af-pill>
@@ -178,7 +178,7 @@
             Todos os controles interativos possuem focus-visible ring — use Tab para testar
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <div class="flex flex-wrap items-center gap-3">
               <af-button variant="primary" ariaLabel="Botão primário focável">
@@ -247,7 +247,7 @@
             af-data-table · hover states · token-based borders
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <af-data-table [striped]="true" [hoverable]="true">
               <table>
@@ -336,7 +336,7 @@
             .form-input · af-text-input · radius-sm · hairline-strong border
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -402,7 +402,7 @@
             af-button-group · af-dropdown-button · grouped actions
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="flex flex-wrap items-center gap-6">
               <af-button-group spacing="sm">
@@ -428,7 +428,7 @@
             af-table-actions · view, edit, delete controls
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <af-table-actions [showView]="true" />
             <p class="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
@@ -445,7 +445,7 @@
           </p>
           <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <div
-              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+              class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
             >
               <af-base-list>
                 <div header class="font-semibold">Base List</div>
@@ -456,7 +456,7 @@
             </div>
 
             <div
-              class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+              class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
             >
               <af-unified-list
                 [total]="2"
@@ -510,7 +510,7 @@
             af-breadcrumb · af-tabs · af-stepper · route navigation
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-6"
           >
             <af-breadcrumb [items]="previewBreadcrumbItems" />
             <af-tabs
@@ -531,7 +531,7 @@
             af-accordion-item · af-collapsible · expand/collapse panels
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <af-accordion-item title="Accordion item" [open]="true">
               <p class="text-sm text-neutral-500">Conteúdo expandido do accordion.</p>
@@ -551,7 +551,7 @@
             af-navbar · af-sidebar-item · af-drawer · app shell
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <af-navbar title="CRM" [showBack]="true" />
             <div class="flex gap-3">
@@ -589,7 +589,7 @@
 
       <div class="space-y-10">
         <section
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
           <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
             Data Display Components
@@ -645,7 +645,7 @@
 
       <div class="space-y-10">
         <section
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
           <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
             Date, Time & Range Inputs
@@ -703,7 +703,7 @@
 
       <div class="space-y-10">
         <section
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
           <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
             Alerts, Banners & Overlays
@@ -763,7 +763,7 @@
 
       <div class="space-y-10">
         <section
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
           <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
             Layout Components
@@ -843,7 +843,7 @@
 
       <div class="space-y-10">
         <section
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
           <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
             Composite Components
@@ -883,7 +883,7 @@
             af-progress-bar · linear progress indicator · 3 variants
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <af-progress-bar [value]="68" label="Progresso da migração" variant="accent" />
             <af-progress-bar [value]="42" label="Upload de dados" variant="info" />
@@ -900,7 +900,7 @@
             af-clipboard · af-kbd · copy to clipboard + keyboard key display
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <af-clipboard text="npm run build" />
             <af-clipboard text="git push origin main" />
@@ -922,7 +922,7 @@
             af-avatar-group · af-theme-switch · af-color-palette · group + theme controls
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-6"
           >
             <div class="flex items-center justify-between">
               <af-avatar-group [items]="previewAvatars" [max]="4" size="sm" />
@@ -948,7 +948,7 @@
             af-dropdown-menu · af-command-palette · action menus + command search
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <div class="flex flex-wrap items-center gap-4">
               <af-dropdown-menu
@@ -988,7 +988,7 @@
 
       <div class="space-y-10">
         <section
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
           <h3 class="text-lg font-bold text-neutral-900 dark:text-neutral-50 mb-1">
             Utility Components
@@ -1046,7 +1046,7 @@
             af-button · 6 variants · 3 sizes
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <div class="flex flex-wrap items-center gap-3">
               <af-button variant="primary">Primary</af-button>
@@ -1075,7 +1075,7 @@
             af-loading-button · af-icon-button
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <div class="flex flex-wrap items-center gap-3">
               <af-loading-button [loading]="isLoading()" variant="primary"
@@ -1107,7 +1107,7 @@
             af-badge · af-status-badge · variants + pulse
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <div class="flex flex-wrap items-center gap-3">
               <af-badge variant="default">Default</af-badge>
@@ -1134,7 +1134,7 @@
             af-avatar · Image, initials, fallback · 5 sizes
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="flex flex-wrap items-end gap-4">
               <div class="flex flex-col items-center gap-1">
@@ -1168,7 +1168,7 @@
             af-divider · horizontal · optional label
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-4"
           >
             <af-divider />
             <af-divider label="OR" />
@@ -1199,7 +1199,7 @@
             af-spinner · 4 sizes · 2 colors
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="flex flex-wrap items-center gap-6">
               <af-spinner size="sm" />
@@ -1218,7 +1218,7 @@
             af-skeleton · pulse animation · 3 variants
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-3"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-3"
           >
             <af-skeleton variant="text" class="w-3/4" />
             <af-skeleton variant="text" class="w-1/2" />
@@ -1240,7 +1240,7 @@
             af-tooltip · top/bottom/left/right
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="flex flex-wrap items-center gap-6">
               <af-tooltip text="Tooltip acima" position="top"
@@ -1268,7 +1268,7 @@
             af-page-title · af-empty-state
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 space-y-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 space-y-6"
           >
             <af-page-title title="Contatos" subtitle="Gerencie sua lista de contatos">
               <af-button variant="primary" size="sm">+ Novo</af-button>
@@ -1303,7 +1303,7 @@
             af-text-input · label, error, sizes
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <af-text-input
@@ -1344,7 +1344,7 @@
             af-search-input · magnifying glass + clear button
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <af-search-input [control]="searchControl" placeholder="Buscar contatos..." />
@@ -1360,7 +1360,7 @@
             af-addon-input · left button with icon and text
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <af-addon-input
@@ -1389,7 +1389,7 @@
             af-copy-input · clipboard copy with visual feedback
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <af-copy-input [control]="apiKeyControl" label="API Key" classContainer="mb-0" />
@@ -1409,7 +1409,7 @@
             af-color-input · swatch + hex picker
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <af-color-input [control]="colorControl" label="Cor primária" [spacing]="false" />
@@ -1425,7 +1425,7 @@
             af-phone-input · country selector + phone mask
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <af-phone-input
               [control]="phoneControl"
@@ -1446,7 +1446,7 @@
             af-masked-input · CPF, CNPJ, CEP, Currency (afMask directive)
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <af-masked-input [control]="cpfControl" label="CPF" mask="cpf" [spacing]="false" />
@@ -1477,7 +1477,7 @@
             af-password-input · show/hide · af-password-strength · meter + checklist
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
@@ -1517,7 +1517,7 @@
             af-select-input · searchable dropdown · single select
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <af-select-input
@@ -1544,7 +1544,7 @@
             af-tag-input · chips · Enter to add · × to remove
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <af-tag-input
@@ -1573,7 +1573,7 @@
             af-checkbox-input · af-switch-input · FormControl + standalone
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div class="space-y-3">
@@ -1637,7 +1637,7 @@
             af-file-upload · single file · progress bar
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <af-file-upload label="Avatar" accept=".jpg,.jpeg,.png,.webp" classContainer="mb-0" />
           </div>
@@ -1651,7 +1651,7 @@
             af-file-upload · multiple · cancel + remove
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <af-file-upload
               label="Documentos"
@@ -1684,7 +1684,7 @@
             af-modal · header, body, footer slots · 4 sizes
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="flex flex-wrap items-center gap-3">
               <af-button variant="primary" size="sm" (click)="showModal.set(true)"
@@ -1706,7 +1706,7 @@
             af-confirm-modal · danger, warning, default variants
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="flex flex-wrap items-center gap-3">
               <af-button variant="danger" size="sm" (click)="showConfirmDanger.set(true)"
@@ -1740,7 +1740,7 @@
             af-pagination · prev/next · page numbers · ellipsis
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <af-pagination
               [currentPage]="paginationPage()"
@@ -1760,7 +1760,7 @@
             af-skeleton-table-row · loading placeholder · configurable cols/rows
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
           >
             <af-skeleton-table-row [columns]="5" [rows]="4" />
           </div>
@@ -1841,7 +1841,7 @@
             af-radio-input · horizontal/vertical · custom styled circles
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <af-radio-input
@@ -1872,7 +1872,7 @@
             af-textarea-input · auto-resize · char counter · resize modes
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <af-textarea-input
@@ -1958,7 +1958,7 @@
             af-report-filters · af-report-export · date range + status
           </p>
           <div
-            class="flex flex-col md:flex-row md:items-end gap-6 p-4 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 w-full overflow-hidden"
+            class="flex flex-col md:flex-row md:items-end gap-6 p-4 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 w-full overflow-hidden"
           >
             <div class="flex-1 w-full max-w-full overflow-x-auto pb-1">
               <af-report-filters [statusOptions]="reportStatusOptions" />
@@ -1990,7 +1990,7 @@
             af-chat-bubble · in/out direction · read receipts · timestamp
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
           >
             <div class="flex flex-col gap-3 max-w-lg mx-auto">
               <af-chat-bubble
@@ -2029,7 +2029,7 @@
             af-chat-list-item · avatar · online dot · unread count · active state
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden max-w-sm"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden max-w-sm"
           >
             <af-chat-list-item
               name="Maria Silva"
@@ -2071,7 +2071,7 @@
             af-chat-composer · auto-resize · Enter to send · attach button
           </p>
           <div
-            class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 overflow-hidden max-w-lg"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden max-w-lg"
           >
             <af-chat-composer placeholder="Digite sua mensagem..." [maxLength]="1000" />
           </div>

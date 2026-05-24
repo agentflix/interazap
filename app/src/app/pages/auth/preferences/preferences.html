@@ -4,7 +4,7 @@
   <!-- ── Loading state ─────────────────────────────────────────────── -->
   @if (store.isLoading()) {
     <div
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
     >
       <div class="space-y-4">
         <af-skeleton variant="text" width="30%" height="1rem" />
@@ -17,7 +17,7 @@
   <!-- ── Error state ───────────────────────────────────────────────── -->
   @if (store.error() && !store.isLoading() && !store.preferences()) {
     <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
     >
       <af-alert
         variant="danger"
@@ -34,9 +34,9 @@
   @if (store.preferences() && !store.isLoading()) {
     <!-- ── Notifications ──────────────────────────────────────────── -->
     <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
     >
-      <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
         Notificações
       </h2>
 
@@ -53,7 +53,7 @@
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-neutral-200 dark:border-neutral-800">
+                <tr class="border-b border-neutral-200 dark:border-neutral-700">
                   <th
                     class="text-left py-2 pr-4 font-medium text-neutral-600 dark:text-neutral-400"
                   >
@@ -70,7 +70,7 @@
               </thead>
               <tbody>
                 @for (type of notificationTypes; track type.value) {
-                  <tr class="border-b border-neutral-100 dark:border-neutral-800">
+                  <tr class="border-b border-neutral-100 dark:border-neutral-700">
                     <td class="py-2.5 pr-4 text-neutral-700 dark:text-neutral-300">
                       {{ type.label }}
                     </td>
@@ -96,9 +96,9 @@
 
     <!-- ── Appearance ──────────────────────────────────────────────── -->
     <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
     >
-      <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">Aparência</h2>
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Aparência</h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <af-radio-input
@@ -131,9 +131,9 @@
 
     <!-- ── Behavior ────────────────────────────────────────────────── -->
     <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
     >
-      <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
         Comportamento
       </h2>
 
@@ -171,9 +171,9 @@
 
     <!-- ── CRM Defaults ───────────────────────────────────────────── -->
     <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
     >
-      <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
         CRM — Valores padrão
       </h2>
 
@@ -212,9 +212,9 @@
 
     <!-- ── Accessibility ──────────────────────────────────────────── -->
     <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
     >
-      <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
         Acessibilidade
       </h2>
 
@@ -234,9 +234,9 @@
 
     <!-- ── Security ─────────────────────────────────────────────────── -->
     <section
-      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+      class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
     >
-      <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">Segurança</h2>
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Segurança</h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
         <af-select-input
@@ -263,7 +263,7 @@
       <!-- Tenant loading state -->
       @if (tenantIsLoading()) {
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
           <div class="space-y-4">
             <af-skeleton variant="text" width="30%" height="1rem" />
@@ -276,7 +276,7 @@
       <!-- Tenant error state -->
       @if (tenantError() && !tenantIsLoading()) {
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
           <af-alert variant="danger" title="Erro ao carregar configurações do workspace" [message]="tenantError() ?? ''" />
           <af-button variant="outline" size="sm" (click)="loadTenantSettings()" class="mt-3">
@@ -288,9 +288,9 @@
       <!-- ── Localização ──────────────────────────────────────────── -->
       @if (!tenantIsLoading()) {
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
-          <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">Localização</h2>
+          <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Localização</h2>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <af-select-input
@@ -330,9 +330,9 @@
 
         <!-- ── Privacidade ────────────────────────────────────────── -->
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
-          <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-4">Privacidade</h2>
+          <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Privacidade</h2>
 
           <div class="flex flex-col gap-4 max-w-lg">
             <af-radio-input
@@ -360,9 +360,9 @@
 
         <!-- ── Auto-fechamento ────────────────────────────────────── -->
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
-          <h2 class="text-base font-medium text-neutral-800 dark:text-neutral-200 mb-6">
+          <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-6">
             Auto-fechamento de atendimentos
           </h2>
 

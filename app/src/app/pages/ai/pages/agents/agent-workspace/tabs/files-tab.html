@@ -96,8 +96,8 @@
                   class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all"
                   [class]="
                     selectedFile()?.slug === file.slug
-                      ? 'bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700/50 shadow-sm'
-                      : 'border border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+                      ? 'bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 shadow-sm'
+                      : 'border border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800'
                   "
                   (click)="selectFile(file)"
                 >

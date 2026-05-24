@@ -5,7 +5,7 @@
       <!-- Loading State -->
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
         <div
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 animate-pulse"
         >
           <div class="h-5 w-24 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
           @for (row of [0, 1, 2, 3, 4]; track row) {
@@ -13,7 +13,7 @@
           }
         </div>
         <div
-          class="lg:col-span-3 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6 animate-pulse"
+          class="lg:col-span-3 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 animate-pulse"
         >
           <div class="h-5 w-32 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
           <div class="h-64 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
@@ -22,14 +22,14 @@
     } @else if (hasError()) {
       <!-- Error State -->
       <div
-        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-12 text-center"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-12 text-center"
       >
         <lucide-icon
           name="alert-circle"
           [size]="48"
           class="text-red-500 dark:text-red-400 mx-auto mb-3"
         />
-        <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
           Erro ao carregar prompts
         </h3>
         <p class="text-sm text-neutral-500 mb-4">
@@ -40,14 +40,14 @@
     } @else if (prompts().length === 0) {
       <!-- Empty State -->
       <div
-        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-12 text-center"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-12 text-center"
       >
         <lucide-icon
           name="message-square"
           [size]="48"
           class="text-neutral-300 dark:text-neutral-600 mx-auto mb-3"
         />
-        <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
           Nenhum prompt encontrado
         </h3>
         <p class="text-sm text-neutral-500 mb-4">
@@ -62,7 +62,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
         <!-- Prompt List Sidebar -->
         <div
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-4"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-4"
         >
           <h3 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-3">Prompts</h3>
           <div class="space-y-1">
@@ -88,12 +88,12 @@
 
         <!-- Editor Panel -->
         <div
-          class="lg:col-span-3 bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+          class="lg:col-span-3 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
         >
           @if (selectedPrompt(); as prompt) {
             <div class="flex items-center justify-between mb-4">
               <div>
-                <h3 class="text-base font-medium text-neutral-900 dark:text-neutral-100">
+                <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                   {{ prompt.name }}
                 </h3>
                 @if (prompt.category) {

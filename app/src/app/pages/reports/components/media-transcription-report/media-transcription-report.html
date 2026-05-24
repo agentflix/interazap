@@ -73,7 +73,7 @@
       } @else if (hasError()) {
         <af-card>
           <div class="py-12 text-center">
-            <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+            <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-50 mb-2">
               Erro ao carregar dados
             </h3>
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
@@ -185,7 +185,7 @@
               <tbody>
                 @for (model of data()!.by_model; track model.model_name) {
                   <tr
-                    class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                    class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800"
                   >
                     <td class="py-3 px-4 text-neutral-900 dark:text-neutral-50">
                       {{ model.model_name }}

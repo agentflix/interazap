@@ -168,7 +168,7 @@
               <tbody>
                 @for (user of data()?.top_users ?? []; track user.user_name) {
                   <tr
-                    class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                    class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800"
                   >
                     <td class="py-3 px-4">{{ user.user_name }}</td>
                     <td class="text-right py-3 px-4">{{ user.tokens | number: '1.0-0' }}</td>

@@ -93,7 +93,7 @@
   <!-- ═══════════════ LIST VIEW ═══════════════ -->
   @if (viewMode() === 'list') {
     <div
-      class="rounded-xl border border-neutral-200 dark:border-neutral-700/50 bg-white dark:bg-neutral-800/50 overflow-hidden"
+      class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
     >
       @if (isListLoading()) {
         <af-skeleton-table-row [columns]="6" [rows]="6" />
@@ -255,7 +255,7 @@
   <!-- ═══════════════ KANBAN VIEW ═══════════════ -->
   @if (viewMode() === 'kanban') {
     <section
-      class="flex flex-1 flex-col rounded-xl border border-neutral-200 dark:border-neutral-700/50 bg-white dark:bg-neutral-800/50 overflow-hidden"
+      class="flex flex-1 flex-col rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
     >
       @if (isKanbanLoading()) {
         <div class="flex flex-1 items-center justify-center">
@@ -292,11 +292,11 @@
         <div cdkDropListGroup class="flex flex-1 gap-0 overflow-x-auto">
           @for (step of kanbanSteps(); track step.id) {
             <div
-              class="flex min-w-72 max-w-80 flex-1 flex-col border-r border-neutral-200 dark:border-neutral-700/50 last:border-r-0"
+              class="flex min-w-72 max-w-80 flex-1 flex-col border-r border-neutral-200 dark:border-neutral-700 last:border-r-0"
             >
               <!-- Column header -->
               <div
-                class="sticky top-0 flex items-center justify-between gap-2 border-b border-neutral-200 dark:border-neutral-700/50 bg-neutral-50 dark:bg-neutral-900/80 px-4 py-3"
+                class="sticky top-0 flex items-center justify-between gap-2 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/80 px-4 py-3"
                 [style.borderLeftWidth]="'3px'"
                 [style.borderLeftStyle]="'solid'"
                 [style.borderLeftColor]="step.color || '#6b7280'"

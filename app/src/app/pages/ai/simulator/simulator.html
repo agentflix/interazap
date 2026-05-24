@@ -3,20 +3,20 @@
 
     @if (isLoadingData()) {
       <div
-        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-6"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
       >
         <p class="text-sm text-neutral-500">Carregando dados do simulador...</p>
       </div>
     } @else if (loadError()) {
       <div
-        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-red-200 dark:border-red-800 p-6"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-red-200 dark:border-red-800 p-6"
       >
         <p class="text-sm text-red-600 dark:text-red-400">{{ loadError() }}</p>
       </div>
     } @else {
       <!-- Agent Selector -->
       <div
-        class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 p-4 mb-5"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-4 mb-5"
       >
         <div class="flex items-end gap-4 flex-wrap">
           <div class="flex-1 min-w-50">
@@ -35,7 +35,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <!-- Chat Panel -->
         <div
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 flex flex-col min-h-140"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 flex flex-col min-h-140"
         >
           <!-- Header -->
           <div
@@ -87,7 +87,7 @@
             >
               <input
                 type="text"
-                class="flex-1 px-3 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50 text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                class="flex-1 px-3 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 placeholder="Digite uma mensagem..."
                 formControlName="message"
                 [disabled]="isExecuting()"
@@ -107,7 +107,7 @@
 
         <!-- Debug Timeline Panel -->
         <div
-          class="bg-white dark:bg-neutral-800/50 rounded-xl border border-neutral-200 dark:border-neutral-700/50 flex flex-col min-h-140"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 flex flex-col min-h-140"
         >
           <div
             class="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between"

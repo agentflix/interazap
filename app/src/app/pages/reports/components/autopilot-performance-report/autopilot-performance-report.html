@@ -73,7 +73,7 @@
       } @else if (hasError()) {
         <af-card>
           <div class="py-12 text-center">
-            <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+            <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-50 mb-2">
               Erro ao carregar dados
             </h3>
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
@@ -148,7 +148,7 @@
                 <tbody>
                   @for (pb of data()!.playbooks; track pb.playbook_id) {
                     <tr
-                      class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                      class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800"
                     >
                       <td class="py-3 px-4 font-medium">{{ pb.name }}</td>
                       <td class="text-right py-3 px-4">{{ pb.total_runs }}</td>
