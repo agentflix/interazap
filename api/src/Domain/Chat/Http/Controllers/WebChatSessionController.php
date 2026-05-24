@@ -133,15 +133,36 @@ final class WebChatSessionController extends BaseController
      */
     public function show(Request $request, string $id): JsonResponse
     {
-        $tenantId = (string) ($request->query('tenant_id') ?? '');
+        $token = $request->query('token');
+        if (! is_string($token) || $token === '') {
+            return $this->unauthorized('Token inválido ou expirado');
+        }
 
-        if ($tenantId === '') {
-            return $this->unauthorized('tenant_id é obrigatório');
+        $payload = $this->jwtService->validateToken($token);
+        if ($payload === null) {
+            return $this->unauthorized('Token inválido ou expirado');
+        }
+
+        $sessionId = $payload['session_id'] ?? null;
+        $tenantId = $payload['tenant_id'] ?? null;
+        $ticketId = $payload['ticket_id'] ?? null;
+
+        if (
+            ! is_string($sessionId) || $sessionId === ''
+            || ! is_string($tenantId) || $tenantId === ''
+            || ! is_string($ticketId) || $ticketId === ''
+        ) {
+            return $this->unauthorized('Token inválido: claims incompletas');
+        }
+
+        if ($sessionId !== $id) {
+            return $this->unauthorized('Sessão não corresponde ao token');
         }
 
         $session = ChatSession::query()
-            ->where('id', $id)
+            ->where('id', $sessionId)
             ->where('tenant_id', $tenantId)
+            ->where('ticket_id', $ticketId)
             ->with(['contact', 'ticket.contact'])
             ->first();
 
@@ -153,7 +174,6 @@ final class WebChatSessionController extends BaseController
 
         return $this->success([
             'id' => (string) $session->id,
-            'token' => $session->token,
             'ticketId' => (string) $session->ticket_id,
             'contactId' => $session->contact_id,
             'clientInfo' => $session->client_info,

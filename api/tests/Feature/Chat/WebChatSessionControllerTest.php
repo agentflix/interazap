@@ -98,15 +98,20 @@ final class WebChatSessionControllerTest extends TestCase
             'contact_id' => $contact->id,
             'ticket_id' => $ticket->id,
         ]);
+        $token = $this->jwtService->generateToken(
+            (string) $session->id,
+            $this->tenantId,
+            $session->contact_id,
+            (string) $session->ticket_id,
+        );
 
-        $response = $this->getJson("/api/webchat/sessions/{$session->id}?tenant_id={$this->tenantId}");
+        $response = $this->getJson("/api/webchat/sessions/{$session->id}?token={$token}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
                 'data' => [
                     'id',
-                    'token',
                     'ticketId',
                     'contactId',
                     'clientInfo',
@@ -115,13 +120,60 @@ final class WebChatSessionControllerTest extends TestCase
                 ],
             ])
             ->assertJsonPath('data.id', (string) $session->id);
+
+        $this->assertArrayNotHasKey('token', $response->json('data'));
+    }
+
+    public function test_show_requires_valid_session_token(): void
+    {
+        $ticket = ChatTicket::factory()->create([
+            'tenant_id' => $this->tenantId,
+            'channel' => 'web',
+        ]);
+        $session = ChatSession::factory()->create([
+            'tenant_id' => $this->tenantId,
+            'ticket_id' => $ticket->id,
+        ]);
+
+        $this->getJson("/api/webchat/sessions/{$session->id}?tenant_id={$this->tenantId}")
+            ->assertUnauthorized();
+
+        $this->getJson("/api/webchat/sessions/{$session->id}?token=invalid.token.here")
+            ->assertUnauthorized();
+    }
+
+    public function test_show_rejects_token_for_different_session(): void
+    {
+        $ticket = ChatTicket::factory()->create([
+            'tenant_id' => $this->tenantId,
+            'channel' => 'web',
+        ]);
+        $session = ChatSession::factory()->create([
+            'tenant_id' => $this->tenantId,
+            'ticket_id' => $ticket->id,
+        ]);
+        $token = $this->jwtService->generateToken(
+            '550e8400-e29b-41d4-a716-446655440000',
+            $this->tenantId,
+            $session->contact_id,
+            (string) $session->ticket_id,
+        );
+
+        $this->getJson("/api/webchat/sessions/{$session->id}?token={$token}")
+            ->assertUnauthorized();
     }
 
     public function test_returns_404_for_non_existent_session(): void
     {
         $nonExistentId = '550e8400-e29b-41d4-a716-446655440000';
+        $token = $this->jwtService->generateToken(
+            $nonExistentId,
+            $this->tenantId,
+            null,
+            '660e8400-e29b-41d4-a716-446655440001',
+        );
 
-        $response = $this->getJson("/api/webchat/sessions/{$nonExistentId}?tenant_id={$this->tenantId}");
+        $response = $this->getJson("/api/webchat/sessions/{$nonExistentId}?token={$token}");
 
         $response->assertStatus(404);
     }

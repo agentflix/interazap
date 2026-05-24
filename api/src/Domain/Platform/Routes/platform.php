@@ -104,13 +104,15 @@ Route::middleware(['auth:sanctum'])
         Route::delete('/billing/invoices/{id}', [PlatformBillingInvoiceController::class, 'destroy']);
 
         // Platform Users (all tenants - super-admin only)
-        Route::get('/users', [PlatformUserController::class, 'index']);
-        Route::post('/users', [PlatformUserController::class, 'store']);
-        Route::get('/users/{id}', [PlatformUserController::class, 'show']);
-        Route::put('/users/{id}', [PlatformUserController::class, 'update']);
-        Route::delete('/users/{id}', [PlatformUserController::class, 'destroy']);
-        Route::post('/users/{id}/toggle', [PlatformUserController::class, 'toggle']);
-        Route::post('/users/{id}/avatar', [PlatformUserController::class, 'uploadAvatar']);
-        Route::delete('/users/{id}/avatar', [PlatformUserController::class, 'deleteAvatar']);
-        Route::post('/users/{id}/impersonate', [PlatformUserController::class, 'impersonate']);
+        Route::middleware(['platform.super-admin'])->prefix('users')->group(function (): void {
+            Route::get('/', [PlatformUserController::class, 'index']);
+            Route::post('/', [PlatformUserController::class, 'store']);
+            Route::get('/{id}', [PlatformUserController::class, 'show']);
+            Route::put('/{id}', [PlatformUserController::class, 'update']);
+            Route::delete('/{id}', [PlatformUserController::class, 'destroy']);
+            Route::post('/{id}/toggle', [PlatformUserController::class, 'toggle']);
+            Route::post('/{id}/avatar', [PlatformUserController::class, 'uploadAvatar']);
+            Route::delete('/{id}/avatar', [PlatformUserController::class, 'deleteAvatar']);
+            Route::post('/{id}/impersonate', [PlatformUserController::class, 'impersonate']);
+        });
     });

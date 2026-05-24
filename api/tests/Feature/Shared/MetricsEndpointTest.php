@@ -5,8 +5,16 @@ declare(strict_types=1);
 use function Pest\Laravel\get;
 
 describe('Metrics Endpoint', function (): void {
+    beforeEach(function (): void {
+        config()->set('services.gateway.api_key', 'metrics-test-key');
+    });
+
+    it('rejects requests without internal api key', function (): void {
+        get('/api/metrics')->assertUnauthorized();
+    });
+
     it('returns prometheus formatted metrics', function (): void {
-        $response = get('/api/metrics');
+        $response = get('/api/metrics', ['X-Internal-Api-Key' => 'metrics-test-key']);
 
         $response
             ->assertOk()
@@ -20,7 +28,7 @@ describe('Metrics Endpoint', function (): void {
     });
 
     it('includes app_info metric', function (): void {
-        $response = get('/api/metrics');
+        $response = get('/api/metrics', ['X-Internal-Api-Key' => 'metrics-test-key']);
 
         $content = $response->getContent();
 
@@ -30,7 +38,7 @@ describe('Metrics Endpoint', function (): void {
     });
 
     it('includes http_requests_total metric', function (): void {
-        $response = get('/api/metrics');
+        $response = get('/api/metrics', ['X-Internal-Api-Key' => 'metrics-test-key']);
 
         $content = $response->getContent();
 
@@ -39,7 +47,7 @@ describe('Metrics Endpoint', function (): void {
     });
 
     it('includes queue metrics', function (): void {
-        $response = get('/api/metrics');
+        $response = get('/api/metrics', ['X-Internal-Api-Key' => 'metrics-test-key']);
 
         $content = $response->getContent();
 
@@ -49,7 +57,7 @@ describe('Metrics Endpoint', function (): void {
     });
 
     it('includes php memory metrics', function (): void {
-        $response = get('/api/metrics');
+        $response = get('/api/metrics', ['X-Internal-Api-Key' => 'metrics-test-key']);
 
         $content = $response->getContent();
 
@@ -58,7 +66,7 @@ describe('Metrics Endpoint', function (): void {
     });
 
     it('includes redis metrics', function (): void {
-        $response = get('/api/metrics');
+        $response = get('/api/metrics', ['X-Internal-Api-Key' => 'metrics-test-key']);
 
         $content = $response->getContent();
 
@@ -67,7 +75,7 @@ describe('Metrics Endpoint', function (): void {
     });
 
     it('includes database metrics', function (): void {
-        $response = get('/api/metrics');
+        $response = get('/api/metrics', ['X-Internal-Api-Key' => 'metrics-test-key']);
 
         $content = $response->getContent();
 

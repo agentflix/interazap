@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Domain\Chat\Services;
 
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 /**
  * JWT-like service for WebChat session tokens.
@@ -30,11 +31,13 @@ final class WebChatJwtService
     {
         $sharedJwtSecret = config('services.webchat.jwt_secret')
             ?: config('services.webchat.fallback_jwt_secret')
-            ?: config('app.default_tenant_id');
+            ?: config('app.key');
 
-        $this->secret = $sharedJwtSecret !== null && $sharedJwtSecret !== ''
-            ? (string) $sharedJwtSecret
-            : (string) config('app.key');
+        if (! is_string($sharedJwtSecret) || $sharedJwtSecret === '') {
+            throw new RuntimeException('WEBCHAT_JWT_SECRET or APP_KEY must be configured.');
+        }
+
+        $this->secret = $sharedJwtSecret;
         $this->issuer = config('app.url', 'interazap');
     }
 

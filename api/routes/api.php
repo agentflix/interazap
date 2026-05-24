@@ -20,7 +20,7 @@ Route::withoutMiddleware('api')->group(function (): void {
 |--------------------------------------------------------------------------
 | Rate limited to prevent DoS and information disclosure.
 */
-Route::middleware(['throttle:observability'])->group(function (): void {
+Route::middleware(['internal.api.key', 'throttle:observability'])->group(function (): void {
     Route::get('/metrics', \Domain\Shared\Http\Controllers\MetricsController::class);
 });
 

@@ -31,6 +31,22 @@ class PlatformUserControllerTest extends TestCase
         return $superAdmin->refresh();
     }
 
+    private function makeTenantOwner(PlatformTenant $tenant): AuthUser
+    {
+        $role = AuthRole::query()->firstOrCreate(
+            ['id' => AuthRole::INQUILINO_ID],
+            ['name' => AuthRole::INQUILINO_NAME, 'guard_name' => 'sanctum']
+        );
+
+        $user = AuthUser::factory()->create([
+            'tenant_id' => $tenant->id,
+            'is_active' => true,
+        ]);
+        $user->assignRole($role);
+
+        return $user->refresh();
+    }
+
     public function test_platform_store_respects_selected_company_for_super_admin_with_tenant(): void
     {
         $superAdminTenant = PlatformTenant::factory()->create();
@@ -61,5 +77,31 @@ class PlatformUserControllerTest extends TestCase
             'email' => 'cross-tenant@example.com',
             'tenant_id' => $selectedTenant->id,
         ]);
+    }
+
+    public function test_platform_user_routes_require_super_admin(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $otherTenant = PlatformTenant::factory()->create();
+        $tenantOwner = $this->makeTenantOwner($tenant);
+        $targetUser = AuthUser::factory()->create(['tenant_id' => $otherTenant->id]);
+
+        Sanctum::actingAs($tenantOwner, abilities: ['*']);
+
+        $routes = [
+            ['GET', '/api/platform/users'],
+            ['POST', '/api/platform/users'],
+            ['GET', "/api/platform/users/{$targetUser->id}"],
+            ['PUT', "/api/platform/users/{$targetUser->id}"],
+            ['DELETE', "/api/platform/users/{$targetUser->id}"],
+            ['POST', "/api/platform/users/{$targetUser->id}/toggle"],
+            ['POST', "/api/platform/users/{$targetUser->id}/avatar"],
+            ['DELETE', "/api/platform/users/{$targetUser->id}/avatar"],
+            ['POST', "/api/platform/users/{$targetUser->id}/impersonate"],
+        ];
+
+        foreach ($routes as [$method, $uri]) {
+            $this->json($method, $uri)->assertForbidden();
+        }
     }
 }

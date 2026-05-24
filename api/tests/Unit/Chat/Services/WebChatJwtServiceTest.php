@@ -87,4 +87,22 @@ final class WebChatJwtServiceTest extends TestCase
         $this->assertNull($this->service->validateToken('not-a-jwt'));
         $this->assertNull($this->service->validateToken('only.two'));
     }
+
+    public function test_default_tenant_id_is_not_used_as_signing_secret_when_app_key_exists(): void
+    {
+        config()->set('services.webchat.jwt_secret');
+        config()->set('services.webchat.fallback_jwt_secret');
+        config()->set('app.default_tenant_id', 'predictable-tenant-id');
+        config()->set('app.key', 'base64:'.base64_encode('safe-app-key'));
+
+        $service = new WebChatJwtService;
+        $token = $service->generateToken('session-1', 'tenant-1', null, 'ticket-1');
+
+        $this->assertNotNull($service->validateToken($token));
+
+        config()->set('app.key');
+
+        $this->expectException(\RuntimeException::class);
+        new WebChatJwtService;
+    }
 }
