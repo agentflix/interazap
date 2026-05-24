@@ -5,7 +5,7 @@
 - PRD: `.context/DOCS/PRDS/0003-PRD-message-based-billing.md`
 - Bounded Context: Billing
 - Complexidade: G
-- Status: 🟡 Em Planning
+- Status: ✅ Concluída
 - Data: 2026-05-23
 
 ## Resumo

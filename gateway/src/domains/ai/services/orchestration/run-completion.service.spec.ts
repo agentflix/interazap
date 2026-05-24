@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { RunCompletionService } from './run-completion.service';
+import { BillingUsageClient } from '../../../billing/services/billing-usage-client.service';
 
 describe('RunCompletionService', () => {
   it('extracts user text from serialized send_message payload before implicit send', async () => {
@@ -46,6 +47,7 @@ describe('RunCompletionService', () => {
       expect.objectContaining({ ticketId: 'ticket-123' }),
     );
     expect(result.finalContent).toBe('Resposta final para o cliente');
+    expect(result.blockedByQuota).toBe(false);
   });
 
   it('sends fallback when tool calls finish without customer-facing or terminal action', async () => {
@@ -131,5 +133,104 @@ describe('RunCompletionService', () => {
     );
 
     expect(toolExecutor.executeTool).not.toHaveBeenCalled();
+  });
+
+  it('blocks send_message and adds handoff when quota is exceeded', async () => {
+    const guardrail = {
+      evaluateFinalOutput: jest.fn().mockReturnValue({ allowed: true }),
+    };
+    const toolExecutor = {
+      executeTool: jest.fn().mockResolvedValue({ success: true }),
+    };
+    const billingUsageClient = {
+      checkAndIncrement: jest.fn().mockResolvedValue({
+        allowed: false,
+        current: 100,
+        limit: 100,
+        mode: 'stop',
+        is_overage: false,
+      }),
+    };
+    const service = new RunCompletionService(
+      guardrail as never,
+      toolExecutor as never,
+      new Logger('RunCompletionServiceSpec'),
+      billingUsageClient as unknown as BillingUsageClient,
+    );
+
+    const result = await service.finalize(
+      'Resposta que não será enviada',
+      {
+        tenantId: 'tenant-1',
+        runId: 'run-1',
+        ticketId: 'ticket-123',
+        aiTurnId: 'turn-1',
+      },
+      [],
+      'stop',
+      null,
+    );
+
+    expect(billingUsageClient.checkAndIncrement).toHaveBeenCalledWith(
+      'tenant-1',
+      'whatsapp',
+      'turn-1',
+    );
+    expect(toolExecutor.executeTool).toHaveBeenCalledWith(
+      'transfer_to_human',
+      { ticket_id: 'ticket-123', reason: 'quota_exceeded' },
+      expect.objectContaining({ tenantId: 'tenant-1', ticketId: 'ticket-123' }),
+    );
+    expect(result.blockedByQuota).toBe(true);
+    expect(result.toolCalls.at(-1)).toMatchObject({
+      name: 'transfer_to_human',
+      arguments: { ticket_id: 'ticket-123', reason: 'quota_exceeded' },
+      blocked_by_quota: true,
+    });
+  });
+
+  it('allows send_message when quota check passes', async () => {
+    const guardrail = {
+      evaluateFinalOutput: jest.fn().mockReturnValue({ allowed: true }),
+    };
+    const toolExecutor = {
+      executeTool: jest.fn().mockResolvedValue({ success: true }),
+    };
+    const billingUsageClient = {
+      checkAndIncrement: jest.fn().mockResolvedValue({
+        allowed: true,
+        current: 5,
+        limit: 100,
+        mode: 'stop',
+        is_overage: false,
+      }),
+    };
+    const service = new RunCompletionService(
+      guardrail as never,
+      toolExecutor as never,
+      new Logger('RunCompletionServiceSpec'),
+      billingUsageClient as unknown as BillingUsageClient,
+    );
+
+    const result = await service.finalize(
+      'Resposta permitida',
+      {
+        tenantId: 'tenant-1',
+        runId: 'run-1',
+        ticketId: 'ticket-123',
+        aiTurnId: 'turn-1',
+      },
+      [],
+      'stop',
+      null,
+    );
+
+    expect(billingUsageClient.checkAndIncrement).toHaveBeenCalled();
+    expect(toolExecutor.executeTool).toHaveBeenCalledWith(
+      'send_message',
+      expect.any(Object),
+      expect.any(Object),
+    );
+    expect(result.blockedByQuota).toBe(false);
   });
 });

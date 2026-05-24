@@ -35,6 +35,9 @@ final class BillingPlanListResource extends BaseJsonResource
             'negotiations_mode' => $plan->negotiations_mode->value,
             'negotiations_limit' => $plan->negotiations_limit,
             'is_current' => (bool) ($plan->is_current ?? false),
+            'message_limit_monthly' => $plan->message_limit_monthly,
+            'overage_mode' => $plan->overage_mode instanceof \BackedEnum ? $plan->overage_mode->value : $plan->overage_mode,
+            'overage_price_per_message' => $plan->overage_price_per_message,
             'features' => [
                 ['label' => sprintf('%d usuários', (int) $plan->limit_users), 'included' => true],
                 ['label' => sprintf('%d canal WhatsApp', (int) $plan->chat_channels_limit), 'included' => true],

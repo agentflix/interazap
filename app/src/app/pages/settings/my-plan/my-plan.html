@@ -56,6 +56,14 @@
             </p>
           </div>
         </div>
+
+        @if (subscription()?.current_plan?.ai_enabled) {
+          <div class="mt-3">
+            <af-button variant="outline" size="sm" (click)="openBillingPrefs()">
+              Preferências de cobrança
+            </af-button>
+          </div>
+        }
       </div>
 
       @if (subscription()?.usage; as usage) {
@@ -104,4 +112,12 @@
       (confirmed)="confirmPlanChange($event)"
     />
   }
+
+  <app-billing-prefs-modal
+    [open]="billingPrefsOpen()"
+    [plan]="subscription()?.current_plan ?? null"
+    [currentOverride]="subscription()?.usage?.ai_messages?.mode ?? null"
+    (closed)="billingPrefsOpen.set(false)"
+    (saved)="onBillingPrefsSaved()"
+  />
 </div>

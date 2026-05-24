@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { GuardrailEvaluatorService } from '../guardrail-evaluator.service';
 import { ToolExecutorService } from '../tool-executor.service';
+import { BillingUsageClient } from '../../../billing/services/billing-usage-client.service';
 
 /**
  * Handles post-completion side-effects such as guardrail evaluation,
@@ -8,14 +9,16 @@ import { ToolExecutorService } from '../tool-executor.service';
  */
 export class RunCompletionService {
   /**
-   * @param guardrail     - GuardrailEvaluatorService for content safety checks
-   * @param toolExecutor   - ToolExecutorService for implicit tool calls
-   * @param logger         - NestJS Logger for instrumentation
+   * @param guardrail           - GuardrailEvaluatorService for content safety checks
+   * @param toolExecutor         - ToolExecutorService for implicit tool calls
+   * @param logger               - NestJS Logger for instrumentation
+   * @param billingUsageClient   - BillingUsageClient for quota checks
    */
   constructor(
     private readonly guardrail: GuardrailEvaluatorService,
     private readonly toolExecutor: ToolExecutorService,
     private readonly logger: Logger,
+    private readonly billingUsageClient?: BillingUsageClient,
   ) {}
 
   /**
@@ -40,6 +43,7 @@ export class RunCompletionService {
       agentRole?: string;
       delegationDepth?: number;
       delegationStack?: string[];
+      aiTurnId?: string;
     },
     toolCalls: Array<Record<string, unknown>>,
     completionFinishReason: string | null,
@@ -48,6 +52,7 @@ export class RunCompletionService {
     finalContent: string;
     postGuardAllowed: boolean;
     toolCalls: Array<Record<string, unknown>>;
+    blockedByQuota: boolean;
   }> {
     const normalizedContent =
       this.extractContentFromSendMessagePayload(completionContent) ??
@@ -73,6 +78,8 @@ export class RunCompletionService {
         'close_ticket',
       ]) || this.hasCompletedHandoff(toolCalls);
 
+    let blockedByQuota = false;
+
     if (
       !sendMessageAlreadySent &&
       !terminalActionAlreadyCompleted &&
@@ -80,35 +87,80 @@ export class RunCompletionService {
       request.ticketId &&
       earlyExitReason !== 'delegation_completed'
     ) {
-      const sendResult = await this.toolExecutor.executeTool(
-        'send_message',
-        {
-          ticket_id: request.ticketId,
-          content: finalContent,
-        },
-        {
-          tenantId: request.tenantId,
-          runId: request.runId,
-          agentId: request.agentId ?? 'default',
-          traceId: request.traceId,
-          agentRole: request.agentRole,
-          delegationDepth: request.delegationDepth,
-          delegationStack: request.delegationStack,
-          ticketId: request.ticketId,
-        },
-      );
-
-      toolCalls.push({
-        name: 'send_message',
-        arguments: { ticket_id: request.ticketId, content: finalContent },
-        result: sendResult,
-        implicit: true,
-      });
-
-      if (sendResult['success'] !== true) {
-        this.logger.error(
-          `Mandatory send_message failed for run ${request.runId}: ${JSON.stringify(sendResult)}`,
+      // Check billing quota before sending the AI message
+      let quotaCheck: { allowed: boolean } | undefined;
+      if (!this.billingUsageClient) {
+        this.logger.warn(
+          `BillingUsageClient not provided — quota check skipped for run ${request.runId}`,
         );
+      }
+      if (this.billingUsageClient && request.aiTurnId) {
+        quotaCheck = await this.billingUsageClient.checkAndIncrement(
+          request.tenantId,
+          'whatsapp',
+          request.aiTurnId,
+        );
+      }
+
+      if (quotaCheck && !quotaCheck.allowed) {
+        blockedByQuota = true;
+        this.logger.warn(
+          `Run ${request.runId} blocked by quota for tenant ${request.tenantId}`,
+        );
+
+        const handoffResult = await this.toolExecutor.executeTool(
+          'transfer_to_human',
+          { ticket_id: request.ticketId, reason: 'quota_exceeded' },
+          {
+            tenantId: request.tenantId,
+            runId: request.runId,
+            agentId: request.agentId ?? 'default',
+            traceId: request.traceId,
+            agentRole: request.agentRole,
+            delegationDepth: request.delegationDepth,
+            delegationStack: request.delegationStack,
+            ticketId: request.ticketId,
+          },
+        );
+
+        toolCalls.push({
+          name: 'transfer_to_human',
+          arguments: { ticket_id: request.ticketId, reason: 'quota_exceeded' },
+          result: handoffResult,
+          implicit: true,
+          blocked_by_quota: true,
+        });
+      } else {
+        const sendResult = await this.toolExecutor.executeTool(
+          'send_message',
+          {
+            ticket_id: request.ticketId,
+            content: finalContent,
+          },
+          {
+            tenantId: request.tenantId,
+            runId: request.runId,
+            agentId: request.agentId ?? 'default',
+            traceId: request.traceId,
+            agentRole: request.agentRole,
+            delegationDepth: request.delegationDepth,
+            delegationStack: request.delegationStack,
+            ticketId: request.ticketId,
+          },
+        );
+
+        toolCalls.push({
+          name: 'send_message',
+          arguments: { ticket_id: request.ticketId, content: finalContent },
+          result: sendResult,
+          implicit: true,
+        });
+
+        if (sendResult['success'] !== true) {
+          this.logger.error(
+            `Mandatory send_message failed for run ${request.runId}: ${JSON.stringify(sendResult)}`,
+          );
+        }
       }
     }
 
@@ -116,6 +168,7 @@ export class RunCompletionService {
       finalContent,
       postGuardAllowed: postGuard.allowed,
       toolCalls,
+      blockedByQuota,
     };
   }
 

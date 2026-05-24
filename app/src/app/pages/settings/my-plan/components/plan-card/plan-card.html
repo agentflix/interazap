@@ -31,6 +31,18 @@
             </li>
           }
         }
+        @if (plan().ai_enabled) {
+          <li class="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+            <span class="text-emerald-500">✓</span>
+            <span>
+              @if (plan().message_limit_monthly !== null) {
+                {{ formatNumber(plan().message_limit_monthly!) }} mensagens IA/mês
+              } @else {
+                Mensagens IA ilimitadas
+              }
+            </span>
+          </li>
+        }
       </ul>
 
       @if (plan().is_current) {

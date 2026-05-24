@@ -26,9 +26,9 @@ class PlatformPlanSeeder extends Seeder
                 'storage_mode' => PlatformStorageMode::LIMITED->value,
                 'storage_limit_bytes' => 1024 * 1024 * 1024,
                 'ai_enabled' => false,
-                'token_limit_monthly' => 50000,
-                'allow_overage' => false,
-                'overage_price_per_1k' => null,
+                'message_limit_monthly' => 500,
+                'overage_mode' => 'stop',
+                'overage_price_per_message' => null,
                 'negotiations_mode' => PlatformNegotiationsMode::LIMITED->value,
                 'negotiations_limit' => 50,
                 'reports_mode' => PlatformReportsMode::BASIC->value,
@@ -43,9 +43,9 @@ class PlatformPlanSeeder extends Seeder
                 'storage_mode' => PlatformStorageMode::LIMITED->value,
                 'storage_limit_bytes' => 5 * 1024 * 1024 * 1024,
                 'ai_enabled' => true,
-                'token_limit_monthly' => 100000,
-                'allow_overage' => true,
-                'overage_price_per_1k' => 2.00,
+                'message_limit_monthly' => 2000,
+                'overage_mode' => 'overage',
+                'overage_price_per_message' => 0.02,
                 'negotiations_mode' => PlatformNegotiationsMode::LIMITED->value,
                 'negotiations_limit' => 500,
                 'reports_mode' => PlatformReportsMode::ADVANCED->value,
@@ -60,9 +60,9 @@ class PlatformPlanSeeder extends Seeder
                 'storage_mode' => PlatformStorageMode::UNLIMITED->value,
                 'storage_limit_bytes' => null,
                 'ai_enabled' => true,
-                'token_limit_monthly' => 500000,
-                'allow_overage' => true,
-                'overage_price_per_1k' => 1.50,
+                'message_limit_monthly' => 10000,
+                'overage_mode' => 'overage',
+                'overage_price_per_message' => 0.015,
                 'negotiations_mode' => PlatformNegotiationsMode::UNLIMITED->value,
                 'negotiations_limit' => null,
                 'reports_mode' => PlatformReportsMode::FULL->value,
@@ -72,7 +72,7 @@ class PlatformPlanSeeder extends Seeder
         ];
 
         foreach ($plans as $planData) {
-            $plan = PlatformPlan::query()->updateOrCreate(
+            PlatformPlan::query()->updateOrCreate(
                 ['slug' => $planData['slug']],
                 [
                     'name' => $planData['name'],
@@ -81,9 +81,9 @@ class PlatformPlanSeeder extends Seeder
                     'storage_mode' => $planData['storage_mode'],
                     'storage_limit_bytes' => $planData['storage_limit_bytes'],
                     'ai_enabled' => $planData['ai_enabled'],
-                    'token_limit_monthly' => $planData['token_limit_monthly'],
-                    'allow_overage' => $planData['allow_overage'],
-                    'overage_price_per_1k' => $planData['overage_price_per_1k'],
+                    'message_limit_monthly' => $planData['message_limit_monthly'],
+                    'overage_mode' => $planData['overage_mode'],
+                    'overage_price_per_message' => $planData['overage_price_per_message'],
                     'chat_channels_limit' => $planData['chat_channels_limit'],
                     'negotiations_mode' => $planData['negotiations_mode'],
                     'negotiations_limit' => $planData['negotiations_limit'],
@@ -93,7 +93,6 @@ class PlatformPlanSeeder extends Seeder
                     'is_active' => $planData['is_active'],
                 ]
             );
-
         }
     }
 }

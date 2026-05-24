@@ -33,20 +33,14 @@ final class CalculateAiOverageAction
             ->whereBetween('created_at', [$start, $end])
             ->sum(DB::raw('input_tokens + output_tokens'));
 
-        $limit = $plan?->token_limit_monthly;
-        $excess = $limit === null ? 0 : max(0, $totalTokens - (int) $limit);
-        $overageAmount = 0.0;
-
-        if ($plan?->allow_overage === true && $excess > 0) {
-            $overageAmount = round(($excess / 1000) * (float) ($plan->overage_price_per_1k ?? 0), 2);
-        }
-
+        // Token-based overage replaced by message-based billing (FEAT-003).
+        // Overage is now handled by CloseExpiredCyclesJob per billing cycle.
         return [
             'total_tokens' => $totalTokens,
-            'token_limit_monthly' => $limit !== null ? (int) $limit : null,
-            'overage_applied' => $overageAmount > 0.0,
-            'overage_tokens' => $excess,
-            'overage_amount' => $overageAmount,
+            'token_limit_monthly' => null,
+            'overage_applied' => false,
+            'overage_tokens' => 0,
+            'overage_amount' => 0.0,
         ];
     }
 }

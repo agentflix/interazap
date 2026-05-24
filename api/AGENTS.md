@@ -60,6 +60,20 @@ composer gate:fast   # format + analyse:changed (loop rápido de desenvolvimento
 composer gate:all    # format → analyse(full) → test (pest --parallel --exclude-testsuite=E2E) → refactor
 ```
 
+### Dicas para debug de falhas (suite ~10 min)
+
+Salvar erros em arquivo e usar `--stop-on-failure` para não esperar o run completo:
+
+```bash
+# Parar no primeiro erro + salvar output
+php -d pcov.enabled=0 -d memory_limit=2G vendor/bin/pest --exclude-testsuite=E2E \
+  --stop-on-failure 2>&1 | tee /tmp/pest-failures.txt
+
+# Rodar só um teste específico (muito mais rápido no loop de fix)
+php -d pcov.enabled=0 -d memory_limit=2G vendor/bin/pest \
+  --filter "NomeDoTeste" --stop-on-failure
+```
+
 Opcional: para incluir também mudanças já commitadas da branch no incremental, use `PHPSTAN_BASE_REF=origin/main composer analyse:changed`.
 
 Auto-fix: `composer format`

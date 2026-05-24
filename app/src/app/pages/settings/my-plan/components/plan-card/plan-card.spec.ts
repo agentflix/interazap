@@ -17,6 +17,9 @@ function buildPlan(overrides: Partial<SubscriptionPlan> = {}): SubscriptionPlan 
     ai_enabled: false,
     negotiations_mode: 'LIMITED' as const,
     negotiations_limit: 50,
+    message_limit_monthly: 800,
+    overage_mode: 'stop' as const,
+    overage_price_per_message: 0.05,
     is_current: true,
     features: [
       { label: '5 usuários', included: true },
@@ -140,5 +143,42 @@ describe('PlanCardComponent', () => {
     button.triggerEventHandler('click', null);
 
     expect(selectedSpy).toHaveBeenCalledWith(plan);
+  });
+
+  it('deve mostrar bullet de mensagens IA com quantidade quando ai_enabled=true', () => {
+    fixture.componentRef.setInput('plan', buildPlan({ ai_enabled: true, message_limit_monthly: 800 }));
+    fixture.componentRef.setInput('currentPlanPrice', 97);
+    fixture.detectChanges();
+
+    const items = fixture.debugElement.queryAll(By.css('li'));
+    const texts = items.map((el) => (el.nativeElement as HTMLElement).textContent ?? '');
+    const aiMsgItem = texts.find((t) => t.includes('mensagens IA/mês'));
+
+    expect(aiMsgItem).toBeTruthy();
+    expect(aiMsgItem).toContain('800');
+  });
+
+  it('deve mostrar "Mensagens IA ilimitadas" quando message_limit_monthly=null', () => {
+    fixture.componentRef.setInput('plan', buildPlan({ ai_enabled: true, message_limit_monthly: null }));
+    fixture.componentRef.setInput('currentPlanPrice', 97);
+    fixture.detectChanges();
+
+    const items = fixture.debugElement.queryAll(By.css('li'));
+    const texts = items.map((el) => (el.nativeElement as HTMLElement).textContent ?? '');
+    const aiMsgItem = texts.find((t) => t.includes('ilimitadas'));
+
+    expect(aiMsgItem).toBeTruthy();
+  });
+
+  it('não deve mostrar bullet de mensagens IA quando ai_enabled=false', () => {
+    fixture.componentRef.setInput('plan', buildPlan({ ai_enabled: false }));
+    fixture.componentRef.setInput('currentPlanPrice', 97);
+    fixture.detectChanges();
+
+    const items = fixture.debugElement.queryAll(By.css('li'));
+    const texts = items.map((el) => (el.nativeElement as HTMLElement).textContent ?? '');
+    const aiMsgItem = texts.find((t) => t.includes('mensagens IA/mês'));
+
+    expect(aiMsgItem).toBeUndefined();
   });
 });

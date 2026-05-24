@@ -1,119 +1,158 @@
-# Decisões Técnicas — Bilhetagem por Mensagens IA
+# Code Review — Feature: message-based-billing
 
-**Feature:** message-based-billing
-**Data:** 2026-05-23
-**Autor:** BUILDER (Fase 5)
-
----
-
-## Estado da Implementação
-
-### Fases Concluídas
-- ✅ **Fase 2 — Design:** Wireframe completo com 4 estados da barra + modal + fluxo
-- ✅ **Fase 3 — Backend (api/):**
-  - 5 migrations criadas e validadas
-  - 2 models novos (`TenantMessageUsage`, `AiMessageUsageFailedLog`)
-  - 1 enum (`OverageMode`)
-  - 1 DTO (`CheckAndIncrementResult`)
-  - 3 services (`BillingCycleCalculator`, `UsageCounterService`, `ThresholdChecker`)
-  - 3 controllers + 2 FormRequests + rotas
-  - 4 jobs (`CheckUsageThresholdsJob`, `SendUsageAlertJob`, `CloseExpiredCyclesJob`, `ReconcileFailedUsageJob`)
-  - 2 templates de email (Blade)
-  - Testes: 100% dos novos services e endpoints cobertos
-- ✅ **Fase 4 — Frontend (app/):**
-  - Modelos TS estendidos
-  - `BillingPrefsService` criado
-  - `UsageStatsComponent` com barra de mensagens IA
-  - `BillingPrefsModalComponent` standalone
-  - `PlanCardComponent` com bullet IA
-  - Testes: 5 novos specs passando
-
-### Fases Concluídas (atualizado)
-- ✅ **Fase 3.5G — Gateway:** Implementada em 2026-05-24:
-  - `BillingUsageClient` (HTTP client com retry 3x + fail-open)
-  - Endpoint fail-open `POST /v1/billing/usage/fail-open-log`
-  - Integração no pipeline IA (`run-completion.service.ts`)
-  - Geração de `aiTurnId` via `randomUUID()` no orquestrador
-  - Módulo + DI wiring (`BillingModule` ↔ `AIModule`)
-  - Métricas Prometheus (`ai_messages_total`, `usage_check_duration_seconds`, `usage_check_failures_total`)
-  - Testes: 11/11 passaram (gateway) + 4/4 passaram (API fail-open)
-
-### Fases Pendentes
-- ⏳ **Fase 5 — Cenários manuais (5.1.x):** Desbloqueados — podem ser executados agora
-- ⏳ **TASK-5.2.2 (Gate gateway):** Desbloqueado — pode ser executado
-- ⏳ **TASK-5.2.5 (Code review):** Aguardando execução
+**Data:** 2026-05-24
+**Revisor:** REVIEWER (code-review-confiavel)
+**Feature:** message-based-billing (FEAT-003)
+**Escopo:** api/, gateway/, app/
 
 ---
 
-## Resultados dos Gates
+## Achados
+
+### Crítico
+
+**1. Bypass de tenant isolation em `BillingUsageController::check()`**
+- **Arquivo:** `api/src/Domain/Billing/Http/Controllers/BillingUsageController.php`
+- **Linha:** 35-41
+- **Evidência:** O método aceita `tenant_id` do request body e passa diretamente para `UsageCounterService::checkAndIncrement()`. Não há verificação se o `tenant_id` pertence ao usuário autenticado (`auth:sanctum`).
+- **Impacto:** Qualquer usuário autenticado pode chamar `POST /billing/usage/check-and-increment` com qualquer `tenant_id`, potencialmente incrementando contadores de outros tenants ou bloqueando mensagens de terceiros.
+- **Correção sugerida:** Usar `$this->tenantId($request)` (do `BaseController`) ou adicionar validação explícita: `$request->validated('tenant_id') === $this->tenantId($request)`.
+- **Confiança:** 95%
+
+### Alto
+
+**2. Autorização aberta em `BillingUsageCheckRequest`**
+- **Arquivo:** `api/src/Domain/Billing/Http/Requests/BillingUsageCheckRequest.php`
+- **Linha:** 14-17
+- **Evidência:** `authorize()` retorna `true` incondicionalmente.
+- **Impacto:** Mesmo com autenticação, não há verificação de permissão. O endpoint `check-and-increment` é chamado pelo Gateway (serviço interno) e deveria usar `InternalApiKeyGuard` ou similar, não `auth:sanctum` de usuário final.
+- **Correção sugerida:** Adicionar middleware de API key interna (`X-Service-Token`) ou restringir a super-admins/tenants autenticados com validação de ownership.
+- **Confiança:** 90%
+
+### Médio
+
+**3. Falhas silenciosas em `ReconcileFailedUsageJob`**
+- **Arquivo:** `api/src/Domain/Billing/Jobs/ReconcileFailedUsageJob.php`
+- **Linha:** 37-39
+- **Evidência:** `catch (\Throwable)` sem logar o erro.
+- **Impacto:** Falhas de reconciliação passam despercebidas. Logs perdidos dificultam debugging e monitoramento.
+- **Correção sugerida:** Adicionar `Log::warning('[ReconcileFailedUsageJob] Reconciliation failed', [...])` dentro do catch.
+- **Confiança:** 85%
+
+**4. Race condition em `CheckUsageThresholdsJob`**
+- **Arquivo:** `api/src/Domain/Billing/Jobs/CheckUsageThresholdsJob.php`
+- **Linha:** 35-38
+- **Evidência:** O job lê `TenantMessageUsage` sem `lockForUpdate()`, enquanto `UsageCounterService::checkAndIncrement()` usa `lockForUpdate()` na mesma tabela.
+- **Impacto:** Job pode ler valor desatualado do `message_count` e enviar alerta incorreto (ex: alerta de 80% quando já passou de 100%).
+- **Correção sugerida:** Adicionar `->lockForUpdate()` na query do job.
+- **Confiança:** 80%
+
+**5. Anchor day hardcoded no dispatch do job**
+- **Arquivo:** `api/src/Domain/Billing/Http/Controllers/BillingUsageController.php`
+- **Linha:** 45
+- **Evidência:** `$cycle = $this->cycleCalculator->calculate(1, $now);` — o anchorDay está hardcoded como 1, ignorando `billing_cycle_anchor_day` do tenant.
+- **Impacto:** Se o tenant tiver anchor day diferente de 1, o job `CheckUsageThresholdsJob` recebe cycle_start incorreto e pode não encontrar o registro de uso.
+- **Correção sugerida:** Carregar o tenant e usar `$tenant->billing_cycle_anchor_day ?? 1`.
+- **Confiança:** 90%
+
+**6. Rector violations em testes (gate:refactor falhou)**
+- **Arquivo:** `api/tests/Feature/Domain/Billing/Scenarios/CycleResetScenarioTest.php:47` e `MidCyclePlanChangeScenarioTest.php:51`
+- **Evidência:** Gate `composer gate:all` falhou no passo `refactor` com regra `EloquentMagicMethodToQueryBuilderRector`.
+- **Impacto:** CI/CD bloqueado se gate:all for exigido. Não é bug funcional, mas viola regras do projeto.
+- **Correção sugerida:** Substituir `TenantMessageUsage::create([...])` por `TenantMessageUsage::query()->create([...])` nos 2 arquivos.
+- **Confiança:** 100%
+
+### Baixo
+
+**7. `CalculateAiOverageAction` retorna dados hardcoded obsoletos**
+- **Arquivo:** `api/src/Domain/Billing/Actions/CalculateAiOverageAction.php`
+- **Linha:** 33-43
+- **Evidência:** O método retorna valores nulos/falsos hardcoded após remover a lógica de token-based overage, mas ainda é consumido por `BillingGenerateMonthlyInvoicesCommand`.
+- **Impacto:** Comando legado que gera faturas pode reportar dados incorretos de overage de tokens (zero). O overage real agora é tratado por `CloseExpiredCyclesJob`.
+- **Correção sugerida:** Adicionar comentário de deprecação ou refatorar o command para não depender mais deste Action.
+- **Confiança:** 75%
+
+**8. Models de billing sem `BelongsToTenant`**
+- **Arquivo:** `api/src/Domain/Billing/Models/TenantMessageUsage.php` e `AiMessageUsageFailedLog.php`
+- **Evidência:** Nenhum dos models usa o trait `BelongsToTenant`.
+- **Impacto:** Baixo — essas tabelas são de controle de billing e já filtram por `tenant_id` nas queries. Mas inconsistente com padrão do projeto.
+- **Correção sugerida:** Documentar decisão no código ou adicionar o trait se aplicável.
+- **Confiança:** 70%
+
+**9. Timeout de billing usando config de auth**
+- **Arquivo:** `gateway/src/domains/billing/services/billing-usage-client.service.ts`
+- **Linha:** 43
+- **Evidência:** `this.timeoutMs = this.configService.get<number>('api.authTimeoutMs') ?? 1500;`
+- **Impacto:** Baixo — timeout correto, mas nome da config é confuso. Deveria ser `api.billingTimeoutMs`.
+- **Correção sugerida:** Adicionar config específica no `configuration.ts`.
+- **Confiança:** 80%
+
+---
+
+## Gates
 
 ### API
+```bash
+cd api && /opt/homebrew/bin/composer gate:all
 ```
-✅ Gate 1/4: Lint OK
-✅ Gate 2/4: Types OK
-✅ Gate 3/4: Testes OK (2923 passed, 9664 assertions, 1 skipped)
-✅ Gate 4/4: Refatoração OK (Rector OK)
-Tempo: ~234s
-```
+- **Resultado:** 2930 passed, 1 skipped
+- **Problema:** Gate `refactor` falhou — Rector sugere mudanças em 2 arquivos de teste
+- **Risco:** CI/CD bloqueado até correção do estilo
 
-### APP
+### Gateway
+```bash
+cd gateway && pnpm test
 ```
-✅ Build OK (15.422s, bundle 2.30MB)
-⚠️  Testes: 1195/1197 passaram
-   - 2 falhas em webchat-page.component.spec.ts (NÃO relacionado à feature)
-   - Todos os testes da feature billing passam
-```
+- **Resultado:** 1366 passed, 32 failed
+- **Observação:** 32 falhas são e2e pré-existentes (falta `WEBCHAT_JWT_SECRET` env var)
+- **Nossos testes:** 17/17 passaram (BillingUsageClient + BillingUsageMetrics)
 
-### Gateway (atualizado 2026-05-24)
+### App
+```bash
+cd app && pnpm test
 ```
-✅ Build OK
-✅ Testes específicos: 11/11 passaram
-   - BillingUsageClient: 6/6
-   - RunCompletionService: 5/5
-✅ API FailOpen Endpoint: 4/4 passaram
-⚠️  Suite completa gateway: 119 suites passaram (1366 testes)
-   - 6 suites falharam (32 testes) — todos e2e por variáveis de ambiente ausentes
-   - Nenhuma falha relacionada à feature billing
-```
-
-### Verificação de Dependências
-```
-✅ Gateway não importa pg/postgres/knex/typeorm/prisma
-✅ Gateway não tem migrations
-✅ API tem 7 migrations (5 da feature + 2 fixes FK)
-```
+- **Resultado:** 1195 passed, 2 failed
+- **Observação:** 2 falhas pré-existentes em `webchat-page.component.spec.ts`
+- **Nossos testes:** 100% passaram (plan-card, usage-stats, my-plan, billing-prefs-modal)
 
 ---
 
-## Descobertas e Decisões
+## Second Pass
 
-1. **Falhas pré-existentes no APP:** Testes do `WebChatPageComponent` falham (2 testes de session restoration) independentemente das alterações da feature. Não impedem merge.
+Áreas verificadas e consideradas limpas:
 
-2. **Gateway implementado:** Todo o enforcement de quota está funcional. Cenários manuais end-to-end agora podem ser validados.
-
-3. **Backend e gateway integrados:** Endpoints (`check-and-increment`, `subscription/me`, `billing-prefs`, `fail-open-log`) todos testados e funcionando.
-
-4. **Frontend pronto:** Toda a UI de billing implementada e testada. Integrada com backend via subscription endpoint.
-
-5. **Decisões técnicas do gateway:**
-   - Retry exponencial manual (200ms→1s→5s) sem bibliotecas externas
-   - Fail-open seguro: retorna `allowed=true` em falha total para não bloquear clientes por erro de infra
-   - `BillingUsageMetrics` como classe separada extendendo o registry do `MetricsService`
-   - Handoff em quota exceeded via `transfer_to_human` tool call com flag `blocked_by_quota`
-   - `aiTurnId` gerado via `crypto.randomUUID()` e propagado pelo pipeline
+- **Migrations:** Todas usam `if (!Schema::hasColumn(...))` guards, rollback/down implementado, índices adequados, foreign keys com `cascadeOnDelete`.
+- **Models:** `TenantMessageUsage` e `AiMessageUsageFailedLog` usam UUIDs com `Str::orderedUuid()`, `$fillable` explícito, casts corretos.
+- **BillingCycleCalculator:** Lógica correta, capping em 28 para evitar problemas de fevereiro, testes unitários cobrem edge cases (year boundary, anchor day itself).
+- **UsageCounterService:** Usa `DB::transaction` + `lockForUpdate()`, idempotência via `firstOrCreate`, idempotência para turnos já reconciliados.
+- **Gateway fail-open:** Retry exponencial implementado (200ms → 1s → 5s), fallback `allowed=true` com log de falha, métricas Prometheus.
+- **Frontend:** Componentes seguem padrão OnPush, signals, tratamento de erro, testes com mocks.
+- **Multi-tenancy em queries:** `TenantMessageUsage::where('tenant_id', ...)` presente em todos os pontos de acesso.
+- **Emails:** Templates `usage-alert-80.blade.php` e `usage-alert-100.blade.php` verificados — estrutura básica OK.
+- **Console routes:** Jobs schedulados em `api/routes/console.php` (CloseExpiredCyclesJob diário, ReconcileFailedUsageJob a cada 6h).
 
 ---
 
-## Próximos Passos
+## Perguntas
 
-1. **Executar Fase 5 (Integration):**
-   - `TASK-5.2.2`: Gate gateway completo
-   - `TASK-5.1.1`: Cenário 1 — Limite stop
-   - `TASK-5.1.2`: Cenário 2 — Reset aniversário
-   - `TASK-5.1.3`: Cenário 3 — Troca plano mid-cycle
-   - `TASK-5.2.5`: Code review final com `code-review-confiavel`
+1. **O endpoint `check-and-increment` deveria ser acessível apenas pelo Gateway (serviço interno) ou também por usuários autenticados?** Se for interno, devemos trocar `auth:sanctum` para `InternalApiKeyGuard`.
+2. **Qual o comportamento esperado quando `billing_cycle_anchor_day` é null?** O código assume `?? 1` — isso está documentado?
+3. **O `CalculateAiOverageAction` ainda é necessário?** Se o overage agora é tratado por ciclo (mensagem), a Action legada pode ser removida ou marcada como `@deprecated`.
 
-2. **Comando para próxima ação:**
-   ```
-   /prevec-execute-task message-based-billing TASK-5.2.2
-   ```
+---
+
+## Resumo
+
+A feature está **funcionalmente sólida** com boa cobertura de testes (cenários, unidade, feature) e implementa corretamente o padrão de fail-open no gateway. Os principais riscos são:
+
+1. **Segurança (Crítico):** Bypass de tenant isolation no endpoint `check-and-increment`
+2. **Correção (Alto):** Autorização inadequada no mesmo endpoint
+3. **Robustez (Médio):** Race condition no threshold job, falhas silenciosas na reconciliação, anchor day hardcoded
+
+**Recomendação:** Não aprovar para merge até corrigir os achados Crítico e Alto. Os achados Médio podem ser tratados em follow-up se o time aceitar o risco.
+
+**Próximo comando sugerido:**
+```bash
+# Corrigir o bypass de tenant isolation no BillingUsageController:
+cd api && code src/Domain/Billing/Http/Controllers/BillingUsageController.php
+```

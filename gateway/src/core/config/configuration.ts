@@ -181,6 +181,7 @@ export const apiConfig = registerAs(
   (): ApiConfiguration => ({
     url: process.env.API_URL ?? 'http://localhost:8000',
     authTimeoutMs: parseInt(process.env.API_AUTH_TIMEOUT_MS ?? '1500', 10),
+    s2sToken: process.env.API_S2S_TOKEN ?? '',
   }),
 );
 

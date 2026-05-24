@@ -8,6 +8,7 @@ use Database\Factories\PlatformTenantFactory;
 use Domain\Ai\Models\AiPromptSegment;
 use Domain\Ai\Models\AiPromptTenant;
 use Domain\Billing\Enums\BillingTenantStatus;
+use Domain\Billing\Enums\OverageMode;
 use Domain\Billing\Models\BillingCollectionLog;
 use Domain\Billing\Models\BillingPurgeReport;
 use Domain\Chat\Models\ChatInstance;
@@ -42,6 +43,8 @@ use Illuminate\Support\Str;
  * @property int $media_transcription_audio_max_minutes
  * @property int $media_transcription_image_max_per_message
  * @property int $media_transcription_video_max_seconds
+ * @property string|null $overage_mode_override
+ * @property int|null $billing_cycle_anchor_day
  * @property-read AiPromptSegment|null $segment
  * @property-read AiPromptTenant|null $aiPrompt
  * @property-read PlatformPlan|null $plan
@@ -99,6 +102,8 @@ final class PlatformTenant extends Model
         'settings_localization',
         'settings_privacy',
         'settings_chat',
+        'overage_mode_override',
+        'billing_cycle_anchor_day',
     ];
 
     /**
@@ -121,6 +126,8 @@ final class PlatformTenant extends Model
         'settings_localization' => 'array',
         'settings_privacy' => 'array',
         'settings_chat' => 'array',
+        'overage_mode_override' => 'string',
+        'billing_cycle_anchor_day' => 'integer',
     ];
 
     protected static function booted(): void
@@ -226,6 +233,23 @@ final class PlatformTenant extends Model
     public function isPendingPurge(): bool
     {
         return $this->billing_status === BillingTenantStatus::PENDING_PURGE;
+    }
+
+    /**
+     * Retorna o modo de excedente efetivo: override do tenant ou modo do plano, default STOP.
+     */
+    public function effectiveOverageMode(): OverageMode
+    {
+        if ($this->overage_mode_override !== null && $this->overage_mode_override !== '') {
+            return OverageMode::from($this->overage_mode_override);
+        }
+
+        $plan = $this->plan;
+        if ($plan !== null) {
+            return $plan->overage_mode;
+        }
+
+        return OverageMode::STOP;
     }
 
     /**

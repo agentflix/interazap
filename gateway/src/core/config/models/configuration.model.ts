@@ -81,6 +81,7 @@ export interface InternalConfiguration {
 export interface ApiConfiguration {
   url: string;
   authTimeoutMs: number;
+  s2sToken: string;
 }
 
 /** Configurações de runtime do domínio de IA. */

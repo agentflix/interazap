@@ -5,7 +5,9 @@ declare(strict_types=1);
 use Domain\Billing\Http\Controllers\BillingAdminDelinquencyController;
 use Domain\Billing\Http\Controllers\BillingInvoiceController;
 use Domain\Billing\Http\Controllers\BillingInvoiceReceiptController;
+use Domain\Billing\Http\Controllers\BillingPrefsController;
 use Domain\Billing\Http\Controllers\BillingSubscriptionController;
+use Domain\Billing\Http\Controllers\BillingUsageController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'billing.delinquency'])
@@ -31,4 +33,16 @@ Route::middleware(['auth:sanctum'])
     ->group(function (): void {
         Route::get('/', [BillingAdminDelinquencyController::class, 'index']);
         Route::post('/{tenantId}/unlock', [BillingAdminDelinquencyController::class, 'unlock']);
+    });
+
+Route::middleware(['internal.api.key'])
+    ->prefix('billing/usage')
+    ->group(function (): void {
+        Route::post('/check-and-increment', [BillingUsageController::class, 'check']);
+        Route::post('/fail-open-log', [BillingUsageController::class, 'logFailure']);
+    });
+
+Route::middleware(['auth:sanctum'])
+    ->group(function (): void {
+        Route::patch('/tenants/me/billing-prefs', [BillingPrefsController::class, 'update']);
     });

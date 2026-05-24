@@ -8,6 +8,7 @@
 import { Module } from '@nestjs/common';
 import { RedisModule } from '../../infrastructure/redis/redis.module';
 import { MetricsModule } from '../../metrics/metrics.module';
+import { BillingClientsModule } from '../billing/billing-clients.module';
 
 // Controllers
 import { AIController } from './controllers/ai.controller';
@@ -46,6 +47,7 @@ const AI_TOOL_STRATEGIES = 'AI_TOOL_STRATEGIES';
     GeminiProviderModule,
     MiniMaxProviderModule,
     MetricsModule,
+    BillingClientsModule,
   ],
   controllers: [AIController],
   providers: [

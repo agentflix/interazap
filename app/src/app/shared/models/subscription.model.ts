@@ -14,6 +14,9 @@ export interface SubscriptionPlan {
   ai_enabled: boolean;
   negotiations_mode: 'LIMITED' | 'UNLIMITED';
   negotiations_limit: number | null;
+  message_limit_monthly: number | null;
+  overage_mode: 'stop' | 'overage';
+  overage_price_per_message: number | null;
   is_current?: boolean;
   features?: SubscriptionPlanFeature[];
 }
@@ -49,6 +52,21 @@ export interface SubscriptionStorageUsage {
 }
 
 /**
+ * Uso de mensagens IA no ciclo de cobrança atual.
+ */
+export interface SubscriptionAiMessagesUsage {
+  current: number;
+  limit: number | null;
+  percentage: number;
+  overage_count: number;
+  mode: 'stop' | 'overage';
+  overage_price: number | null;
+  cycle_start: string;
+  cycle_end: string;
+  cycle_label: string;
+}
+
+/**
  * Estrutura de uso retornada pela API de assinatura.
  */
 export interface SubscriptionUsage {
@@ -57,6 +75,7 @@ export interface SubscriptionUsage {
   storage: SubscriptionStorageUsage;
   negotiations: SubscriptionUsageItem & { mode: 'LIMITED' | 'UNLIMITED' };
   ai: { enabled: boolean };
+  ai_messages: SubscriptionAiMessagesUsage;
 }
 
 /**

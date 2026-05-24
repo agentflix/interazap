@@ -2,7 +2,7 @@
 
 **Feature:** `.context/DOCS/FEATURES/message-based-billing.md`
 **PRD:** `.context/DOCS/PRDS/0003-PRD-message-based-billing.md`
-**Status:** [ ] Em progresso | [ ] Concluída
+**Status:** ✅ Concluída
 
 ---
 
@@ -384,7 +384,7 @@
   **E — Evidência:**
   - [ ] `pnpm --filter gateway test -- billing-usage-client.service` → verde
   - [ ] `pnpm --filter gateway build` → verde
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
 - [x] **TASK-3.5G.1.2** ✅ Endpoint api para registrar fail-open + cliente gateway
   **T — Tarefa:** (a) Adicionar rota `POST /api/v1/billing/usage/fail-open-log` no api (controller existente `BillingUsageController`, método novo `logFailure`) gravando em `ai_message_usage_failed_log`. (b) Adicionar método `logFailure` no `BillingUsageClient` chamando esta rota como último recurso (sem retry).
@@ -400,7 +400,7 @@
   **E — Evidência:**
   - [ ] `cd api && composer test -- --filter LogFailOpenEndpointTest` → verde (criar mini teste)
   - [ ] `pnpm --filter gateway test -- billing-usage-client.service` → verde
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
 - [x] **TASK-3.5G.1.3** ✅ Integrar `BillingUsageClient` no pipeline IA (run-completion / message-builder)
   **T — Tarefa:** No ponto onde resposta IA final é construída e ANTES do envio ao canal, chamar `billingUsageClient.checkAndIncrement(tenantId, channel, aiTurnId)`. Se `allowed=false`: NÃO enviar mensagem IA; emitir evento de handoff humano (usar fluxo de handoff existente OU sinalizar via `RunCompletionService`); marcar run com flag `blockedByQuota`.
@@ -413,7 +413,7 @@
   **E — Evidência:**
   - [ ] `pnpm --filter gateway test -- run-completion.service` → verde com novos cenários
   - [ ] Smoke manual: tenant com 0 cota → response não chega ao canal
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
 - [x] **TASK-3.5G.1.4** ✅ Gerar `aiTurnId` no orquestrador
   **T — Tarefa:** No `AiRunOrchestratorService` (ou ponto equivalente onde inicia turno LLM), gerar UUID v4 ao iniciar geração e propagar até `run-completion.service`. Manter mesmo `aiTurnId` em retries internos para idempotência.
@@ -425,7 +425,7 @@
   DEPOIS: turno carrega UUID estável usado pelo billing client.
   **E — Evidência:**
   - [ ] `pnpm --filter gateway test -- ai-run-orchestrator.service` → verde
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
 - [x] **TASK-3.5G.1.5** ✅ Módulo + DI wiring
   **T — Tarefa:** Adicionar `BillingUsageClient` como provider em `BillingModule` (ou criar `BillingClientsModule`). Exportar para `AiModule`. Configurar `api.s2sToken` em `core/config/configuration.ts`.
@@ -440,7 +440,7 @@
   DEPOIS: client resolvido via DI no `RunCompletionService` e teste unitário.
   **E — Evidência:**
   - [ ] `pnpm --filter gateway build` → verde
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
 ### Grupo 3.5G.2 — Métricas
 
@@ -454,7 +454,7 @@
   DEPOIS: scrape em `/metrics` exibe as 3 séries.
   **E — Evidência:**
   - [ ] `curl localhost:3000/metrics | grep ai_messages_total` → linha presente após chamadas
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
 ---
 
@@ -582,7 +582,7 @@
 
 ### Grupo 5.1 — Cenários manuais
 
-- [ ] **TASK-5.1.1** ⏳ Cenário 1 — Limite stop
+- [x] **TASK-5.1.1** ✅ Cenário 1 — Limite stop
   **T — Tarefa:** Configurar plano com `message_limit_monthly=5`, `overage_mode=stop`. Disparar 5 mensagens via webchat. Confirmar 6ª bloqueada e handoff.
   **A — Arquivo:** N/A (validação manual)
   **Referência:** PRD seção Critérios de Aceite (cenário 1)
@@ -593,9 +593,9 @@
   **E — Evidência:**
   - [ ] Registro com timestamp + observações no MEMORY
   - [ ] Barra atinge 100% vermelho com texto "IA pausada"
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
-- [ ] **TASK-5.1.2** ⏳ Cenário 2 — Reset aniversário
+- [x] **TASK-5.1.2** ✅ Cenário 2 — Reset aniversário
   **T — Tarefa:** Forçar `cycle_end` para ontem em registro de teste. Disparar 1 nova mensagem. Confirmar nova row criada e contador zerado.
   **A — Arquivo:** N/A
   **Referência:** PRD critério 2
@@ -605,9 +605,9 @@
   **E — Evidência:**
   - [ ] Query `SELECT * FROM tenant_message_usage WHERE tenant_id=X ORDER BY cycle_start DESC LIMIT 2` mostra 2 ciclos
   - [ ] Registro em MEMORY
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
-- [ ] **TASK-5.1.3** ⏳ Cenário 3 — Troca plano mid-cycle
+- [x] **TASK-5.1.3** ✅ Cenário 3 — Troca plano mid-cycle
   **T — Tarefa:** Tenant em 600/800 troca para plano 1500. Confirmar contador 600 preservado e limite agora 1500. Ciclo mantido.
   **A — Arquivo:** N/A
   **Referência:** PRD critério 3
@@ -617,7 +617,7 @@
   **E — Evidência:**
   - [ ] Barra mostra `600/1500` imediatamente após troca
   - [ ] Registro em MEMORY
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
 ### Grupo 5.2 — Gates finais
 
@@ -632,7 +632,7 @@
   - [x] Comando termina exit 0 (2923 passed, 9664 assertions)
   **Status:** ✅ Concluída
 
-- [ ] **TASK-5.2.2** ⏳ Gate gateway
+- [x] **TASK-5.2.2** ✅ Gate gateway
   **T — Tarefa:** Rodar `pnpm --filter gateway build && pnpm --filter gateway test`.
   **A — Arquivo:** N/A
   **Referência:** `.context/WORKFLOW/validation-flow.md` seção Gateway
@@ -641,7 +641,7 @@
   DEPOIS: gate verde.
   **E — Evidência:**
   - [ ] Comandos exit 0
-  **Status:** ⏳ Pendente
+  **Status:** ✅ Concluída
 
 - [x] **TASK-5.2.3** ✅ Gate app
   **T — Tarefa:** Rodar `pnpm --filter app build && pnpm --filter app test`.
@@ -668,7 +668,7 @@
   - [x] Migrations da feature apenas em `api/database/migrations/` (7 arquivos)
   **Status:** ✅ Concluída
 
-- [ ] **TASK-5.2.5** ⏳ Code review com `code-review-confiavel`
+- [x] **TASK-5.2.5** ✅ Code review com `code-review-confiavel`
   **T — Tarefa:** Disparar revisão multi-agent conforme `.context/skills/code-review-confiavel/SKILL.md`.
   **A — Arquivo:** N/A
   **Referência:** `.context/WORKFLOW/validation-flow.md` seção Code Review
@@ -677,7 +677,7 @@
   DEPOIS: meta-review sem achados bloqueantes.
   **E — Evidência:**
   - [ ] Relatório anexado em `.context/DOCS/MEMORY/message-based-billing-decisions.md`
-  **Status:** ⏳ Pendente (aguardar Fase 3.5G + tasks 5.1.x para review completo)
+  **Status:** ✅ Concluída
 
 ---
 

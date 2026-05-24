@@ -40,4 +40,8 @@ export class PlanCardComponent {
 
     return this.currencyFormatter.format(normalized);
   }
+
+  protected formatNumber(value: number): string {
+    return new Intl.NumberFormat('pt-BR').format(value);
+  }
 }

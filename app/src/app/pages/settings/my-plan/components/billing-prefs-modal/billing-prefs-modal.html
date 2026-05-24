@@ -1,0 +1,70 @@
+
+    <af-modal
+      [open]="open()"
+      title="Preferências de cobrança de IA"
+      size="md"
+      (closed)="closed.emit()"
+      [closeOnBackdrop]="!loading()"
+    >
+      <div modal-body class="space-y-4">
+        <p class="text-sm text-neutral-700 dark:text-neutral-300">
+          Ao atingir o limite de mensagens do plano:
+        </p>
+
+        <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+          <input
+            type="radio"
+            name="overage_mode"
+            [checked]="selectedMode() === 'stop'"
+            (change)="selectedMode.set('stop')"
+            class="mt-0.5 accent-primary-500"
+          />
+          <div>
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+              Pausar IA automaticamente
+            </p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">
+              O atendimento é transferido ao humano. Sem cobranças extras.
+            </p>
+          </div>
+        </label>
+
+        <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+          <input
+            type="radio"
+            name="overage_mode"
+            [checked]="selectedMode() === 'overage'"
+            (change)="selectedMode.set('overage')"
+            class="mt-0.5 accent-primary-500"
+          />
+          <div>
+            <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+              Continuar e cobrar mensagens excedentes
+            </p>
+            @if (plan()?.overage_price_per_message !== null) {
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                {{ formatCurrencyBRL(plan()?.overage_price_per_message) }} por mensagem adicional.
+                Cobrado na próxima fatura.
+              </p>
+            } @else {
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                Cobrado na próxima fatura.
+              </p>
+            }
+          </div>
+        </label>
+
+        @if (errorMessage()) {
+          <p class="text-sm text-error">{{ errorMessage() }}</p>
+        }
+      </div>
+
+      <div modal-footer class="flex items-center justify-end gap-2">
+        <af-button variant="outline" [disabled]="loading()" (click)="closed.emit()">
+          Cancelar
+        </af-button>
+        <af-loading-button [loading]="loading()" (clicked)="save()" loadingText="Salvando...">
+          Salvar
+        </af-loading-button>
+      </div>
+    </af-modal>

@@ -16,6 +16,7 @@ import { PlanCardComponent } from './components/plan-card/plan-card';
 import { UsageStatsComponent } from './components/usage-stats/usage-stats';
 import { UpgradeModalComponent } from './components/upgrade-modal/upgrade-modal';
 import { DowngradeModalComponent } from './components/downgrade-modal/downgrade-modal';
+import { BillingPrefsModalComponent } from './components/billing-prefs-modal/billing-prefs-modal';
 import {
   type PlanChangePreview,
   type SubscriptionPlan,
@@ -36,6 +37,7 @@ import {
     UsageStatsComponent,
     UpgradeModalComponent,
     DowngradeModalComponent,
+    BillingPrefsModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './my-plan.html',
@@ -69,6 +71,7 @@ export class MyPlanPage {
   readonly selectedPlan = signal<SubscriptionPlan | null>(null);
   readonly preview = signal<PlanChangePreview | null>(null);
   readonly modalOpen = signal(false);
+  readonly billingPrefsOpen = signal(false);
 
   readonly isEmpty = computed(
     () => !this.loading() && this.error() === null && this.subscription() === null,
@@ -126,6 +129,15 @@ export class MyPlanPage {
           this.closeModal();
         },
       });
+  }
+
+  protected openBillingPrefs(): void {
+    this.billingPrefsOpen.set(true);
+  }
+
+  protected onBillingPrefsSaved(): void {
+    this.billingPrefsOpen.set(false);
+    this.load();
   }
 
   /**

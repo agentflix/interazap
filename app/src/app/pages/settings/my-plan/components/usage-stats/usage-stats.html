@@ -49,6 +49,41 @@
           </div>
         </div>
 
+        @if (usage().ai_messages; as aiMsg) {
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-neutral-700 dark:text-neutral-300">
+                Mensagens IA
+                <span class="ml-1 text-xs text-neutral-400 dark:text-neutral-500"
+                  >({{ aiMsg.cycle_label }})</span
+                >
+              </span>
+              <span class="text-neutral-500 dark:text-neutral-400">
+                {{ aiMsg.current }}/{{ aiMsg.limit ?? '∞' }}
+                @if (aiMsg.overage_count > 0) {
+                  <span class="text-warning ml-1">(+{{ aiMsg.overage_count }} extras)</span>
+                }
+              </span>
+            </div>
+            <div class="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+              <div
+                class="h-full transition-all"
+                [class]="aiMsgBarColor()"
+                [style.width.%]="aiMsgBarWidth()"
+              ></div>
+            </div>
+            @if (aiMsg.percentage >= 100 && aiMsg.mode === 'stop') {
+              <p class="mt-1 text-xs text-error">
+                IA pausada — reseta em {{ formatDateShort(aiMsg.cycle_end) }}
+              </p>
+            } @else if (aiMsg.percentage >= 100 && aiMsg.mode === 'overage') {
+              <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+                Cobrando extras a {{ formatCurrencyBRL(aiMsg.overage_price) }}/msg
+              </p>
+            }
+          </div>
+        }
+
         <div class="flex items-center justify-between text-neutral-700 dark:text-neutral-300">
           <span>Negociações</span>
           <span>

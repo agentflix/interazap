@@ -1,5 +1,7 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
+import { BillingUsageClient } from '../../billing/services/billing-usage-client.service';
 import { OpenAIProviderAdapter } from '../providers/openai/openai-provider.adapter';
 import { PromptAssemblerService } from './prompt-assembler.service';
 import { ContextWindowService } from './context-window.service';
@@ -46,6 +48,7 @@ export class AiRunOrchestratorService {
     private readonly aiMetrics: AiMetricsService,
     @Optional() private readonly configService: ConfigService,
     private readonly cancellationRegistry: AiCancellationRegistry,
+    @Optional() private readonly billingUsageClient?: BillingUsageClient,
   ) {
     const configured = this.configService?.get<string | number>(
       'AI_MAX_TOOL_HISTORY_MESSAGES',
@@ -64,6 +67,7 @@ export class AiRunOrchestratorService {
       this.guardrail,
       this.toolExecutor,
       this.logger,
+      this.billingUsageClient,
     );
   }
 
@@ -79,6 +83,7 @@ export class AiRunOrchestratorService {
     const correlationId = request.correlationId;
     const agentId = request.agentId ?? 'default';
     const runId = request.runId || correlationId;
+    const aiTurnId = randomUUID();
     const maxTokens = this.resolvePositiveInteger(
       request.maxTokens,
       AiRunOrchestratorService.DEFAULT_MAX_TOKENS,
@@ -424,6 +429,7 @@ export class AiRunOrchestratorService {
         agentRole: request.agentRole,
         delegationDepth: request.delegationDepth,
         delegationStack: request.delegationStack,
+        aiTurnId,
       },
       toolCalls,
       completion.finishReason,
@@ -463,6 +469,7 @@ export class AiRunOrchestratorService {
 
     return {
       run_id: runId,
+      ai_turn_id: aiTurnId,
       tenant_id: request.tenantId,
       ticket_id: request.ticketId,
       agent_id: request.agentId,

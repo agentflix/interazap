@@ -9,12 +9,8 @@ use Domain\Billing\Models\BillingInvoice;
 use Domain\Platform\Models\PlatformPlan;
 use Domain\Platform\Models\PlatformTenant;
 
-it('calcula overage de IA para tokens acima do limite mensal', function (): void {
-    $plan = PlatformPlan::factory()->create([
-        'token_limit_monthly' => 100000,
-        'allow_overage' => true,
-        'overage_price_per_1k' => 2.00,
-    ]);
+it('calcula overage de tokens retorna zero (bilhetagem migrada para mensagens)', function (): void {
+    $plan = PlatformPlan::factory()->create();
     $tenant = PlatformTenant::factory()->create(['plan_id' => $plan->id]);
 
     AiUsageLog::factory()->create([
@@ -27,28 +23,16 @@ it('calcula overage de IA para tokens acima do limite mensal', function (): void
     $result = app(CalculateAiOverageAction::class)->execute((string) $tenant->id, '2026-04');
 
     expect($result['total_tokens'])->toBe(150000)
-        ->and($result['overage_tokens'])->toBe(50000)
-        ->and($result['overage_amount'])->toBe(100.0)
-        ->and($result['overage_applied'])->toBeTrue();
+        ->and($result['overage_tokens'])->toBe(0)
+        ->and($result['overage_amount'])->toBe(0.0)
+        ->and($result['overage_applied'])->toBeFalse();
 });
 
-it('gera fatura com mensalidade e overage', function (): void {
+it('gera fatura com mensalidade sem overage de tokens (bilhetagem migrada para mensagens)', function (): void {
     \Illuminate\Support\Facades\Date::setTestNow('2026-05-01 06:00:00');
 
-    $plan = PlatformPlan::factory()->create([
-        'price_monthly' => 297.00,
-        'token_limit_monthly' => 100000,
-        'allow_overage' => true,
-        'overage_price_per_1k' => 2.00,
-    ]);
+    $plan = PlatformPlan::factory()->create(['price_monthly' => 297.00]);
     $tenant = PlatformTenant::factory()->create(['plan_id' => $plan->id]);
-
-    AiUsageLog::factory()->create([
-        'tenant_id' => $tenant->id,
-        'input_tokens' => 120000,
-        'output_tokens' => 30000,
-        'created_at' => '2026-04-20 12:00:00',
-    ]);
 
     $this->artisan('billing:generate-monthly-invoices', ['reference_month' => '2026-04'])
         ->assertSuccessful();
@@ -58,12 +42,12 @@ it('gera fatura com mensalidade e overage', function (): void {
         ->where('reference_month', '2026-04')
         ->firstOrFail();
 
-    expect((float) $invoice->amount)->toBe(397.0)
+    expect((float) $invoice->amount)->toBe(297.0)
         ->and($invoice->status)->toBe(BillingInvoiceStatus::DRAFT)
         ->and((float) $invoice->metadata['base_price'])->toBe(297.0)
-        ->and($invoice->metadata['overage_applied'])->toBeTrue()
-        ->and($invoice->metadata['overage_tokens'])->toBe(50000)
-        ->and((float) $invoice->metadata['overage_amount'])->toBe(100.0);
+        ->and($invoice->metadata['overage_applied'])->toBeFalse()
+        ->and($invoice->metadata['overage_tokens'])->toBe(0)
+        ->and((float) $invoice->metadata['overage_amount'])->toBe(0.0);
 
     \Illuminate\Support\Facades\Date::setTestNow();
 });
@@ -100,21 +84,9 @@ it('nao duplica fatura para o mesmo tenant e mes de referencia', function (): vo
         ->count())->toBe(1);
 });
 
-it('gera fatura sem overage quando nao ha excedente', function (): void {
-    $plan = PlatformPlan::factory()->create([
-        'price_monthly' => 97.00,
-        'token_limit_monthly' => 100000,
-        'allow_overage' => true,
-        'overage_price_per_1k' => 2.00,
-    ]);
+it('gera fatura sem overage de tokens', function (): void {
+    $plan = PlatformPlan::factory()->create(['price_monthly' => 97.00]);
     $tenant = PlatformTenant::factory()->create(['plan_id' => $plan->id]);
-
-    AiUsageLog::factory()->create([
-        'tenant_id' => $tenant->id,
-        'input_tokens' => 40000,
-        'output_tokens' => 10000,
-        'created_at' => '2026-04-20 12:00:00',
-    ]);
 
     $this->artisan('billing:generate-monthly-invoices', ['reference_month' => '2026-04'])
         ->assertSuccessful();

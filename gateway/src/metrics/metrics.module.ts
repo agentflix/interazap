@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { MetricsController } from './metrics.controller';
 import { MetricsService } from './metrics.service';
+import { BillingUsageMetrics } from './billing-usage.metrics';
 
 /**
  * MetricsModule
@@ -12,7 +13,7 @@ import { MetricsService } from './metrics.service';
 @Global()
 @Module({
   controllers: [MetricsController],
-  providers: [MetricsService],
-  exports: [MetricsService],
+  providers: [MetricsService, BillingUsageMetrics],
+  exports: [MetricsService, BillingUsageMetrics],
 })
 export class MetricsModule {}

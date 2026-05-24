@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import MyPlanPage from './my-plan';
 import { BillingSubscriptionService } from '@core/services/billing-subscription.service';
+import { BillingPrefsService } from '@core/services/billing-prefs.service';
 import { ToastService } from '@core/services/toast.service';
 import {
   type PlanChangePreview,
@@ -26,6 +27,9 @@ function buildSubscriptionResponse(): { data: SubscriptionSummary } {
         ai_enabled: true,
         negotiations_mode: 'UNLIMITED' as const,
         negotiations_limit: null,
+        message_limit_monthly: 800,
+        overage_mode: 'stop' as const,
+        overage_price_per_message: 0.05,
       },
       usage: {
         users: { current: 2, limit: 10, percentage: 20 },
@@ -41,6 +45,17 @@ function buildSubscriptionResponse(): { data: SubscriptionSummary } {
         },
         negotiations: { current: 5, limit: null, percentage: null, mode: 'UNLIMITED' as const },
         ai: { enabled: true },
+        ai_messages: {
+          current: 640,
+          limit: 800,
+          percentage: 80,
+          overage_count: 0,
+          mode: 'stop' as const,
+          overage_price: 0.05,
+          cycle_start: '2026-06-15',
+          cycle_end: '2026-07-14',
+          cycle_label: '15/jun – 14/jul',
+        },
       },
       next_invoice: {
         due_date: '2026-03-01',
@@ -66,6 +81,9 @@ function buildPlansResponse(): { data: SubscriptionPlan[] } {
         ai_enabled: true,
         negotiations_mode: 'UNLIMITED' as const,
         negotiations_limit: null,
+        message_limit_monthly: 800,
+        overage_mode: 'stop' as const,
+        overage_price_per_message: 0.05,
         is_current: true,
       },
       {
@@ -80,6 +98,9 @@ function buildPlansResponse(): { data: SubscriptionPlan[] } {
         ai_enabled: true,
         negotiations_mode: 'UNLIMITED' as const,
         negotiations_limit: null,
+        message_limit_monthly: 2000,
+        overage_mode: 'stop' as const,
+        overage_price_per_message: 0.05,
         is_current: false,
       },
     ],
@@ -151,6 +172,7 @@ describe('MyPlanPage', () => {
         provideRouter([]),
         { provide: BillingSubscriptionService, useValue: serviceMock },
         { provide: ToastService, useValue: toastMock },
+        { provide: BillingPrefsService, useValue: { updateOverageMode: vi.fn() } },
       ],
     }).compileComponents();
 

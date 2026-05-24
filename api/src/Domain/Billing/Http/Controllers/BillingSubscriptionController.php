@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace Domain\Billing\Http\Controllers;
 
+use Carbon\CarbonImmutable;
 use Domain\Auth\Models\AuthUser;
 use Domain\Billing\Actions\BillingChangePlanAction;
 use Domain\Billing\Actions\BillingPlanChangePreviewAction;
 use Domain\Billing\DTOs\BillingChangePlanDTO;
+use Domain\Billing\Enums\OverageMode;
 use Domain\Billing\Http\Requests\BillingChangePlanRequest;
 use Domain\Billing\Http\Requests\BillingPlanChangePreviewRequest;
 use Domain\Billing\Http\Resources\BillingPlanChangeResource;
 use Domain\Billing\Http\Resources\BillingPlanListResource;
 use Domain\Billing\Http\Resources\BillingSubscriptionResource;
 use Domain\Billing\Models\BillingInvoice;
+use Domain\Billing\Models\TenantMessageUsage;
+use Domain\Billing\Services\BillingCycleCalculator;
 use Domain\Chat\Models\ChatInstance;
 use Domain\CRM\Models\CRMNegotiation;
 use Domain\Platform\Models\PlatformPlan;
+use Domain\Platform\Models\PlatformTenant;
 use Domain\Platform\Services\PlatformPlanEnforcementService;
 use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
@@ -36,6 +41,7 @@ final class BillingSubscriptionController extends BaseController
         private readonly PlatformPlanEnforcementService $enforcementService,
         private readonly BillingPlanChangePreviewAction $previewAction,
         private readonly BillingChangePlanAction $changePlanAction,
+        private readonly BillingCycleCalculator $cycleCalculator,
     ) {}
 
     /**
@@ -50,6 +56,32 @@ final class BillingSubscriptionController extends BaseController
         $tenantId = $this->tenantId($request);
 
         $currentPlan = $this->enforcementService->getCurrentPlan($tenantId);
+
+        // Load tenant for billing cycle and overage data
+        $currentTenant = PlatformTenant::with('plan')->find($tenantId);
+
+        $anchorDay = $currentTenant?->billing_cycle_anchor_day ?? 1;
+        $now = CarbonImmutable::now();
+        $cycle = $this->cycleCalculator->calculate($anchorDay, $now);
+        $cycleStartStr = $cycle['cycle_start']->toDateString();
+        $cycleEndStr = $cycle['cycle_end']->toDateString();
+
+        $aiUsage = TenantMessageUsage::query()
+            ->where('tenant_id', $tenantId)
+            ->where('cycle_start', $cycleStartStr)
+            ->first();
+
+        $aiLimit = (int) ($currentPlan?->message_limit_monthly ?? 0);
+        $aiCurrent = $aiUsage ? (int) $aiUsage->message_count : 0;
+        $aiOverage = $aiUsage ? (int) $aiUsage->overage_count : 0;
+        $aiPct = $aiLimit > 0 ? min(round(($aiCurrent / $aiLimit) * 100, 1), 100) : 0;
+        $aiMode = ($currentTenant?->effectiveOverageMode() ?? OverageMode::STOP)->value;
+        $aiOveragePrice = $currentPlan?->overage_price_per_message;
+
+        $monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+        $startLabel = $cycle['cycle_start']->day.'/'.$monthNames[$cycle['cycle_start']->month - 1];
+        $endLabel = $cycle['cycle_end']->day.'/'.$monthNames[$cycle['cycle_end']->month - 1];
+        $cycleLabel = $startLabel.' – '.$endLabel;
 
         $usersCurrent = AuthUser::query()
             ->where('tenant_id', $tenantId)
@@ -124,6 +156,17 @@ final class BillingSubscriptionController extends BaseController
                     'limit' => $negotiationsLimit,
                     'mode' => $negotiationsMode,
                     'percentage' => $negotiationsLimit ? $this->percentage($negotiationsCurrent, (int) $negotiationsLimit) : null,
+                ],
+                'ai_messages' => [
+                    'current' => $aiCurrent,
+                    'limit' => $aiLimit,
+                    'percentage' => $aiPct,
+                    'overage_count' => $aiOverage,
+                    'mode' => $aiMode,
+                    'overage_price' => $aiOveragePrice ? (float) $aiOveragePrice : null,
+                    'cycle_start' => $cycleStartStr,
+                    'cycle_end' => $cycleEndStr,
+                    'cycle_label' => $cycleLabel,
                 ],
                 'ai' => [
                     'enabled' => $aiEnabled,

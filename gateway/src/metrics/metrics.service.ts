@@ -235,6 +235,15 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
+   * Exposes the internal Prometheus registry for extension by domain-specific metrics.
+   *
+   * @returns The local Registry instance.
+   */
+  getRegistry(): Registry {
+    return this.registry;
+  }
+
+  /**
    * Serializes all registered metrics to the Prometheus text format.
    *
    * @returns Prometheus-compatible metrics string.
