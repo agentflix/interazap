@@ -56,7 +56,7 @@ final class PlatformTenantUpdateRequest extends FormRequest
             'document' => ['nullable', 'string', 'max:32'],
             'is_active' => ['sometimes', 'boolean'],
             'segment_id' => ['nullable', 'uuid', 'exists:ai_prompt_segments,id'],
-            'plan_id' => ['nullable', 'uuid', 'exists:platform_plans,id'],
+            'plan_id' => ['required', 'uuid', 'exists:platform_plans,id'],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:255'],
             'street' => ['nullable', 'string', 'max:255'],
@@ -68,6 +68,16 @@ final class PlatformTenantUpdateRequest extends FormRequest
             'zip' => ['nullable', 'string', 'max:20'],
             'zip_code' => ['nullable', 'string', 'max:20'],
             'zipcode' => ['nullable', 'string', 'max:20'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'plan_id.required' => 'O plano é obrigatório.',
         ];
     }
 }

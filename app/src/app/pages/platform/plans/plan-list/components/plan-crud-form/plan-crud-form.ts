@@ -66,19 +66,25 @@ export class PlanCrudFormComponent {
     { label: 'Desabilitado', value: 'false' },
   ];
 
+  readonly overageModeOptions: AfSelectOption[] = [
+    { label: 'Pausar ao atingir limite', value: 'stop' },
+    { label: 'Cobrar mensagens excedentes', value: 'overage' },
+  ];
+
   readonly form = this.fb.group({
     name: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
     slug: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
     limit_users: this.fb.control<number | null>(1, [Validators.required, Validators.min(0)]),
+    chat_channels_limit: this.fb.control<number | null>(1, [Validators.required, Validators.min(0)]),
     storage_mode: this.fb.control<LimitMode>('LIMITED', {
       nonNullable: true,
       validators: [Validators.required],
     }),
     storage_limit_gb: this.fb.control<number | null>(5),
     ai_enabled: this.fb.control('false', { nonNullable: true, validators: [Validators.required] }),
-    token_limit_monthly: this.fb.control<number | null>(50000, [Validators.min(0)]),
-    allow_overage: this.fb.control(false, { nonNullable: true }),
-    overage_price_per_1k: this.fb.control<number | null>(null, [Validators.min(0)]),
+    message_limit_monthly: this.fb.control<number | null>(800, [Validators.required, Validators.min(0)]),
+    overage_mode: this.fb.control<'stop' | 'overage'>('stop', { nonNullable: true, validators: [Validators.required] }),
+    overage_price_per_message: this.fb.control<number | null>(null, [Validators.min(0)]),
     whatsapp_integrations_limit: this.fb.control<number | null>(1, [
       Validators.required,
       Validators.min(0),
@@ -103,13 +109,14 @@ export class PlanCrudFormComponent {
           name: item.name,
           slug: item.slug,
           limit_users: item.limit_users,
+          chat_channels_limit: item.chat_channels_limit,
           storage_mode: item.storage_mode,
           storage_limit_gb: item.storage_limit_gb ?? this.toGb(item.storage_limit_bytes),
           ai_enabled: item.ai_enabled ? 'true' : 'false',
-          token_limit_monthly: item.token_limit_monthly ?? null,
-          allow_overage: item.allow_overage,
-          overage_price_per_1k:
-            item.overage_price_per_1k !== null ? Number(item.overage_price_per_1k) : null,
+          message_limit_monthly: item.message_limit_monthly ?? 800,
+          overage_mode: item.overage_mode ?? 'stop',
+          overage_price_per_message:
+            item.overage_price_per_message !== null ? Number(item.overage_price_per_message) : null,
           whatsapp_integrations_limit: item.whatsapp_integrations_limit,
           negotiations_mode: item.negotiations_mode,
           negotiations_limit: item.negotiations_limit ?? 0,
@@ -148,11 +155,11 @@ export class PlanCrudFormComponent {
         else this.form.controls.negotiations_limit.disable({ emitEvent: false });
       });
 
-    this.form.controls.allow_overage.valueChanges
+    this.form.controls.overage_mode.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((enabled) => {
-        if (enabled) this.form.controls.overage_price_per_1k.enable({ emitEvent: false });
-        else this.form.controls.overage_price_per_1k.disable({ emitEvent: false });
+      .subscribe((mode) => {
+        if (mode === 'overage') this.form.controls.overage_price_per_message.enable({ emitEvent: false });
+        else this.form.controls.overage_price_per_message.disable({ emitEvent: false });
       });
   }
 
@@ -195,13 +202,14 @@ export class PlanCrudFormComponent {
       name: values.name.trim(),
       slug: values.slug.trim(),
       limit_users: Number(values.limit_users ?? 0),
+      chat_channels_limit: Number(values.chat_channels_limit ?? 0),
       storage_mode: values.storage_mode,
       storage_limit_bytes: storageLimitBytes,
       ai_enabled: values.ai_enabled === 'true',
-      token_limit_monthly: values.token_limit_monthly !== null ? Number(values.token_limit_monthly) : null,
-      allow_overage: Boolean(values.allow_overage),
-      overage_price_per_1k: values.allow_overage
-        ? Number(values.overage_price_per_1k ?? 0)
+      message_limit_monthly: Number(values.message_limit_monthly ?? 0),
+      overage_mode: values.overage_mode,
+      overage_price_per_message: values.overage_mode === 'overage'
+        ? Number(values.overage_price_per_message ?? 0)
         : null,
       whatsapp_integrations_limit: Number(values.whatsapp_integrations_limit ?? 0),
       negotiations_mode: values.negotiations_mode,
@@ -217,12 +225,13 @@ export class PlanCrudFormComponent {
       name: '',
       slug: '',
       limit_users: 1,
+      chat_channels_limit: 1,
       storage_mode: 'LIMITED',
       storage_limit_gb: 5,
       ai_enabled: 'false',
-      token_limit_monthly: 50000,
-      allow_overage: false,
-      overage_price_per_1k: null,
+      message_limit_monthly: 800,
+      overage_mode: 'stop',
+      overage_price_per_message: null,
       whatsapp_integrations_limit: 1,
       negotiations_mode: 'LIMITED',
       negotiations_limit: 100,

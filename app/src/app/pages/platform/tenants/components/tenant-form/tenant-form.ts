@@ -292,6 +292,7 @@ export class TenantFormComponent {
       zip: digitsOnly(formValue.zip_code) || undefined,
       zip_code: digitsOnly(formValue.zip_code) || undefined,
       segment_id: formValue.segment_id || undefined,
+      plan_id: formValue.plan_id || undefined,
       address:
         buildAddressLine({
           street: formValue.street,
@@ -300,7 +301,6 @@ export class TenantFormComponent {
           district: formValue.district,
         }) ?? undefined,
       is_active: formValue.is_active,
-      ...(editing ? {} : { plan_id: formValue.plan_id || undefined }),
     };
 
     this.isSaving.set(true);

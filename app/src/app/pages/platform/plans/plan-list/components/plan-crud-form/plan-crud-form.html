@@ -44,6 +44,12 @@
                 [spacing]="false"
               />
               <af-text-input
+                label="Limite de canais de chat"
+                type="number"
+                [control]="form.controls.chat_channels_limit"
+                [spacing]="false"
+              />
+              <af-text-input
                 label="Integrações WhatsApp"
                 type="number"
                 [control]="form.controls.whatsapp_integrations_limit"
@@ -98,20 +104,21 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <af-text-input
-                label="Tokens mensais"
+                label="Mensagens mensais"
                 type="number"
-                [control]="form.controls.token_limit_monthly"
+                [control]="form.controls.message_limit_monthly"
                 [spacing]="false"
               />
-              <af-switch-input
-                label="Permitir excedente"
-                [control]="form.controls.allow_overage"
-                classContainer="pt-6"
+              <af-select-input
+                label="Modo excedente"
+                [control]="form.controls.overage_mode"
+                [options]="overageModeOptions"
+                [spacing]="false"
               />
-              @if (form.controls.allow_overage.value) {
+              @if (form.controls.overage_mode.value === 'overage') {
                 <af-currency-input
-                  label="Preço por 1k tokens"
-                  [control]="form.controls.overage_price_per_1k"
+                  label="Preço por mensagem excedente"
+                  [control]="form.controls.overage_price_per_message"
                   [spacing]="false"
                 />
               }

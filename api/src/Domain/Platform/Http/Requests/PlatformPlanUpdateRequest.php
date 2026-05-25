@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Domain\Platform\Http\Requests;
 
+use Domain\Billing\Enums\OverageMode;
 use Domain\Platform\Enums\PlatformNegotiationsMode;
 use Domain\Platform\Enums\PlatformStorageMode;
 use Domain\Platform\Models\PlatformPlan;
@@ -65,9 +66,9 @@ final class PlatformPlanUpdateRequest extends FormRequest
                 Rule::requiredIf(fn () => $this->input('storage_mode') === PlatformStorageMode::LIMITED->value),
             ],
             'ai_enabled' => ['required', 'boolean'],
-            'token_limit_monthly' => ['nullable', 'integer', 'min:0'],
-            'allow_overage' => ['sometimes', 'boolean'],
-            'overage_price_per_1k' => ['nullable', 'numeric', 'min:0'],
+            'message_limit_monthly' => ['required', 'integer', 'min:0'],
+            'overage_mode' => ['required', 'string', Rule::in(array_map(fn ($c) => $c->value, OverageMode::cases()))],
+            'overage_price_per_message' => ['nullable', 'numeric', 'min:0'],
             'chat_channels_limit' => ['required', 'integer', 'min:0'],
             'negotiations_mode' => ['required', 'string', Rule::in(array_map(fn ($c) => $c->value, PlatformNegotiationsMode::cases()))],
             'negotiations_limit' => [
