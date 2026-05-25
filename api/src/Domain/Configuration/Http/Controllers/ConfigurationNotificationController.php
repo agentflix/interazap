@@ -110,7 +110,7 @@ final class ConfigurationNotificationController extends BaseController
 
         return response()->json([
             'success' => true,
-            'data' => ConfigurationNotificationPreferenceResource::collection(collect($preferences)),
+            'data' => ConfigurationNotificationPreferenceResource::collection(collect($preferences)->values()),
             'types' => ConfigurationNotificationPreference::TYPES,
             'channels' => ConfigurationNotificationPreference::CHANNELS,
         ]);

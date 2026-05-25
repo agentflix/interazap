@@ -29,6 +29,23 @@ final class CRMCompanyController extends BaseController
     public function __construct(private readonly CRMCompanyActions $actions) {}
 
     /**
+     * Listar todas as empresas ativas sem paginação.
+     *
+     * @param  Request  $request  Requisição atual.
+     * @return JsonResponse Lista de empresas.
+     */
+    public function all(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', CRMCompany::class);
+
+        $tenantId = $this->tenantId();
+        $companies = $this->actions->all($tenantId)
+            ->map(fn (mixed $item) => new CRMCompanyResource($item));
+
+        return $this->success(['data' => $companies], 'Empresas carregadas');
+    }
+
+    /**
      * Listar empresas com busca e filtro de status.
      *
      * @param  Request  $request  Requisição com filtros.

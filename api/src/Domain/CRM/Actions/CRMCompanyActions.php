@@ -68,6 +68,19 @@ final class CRMCompanyActions
         $company->delete();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, CRMCompany>
+     */
+    public function all(string $tenantId): \Illuminate\Database\Eloquent\Collection
+    {
+        return CRMCompany::query()
+            ->select(['id', 'tenant_id', 'name', 'document', 'email', 'phone', 'is_active', 'created_at', 'updated_at'])
+            ->where('tenant_id', $tenantId)
+            ->where('is_active', true)
+            ->orderBy('name', 'asc')
+            ->get();
+    }
+
     public function find(string $tenantId, string $id): CRMCompany
     {
         return CRMCompany::query()

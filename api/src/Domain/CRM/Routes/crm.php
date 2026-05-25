@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum'])
         Route::post('/contacts/{id}/notes', [CRMNoteController::class, 'storeForContact']);
 
         Route::get('/companies', [CRMCompanyController::class, 'index']);
+        Route::get('/companies/all', [CRMCompanyController::class, 'all']);
         Route::post('/companies', [CRMCompanyController::class, 'store']);
         Route::get('/companies/{id}', [CRMCompanyController::class, 'show']);
         Route::put('/companies/{id}', [CRMCompanyController::class, 'update']);
