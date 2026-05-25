@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, HostListener, input, output } from '@angular/core';
 import { AfIconButtonComponent } from '../icon-button/icon-button';
 import { LucideAngularModule } from 'lucide-angular';
 import { AfScrollAreaComponent } from '../scroll-area/scroll-area';
@@ -35,4 +35,11 @@ export class AfDrawerComponent {
 
   /** Emitted when the drawer should close */
   readonly closed = output<void>();
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.open()) {
+      this.closed.emit();
+    }
+  }
 }

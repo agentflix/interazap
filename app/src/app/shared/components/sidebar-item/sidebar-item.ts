@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
@@ -12,7 +13,7 @@ import { LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'af-sidebar-item',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideAngularModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sidebar-item.html',
 })
