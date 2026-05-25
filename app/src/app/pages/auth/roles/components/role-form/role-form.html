@@ -52,6 +52,7 @@
                           'Selecionar todas as permissões de ' + formatModuleLabel(module)
                         "
                         [dataTest]="'role-module-' + module"
+                        (click)="$event.stopPropagation()"
                       />
                       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                         {{ formatModuleLabel(module) }}

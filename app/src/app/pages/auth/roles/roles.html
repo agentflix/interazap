@@ -93,12 +93,14 @@
       size="lg"
       (closed)="handleFormCancelled()"
     >
-      <app-role-form
-        #roleForm
-        [role]="selectedRole()"
-        (saved)="handleFormSaved($event)"
-        (cancelled)="handleFormCancelled()"
-      />
+      @if (showFormModal()) {
+        <app-role-form
+          #roleForm
+          [role]="selectedRole()"
+          (saved)="handleFormSaved($event)"
+          (cancelled)="handleFormCancelled()"
+        />
+      }
 
       <div footer class="flex justify-end gap-2">
         <af-button
