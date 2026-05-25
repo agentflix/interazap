@@ -20,6 +20,7 @@
 4. `$fillable` explicit — **NEVER** `$guarded = []`
 5. UUID primary keys — never auto-increment
 6. Eager loading — **NEVER** N+1
+7. Payload/request validation belongs in `Http/Requests/FormRequest`; Actions must not implement required-field/format validation for request input
 
 ## DDD Pattern
 

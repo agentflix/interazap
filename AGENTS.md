@@ -114,6 +114,7 @@ Cada task: **T**arefa · **A**rquivo · **C**omportamento (antes→depois) · **
 
 ### Backend
 - Nunca criar lógica de negócio em Controller — toda lógica vai em Action
+- Nunca criar validação de payload/request em Action — obrigatoriedade, formato e mensagens de entrada vão em FormRequest
 - Nunca reutilizar migration existente — sempre criar nova via artisan
 - Nunca fazer query sem filtrar por tenant_id
 - Nunca acessar Google AI ou AWS fora do gateway/
