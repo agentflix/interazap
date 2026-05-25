@@ -246,6 +246,7 @@ export const SIDEBAR_MENU: SidebarMenuItem[] = [
       { type: 'item', label: 'Automações', link: '/reports/autopilot-performance', requiredPermission: 'reports.ai.view' },
       { type: 'item', label: 'Atividade da Equipe', link: '/reports/team-activity', requiredPermission: 'reports.admin.view' },
       { type: 'item', label: 'Contatos CRM', link: '/reports/contact-crm', requiredPermission: 'reports.crm.view' },
+      { type: 'item', label: 'Transcrição de Mídia', link: '/reports/media-transcription', requiredPermission: 'reports.ai.view' },
     ],
   },
   {
