@@ -24,10 +24,14 @@ export interface ReportMeta {
   generated_at: string;
 }
 
-/** Envelope padrão de resposta de relatório. */
+/** Envelope padrão de resposta de relatório — espelha o formato real da API. */
 export interface ReportResponse<T> {
-  data: T;
-  meta: ReportMeta;
+  success: boolean;
+  message: string;
+  data: {
+    data: T;
+    meta: ReportMeta;
+  };
 }
 
 // ─── Sales Funnel ───

@@ -196,8 +196,8 @@ export abstract class BaseReportComponent<
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: ReportResponse<T>) => {
-          this.data.set(response.data);
-          this.onDataLoaded(response.data);
+          this.data.set(response.data.data);
+          this.onDataLoaded(response.data.data);
           this.isLoading.set(false);
         },
         error: () => {
