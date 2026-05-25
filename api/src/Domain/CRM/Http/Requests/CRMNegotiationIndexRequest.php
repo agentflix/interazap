@@ -106,7 +106,7 @@ final class CRMNegotiationIndexRequest extends FormRequest
                 ),
             ],
             'page' => ['nullable', 'integer', 'min:1'],
-            'per_page' => ['nullable', 'integer', 'between:1,100'],
+            'per_page' => ['nullable', 'integer', 'between:1,200'],
         ];
     }
 }
