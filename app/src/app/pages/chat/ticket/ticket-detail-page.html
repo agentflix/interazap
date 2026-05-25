@@ -18,7 +18,7 @@
 
       @if (isLoading()) {
         <div class="flex items-center justify-center p-12">
-          <lucide-icon name="loader-2" [size]="24" class="animate-spin text-neutral-400" />
+          <lucide-icon name="loader-circle" [size]="24" class="animate-spin text-neutral-400" />
         </div>
       } @else if (hasError()) {
         <af-alert
