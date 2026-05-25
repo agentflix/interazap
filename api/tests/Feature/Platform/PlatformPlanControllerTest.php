@@ -48,6 +48,8 @@ class PlatformPlanControllerTest extends TestCase
             'negotiations_mode' => 'LIMITED',
             'negotiations_limit' => 10,
             'price_monthly' => 99.0,
+            'message_limit_monthly' => 1000,
+            'overage_mode' => 'stop',
         ];
 
         $this->postJson('/api/platform/plans', $payload)
@@ -180,6 +182,8 @@ class PlatformPlanControllerTest extends TestCase
             'negotiations_mode' => 'LIMITED',
             'negotiations_limit' => 10,
             'price_monthly' => 10.0,
+            'message_limit_monthly' => 2000,
+            'overage_mode' => 'stop',
         ];
 
         $this->putJson("/api/platform/plans/{$plan->id}", $payload)

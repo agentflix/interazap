@@ -6,6 +6,7 @@ namespace Domain\Billing\Actions\Internal;
 
 use Domain\Platform\Models\PlatformPlan;
 use Domain\Platform\Models\PlatformTenant;
+use Illuminate\Support\Str;
 
 /**
  * Resolve um tenant pelo billing_webhook_token para uso interno do gateway.
@@ -22,6 +23,10 @@ final readonly class ResolveTenantByBillingTokenAction
      */
     public function execute(string $token): ?array
     {
+        if (! Str::isUuid($token)) {
+            return null;
+        }
+
         $tenant = PlatformTenant::query()
             ->with('plan')
             ->where('billing_webhook_token', $token)

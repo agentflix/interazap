@@ -108,9 +108,6 @@ final class AiUsageController extends BaseController
             (string) $endDate,
         );
 
-        return response()->json([
-            'success' => true,
-            'data' => $report,
-        ]);
+        return $this->success(['data' => $report, 'meta' => []]);
     }
 }

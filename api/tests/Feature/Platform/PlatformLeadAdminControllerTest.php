@@ -125,7 +125,7 @@ class PlatformLeadAdminControllerTest extends TestCase
             'name' => 'Tenant Lead Conversão',
             'email' => 'owner-convert@example.com',
             'phone' => '11988887777',
-            'document' => '12345678000199',
+            'document' => '11222333000181',
             'plan_id' => $plan->id,
         ])->assertOk();
 

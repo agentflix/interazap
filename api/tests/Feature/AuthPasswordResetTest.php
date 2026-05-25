@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Domain\Auth\Models\AuthUser;
-use Illuminate\Auth\Notifications\ResetPassword;
+use Domain\Auth\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -30,8 +30,8 @@ class AuthPasswordResetTest extends TestCase
         $token = null;
         Notification::assertSentTo(
             $user,
-            ResetPassword::class,
-            function (ResetPassword $notification) use (&$token): bool {
+            ResetPasswordNotification::class,
+            function (ResetPasswordNotification $notification) use (&$token): bool {
                 $token = $notification->token;
 
                 return true;

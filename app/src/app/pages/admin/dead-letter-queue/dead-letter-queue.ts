@@ -253,7 +253,7 @@ export class DeadLetterQueueComponent implements OnInit {
       .getOverview()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((overview) => {
-        this.availableQueues.set(overview.queues.map((q) => q.name));
+        this.availableQueues.set(overview?.queues?.map((q) => q.name) ?? []);
       });
   }
 

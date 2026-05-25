@@ -17,10 +17,11 @@ beforeEach(function (): void {
 // ── GET tenants/by-webhook-token ────────────────────────────────────────────
 
 it('GET /by-webhook-token resolve tenant pelo billing_webhook_token', function (): void {
-    $this->tenant->update(['billing_webhook_token' => 'bill-token-abc']);
+    $token = (string) \Illuminate\Support\Str::orderedUuid();
+    $this->tenant->update(['billing_webhook_token' => $token]);
 
     $this->withHeaders(['X-Internal-Api-Key' => 'test-internal-key'])
-        ->getJson('/api/internal/billing/tenants/by-webhook-token/bill-token-abc')
+        ->getJson("/api/internal/billing/tenants/by-webhook-token/{$token}")
         ->assertOk()
         ->assertJsonPath('success', true)
         ->assertJsonPath('data.tenant_id', (string) $this->tenant->id)
@@ -97,10 +98,12 @@ it('POST /webhook-events retorna 422 com payload inválido', function (): void {
 
 it('PATCH /stream-id atualiza stream_id de evento existente', function (): void {
     $event = BillingWebhookEvent::create([
-        'id'         => (string) Str::orderedUuid(),
-        'tenant_id'  => (string) $this->tenant->id,
-        'event_type' => 'PAYMENT_RECEIVED',
-        'payload'    => ['amount' => 50],
+        'id'                     => (string) Str::orderedUuid(),
+        'tenant_id'              => (string) $this->tenant->id,
+        'event_type'             => 'PAYMENT_RECEIVED',
+        'payload'                => ['amount' => 50],
+        'provider'               => 'billing',
+        'instance_webhook_token' => 'billing',
     ]);
 
     $this->withHeaders(['X-Internal-Api-Key' => 'test-internal-key'])

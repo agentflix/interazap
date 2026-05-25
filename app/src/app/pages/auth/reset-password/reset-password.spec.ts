@@ -15,32 +15,33 @@ describe('ResetPasswordComponent', () => {
           provide: AuthService,
           useValue: {
             forgotPassword: () => of({ success: true, message: 'ok' }),
+            resetPassword: () => of({ success: true, message: 'ok' }),
           },
         },
       ],
     }).compileComponents();
   });
 
-  it('should set success message on successful submit', () => {
+  it('should set success message on successful forgot submit', () => {
     const fixture = TestBed.createComponent(ResetPasswordComponent);
     const component = fixture.componentInstance;
     const authService = TestBed.inject(AuthService);
 
     vi.spyOn(authService, 'forgotPassword').mockReturnValue(of({ success: true, message: 'ok' }));
-    component.form.patchValue({ email: 'user@interazap.test' });
-    component.submit();
+    component.forgotForm.patchValue({ email: 'user@interazap.test' });
+    component.submitForgot();
 
     expect(component.successMessage()).toContain('sucesso');
   });
 
-  it('should set error message on failed submit', () => {
+  it('should set error message on failed forgot submit', () => {
     const fixture = TestBed.createComponent(ResetPasswordComponent);
     const component = fixture.componentInstance;
     const authService = TestBed.inject(AuthService);
 
     vi.spyOn(authService, 'forgotPassword').mockReturnValue(throwError(() => new Error('fail')));
-    component.form.patchValue({ email: 'user@interazap.test' });
-    component.submit();
+    component.forgotForm.patchValue({ email: 'user@interazap.test' });
+    component.submitForgot();
 
     expect(component.errorMessage()).toContain('Não foi possível');
   });

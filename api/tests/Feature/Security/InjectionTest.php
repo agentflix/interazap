@@ -63,7 +63,7 @@ describe('SQL Injection Protection', function (): void {
         $response = $this->postJson('/api/crm/contacts', [
             'name' => $maliciousName,
             'email' => 'test@example.com',
-            'phone' => '+5511999999999',
+            'phone' => '11999999999',
         ]);
 
         // Should succeed and properly escape the data
@@ -147,7 +147,7 @@ describe('XSS Protection', function (): void {
             $response = $this->postJson('/api/crm/contacts', [
                 'name' => $payload,
                 'email' => $email,
-                'phone' => '+5511999999999',
+                'phone' => '11999999999',
             ]);
 
             // If accepted, the JSON Content-Type prevents browser XSS execution

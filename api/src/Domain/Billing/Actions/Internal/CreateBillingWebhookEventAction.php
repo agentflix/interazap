@@ -23,11 +23,13 @@ final readonly class CreateBillingWebhookEventAction
     public function execute(array $data): array
     {
         $event = BillingWebhookEvent::create([
-            'id'                => (string) Str::orderedUuid(),
-            'tenant_id'         => $data['tenant_id'],
-            'event_type'        => $data['event_type'],
-            'payload'           => $data['payload'],
-            'provider_event_id' => $data['external_id'] ?? null,
+            'id'                      => (string) Str::orderedUuid(),
+            'tenant_id'               => $data['tenant_id'],
+            'event_type'              => $data['event_type'],
+            'payload'                 => $data['payload'],
+            'provider'                => $data['provider'] ?? 'billing',
+            'instance_webhook_token'  => $data['instance_webhook_token'] ?? 'billing',
+            'provider_event_id'       => $data['external_id'] ?? null,
         ]);
 
         return [
