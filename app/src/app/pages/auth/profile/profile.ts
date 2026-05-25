@@ -276,11 +276,8 @@ export class Profile implements OnInit {
   }
 
   passwordMismatch(): boolean {
-    return (
-      !!this.passwordForm.touched &&
-      !!this.passwordForm.controls.password_confirmation.touched &&
-      !!this.passwordForm.errors?.['passwordMismatch']
-    );
+    const ctrl = this.passwordForm.controls.password_confirmation;
+    return !!ctrl.touched && !!ctrl.errors?.['passwordMismatch'];
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -294,5 +291,17 @@ export class Profile implements OnInit {
 function matchPasswords(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
   const confirm = group.get('password_confirmation')?.value;
-  return password && confirm && password !== confirm ? { passwordMismatch: true } : null;
+  const confirmCtrl = group.get('password_confirmation');
+
+  if (password && confirm && password !== confirm) {
+    confirmCtrl?.setErrors({ passwordMismatch: true });
+    return { passwordMismatch: true };
+  }
+
+  if (confirmCtrl?.errors?.['passwordMismatch']) {
+    const { passwordMismatch: _, ...rest } = confirmCtrl.errors;
+    confirmCtrl.setErrors(Object.keys(rest).length > 0 ? rest : null);
+  }
+
+  return null;
 }
