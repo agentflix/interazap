@@ -1,5 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, computed, signal, output } from '@angular/core';
 import { type FormControl, ReactiveFormsModule } from '@angular/forms';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { EMPTY, merge, map, switchMap } from 'rxjs';
 import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
 import { LucideAngularModule } from 'lucide-angular';
@@ -74,6 +76,14 @@ export class AfPasswordInputComponent {
   /** Autocomplete attribute for browser autofill control */
   readonly autocomplete = input<string>('off');
 
+  // Tracks status/value changes so computed signals react to setErrors() / markAsTouched()
+  private readonly _controlChanges = toSignal(
+    toObservable(this.control).pipe(
+      switchMap((ctrl) => (ctrl ? merge(ctrl.statusChanges, ctrl.valueChanges).pipe(map(() => null)) : EMPTY)),
+    ),
+    { initialValue: null },
+  );
+
   /** Password visibility state */
   protected readonly visible = signal(false);
 
@@ -106,8 +116,11 @@ export class AfPasswordInputComponent {
     ].join(' ');
   });
 
-  /** Whether to show error */
-  protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
+  /** Whether to show error — depends on _controlChanges to stay reactive after setErrors/markAsTouched */
+  protected readonly showError = computed(() => {
+    this._controlChanges();
+    return this.control()?.invalid && this.control()?.touched;
+  });
 
   /** Toggle password visibility */
   protected toggleVisibility(): void {

@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   AfAlertComponent,
   AfCheckboxGroupComponent,
@@ -72,19 +72,7 @@ export class SettingsUserFormComponent {
   readonly isPasswordConfirmationRequired = computed(
     () => !this.isEditing() || this.form.controls.password.value.trim().length > 0,
   );
-  readonly passwordConfirmationErrorMessage = computed(() => {
-    const control = this.form.controls.password_confirmation;
-
-    if (control.touched && control.errors?.['required']) {
-      return 'Confirmação de senha é obrigatória.';
-    }
-
-    if (control.touched && control.errors?.['mismatch']) {
-      return 'As senhas precisam ser idênticas.';
-    }
-
-    return 'Campo inválido.';
-  });
+  readonly passwordConfirmationErrorMessage = signal('');
 
   readonly form = this.fb.group({
     name: this.fb.control('', Validators.required),
@@ -142,8 +130,10 @@ export class SettingsUserFormComponent {
     if (password && password !== passwordConfirmation) {
       this.form.controls.password_confirmation.setErrors({ mismatch: true });
       this.form.controls.password_confirmation.markAsTouched();
+      this.passwordConfirmationErrorMessage.set('As senhas precisam ser idênticas.');
       return;
     }
+    this.passwordConfirmationErrorMessage.set('');
 
     const basePayload = {
       name: formValue.name.trim(),

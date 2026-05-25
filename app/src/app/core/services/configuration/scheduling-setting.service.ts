@@ -15,7 +15,7 @@ import { type SchedulingSettingsResponse } from '@core/models/configuration/sche
  */
 @Injectable({ providedIn: 'root' })
 export class SchedulingSettingsService {
-  private readonly baseUrl = `${environment.apiUrl}/configuration/scheduling`;
+  private readonly baseUrl = `${environment.apiUrl}/scheduling`;
   private readonly http = inject(HttpClient);
 
   /**
