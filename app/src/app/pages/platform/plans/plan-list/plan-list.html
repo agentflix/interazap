@@ -113,12 +113,14 @@
       size="lg"
       (closed)="handleFormCancelled()"
     >
-      <app-plan-crud-form
-        #planForm
-        [plan]="selectedPlan()"
-        (saved)="handleFormSaved($event)"
-        (cancelled)="handleFormCancelled()"
-      />
+      @if (showFormModal()) {
+        <app-plan-crud-form
+          #planForm
+          [plan]="selectedPlan()"
+          (saved)="handleFormSaved($event)"
+          (cancelled)="handleFormCancelled()"
+        />
+      }
 
       <div footer class="flex justify-end gap-2">
         <af-button variant="ghost" size="sm" (click)="planFormRef()?.cancel()">Cancelar</af-button>

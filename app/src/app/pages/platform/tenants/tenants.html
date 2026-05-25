@@ -181,12 +181,14 @@
       size="lg"
       (closed)="handleFormCancelled()"
     >
-      <app-tenant-form
-        #tenantForm
-        [tenant]="selectedTenant()"
-        (saved)="handleFormSaved($event)"
-        (cancelled)="handleFormCancelled()"
-      />
+      @if (showFormModal()) {
+        <app-tenant-form
+          #tenantForm
+          [tenant]="selectedTenant()"
+          (saved)="handleFormSaved($event)"
+          (cancelled)="handleFormCancelled()"
+        />
+      }
 
       <div footer class="flex justify-end gap-2">
         <af-button variant="ghost" size="sm" (click)="tenantFormRef()?.cancel()"
@@ -323,12 +325,14 @@
       size="md"
       (closed)="handleUserFormCancelled()"
     >
-      <app-platform-user-form
-        #userForm
-        [fixedTenantId]="tenantForUser()?.id?.toString()"
-        (saved)="handleUserFormSaved()"
-        (cancelled)="handleUserFormCancelled()"
-      />
+      @if (showUserFormModal()) {
+        <app-platform-user-form
+          #userForm
+          [fixedTenantId]="tenantForUser()?.id?.toString()"
+          (saved)="handleUserFormSaved()"
+          (cancelled)="handleUserFormCancelled()"
+        />
+      }
 
       <div footer class="flex justify-end gap-2">
         <af-button variant="ghost" size="sm" (click)="userFormRef()?.cancel()">

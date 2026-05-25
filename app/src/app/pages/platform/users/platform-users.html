@@ -138,14 +138,16 @@
       size="md"
       (closed)="handleFormCancelled()"
     >
-      <app-platform-user-form
-        #userForm
-        [user]="selectedUser()"
-        [companyOptions]="companyOptions()"
-        [roleOptions]="roleOptions()"
-        (saved)="handleFormSaved($event)"
-        (cancelled)="handleFormCancelled()"
-      />
+      @if (showFormModal()) {
+        <app-platform-user-form
+          #userForm
+          [user]="selectedUser()"
+          [companyOptions]="companyOptions()"
+          [roleOptions]="roleOptions()"
+          (saved)="handleFormSaved($event)"
+          (cancelled)="handleFormCancelled()"
+        />
+      }
 
       <div footer class="flex justify-end gap-2">
         <af-button variant="ghost" size="sm" (click)="userFormRef()?.cancel()">Cancelar</af-button>
