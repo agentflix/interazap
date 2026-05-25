@@ -37,7 +37,7 @@ export class AfBannerComponent {
 
   protected readonly iconName = computed(() => {
     const map: Record<string, string> = {
-      info: 'circle-info',
+      info: 'info',
       success: 'circle-check',
       warning: 'alert-triangle',
       danger: 'circle-alert',
