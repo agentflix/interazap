@@ -17,6 +17,7 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
   FormControl,
+  Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AfFormLabelComponent } from '../form-label/form-label';
@@ -137,6 +138,12 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
     this.controlRevision();
     const ctrl = this.control();
     return !!ctrl && ctrl.invalid && ctrl.touched;
+  });
+
+  /** True when the control has Validators.required (or required input is set) */
+  protected readonly isRequired = computed(() => {
+    this.controlRevision();
+    return this.required() || !!this.control()?.hasValidator(Validators.required);
   });
 
   /** Error message: server error takes precedence over static errorMessage input */

@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, computed, input, output, signal, effect } from '@angular/core';
-import { type FormControl, ReactiveFormsModule } from '@angular/forms';
+import { type FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
 import { AfIconButtonComponent } from '../icon-button/icon-button';
@@ -82,6 +82,11 @@ export class AfNumberInputComponent {
     this.controlRevision();
     const serverMsg = this.control()?.errors?.['server'];
     return typeof serverMsg === 'string' ? serverMsg : this.errorMessage();
+  });
+
+  protected readonly isRequired = computed(() => {
+    this.controlRevision();
+    return this.required() || !!this.control()?.hasValidator(Validators.required);
   });
 
   protected isAtMin(): boolean {

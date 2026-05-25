@@ -1,7 +1,7 @@
 
     <div [class]="containerClasses()">
       @if (label()) {
-        <af-form-label [label]="label()" [for]="inputId" [required]="required()" />
+        <af-form-label [label]="label()" [for]="inputId" [required]="isRequired()" />
       }
 
       <input

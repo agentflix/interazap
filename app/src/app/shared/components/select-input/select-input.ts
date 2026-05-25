@@ -9,7 +9,7 @@ import {
   effect,
   type OnDestroy,
 } from '@angular/core';
-import { type FormControl, ReactiveFormsModule } from '@angular/forms';
+import { type FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
 import { LucideAngularModule } from 'lucide-angular';
@@ -171,7 +171,23 @@ export class AfSelectInputComponent implements OnDestroy {
   });
 
   /** Whether to show error */
-  protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
+  protected readonly showError = computed(() => {
+    this.controlRevision();
+    return !!this.control()?.invalid && !!this.control()?.touched;
+  });
+
+  /** Error message: server error takes precedence over static errorMessage input */
+  protected readonly resolvedErrorMessage = computed(() => {
+    this.controlRevision();
+    const serverMsg = this.control()?.errors?.['server'];
+    return typeof serverMsg === 'string' ? serverMsg : this.errorMessage();
+  });
+
+  /** True when the control has Validators.required (or required input is set) */
+  protected readonly isRequired = computed(() => {
+    this.controlRevision();
+    return this.required() || !!this.control()?.hasValidator(Validators.required);
+  });
 
   /** Whether the control is disabled */
   protected readonly isDisabled = computed(() => {

@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, computed, output, signal, effect } from '@angular/core';
-import { type FormControl, ReactiveFormsModule } from '@angular/forms';
+import { type FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
 import { resolveInputContainerClass } from '../input-container.util';
@@ -137,6 +137,12 @@ export class AfTextInputComponent {
     const extra = this.classInput();
 
     return [...base, borderColor, extra].filter(Boolean).join(' ');
+  });
+
+  /** True when the control has Validators.required (or required input is set) */
+  protected readonly isRequired = computed(() => {
+    this.controlRevision();
+    return this.required() || !!this.control()?.hasValidator(Validators.required);
   });
 
   /** Whether to show the error message */

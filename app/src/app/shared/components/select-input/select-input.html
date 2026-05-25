@@ -1,7 +1,7 @@
 
     <div [class]="containerClasses()">
       @if (label()) {
-        <af-form-label [label]="label()" [for]="inputId" [required]="required()" />
+        <af-form-label [label]="label()" [for]="inputId" [required]="isRequired()" />
       }
 
       <div class="relative">
@@ -99,6 +99,6 @@
         <p class="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
       }
 
-      <af-form-error [show]="showError()" [message]="errorMessage()" />
+      <af-form-error [show]="showError()" [message]="resolvedErrorMessage()" />
     </div>
   
