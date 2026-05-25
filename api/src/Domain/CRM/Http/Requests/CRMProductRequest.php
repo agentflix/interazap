@@ -42,7 +42,11 @@ class CRMProductRequest extends FormRequest
             'code' => ['nullable', 'string', 'max:100', $uniqueCodeRule],
             'description' => ['nullable', 'string'],
             'type' => ['nullable', 'string', 'in:product,service'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'price' => Rule::when(
+                $this->input('type') !== 'service',
+                ['required', 'numeric', 'min:0'],
+                ['nullable', 'numeric', 'min:0']
+            ),
             'cost' => ['nullable', 'numeric', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
             'stock_quantity' => ['nullable', 'integer', 'min:0'],
