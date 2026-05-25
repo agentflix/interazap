@@ -31,6 +31,7 @@ export class LeadExportButtonComponent {
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly searchTerm = input<string>('');
+  readonly statusFilter = input<string>('');
 
   readonly exported = output<void>();
   readonly errorOccurred = output<string>();
@@ -58,6 +59,7 @@ export class LeadExportButtonComponent {
 
     const filters: PlatformLeadFilters = {
       search: this.exportSearchControl.value || undefined,
+      status: this.statusFilter() || undefined,
       sort_by: 'created_at',
       sort_dir: 'desc',
     };

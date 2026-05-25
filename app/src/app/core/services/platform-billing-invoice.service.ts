@@ -60,6 +60,19 @@ export class PlatformBillingInvoiceService {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }
 
+  markPaid(id: string): Observable<{ data: PlatformBillingInvoice }> {
+    return this.http.patch<{ data: PlatformBillingInvoice }>(
+      `${this.baseUrl}/${id}/mark-paid`,
+      {},
+    );
+  }
+
+  download(id: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${id}/download`, {
+      responseType: 'blob',
+    });
+  }
+
   private appendTrimmedString(params: HttpParams, key: string, value?: string): HttpParams {
     if (value === undefined) return params;
     const trimmed = value.trim();

@@ -7,13 +7,18 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   AfAlertComponent,
   AfButtonComponent,
   AfCrudPageComponent,
   AfDataTableComponent,
+  AfIconButtonComponent,
+  AfScrollAreaComponent,
+  AfSelectInputComponent,
+  AfStatusBadgeComponent,
+  type AfSelectOption,
 } from '@shared/components';
 import { ToastService } from '@core/services/toast.service';
 import { UtilsService } from '@core/services/utils.service';
@@ -35,6 +40,10 @@ import { LeadExportButtonComponent } from './components/lead-export-button/lead-
     AfDataTableComponent,
     AfAlertComponent,
     AfButtonComponent,
+    AfSelectInputComponent,
+    AfScrollAreaComponent,
+    AfIconButtonComponent,
+    AfStatusBadgeComponent,
     LeadConvertModalComponent,
     LeadExportButtonComponent,
   ],
@@ -55,6 +64,21 @@ export class PlatformLeads {
   readonly showConvertModal = signal(false);
   readonly selectedLead = signal<PlatformLead | null>(null);
 
+  readonly filterStatusControl = new FormControl<string>('', { nonNullable: true });
+  readonly filterStatusOptions: AfSelectOption[] = [
+    { label: 'Todos', value: '' },
+    { label: 'Novo', value: 'new' },
+    { label: 'Qualificado', value: 'qualified' },
+    { label: 'Convertido', value: 'converted' },
+    { label: 'Desqualificado', value: 'disqualified' },
+  ];
+
+  readonly isDetailsOpen = signal(false);
+  readonly isDetailsLoading = signal(false);
+  readonly detailsError = signal(false);
+  readonly leadDetails = signal<PlatformLead | null>(null);
+  private detailLeadId: string | null = null;
+
   readonly isEmpty = computed(
     () => !this.isLoading() && !this.hasError() && this.leads().length === 0,
   );
@@ -62,6 +86,13 @@ export class PlatformLeads {
   private page = 1;
 
   constructor() {
+    this.filterStatusControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.page = 1;
+        this.loadLeads();
+      });
+
     this.loadLeads();
   }
 
@@ -90,6 +121,22 @@ export class PlatformLeads {
     this.selectedLead.set(null);
   }
 
+  openDetails(lead: PlatformLead): void {
+    this.detailLeadId = lead.id;
+    this.isDetailsOpen.set(true);
+    this.loadDetails(lead.id);
+  }
+
+  closeDetails(): void {
+    this.isDetailsOpen.set(false);
+  }
+
+  retryDetails(): void {
+    if (this.detailLeadId !== null) {
+      this.loadDetails(this.detailLeadId);
+    }
+  }
+
   onConvertedLead(): void {
     this.toast.success('Lead convertido com sucesso.');
     this.closeConvertModal();
@@ -108,12 +155,68 @@ export class PlatformLeads {
     return this.utils.formatPhone(phone ?? undefined);
   }
 
+  leadStatusLabel(status: string | null | undefined): string {
+    const labels: Record<string, string> = {
+      new: 'Novo',
+      qualified: 'Qualificado',
+      converted: 'Convertido',
+      disqualified: 'Desqualificado',
+    };
+    return labels[status ?? ''] ?? '—';
+  }
+
+  leadStatusBadge(status: string | null | undefined): 'online' | 'offline' | 'warning' | 'error' | 'idle' {
+    const badges: Record<string, 'online' | 'offline' | 'warning' | 'error' | 'idle'> = {
+      new: 'warning',
+      qualified: 'idle',
+      converted: 'online',
+      disqualified: 'error',
+    };
+    return badges[status ?? ''] ?? 'offline';
+  }
+
+  formatDate(value: string | null | undefined): string {
+    if (!value) return '—';
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(value));
+  }
+
+  formatBoolean(value: boolean | null | undefined): string {
+    return value ? 'Sim' : 'Não';
+  }
+
+  private loadDetails(id: string): void {
+    this.isDetailsLoading.set(true);
+    this.detailsError.set(false);
+    this.leadDetails.set(null);
+
+    this.service
+      .find(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.leadDetails.set(response.data);
+          this.isDetailsLoading.set(false);
+        },
+        error: () => {
+          this.isDetailsLoading.set(false);
+          this.detailsError.set(true);
+        },
+      });
+  }
+
   private loadLeads(): void {
     this.isLoading.set(true);
     this.hasError.set(false);
 
     const filters: PlatformLeadFilters = {
       search: this.currentSearchTerm(),
+      status: this.filterStatusControl.value || undefined,
       page: this.page,
       per_page: this.meta().per_page,
       sort_by: 'created_at',

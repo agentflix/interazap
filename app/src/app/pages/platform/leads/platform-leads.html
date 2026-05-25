@@ -16,9 +16,20 @@
   (pageChange)="loadPage($event)"
 >
   <div filters class="flex items-center gap-2">
+    <div class="min-w-40">
+      <af-select-input
+        [control]="filterStatusControl"
+        label="Status"
+        [options]="filterStatusOptions"
+        [spacing]="false"
+        dataTest="lead-filter-status"
+      />
+    </div>
+
     <div class="ml-auto">
       <app-lead-export-button
         [searchTerm]="currentSearchTerm()"
+        [statusFilter]="filterStatusControl.value"
         (exported)="handleExported()"
         (errorOccurred)="handleExportError($event)"
       />
@@ -61,7 +72,15 @@
             <td class="text-sm text-neutral-600 dark:text-neutral-400">{{ lead.email }}</td>
             <td>{{ lead.company || '—' }}</td>
             <td>
-              <div class="flex justify-end items-center">
+              <div class="flex justify-end items-center gap-1">
+                <af-icon-button
+                  label="Ver detalhes"
+                  variant="ghost"
+                  size="sm"
+                  (click)="openDetails(lead)"
+                >
+                  <lucide-icon name="eye" [size]="14" />
+                </af-icon-button>
                 <af-button variant="outline" size="sm" (click)="openConvertModal(lead)">
                   <lucide-icon name="building-2" [size]="14" class="block" />
                   Converter
@@ -81,3 +100,111 @@
   (converted)="onConvertedLead()"
   (cancelled)="closeConvertModal()"
 />
+
+@if (isDetailsOpen()) {
+  <div
+    class="fixed inset-0 z-70 bg-black/30 backdrop-blur-sm transition-opacity"
+    (click)="closeDetails()"
+    aria-hidden="true"
+  ></div>
+}
+
+<!-- Detail side-panel -->
+<div
+  class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-neutral-700 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-lg w-full z-80 overflow-hidden"
+  [class.hidden]="!isDetailsOpen()"
+  [class.flex]="isDetailsOpen()"
+  [class.translate-x-full]="!isDetailsOpen()"
+  [class.translate-x-0]="isDetailsOpen()"
+  role="dialog"
+  tabindex="-1"
+  aria-label="Detalhes do lead"
+  data-test="lead-detail-panel"
+  [attr.aria-hidden]="!isDetailsOpen()"
+>
+  <div
+    class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-hairline dark:border-neutral-700 px-6 gap-3"
+  >
+    <h5 class="text-base grow">Detalhes do lead</h5>
+    <af-icon-button label="Fechar detalhes" variant="ghost" size="sm" (click)="closeDetails()">
+      <lucide-icon name="x" [size]="16" />
+    </af-icon-button>
+  </div>
+
+  <af-scroll-area class="h-full grow" maxHeight="100%" [scrollable]="false">
+    <div class="p-6 space-y-6">
+      @if (isDetailsLoading()) {
+        <div class="space-y-4 animate-pulse">
+          @for (_ of [1, 2, 3, 4, 5]; track $index) {
+            <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4"></div>
+          }
+        </div>
+      } @else if (detailsError()) {
+        <div class="text-center space-y-3 py-6">
+          <p class="text-sm text-danger">Erro ao carregar detalhes.</p>
+          <af-button variant="outline" size="sm" (click)="retryDetails()">
+            <lucide-icon name="refresh-cw" [size]="14" class="block" />
+            Tentar novamente
+          </af-button>
+        </div>
+      } @else if (leadDetails()) {
+        <!-- Section: Lead -->
+        <div class="space-y-3">
+          <h6 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+            Lead
+          </h6>
+          <div>
+            <p class="text-xs text-neutral-500">Nome</p>
+            <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+              {{ leadDetails()!.name || '—' }}
+            </p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p class="text-xs text-neutral-500">E-mail</p>
+              <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                {{ leadDetails()!.email || '—' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-neutral-500">Telefone</p>
+              <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                {{ formatPhone(leadDetails()!.phone) }}
+              </p>
+            </div>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p class="text-xs text-neutral-500">Empresa</p>
+              <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                {{ leadDetails()!.company || '—' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-neutral-500">Status</p>
+              <af-status-badge [status]="leadStatusBadge(leadDetails()!.status)">
+                {{ leadStatusLabel(leadDetails()!.status) }}
+              </af-status-badge>
+            </div>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p class="text-xs text-neutral-500">LGPD consent</p>
+              <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                {{ formatBoolean(leadDetails()!.lgpd_consent) }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-neutral-500">Data criação</p>
+              <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                {{ formatDate(leadDetails()!.created_at) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="text-sm text-neutral-500">Selecione um lead para ver os detalhes.</div>
+      }
+    </div>
+  </af-scroll-area>
+</div>

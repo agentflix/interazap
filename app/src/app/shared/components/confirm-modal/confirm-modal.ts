@@ -46,7 +46,7 @@ export class AfConfirmModalComponent {
   readonly cancelLabel = input('Cancelar');
 
   /** Visual variant: danger shows red, warning shows yellow */
-  readonly variant = input<'danger' | 'warning' | 'default'>('default');
+  readonly variant = input<'danger' | 'warning' | 'default' | 'primary'>('default');
 
   readonly isLoading = input(false);
 
@@ -66,6 +66,7 @@ export class AfConfirmModalComponent {
     const map: Record<string, string> = {
       danger: 'bg-red-100 dark:bg-red-900/30',
       warning: 'bg-amber-100 dark:bg-amber-900/30',
+      primary: 'bg-accent-100 dark:bg-accent-900/30',
       default: 'bg-accent-100 dark:bg-accent-900/30',
     };
     return map[this.variant()];
@@ -76,6 +77,7 @@ export class AfConfirmModalComponent {
     const map: Record<string, string> = {
       danger: 'text-red-600 dark:text-red-400',
       warning: 'text-amber-600 dark:text-amber-400',
+      primary: 'text-accent-600 dark:text-accent-400',
       default: 'text-accent-600 dark:text-accent-400',
     };
     return map[this.variant()];

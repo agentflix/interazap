@@ -150,6 +150,35 @@
                   </td>
                   <td>
                     <div class="flex items-center justify-end gap-1">
+                      <af-icon-button
+                        label="Ver detalhes"
+                        variant="ghost"
+                        size="sm"
+                        (click)="openDetails(invoice)"
+                      >
+                        <lucide-icon name="eye" [size]="15" class="block" />
+                      </af-icon-button>
+                      <af-icon-button
+                        label="Baixar fatura"
+                        variant="ghost"
+                        size="sm"
+                        [disabled]="downloadingInvoiceId() === invoice.id"
+                        data-test="invoice-download"
+                        (click)="downloadInvoice(invoice)"
+                      >
+                        <lucide-icon name="download" [size]="15" class="block" />
+                      </af-icon-button>
+                      @if (canMarkPaid(invoice)) {
+                        <af-icon-button
+                          label="Marcar como paga"
+                          variant="ghost"
+                          size="sm"
+                          data-test="invoice-mark-paid"
+                          (click)="openMarkPaidConfirm(invoice)"
+                        >
+                          <lucide-icon name="check-circle" [size]="15" class="block" />
+                        </af-icon-button>
+                      }
                       @if (invoice.payment_url) {
                         <af-icon-button
                           label="Ver pagamento"
@@ -242,4 +271,158 @@
       (confirmed)="confirmCancel()"
       (cancelled)="closeCancelModal()"
     />
+
+    <af-confirm-modal
+      [open]="isMarkPaidModalOpen()"
+      title="Marcar fatura como paga"
+      [message]="markPaidMessage()"
+      confirmLabel="Marcar como paga"
+      variant="primary"
+      iconName="check-circle"
+      [isLoading]="isMarkingPaid()"
+      (confirmed)="confirmMarkPaid()"
+      (cancelled)="closeMarkPaidModal()"
+    />
+
+    @if (isDetailsOpen()) {
+      <div
+        class="fixed inset-0 z-70 bg-black/30 backdrop-blur-sm transition-opacity"
+        (click)="closeDetails()"
+        aria-hidden="true"
+      ></div>
+    }
+
+    <!-- Detail side-panel -->
+    <div
+      class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-neutral-700 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-lg w-full z-80 overflow-hidden"
+      [class.hidden]="!isDetailsOpen()"
+      [class.flex]="isDetailsOpen()"
+      [class.translate-x-full]="!isDetailsOpen()"
+      [class.translate-x-0]="isDetailsOpen()"
+      role="dialog"
+      tabindex="-1"
+      aria-label="Detalhes da fatura"
+      data-test="invoice-detail-panel"
+      [attr.aria-hidden]="!isDetailsOpen()"
+    >
+      <div
+        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-hairline dark:border-neutral-700 px-6 gap-3"
+      >
+        <h5 class="text-base grow">Detalhes da fatura</h5>
+        <af-icon-button label="Fechar detalhes" variant="ghost" size="sm" (click)="closeDetails()">
+          <lucide-icon name="x" [size]="16" />
+        </af-icon-button>
+      </div>
+
+      <af-scroll-area class="h-full grow" maxHeight="100%" [scrollable]="false">
+        <div class="p-6 space-y-6">
+          @if (selectedInvoiceDetails()) {
+            <!-- Section: Fatura -->
+            <div class="space-y-3">
+              <h6 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                Fatura
+              </h6>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">ID</p>
+                  <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                    {{ selectedInvoiceDetails()!.id.substring(0, 8) }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Referência</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ selectedInvoiceDetails()!.reference_month || '—' }}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs text-neutral-500">Empresa</p>
+                <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                  {{ selectedInvoiceDetails()!.tenant.name || '—' }}
+                </p>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Código tenant</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ selectedInvoiceDetails()!.tenant.tenant_code || '—' }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Plano</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ selectedInvoiceDetails()!.plan?.name || '—' }}
+                  </p>
+                </div>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Valor</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ formatCurrency(selectedInvoiceDetails()!.amount) }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Status</p>
+                  <af-status-badge [status]="invoiceStatusBadge(selectedInvoiceDetails()!.status)">
+                    {{
+                      selectedInvoiceDetails()!.status_label ||
+                        selectedInvoiceDetails()!.status
+                    }}
+                  </af-status-badge>
+                </div>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Método pagamento</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ formatPaymentMethod(selectedInvoiceDetails()!.payment_method) }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Vencimento</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ selectedInvoiceDetails()!.due_date | date: 'dd/MM/yyyy' }}
+                  </p>
+                </div>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="text-xs text-neutral-500">Pago em</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    @if (selectedInvoiceDetails()!.paid_at) {
+                      {{ selectedInvoiceDetails()!.paid_at | date: 'dd/MM/yyyy' }}
+                    } @else {
+                      —
+                    }
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-neutral-500">Data criação</p>
+                  <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ selectedInvoiceDetails()!.created_at | date: 'dd/MM/yyyy HH:mm' }}
+                  </p>
+                </div>
+              </div>
+              @if (selectedInvoiceDetails()!.payment_url) {
+                <div>
+                  <p class="text-xs text-neutral-500">Link de pagamento</p>
+                  <a
+                    class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline"
+                    [href]="selectedInvoiceDetails()!.payment_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Abrir URL de pagamento
+                  </a>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-sm text-neutral-500">Selecione uma fatura para ver os detalhes.</div>
+          }
+        </div>
+      </af-scroll-area>
+    </div>
   

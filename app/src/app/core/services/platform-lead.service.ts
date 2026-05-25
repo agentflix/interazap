@@ -38,6 +38,10 @@ export class PlatformLeadService {
     return this.http.post<ApiDataResponse<PlatformLead>>(`${this.apiUrl}/${id}/convert`, payload);
   }
 
+  find(id: string): Observable<{ data: PlatformLead }> {
+    return this.http.get<{ data: PlatformLead }>(`${this.apiUrl}/${id}`);
+  }
+
   export(filters: PlatformLeadFilters = {}): Observable<Blob> {
     let params = new HttpParams();
 

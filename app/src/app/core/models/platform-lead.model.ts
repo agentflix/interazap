@@ -4,6 +4,7 @@ export interface PlatformLead {
   email: string;
   phone: string;
   company?: string | null;
+  status?: string | null;
   lgpd_consent: boolean;
   created_at?: string;
   updated_at?: string;
@@ -21,6 +22,7 @@ export interface PlatformLeadListResponse {
 
 export interface PlatformLeadFilters {
   search?: string;
+  status?: string;
   page?: number;
   per_page?: number;
   sort_by?: 'name' | 'email' | 'created_at';

@@ -16,7 +16,7 @@ import {
   Validators,
   FormControl,
 } from '@angular/forms';
-import { merge } from 'rxjs';
+import { finalize, merge } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   AfAlertComponent,
@@ -34,7 +34,9 @@ import {
   AfPaginationComponent,
   AfSearchInputComponent,
   AfSelectInputComponent,
+  AfScrollAreaComponent,
   AfSkeletonTableRowComponent,
+  AfStatusBadgeComponent,
   AfTextInputComponent,
   type AfSelectOption,
 } from '@shared/components';
@@ -72,6 +74,8 @@ import { ToastService } from '@core/services/toast.service';
     AfPaginationComponent,
     AfSearchInputComponent,
     AfSkeletonTableRowComponent,
+    AfScrollAreaComponent,
+    AfStatusBadgeComponent,
 /**
  * Platform invoices page component for the Platform module.
  * @selector app-platform-invoices
@@ -104,6 +108,14 @@ export class PlatformInvoices implements OnInit {
   readonly isCancelModalOpen = signal(false);
   readonly isCancelling = signal(false);
   readonly invoiceToCancel = signal<PlatformBillingInvoice | null>(null);
+
+  readonly isDetailsOpen = signal(false);
+  readonly selectedInvoiceDetails = signal<PlatformBillingInvoice | null>(null);
+
+  readonly isMarkPaidModalOpen = signal(false);
+  readonly isMarkingPaid = signal(false);
+  readonly invoiceToMarkPaid = signal<PlatformBillingInvoice | null>(null);
+  readonly downloadingInvoiceId = signal<string | null>(null);
 
   // ── Filter controls ──
   readonly searchControl = new FormControl('', { nonNullable: true });
@@ -181,6 +193,13 @@ export class PlatformInvoices implements OnInit {
     return `Tem certeza que deseja cancelar a fatura de ${invoice.reference_month} da empresa ${tenantName}? Esta ação não pode ser desfeita.`;
   });
 
+  readonly markPaidMessage = computed(() => {
+    const invoice = this.invoiceToMarkPaid();
+    if (!invoice) return '';
+    const tenantName = invoice.tenant.name || 'Desconhecida';
+    return `Confirmar baixa manual da fatura de ${invoice.reference_month} da empresa ${tenantName}?`;
+  });
+
   private currentPage = 1;
   private currentSearch = '';
 
@@ -249,8 +268,82 @@ export class PlatformInvoices implements OnInit {
     window.open(invoice.payment_url, '_blank');
   }
 
+  openDetails(invoice: PlatformBillingInvoice): void {
+    this.selectedInvoiceDetails.set(invoice);
+    this.isDetailsOpen.set(true);
+  }
+
+  closeDetails(): void {
+    this.isDetailsOpen.set(false);
+  }
+
   canCancel(invoice: PlatformBillingInvoice): boolean {
     return invoice.status !== 'paid' && invoice.status !== 'cancelled';
+  }
+
+  canMarkPaid(invoice: PlatformBillingInvoice): boolean {
+    return invoice.status === 'pending' || invoice.status === 'overdue';
+  }
+
+  openMarkPaidConfirm(invoice: PlatformBillingInvoice): void {
+    if (!this.canMarkPaid(invoice)) return;
+    this.invoiceToMarkPaid.set(invoice);
+    this.isMarkPaidModalOpen.set(true);
+  }
+
+  closeMarkPaidModal(): void {
+    this.isMarkPaidModalOpen.set(false);
+    this.invoiceToMarkPaid.set(null);
+  }
+
+  confirmMarkPaid(): void {
+    const invoice = this.invoiceToMarkPaid();
+    if (!invoice || this.isMarkingPaid()) return;
+
+    this.isMarkingPaid.set(true);
+
+    this.invoiceService
+      .markPaid(invoice.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toast.success('Fatura marcada como paga.');
+          this.isMarkingPaid.set(false);
+          this.closeMarkPaidModal();
+          this.fetchInvoices(this.currentPage, true);
+        },
+        error: () => {
+          this.toast.error('Erro ao marcar fatura como paga.');
+          this.isMarkingPaid.set(false);
+          this.closeMarkPaidModal();
+        },
+      });
+  }
+
+  downloadInvoice(invoice: PlatformBillingInvoice): void {
+    if (this.downloadingInvoiceId() === invoice.id) return;
+
+    this.downloadingInvoiceId.set(invoice.id);
+
+    this.invoiceService
+      .download(invoice.id)
+      .pipe(
+        finalize(() => this.downloadingInvoiceId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `fatura-${invoice.id.substring(0, 8)}.pdf`;
+          link.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => {
+          this.toast.error('Erro ao baixar fatura.');
+        },
+      });
   }
 
   // ── Create modal ──
@@ -347,6 +440,26 @@ export class PlatformInvoices implements OnInit {
 
   formatCurrency(value: number): string {
     return formatCurrency(value);
+  }
+
+  invoiceStatusBadge(status: string | null | undefined): 'online' | 'offline' | 'warning' | 'error' | 'idle' {
+    const badges: Record<string, 'online' | 'offline' | 'warning' | 'error' | 'idle'> = {
+      draft: 'idle',
+      pending: 'warning',
+      paid: 'online',
+      overdue: 'error',
+      cancelled: 'offline',
+    };
+    return badges[status ?? ''] ?? 'offline';
+  }
+
+  formatPaymentMethod(method: string | null | undefined): string {
+    const labels: Record<string, string> = {
+      pix: 'PIX',
+      credit_card: 'Cartão',
+      boleto: 'Boleto',
+    };
+    return labels[method ?? ''] ?? method ?? '—';
   }
 
   // ── Private methods ──
