@@ -16,6 +16,8 @@ class CRMCompanyRequest extends FormRequest
         if ($phone = $this->input('phone')) {
             $digits = preg_replace('/\D/', '', (string) $phone);
             $formatted = match (strlen($digits)) {
+                13 => sprintf('(%s)%s-%s', substr($digits, 2, 2), substr($digits, 4, 5), substr($digits, 9)),
+                12 => sprintf('(%s)%s-%s', substr($digits, 2, 2), substr($digits, 4, 4), substr($digits, 8)),
                 11 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 5), substr($digits, 7)),
                 10 => sprintf('(%s)%s-%s', substr($digits, 0, 2), substr($digits, 2, 4), substr($digits, 6)),
                 default => $phone,

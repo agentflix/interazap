@@ -27,6 +27,11 @@ enum CRMTaskStatus: string
     case DONE = 'done';
 
     /**
+     * Alias legado — mantido por compatibilidade com registros existentes no banco.
+     */
+    case COMPLETED = 'completed';
+
+    /**
      * Retorna label humanizado do status.
      */
     public function label(): string
@@ -34,7 +39,7 @@ enum CRMTaskStatus: string
         return match ($this) {
             self::PENDING => 'Pendente',
             self::IN_PROGRESS => 'Em Progresso',
-            self::DONE => 'Concluída',
+            self::DONE, self::COMPLETED => 'Concluída',
         };
     }
 
@@ -46,7 +51,7 @@ enum CRMTaskStatus: string
         return match ($this) {
             self::PENDING => 'gray',
             self::IN_PROGRESS => 'blue',
-            self::DONE => 'green',
+            self::DONE, self::COMPLETED => 'green',
         };
     }
 }

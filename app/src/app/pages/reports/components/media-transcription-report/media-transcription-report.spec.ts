@@ -6,37 +6,38 @@ import { ReportsService } from '@core/services/reports.service';
 import { type MediaTranscriptionReport } from '../../../../shared/models/report.model';
 import { type AfReportExportPayload } from '@shared/components';
 
-function buildReportResponse(): {
-  data: MediaTranscriptionReport;
-  meta: { start_date: string; end_date: string; total: number; generated_at: string };
-} {
+function buildReportResponse() {
   return {
+    success: true,
+    message: '',
     data: {
-      summary: {
-        total_transcriptions: 150,
-        total_tokens: 45000,
-        total_cost: 12.5,
-        avg_latency_ms: 3200,
+      data: {
+        summary: {
+          total_transcriptions: 150,
+          total_tokens: 45000,
+          total_cost: 12.5,
+          avg_latency_ms: 3200,
+        },
+        by_type: [
+          { media_type: 'audio', count: 80, tokens: 20000, cost: 5.0 },
+          { media_type: 'image', count: 50, tokens: 15000, cost: 4.5 },
+          { media_type: 'video', count: 20, tokens: 10000, cost: 3.0 },
+        ],
+        by_model: [
+          { model_name: 'whisper-1', count: 100, tokens: 30000, cost: 8.0 },
+          { model_name: 'gpt-4o', count: 50, tokens: 15000, cost: 4.5 },
+        ],
+        daily_cost: [
+          { date: '2026-02-01', count: 10, cost: 1.2 },
+          { date: '2026-02-02', count: 15, cost: 1.8 },
+        ],
+      } as MediaTranscriptionReport,
+      meta: {
+        start_date: '2026-02-01',
+        end_date: '2026-02-28',
+        total: 150,
+        generated_at: '2026-02-28T12:00:00Z',
       },
-      by_type: [
-        { media_type: 'audio', count: 80, tokens: 20000, cost: 5.0 },
-        { media_type: 'image', count: 50, tokens: 15000, cost: 4.5 },
-        { media_type: 'video', count: 20, tokens: 10000, cost: 3.0 },
-      ],
-      by_model: [
-        { model_name: 'whisper-1', count: 100, tokens: 30000, cost: 8.0 },
-        { model_name: 'gpt-4o', count: 50, tokens: 15000, cost: 4.5 },
-      ],
-      daily_cost: [
-        { date: '2026-02-01', count: 10, cost: 1.2 },
-        { date: '2026-02-02', count: 15, cost: 1.8 },
-      ],
-    },
-    meta: {
-      start_date: '2026-02-01',
-      end_date: '2026-02-28',
-      total: 150,
-      generated_at: '2026-02-28T12:00:00Z',
     },
   };
 }

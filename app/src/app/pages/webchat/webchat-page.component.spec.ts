@@ -38,6 +38,8 @@ function createMockService(restoreSessionReturn: unknown = null) {
     sendMessage: vi.fn().mockReturnValue(of({ messageId: 'msg-new' })),
     updateMessageStatus: vi.fn(),
     fetchSessionMessages: vi.fn().mockReturnValue(of([])),
+    getTenantInfo: vi.fn().mockReturnValue(of({ name: 'Tenant Teste' })),
+    getSession: vi.fn().mockReturnValue(of({ ticket: { status: 'open' } })),
   };
 }
 
@@ -90,7 +92,7 @@ describe('WebChatPageComponent', () => {
   });
 
   describe('session restoration', () => {
-    it('should attempt to restore session on init', () => {
+    it('should attempt to restore session on init', async () => {
       vi.clearAllMocks();
       const mockService = createMockService();
 
@@ -114,11 +116,12 @@ describe('WebChatPageComponent', () => {
       fixture = TestBed.createComponent(WebChatPageComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
+      await fixture.whenStable();
 
       expect(mockService.restoreSession).toHaveBeenCalled();
     });
 
-    it('should restore session from URL query param when provided', () => {
+    it('should restore session from URL query param when provided', async () => {
       vi.clearAllMocks();
       const mockService = createMockService({
         token: 'restored-token',
@@ -148,6 +151,7 @@ describe('WebChatPageComponent', () => {
       fixture = TestBed.createComponent(WebChatPageComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
+      await fixture.whenStable();
 
       expect(mockService.restoreSession).toHaveBeenCalledWith('session-from-url');
       expect(mockService.connectWebSocket).toHaveBeenCalledWith('restored-token', 'session-from-url');
