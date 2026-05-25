@@ -216,13 +216,13 @@ export class DeadLetterQueueComponent implements OnInit {
       .listDeadLetterJobs(this.filters())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response: DeadLetterQueueResponse) => {
-          this.jobs.set(response.jobs);
+        next: (response: DeadLetterQueueResponse | null) => {
+          this.jobs.set(response?.jobs ?? []);
           this.pagination.set({
-            total: response.total,
-            page: response.page,
-            per_page: response.per_page,
-            totalPages: response.totalPages,
+            total: response?.total ?? 0,
+            page: response?.page ?? 1,
+            per_page: response?.per_page ?? 10,
+            totalPages: response?.totalPages ?? 0,
           });
           this.loading.set(false);
         },
