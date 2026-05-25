@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, computed, input, output, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, input, output, signal, effect } from '@angular/core';
 import { type FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
@@ -61,6 +61,28 @@ export class AfNumberInputComponent {
   protected readonly containerClasses = computed(() =>
     resolveInputContainerClass(this.classContainer(), this.spacing()),
   );
+
+  private readonly controlRevision = signal(0);
+
+  constructor() {
+    effect((onCleanup) => {
+      const subscription = this.control().events.subscribe(() => {
+        this.controlRevision.update((n) => n + 1);
+      });
+      onCleanup(() => subscription.unsubscribe());
+    });
+  }
+
+  protected readonly showError = computed(() => {
+    this.controlRevision();
+    return !!this.control()?.invalid && !!this.control()?.touched;
+  });
+
+  protected readonly resolvedErrorMessage = computed(() => {
+    this.controlRevision();
+    const serverMsg = this.control()?.errors?.['server'];
+    return typeof serverMsg === 'string' ? serverMsg : this.errorMessage();
+  });
 
   protected isAtMin(): boolean {
     const m = this.min();

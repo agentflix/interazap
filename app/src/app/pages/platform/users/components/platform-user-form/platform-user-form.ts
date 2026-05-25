@@ -12,6 +12,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { type PlatformUser, PlatformUserService } from '@core/services/platform-user.service';
+import { ToastService } from '@core/services/toast.service';
+import { applyServerErrors } from '@core/utils/form-server-errors.util';
 import {
   AfPasswordInputComponent,
   AfPasswordStrengthComponent,
@@ -47,6 +49,7 @@ import {
 export class PlatformUserFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(PlatformUserService);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly lastLoadedId = signal<string | null>(null);
 
@@ -170,8 +173,13 @@ export class PlatformUserFormComponent {
         this.isSaving.set(false);
         this.saved.emit(response.data);
       },
-      error: () => {
+      error: (err: { status?: number; error?: { message?: string; errors?: Record<string, string[]> } }) => {
         this.isSaving.set(false);
+        if (err.status === 422 && err.error?.errors) {
+          applyServerErrors(this.form, err.error.errors);
+          return;
+        }
+        this.toast.error(err.error?.message ?? 'Erro ao salvar o usuário.');
       },
     });
   }

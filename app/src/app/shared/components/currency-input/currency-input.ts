@@ -9,6 +9,7 @@ import {
   forwardRef,
   effect,
   inject,
+  signal,
   DestroyRef,
 } from '@angular/core';
 import {
@@ -129,10 +130,20 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
     ].join(' ');
   });
 
+  private readonly controlRevision = signal(0);
+
   /** Whether to show error */
   protected readonly showError = computed(() => {
+    this.controlRevision();
     const ctrl = this.control();
     return !!ctrl && ctrl.invalid && ctrl.touched;
+  });
+
+  /** Error message: server error takes precedence over static errorMessage input */
+  protected readonly resolvedErrorMessage = computed(() => {
+    this.controlRevision();
+    const serverMsg = this.control()?.errors?.['server'];
+    return typeof serverMsg === 'string' ? serverMsg : this.errorMessage();
   });
 
   protected readonly innerControl = new FormControl('', { nonNullable: true });
@@ -142,7 +153,7 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
   protected onTouched: () => void = () => {};
 
   constructor() {
-    effect(() => {
+    effect((onCleanup) => {
       const ctrl = this.control();
       if (!ctrl) return;
 
@@ -152,6 +163,11 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
           this.innerControl.setValue(formatted, { emitEvent: false });
         }
       });
+
+      const eventsSub = ctrl.events.subscribe(() => {
+        this.controlRevision.update((n) => n + 1);
+      });
+      onCleanup(() => eventsSub.unsubscribe());
     });
   }
 

@@ -34,9 +34,9 @@
           <lucide-icon name="plus" [size]="14" />
         </af-icon-button>
       </div>
-      @if (helpText() && !errorMessage()) {
+      @if (helpText() && !showError()) {
         <p class="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
       }
-      <af-form-error [show]="!!errorMessage()" [message]="errorMessage()" />
+      <af-form-error [show]="showError()" [message]="resolvedErrorMessage()" />
     </div>
   

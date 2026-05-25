@@ -10,7 +10,6 @@ import {
   type OnDestroy,
 } from '@angular/core';
 import { type FormControl, ReactiveFormsModule } from '@angular/forms';
-import { merge } from 'rxjs';
 import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
 import { LucideAngularModule } from 'lucide-angular';
@@ -182,11 +181,9 @@ export class AfSelectInputComponent implements OnDestroy {
 
   constructor() {
     effect((onCleanup) => {
-      const control = this.control();
-      const subscription = merge(control.statusChanges, control.valueChanges).subscribe(() => {
+      const subscription = this.control().events.subscribe(() => {
         this.controlRevision.update((current) => current + 1);
       });
-
       onCleanup(() => subscription.unsubscribe());
     });
   }

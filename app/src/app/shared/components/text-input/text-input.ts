@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, computed, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, computed, output, signal, effect } from '@angular/core';
 import { type FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
@@ -99,6 +99,17 @@ export class AfTextInputComponent {
   /** Unique ID for label-input association */
   protected readonly inputId = `input-${Math.random().toString(36).slice(2, 9)}`;
 
+  private readonly controlRevision = signal(0);
+
+  constructor() {
+    effect((onCleanup) => {
+      const subscription = this.control().events.subscribe(() => {
+        this.controlRevision.update((n) => n + 1);
+      });
+      onCleanup(() => subscription.unsubscribe());
+    });
+  }
+
   /** Dynamic CSS classes based on control state and size */
   protected readonly containerClasses = computed(() =>
     resolveInputContainerClass(this.classContainer(), this.spacing()),
@@ -129,7 +140,17 @@ export class AfTextInputComponent {
   });
 
   /** Whether to show the error message */
-  protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
+  protected readonly showError = computed(() => {
+    this.controlRevision();
+    return !!this.control()?.invalid && !!this.control()?.touched;
+  });
+
+  /** Error message: server error takes precedence over static errorMessage input */
+  protected readonly resolvedErrorMessage = computed(() => {
+    this.controlRevision();
+    const serverMsg = this.control()?.errors?.['server'];
+    return typeof serverMsg === 'string' ? serverMsg : this.errorMessage();
+  });
 }
 
 export const TextInputComponent = AfTextInputComponent;

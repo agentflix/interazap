@@ -31,6 +31,7 @@ import { type AddressData, type CnpjData, UtilsService } from '@core/services/ut
 import { AiGovernanceService } from '@core/services/ai-governance.service';
 import { ToastService } from '@core/services/toast.service';
 import { buildAddressLine, digitsOnly, formatCepForForm, normalizeUf } from './tenant-form.utils';
+import { applyServerErrors } from '@core/utils/form-server-errors.util';
 
 @Component({
   selector: 'app-tenant-form',
@@ -334,7 +335,11 @@ export class TenantFormComponent {
 
           this.saved.emit(response.data);
         },
-        error: (error: { error?: { message?: string } }) => {
+        error: (error: { status?: number; error?: { message?: string; errors?: Record<string, string[]> } }) => {
+          if (error.status === 422 && error.error?.errors) {
+            applyServerErrors(this.form, error.error.errors);
+            return;
+          }
           this.toast.error(
             error.error?.message || 'Não foi possível salvar o inquilino. Tente novamente.',
           );

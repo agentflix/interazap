@@ -21,6 +21,7 @@ import {
 } from '@shared/components';
 import { type PlatformLead, PlatformLeadService } from '@core/services/platform-lead.service';
 import { PlatformPlanService } from '@platform/services/platform-plan.service';
+import { applyServerErrors } from '@core/utils/form-server-errors.util';
 
 @Component({
   selector: 'app-lead-convert-modal',
@@ -117,8 +118,12 @@ export class LeadConvertModalComponent {
           this.isSubmitting.set(false);
           this.converted.emit(response.data);
         },
-        error: (error) => {
+        error: (error: { status?: number; error?: { message?: string; errors?: Record<string, string[]> } }) => {
           this.isSubmitting.set(false);
+          if (error.status === 422 && error.error?.errors) {
+            applyServerErrors(this.form, error.error.errors);
+            return;
+          }
           this.errorMessage.set(
             error?.error?.message ?? 'Não foi possível converter o lead. Tente novamente.',
           );

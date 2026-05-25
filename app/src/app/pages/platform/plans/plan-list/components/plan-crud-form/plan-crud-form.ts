@@ -24,6 +24,8 @@ import {
   type PlatformPlanPayload,
 } from '@platform/models/platform-plan.model';
 import { PlatformPlanService } from '@platform/services/platform-plan.service';
+import { ToastService } from '@core/services/toast.service';
+import { applyServerErrors } from '@core/utils/form-server-errors.util';
 
 @Component({
   selector: 'app-plan-crud-form',
@@ -45,6 +47,7 @@ import { PlatformPlanService } from '@platform/services/platform-plan.service';
 })
 export class PlanCrudFormComponent {
   private readonly plansService = inject(PlatformPlanService);
+  private readonly toast = inject(ToastService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly manualSlug = signal(false);
@@ -181,8 +184,13 @@ export class PlanCrudFormComponent {
         this.isSaving.set(false);
         this.saved.emit(response.data);
       },
-      error: () => {
+      error: (err: { status?: number; error?: { message?: string; errors?: Record<string, string[]> } }) => {
         this.isSaving.set(false);
+        if (err.status === 422 && err.error?.errors) {
+          applyServerErrors(this.form, err.error.errors);
+          return;
+        }
+        this.toast.error(err.error?.message ?? 'Erro ao salvar o plano.');
       },
     });
   }
