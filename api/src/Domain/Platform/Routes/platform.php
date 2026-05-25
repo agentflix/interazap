@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum'])
 
         Route::get('/leads', [PlatformLeadAdminController::class, 'index']);
         Route::get('/leads/export', [PlatformLeadAdminController::class, 'export'])->name('platform.leads.export');
+        Route::get('/leads/{id}', [PlatformLeadAdminController::class, 'show'])->name('platform.leads.show');
         Route::post('/leads/{id}/convert', [PlatformLeadAdminController::class, 'convert'])->name('platform.leads.convert');
 
         Route::get('/uazapi/instances', [PlatformUazapiInstanceController::class, 'index']);
@@ -101,6 +102,8 @@ Route::middleware(['auth:sanctum'])
         // Platform Billing Invoices (admin)
         Route::get('/billing/invoices', [PlatformBillingInvoiceController::class, 'index']);
         Route::post('/billing/invoices', [PlatformBillingInvoiceController::class, 'store']);
+        Route::get('/billing/invoices/{id}/download', [PlatformBillingInvoiceController::class, 'download']);
+        Route::patch('/billing/invoices/{id}/mark-paid', [PlatformBillingInvoiceController::class, 'markPaid']);
         Route::delete('/billing/invoices/{id}', [PlatformBillingInvoiceController::class, 'destroy']);
 
         // Platform Users (all tenants - super-admin only)

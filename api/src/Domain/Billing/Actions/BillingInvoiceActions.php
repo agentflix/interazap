@@ -108,6 +108,24 @@ final class BillingInvoiceActions
     }
 
     /**
+     * Marca uma fatura como paga manualmente (visão admin).
+     *
+     * @throws \DomainException Quando a fatura não pode ser marcada como paga.
+     */
+    public function markPaidAdmin(string $id): BillingInvoice
+    {
+        $invoice = $this->findAdmin($id);
+
+        if (! $invoice->canBePaid()) {
+            throw new \DomainException('Esta fatura não pode ser marcada como paga.');
+        }
+
+        $invoice->markAsPaid();
+
+        return $invoice->fresh(['plan', 'tenant']);
+    }
+
+    /**
      * Cria uma nova fatura.
      */
     public function create(?string $tenantId, BillingInvoiceDTO $dto): BillingInvoice

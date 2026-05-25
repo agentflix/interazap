@@ -333,7 +333,8 @@ export class PlatformInvoices implements OnInit {
       )
       .subscribe({
         next: (blob) => {
-          const url = URL.createObjectURL(blob);
+          const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+          const url = URL.createObjectURL(pdfBlob);
           const link = document.createElement('a');
           link.href = url;
           link.download = `fatura-${invoice.id.substring(0, 8)}.pdf`;

@@ -40,6 +40,19 @@ final class PlatformLeadAdminController extends BaseController
         return $this->paginated($paginator, 'Leads listados');
     }
 
+    public function show(Request $request, string $id): JsonResponse
+    {
+        $this->authorize('viewAny', PlatformLead::class);
+
+        try {
+            $lead = $this->actions->find($id);
+
+            return $this->success(new PlatformLeadAdminResource($lead));
+        } catch (\DomainException $e) {
+            return $this->error($e->getMessage(), (int) $e->getCode() ?: 404);
+        }
+    }
+
     public function convert(PlatformLeadConvertRequest $request, string $id): JsonResponse
     {
         $lead = PlatformLead::query()->findOrFail($id);

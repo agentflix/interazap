@@ -7,12 +7,14 @@ namespace Domain\Platform\Http\Controllers;
 use Domain\Billing\Actions\BillingInvoiceActions;
 use Domain\Billing\DTOs\BillingInvoiceDTO;
 use Domain\Billing\Models\BillingInvoice;
+use Domain\Billing\Services\BillingInvoicePdfService;
 use Domain\Platform\Http\Requests\PlatformBillingInvoiceIndexRequest;
 use Domain\Platform\Http\Requests\PlatformBillingInvoiceStoreRequest;
 use Domain\Platform\Http\Resources\PlatformBillingInvoiceResource;
 use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Controller para gerenciamento de faturas na visão de plataforma (admin).
@@ -103,5 +105,36 @@ final class PlatformBillingInvoiceController extends BaseController
         } catch (\DomainException $e) {
             return $this->error($e->getMessage(), 422);
         }
+    }
+
+    /**
+     * Marca uma fatura como paga manualmente.
+     */
+    public function markPaid(Request $request, string $id): JsonResponse
+    {
+        $this->authorize('platform.billing.invoice.delete');
+
+        try {
+            $invoice = $this->actions->markPaidAdmin($id);
+
+            return $this->success(new PlatformBillingInvoiceResource($invoice), 'Fatura marcada como paga.');
+        } catch (\DomainException $e) {
+            return $this->error($e->getMessage(), 422);
+        }
+    }
+
+    /**
+     * Baixa a fatura em PDF.
+     */
+    public function download(Request $request, string $id): Response
+    {
+        $this->authorize('platform.billing.invoice.delete');
+
+        $invoice = $this->actions->findAdmin($id);
+        $pdf = app(BillingInvoicePdfService::class)->generate($invoice);
+
+        $filename = sprintf('fatura-%s-%s.pdf', $invoice->reference_month, substr((string) $invoice->id, 0, 8));
+
+        return $pdf->download($filename);
     }
 }

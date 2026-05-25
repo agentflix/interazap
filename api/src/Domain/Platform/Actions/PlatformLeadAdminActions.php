@@ -126,6 +126,17 @@ final class PlatformLeadAdminActions
         return $query;
     }
 
+    public function find(string $id): PlatformLead
+    {
+        $lead = PlatformLead::find($id);
+
+        if (! $lead) {
+            throw new \DomainException('Lead não encontrado.', 404);
+        }
+
+        return $lead;
+    }
+
     private function sanitizeSortBy(string $sortBy): string
     {
         if (! in_array($sortBy, self::SORTABLE_COLUMNS, true)) {
