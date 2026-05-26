@@ -51,12 +51,15 @@
 
     <div class="mt-6">
       <af-loading-button
+        variant="primary"
+        size="md"
         type="submit"
         [loading]="isLoading()"
         [disabled]="form.invalid"
-        label="Concluir cadastro"
-        class="w-full"
-      />
+        [block]="true"
+      >
+        Concluir cadastro
+      </af-loading-button>
     </div>
   </form>
 </app-auth-page-wrapper>
