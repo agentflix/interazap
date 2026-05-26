@@ -9,9 +9,9 @@
   z-index: 100;
 
   &--normal {
-    background-color: #e8f4fd;
-    color: #1565c0;
-    border-bottom: 1px solid #90caf9;
+    background-color: #dcfce7;
+    color: #14532d;
+    border-bottom: 1px solid #86efac;
   }
 
   &--alert {
@@ -28,9 +28,9 @@
   }
 
   :host-context(.dark) &--normal {
-    background-color: #0d1f35;
-    color: #90caf9;
-    border-bottom-color: #1e3a5f;
+    background-color: #052e16;
+    color: #86efac;
+    border-bottom-color: #166534;
   }
 
   :host-context(.dark) &--alert {
