@@ -27,6 +27,24 @@
     border-bottom: 1px solid #ef9a9a;
   }
 
+  :host-context(.dark) &--normal {
+    background-color: #0d1f35;
+    color: #90caf9;
+    border-bottom-color: #1e3a5f;
+  }
+
+  :host-context(.dark) &--alert {
+    background-color: #1f1400;
+    color: #ffa726;
+    border-bottom-color: #7c4d00;
+  }
+
+  :host-context(.dark) &--expired {
+    background-color: #1f0505;
+    color: #ef9a9a;
+    border-bottom-color: #7f1010;
+  }
+
   &__content {
     display: flex;
     align-items: center;
@@ -75,6 +93,10 @@
 
     &:hover {
       background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    :host-context(.dark) &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
     }
 
     &--pulse {
