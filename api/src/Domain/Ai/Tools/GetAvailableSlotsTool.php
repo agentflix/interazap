@@ -12,16 +12,16 @@ use Domain\Configuration\Models\ConfigurationOpeningHour;
 use Domain\CRM\Models\CRMEvent;
 
 /**
- * Tool to find available calendar slots for scheduling.
+ * Ferramenta de IA para encontrar horários disponíveis para agendamento.
  *
- * Returns up to 8 free time slots within a date range,
- * respecting tenant opening hours and excluding existing events.
+ * Input esperado: date_from, date_to em ISO, duration_minutes e user_id opcionais.
+ * Output produzido: lista de até 8 slots livres com starts_at e ends_at.
+ * Quando usar: sugerir horários ao cliente antes de criar um evento no CRM.
+ * Respeita o horário de funcionamento do tenant e exclui eventos existentes.
  */
 class GetAvailableSlotsTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a busca por horários disponíveis. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $dateFrom = (string) ($input->parameters['date_from'] ?? '');
@@ -111,12 +111,12 @@ class GetAvailableSlotsTool implements AiToolInterface
     }
 
     /**
-     * Check if a time slot is within opening hours.
+     * Verifica se um slot está dentro do horário de funcionamento.
      *
-     * @param  Carbon  $start  Start of the slot.
-     * @param  Carbon  $end  End of the slot.
-     * @param  int  $dayOfWeek  Day of week (0=Sunday, 6=Saturday).
-     * @param  mixed  $openingHours  Opening hours grouped by day.
+     * @param  Carbon  $start  Início do slot.
+     * @param  Carbon  $end  Fim do slot.
+     * @param  int  $dayOfWeek  Dia da semana (0=Domingo, 6=Sábado).
+     * @param  mixed  $openingHours  Horários de funcionamento agrupados por dia.
      */
     private function isWithinOpeningHours(Carbon $start, Carbon $end, int $dayOfWeek, mixed $openingHours): bool
     {
@@ -142,11 +142,11 @@ class GetAvailableSlotsTool implements AiToolInterface
     }
 
     /**
-     * Check if a time slot conflicts with existing events.
+     * Verifica se um slot conflita com eventos existentes.
      *
-     * @param  Carbon  $start  Start of the slot.
-     * @param  Carbon  $end  End of the slot.
-     * @param  mixed  $events  Existing events.
+     * @param  Carbon  $start  Início do slot.
+     * @param  Carbon  $end  Fim do slot.
+     * @param  mixed  $events  Eventos existentes.
      */
     private function hasConflict(Carbon $start, Carbon $end, mixed $events): bool
     {
@@ -167,24 +167,20 @@ class GetAvailableSlotsTool implements AiToolInterface
         return false;
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::GET_AVAILABLE_SLOTS;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Returns available calendar slots within a date range, respecting opening hours and excluding existing events.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

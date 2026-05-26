@@ -9,7 +9,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * DB-backed catalog for tenant bootstrap defaults by segment.
+ * Catálogo de bootstrap de defaults de tenant baseado no segmento.
+ *
+ * Carrega os dados padrão (agentes, funis, motivos de perda, etc.) para cada segmento
+ * a partir da tabela platform_tenant_bootstrap_catalogs, com fallback para o segmento GENERAL.
  */
 final class PlatformTenantBootstrapCatalogService
 {
@@ -18,7 +21,13 @@ final class PlatformTenantBootstrapCatalogService
     public const DEFAULT_SEGMENT_CODE = 'GENERAL';
 
     /**
-     * @return array<string, mixed>
+     * Retorna o catálogo de bootstrap para o código de segmento informado.
+     *
+     * Busca o segmento exato e, caso não encontrado, retorna o catálogo GENERAL.
+     * Se nem o GENERAL existir, retorna um catálogo mínimo de fallback.
+     *
+     * @param  string  $segmentCode  Código do segmento (ex: 'GENERAL', 'SAAS').
+     * @return array<string, mixed> Catálogo de dados padrão para o segmento.
      */
     public function forSegmentCode(string $segmentCode): array
     {
@@ -38,8 +47,12 @@ final class PlatformTenantBootstrapCatalogService
     }
 
     /**
-     * @param  list<string>  $segmentCodes
-     * @return array<string, array<string, mixed>>
+     * Carrega os catálogos da tabela de banco de dados para os segmentos informados.
+     *
+     * Se a tabela não existir ou estiver vazia, executa o seeder antes de consultar.
+     *
+     * @param  list<string>  $segmentCodes  Códigos de segmento a carregar.
+     * @return array<string, array<string, mixed>> Mapa segmentCode => payload.
      */
     private function loadCatalogs(array $segmentCodes): array
     {
@@ -71,7 +84,9 @@ final class PlatformTenantBootstrapCatalogService
     }
 
     /**
-     * @return array<string, mixed>
+     * Retorna um catálogo mínimo de fallback quando nenhum segmento é encontrado.
+     *
+     * @return array<string, mixed> Catálogo com campos obrigatórios vazios.
      */
     private function fallbackCatalog(): array
     {

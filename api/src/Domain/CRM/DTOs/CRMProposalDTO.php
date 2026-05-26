@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for commercial proposal.
+ * DTO para proposta comercial vinculada a uma negociação.
  *
  * @readonly
  */
@@ -26,9 +26,7 @@ final readonly class CRMProposalDTO
         public array $items = [],
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria DTO a partir de um FormRequest já validado. */
     public static function fromRequest(FormRequest $request, string $negotiationId, string $defaultStatus = 'draft'): self
     {
         return self::fromArray($request->validated(), $negotiationId, $defaultStatus);

@@ -14,8 +14,9 @@ import { LucideAngularModule } from 'lucide-angular';
 import { resolveInputContainerClass } from '../input-container.util';
 
 /**
- * AfFileInputComponent — Simple file input with label and error display.
- * Binds to a FormControl<FileList | null>.
+ * Campo de arquivo simples com rótulo e exibição de erro.
+ *
+ * Vincula ao FormControl&lt;FileList | null&gt;.
  *
  * @example
  * ```html
@@ -30,31 +31,31 @@ import { resolveInputContainerClass } from '../input-container.util';
   templateUrl: './file-input.html',
 })
 export class AfFileInputComponent {
-  /** FormControl for FileList binding */
+  /** FormControl para vinculação do FileList */
   readonly control = input<FormControl<FileList | null>>();
 
-  /** Field label */
+  /** Rótulo do campo */
   readonly label = input('');
 
-  /** Accepted file types */
+  /** Tipos de arquivo aceitos */
   readonly accept = input('');
 
-  /** Allow multiple files */
+  /** Permite múltiplos arquivos */
   readonly multiple = input(false);
 
-  /** Required field */
+  /** Indica se o campo é obrigatório */
   readonly required = input(false);
 
-  /** Error message */
+  /** Mensagem de erro */
   readonly errorMessage = input('Arquivo obrigatório.');
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the input */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
   protected readonly fileName = signal('');

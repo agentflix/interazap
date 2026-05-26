@@ -1,3 +1,4 @@
+/** Re-exportações dos componentes de entrada de formulário do UI Kit. */
 export { AfFormLabelComponent as FormLabelComponent } from './form-label/form-label';
 export { AfFormErrorComponent as FormErrorComponent } from './form-error/form-error';
 

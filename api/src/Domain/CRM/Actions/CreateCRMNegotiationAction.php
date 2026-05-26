@@ -16,7 +16,10 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Create use-case for CRM negotiations.
+ * Caso de uso de criação de negociações CRM.
+ *
+ * Valida a integridade das entidades relacionadas (funil, etapa, contato)
+ * antes de persistir, garantindo isolamento por tenant.
  */
 final class CreateCRMNegotiationAction
 {

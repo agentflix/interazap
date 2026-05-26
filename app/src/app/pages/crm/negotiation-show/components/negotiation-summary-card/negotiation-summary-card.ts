@@ -23,7 +23,7 @@ import { formatCurrency } from '@shared/utils/currency';
 import { isSameId } from '../../negotiation-show.utils';
 
 /**
- * Sidebar summary card with inline selectors for negotiation details.
+ * Cartão resumo na sidebar com seletores inline para edição dos detalhes da negociação.
  */
 @Component({
   selector: 'app-negotiation-summary-card',

@@ -43,6 +43,8 @@ final class ReportXlsxExporter implements FromArray, ShouldAutoSize, WithHeading
     }
 
     /**
+     * Retorna as linhas de dados sem as chaves associativas para o maatwebsite/excel.
+     *
      * @return array<int, list<mixed>>
      */
     public function array(): array
@@ -51,6 +53,8 @@ final class ReportXlsxExporter implements FromArray, ShouldAutoSize, WithHeading
     }
 
     /**
+     * Retorna os cabeçalhos das colunas da planilha.
+     *
      * @return string[]
      */
     public function headings(): array
@@ -58,6 +62,7 @@ final class ReportXlsxExporter implements FromArray, ShouldAutoSize, WithHeading
         return $this->headings;
     }
 
+    /** Retorna o título da aba da planilha (limitado a 31 caracteres). */
     public function title(): string
     {
         return $this->sheetTitle;

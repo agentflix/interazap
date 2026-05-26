@@ -14,7 +14,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class PlatformTenantImpersonateRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -22,7 +22,7 @@ final class PlatformTenantImpersonateRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para confirmação de senha na impersonação.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
@@ -34,7 +34,7 @@ final class PlatformTenantImpersonateRequest extends FormRequest
     }
 
     /**
-     * Get custom messages for validator errors.
+     * Mensagens customizadas para erros de validação.
      *
      * @return array<string, string>
      */

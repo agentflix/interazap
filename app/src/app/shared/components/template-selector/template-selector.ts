@@ -23,7 +23,7 @@ import { ButtonComponent } from '@shared/components/buttons';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * Represents a Meta WhatsApp template.
+ * Representa um template do Meta WhatsApp.
  */
 export interface MetaTemplate {
   name: string;
@@ -34,7 +34,7 @@ export interface MetaTemplate {
 }
 
 /**
- * Represents a component within a Meta WhatsApp template.
+ * Representa um componente dentro de um template do Meta WhatsApp.
  */
 export interface MetaTemplateComponent {
   type: string;
@@ -43,7 +43,7 @@ export interface MetaTemplateComponent {
 }
 
 /**
- * Represents a parameter in a template component.
+ * Representa um parâmetro em um componente de template.
  */
 export interface MetaTemplateParameter {
   type: string;
@@ -51,14 +51,14 @@ export interface MetaTemplateParameter {
 }
 
 /**
- * Response from the templates endpoint.
+ * Resposta do endpoint de templates.
  */
 interface TemplatesResponse {
   data: MetaTemplate[];
 }
 
 /**
- * Event emitted when a template is selected.
+ * Evento emitido quando um template é selecionado.
  */
 export interface TemplateSelectedEvent {
   templateName: string;
@@ -66,10 +66,10 @@ export interface TemplateSelectedEvent {
 }
 
 /**
- * Component for selecting a Meta WhatsApp Business template.
+ * Componente para seleção de template do Meta WhatsApp Business.
  *
- * Loads approved templates for a given channel and allows the user to
- * select one and fill in its required parameters.
+ * Carrega templates aprovados para um canal e permite ao usuário
+ * selecionar um e preencher seus parâmetros obrigatórios.
  *
  * @example
  * ```html
@@ -96,43 +96,43 @@ export class TemplateSelectorComponent {
   private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** The channel ID to load templates from. */
+  /** ID do canal para carregar os templates. */
   readonly channelId = input.required<string>();
 
-  /** Visual presentation mode. Affects layout/density only. */
+  /** Modo de apresentação visual. Afeta apenas layout/densidade. */
   readonly mode = input<'popover' | 'sheet' | 'modal'>('popover');
 
-  /** Event emitted when a template is selected with its parameters. */
+  /** Evento emitido quando um template é selecionado com seus parâmetros. */
   readonly templateSelected = output<TemplateSelectedEvent>();
 
-  /** Loading state. */
+  /** Estado de carregamento. */
   readonly isLoading = signal(false);
 
-  /** Error message if template loading fails. */
+  /** Mensagem de erro se o carregamento de templates falhar. */
   readonly loadError = signal<string | null>(null);
 
-  /** List of approved templates. */
+  /** Lista de templates aprovados. */
   readonly templates = signal<MetaTemplate[]>([]);
 
-  /** Currently selected template. */
+  /** Template atualmente selecionado. */
   readonly selectedTemplate = signal<MetaTemplate | null>(null);
 
-  /** Form control for template selection. */
+  /** FormControl para seleção de template. */
   readonly templateControl = new FormControl<string>('', {
     nonNullable: true,
     validators: [Validators.required],
   });
 
-  /** Parameter form controls (dynamic based on selected template). */
+  /** FormControls de parâmetros (dinâmico baseado no template selecionado). */
   readonly parameterControls = signal<Record<string, FormControl<string>>>({});
 
-  /** Parameter entries as array for iteration. */
+  /** Entradas de parâmetros como array para iteração. */
   readonly parameterEntries = computed(() => Object.entries(this.parameterControls()));
 
-  /** Whether there was an error selecting/validating. */
+  /** Indica se houve erro ao selecionar/validar. */
   readonly validationError = signal<string | null>(null);
 
-  /** Template options for the select dropdown. */
+  /** Opções de template para o dropdown de seleção. */
   readonly templateOptions = computed<SelectOption[]>(() =>
     this.templates().map((t) => ({
       value: t.name,
@@ -140,7 +140,7 @@ export class TemplateSelectorComponent {
     })),
   );
 
-  /** Number of required parameters for the selected template. */
+  /** Número de parâmetros obrigatórios para o template selecionado. */
   readonly requiredParamCount = computed(() => {
     const template = this.selectedTemplate();
     if (!template?.components) {
@@ -149,10 +149,10 @@ export class TemplateSelectorComponent {
     return template.components.filter((c) => c.type === 'BODY' && c.parameters?.length).length ?? 0;
   });
 
-  /** Whether the selected template requires parameters. */
+  /** Indica se o template selecionado requer parâmetros. */
   readonly hasRequiredParameters = computed(() => this.requiredParamCount() > 0);
 
-  /** Whether the submit button should be enabled. */
+  /** Indica se o botão de submit deve estar habilitado. */
   readonly canSubmit = computed(() => {
     if (!this.selectedTemplate()) {
       return false;
@@ -169,7 +169,7 @@ export class TemplateSelectorComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((templateName) => this.onTemplateChange(templateName));
 
-    // Load templates when channelId input changes
+    // Carrega templates quando o input channelId muda
     effect(() => {
       const channelId = this.channelId();
       if (channelId) {
@@ -179,8 +179,8 @@ export class TemplateSelectorComponent {
   }
 
   /**
-   * Loads approved templates from the API.
-   * @param channelId - The channel ID to load templates for.
+   * Carrega templates aprovados da API.
+   * @param channelId - ID do canal para carregar os templates.
    */
   loadTemplates(channelId: string): void {
     this.isLoading.set(true);
@@ -209,8 +209,8 @@ export class TemplateSelectorComponent {
   }
 
   /**
-   * Handles template selection change.
-   * @param templateName - The name of the selected template.
+   * Processa a mudança de template selecionado.
+   * @param templateName - Nome do template selecionado.
    */
   private onTemplateChange(templateName: string): void {
     this.validationError.set(null);
@@ -244,7 +244,7 @@ export class TemplateSelectorComponent {
   }
 
   /**
-   * Emits the templateSelected event with the selected template and parameters.
+   * Emite o evento templateSelected com o template e parâmetros selecionados.
    */
   submit(): void {
     const template = this.selectedTemplate();

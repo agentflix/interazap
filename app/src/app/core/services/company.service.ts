@@ -6,45 +6,59 @@ import { type TenantDetails } from '@shared/models/tenant-details.model';
 import { type PaginatedResponse } from '@core/models/pagination.model';
 import type { Company, CompanyFilters } from '@core/models/company.model';
 
+/**
+ * Gerencia operações CRUD e auxiliares de tenants (empresas) da plataforma.
+ *
+ * @see `/platform/tenants` — endpoint base da API
+ */
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
   private readonly baseUrl = `${environment.apiUrl}/platform/tenants`;
   private readonly http = inject(HttpClient);
 
+  /** Lista tenants (empresas) com filtros opcionais e paginação. */
   list(filters: CompanyFilters = {}): Observable<PaginatedResponse<Company>> {
     const params = this.buildListParams(filters);
 
     return this.http.get<PaginatedResponse<Company>>(this.baseUrl, { params });
   }
 
+  /** Cria um novo tenant (empresa) na plataforma. */
   create(data: Partial<Company>): Observable<{ data: Company }> {
     return this.http.post<{ data: Company }>(this.baseUrl, data);
   }
 
+  /** Retorna um tenant pelo ID. */
   find(id: string | number): Observable<{ data: Company }> {
     return this.http.get<{ data: Company }>(`${this.baseUrl}/${id}`);
   }
 
+  /** Atualiza dados de um tenant existente. */
   update(id: string | number, data: Partial<Company>): Observable<{ data: Company }> {
     return this.http.put<{ data: Company }>(`${this.baseUrl}/${id}`, data);
   }
 
+  /** Remove (soft-delete) um tenant pelo ID. */
   delete(id: string | number): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }
 
+  /** Alterna o status ativo/inativo de um tenant. */
   toggleActive(id: string | number): Observable<{ data: Company }> {
     return this.http.patch<{ data: Company }>(`${this.baseUrl}/${id}/toggle-active`, {});
   }
 
+  /** Restaura um tenant previamente excluído (soft-delete). */
   restore(id: string | number): Observable<{ data: Company }> {
     return this.http.post<{ data: Company }>(`${this.baseUrl}/${id}/restore`, {});
   }
 
+  /** Exclui permanentemente um tenant (hard-delete). */
   forceDelete(id: string | number): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}/force`);
   }
 
+  /** Exclui permanentemente um tenant com confirmação por senha (purge). */
   purge(id: string | number, password: string): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}/purge`, {
       body: { password },
@@ -52,12 +66,13 @@ export class CompanyService {
   }
 
   /**
-   * Fetch detailed tenant info: company data, contracted plan & resource usage.
+   * Retorna informações detalhadas do tenant: dados da empresa, plano contratado e uso de recursos.
    */
   details(id: string | number): Observable<{ data: TenantDetails }> {
     return this.http.get<{ data: TenantDetails }>(`${this.baseUrl}/${id}/details`);
   }
 
+  /** Exporta lista de tenants como arquivo binário (CSV/Excel) com filtros. */
   export(filters: CompanyFilters = {}): Observable<HttpResponse<Blob>> {
     const params = this.buildExportParams(filters);
 

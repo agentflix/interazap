@@ -12,16 +12,15 @@ use Illuminate\Support\ServiceProvider;
 use Prometheus\CollectorRegistry;
 
 /**
- * Shared Domain Service Provider.
+ * Service Provider do domínio Shared.
  *
- * Registra serviços compartilhados, comandos e schedules do módulo Shared.
- *
- * @category Providers
+ * Registra singletons do PrometheusRegistry/CollectorRegistry e agenda
+ * o job de limpeza de audit logs diariamente às 02:00 (sem sobreposição).
  */
 final class SharedServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Registra os serviços compartilhados no container da aplicação.
      */
     public function register(): void
     {
@@ -33,7 +32,7 @@ final class SharedServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Inicializa os serviços após o boot da aplicação.
      */
     public function boot(): void
     {
@@ -41,7 +40,7 @@ final class SharedServiceProvider extends ServiceProvider
     }
 
     /**
-     * Schedule the audit logs cleanup job.
+     * Agenda o job de limpeza de logs de auditoria para execução diária às 02:00.
      */
     private function scheduleAuditCleanup(): void
     {

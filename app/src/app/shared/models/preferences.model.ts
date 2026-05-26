@@ -1,10 +1,10 @@
 /**
- * User preferences model.
- * Mirrors the backend `preferences` JSONB stored in `auth_users`.
+ * Modelo de preferências do usuário.
+ * Espelha o JSONB `preferences` armazenado em `auth_users`.
  */
 
 /**
- * Appearance preferences — theme, density, and font size.
+ * Preferências de aparência — tema, densidade e tamanho da fonte.
  */
 export interface AppearancePreferences {
   theme: 'light' | 'dark' | 'system';
@@ -13,7 +13,7 @@ export interface AppearancePreferences {
 }
 
 /**
- * Behavior preferences — notifications, sound, and interaction modes.
+ * Preferências de comportamento — notificações, som e modos de interação.
  */
 export interface BehaviorPreferences {
   sound: boolean;
@@ -24,7 +24,7 @@ export interface BehaviorPreferences {
 }
 
 /**
- * CRM default preferences — defaults applied when creating CRM entities.
+ * Preferências padrão do CRM — aplicadas ao criar entidades CRM.
  */
 export interface CrmDefaultsPreferences {
   negotiationType: 'basic' | 'advanced' | 'full';
@@ -34,14 +34,14 @@ export interface CrmDefaultsPreferences {
 }
 
 /**
- * Security preferences — session management.
+ * Preferências de segurança — gerenciamento de sessão.
  */
 export interface SecurityPreferences {
   sessionTimeout: number | null;
 }
 
 /**
- * Accessibility preferences — high contrast and reduced motion.
+ * Preferências de acessibilidade — alto contraste e movimento reduzido.
  */
 export interface AccessibilityPreferences {
   highContrast: boolean;
@@ -49,7 +49,7 @@ export interface AccessibilityPreferences {
 }
 
 /**
- * Complete user preferences structure persisted in the backend.
+ * Estrutura completa de preferências do usuário persistida no backend.
  */
 export interface UserPreferences {
   appearance: AppearancePreferences;
@@ -60,15 +60,15 @@ export interface UserPreferences {
 }
 
 /**
- * API response envelope for user preferences.
+ * Envelope de resposta da API para preferências do usuário.
  */
 export interface UserPreferencesResponse {
   data: UserPreferences;
 }
 
 /**
- * A single notification preference record returned by the backend.
- * Mirrors `ConfigurationNotificationPreference` model.
+ * Registro individual de preferência de notificação retornado pelo backend.
+ * Espelha o model `ConfigurationNotificationPreference`.
  */
 export interface NotificationPreference {
   id: string;
@@ -80,7 +80,7 @@ export interface NotificationPreference {
 }
 
 /**
- * Full response from GET /configuration/notifications/preferences.
+ * Resposta completa de GET /configuration/notifications/preferences.
  */
 export interface NotificationPreferencesResponse {
   data: NotificationPreference[];
@@ -89,7 +89,7 @@ export interface NotificationPreferencesResponse {
 }
 
 /**
- * Payload for PUT /configuration/notifications/preferences (bulk update).
+ * Payload para PUT /configuration/notifications/preferences (atualização em massa).
  */
 export interface NotificationPreferencesBulkPayload {
   preferences: {

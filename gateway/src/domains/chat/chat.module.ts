@@ -30,13 +30,13 @@ import { WebhookNormalizationInterceptor } from './interceptors/webhook-normaliz
 import { RedisModule } from '../../infrastructure/redis/redis.module';
 import { MetricsModule } from '../../metrics/metrics.module';
 
-// Z-API Provider
+// Provider Z-API
 import { ZapiClient } from './providers/zapi/zapi.client';
 import { ZapiNormalizer } from './providers/zapi/zapi.normalizer';
 import { ZapiAdapter } from './providers/zapi/zapi.adapter';
 import { ProviderFactory } from './providers/provider.factory';
 
-// Meta Provider
+// Provider Meta
 import { MetaModule } from './providers/meta/meta.module';
 import { MetaWebhookController } from './controllers/meta-webhook.controller';
 import { ChannelsController } from './channels.controller';
@@ -47,6 +47,14 @@ import { SendMessageConsumer } from './outbound/send-message.consumer';
 import { RetryPolicy } from './outbound/retry-policy';
 import { UpdateConnectionStatusProcessor } from './processors/update-connection-status.processor';
 
+/**
+ * Modulo principal do dominio Chat no gateway.
+ *
+ * Contexto: agrega todos os controllers, servicos e providers de mensageria
+ * (Uazapi, Z-API, Meta). Integra RealtimeModule para emissao de eventos WebSocket,
+ * RedisModule para cache e idempotencia, MetricsModule para observabilidade
+ * e QueueModule para consumo de streams Redis e filas BullMQ.
+ */
 @Module({
   imports: [
     RealtimeModule,
@@ -84,7 +92,7 @@ import { UpdateConnectionStatusProcessor } from './processors/update-connection-
     TicketResolverService,
     ConnectionStatusService,
     WebhookNormalizationInterceptor,
-    // Z-API
+    // Z-API Provider
     ZapiClient,
     ZapiNormalizer,
     ZapiAdapter,
@@ -93,7 +101,7 @@ import { UpdateConnectionStatusProcessor } from './processors/update-connection-
     RetryPolicy,
     SendMessageService,
     SendMessageConsumer,
-    // Processors
+    // Processadores
     UpdateConnectionStatusProcessor,
   ],
   exports: [ProviderFactory, SendMessageService],

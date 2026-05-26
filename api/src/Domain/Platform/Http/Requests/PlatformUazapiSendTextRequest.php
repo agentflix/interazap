@@ -13,7 +13,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class PlatformUazapiSendTextRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -39,7 +39,7 @@ class PlatformUazapiSendTextRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para envio de mensagem de texto via Uazapi.
      *
      * @return array<string, mixed>
      */

@@ -125,7 +125,7 @@ export class ChatWebhookRealtimeProcessor {
 
     if (eventType === 'messages') {
       this.logger.debug(
-        'Emitting fast-path inbound realtime for messages (preliminary)',
+        'Emitindo realtime fast-path inbound para mensagens (preliminar)',
       );
       await this.emitFastPathMessage(payload);
       return;
@@ -141,7 +141,7 @@ export class ChatWebhookRealtimeProcessor {
     const tenantId = payload.tenant_id;
     if (!tenantId) {
       this.logger.debug(
-        'No tenant_id in messages event — skipping fast-path realtime emit',
+        'Nenhum tenant_id no evento de mensagem — ignorando emissao fast-path realtime',
       );
       return;
     }
@@ -149,7 +149,7 @@ export class ChatWebhookRealtimeProcessor {
     const message = this.eventNormalizer.extractMessagePayload(payload);
     if (!message) {
       this.logger.debug(
-        'No message data found in messages event — skipping fast-path realtime emit',
+        'Nenhum dado de mensagem encontrado no evento — ignorando emissao fast-path realtime',
       );
       return;
     }
@@ -159,13 +159,13 @@ export class ChatWebhookRealtimeProcessor {
     try {
       ticketId = await this.resolveTicketIdForRemoteJid(tenantId, remoteJid);
     } catch {
-      // Cache miss is acceptable; skip ticket room
+      // Cache miss e aceitavel — sala do ticket e ignorada
     }
 
     const messageId =
       getString(message, 'id') ?? getString(message, 'messageId') ?? null;
 
-    // Resolve message type — contacts arrive as type="media" with mediaType="contact_array"
+    // Resolve tipo da mensagem — contatos chegam como type="media" com mediaType="contact_array"
     const rawType = getString(message, 'type') ?? 'text';
     const mediaType = (
       getString(message, 'mediaType') ??
@@ -201,7 +201,7 @@ export class ChatWebhookRealtimeProcessor {
         ? 'location'
         : rawType;
 
-    // Build minimal metadata for contact messages
+    // Constroi metadados minimos para mensagens de contato
     let preliminaryMetadata: Record<string, unknown> | undefined;
     if (isContact) {
       const content = message.content as Record<string, unknown> | undefined;
@@ -255,13 +255,13 @@ export class ChatWebhookRealtimeProcessor {
       ],
     };
 
-    // Always emit to tenant room
+    // Emite para a sala do tenant
     this.realtimeEmitter.emitToTenant(
       tenantId,
       CHAT_EVENTS.ACTIVITY,
       fastPayload as Record<string, unknown>,
     );
-    // Also emit to ticket room if we resolved ticket
+    // Tambem emite para a sala do ticket quando disponivel
     if (ticketId) {
       this.realtimeEmitter.emitToTicket(
         ticketId,
@@ -280,7 +280,7 @@ export class ChatWebhookRealtimeProcessor {
     const tenantId = payload.tenant_id;
     if (!tenantId) {
       this.logger.debug(
-        'No tenant_id in edited messages event — skipping realtime emit',
+        'Nenhum tenant_id no evento de edicao — ignorando emissao realtime',
       );
       return;
     }
@@ -290,7 +290,7 @@ export class ChatWebhookRealtimeProcessor {
     const messageId = this.eventNormalizer.resolveEditedMessageId(payload);
     if (!messageId) {
       this.logger.debug(
-        'No edited message reference found — skipping edit realtime emit',
+        'Nenhuma referencia de mensagem editada encontrada — ignorando emissao realtime de edicao',
       );
       return;
     }
@@ -301,7 +301,7 @@ export class ChatWebhookRealtimeProcessor {
     );
     if (content.trim() === '') {
       this.logger.debug(
-        `No resolved content for edited message ${messageId} — skipping edit realtime emit`,
+        `Nenhum conteudo resolvido para mensagem editada ${messageId} — ignorando emissao realtime`,
       );
       return;
     }
@@ -314,7 +314,7 @@ export class ChatWebhookRealtimeProcessor {
     const resolvedTicketId = ticketId?.trim();
     if (!resolvedTicketId) {
       this.logger.debug(
-        `No ticket resolved for edited message ${messageId} (remoteJid: ${remoteJid ?? 'n/a'}) — skipping edit realtime emit`,
+        `Nenhum ticket resolvido para mensagem editada ${messageId} (remoteJid: ${remoteJid ?? 'n/a'}) — ignorando emissao realtime`,
       );
       return;
     }
@@ -380,7 +380,7 @@ export class ChatWebhookRealtimeProcessor {
     const message = this.eventNormalizer.extractMessagePayload(payload);
     if (!message) {
       this.logger.debug(
-        'No message data found in messages event — skipping realtime emit',
+        'Nenhum dado de mensagem encontrado no evento — ignorando emissao realtime',
       );
       return;
     }
@@ -388,7 +388,7 @@ export class ChatWebhookRealtimeProcessor {
     const tenantId = payload.tenant_id;
     if (!tenantId) {
       this.logger.debug(
-        'No tenant_id in messages event — skipping realtime emit',
+        'Nenhum tenant_id no evento de mensagem — ignorando emissao realtime',
       );
       return;
     }
@@ -449,7 +449,7 @@ export class ChatWebhookRealtimeProcessor {
       return;
     }
 
-    // Resolver ticket ativo pelo numero do contato
+    // Resolve ticket ativo pelo numero do contato via cache Redis
     const ticketId = await this.resolveTicketIdForRemoteJid(
       payload.tenant_id,
       `${number}@s.whatsapp.net`,
@@ -463,14 +463,14 @@ export class ChatWebhookRealtimeProcessor {
       number,
     };
 
-    // Emitir para sala do tenant
+    // Emite para a sala do tenant
     this.realtimeEmitter.emitToTenant(
       payload.tenant_id,
       CHAT_EVENTS.TYPING,
       typingPayload,
     );
 
-    // Emitir para sala do ticket (se existir)
+    // Emite para a sala do ticket quando disponivel
     if (ticketId) {
       this.realtimeEmitter.emitToTicket(
         ticketId,
@@ -508,21 +508,21 @@ export class ChatWebhookRealtimeProcessor {
    * @param payload - Payload de stream do evento messages_update
    */
   private emitMessageStatusEvent(payload: StreamPayload): void {
-    // O payload pode ter raw.raw.event (estrutura aninhada do Uazapi)
+    // Payload pode ter raw.raw.event (estrutura aninhada da Uazapi)
     const outerRaw = payload.raw;
     const innerRaw = outerRaw?.raw as Record<string, unknown> | undefined;
     const event = (innerRaw?.event ?? outerRaw?.event) as
       | Record<string, unknown>
       | undefined;
 
-    // Extrai MessageIDs
+    // Extrai IDs das mensagens
     const messageIds = (event?.MessageIDs ?? []) as string[];
     if (messageIds.length === 0) {
-      this.logger.debug('No MessageIDs found in messages_update event');
+      this.logger.debug('Nenhum MessageID encontrado no evento messages_update');
       return;
     }
 
-    // Extrai o tipo de status (Delivered, Read, etc)
+    // Extrai o tipo de status (Delivered, Read etc.)
     const statusType = (
       (event?.Type as string) ??
       (innerRaw?.state as string) ??
@@ -530,18 +530,18 @@ export class ChatWebhookRealtimeProcessor {
       'unknown'
     ).toLowerCase();
 
-    // Mapeia para status normalizado
+    // Mapeia para status normalizado interno
     const normalizedStatus =
       this.eventNormalizer.normalizeMessageStatus(statusType);
     if (!normalizedStatus) {
-      this.logger.debug(`Unknown message status type: ${statusType}`);
+      this.logger.debug(`Tipo de status desconhecido: ${statusType}`);
       return;
     }
 
     const tenantId = payload.tenant_id;
     const now = new Date().toISOString();
 
-    // Emite evento para cada mensagem no array
+    // Emite evento para cada mensagem do array
     for (const messageId of messageIds) {
       const eventData = {
         message_id: messageId,
@@ -552,10 +552,10 @@ export class ChatWebhookRealtimeProcessor {
       };
 
       this.logger.debug(
-        `Emitting chat.message.status for message ${messageId} -> ${normalizedStatus}`,
+        `Emitindo chat.message.status para mensagem ${messageId} -> ${normalizedStatus}`,
       );
 
-      // Emite para room do tenant
+      // Emite para a sala do tenant
       if (tenantId) {
         this.realtimeEmitter.emitToTenant(
           tenantId,

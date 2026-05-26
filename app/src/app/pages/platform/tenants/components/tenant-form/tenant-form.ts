@@ -33,6 +33,9 @@ import { ToastService } from '@core/services/toast.service';
 import { buildAddressLine, digitsOnly, formatCepForForm, normalizeUf } from './tenant-form.utils';
 import { applyServerErrors } from '@core/utils/form-server-errors.util';
 
+/**
+ * Formulário de criação e edição de tenant — busca automática de CNPJ e CEP, seleção de plano e segmento.
+ */
 @Component({
   selector: 'app-tenant-form',
   standalone: true,
@@ -47,10 +50,6 @@ import { applyServerErrors } from '@core/utils/form-server-errors.util';
     AfSwitchInputComponent,
     AfButtonComponent,
     AfAlertComponent,
-/**
- * Tenant form component for the Platform module.
- * @selector app-tenant-form
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './tenant-form.html',

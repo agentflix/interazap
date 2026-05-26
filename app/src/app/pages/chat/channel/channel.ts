@@ -49,6 +49,14 @@ const PHONE_COUNTRIES: Country[] = [...COUNTRIES].sort(
   (left, right) => right.code.length - left.code.length,
 );
 
+/**
+ * Página de gerenciamento de canais de comunicação (integrações WhatsApp/Telegram).
+ *
+ * @remarks
+ * Exibe tabela paginada de integrações com ações de criação, edição e exclusão.
+ * Gerencia o fluxo de conexão QR/Pair Code e recebe atualizações de status via realtime.
+ * Signals principais: `integrations`, `isLoading`, `showQrModal`, `qrCodeData`.
+ */
 @Component({
   selector: 'app-channel-page',
   standalone: true,
@@ -68,10 +76,6 @@ const PHONE_COUNTRIES: Country[] = [...COUNTRIES].sort(
     AfTextInputComponent,
     ChannelFormComponent,
     ChannelRoutingComponent,
-/**
- * Channel page component for the Chat module.
- * @selector app-channel-page
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './channel.html',
@@ -149,6 +153,7 @@ export class ChannelPage implements OnInit {
     this.loadIntegrations();
   }
 
+  /** Carrega a lista de integrações paginada. */
   loadIntegrations(page = 1): void {
     this.isLoading.set(true);
     this.hasError.set(false);
@@ -173,26 +178,31 @@ export class ChannelPage implements OnInit {
       });
   }
 
+  /** Aplica busca textual e recarrega a lista da primeira página. */
   onSearch(term: string): void {
     this.searchTerm.set(term);
     this.loadIntegrations(1);
   }
 
+  /** Carrega uma página específica da listagem. */
   loadPage(page: number): void {
     this.loadIntegrations(page);
   }
 
   // CRUD Actions
+  /** Abre o modal de criação de novo canal. */
   openCreate(): void {
     this.selectedIntegration.set(null);
     this.showFormModal.set(true);
   }
 
+  /** Abre o modal de edição do canal selecionado. */
   openEdit(item: Integration): void {
     this.selectedIntegration.set(item);
     this.showFormModal.set(true);
   }
 
+  /** Abre o modal de exclusão, verificando se o canal não está conectado. */
   openDelete(item: Integration): void {
     if (this.isConnected(item)) {
       toast.error('Não é possível excluir um canal conectado. Desconecte primeiro.');
@@ -336,18 +346,22 @@ export class ChannelPage implements OnInit {
     return sanitizedPhone.length > 0 ? sanitizedPhone : null;
   }
 
+  /** Verifica se o canal suporta o fluxo de conexão QR/Pair (UaZapi com token). */
   canConnect(item: Integration): boolean {
     return item.provider === 'uazapi' && !this.isConnected(item) && item.has_token === true;
   }
 
+  /** Verifica se o canal está conectado. */
   isConnected(item: Integration): boolean {
     return isIntegrationConnected(item);
   }
 
+  /** Retorna o estado de conexão para exibição na UI. */
   connectionState(item: Integration): IntegrationConnectionUiState {
     return getIntegrationConnectionUiState(item);
   }
 
+  /** Retorna o rótulo traduzido do estado de conexão. */
   connectionLabel(item: Integration): string {
     switch (this.connectionState(item)) {
       case 'connected':
@@ -440,6 +454,7 @@ export class ChannelPage implements OnInit {
     return `data:image/png;base64,${trimmed}`;
   }
 
+  /** Desconecta o canal após confirmação do usuário. */
   disconnect(item: Integration): void {
     if (!confirm(`Desconectar ${item.name}?`)) return;
 
@@ -455,6 +470,7 @@ export class ChannelPage implements OnInit {
       });
   }
 
+  /** Formata o número de telefone internacional para exibição na tabela. */
   formatPhone(phone: string | undefined): string {
     if (typeof phone !== 'string') {
       return '—';

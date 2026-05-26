@@ -40,12 +40,12 @@ export class ChatWebhookEventNormalizer {
    * Extrai o objeto de mensagem do payload normalizado.
    */
   extractMessagePayload(payload: StreamPayload): JsonRecord | null {
-    // Direct message field (Zapi / Uazapi normalized)
+    // Campo de mensagem direto (normalizado Z-API / Uazapi)
     if (payload.message && isRecord(payload.message)) {
       return payload.message as JsonRecord;
     }
 
-    // Fallback payload structure
+    // Estrutura de fallback payload
     if (this.isFallbackPayload(payload)) {
       const innerMsg = payload.payload?.message;
       if (innerMsg && isRecord(innerMsg)) {
@@ -53,7 +53,7 @@ export class ChatWebhookEventNormalizer {
       }
     }
 
-    // Raw nested message
+    // Mensagem aninhada no raw
     if (payload.raw && isRecord(payload.raw)) {
       const rawMsg = getRecord(payload.raw, 'message');
       if (rawMsg) {

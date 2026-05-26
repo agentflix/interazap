@@ -33,7 +33,14 @@ import { type ComposerMode } from '../../chat.store';
 import { AfEmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state';
 
 /**
- * Main conversation area extracted from chat page.
+ * Área principal de conversa extraída do componente de chat.
+ *
+ * @remarks
+ * Responsável por renderizar o histórico de mensagens, o compositor,
+ * os painéis de contato/negociação e todas as ações do atendimento selecionado
+ * (transferência, encerramento, gravação de áudio, seleção de template).
+ *
+ * Recebe todo o estado via `input()` signals e emite eventos ao container via `output()`.
  */
 @Component({
   selector: 'app-chat-conversation',

@@ -2,15 +2,15 @@ import { Global, Module } from '@nestjs/common';
 import { IdempotencyService } from './idempotency.service';
 
 /**
- * Idempotency Module.
+ * Módulo global de idempotência do gateway.
  *
- * Provides the IdempotencyService globally to prevent
- * duplicate processing of webhooks and API requests.
+ * Disponibiliza o IdempotencyService globalmente para prevenir
+ * o processamento duplicado de webhooks e requisições de API.
  *
- * Usage:
- * 1. Import IdempotencyModule in AppModule
- * 2. Inject IdempotencyService in your services
- * 3. Use idempotency.execute() for protected operations
+ * Uso:
+ * 1. Importar IdempotencyModule no AppModule
+ * 2. Injetar IdempotencyService nos serviços
+ * 3. Usar idempotency.execute() para operações protegidas
  *
  * @example
  * ```typescript
@@ -22,7 +22,7 @@ import { IdempotencyService } from './idempotency.service';
  *     const key = IdempotencyService.webhookKey('provider', event.id);
  *
  *     await this.idempotency.execute(key, async () => {
- *       // Process webhook - will only run once per event.id
+ *       // Processado apenas uma vez por event.id
  *       return this.handleEvent(event);
  *     });
  *   }

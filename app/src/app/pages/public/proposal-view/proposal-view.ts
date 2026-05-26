@@ -19,8 +19,8 @@ import {
 import { CRMProposalService, type Proposal } from '@crm/services/crm-proposal.service';
 
 /**
- * Proposal view page component for the Public module.
- * @selector app-proposal-view
+ * Página pública de visualização de proposta comercial.
+ * Acessível via link com token seguro, sem autenticação, permitindo aceitar ou rejeitar a proposta.
  */
 @Component({
   selector: 'app-proposal-view',
@@ -60,6 +60,10 @@ export default class ProposalViewComponent {
     });
   }
 
+  /**
+   * Carrega os dados da proposta a partir do token público.
+   * @param token Token público da proposta
+   */
   load(token: string): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -79,6 +83,7 @@ export default class ProposalViewComponent {
       });
   }
 
+  /** Aceita a proposta exibida via API pública. */
   accept(): void {
     const token = this.proposal()?.public_token;
     if (!token) {
@@ -103,6 +108,7 @@ export default class ProposalViewComponent {
       });
   }
 
+  /** Rejeita a proposta exibida via API pública. */
   reject(): void {
     const token = this.proposal()?.public_token;
     if (!token) {
@@ -127,6 +133,12 @@ export default class ProposalViewComponent {
       });
   }
 
+  /**
+   * Função de rastreamento por ID para laços @for.
+   * @param index Índice do elemento
+   * @param item Objeto com propriedade id opcional
+   * @returns ID do item ou índice como fallback
+   */
   trackById(index: number, item: { id?: string | number }): string | number {
     return item.id ?? index;
   }

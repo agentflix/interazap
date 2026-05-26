@@ -8,12 +8,14 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Reason Loss serialization.
+ * Resource para serialização de motivo de perda do CRM.
  */
 final class CRMReasonLossResource extends BaseJsonResource
 {
     /**
-     * @return array<string, mixed>
+     * Transforma o recurso em array para resposta JSON.
+     *
+     * @return array<string, mixed> Dados serializados do motivo de perda.
      */
     protected function data(Request $request): array
     {

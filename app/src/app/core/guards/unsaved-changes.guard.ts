@@ -2,18 +2,18 @@ import { type CanDeactivateFn } from '@angular/router';
 import { type PreferencesStore } from '../services/preferences.store';
 
 /**
- * Guard that prompts the user before leaving a route if there are unsaved changes.
+ * Confirma com o usuário antes de sair de uma rota quando há alterações não salvas.
+ *
+ * O componente protegido deve expor uma propriedade `store` do tipo `PreferencesStore`.
  *
  * @example
  * ```typescript
- * // In route config:
+ * // Na configuração da rota:
  * {
  *   path: 'preferences',
  *   canDeactivate: [unsavedChangesGuard],
  * }
  * ```
- *
- * The guarded component must expose a `store` property of type `PreferencesStore`.
  */
 export const unsavedChangesGuard: CanDeactivateFn<{ store?: PreferencesStore }> = (component) => {
   const store = component?.store;

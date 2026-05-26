@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for reason of loss.
+ * DTO para motivo de perda de negociação.
  *
  * @readonly
  */
@@ -21,9 +21,7 @@ final readonly class CRMReasonLossDTO
         public int $position = 0,
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria DTO a partir de um FormRequest já validado. */
     public static function fromRequest(FormRequest $request): self
     {
         return self::fromArray($request->validated());

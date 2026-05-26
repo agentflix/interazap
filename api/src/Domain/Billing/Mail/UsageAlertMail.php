@@ -11,7 +11,9 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Mailable for AI message usage threshold alerts (80% and 100%).
+ * Mailable para alertas de limiar de uso de mensagens IA (80% e 100%).
+ *
+ * O assunto e a view Blade são selecionados com base no valor do limiar atingido.
  */
 final class UsageAlertMail extends Mailable
 {
@@ -27,6 +29,7 @@ final class UsageAlertMail extends Mailable
         public readonly ?string $overagePrice,
     ) {}
 
+    /** Retorna o envelope com assunto adequado ao limiar atingido. */
     public function envelope(): Envelope
     {
         $subject = $this->threshold >= 100
@@ -36,6 +39,7 @@ final class UsageAlertMail extends Mailable
         return new Envelope(subject: $subject);
     }
 
+    /** Retorna o conteúdo com a view e os dados de uso para o template Blade. */
     public function content(): Content
     {
         $view = $this->threshold >= 100
@@ -56,6 +60,8 @@ final class UsageAlertMail extends Mailable
     }
 
     /**
+     * Sem anexos para emails de alerta de uso.
+     *
      * @return array<int, string>
      */
     public function attachments(): array

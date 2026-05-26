@@ -2,12 +2,12 @@ import { Component, ChangeDetectionStrategy, input, output } from '@angular/core
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfNavbarComponent — Horizontal navigation bar for secondary navigation.
+ * Barra de navegação horizontal para navegação secundária.
  *
  * @example
  * ```html
- * <af-navbar [title]="'Settings'" [showBack]="true" (back)="goBack()">
- *   <ng-content /> <!-- right-side actions -->
+ * <af-navbar [title]="'Configurações'" [showBack]="true" (back)="goBack()">
+ *   <ng-content /> <!-- ações no lado direito -->
  * </af-navbar>
  * ```
  */
@@ -19,12 +19,12 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './navbar.html',
 })
 export class AfNavbarComponent {
-  /** Navbar title */
+  /** Título da barra de navegação */
   readonly title = input('');
 
-  /** Show back arrow */
+  /** Exibe a seta de voltar */
   readonly showBack = input(false);
 
-  /** Back navigation event */
+  /** Emitido ao clicar em voltar */
   readonly back = output<void>();
 }

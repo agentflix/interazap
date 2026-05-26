@@ -14,7 +14,10 @@ use Illuminate\Validation\ValidationException;
 use Throwable;
 
 /**
- * Encapsulates negotiation status transitions and side effects.
+ * Encapsula transições de status de negociações e seus efeitos colaterais.
+ *
+ * Gerencia as regras de negócio de fechamento (ganha/perdida/reaberta),
+ * persistência de closed_at e despacho de triggers de automação.
  */
 final class CRMNegotiationStatusService
 {
@@ -22,6 +25,13 @@ final class CRMNegotiationStatusService
         private readonly ActivityBroadcastService $broadcastService,
     ) {}
 
+    /**
+     * Aplica a transição de status à negociação, configurando closed_at e motivo de perda.
+     *
+     * @param  string|null  $reasonLossId  Obrigatório quando status = LOST
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando status LOST sem motivo informado
+     */
     public function apply(CRMNegotiation $negotiation, CRMNegotiationStatus $status, ?string $reasonLossId): void
     {
         if ($reasonLossId === '') {
@@ -49,6 +59,7 @@ final class CRMNegotiationStatusService
         $negotiation->save();
     }
 
+    /** Despacha o evento de trigger de automação (ganha ou perdida) para o autopilot. */
     public function dispatchOutcomeTrigger(string $tenantId, CRMNegotiation $negotiation, AutopilotTriggerType $triggerType): void
     {
         AutopilotTriggerFired::dispatch(
@@ -67,7 +78,12 @@ final class CRMNegotiationStatusService
     }
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Transmite via broadcast a mudança de status da negociação ao ticket de chat vinculado.
+     *
+     * Ignora silenciosamente se a tabela chat_tickets não tiver a coluna crm_contact_id
+     * (compatibilidade com ambientes sem a migration aplicada).
+     *
+     * @param  array<string, mixed>  $payload  Dados da mudança de status para broadcast
      */
     public function broadcastStatusChanged(string $tenantId, string $contactId, array $payload): void
     {

@@ -40,9 +40,9 @@ final readonly class ResolveTenantByBillingTokenAction
         $plan = $tenant->plan;
 
         return [
-            'tenant_id'     => (string) $tenant->id,
-            'plan'          => $plan?->slug,
-            'quota_monthly' => $plan?->message_limit_monthly ?? 0,
+            'tenant_id' => (string) $tenant->id,
+            'plan' => $plan?->slug,
+            'quota_monthly' => $plan->message_limit_monthly ?? 0,
             'overflow_mode' => $tenant->effectiveOverageMode()->value,
         ];
     }

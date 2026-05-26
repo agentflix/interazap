@@ -209,6 +209,11 @@ export class MessageBuilderService {
     return undefined;
   }
 
+  /**
+   * Extrai o histórico de conversa serializado do contexto estruturado.
+   * @param context - Contexto operacional da run com possível `conversation_history`
+   * @returns Lista de strings representando as linhas do histórico
+   */
   private readConversationHistory(context: Record<string, unknown>): string[] {
     const history = context['conversation_history'];
     if (!Array.isArray(history)) {
@@ -218,6 +223,11 @@ export class MessageBuilderService {
     return history.filter((line): line is string => typeof line === 'string');
   }
 
+  /**
+   * Remove o campo `conversation_history` do contexto para evitar duplicidade nas mensagens.
+   * @param context - Contexto estruturado da run
+   * @returns Contexto sem o campo `conversation_history`
+   */
   private omitConversationHistory(
     context: Record<string, unknown>,
   ): Record<string, unknown> {
@@ -225,6 +235,11 @@ export class MessageBuilderService {
     return rest;
   }
 
+  /**
+   * Converte as linhas do histórico de conversa em mensagens tipadas para o modelo.
+   * @param history - Linhas do histórico no formato "User: ..." ou "Agent: ..."
+   * @returns Lista de mensagens com papel `user` ou `assistant`
+   */
   private expandConversationHistory(history: string[]): AICompletionMessage[] {
     return history.reduce<AICompletionMessage[]>((messages, line) => {
       if (line.startsWith('User: ')) {

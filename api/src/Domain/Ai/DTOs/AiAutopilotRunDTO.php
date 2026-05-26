@@ -7,7 +7,11 @@ namespace Domain\Ai\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Autopilot execution.
+ * DTO que representa a execução de um playbook do Autopilot.
+ *
+ * Utilizado ao disparar manualmente ou via trigger a execução de um playbook,
+ * carregando o contexto necessário (ticket, conversa, dados do cliente)
+ * para que o agente processe as regras definidas.
  *
  * @readonly
  */
@@ -22,7 +26,10 @@ final readonly class AiAutopilotRunDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um request HTTP e ID do playbook da rota.
+     *
+     * @param  Request  $request  Requisição HTTP validada.
+     * @param  string  $playbookId  UUID do playbook informado na URL.
      */
     public static function fromRequest(Request $request, string $playbookId): self
     {

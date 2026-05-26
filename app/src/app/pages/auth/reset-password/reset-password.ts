@@ -20,6 +20,10 @@ import {
 } from '@shared/components';
 import { AuthPageWrapperComponent } from '@layout/auth-layout/auth-page-wrapper.component';
 
+/**
+ * Página de redefinição de senha — exibe formulário de esqueci a senha ou de nova senha
+ * conforme a presença do token na query string.
+ */
 @Component({
   selector: 'app-reset-password',
   standalone: true,
@@ -76,6 +80,7 @@ export default class ResetPasswordComponent implements OnInit {
     return 'Campo inválido.';
   });
 
+  /** Lê o token e e-mail da query string para determinar o modo da página (esqueci vs. redefinir). */
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
     const email = this.route.snapshot.queryParamMap.get('email') ?? '';
@@ -83,6 +88,7 @@ export default class ResetPasswordComponent implements OnInit {
     this.emailFromParams.set(email);
   }
 
+  /** Envia o e-mail para receber o link de redefinição de senha. */
   submitForgot(): void {
     if (this.forgotForm.invalid || this.isSubmitting()) {
       this.forgotForm.markAllAsTouched();
@@ -111,6 +117,7 @@ export default class ResetPasswordComponent implements OnInit {
       });
   }
 
+  /** Envia a nova senha junto com o token para concluir a redefinição. */
   submitReset(): void {
     if (this.resetForm.invalid || this.isSubmitting()) {
       this.resetForm.markAllAsTouched();

@@ -50,7 +50,7 @@ final class ProcessEventConfirmationReminderJob implements ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * Verifica a confirmação e despacha o run do Autopilot com contexto do evento.
      */
     public function handle(): void
     {

@@ -12,10 +12,17 @@ use NotificationChannels\Apn\ApnChannel;
 use NotificationChannels\Fcm\FcmChannel;
 
 /**
- * Revoga token de device quando APNs/FCM reporta token invalido.
+ * Listener que revoga tokens de dispositivo inválidos reportados por APNs ou FCM.
+ *
+ * Quando a plataforma de push (APNs/FCM) retorna erro indicando token expirado
+ * ou não registrado, este listener marca o token como revogado no banco de dados,
+ * evitando futuras tentativas de envio com tokens obsoletos.
  */
 final class RevokeInvalidPushTokenListener
 {
+    /**
+     * Processa a falha de notificação e revoga o token inválido se aplicável.
+     */
     public function handle(NotificationFailed $event): void
     {
         if (! $event->notifiable instanceof AuthUser) {
@@ -50,6 +57,8 @@ final class RevokeInvalidPushTokenListener
     }
 
     /**
+     * Extrai o token de dispositivo do payload de erro retornado pelo canal de push.
+     *
      * @param  array<string, mixed>  $data
      */
     private function extractToken(array $data): ?string
@@ -82,6 +91,8 @@ final class RevokeInvalidPushTokenListener
     }
 
     /**
+     * Verifica se a falha indica token inválido ou não registrado.
+     *
      * @param  array<string, mixed>  $data
      */
     private function isInvalidTokenFailure(array $data): bool
@@ -109,6 +120,8 @@ final class RevokeInvalidPushTokenListener
     }
 
     /**
+     * Extrai a mensagem de erro normalizada (minúsculas) do payload de falha.
+     *
      * @param  array<string, mixed>  $data
      */
     private function extractErrorMessage(array $data): string

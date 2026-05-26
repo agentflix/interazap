@@ -15,7 +15,15 @@ use Illuminate\Support\Carbon;
 final class RevokeDeviceTokenAction
 {
     /**
-     * @throws AuthorizationException
+     * Revoga logicamente o token de dispositivo do usuário.
+     *
+     * Define revoked_at com a data/hora atual. Lança exceção se o token
+     * não existir ou não pertencer ao usuário autenticado.
+     *
+     * @param  AuthUser  $user  Usuário solicitante.
+     * @param  string  $deviceTokenId  UUID do token a revogar.
+     *
+     * @throws AuthorizationException Se o token não existir ou pertencer a outro usuário.
      */
     public function execute(AuthUser $user, string $deviceTokenId): void
     {

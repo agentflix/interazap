@@ -22,7 +22,7 @@ class AiPromptInjectionDetectedException extends Exception
     }
 
     /**
-     * Render the exception as an HTTP response.
+     * Renderiza a exceção como resposta HTTP 422.
      */
     public function render(): JsonResponse
     {

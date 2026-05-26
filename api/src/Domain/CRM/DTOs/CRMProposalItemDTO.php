@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\CRM\DTOs;
 
 /**
- * DTO for proposal item.
+ * DTO para item de uma proposta comercial.
  *
  * @readonly
  */
@@ -36,6 +36,8 @@ final readonly class CRMProposalItemDTO
     }
 
     /**
+     * Cria DTO a partir de um array de item vindo da request.
+     *
      * @param  array<string, mixed>  $item
      */
     public static function fromRequestItem(array $item): self

@@ -7,11 +7,14 @@ export * from './calendar.model';
 
 
 /**
- * AfCalendarComponent — Monthly calendar view with events.
+ * Calendário mensal com suporte a exibição de eventos por data.
+ *
+ * Contexto: utilizado em agendas, painéis de tarefas e qualquer
+ * funcionalidade que necessite visualização temporal de eventos.
  *
  * @example
  * ```html
- * <af-calendar [events]="events" (dateSelected)="onDate($event)" />
+ * <af-calendar [events]="eventos" (dateSelected)="onData($event)" />
  * ```
  */
 @Component({
@@ -22,10 +25,10 @@ export * from './calendar.model';
   templateUrl: './calendar.html',
 })
 export class AfCalendarComponent {
-  /** Events to display */
+  /** Lista de eventos a exibir no calendário */
   readonly events = input<AfCalendarEvent[]>([]);
 
-  /** Emitted when a date cell is clicked */
+  /** Emitido ao clicar em uma célula de data */
   readonly dateSelected = output<string>();
 
   protected readonly weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];

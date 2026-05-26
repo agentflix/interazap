@@ -17,6 +17,13 @@ final class UpdatePlatformPlanAction
         private readonly BillingGatewayService $gatewayService,
     ) {}
 
+    /**
+     * Atualiza os dados do plano e sincroniza com o gateway de cobrança quando preço ou nome mudam.
+     *
+     * @param  PlatformPlan  $plan  Plano a ser atualizado.
+     * @param  PlatformPlanDTO  $dto  Novos dados do plano.
+     * @return PlatformPlan Plano atualizado.
+     */
     public function execute(PlatformPlan $plan, PlatformPlanDTO $dto): PlatformPlan
     {
         $payload = $dto->toArray();

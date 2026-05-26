@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for Knowledge Search Result serialization.
+ * Resource para serialização de resultado de busca na base de conhecimento.
  *
  * @mixin KnowledgeSearchResultDTO
  */
 final class KnowledgeSearchResultResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma o recurso em array.
      *
      * @return array<string, mixed>
      */

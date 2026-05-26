@@ -10,12 +10,16 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\CRM\Models\CRMContact;
 
 /**
- * Tool to retrieve contact information from CRM.
+ * Ferramenta de IA para recuperar informações de um contato do CRM.
  *
- * Security: Validates tenant_id to prevent cross-tenant access.
+ * Input esperado: contact_id (UUID do contato).
+ * Output produzido: dados do contato incluindo nome, email, cidade, telefone, empresa e tags.
+ * Quando usar: antes de personalizar comunicação ou verificar dados cadastrais do cliente.
+ * Segurança: valida tenant_id para evitar acesso entre tenants.
  */
 class GetContactInfoTool implements AiToolInterface
 {
+    /** Executa a recuperação dos dados do contato. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $contactId = $input->parameters['contact_id'] ?? null;
@@ -50,17 +54,21 @@ class GetContactInfoTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::GET_CONTACT_INFO;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Retrieves detailed information about a CRM contact including name, email, city, phone, company, and tags.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

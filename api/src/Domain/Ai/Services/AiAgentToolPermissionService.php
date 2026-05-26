@@ -19,8 +19,6 @@ use Illuminate\Support\Str;
  * Implementa os contratos de leitura e escrita de permissões de tools,
  * operando exclusivamente sobre os models AiAgent e AiAutopilotTool
  * com filtro obrigatório por tenant_id.
- *
- * @category Services
  */
 final class AiAgentToolPermissionService implements AiAgentToolPermissionServiceInterface
 {

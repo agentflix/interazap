@@ -10,13 +10,15 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\CRM\Models\CRMCompany;
 
 /**
- * Tool to update company data.
+ * Ferramenta de IA para atualizar dados de uma empresa no CRM.
+ *
+ * Input esperado: company_id (obrigatório) e campos opcionais: name, document, email, phone, address, city, state, zip_code.
+ * Output produzido: company_id e lista de campos atualizados.
+ * Quando usar: cliente corrigir ou complementar informações da empresa durante a conversa.
  */
 class UpdateCompanyTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a atualização dos dados da empresa. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $companyId = (string) ($input->parameters['company_id'] ?? '');
@@ -65,24 +67,20 @@ class UpdateCompanyTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::UPDATE_COMPANY;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Updates company profile data in CRM.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

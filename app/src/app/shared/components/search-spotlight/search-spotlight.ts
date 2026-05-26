@@ -42,6 +42,11 @@ interface SpotlightGroup {
   items: GlobalSearchItem[];
 }
 
+/**
+ * Spotlight de busca global com resultados agrupados por tipo de entidade.
+ * Permite buscar contatos, empresas, negociações, tickets e usuários
+ * com navegação por teclado e histórico de buscas recentes.
+ */
 @Component({
   selector: 'af-search-spotlight, app-search-spotlight',
   standalone: true,
@@ -144,6 +149,7 @@ export class SearchSpotlightComponent {
     });
   }
 
+  /** Abre o spotlight e carrega buscas recentes */
   open(): void {
     this.isOpen.set(true);
     this.recentHistory.set(this.searchService.getRecentSearches());
@@ -154,6 +160,7 @@ export class SearchSpotlightComponent {
     });
   }
 
+  /** Fecha o spotlight e limpa o estado */
   close(): void {
     this.isOpen.set(false);
     this.queryControl.setValue('', { emitEvent: false });
@@ -165,12 +172,14 @@ export class SearchSpotlightComponent {
     this.recentHistory.set([]);
   }
 
+  /** Processa mudança no termo de busca */
   onQueryChange(value: string): void {
     this.query.set(value);
     this.selectedIndex.set(-1);
     this.searchTrigger.next(value);
   }
 
+  /** Trata eventos de teclado para navegação */
   onKeydown(event: KeyboardEvent): void {
     if (!this.isOpen()) {
       return;
@@ -207,11 +216,13 @@ export class SearchSpotlightComponent {
     }
   }
 
+  /** Navega para o item selecionado */
   navigateTo(item: GlobalSearchItem): void {
     this.searchService.addRecentSearch(item);
     this.performNavigation(item.url);
   }
 
+  /** Navega para busca recente */
   navigateRecent(item: RecentSearch): void {
     this.searchService.addRecentSearch({
       id: item.id,
@@ -223,7 +234,7 @@ export class SearchSpotlightComponent {
     this.performNavigation(item.url);
   }
 
-  /** Parse URL with optional query string and navigate via Router. */
+  /** Faz parse da URL com query string e navega via Router. */
   private performNavigation(url: string): void {
     const [path, qs] = url.split('?');
     if (qs) {
@@ -241,10 +252,12 @@ export class SearchSpotlightComponent {
     this.close();
   }
 
+  /** Tenta novamente a busca após erro */
   retry(): void {
     this.searchTrigger.next(this.query());
   }
 
+  /** Abre o grupo completo de resultados */
   openGroup(group: SpotlightGroup): void {
     const query = this.query().trim();
     if (!query) {
@@ -257,12 +270,14 @@ export class SearchSpotlightComponent {
     this.close();
   }
 
+  /** Índice plano do item nos resultados */
   flatIndexByItem(item: GlobalSearchItem): number {
     return this.flatResults().findIndex(
       (candidate) => candidate.id === item.id && candidate.type === item.type,
     );
   }
 
+  /** Destaca o termo de busca no rótulo */
   highlightLabel(label: string): string {
     const term = this.query().trim();
     const escapedLabel = this.escapeHtml(label);
@@ -280,6 +295,7 @@ export class SearchSpotlightComponent {
     );
   }
 
+  /** Limpa buscas recentes */
   clearRecentSearches(): void {
     this.searchService.clearRecentSearches();
     this.recentHistory.set([]);

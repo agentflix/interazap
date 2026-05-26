@@ -40,6 +40,9 @@ class AiPromptGuardianJob implements ShouldQueue
         public readonly string $tenantId,
     ) {}
 
+    /**
+     * Executa a validação do prompt via Guardian e atualiza o status conforme resultado.
+     */
     public function handle(
         AiGuardianServiceInterface $guardian,
         AiPromptHashServiceInterface $hashService,
@@ -127,7 +130,7 @@ class AiPromptGuardianJob implements ShouldQueue
     }
 
     /**
-     * Handle job failure.
+     * Registra a falha permanente do job de validação.
      */
     public function failed(\Throwable $exception): void
     {

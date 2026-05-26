@@ -1,14 +1,14 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfGridComponent — CSS grid layout helper.
+ * Auxiliar de layout CSS grid responsivo.
  *
  * @example
  * ```html
  * <af-grid [cols]="3" gap="md">
- *   <div>Col 1</div>
- *   <div>Col 2</div>
- *   <div>Col 3</div>
+ *   <div>Coluna 1</div>
+ *   <div>Coluna 2</div>
+ *   <div>Coluna 3</div>
  * </af-grid>
  * ```
  */
@@ -19,10 +19,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './grid.html',
 })
 export class AfGridComponent {
-  /** Number of columns (1-6) */
+  /** Número de colunas (1-6) */
   readonly cols = input(3);
 
-  /** Gap size */
+  /** Tamanho do espaçamento entre itens */
   readonly gap = input<'none' | 'sm' | 'md' | 'lg'>('md');
 
   protected readonly gridClasses = computed(() => {

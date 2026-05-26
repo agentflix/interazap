@@ -7,26 +7,28 @@ namespace Domain\Platform\Console\Traits;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Trait for handling graceful shutdown in queue workers.
+ * Trait para encerramento gracioso em workers de fila.
  *
- * Captures SIGTERM and SIGINT signals to allow the current job
- * to complete before shutting down the worker.
+ * Captura os sinais SIGTERM, SIGINT e SIGQUIT para permitir que o job
+ * atual seja concluído antes de encerrar o worker.
  */
 // @phpstan-ignore-next-line trait.unused
 trait GracefulShutdownTrait
 {
     /**
-     * Whether a shutdown signal has been received.
+     * Indica se um sinal de encerramento foi recebido.
      */
     protected bool $shouldShutdown = false;
 
     /**
-     * Whether the worker is currently processing a job.
+     * Indica se o worker está processando um job no momento.
      */
     protected bool $isProcessing = false;
 
     /**
-     * Register signal handlers for graceful shutdown.
+     * Registra os handlers de sinal para encerramento gracioso.
+     *
+     * Requer a extensão PCNTL. Sem ela, o encerramento gracioso é desabilitado.
      */
     protected function registerShutdownHandlers(): void
     {
@@ -44,9 +46,9 @@ trait GracefulShutdownTrait
     }
 
     /**
-     * Handle shutdown signal.
+     * Trata o sinal de encerramento recebido pelo processo.
      *
-     * @param  int  $signal  The signal number received
+     * @param  int  $signal  Número do sinal recebido (SIGTERM, SIGINT, SIGQUIT).
      */
     public function handleShutdownSignal(int $signal): void
     {
@@ -71,7 +73,7 @@ trait GracefulShutdownTrait
     }
 
     /**
-     * Mark the start of job processing.
+     * Marca o início do processamento de um job.
      */
     protected function markJobStart(): void
     {
@@ -79,8 +81,9 @@ trait GracefulShutdownTrait
     }
 
     /**
-     * Mark the end of job processing.
-     * If a shutdown was requested during processing, perform it now.
+     * Marca o fim do processamento de um job.
+     *
+     * Se o encerramento foi solicitado durante o processamento, executa o encerramento agora.
      */
     protected function markJobComplete(): void
     {
@@ -92,7 +95,9 @@ trait GracefulShutdownTrait
     }
 
     /**
-     * Check if shutdown has been requested.
+     * Verifica se o encerramento foi solicitado.
+     *
+     * @return bool Verdadeiro se deve encerrar.
      */
     protected function shouldShutdown(): bool
     {
@@ -100,7 +105,7 @@ trait GracefulShutdownTrait
     }
 
     /**
-     * Perform the actual shutdown.
+     * Executa o encerramento efetivo do processo, aguardando flush dos logs.
      */
     protected function performShutdown(): void
     {
@@ -113,12 +118,14 @@ trait GracefulShutdownTrait
     }
 
     /**
-     * Wrap job execution with graceful shutdown checks.
+     * Envolve a execução de um job com verificações de encerramento gracioso.
+     *
+     * Retorna null imediatamente se encerramento foi solicitado antes do início.
      *
      * @template T
      *
-     * @param  callable(): T  $callback
-     * @return T|null
+     * @param  callable(): T  $callback  Callback com a lógica do job.
+     * @return T|null Resultado do callback ou null se encerramento solicitado.
      */
     protected function executeWithGracefulShutdown(callable $callback): mixed
     {

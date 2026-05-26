@@ -11,11 +11,8 @@ export type { AutopilotRun, AutopilotRunPayload } from '@ai/models/ai.model';
 /**
  * Serviço para gestão de execuções (Runs) do IA Autopilot.
  *
- * Permite listar históricos de execuções das roteiros e disparar
+ * Permite listar históricos de execuções de roteiros e disparar
  * novas simulações ou execuções reais de playbooks.
- *
- * @class AutopilotRunService
- * @description Service para controle e auditoria de corridas do Autopilot.
  */
 @Injectable({ providedIn: 'root' })
 export class AutopilotRunService {
@@ -24,8 +21,8 @@ export class AutopilotRunService {
 
   /**
    * Obtém uma lista paginada do histórico de execuções.
-   * @param params Parâmetros de paginação.
-   * @returns {Observable<Paginated<AutopilotRun>>} Stream finito com a lista de runs.
+   * @param params Parâmetros de paginação
+   * @returns Stream finito com a lista de execuções
    */
   list(params: { page?: number; per_page?: number } = {}): Observable<Paginated<AutopilotRun>> {
     let httpParams = new HttpParams();
@@ -38,8 +35,8 @@ export class AutopilotRunService {
 
   /**
    * Cria e executa uma run do Autopilot com contexto livre.
-   * @param context Contexto usado pela execução.
-   * @returns {Observable<AutopilotRun>} Stream finito com a run criada.
+   * @param context Contexto usado pela execução
+   * @returns Stream finito com a execução criada
    */
   create(context: Record<string, unknown>): Observable<AutopilotRun> {
     return this.http
@@ -49,8 +46,8 @@ export class AutopilotRunService {
 
   /**
    * Recupera os detalhes e resultados de uma execução específica.
-   * @param id Identificador da run.
-   * @returns {Observable<AutopilotRun>} Stream finito com os dados da execução.
+   * @param id Identificador da execução
+   * @returns Stream finito com os dados da execução
    */
   get(id: string): Observable<AutopilotRun> {
     return this.http
@@ -60,9 +57,9 @@ export class AutopilotRunService {
 
   /**
    * Dispara a execução de um playbook específico.
-   * @param playbookId Identificador do playbook a ser executado.
-   * @param payload Contexto e dados de entrada para a execução.
-   * @returns {Observable<AutopilotRun>} Stream finito com a run iniciada.
+   * @param playbookId Identificador do playbook a ser executado
+   * @param payload Contexto e dados de entrada para a execução
+   * @returns Stream finito com a execução iniciada
    */
   run(playbookId: string, payload: AutopilotRunPayload): Observable<AutopilotRun> {
     return this.http
@@ -72,8 +69,8 @@ export class AutopilotRunService {
 
   /**
    * Cancela uma execução em andamento.
-   * @param id Identificador da run.
-   * @returns {Observable<AutopilotRun>} Stream finito com o estado atualizado da run.
+   * @param id Identificador da execução
+   * @returns Stream finito com o estado atualizado da execução
    */
   cancel(id: string): Observable<AutopilotRun> {
     return this.http

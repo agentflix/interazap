@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Contact phone number history (append-only with validity period).
+ * Histórico de telefones de contato CRM (append-only com período de validade).
  *
- * Stores phone numbers associated with a CRM contact,
- * with validity periods for tracking changes over time.
+ * Armazena os números de telefone associados a um contato com controle de
+ * vigência (valid_from / valid_to), permitindo rastrear alterações ao longo do tempo.
  *
  * @property string $id
  * @property string $tenant_id

@@ -8,10 +8,10 @@ import {
 } from 'class-validator';
 
 /**
- * DTO for credit card data submitted with an Asaas credit-card payment.
+ * DTO com dados do cartão de crédito para pagamento Asaas.
  *
- * These fields are collected client-side and forwarded to Asaas.
- * Never logged or stored server-side.
+ * Estes campos são coletados no lado do cliente e encaminhados ao Asaas.
+ * Nunca são registrados em log nem armazenados no servidor.
  */
 export class CreditCardDto {
   @IsString()
@@ -36,10 +36,10 @@ export class CreditCardDto {
 }
 
 /**
- * DTO for credit card holder identity and address information required by Asaas.
+ * DTO com dados de identidade e endereço do titular do cartão exigidos pelo Asaas.
  *
- * Required for 3D Secure / authenticated payments. Must match the information
- * registered with the card issuer.
+ * Obrigatório para pagamentos autenticados com 3D Secure. Os dados devem
+ * corresponder às informações cadastradas na operadora do cartão.
  */
 export class CreditCardHolderInfoDto {
   @IsString()
@@ -68,10 +68,10 @@ export class CreditCardHolderInfoDto {
 }
 
 /**
- * DTO for creating a payment in Asaas.
+ * DTO para criação de cobrança no Asaas.
  *
- * Supports both simple payments (billingType + value + dueDate) and
- * full credit-card payments with embedded card and holder info.
+ * Suporta cobranças simples (billingType + valor + vencimento) e
+ * cobranças completas via cartão de crédito com dados do titular embutidos.
  */
 export class CreateAsaasPaymentDto {
   @IsString()

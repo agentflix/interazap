@@ -7,14 +7,7 @@ export type { MediaTranscriptionSettings, MediaTranscriptionSettingsResponse } f
 
 
 /**
- * Settings for media transcription per tenant.
- */
-
-/**
- * Service for managing media transcription configuration.
- *
- * @description Handles GET/PUT for tenant‐level media transcription settings
- * (audio, image, video toggles and limits).
+ * Gerencia configurações de transcrição de mídia do tenant (áudio, imagem, vídeo).
  */
 @Injectable({
   providedIn: 'root',
@@ -24,14 +17,18 @@ export class MediaTranscriptionService {
   private readonly apiUrl = `${environment.apiUrl}/media-transcription`;
 
   /**
-   * Fetch current media transcription settings for the tenant.
+   * Retorna as configurações atuais de transcrição de mídia do tenant.
+   * Inclui settings para áudio, imagem e vídeo.
+   * @returns Observable com configurações de transcrição
    */
   show(): Observable<MediaTranscriptionSettingsResponse> {
     return this.http.get<MediaTranscriptionSettingsResponse>(this.apiUrl);
   }
 
   /**
-   * Update media transcription settings for the tenant.
+   * Atualiza as configurações de transcrição de mídia do tenant.
+   * @param data Novas configurações de transcrição (áudio, imagem, vídeo)
+   * @returns Observable com configurações atualizadas
    */
   update(data: MediaTranscriptionSettings): Observable<MediaTranscriptionSettingsResponse> {
     return this.http.put<MediaTranscriptionSettingsResponse>(this.apiUrl, data);

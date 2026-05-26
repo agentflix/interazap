@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Auth\DTOs;
 
 /**
- * DTO for menu item with permissions and children.
+ * DTO para item de menu com permissão e filhos.
  *
  * @readonly
  */
@@ -23,6 +23,8 @@ final readonly class AuthMenuItemDTO
     ) {}
 
     /**
+     * Retorna nova instância com os filhos substituídos.
+     *
      * @param  array<int, AuthMenuItemDTO>  $children
      */
     public function withChildren(array $children): self
@@ -37,6 +39,8 @@ final readonly class AuthMenuItemDTO
     }
 
     /**
+     * Serializa o item de menu e seus filhos recursivamente para array.
+     *
      * @return array{label:string,route:string,icon:?string,permission:?string,children:array<int, array<string,mixed>>}
      */
     public function toArray(): array

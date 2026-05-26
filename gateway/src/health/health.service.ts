@@ -3,24 +3,20 @@ import { RedisService } from '../infrastructure/redis/redis.service';
 import { HealthStatus, ServiceStatus } from './models/health.model';
 
 /**
- * HealthService
+ * Serviço de health check do gateway.
  *
- * Provides comprehensive health check capabilities for the gateway system.
- * Monitors Redis connectivity and consumer stream health.
+ * Contexto: módulo health. Monitora a conectividade do Redis e a presença
+ * dos streams de consumer, retornando status consolidado de saúde do sistema.
  */
 @Injectable()
 export class HealthService {
   private readonly logger = new Logger(HealthService.name);
 
-  /**
-   * Initializes the service with Redis connectivity.
-   *
-   * @param redisService - Service providing Redis client access
-   */
   constructor(private readonly redisService: RedisService) {}
 
   /**
-   * Perform comprehensive health check on all services.
+   * Executa o health check completo em todos os serviços dependentes em paralelo.
+   * @returns Status consolidado com timestamp e status individual de cada serviço
    */
   async checkAll(): Promise<HealthStatus> {
     const [redis, consumers] = await Promise.all([
@@ -39,7 +35,8 @@ export class HealthService {
   }
 
   /**
-   * Check Redis connectivity.
+   * Verifica a conectividade com o Redis via PING.
+   * @returns Status healthy com latência medida, ou unhealthy com mensagem de erro
    */
   async checkRedis(): Promise<ServiceStatus> {
     const startTime = Date.now();
@@ -72,7 +69,10 @@ export class HealthService {
   }
 
   /**
-   * Check if consumers are active.
+   * Verifica se os streams de consumer estão ativos via XINFO STREAM.
+   * Inspeciona os streams principais do gateway e retorna status detalhado
+   * com streams ativos e eventuais erros de inspeção.
+   * @returns Status healthy/unhealthy com detalhes de cada stream monitorado
    */
   async checkConsumers(): Promise<ServiceStatus> {
     const startTime = Date.now();
@@ -136,7 +136,12 @@ export class HealthService {
   }
 
   /**
-   * Determine overall status based on individual service statuses.
+   * Determina o status geral com base nos status individuais de cada serviço.
+   * - Nenhum unhealthy → healthy
+   * - Todos unhealthy → unhealthy
+   * - Parcial → degraded
+   * @param services Mapa de nome do serviço para seu ServiceStatus
+   * @returns Status consolidado: healthy, degraded ou unhealthy
    */
   private determineOverallStatus(
     services: Record<string, ServiceStatus>,
@@ -158,7 +163,10 @@ export class HealthService {
   }
 
   /**
-   * Checks a single stream and isolates failures to avoid impacting peers.
+   * Verifica se um stream específico existe via XINFO STREAM, isolando falhas
+   * para não impactar a verificação dos demais streams.
+   * @param stream Nome do stream a verificar
+   * @returns Objeto com `stream`, `active` e `error` opcional
    */
   private async checkStreamExists(stream: string): Promise<{
     stream: string;

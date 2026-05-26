@@ -9,7 +9,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Builds the recent activities list for the dashboard.
+ * Constrói a lista de atividades recentes para o dashboard.
+ *
+ * Une negociações, tickets e propostas em uma timeline unificada
+ * ordenada por data decrescente, limitada às 10 mais recentes.
  */
 final class GetRecentActivitiesAction
 {
@@ -22,7 +25,12 @@ final class GetRecentActivitiesAction
     private const ICON_FILE_TEXT = 'lucideFileText';
 
     /**
-     * @return array<int, array<string, string>>
+     * Executa a busca das atividades recentes para o período informado.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  Carbon  $from  Data de início do período
+     * @param  Carbon  $to  Data de fim do período
+     * @return array<int, array<string, string>> Lista com type, title, description, created_at e icon
      */
     public function execute(string $tenantId, Carbon $from, Carbon $to): array
     {

@@ -9,11 +9,16 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Generates a simple PDF document for CRM proposals and stores it on public disk.
+ * Gera um documento PDF simples para propostas comerciais CRM e armazena no disco público.
+ *
+ * Produz um PDF minimalista (PDF 1.4 sem dependências externas) com os itens da proposta,
+ * dados do contato/empresa e total. Adequado para envio rápido ao cliente.
  */
 final class ProposalPdfGeneratorService
 {
     /**
+     * Gera o PDF da proposta, armazena no storage público e retorna metadados do arquivo.
+     *
      * @return array{path: string, url: string, file_name: string, mime_type: string, file_size: int}
      */
     public function generate(CRMProposal $proposal): array

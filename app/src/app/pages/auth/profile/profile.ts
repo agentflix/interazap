@@ -42,8 +42,7 @@ import { ToastService } from '@core/services/toast.service';
 import { getInitials } from '@shared/utils/string.utils';
 
 /**
- * Profile page — personal info, password change, avatar upload, 2FA status.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Página de perfil — informações pessoais, alteração de senha, upload de avatar e status do 2FA.
  */
 @Component({
   selector: 'app-profile',
@@ -126,6 +125,7 @@ export class Profile implements OnInit {
 
   // ── Data loading ─────────────────────────────────────────────────────────────
 
+  /** Carrega os dados do perfil e o status do 2FA do usuário autenticado. */
   loadProfile(): void {
     this.isLoading.set(true);
     this.hasLoadError.set(false);
@@ -158,6 +158,7 @@ export class Profile implements OnInit {
       });
   }
 
+  /** Envia as alterações de nome do perfil ao servidor. */
   updateProfile(): void {
     if (this.profileForm.invalid || this.isUpdatingProfile()) {
       this.profileForm.markAllAsTouched();
@@ -189,6 +190,7 @@ export class Profile implements OnInit {
       });
   }
 
+  /** Envia a alteração de senha ao servidor após validar o formulário. */
   updatePassword(): void {
     if (this.passwordForm.invalid || this.isUpdatingPassword()) {
       this.passwordForm.markAllAsTouched();
@@ -258,8 +260,12 @@ export class Profile implements OnInit {
       });
   }
 
-  // ── Error helpers ─────────────────────────────────────────────────────────────
+  // ── Helpers de erro ───────────────────────────────────────────────────────────
 
+  /**
+   * Retorna a mensagem de erro do campo do formulário de perfil.
+   * @param field Nome do campo
+   */
   profileError(field: string): string {
     const c = this.profileForm.get(field);
     if (!c || !c.touched || !c.errors) return '';
@@ -267,6 +273,10 @@ export class Profile implements OnInit {
     return '';
   }
 
+  /**
+   * Retorna a mensagem de erro do campo do formulário de senha.
+   * @param field Nome do campo
+   */
   passwordError(field: string): string {
     const c = this.passwordForm.get(field);
     if (!c || !c.touched || !c.errors) return '';
@@ -275,6 +285,7 @@ export class Profile implements OnInit {
     return '';
   }
 
+  /** Retorna verdadeiro se as senhas não coincidem e o campo foi tocado. */
   passwordMismatch(): boolean {
     const ctrl = this.passwordForm.controls.password_confirmation;
     return !!ctrl.touched && !!ctrl.errors?.['passwordMismatch'];
@@ -287,7 +298,7 @@ export class Profile implements OnInit {
   }
 }
 
-/** Custom validator — checks password === password_confirmation */
+/** Validador customizado — verifica se `password` é igual a `password_confirmation`. */
 function matchPasswords(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
   const confirm = group.get('password_confirmation')?.value;

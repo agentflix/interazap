@@ -1,19 +1,19 @@
 /**
- * Models and types for file-upload component.
+ * Modelos e tipos do componente de upload de arquivo.
  */
 
-/** Represents a file being uploaded */
+/** Representa um arquivo em processo de upload. */
 export interface AfUploadFile {
-  /** Original File object */
+  /** Objeto File original */
   file: File;
-  /** Display name */
+  /** Nome de exibição */
   name: string;
-  /** File size in bytes */
+  /** Tamanho do arquivo em bytes */
   size: number;
-  /** Upload progress 0-100 */
+  /** Progresso do upload de 0 a 100 */
   progress: number;
-  /** Upload state */
+  /** Estado do upload */
   status: 'pending' | 'uploading' | 'done' | 'cancelled' | 'error';
-  /** Internal id */
+  /** ID interno */
   id: string;
 }

@@ -9,6 +9,13 @@ use Domain\Chat\Models\ChatMessage;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
+/**
+ * Serviço de sumarização progressiva de conversas por ticket.
+ *
+ * Contexto: mantém um resumo acumulado (rolling summary) que combina o resumo
+ * anterior com as mensagens mais recentes a cada PROGRESSIVE_INTERVAL mensagens.
+ * O texto é cacheado no Redis por 24h para evitar consultas repetidas ao banco.
+ */
 final class AiSummarizationService
 {
     private const SUMMARY_LIMIT = 4000;
@@ -16,7 +23,11 @@ final class AiSummarizationService
     private const PROGRESSIVE_INTERVAL = 15;
 
     /**
-     * Build rolling summary and persist it.
+     * Constrói o resumo acumulado e persiste no banco e no cache.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $ticketId  UUID do ticket.
+     * @return AiConversationSummary Registro criado ou atualizado.
      */
     public function summarize(string $tenantId, string $ticketId): AiConversationSummary
     {
@@ -51,7 +62,14 @@ final class AiSummarizationService
     }
 
     /**
-     * Progressive summarization every 15 messages.
+     * Executa sumarização progressiva a cada PROGRESSIVE_INTERVAL mensagens.
+     *
+     * Retorna null se o ticket ainda não possui mensagens suficientes para
+     * acionar o próximo ciclo de sumarização.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $ticketId  UUID do ticket.
+     * @return AiConversationSummary|null Resumo gerado ou null se não necessário.
      */
     public function summarizeProgressive(string $tenantId, string $ticketId): ?AiConversationSummary
     {
@@ -71,6 +89,13 @@ final class AiSummarizationService
         return $this->summarize($tenantId, $ticketId);
     }
 
+    /**
+     * Retorna o texto do resumo, priorizando o cache Redis antes de consultar o banco.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $ticketId  UUID do ticket.
+     * @return string Texto do resumo ou string vazia se não existir.
+     */
     public function getSummaryText(string $tenantId, string $ticketId): string
     {
         $cached = Cache::get($this->cacheKey($ticketId));
@@ -91,13 +116,23 @@ final class AiSummarizationService
         return $summaryText;
     }
 
+    /**
+     * Invalida o cache do resumo para o ticket informado.
+     *
+     * @param  string  $ticketId  UUID do ticket.
+     */
     public function invalidateSummary(string $ticketId): void
     {
         Cache::forget($this->cacheKey($ticketId));
     }
 
     /**
-     * @return array<int, string>
+     * Retorna as linhas formatadas das últimas mensagens do ticket.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $ticketId  UUID do ticket.
+     * @param  int  $limit  Quantidade de mensagens mais recentes a recuperar.
+     * @return array<int, string> Linhas no formato "User: ..." ou "Agent: ...".
      */
     private function latestMessageLines(string $tenantId, string $ticketId, int $limit): array
     {
@@ -114,6 +149,13 @@ final class AiSummarizationService
             ->all();
     }
 
+    /**
+     * Mescla o resumo existente com as mensagens mais recentes, respeitando o SUMMARY_LIMIT.
+     *
+     * @param  string  $existingSummary  Resumo acumulado anterior.
+     * @param  string  $batchText  Texto das mensagens recentes.
+     * @return string Resumo mesclado truncado ao limite configurado.
+     */
     private function mergeRollingSummary(string $existingSummary, string $batchText): string
     {
         if ($existingSummary === '' && $batchText === '') {
@@ -133,6 +175,7 @@ final class AiSummarizationService
         return Str::limit($merged, self::SUMMARY_LIMIT, '...');
     }
 
+    /** Gera a chave de cache do resumo para o ticket informado. */
     private function cacheKey(string $ticketId): string
     {
         return sprintf('summary:%s', $ticketId);

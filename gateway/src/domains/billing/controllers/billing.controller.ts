@@ -26,10 +26,10 @@ export class BillingController {
   constructor(private readonly asaasClient: AsaasClient) {}
 
   /**
-   * Creates a new customer in Asaas.
+   * Cria um novo cliente no Asaas.
    *
-   * @param payload - Customer creation data
-   * @returns Created customer data
+   * @param payload - Dados do cliente (nome, CPF/CNPJ, e-mail, referência externa)
+   * @returns Dados do cliente criado com ID gerado pelo Asaas
    */
   @Post('customers')
   createCustomer(@Body() payload: CreateAsaasCustomerDto) {
@@ -37,10 +37,10 @@ export class BillingController {
   }
 
   /**
-   * Creates a new payment in Asaas.
+   * Cria uma nova cobrança no Asaas.
    *
-   * @param payload - Payment creation data
-   * @returns Created payment data
+   * @param payload - Dados da cobrança (cliente, tipo, valor, vencimento, descrição)
+   * @returns Dados da cobrança criada com ID, link da fatura e status
    */
   @Post('payments')
   createPayment(@Body() payload: CreateAsaasPaymentDto) {
@@ -48,10 +48,10 @@ export class BillingController {
   }
 
   /**
-   * Gets PIX QR code for a payment.
+   * Obtém o QR Code PIX de uma cobrança existente.
    *
-   * @param paymentId - Payment ID
-   * @returns PIX QR code data
+   * @param paymentId - Identificador da cobrança no Asaas
+   * @returns Dados do QR Code PIX (payload, imagem codificada e data de expiração)
    */
   @Get('payments/:paymentId/pix')
   getPixQRCode(@Param('paymentId') paymentId: string) {
@@ -59,10 +59,10 @@ export class BillingController {
   }
 
   /**
-   * Gets payment status.
+   * Consulta o status atual de uma cobrança.
    *
-   * @param paymentId - Payment ID
-   * @returns Payment status data
+   * @param paymentId - Identificador da cobrança no Asaas
+   * @returns Status, valor e data de confirmação do pagamento
    */
   @Get('payments/:paymentId/status')
   getPaymentStatus(@Param('paymentId') paymentId: string) {

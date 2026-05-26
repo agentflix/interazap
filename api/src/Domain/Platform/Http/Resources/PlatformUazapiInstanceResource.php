@@ -8,7 +8,7 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Uazapi Instance serialization.
+ * Resource de serialização de instância Uazapi.
  */
 final class PlatformUazapiInstanceResource extends BaseJsonResource
 {

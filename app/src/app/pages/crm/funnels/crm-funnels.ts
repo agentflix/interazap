@@ -35,8 +35,7 @@ import type { Funnel } from '@core/models/funnel.model';
 import { FunnelFormComponent } from './components/funnel-form/crm-funnel-form';
 
 /**
- * Funnels settings page — CRUD for CRM sales funnels.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Página de configurações de funis de vendas do CRM com CRUD completo.
  */
 @Component({
   selector: 'app-funnels',

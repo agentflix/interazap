@@ -131,10 +131,12 @@ export class MyPlanPage {
       });
   }
 
+  /** Abre o modal de preferências de cobrança. */
   protected openBillingPrefs(): void {
     this.billingPrefsOpen.set(true);
   }
 
+  /** Fecha o modal de preferências e recarrega dados após salvar. */
   protected onBillingPrefsSaved(): void {
     this.billingPrefsOpen.set(false);
     this.load();
@@ -186,6 +188,11 @@ export class MyPlanPage {
       });
   }
 
+  /**
+   * Formata um valor numérico como moeda BRL (R$).
+   * @param value Valor a formatar
+   * @returns String formatada em reais
+   */
   protected formatCurrencyBRL(value: string | number | null | undefined): string {
     const normalized = Number(value ?? 0);
 
@@ -196,6 +203,11 @@ export class MyPlanPage {
     return this.currencyFormatter.format(normalized);
   }
 
+  /**
+   * Formata uma data ISO no padrão pt-BR (dd/mm/aaaa).
+   * @param value String de data ISO 8601
+   * @returns Data formatada ou "-" para valores ausentes
+   */
   protected formatDatePtBr(value: string | null | undefined): string {
     if (value === null || value === undefined || value.trim().length === 0) {
       return '-';

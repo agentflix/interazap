@@ -138,8 +138,15 @@ export class WebChatProxyService {
     }
   }
 
-  // ─── Private helpers ────────────────────────────────────────────────────────
+  // ─── Auxiliares privados ────────────────────────────────────────────────────
 
+  /**
+   * Executa uma requisição POST para a API Laravel com corpo JSON.
+   *
+   * @param path - Caminho do endpoint na API (ex.: '/api/webchat/sessions')
+   * @param body - Corpo da requisição
+   * @returns Dados da resposta da API
+   */
   private async post(
     path: string,
     body: Record<string, unknown>,
@@ -155,6 +162,13 @@ export class WebChatProxyService {
     }
   }
 
+  /**
+   * Trata erros de proxy e lança HttpException com status e mensagem adequados.
+   *
+   * @param context - Descrição do endpoint onde o erro ocorreu (ex.: 'POST /api/webchat/sessions')
+   * @param error - Erro capturado (pode ser AxiosError ou desconhecido)
+   * @throws HttpException com o status code e mensagem do erro
+   */
   private handleProxyError(context: string, error: unknown): never {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<{ message?: string }>;

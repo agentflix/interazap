@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
 /**
- * AfKbdComponent — Keyboard shortcut display element.
+ * Elemento de exibição de atalho de teclado.
  *
  * @example
  * ```html
@@ -15,5 +15,6 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
   templateUrl: './kbd.html',
 })
 export class AfKbdComponent {
+  /** Rótulo acessível para leitores de tela */
   readonly ariaLabel = input<string>('');
 }

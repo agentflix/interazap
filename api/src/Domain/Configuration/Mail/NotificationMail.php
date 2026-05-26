@@ -19,10 +19,12 @@ final class NotificationMail extends Mailable
     use Queueable;
     use SerializesModels;
 
+    /** Cria o Mailable com a notificação a ser enviada. */
     public function __construct(
         public readonly ConfigurationNotification $notification,
     ) {}
 
+    /** Retorna o envelope do e-mail com assunto baseado no título da notificação. */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -30,6 +32,7 @@ final class NotificationMail extends Mailable
         );
     }
 
+    /** Retorna o conteúdo do e-mail utilizando a view padrão de notificações. */
     public function content(): Content
     {
         return new Content(
@@ -41,6 +44,8 @@ final class NotificationMail extends Mailable
     }
 
     /**
+     * Retorna os anexos do e-mail (nenhum por padrão).
+     *
      * @return array<int, string>
      */
     public function attachments(): array

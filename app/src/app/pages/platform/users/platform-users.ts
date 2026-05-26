@@ -40,6 +40,9 @@ import { PlatformUserFormComponent } from './components/platform-user-form/platf
 import { getInitials } from '@shared/utils/string.utils';
 import { Router } from '@angular/router';
 
+/**
+ * Página de usuários da plataforma — CRUD completo com impersonação e seleção em massa.
+ */
 @Component({
   selector: 'app-platform-users',
   standalone: true,
@@ -60,10 +63,6 @@ import { Router } from '@angular/router';
     AfIconButtonComponent,
     AfPasswordInputComponent,
     PlatformUserFormComponent,
-/**
- * Platform users page component for the Platform module.
- * @selector app-platform-users
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './platform-users.html',

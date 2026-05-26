@@ -11,12 +11,19 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Fetches KPI summary data for the dashboard.
+ * Coleta os KPIs consolidados para o painel principal do dashboard.
+ *
+ * Retorna receita ganha, pipeline aberto, contagem de tickets ativos e CSAT médio.
  */
 final class GetDashboardSummaryAction
 {
     /**
-     * @return array<string, float|int>
+     * Executa a coleta de KPIs do dashboard para o período informado.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  Carbon  $from  Data de início do período
+     * @param  Carbon  $to  Data de fim do período
+     * @return array<string, float|int> Com chaves total_revenue_won, pipeline_open_value, active_tickets_count e csat_average
      */
     public function execute(string $tenantId, Carbon $from, Carbon $to): array
     {

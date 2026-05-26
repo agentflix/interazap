@@ -16,7 +16,10 @@ use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 
 /**
- * Dashboard endpoint returning consolidated CRM and Chat metrics.
+ * Controlador do dashboard que consolida métricas de CRM e atendimento.
+ *
+ * Agrega dados de summary, funil, receita, negociações, tickets, CSAT e
+ * atividades recentes em uma única resposta para o frontend.
  *
  * @see GetDashboardSummaryAction
  * @see GetSalesFunnelAction

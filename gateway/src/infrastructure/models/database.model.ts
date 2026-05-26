@@ -1,6 +1,8 @@
 /**
  * Modelos de infraestrutura de banco de dados do gateway.
- * Define tipos utilizados pelo serviço de conexão com o PostgreSQL.
+ *
+ * Contexto: módulo infra/models. Define tipos utilizados pelo serviço de conexão
+ * com o PostgreSQL via `pg.Pool`. Permite substituição por implementações mock em testes.
  */
 
 /**

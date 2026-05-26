@@ -8,10 +8,11 @@ import {
 } from '../../../shared/utils/type-guards';
 
 /**
- * TicketResolverService
+ * Resolve JIDs remotos de mensagens WhatsApp para IDs de ticket com cache Redis.
  *
- * Resolves WhatsApp message remote JIDs to ticket IDs with Redis caching.
- * Provides tenant-aware ticket mapping to prevent cross-tenant data leakage.
+ * Contexto: fornece mapeamento de ticket com isolamento por tenant para prevenir
+ * vazamento de dados entre tenants. Utiliza timeout de 300ms nas consultas Redis
+ * para evitar bloqueio do loop de eventos durante o processamento de webhooks.
  */
 @Injectable()
 export class TicketResolverService {
@@ -19,10 +20,10 @@ export class TicketResolverService {
   private readonly ticketCacheTtlSeconds: number;
 
   /**
-   * Initializes the resolver with a Redis service and config-driven TTL for ticket mappings.
+   * Inicializa o resolver com o servico Redis e TTL configuravel para mapeamentos de ticket.
    *
-   * @param configService - NestJS ConfigService for reading environment variables.
-   * @param redisService  - RedisService for caching ticket-to-JID mappings.
+   * @param configService ConfigService do NestJS para leitura de variaveis de ambiente
+   * @param redisService RedisService para cache dos mapeamentos ticket-para-JID
    */
   constructor(
     private readonly configService: ConfigService,
@@ -38,13 +39,13 @@ export class TicketResolverService {
   }
 
   /**
-   * Extracts the remote JID from a WhatsApp message payload.
+   * Extrai o JID remoto de um payload de mensagem WhatsApp.
    *
-   * Prefers explicit chatId fields; falls back to the `to` field for outgoing
-   * messages or the `from` field for incoming ones.
+   * Prioriza campos explicitos de chatId; cai para o campo `to` em mensagens
+   * enviadas ou para o campo `from` em mensagens recebidas.
    *
-   * @param message - A JsonRecord representing the raw message payload.
-   * @returns The remote JID as a string, or null if none can be determined.
+   * @param message JsonRecord representando o payload bruto da mensagem
+   * @returns JID remoto como string ou null quando nao determinavel
    */
   resolveRemoteJid(message: JsonRecord): string | null {
     const directRemoteJid =
@@ -66,15 +67,15 @@ export class TicketResolverService {
   }
 
   /**
-   * Resolves a ticket ID from a cached Redis mapping using a remote JID.
+   * Resolve um ID de ticket a partir do mapeamento em cache Redis usando um JID remoto.
    *
-   * Enforces tenant isolation by validating the cached tenant_id against the
-   * requested tenant. If the cache is stale or missing, returns null.
-   * Uses a 300 ms timeout to avoid blocking the event loop.
+   * Impoe isolamento de tenant validando o tenant_id em cache contra o tenant solicitado.
+   * Retorna null quando o cache nao existe ou ha divergencia de tenant.
+   * Usa timeout de 300ms para evitar bloqueio do loop de eventos.
    *
-   * @param tenantId  - The tenant ID used for isolation validation.
-   * @param remoteJid - The normalized remote JID to look up.
-   * @returns The cached ticket ID string, or null if not found or tenant mismatch.
+   * @param tenantId ID do tenant usado para validacao de isolamento
+   * @param remoteJid JID remoto normalizado para busca
+   * @returns String do ticket ID em cache, ou null se nao encontrado ou tenant divergente
    */
   async resolveTicketIdForRemoteJid(
     tenantId: string,
@@ -139,7 +140,10 @@ export class TicketResolverService {
   }
 
   /**
-   * Normalizes a remote JID to lowercase and trims whitespace.
+   * Normaliza um JID remoto para minusculas sem espacos em branco.
+   *
+   * @param remoteJid - JID remoto a normalizar
+   * @returns JID normalizado ou null quando vazio
    */
   private normalizeRemoteJid(remoteJid: string | null): string | null {
     const normalized = remoteJid?.trim().toLowerCase() ?? '';

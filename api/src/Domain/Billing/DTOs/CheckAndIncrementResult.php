@@ -6,6 +6,12 @@ namespace Domain\Billing\DTOs;
 
 use Domain\Billing\Enums\OverageMode;
 
+/**
+ * Resultado do check-and-increment de uso de mensagens IA.
+ *
+ * Indica se a mensagem foi permitida, o contador atual, o limite do ciclo,
+ * o modo de excedente e se a mensagem é considerada overage.
+ */
 final readonly class CheckAndIncrementResult
 {
     public function __construct(

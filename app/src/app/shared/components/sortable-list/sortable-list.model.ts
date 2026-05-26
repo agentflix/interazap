@@ -1,8 +1,8 @@
 /**
- * Models and types for sortable-list component.
+ * Modelos e tipos do componente de lista ordenável.
  */
 
-/** Sortable list item */
+/** Item da lista ordenável */
 export interface AfSortableItem {
   id: string;
   label: string;

@@ -5,6 +5,13 @@ import { LucideAngularModule } from 'lucide-angular';
 import { AfButtonComponent, AfSwitchInputComponent, AfTextInputComponent } from '@shared/components';
 import { type ChatRoutingQueueAgent } from '../../../services/chat-routing-queue.service';
 
+/**
+ * Lista de agentes da fila de roteamento com suporte a drag-and-drop.
+ *
+ * @remarks
+ * Permite reordenar agentes, ativar/desativar, remover e gerenciar skills
+ * por agente. Emite eventos granulares ao container para sincronizar com a API.
+ */
 @Component({
   selector: 'app-routing-agent-list',
   standalone: true,

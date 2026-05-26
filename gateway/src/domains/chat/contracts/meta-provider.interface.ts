@@ -4,7 +4,7 @@ import type {
   NormalizedWebhookEvent,
 } from './provider.interface';
 
-// Re-export types for convenience
+// Re-exporta tipos para uso externo
 export type {
   SendMessageResult,
   NormalizedWebhookEvent,
@@ -42,23 +42,37 @@ export interface MetaWhatsAppProvider extends WhatsAppProvider {
   ): Promise<NormalizedWebhookEvent>;
 }
 
+/** Requisicao de envio de mensagem via template aprovado da Meta. */
 export interface SendTemplateRequest {
+  /** Numero do destinatario da mensagem. */
   to: string;
+  /** Nome do template aprovado a ser enviado. */
   templateName: string;
+  /** Parametros a substituir no corpo do template. */
   templateParams?: string[];
-  language?: string; // default: 'pt_BR'
+  /** Codigo de idioma do template (padrao: 'pt_BR'). */
+  language?: string;
 }
 
+/** Template de mensagem aprovado na conta Business da Meta. */
 export interface MetaTemplate {
+  /** Nome unico do template. */
   name: string;
+  /** Status de aprovacao do template. */
   status: 'APPROVED' | 'PENDING' | 'REJECTED';
+  /** Categoria do template conforme classificacao da Meta. */
   category: string;
+  /** Codigo de idioma do template. */
   language: string;
+  /** Componentes que compoem o template. */
   components: TemplateComponent[];
 }
 
+/** Componente de um template de mensagem da Meta. */
 export interface TemplateComponent {
+  /** Tipo do componente no template. */
   type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
+  /** Parametros de exemplo do componente. */
   params?: string[];
 }
 

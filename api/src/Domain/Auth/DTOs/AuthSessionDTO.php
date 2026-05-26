@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Domain\Auth\DTOs;
 
 /**
- * DTO for authenticated session with permissions and optional token.
+ * DTO para sessão autenticada com permissões e token opcional.
+ *
+ * Contém os dados completos retornados após login bem-sucedido,
+ * incluindo dados do usuário, permissões, plano do tenant e token Sanctum.
  *
  * @readonly
  */
@@ -28,6 +31,8 @@ final readonly class AuthSessionDTO
     ) {}
 
     /**
+     * Serializa a sessão para array de resposta da API.
+     *
      * @return array{user:array<string,mixed>,permissions:array<int,string>,tenant_plan:?array,token:?string}
      */
     public function toArray(): array

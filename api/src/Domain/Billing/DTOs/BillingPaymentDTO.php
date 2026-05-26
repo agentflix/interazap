@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Billing\DTOs;
 
 /**
- * DTO for payment data transfer.
+ * DTO para transferência de dados de pagamento.
  *
  * @readonly
  */
@@ -21,6 +21,8 @@ final readonly class BillingPaymentDTO
     ) {}
 
     /**
+     * Cria o DTO a partir de um array de dados.
+     *
      * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self

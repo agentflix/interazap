@@ -25,6 +25,12 @@ final class BillingSendRemindersAction
     ) {}
 
     /**
+     * Percorre tenants com fatura vencida e envia lembretes pelos canais configurados.
+     *
+     * Respeita horário de silêncio (quiet hours) e limita um envio por tenant por dia.
+     * Em modo dry-run os emails/WhatsApps não são enviados, mas os contadores são calculados.
+     *
+     * @param  bool  $dryRun  Se verdadeiro, apenas simula sem enviar notificações
      * @return array{processed:int,sent:int,skipped:int,failed:int}
      */
     public function handle(bool $dryRun = false): array
@@ -113,7 +119,9 @@ final class BillingSendRemindersAction
     }
 
     /**
-     * @param  list<string>  $channels
+     * Envia o lembrete de cobrança pelos canais informados para o tenant.
+     *
+     * @param  list<string>  $channels  Canais de envio ('email', 'whatsapp')
      * @return array{sent:int,failed:int}
      */
     private function sendForChannels(
@@ -170,6 +178,8 @@ final class BillingSendRemindersAction
     }
 
     /**
+     * Retorna lista deduplicada de e-mails do tenant: email primário + e-mails de usuários ativos.
+     *
      * @return list<string>
      */
     private function resolveTenantEmails(PlatformTenant $tenant): array
@@ -192,6 +202,7 @@ final class BillingSendRemindersAction
         return array_values(array_unique([...$emails, ...$adminEmails]));
     }
 
+    /** Envia o e-mail de lembrete e retorna 'sent' ou 'failed'. */
     private function sendEmailReminder(
         string $email,
         PlatformTenant $tenant,
@@ -213,6 +224,7 @@ final class BillingSendRemindersAction
         }
     }
 
+    /** Envia o lembrete via WhatsApp pelo gateway e retorna 'sent' ou 'failed'. */
     private function sendWhatsappReminder(
         PlatformTenant $tenant,
         BillingInvoice $invoice,
@@ -236,6 +248,7 @@ final class BillingSendRemindersAction
         return $response['success'] ? 'sent' : 'failed';
     }
 
+    /** Persiste o registro de envio de cobrança e dispara o evento de auditoria. */
     private function recordCollectionLog(
         PlatformTenant $tenant,
         BillingInvoice $invoice,
@@ -266,6 +279,8 @@ final class BillingSendRemindersAction
     }
 
     /**
+     * Retorna o template e canais configurados para o número de dias em atraso, ou null se não houver regra.
+     *
      * @return array{template:string,channels:list<string>}|null
      */
     private function resolveTemplateByDay(int $daysOverdue): ?array
@@ -295,6 +310,7 @@ final class BillingSendRemindersAction
         return null;
     }
 
+    /** Retorna true se o horário atual estiver dentro do período de silêncio configurado. */
     private function isQuietHours(): bool
     {
         $start = (int) config('billing.delinquency.quiet_hours.start', 18);
@@ -312,6 +328,7 @@ final class BillingSendRemindersAction
         return $hour >= $start && $hour < $end;
     }
 
+    /** Verifica se o módulo de inadimplência está habilitado pela config. */
     private function isFeatureEnabled(): bool
     {
         return (bool) config('billing.delinquency.enabled', true);

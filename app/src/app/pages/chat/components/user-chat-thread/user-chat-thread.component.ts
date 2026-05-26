@@ -26,6 +26,16 @@ import { UserChatThreadStore } from './user-chat-thread.store';
 import { UserChatThreadViewComponent } from './user-chat-thread-view.component';
 import { UserChatTypingIndicatorComponent } from './user-chat-typing-indicator.component';
 
+/**
+ * Thread de mensagens de um atendimento com scroll infinito e integração realtime.
+ *
+ * @remarks
+ * Gerencia o scroll automático (mantém o fundo quando o usuário não rolou),
+ * paginação reversa ao chegar ao topo, indicador de digitação e contagem
+ * de mensagens não lidas fora de tela.
+ *
+ * Delega o estado ao `UserChatThreadStore` via `providers`.
+ */
 @Component({
   selector: 'app-user-chat-thread',
   standalone: true,
@@ -35,10 +45,6 @@ import { UserChatTypingIndicatorComponent } from './user-chat-typing-indicator.c
     UserChatEmptyStateComponent,
     UserChatThreadViewComponent,
     UserChatTypingIndicatorComponent,
-/**
- * User chat thread component for the Chat module.
- * @selector app-user-chat-thread
- */
   ],
   templateUrl: './user-chat-thread.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

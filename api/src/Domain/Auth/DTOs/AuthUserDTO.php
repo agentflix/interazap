@@ -7,7 +7,7 @@ namespace Domain\Auth\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for authenticated user creation and update.
+ * DTO para criação e atualização de usuário.
  *
  * @readonly
  */
@@ -28,7 +28,7 @@ final readonly class AuthUserDTO
     ) {}
 
     /**
-     * Create DTO from form request.
+     * Cria DTO a partir do form request validado.
      */
     public static function fromRequest(FormRequest $request): self
     {
@@ -36,6 +36,8 @@ final readonly class AuthUserDTO
     }
 
     /**
+     * Cria DTO a partir de array com dados do usuário.
+     *
      * @param  array<string, mixed>  $payload
      */
     public static function fromArray(array $payload): self
@@ -55,6 +57,8 @@ final readonly class AuthUserDTO
     }
 
     /**
+     * Serializa o DTO para array de persistência (campos nulos omitidos).
+     *
      * @return array<string, mixed>
      */
     public function toPersistenceArray(): array

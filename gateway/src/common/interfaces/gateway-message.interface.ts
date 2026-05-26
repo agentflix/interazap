@@ -1,13 +1,13 @@
 /**
- * Gateway Message Interface
+ * Interface de mensagem do Gateway.
  *
- * Envelope padrão para mensagens entre Laravel e Gateway via Redis Streams.
+ * Envelope padrão para mensagens trocadas entre o Laravel e o Gateway via Redis Streams.
  * Todas as mensagens devem seguir esta estrutura para garantir rastreabilidade
  * e consistência na comunicação.
  */
 
 /**
- * Domínios suportados pelo Gateway
+ * Representa os domínios suportados pelo Gateway como destinos de roteamento de mensagens.
  */
 export type GatewayDomain = 'ai' | 'whatsapp' | 'payment' | 'webhook';
 
@@ -90,7 +90,10 @@ export interface GatewayMessageMetadata {
 }
 
 /**
- * Factory para criar GatewayMessage com defaults
+ * Cria um envelope GatewayMessage preenchendo o timestamp com o valor atual quando omitido.
+ *
+ * @param partial - Dados da mensagem sem o campo timestamp (ou com timestamp opcional)
+ * @returns Mensagem completa com timestamp garantido
  */
 export function createGatewayMessage<T>(
   partial: Omit<GatewayMessage<T>, 'timestamp'> &

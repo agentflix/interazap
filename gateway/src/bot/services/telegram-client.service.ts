@@ -4,6 +4,12 @@ import { firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { TgResult } from '../dto/telegram-result.interface';
 
+/**
+ * Cliente HTTP para a Telegram Bot API.
+ *
+ * Contexto: módulo bot. Encapsula todas as chamadas à API do Telegram,
+ * gerenciando erros, logs e mascaramento do token nos registros.
+ */
 @Injectable()
 export class TelegramClientService {
   private readonly logger = new Logger(TelegramClientService.name);
@@ -11,8 +17,16 @@ export class TelegramClientService {
 
   constructor(private readonly httpService: HttpService) {}
 
-  // ─── Public API Methods ────────────────────────────────────
+  // ─── Métodos Públicos da API ───────────────────────────────
 
+  /**
+   * Envia uma mensagem de texto para um chat.
+   * @param botToken Token do bot
+   * @param chatId Identificador do chat de destino
+   * @param text Texto da mensagem
+   * @param replyToMessageId ID da mensagem a ser respondida (opcional)
+   * @returns Resposta da API do Telegram
+   */
   async sendMessage(
     botToken: string,
     chatId: string,
@@ -28,6 +42,13 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Envia uma foto para um chat.
+   * @param botToken Token do bot
+   * @param chatId Identificador do chat de destino
+   * @param photo file_id, URL ou upload da foto
+   * @param caption Legenda opcional
+   */
   async sendPhoto(
     botToken: string,
     chatId: string,
@@ -41,6 +62,13 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Envia um vídeo para um chat.
+   * @param botToken Token do bot
+   * @param chatId Identificador do chat de destino
+   * @param video file_id, URL ou upload do vídeo
+   * @param caption Legenda opcional
+   */
   async sendVideo(
     botToken: string,
     chatId: string,
@@ -54,6 +82,13 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Envia um áudio de voz para um chat.
+   * @param botToken Token do bot
+   * @param chatId Identificador do chat de destino
+   * @param voice file_id, URL ou upload do áudio
+   * @param caption Legenda opcional
+   */
   async sendVoice(
     botToken: string,
     chatId: string,
@@ -67,6 +102,13 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Envia um arquivo de áudio para um chat.
+   * @param botToken Token do bot
+   * @param chatId Identificador do chat de destino
+   * @param audio file_id, URL ou upload do áudio
+   * @param caption Legenda opcional
+   */
   async sendAudio(
     botToken: string,
     chatId: string,
@@ -80,6 +122,13 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Envia um documento para um chat.
+   * @param botToken Token do bot
+   * @param chatId Identificador do chat de destino
+   * @param document file_id, URL ou upload do documento
+   * @param caption Legenda opcional
+   */
   async sendDocument(
     botToken: string,
     chatId: string,
@@ -93,6 +142,13 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Envia uma localização geográfica para um chat.
+   * @param botToken Token do bot
+   * @param chatId Identificador do chat de destino
+   * @param latitude Latitude da localização
+   * @param longitude Longitude da localização
+   */
   async sendLocation(
     botToken: string,
     chatId: string,
@@ -106,6 +162,12 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Envia um sticker para um chat.
+   * @param botToken Token do bot
+   * @param chatId Identificador do chat de destino
+   * @param sticker file_id ou URL do sticker
+   */
   async sendSticker(
     botToken: string,
     chatId: string,
@@ -117,6 +179,12 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Envia uma ação de chat (ex: "digitando...") para indicar atividade ao usuário.
+   * @param botToken Token do bot
+   * @param chatId Identificador do chat de destino
+   * @param action Tipo de ação (atualmente apenas 'typing')
+   */
   async sendChatAction(
     botToken: string,
     chatId: string,
@@ -128,6 +196,12 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Registra um webhook na Telegram Bot API.
+   * @param botToken Token do bot
+   * @param url URL HTTPS do webhook
+   * @param secretToken Token secreto enviado pelo Telegram em cada requisição
+   */
   async setWebhook(
     botToken: string,
     url: string,
@@ -139,6 +213,11 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Remove o webhook registrado na Telegram Bot API.
+   * @param botToken Token do bot
+   * @param dropPendingUpdates Se true, descarta atualizações pendentes na fila
+   */
   async deleteWebhook(
     botToken: string,
     dropPendingUpdates?: boolean,
@@ -150,18 +229,39 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Obtém informações sobre o webhook registrado (URL, erros, atualizações pendentes).
+   * @param botToken Token do bot
+   */
   async getWebhookInfo(botToken: string): Promise<TgResult<any>> {
     return this.callApi(botToken, 'getWebhookInfo', {});
   }
 
+  /**
+   * Obtém as informações básicas do bot (id, nome, username).
+   * @param botToken Token do bot
+   */
   async getMe(botToken: string): Promise<TgResult<any>> {
     return this.callApi(botToken, 'getMe', {});
   }
 
+  /**
+   * Obtém os metadados de um arquivo armazenado no Telegram.
+   * @param botToken Token do bot
+   * @param fileId Identificador único do arquivo
+   */
   async getFile(botToken: string, fileId: string): Promise<TgResult<any>> {
     return this.callApi(botToken, 'getFile', { file_id: fileId });
   }
 
+  /**
+   * Busca atualizações pendentes via long-polling.
+   * @param botToken Token do bot
+   * @param offset Identificador mínimo do update a retornar (para avançar o cursor)
+   * @param timeout Tempo máximo de espera em segundos para long-polling
+   * @param allowedUpdates Tipos de atualização a receber
+   * @returns Lista de updates recebidos
+   */
   async getUpdates(
     botToken: string,
     offset?: number,
@@ -177,12 +277,26 @@ export class TelegramClientService {
     });
   }
 
+  /**
+   * Constrói a URL para download direto de um arquivo do Telegram.
+   * @param botToken Token do bot
+   * @param filePath Caminho do arquivo retornado por getFile
+   * @returns URL completa para download
+   */
   getFileUrl(botToken: string, filePath: string): string {
     return `${this.BASE_URL}/file/bot${botToken}/${filePath}`;
   }
 
   // ─── Private ───────────────────────────────────────────────
 
+  /**
+   * Executa uma chamada POST à Telegram Bot API com tratamento de erros centralizado.
+   * @param botToken Token do bot (mascarado nos logs)
+   * @param method Nome do método da API (ex: 'sendMessage')
+   * @param body Corpo da requisição
+   * @returns Resposta tipada da API
+   * @throws AxiosError ou Error em caso de falha
+   */
   private async callApi<T>(
     botToken: string,
     method: string,
@@ -232,6 +346,11 @@ export class TelegramClientService {
     }
   }
 
+  /**
+   * Mascara o token do bot para exibição segura em logs.
+   * @param token Token completo do bot
+   * @returns Versão mascarada do token (ex: "123456:***")
+   */
   private maskToken(token: string): string {
     const colonIndex = token.indexOf(':');
     if (colonIndex === -1) {

@@ -10,7 +10,7 @@ import { Request } from 'express';
 import { IdempotencyService } from '../services/idempotency';
 
 /**
- * Extended request type with idempotency properties.
+ * Representa a requisição Express estendida com propriedades de idempotência.
  */
 interface IdempotentRequest extends Request {
   idempotencyKey?: string;
@@ -18,11 +18,11 @@ interface IdempotentRequest extends Request {
 }
 
 /**
- * Interceptor that marks webhook as processed after successful execution.
+ * Interceptor que marca o webhook como processado após execução bem-sucedida.
  *
- * Works in conjunction with IdempotentWebhookGuard.
- * The guard checks for duplicates and stores the key in the request,
- * this interceptor marks it as processed after the handler executes.
+ * Contexto: trabalha em conjunto com IdempotentWebhookGuard. O guard verifica duplicatas
+ * e armazena a chave na requisição; este interceptor persiste o resultado no Redis após
+ * o handler executar com sucesso para que requisições duplicadas futuras recebam a resposta cacheada.
  *
  * @example
  * ```typescript
@@ -40,22 +40,22 @@ export class IdempotentResponseInterceptor implements NestInterceptor {
   private readonly logger = new Logger(IdempotentResponseInterceptor.name);
 
   /**
-   * Initialises the interceptor with the IdempotencyService used to persist results.
+   * Inicializa o interceptor com o IdempotencyService utilizado para persistir resultados.
    *
-   * @param idempotencyService - Service that stores processed webhook results in Redis
+   * @param idempotencyService - Serviço que armazena resultados de webhooks processados no Redis
    */
   constructor(private readonly idempotencyService: IdempotencyService) {}
 
   /**
-   * Intercepts successful handler responses and marks the idempotency key as processed.
+   * Intercepta respostas bem-sucedidas do handler e marca a chave de idempotência como processada.
    *
-   * After the route handler succeeds, stores the response body in Redis under the
-   * idempotency key so future duplicate requests receive the cached result.
-   * On handler error the key is intentionally left un-set so retries are not blocked.
+   * Após o handler da rota ser executado com sucesso, armazena o corpo da resposta no Redis
+   * sob a chave de idempotência para que requisições duplicadas futuras recebam o resultado cacheado.
+   * Em caso de erro do handler, a chave intencionalmente não é marcada para não bloquear retentativas.
    *
-   * @param context - NestJS execution context (used to read idempotency key from request)
-   * @param next - Observable chain representing the route handler
-   * @returns The observable passed through unchanged; marking is fire-and-forget
+   * @param context - Contexto de execução do NestJS (usado para ler a chave de idempotência da requisição)
+   * @param next - Cadeia observable representando o handler da rota
+   * @returns O observable passado sem alterações; o registro é fire-and-forget
    */
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<IdempotentRequest>();

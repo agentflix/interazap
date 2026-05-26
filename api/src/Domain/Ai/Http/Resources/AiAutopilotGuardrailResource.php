@@ -8,7 +8,7 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Guardrail serialization.
+ * Resource para serialização de guardrail do autopilot.
  */
 final class AiAutopilotGuardrailResource extends BaseJsonResource
 {

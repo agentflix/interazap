@@ -52,8 +52,8 @@ import {
 } from './crm-contacts.helpers';
 
 /**
- * Contacts CRM page — CRUD for contacts with import/export.
- * Follows Angular 20+ best practices with Signals and OnPush.
+ * Página de contatos do CRM com CRUD completo, importação e exportação CSV.
+ * Suporta busca, filtros avançados, ordenação e seleção em lote.
  */
 @Component({
   selector: 'app-contacts',

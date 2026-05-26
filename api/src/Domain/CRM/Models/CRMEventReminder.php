@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Event reminder notification (UI/Email/Push/...).
+ * Lembrete automático de evento de agenda (UI/Email/Push/WhatsApp/Webhook).
  *
- * Configures automated reminders for calendar events
- * with multiple notification channels.
+ * Configura o agendamento de notificações automáticas para eventos CRM
+ * com suporte a múltiplos canais de envio.
  *
  * @property string $id
  * @property string $tenant_id

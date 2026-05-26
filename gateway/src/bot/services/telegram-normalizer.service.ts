@@ -69,18 +69,27 @@ interface MediaInfo {
 
 // ─── Service ────────────────────────────────────────────────────────────────
 
+/**
+ * Normaliza atualizações do Telegram para o formato de evento interno da plataforma.
+ *
+ * Contexto: módulo bot. Mapeia mensagens, edições e reações para
+ * NormalizedTelegramEvent, abstraindo as particularidades da Telegram Bot API.
+ */
 @Injectable()
 export class TelegramNormalizerService {
   private readonly logger = new Logger(TelegramNormalizerService.name);
 
   /**
-   * Normalize a Telegram update into the platform's webhook event format.
+   * Normaliza uma atualização do Telegram para o formato de evento webhook da plataforma.
    *
-   * Mapping rules:
+   * Regras de mapeamento:
    * - update.message (from.is_bot=false) → direction: 'inbound', eventType: 'message'
    * - update.message (from.is_bot=true)  → direction: 'outbound', eventType: 'message'
    * - update.edited_message              → eventType: 'message_edit', edited: true
    * - update.message_reaction            → eventType: 'message_status'
+   * @param webhookToken Token único do bot no URL do webhook
+   * @param update Atualização recebida do Telegram
+   * @returns Evento normalizado ou null se o tipo não for suportado
    */
   normalize(
     webhookToken: string,
@@ -147,8 +156,14 @@ export class TelegramNormalizerService {
     };
   }
 
-  // ─── Private Helpers ────────────────────────────────────────
+  // ─── Helpers Privados ───────────────────────────────────────
 
+  /**
+   * Normaliza um evento de reação de mensagem do Telegram.
+   * @param webhookToken Token único do bot
+   * @param update Atualização contendo o campo message_reaction
+   * @returns Evento normalizado como message_status
+   */
   private normalizeReaction(
     webhookToken: string,
     update: TelegramUpdateDto,
@@ -184,11 +199,22 @@ export class TelegramNormalizerService {
     };
   }
 
+  /**
+   * Extrai o nome do remetente concatenando first_name e last_name.
+   * @param from Objeto de usuário do Telegram
+   * @returns Nome completo ou 'Unknown'
+   */
   private extractSenderName(from: TelegramUserDto): string {
     const parts = [from.first_name, from.last_name].filter(Boolean);
     return parts.join(' ') || 'Unknown';
   }
 
+  /**
+   * Extrai informações de mídia de uma mensagem do Telegram.
+   * Para fotos, utiliza o último item (maior resolução).
+   * @param message Mensagem do Telegram
+   * @returns Metadados da mídia ou null se for mensagem de texto
+   */
   private extractMediaInfo(message: TelegramMessageDto): MediaInfo | null {
     // Photo: use last item (highest resolution)
     if (message.photo?.length) {
@@ -257,6 +283,12 @@ export class TelegramNormalizerService {
     return null;
   }
 
+  /**
+   * Resolve o tipo da mensagem com base na mídia presente ou no conteúdo textual.
+   * @param message Mensagem do Telegram
+   * @param media Informações de mídia extraídas (ou null)
+   * @returns Tipo normalizado da mensagem
+   */
   private resolveMessageType(
     message: TelegramMessageDto,
     media: MediaInfo | null,

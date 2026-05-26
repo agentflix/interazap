@@ -10,15 +10,15 @@ import {
 } from '@angular/core';
 
 /**
- * AfStickyHeaderComponent — Container with a header that sticks on scroll.
+ * Container com cabeçalho fixo durante a rolagem.
  *
  * @example
  * ```html
  * <af-sticky-header>
  *   <div header>
- *     <h1>Page Title</h1>
+ *     <h1>Título da Página</h1>
  *   </div>
- *   <div>Scrollable content</div>
+ *   <div>Conteúdo rolável</div>
  * </af-sticky-header>
  * ```
  */
@@ -30,7 +30,7 @@ import {
   host: { class: 'block' },
 })
 export class AfStickyHeaderComponent {
-  /** Offset in pixels before applying stuck styles */
+  /** Deslocamento em pixels antes de aplicar estilos de fixação */
   readonly offset = input(0);
 
   protected readonly isStuck = signal(false);

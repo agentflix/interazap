@@ -8,11 +8,13 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Notification Preference serialization.
+ * Resource de serialização de preferências de notificação do usuário.
  */
 final class ConfigurationNotificationPreferenceResource extends BaseJsonResource
 {
     /**
+     * Retorna os atributos da preferência de notificação para serialização.
+     *
      * @return array<string, mixed>
      */
     protected function data(Request $request): array

@@ -12,12 +12,16 @@ use Domain\CRM\Models\CRMTag;
 use Illuminate\Support\Str;
 
 /**
- * Tool to update contact tags using the BelongsToMany relationship.
+ * Ferramenta de IA para atualizar tags de um contato no CRM.
  *
- * Security: Validates tenant_id to prevent cross-tenant access.
+ * Input esperado: contact_id (obrigatório), tags (array de strings) e action (add|remove|replace, padrão add).
+ * Output produzido: contact_id, tags anteriores, novas tags e ação aplicada.
+ * Quando usar: segmentar ou categorizar o contato com base em informações coletadas na conversa.
+ * Segurança: valida tenant_id para evitar acesso entre tenants.
  */
 class UpdateContactTagsTool implements AiToolInterface
 {
+    /** Executa a atualização das tags do contato. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $contactId = $input->parameters['contact_id'] ?? null;
@@ -84,17 +88,21 @@ class UpdateContactTagsTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::UPDATE_CONTACT_TAGS;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Updates the tags of a CRM contact. Can add, remove, or replace tags.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array<string, mixed>>
      */
     public function getParameters(): array

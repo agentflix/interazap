@@ -14,17 +14,17 @@ type DefaultReportChartSeries = ReportChartSeriesItem[];
 export type NumericReportChartSeries = ReportChartSeriesItem<number[]>[];
 
 /**
- * Base class for all report components.
+ * Classe base para todos os componentes de relatório.
  *
- * Provides common signals, form controls, filter management, export, and data loading logic.
- * Subclasses must:
- * - Call `this.setupReport()` in constructor after setting up specific dependencies
- * - Implement `getReportKey()` to return the report type identifier ('billing', 'chat-volume', etc.)
- * - Implement `loadReportData(filters)` to fetch data for their specific report
- * - Implement `onDataLoaded(data)` to process fetched data and build charts if needed
+ * Fornece signals comuns, controles de formulário, gerenciamento de filtros, exportação e lógica de carregamento.
+ * Subclasses devem:
+ * - Chamar `this.setupReport()` no construtor após injetar as dependências específicas
+ * - Implementar `getReportKey()` para retornar o identificador do tipo de relatório ('billing', 'chat-volume', etc.)
+ * - Implementar `loadReportData(filters)` para buscar dados do relatório específico
+ * - Implementar `onDataLoaded(data)` para processar os dados e construir gráficos quando necessário
  *
- * @template T The type of the report data payload
- * @template TChartSeries The type of the chart series payload
+ * @template T Tipo do payload de dados do relatório
+ * @template TChartSeries Tipo do payload de séries do gráfico
  *
  * @example
  * export class MyReportComponent extends BaseReportComponent<MyReportData> {
@@ -42,7 +42,6 @@ export type NumericReportChartSeries = ReportChartSeriesItem<number[]>[];
  *   }
  *
  *   protected override onDataLoaded(data: MyReportData): void {
- *     // Build charts or process data
  *     this.buildChart(data);
  *   }
  * }
@@ -82,8 +81,8 @@ export abstract class BaseReportComponent<
   readonly chartExtra = signal<Record<string, unknown>>({});
 
   /**
-   * Initialize default dates (last 30 days) and load initial data.
-   * Must be called from subclass constructor after dependencies are injected.
+   * Inicializa as datas padrão (últimos 30 dias) e carrega os dados iniciais.
+   * Deve ser chamado no construtor da subclasse após injetar as dependências.
    */
   protected setupReport(): void {
     const startDate = this.getDefaultStartDate();
@@ -102,39 +101,29 @@ export abstract class BaseReportComponent<
     this.loadData(initialFilters);
   }
 
-  /**
-   * Get default start date (30 days ago).
-   */
+  /** Retorna a data de início padrão (30 dias atrás). */
   private getDefaultStartDate(): string {
     const date = new Date();
     date.setDate(date.getDate() - 30);
     return date.toISOString().split('T')[0];
   }
 
-  /**
-   * Get default end date (today).
-   */
+  /** Retorna a data de fim padrão (hoje). */
   private getDefaultEndDate(): string {
     return new Date().toISOString().split('T')[0];
   }
 
-  /**
-   * Open filter drawer.
-   */
+  /** Abre o painel de filtros. */
   openFilters(): void {
     this.isFilterOpen.set(true);
   }
 
-  /**
-   * Close filter drawer.
-   */
+  /** Fecha o painel de filtros. */
   closeFilters(): void {
     this.isFilterOpen.set(false);
   }
 
-  /**
-   * Clear all filters to defaults.
-   */
+  /** Limpa todos os filtros retornando aos valores padrão. */
   clearFilters(): void {
     this.searchControl.setValue('');
     this.granularityControl.setValue('month');
@@ -142,9 +131,7 @@ export abstract class BaseReportComponent<
     this.endDateControl.setValue(this.getDefaultEndDate());
   }
 
-  /**
-   * Apply filters and reload data.
-   */
+  /** Aplica os filtros e recarrega os dados. */
   applyFilters(): void {
     const filters: ReportFilter = {
       start_date: this.startDateControl.value || '',
@@ -158,7 +145,8 @@ export abstract class BaseReportComponent<
   }
 
   /**
-   * Export report in the specified format.
+   * Exporta o relatório no formato especificado.
+   * @param payload Objeto com o formato de exportação ('csv' ou 'xlsx')
    */
   onExport(payload: { format: 'csv' | 'xlsx' }): void {
     this.isExporting.set(true);
@@ -176,16 +164,12 @@ export abstract class BaseReportComponent<
       });
   }
 
-  /**
-   * Retry loading data.
-   */
+  /** Tenta carregar os dados novamente após falha. */
   retry(): void {
     this.loadData(this.filters());
   }
 
-  /**
-   * Internal method to load data and handle responses.
-   */
+  /** Carrega os dados do relatório e trata as respostas. */
   private loadData(filters: ReportFilter): void {
     if (!filters.start_date || !filters.end_date) return;
 
@@ -207,9 +191,7 @@ export abstract class BaseReportComponent<
       });
   }
 
-  /**
-   * Download blob as file.
-   */
+  /** Faz o download de um blob como arquivo. */
   private downloadBlob(blob: Blob, format: string): void {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -220,27 +202,24 @@ export abstract class BaseReportComponent<
   }
 
   /**
-   * Return the report key for API calls ('billing', 'chat-volume', etc.).
-   *
-   * @returns Report identifier
+   * Retorna a chave do relatório para chamadas à API ('billing', 'chat-volume', etc.).
+   * @returns Identificador do relatório
    */
   protected abstract getReportKey(): string;
 
   /**
-   * Fetch report data from the service.
-   *
-   * @param filters Report filters
-   * @returns Observable of report response
+   * Busca os dados do relatório no service.
+   * @param filters Filtros do relatório
+   * @returns Observable da resposta do relatório
    */
   protected abstract loadReportData(filters: ReportFilter): Observable<ReportResponse<T>>;
 
   /**
-   * Optional hook to process fetched data and build charts.
-   * Override only if this report needs special data processing.
-   *
-   * @param data Fetched report data
+   * Hook opcional para processar os dados carregados e construir gráficos.
+   * Sobrescrever somente quando o relatório precisar de processamento especial.
+   * @param data Dados do relatório carregados
    */
   protected onDataLoaded(data: T): void {
-    // Default: no-op. Subclasses override if needed (e.g., to build charts).
+    // Padrão: sem operação. Subclasses sobrescrevem se necessário (ex.: para construir gráficos).
   }
 }

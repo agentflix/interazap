@@ -2,15 +2,15 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { NgIcon } from '@ng-icons/core';
 
 /**
- * Empty state placeholder for pages/sections with no data.
+ * Placeholder de estado vazio para páginas ou seções sem dados.
  *
  * @example
  * ```html
  * <af-empty-state
- *   title="No contacts yet"
- *   description="Add your first contact to get started."
+ *   title="Nenhum contato ainda"
+ *   description="Adicione seu primeiro contato para começar."
  * >
- *   <button af-button>+ New Contact</button>
+ *   <button af-button>+ Novo Contato</button>
  * </af-empty-state>
  * ```
  */
@@ -22,15 +22,15 @@ import { NgIcon } from '@ng-icons/core';
   imports: [NgIcon],
 })
 export class AfEmptyStateComponent {
-  /** Empty state heading */
+  /** Título do estado vazio */
   readonly title = input.required<string>();
 
-  /** Optional description text */
+  /** Texto de descrição opcional */
   readonly description = input<string | null>(null);
 
-  /** Whether a custom icon is projected */
+  /** Indica se um ícone customizado é projetado via ng-content */
   readonly icon = input(false);
 
-  /** Lucide icon name to render (e.g. "lucideUser"). Overrides default SVG when set. */
+  /** Nome do ícone Lucide (ex.: "lucideUser"). Substitui o SVG padrão quando definido. */
   readonly iconName = input<string | null>(null);
 }

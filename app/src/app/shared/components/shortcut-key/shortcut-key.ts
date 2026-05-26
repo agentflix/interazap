@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
 import { AfKbdComponent } from '../kbd/kbd';
 
 /**
- * AfShortcutKeyComponent — Displays a keyboard shortcut combination.
+ * Exibe uma combinação de atalho de teclado.
  *
  * @example
  * ```html
@@ -17,6 +17,6 @@ import { AfKbdComponent } from '../kbd/kbd';
   templateUrl: './shortcut-key.html',
 })
 export class AfShortcutKeyComponent {
-  /** Array of key labels */
+  /** Array de rótulos de teclas */
   readonly keys = input<string[]>([]);
 }

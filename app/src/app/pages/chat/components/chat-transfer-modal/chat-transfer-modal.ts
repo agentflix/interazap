@@ -22,6 +22,14 @@ import { ModalComponent } from 'src/app/shared/components/modal/modal';
 import { ButtonComponent } from 'src/app/shared/components/buttons';
 import { type Called } from 'src/app/core/services/called.service';
 
+/**
+ * Modal de transferência de atendimento para outro agente.
+ *
+ * @remarks
+ * Carrega a lista de usuários ativos ao abrir, filtrando o agente
+ * atualmente responsável. Emite o evento `confirmed` com
+ * `{ ticketId, toUserId, reason }` ao confirmar.
+ */
 @Component({
   selector: 'app-chat-transfer-modal',
   standalone: true,

@@ -8,10 +8,11 @@ use Closure;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Manages the cache keys and invalidation strategy for AI Knowledge Base documents.
+ * Gerencia as chaves e estratégia de invalidação de cache para documentos da Base de Conhecimento.
  *
- * Centralises all Cache interactions that were previously spread across
- * AiKnowledgeController, making the caching contract testable in isolation.
+ * Contexto: centraliza todas as interações com o Cache que anteriormente estavam dispersas
+ * no AiKnowledgeController, tornando o contrato de caching testável isoladamente.
+ * Mantém um índice de chaves por tenant para permitir invalidação em massa de listas paginadas.
  */
 final class AiKnowledgeCacheService
 {
@@ -19,13 +20,15 @@ final class AiKnowledgeCacheService
     private const int CACHE_TTL_MINUTES = 5;
 
     /**
-     * Return cached list of documents, or load via $loader and cache the result.
+     * Retorna a lista de documentos em cache ou carrega via $loader e armazena o resultado.
      *
-     * @param  string  $tenantId  Tenant UUID.
-     * @param  int  $page  Current page number.
-     * @param  int  $perPage  Items per page.
-     * @param  string  $search  Optional search term.
-     * @param  Closure  $loader  Callable that fetches the paginator from the DB.
+     * A chave gerada é rastreada no índice do tenant para permitir invalidação em massa.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  int  $page  Número da página atual.
+     * @param  int  $perPage  Itens por página.
+     * @param  string  $search  Termo de busca opcional.
+     * @param  Closure  $loader  Callable que busca o paginador no banco de dados.
      */
     public function rememberList(string $tenantId, int $page, int $perPage, string $search, Closure $loader): mixed
     {
@@ -37,11 +40,11 @@ final class AiKnowledgeCacheService
     }
 
     /**
-     * Return cached document, or load via $loader and cache the result.
+     * Retorna o documento em cache ou carrega via $loader e armazena o resultado.
      *
-     * @param  string  $tenantId  Tenant UUID.
-     * @param  string  $documentId  Document UUID.
-     * @param  Closure  $loader  Callable that fetches the document from the DB.
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $documentId  UUID do documento.
+     * @param  Closure  $loader  Callable que busca o documento no banco de dados.
      */
     public function rememberDocument(string $tenantId, string $documentId, Closure $loader): mixed
     {
@@ -51,10 +54,10 @@ final class AiKnowledgeCacheService
     }
 
     /**
-     * Invalidate the cached entry for a specific document.
+     * Invalida a entrada em cache de um documento específico.
      *
-     * @param  string  $tenantId  Tenant UUID.
-     * @param  string  $documentId  Document UUID.
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $documentId  UUID do documento.
      */
     public function forgetDocument(string $tenantId, string $documentId): void
     {
@@ -62,9 +65,11 @@ final class AiKnowledgeCacheService
     }
 
     /**
-     * Invalidate all cached list pages for the given tenant.
+     * Invalida todas as páginas de lista em cache para o tenant informado.
      *
-     * @param  string  $tenantId  Tenant UUID.
+     * Utiliza o índice de chaves armazenado para remover cada entrada individualmente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
      */
     public function forgetList(string $tenantId): void
     {
@@ -76,6 +81,7 @@ final class AiKnowledgeCacheService
         }
     }
 
+    /** Gera a chave de cache para uma página de lista de documentos. */
     private function documentsCacheKey(string $tenantId, int $page, int $perPage, string $search): string
     {
         $searchKey = $search !== '' ? md5(mb_strtolower($search)) : 'none';
@@ -83,16 +89,19 @@ final class AiKnowledgeCacheService
         return "ai.knowledge.documents.{$tenantId}.page.{$page}.per_page.{$perPage}.search.{$searchKey}";
     }
 
+    /** Gera a chave de cache para um documento individual. */
     private function documentCacheKey(string $tenantId, string $documentId): string
     {
         return "ai.knowledge.document.{$tenantId}.{$documentId}";
     }
 
+    /** Gera a chave do índice que rastreia todas as chaves de lista do tenant. */
     private function listCacheIndexKey(string $tenantId): string
     {
         return "ai.knowledge.documents.keys.{$tenantId}";
     }
 
+    /** Registra uma chave de cache de lista no índice do tenant para invalidação futura. */
     private function trackListCacheKey(string $tenantId, string $cacheKey): void
     {
         $indexKey = $this->listCacheIndexKey($tenantId);

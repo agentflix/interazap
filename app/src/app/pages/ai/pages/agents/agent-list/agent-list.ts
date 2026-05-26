@@ -16,7 +16,10 @@ import { type AiAgent } from '@ai/models/ai.model';
 import { AiAgentService } from '@ai/services/ai-agent.service';
 
 /**
- * List and manage AI agents (V2 — workspace layout).
+ * Lista e gerencia Agentes de IA (V2 — layout workspace).
+ *
+ * Contexto: exibe tabela paginada com busca local. Oferece ações de criar, editar,
+ * abrir workspace, abrir simulador e excluir. A exclusão utiliza modal de confirmação.
  */
 @Component({
   selector: 'app-ai-agent-list',
@@ -62,6 +65,7 @@ export class AgentListComponent {
     support_l2: 'Suporte Nível 2',
   };
 
+  /** Retorna o rótulo legível para o tipo do agente. */
   typeLabel(type: string | undefined): string {
     if (!type) return '—';
     return this.agentTypeLabels[type] ?? type;
@@ -74,15 +78,18 @@ export class AgentListComponent {
     this.fetchAgents(1);
   }
 
+  /** Aplica filtro de busca e recarrega a primeira página. */
   onSearch(term: string): void {
     this.currentSearch = term.trim();
     this.fetchAgents(1);
   }
 
+  /** Navega para uma página específica da lista. */
   loadPage(page: number): void {
     this.fetchAgents(page);
   }
 
+  /** Tenta recarregar a lista após erro. */
   retry(): void {
     this.fetchAgents(this.currentPage);
   }
@@ -96,7 +103,8 @@ export class AgentListComponent {
   }
 
   /**
-   * Open agent workspace directly on Files tab.
+   * Abre o workspace do agente diretamente na aba de Arquivos.
+   * @param agent Agente a ser aberto
    */
   openFiles(agent: AiAgent): void {
     void this.router.navigate(['/ai/agents', agent.id, 'edit'], {
@@ -105,7 +113,8 @@ export class AgentListComponent {
   }
 
   /**
-   * Open simulator with selected agent.
+   * Abre o simulador com o agente pré-selecionado.
+   * @param agent Agente a ser testado no simulador
    */
   openSimulator(agent: AiAgent): void {
     void this.router.navigate(['/ai/simulator'], { queryParams: { agent_id: agent.id } });

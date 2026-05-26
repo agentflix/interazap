@@ -1,6 +1,4 @@
-/**
- * Models and types for negotiation-actions.component component.
- */
+/** Modelos e tipos do componente de ações da negociação. */
 
 /** Dados editáveis da negociação selecionada. */
 export interface NegotiationDetailForm {

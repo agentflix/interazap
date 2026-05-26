@@ -10,7 +10,7 @@ import {
 import { DecimalPipe } from '@angular/common';
 
 /**
- * AfCountdownComponent — Countdown timer displaying remaining time.
+ * Temporizador de contagem regressiva exibindo o tempo restante.
  *
  * @example
  * ```html
@@ -25,13 +25,13 @@ import { DecimalPipe } from '@angular/common';
   imports: [DecimalPipe],
 })
 export class AfCountdownComponent implements OnInit, OnDestroy {
-  /** Target date string (ISO) */
+  /** Data alvo em formato ISO */
   readonly targetDate = input('');
 
-  /** Show days/hours/minutes/seconds */
+  /** Exibe dias/horas/minutos/segundos */
   readonly showDays = input(true);
 
-  /** Emitted when countdown reaches zero */
+  /** Emitido quando a contagem chega a zero */
   readonly finished = output<void>();
 
   protected readonly displayUnits = signal<{ label: string; value: number }[]>([]);

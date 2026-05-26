@@ -41,7 +41,7 @@ const DISCONNECTED_CONNECTION_STATUSES = new Set([
   'unauthorized',
 ]);
 
-/** Normalizes backend connection status values for UI decisions. */
+/** Normaliza valores de status de conexão do backend para decisões de UI. */
 export function normalizeIntegrationConnectionStatus(status: string | null | undefined): string {
   return typeof status === 'string' ? status.trim().toLowerCase() : '';
 }
@@ -56,7 +56,7 @@ function hasIntegrationConnectionQrPayload(source: IntegrationConnectionStateSou
   );
 }
 
-/** Returns whether the integration should be treated as connected in the UI. */
+/** Retorna se a integração deve ser tratada como conectada na UI. */
 export function isIntegrationConnected(integration: IntegrationConnectionStateSource): boolean {
   if (integration.connected === true) {
     return true;
@@ -69,7 +69,7 @@ export function isIntegrationConnected(integration: IntegrationConnectionStateSo
   return CONNECTED_CONNECTION_STATUSES.has(resolveIntegrationConnectionStatus(integration));
 }
 
-/** Resolves a stable UI state using is_connected first and textual status as fallback. */
+/** Resolve o estado estável de UI usando `is_connected` primeiro e o status textual como fallback. */
 export function getIntegrationConnectionUiState(
   integration: IntegrationConnectionStateSource,
 ): IntegrationConnectionUiState {
@@ -101,7 +101,7 @@ export function getIntegrationConnectionUiState(
   return 'unknown';
 }
 
-/** Returns whether a realtime connection event should bypass buffering. */
+/** Retorna se um evento de conexão em tempo real deve ignorar o buffer e ser processado imediatamente. */
 export function shouldFlushIntegrationConnectionImmediately(
   integration: IntegrationConnectionStateSource,
 ): boolean {
@@ -118,13 +118,17 @@ export function shouldFlushIntegrationConnectionImmediately(
 
 /** Runtime status payload. */
 
-/** Service for chat integrations CRUD and connection lifecycle. */
+/** Gerencia integrações de chat com operações de CRUD e ciclo de vida de conexão. */
 @Injectable({ providedIn: 'root' })
 export class IntegrationService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/channels`;
 
-  /** Lists integrations with optional filters. */
+  /**
+   * Lista integrações com filtros opcionais e paginação.
+   * @param filters Filtros: search, is_active, paginação, ordenação
+   * @returns Observable com lista paginada de integrações
+   */
   list(filters: IntegrationFilters = {}): Observable<PaginatedResponse<Integration>> {
     let params = new HttpParams();
 
@@ -150,37 +154,42 @@ export class IntegrationService {
     return this.http.get<PaginatedResponse<Integration>>(this.baseUrl, { params });
   }
 
-  /** Creates a new integration. */
+  /** Cria uma nova integração de canal. */
   create(data: Partial<Integration>): Observable<{ data: Integration }> {
     return this.http.post<{ data: Integration }>(this.baseUrl, data);
   }
 
-  /** Updates an integration. */
+  /** Atualiza configurações de uma integração existente. */
   update(id: string, data: Partial<Integration>): Observable<{ data: Integration }> {
     return this.http.put<{ data: Integration }>(`${this.baseUrl}/${id}`, data);
   }
 
-  /** Deletes an integration. */
+  /** Exclui permanentemente uma integração. */
   delete(id: string | number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  /** Finds one integration by id. */
+  /** Retorna uma integração pelo ID. */
   find(id: string): Observable<{ data: Integration }> {
     return this.http.get<{ data: Integration }>(`${this.baseUrl}/${id}`);
   }
 
-  /** Toggles active/inactive state. */
+  /** Alterna o estado ativo/inativo de uma integração. */
   toggleActive(id: string | number): Observable<void> {
     return this.http.patch<void>(`${this.baseUrl}/${id}/toggle-active`, {});
   }
 
-  /** Disconnects integration session. */
+  /** Desconecta a sessão ativa da integração (ex.: QR Code WhatsApp). */
   disconnect(id: string | number): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${id}/disconnect`, {});
   }
 
-  /** Starts connection flow and returns QR/pair details. */
+  /**
+   * Inicia o fluxo de conexão e retorna detalhes de QR/pareamento.
+   * @param id ID da integração
+   * @param payload Dados de conexão (ex.: token, configurações)
+   * @returns Observable com resposta de conexão (QR code, status)
+   */
   connect(
     id: string,
     payload: IntegrationConnectPayload,
@@ -191,7 +200,7 @@ export class IntegrationService {
     );
   }
 
-  /** Returns current external provider status. */
+  /** Retorna o status atual da conexão com o provedor externo. */
   status(id: string): Observable<{ data: IntegrationStatusResponse }> {
     return this.http.get<{ data: IntegrationStatusResponse }>(`${this.baseUrl}/${id}/status`);
   }

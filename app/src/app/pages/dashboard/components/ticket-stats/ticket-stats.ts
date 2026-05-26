@@ -4,8 +4,7 @@ import { AfApexchartComponent, AfCardComponent, AfEmptyStateComponent } from '@s
 import { type TicketStats } from '../../models/dashboard.model';
 
 /**
- * Ticket stats — line chart with daily volume and priority breakdown.
- * Business logic preserved verbatim from source.
+ * Estatísticas de tickets — gráfico de linhas com volume diário e distribuição por prioridade.
  */
 @Component({
   selector: 'app-ticket-stats',

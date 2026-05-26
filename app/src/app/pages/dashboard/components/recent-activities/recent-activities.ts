@@ -4,7 +4,7 @@ import { AfCardComponent, AfEmptyStateComponent, AfStatusBadgeComponent } from '
 import { LucideAngularModule } from 'lucide-angular';
 import { type RecentActivity } from '../../models/dashboard.model';
 
-/** Parsed activity row for template rendering. */
+/** Linha de atividade processada para renderização no template. */
 interface ActivityRow {
   activity: RecentActivity;
   value: number | null;
@@ -14,8 +14,8 @@ interface ActivityRow {
 }
 
 /**
- * Recent activities list — shows latest system activities with relative timestamps,
- * formatted BRL values, and status badges in pt-BR.
+ * Lista de atividades recentes — exibe as últimas atividades do sistema com timestamps relativos,
+ * valores em BRL e badges de status em português.
  */
 @Component({
   selector: 'app-recent-activities',
@@ -36,7 +36,7 @@ export class RecentActivitiesComponent {
 
   private readonly relativeFormatter = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
 
-  /** Status translations to pt-BR */
+  /** Mapa de tradução de status para português. */
   private readonly statusMap: Record<
     string,
     { label: string; variant: ActivityRow['statusVariant'] }
@@ -52,9 +52,8 @@ export class RecentActivitiesComponent {
     draft: { label: 'Rascunho', variant: 'warning' },
   };
 
-  /** Pre-parse activities into template-ready rows. */
+  /** Pré-processa as atividades em linhas prontas para o template. */
   protected readonly rows = (() => {
-    // Using a getter-like computed via input transform
     return () => this.activities().map((activity) => this.parseActivity(activity));
   })();
 
@@ -63,14 +62,12 @@ export class RecentActivitiesComponent {
     let value: number | null = null;
     let status: string | null = null;
 
-    // Parse "Value: 5555.00" pattern
     const valueMatch = desc.match(/value:\s*([\d.,]+)/i);
     if (valueMatch) {
       value = parseFloat(valueMatch[1].replace(',', '.'));
       if (isNaN(value)) value = null;
     }
 
-    // Parse "Status: accepted" pattern
     const statusMatch = desc.match(/status:\s*(\w+)/i);
     if (statusMatch) {
       status = statusMatch[1].toLowerCase();

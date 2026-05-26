@@ -21,7 +21,9 @@ final class CRMDepartmentActions
     use GuardsUniqueName;
 
     /**
-     * @param  array<string, mixed>  $filters
+     * Lista departamentos do tenant com filtros de busca e status, com paginação.
+     *
+     * @param  array<string, mixed>  $filters  Filtros disponíveis: search, is_active, sort_by, sort_dir, per_page
      */
     public function list(string $tenantId, array $filters = []): LengthAwarePaginator
     {
@@ -55,6 +57,8 @@ final class CRMDepartmentActions
     }
 
     /**
+     * Retorna todos os departamentos ativos do tenant sem paginação.
+     *
      * @return Collection<int, CRMDepartment>
      */
     public function all(string $tenantId): Collection
@@ -66,6 +70,11 @@ final class CRMDepartmentActions
             ->get();
     }
 
+    /**
+     * Cria um departamento garantindo unicidade de nome no tenant.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o nome já existe no tenant
+     */
     public function create(string $tenantId, CRMDepartmentDTO $dto): CRMDepartment
     {
         $this->guardUniqueName(CRMDepartment::class, $tenantId, $dto->name, 'Departamento já cadastrado para este tenant.');
@@ -77,6 +86,7 @@ final class CRMDepartmentActions
         ]);
     }
 
+    /** Atualiza dados do departamento, verificando unicidade de nome se alterado. */
     public function update(string $tenantId, string $id, CRMDepartmentDTO $dto): CRMDepartment
     {
         $department = $this->find($tenantId, $id);
@@ -90,12 +100,14 @@ final class CRMDepartmentActions
         return $department;
     }
 
+    /** Remove um departamento pelo ID. */
     public function delete(string $tenantId, string $id): void
     {
         $department = $this->find($tenantId, $id);
         $department->delete();
     }
 
+    /** Alterna o status ativo/inativo do departamento. */
     public function toggleActive(string $tenantId, string $id): CRMDepartment
     {
         $department = $this->find($tenantId, $id);
@@ -105,6 +117,7 @@ final class CRMDepartmentActions
         return $department;
     }
 
+    /** Retorna um departamento pelo ID, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMDepartment
     {
         return CRMDepartment::query()

@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for Knowledge Base statistics.
+ * DTO para estatísticas consolidadas da base de conhecimento do tenant.
  *
  * @readonly
  */
 final readonly class KnowledgeStatsDTO
 {
     /**
-     * @param  int  $documentCount  Total number of documents
-     * @param  int  $totalStorageBytes  Total storage used in bytes
-     * @param  int  $storageLimitBytes  Storage limit from plan
-     * @param  float  $storageUsedPercent  Percentage of storage used
-     * @param  int  $totalChunks  Total number of chunks
-     * @param  int  $documentsReady  Documents with READY status
-     * @param  int  $documentsProcessing  Documents with PROCESSING status
-     * @param  int  $documentsPending  Documents with PENDING status
-     * @param  int  $documentsFailed  Documents with FAILED status
+     * @param  int  $documentCount  Total de documentos ativos.
+     * @param  int  $totalStorageBytes  Armazenamento utilizado em bytes.
+     * @param  int  $storageLimitBytes  Limite de armazenamento do plano em bytes.
+     * @param  float  $storageUsedPercent  Percentual de armazenamento utilizado.
+     * @param  int  $totalChunks  Total de chunks gerados.
+     * @param  int  $documentsReady  Documentos com status READY.
+     * @param  int  $documentsProcessing  Documentos com status PROCESSING.
+     * @param  int  $documentsPending  Documentos com status PENDING.
+     * @param  int  $documentsFailed  Documentos com status FAILED.
      */
     public function __construct(
         public int $documentCount,
@@ -35,6 +35,8 @@ final readonly class KnowledgeStatsDTO
     ) {}
 
     /**
+     * Converte para array para serialização na resposta HTTP.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

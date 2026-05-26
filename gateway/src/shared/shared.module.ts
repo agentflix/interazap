@@ -6,10 +6,10 @@ import { IdempotencyModule } from './services/idempotency';
 import { GatewayConfigService } from './services/gateway-config.service';
 
 /**
- * Shared module providing cross-cutting services to all gateway modules.
+ * Módulo compartilhado que disponibiliza serviços transversais a todos os módulos do gateway.
  *
- * Exports business event logging, idempotency guards and interceptors,
- * and the gateway configuration service.
+ * Exporta logging de eventos de negócio, guards e interceptors de idempotência,
+ * e o serviço de configuração do gateway.
  */
 @Global()
 @Module({

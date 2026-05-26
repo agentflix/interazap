@@ -31,12 +31,13 @@ export class BillingWebhookController {
   constructor(private readonly billingWebhookService: BillingWebhookService) {}
 
   /**
-   * Handles incoming billing webhook events.
+   * Recebe e processa um evento de webhook do provedor de pagamento.
+   * Responde imediatamente com ACK e processa o evento em background (fire-and-forget).
    *
-   * @param provider - Billing provider name
-   * @param token - Instance webhook token
-   * @param payload - Webhook event payload
-   * @returns Success acknowledgment
+   * @param provider - Nome do provedor de billing (ex.: 'asaas')
+   * @param token - Token do webhook da instância do tenant
+   * @param payload - Payload do evento recebido
+   * @returns Confirmação de sucesso
    */
   @Post()
   @Idempotent({ prefix: 'billing', ttlSeconds: 86400 })

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Chat\Enums;
 
 /**
- * Media type for chat messages.
+ * Tipo de mídia de uma mensagem de chat.
  */
 enum MediaType: string
 {
@@ -14,20 +14,19 @@ enum MediaType: string
     case AUDIO = 'audio';
     case DOCUMENT = 'document';
     case STICKER = 'sticker';
+    /** Mensagem de voz gravada (Push-to-Talk). */
     case VOICE = 'ptt';
 
-    /**
-     * Returns label for display.
-     */
+    /** Retorna o rótulo amigável do tipo de mídia. */
     public function label(): string
     {
         return match ($this) {
-            self::IMAGE => 'Image',
-            self::VIDEO => 'Video',
-            self::AUDIO => 'Audio',
-            self::DOCUMENT => 'Document',
-            self::STICKER => 'Sticker',
-            self::VOICE => 'Voice Message',
+            self::IMAGE => 'Imagem',
+            self::VIDEO => 'Vídeo',
+            self::AUDIO => 'Áudio',
+            self::DOCUMENT => 'Documento',
+            self::STICKER => 'Figurinha',
+            self::VOICE => 'Mensagem de Voz',
         };
     }
 }

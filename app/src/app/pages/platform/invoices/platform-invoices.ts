@@ -50,6 +50,9 @@ import type { Company } from '@core/models/company.model';
 import { PlatformPlanService, type PlatformPlan } from '@platform/services/platform-plan.service';
 import { ToastService } from '@core/services/toast.service';
 
+/**
+ * Página de faturas da plataforma — listagem, criação, cancelamento, baixa manual e download de faturas.
+ */
 @Component({
   selector: 'app-platform-invoices',
   standalone: true,
@@ -76,10 +79,6 @@ import { ToastService } from '@core/services/toast.service';
     AfSkeletonTableRowComponent,
     AfScrollAreaComponent,
     AfStatusBadgeComponent,
-/**
- * Platform invoices page component for the Platform module.
- * @selector app-platform-invoices
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './platform-invoices.html',

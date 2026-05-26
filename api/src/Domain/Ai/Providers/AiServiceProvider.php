@@ -40,7 +40,7 @@ use Illuminate\Support\ServiceProvider;
 class AiServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Registra comandos, bindings e singletons do módulo de IA no container.
      */
     public function register(): void
     {
@@ -66,7 +66,7 @@ class AiServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Inicializa observers, schedules de comandos e outras integrações do módulo de IA.
      */
     public function boot(): void
     {

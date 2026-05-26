@@ -120,16 +120,18 @@ final class AuthUserController extends BaseController
         return $this->success(new AuthUserResource($user), 'Status atualizado');
     }
 
-    /**
-     * Alias compatível para toggle de status.
-     */
+    /** Alias compatível para alternância de status do usuário. */
     public function toggleStatus(string $id): JsonResponse
     {
         return $this->toggle($id);
     }
 
     /**
-     * Sincronizar perfis de usuário.
+     * Sincronizar a lista completa de perfis do usuário.
+     *
+     * @param  Request  $request  Requisição com array 'roles'.
+     * @param  string  $id  UUID do usuário.
+     * @return JsonResponse Usuário com perfis atualizados.
      */
     public function syncRoles(Request $request, string $id): JsonResponse
     {
@@ -149,7 +151,11 @@ final class AuthUserController extends BaseController
     }
 
     /**
-     * Remover um perfil específico do usuário.
+     * Remove um perfil específico do usuário sem afetar os demais.
+     *
+     * @param  Request  $request  Requisição com campo 'role'.
+     * @param  string  $id  UUID do usuário.
+     * @return JsonResponse Usuário com perfis atualizados.
      */
     public function removeRole(Request $request, string $id): JsonResponse
     {
@@ -168,7 +174,10 @@ final class AuthUserController extends BaseController
     }
 
     /**
-     * Revogar todos os tokens do usuário.
+     * Revoga todos os tokens Sanctum do usuário, forçando novo login.
+     *
+     * @param  string  $id  UUID do usuário.
+     * @return JsonResponse Usuário com tokens revogados.
      */
     public function revokeAllTokens(string $id): JsonResponse
     {

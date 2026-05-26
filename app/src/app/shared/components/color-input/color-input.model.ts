@@ -1,6 +1,6 @@
 /**
- * Models and types for color-input component.
+ * Modelos e tipos do componente de seleção de cor.
  */
 
-/** Available sizes for the input */
+/** Tamanhos disponíveis para o campo */
 export type AfInputSize = 'sm' | 'md';

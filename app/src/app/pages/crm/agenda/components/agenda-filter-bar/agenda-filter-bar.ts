@@ -18,6 +18,9 @@ export * from './agenda-filter-bar.model';
 
 
 
+/**
+ * Barra de filtros da agenda com alternância de visualização, chips de filtros ativos e exportação.
+ */
 @Component({
   selector: 'app-agenda-filter-bar',
   standalone: true,
@@ -26,10 +29,6 @@ export * from './agenda-filter-bar.model';
     ButtonComponent,
     AfReportFiltersComponent,
     AfReportExportComponent,
-/**
- * Agenda filter bar component for the Crm module.
- * @selector app-agenda-filter-bar
- */
   ],
   templateUrl: './agenda-filter-bar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,26 +48,41 @@ export class AgendaFilterBarComponent {
   readonly filtersApplied = output<AfReportFilterPayload>();
   readonly exported = output<AfReportExportPayload>();
 
+  /** Emite o modo de visualização selecionado (lista ou calendário). */
   onChangeView(mode: AgendaViewMode): void {
     this.viewChanged.emit(mode);
   }
 
+  /** Emite o evento de clique no botão de criar. */
   onCreate(): void {
     this.createClicked.emit();
   }
 
+  /** Emite o evento de alternância do painel de filtros avançados. */
   onToggleAdvanced(): void {
     this.toggleAdvancedClicked.emit();
   }
 
+  /**
+   * Emite a chave do chip de filtro a ser removido.
+   * @param key Identificador do filtro a remover
+   */
   onRemoveChip(key: string): void {
     this.removeChipClicked.emit(key);
   }
 
+  /**
+   * Repassa o payload de filtros aplicados ao componente pai.
+   * @param payload Filtros selecionados pelo usuário
+   */
   handleFiltersApplied(payload: AfReportFilterPayload): void {
     this.filtersApplied.emit(payload);
   }
 
+  /**
+   * Repassa o payload de exportação ao componente pai.
+   * @param payload Configuração de exportação selecionada
+   */
   handleExport(payload: AfReportExportPayload): void {
     this.exported.emit(payload);
   }

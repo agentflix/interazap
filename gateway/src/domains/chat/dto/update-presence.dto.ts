@@ -1,8 +1,8 @@
 import { IsIn, IsNotEmpty, IsString } from 'class-validator';
 
 /**
- * Payload for updating the persistent presence status of a Uazapi instance.
- * Controls whether the WhatsApp account appears available or unavailable.
+ * Payload para atualizar o status de presenca global persistente de uma instancia Uazapi.
+ * Controla se a conta WhatsApp aparece disponivel ou indisponivel.
  */
 export class UpdatePresenceDto {
   @IsString()

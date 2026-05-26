@@ -11,9 +11,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Sleep;
 
 /**
- * Service for generating embeddings using OpenAI API via Gateway.
+ * Serviço de geração de embeddings via OpenAI (text-embedding-3-small) através do Gateway.
  *
- * Uses OpenAI text-embedding-3-small model with configured vector dimensions.
+ * Contexto: todas as requisições são roteadas para o endpoint HTTP do gateway para
+ * evitar acesso direto à API da OpenAI pela api/. Implementa retry com backoff
+ * exponencial para rate limiting (429) e erros de servidor (5xx).
  */
 final class AiEmbeddingService implements AiEmbeddingServiceInterface
 {
@@ -26,9 +28,12 @@ final class AiEmbeddingService implements AiEmbeddingServiceInterface
     private const int RETRY_DELAY_MS = 1000;
 
     /**
-     * Generate embedding for a single text.
+     * Gera embedding para um único texto.
      *
-     * @return list<float> Vector with configured dimensions
+     * @param  string  $text  Texto a vetorizar.
+     * @return list<float> Vetor com dimensões configuradas em ai.embedding.dimensions.
+     *
+     * @throws EmbeddingFailedException Se nenhum embedding for retornado.
      */
     public function embed(string $text): array
     {
@@ -42,10 +47,16 @@ final class AiEmbeddingService implements AiEmbeddingServiceInterface
     }
 
     /**
-     * Generate embeddings for multiple texts.
+     * Gera embeddings em lote para múltiplos textos.
      *
-     * @param  list<string>  $texts
-     * @return list<list<float>>
+     * Realiza até MAX_RETRIES tentativas com backoff exponencial em caso de
+     * rate limiting (429) ou erros de servidor (5xx). Erros de cliente (4xx)
+     * não são reprocessados.
+     *
+     * @param  list<string>  $texts  Lista de textos a vetorizar.
+     * @return list<list<float>> Lista de vetores na mesma ordem dos textos de entrada.
+     *
+     * @throws EmbeddingFailedException Após esgotar todas as tentativas.
      */
     public function embedBatch(array $texts): array
     {
@@ -141,10 +152,16 @@ final class AiEmbeddingService implements AiEmbeddingServiceInterface
     }
 
     /**
-     * Parse embedding response from OpenAI.
+     * Interpreta a resposta de embeddings da OpenAI.
      *
-     * @param  array<string, mixed>|null  $response
-     * @return list<list<float>>
+     * Valida a estrutura do payload, confere a contagem esperada de vetores
+     * e garante que todos os valores são finitos (sem NaN ou Inf).
+     *
+     * @param  array<string, mixed>|null  $response  Payload JSON decodificado.
+     * @param  int  $expectedCount  Quantidade de vetores esperados.
+     * @return list<list<float>> Vetores validados.
+     *
+     * @throws EmbeddingFailedException Se o payload for malformado ou contiver valores inválidos.
      */
     private function parseEmbeddingResponse(?array $response, int $expectedCount): array
     {
@@ -181,6 +198,7 @@ final class AiEmbeddingService implements AiEmbeddingServiceInterface
         return $embeddings;
     }
 
+    /** Retorna a dimensão do vetor configurada em ai.embedding.dimensions. */
     private function getDimensions(): int
     {
         return (int) config('ai.embedding.dimensions', self::DEFAULT_VECTOR_DIMENSIONS);

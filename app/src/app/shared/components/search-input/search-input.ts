@@ -6,10 +6,9 @@ import { LucideAngularModule } from 'lucide-angular';
 import { resolveInputContainerClass } from '../input-container.util';
 
 /**
- * Search input with magnifying glass icon on the left.
+ * Campo de busca com ícone de lupa à esquerda.
  *
- * @description Input field with a leading search icon and optional clear button.
- * Ideal for filter bars, toolbars and header searches.
+ * Ideal para barras de filtro, toolbars e buscas no cabeçalho.
  *
  * @example
  * ```html
@@ -27,45 +26,45 @@ import { resolveInputContainerClass } from '../input-container.util';
   templateUrl: './search-input.html',
 })
 export class AfSearchInputComponent {
-  /** FormControl for the search value */
+  /** FormControl do valor de busca */
   readonly control = input.required<FormControl<string>>();
 
-  /** Label text */
+  /** Texto do rótulo */
   readonly label = input<string>();
 
-  /** Placeholder text */
+  /** Texto placeholder */
   readonly placeholder = input('Buscar...');
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the input */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
-  /** Input size */
+  /** Tamanho do campo */
   readonly size = input<'sm' | 'md'>('md');
 
-  /** data-test attribute for E2E tests */
+  /** Atributo data-test para testes E2E */
   readonly dataTest = input<string>();
 
-  /** aria-label for accessibility */
+  /** aria-label para acessibilidade */
   readonly ariaLabel = input<string>();
 
-  /** Unique ID */
+  /** ID único */
   protected readonly inputId = `search-${Math.random().toString(36).slice(2, 9)}`;
 
-  /** Icon size based on input size */
+  /** Classes CSS do contêiner */
   protected readonly containerClasses = computed(() =>
     resolveInputContainerClass(this.classContainer(), this.spacing()),
   );
 
-  /** Icon size based on input size */
+  /** Tamanho do ícone baseado no tamanho do campo */
   protected readonly iconSize = computed(() => (this.size() === 'sm' ? 16 : 18));
 
-  /** Dynamic CSS classes */
+  /** Classes CSS dinâmicas */
   protected readonly inputClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'h-8 pl-9 pr-8 text-xs' : 'h-10 pl-10 pr-9 text-sm';
 
@@ -80,7 +79,7 @@ export class AfSearchInputComponent {
     ].join(' ');
   });
 
-  /** Clear the search value */
+  /** Limpa o valor de busca */
   protected clear(): void {
     this.control().setValue('');
     this.control().markAsTouched();

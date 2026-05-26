@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
- * User chat typing indicator component for the Chat module.
- * @selector app-user-chat-typing-indicator
+ * Indicador de digitação na thread de chat.
+ *
+ * Exibe animação de "Digitando..." quando o contato está
+ * redigindo uma mensagem em tempo real via WebSocket.
  */
 @Component({
   selector: 'app-user-chat-typing-indicator',

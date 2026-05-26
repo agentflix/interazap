@@ -12,7 +12,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Handles automated outbound ticket messages and evaluation flows.
+ * Gerencia envio automatizado de mensagens outbound em tickets e fluxos de avaliação.
+ *
+ * Responsável por criar e enviar convites de avaliação CSAT, mensagens de sistema
+ * configuradas por flag na instância e detectar se o modo da instância corresponde
+ * ao horário comercial com IA.
+ *
+ * @category Services
  */
 final class ChatTicketAutomationService
 {
@@ -20,6 +26,14 @@ final class ChatTicketAutomationService
         private readonly ChatGatewayService $gateway,
     ) {}
 
+    /**
+     * Cria e envia convite de avaliação CSAT ao encerrar o ticket, se habilitado na instância.
+     *
+     * Apenas suporta envio via Uazapi. Ignora silenciosamente quando a instância não
+     * tem evaluation_enabled ou quando o número de destino não está disponível.
+     *
+     * @param  ChatTicket  $ticket  Ticket encerrado.
+     */
     public function maybeCreateEvaluation(ChatTicket $ticket): void
     {
         if (! $ticket->instance_id) {
@@ -102,7 +116,17 @@ final class ChatTicketAutomationService
     }
 
     /**
-     * @param  array<string, mixed>  $extraMetadata
+     * Envia mensagem de sistema configurada na instância, controlada por flags booleanas.
+     *
+     * Verifica o flag $flagKey nas settings_json da instância. Se habilitado e a
+     * mensagem $messageKey não for vazia, cria ChatMessage e envia ao gateway.
+     * Suporta provedores Uazapi e Z-API.
+     *
+     * @param  ChatTicket  $ticket  Ticket de destino.
+     * @param  string  $flagKey  Chave do flag de habilitação em settings_json.
+     * @param  string  $messageKey  Chave do texto da mensagem em settings_json.
+     * @param  string  $kind  Identificador do tipo da mensagem (metadata.kind).
+     * @param  array<string, mixed>  $extraMetadata  Metadados adicionais a incluir na mensagem.
      */
     public function sendConfiguredSystemMessage(
         ChatTicket $ticket,
@@ -198,6 +222,15 @@ final class ChatTicketAutomationService
         }
     }
 
+    /**
+     * Verifica se a instância do ticket está configurada no modo "IA + Horário Comercial".
+     *
+     * Analisa as chaves mode, operation_mode, service_mode, attendance_mode e ai_mode
+     * nas settings_json da instância procurando por combinações de tokens de IA e horário.
+     *
+     * @param  ChatTicket  $ticket  Ticket com instance_id preenchido.
+     * @return bool True se o modo IA com horário comercial estiver ativo.
+     */
     public function isAiBusinessHoursMode(ChatTicket $ticket): bool
     {
         if (! $ticket->instance_id) {
@@ -240,6 +273,15 @@ final class ChatTicketAutomationService
         return false;
     }
 
+    /**
+     * Resolve o número de telefone de destino do ticket em formato numérico puro.
+     *
+     * Tenta phone_e164, phone, remote_jid e o contato vinculado nessa ordem.
+     * Remove o sufixo de JID (@s.whatsapp.net) e caracteres não numéricos.
+     *
+     * @param  ChatTicket  $ticket  Ticket de destino.
+     * @return string|null Número de telefone ou null se não resolvível.
+     */
     public function resolveDestinationPhone(ChatTicket $ticket): ?string
     {
         $number = $ticket->phone_e164 ?? $ticket->phone ?? $ticket->remote_jid;
@@ -262,6 +304,14 @@ final class ChatTicketAutomationService
         return $digits;
     }
 
+    /**
+     * Resolve o token do gateway para a instância informada.
+     *
+     * Prioriza o token em settings_json['token'] e cai para webhook_token.
+     *
+     * @param  ChatInstance  $instance  Instância de chat.
+     * @return string|null Token de autenticação ou null se não configurado.
+     */
     public function resolveGatewayToken(ChatInstance $instance): ?string
     {
         $settingsToken = $instance->settings_json['token'] ?? null;

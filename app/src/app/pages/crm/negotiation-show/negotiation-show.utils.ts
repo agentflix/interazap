@@ -1,7 +1,7 @@
 import type { NegotiationBadge } from './negotiation-show.model';
 
 /**
- * Resolve tailwind classes by badge tone.
+ * Retorna as classes Tailwind correspondentes ao tom do badge.
  */
 export function badgeClass(badge: NegotiationBadge): string {
   switch (badge.tone) {
@@ -17,7 +17,7 @@ export function badgeClass(badge: NegotiationBadge): string {
 }
 
 /**
- * Human-readable negotiation status.
+ * Retorna o rótulo legível do status da negociação.
  */
 export function getStatusLabel(status?: string): string {
   switch (status) {
@@ -31,7 +31,7 @@ export function getStatusLabel(status?: string): string {
 }
 
 /**
- * Convert date-like value to yyyy-mm-dd string.
+ * Converte um valor de data para string no formato yyyy-mm-dd.
  */
 export function formatDateInput(value: string): string {
   const date = new Date(value);
@@ -40,7 +40,7 @@ export function formatDateInput(value: string): string {
 }
 
 /**
- * Normalize time values to HH:mm.
+ * Normaliza valores de hora para o formato HH:mm.
  */
 export function formatTimeInput(value: string): string {
   if (!value) return '';
@@ -48,7 +48,7 @@ export function formatTimeInput(value: string): string {
 }
 
 /**
- * Normalize id from HTML controls.
+ * Normaliza IDs provenientes de controles HTML (string ou número).
  */
 export function normalizeId(value: string | number | null): string | number | null {
   if (value === null || value === '') return null;
@@ -60,7 +60,7 @@ export function normalizeId(value: string | number | null): string | number | nu
 }
 
 /**
- * Compare ids safely, allowing numeric/string equivalents.
+ * Compara dois IDs de forma segura, permitindo equivalência entre string e número.
  */
 export function isSameId(left?: string | number | null, right?: string | number | null): boolean {
   if (left === null || left === undefined) return false;

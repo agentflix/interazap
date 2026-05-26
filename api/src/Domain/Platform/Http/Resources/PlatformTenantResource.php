@@ -8,7 +8,7 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Platform Tenant serialization.
+ * Resource de serialização de tenant da plataforma.
  */
 final class PlatformTenantResource extends BaseJsonResource
 {

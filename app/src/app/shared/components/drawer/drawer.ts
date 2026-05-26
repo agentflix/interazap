@@ -4,12 +4,12 @@ import { LucideAngularModule } from 'lucide-angular';
 import { AfScrollAreaComponent } from '../scroll-area/scroll-area';
 
 /**
- * AfDrawerComponent — Slide-out panel from the side of the screen.
+ * Painel deslizante lateral que emerge da borda da tela.
  *
  * @example
  * ```html
- * <af-drawer [open]="drawerOpen()" (closed)="drawerOpen.set(false)" title="Filters">
- *   <p>Drawer content</p>
+ * <af-drawer [open]="drawerOpen()" (closed)="drawerOpen.set(false)" title="Filtros">
+ *   <p>Conteúdo do painel</p>
  * </af-drawer>
  * ```
  */
@@ -21,19 +21,19 @@ import { AfScrollAreaComponent } from '../scroll-area/scroll-area';
   templateUrl: './drawer.html',
 })
 export class AfDrawerComponent {
-  /** Whether the drawer is open */
+  /** Indica se o painel está aberto */
   readonly open = input(false);
 
-  /** Drawer title */
+  /** Título do painel */
   readonly title = input('');
 
-  /** Which side the drawer opens from */
+  /** Lado de onde o painel emerge */
   readonly side = input<'left' | 'right'>('right');
 
-  /** Drawer width */
+  /** Largura do painel */
   readonly size = input<'sm' | 'md' | 'lg'>('md');
 
-  /** Emitted when the drawer should close */
+  /** Emitido quando o painel deve ser fechado */
   readonly closed = output<void>();
 
   @HostListener('document:keydown.escape')

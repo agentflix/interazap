@@ -10,7 +10,10 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
 /**
- * Trait para aplicar política de retry em adapters.
+ * Trait para aplicar política de retry com backoff exponencial em adapters de WhatsApp.
+ *
+ * Configura o cliente HTTP com número máximo de tentativas, delay inicial e
+ * critério de retentar somente em erros de conexão, 5xx e 429 (rate limit).
  */
 trait HasRetryPolicy
 {
@@ -20,6 +23,11 @@ trait HasRetryPolicy
 
     protected int $retryDelayMs = 1000;
 
+    /**
+     * Cria e configura o cliente HTTP com política de retry e backoff exponencial.
+     *
+     * @return PendingRequest Cliente HTTP configurado com timeout e retry.
+     */
     protected function createHttpClient(): PendingRequest
     {
         $delayMs = $this->getRetryDelayMs();
@@ -36,12 +44,25 @@ trait HasRetryPolicy
             ]);
     }
 
+    /**
+     * Retorna o delay de retry em milissegundos, com override via config.
+     *
+     * @return int Delay em milissegundos.
+     */
     protected function getRetryDelayMs(): int
     {
         // Allow tests to override retry delay via config
         return (int) config('services.http_retry_delay_ms', $this->retryDelayMs);
     }
 
+    /**
+     * Determina se a exceção justifica uma nova tentativa.
+     *
+     * Retorna verdadeiro para erros de conexão, 5xx e 429 (rate limit).
+     *
+     * @param  \Exception  $exception  Exceção capturada na requisição.
+     * @return bool Verdadeiro se deve tentar novamente.
+     */
     protected function shouldRetry(\Exception $exception): bool
     {
         if ($exception instanceof ConnectionException) {

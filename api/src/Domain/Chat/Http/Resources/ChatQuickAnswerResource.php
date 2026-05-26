@@ -8,12 +8,15 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Quick Answer serialization.
+ * Resource de serialização de Resposta Rápida.
+ *
+ * Transforma a entidade ChatQuickAnswer no formato da API,
+ * expondo atalhos e categorias para uso nos editores do frontend.
  */
 final class ChatQuickAnswerResource extends BaseJsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */

@@ -13,7 +13,10 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Job for summarizing AI conversations.
+ * Job assíncrono para geração de resumo de uma conversa de IA.
+ *
+ * Enfileirado pelo AiConversationSummaryListener após cada run concluído
+ * e pelo GenerateDailySummariesCommand para tickets atualizados no dia.
  *
  * @category Jobs
  */
@@ -31,7 +34,7 @@ final class AiSummarizeConversationJob implements ShouldQueue
     ) {}
 
     /**
-     * Execute the job.
+     * Invoca o serviço de sumarização para o ticket informado.
      */
     public function handle(AiConversationSummaryService $service): void
     {

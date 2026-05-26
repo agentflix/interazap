@@ -11,13 +11,15 @@ use Domain\CRM\Models\CRMCompany;
 use Illuminate\Support\Str;
 
 /**
- * Tool to create a CRM company.
+ * Ferramenta de IA para criar uma empresa no CRM.
+ *
+ * Input esperado: name (obrigatório) e campos opcionais como document, email, phone, address, city, state.
+ * Output produzido: company_id e nome da empresa criada.
+ * Quando usar: cliente mencionar nome da empresa e ainda não existir cadastro no CRM.
  */
 class CreateCompanyTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a criação da empresa no CRM. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $name = trim((string) ($input->parameters['name'] ?? ''));
@@ -49,24 +51,20 @@ class CreateCompanyTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CREATE_COMPANY;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Creates a new company in the CRM.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

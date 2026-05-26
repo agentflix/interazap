@@ -80,7 +80,7 @@ final class DispatchAutopilotRunJob implements ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * Resolve o agente, cria o registro do run e publica o evento ai.run.request no Redis Stream.
      */
     public function handle(
         ChatAiActivityService $chatAiActivity,

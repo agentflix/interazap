@@ -12,7 +12,7 @@ import {
 import { AfFormLabelComponent } from '../form-label/form-label';
 
 /**
- * AfOtpInputComponent — One-time password / verification code input.
+ * Campo de entrada de senha de uso único (OTP) / código de verificação.
  *
  * @example
  * ```html
@@ -27,16 +27,16 @@ import { AfFormLabelComponent } from '../form-label/form-label';
   templateUrl: './otp-input.html',
 })
 export class AfOtpInputComponent {
-  /** Number of OTP digits */
+  /** Número de dígitos do OTP */
   readonly length = input(6);
 
-  /** Label */
+  /** Rótulo */
   readonly label = input('');
 
-  /** Disabled state */
+  /** Estado desabilitado */
   readonly disabled = input(false);
 
-  /** Emitted when all digits are filled */
+  /** Emitido quando todos os dígitos estão preenchidos */
   readonly completed = output<string>();
 
   protected readonly values = signal<string[]>([]);

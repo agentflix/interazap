@@ -21,9 +21,8 @@ import { OpeningHourService } from '@core/services/opening-hour.service';
 import type { OpeningHour } from '@core/models/opening-hour.model';
 
 /**
- * Opening-hours form for creating and editing a single day schedule.
- * Business logic preserved verbatim from source.
- * day_of_week is stored as string in the form and converted to number on submit.
+ * Formulário de criação e edição de um horário de funcionamento para um dia da semana.
+ * O campo day_of_week é armazenado como string no formulário e convertido para número no envio.
  */
 @Component({
   selector: 'app-opening-hours-form',
@@ -44,19 +43,29 @@ export class OpeningHoursFormComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly lastLoadedId = signal<string | null>(null);
 
-  /** Opening hour to edit — null for create mode */
+  /**
+   * Horário de funcionamento para edição — null para modo de criação.
+   */
   readonly openingHour = input<OpeningHour | null>(null);
 
-  /** Emitted after a successful save */
+  /**
+   * Evento emitido após salvar com sucesso.
+   */
   readonly saved = output<OpeningHour>();
 
-  /** Emitted when user cancels */
+  /**
+   * Evento emitido quando o usuário cancela.
+   */
   readonly cancelled = output<void>();
 
-  /** Save loading state — accessed by parent via viewChild */
+  /**
+   * Estado de carregamento do salvamento — acessado pelo pai via viewChild.
+   */
   readonly isSaving = signal(false);
 
-  /** Inline error message */
+  /**
+   * Mensagem de erro inline.
+   */
   readonly errorMessage = signal<string | null>(null);
 
   /**
@@ -74,7 +83,7 @@ export class OpeningHoursFormComponent {
   ];
 
   readonly form = this.fb.group({
-    /** String representation of day_of_week (0–6) for AfSelectInput compatibility */
+    /** Representação em string do dia da semana (0–6) para compatibilidade com AfSelectInput */
     day_of_week: this.fb.control('1', { nonNullable: true, validators: [Validators.required] }),
     open_time: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
     close_time: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
@@ -100,7 +109,9 @@ export class OpeningHoursFormComponent {
     });
   }
 
-  /** Submit the form — validates, builds payload (converts day_of_week to number), calls API */
+  /**
+   * Submete o formulário — valida, constrói payload (converte day_of_week para número) e chama a API.
+   */
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -109,7 +120,7 @@ export class OpeningHoursFormComponent {
 
     const formValue = this.form.getRawValue();
 
-    // Validate time ordering (original business rule)
+    // Valida ordem de horários (regra de negócio original)
     if (
       formValue.open_time &&
       formValue.close_time &&
@@ -147,7 +158,9 @@ export class OpeningHoursFormComponent {
     });
   }
 
-  /** Cancel — emit cancelled event */
+  /**
+   * Cancela — emite evento de cancelamento.
+   */
   cancel(): void {
     this.cancelled.emit();
   }
@@ -162,7 +175,9 @@ export class OpeningHoursFormComponent {
     this.errorMessage.set(null);
   }
 
-  /** Extract human-readable error message from API response (original logic preserved) */
+  /**
+   * Extrai mensagem de erro legível da resposta da API (lógica original preservada).
+   */
   private getErrorMessage(error: unknown): string {
     const fallback = 'Não foi possível salvar o horário.';
     if (!error || typeof error !== 'object') return fallback;

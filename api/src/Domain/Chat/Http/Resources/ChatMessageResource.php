@@ -8,19 +8,22 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Chat Message serialization.
+ * Resource de serialização de Mensagem de Chat.
+ *
+ * Transforma a entidade ChatMessage no formato esperado pelo frontend,
+ * incluindo resolução de mensagens citadas e compactação de metadados.
  */
 final class ChatMessageResource extends BaseJsonResource
 {
     /**
-     * Preloaded quoted messages map (avoids N+1).
+     * Mapa pré-carregado de mensagens citadas para evitar consultas N+1.
      *
      * @var array<string, \Domain\Chat\Models\ChatMessage>
      */
     private array $quotedMap = [];
 
     /**
-     * Set the preloaded quoted messages map.
+     * Definir o mapa pré-carregado de mensagens citadas.
      *
      * @param  array<string, \Domain\Chat\Models\ChatMessage>  $map
      */
@@ -32,7 +35,7 @@ final class ChatMessageResource extends BaseJsonResource
     }
 
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */
@@ -85,9 +88,9 @@ final class ChatMessageResource extends BaseJsonResource
     }
 
     /**
-     * Compact metadata to reduce payload in listings.
+     * Compactar metadados para reduzir o payload nas listagens.
      *
-     * For debug, full payload can be requested with `?include_full_metadata=1`.
+     * Para depuração, o payload completo pode ser solicitado com `?include_full_metadata=1`.
      *
      * @return array<string, mixed>|null
      */
@@ -140,7 +143,7 @@ final class ChatMessageResource extends BaseJsonResource
     }
 
     /**
-     * Recursively remove null values.
+     * Remover recursivamente valores nulos do array.
      *
      * @param  array<string, mixed>  $value
      * @return array<string, mixed>
@@ -166,7 +169,7 @@ final class ChatMessageResource extends BaseJsonResource
     }
 
     /**
-     * Normalize metadata values that may come as JSON string.
+     * Normalizar valores de metadados que podem vir como string JSON serializada.
      */
     private function normalizeMetadataValue(mixed $value): mixed
     {
@@ -187,9 +190,9 @@ final class ChatMessageResource extends BaseJsonResource
     }
 
     /**
-     * Resolve quoted message data for frontend display.
+     * Resolver os dados da mensagem citada para exibição no frontend.
      *
-     * Uses preloaded map when available, avoiding N+1 queries.
+     * Utiliza o mapa pré-carregado quando disponível, evitando consultas N+1.
      *
      * @return array<string, mixed>|null
      */
@@ -253,7 +256,7 @@ final class ChatMessageResource extends BaseJsonResource
     }
 
     /**
-     * Format a quoted message for the response payload.
+     * Formatar uma mensagem citada para o payload de resposta.
      *
      * @return array<string, mixed>
      */

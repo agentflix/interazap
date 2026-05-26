@@ -1,5 +1,5 @@
 /**
- * Badge rendered in negotiation header.
+ * Badge exibido no cabeçalho da negociação.
  */
 export interface NegotiationBadge {
   label: string;
@@ -7,7 +7,7 @@ export interface NegotiationBadge {
 }
 
 /**
- * Metric card rendered in negotiation header.
+ * Cartão de métrica exibido no cabeçalho da negociação.
  */
 export interface MetricCard {
   label: string;
@@ -16,7 +16,7 @@ export interface MetricCard {
 }
 
 /**
- * Available tab ids for negotiation details.
+ * Identificadores de abas disponíveis nos detalhes da negociação.
  */
 export type NegotiationTabId =
   | 'history'
@@ -29,7 +29,7 @@ export type NegotiationTabId =
 import type { Negotiation } from 'src/app/core/services/negotiation.service';
 
 /**
- * Task action metadata for UI rendering.
+ * Metadados de ação de tarefa para renderização na UI.
  */
 export interface TaskActionOption {
   id: string;
@@ -38,7 +38,7 @@ export interface TaskActionOption {
 }
 
 /**
- * Task status metadata for UI rendering.
+ * Metadados de status de tarefa para renderização na UI.
  */
 export interface TaskStatusOption {
   id: string;

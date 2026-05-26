@@ -7,20 +7,20 @@ namespace Domain\Chat\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Chat Transmission List.
+ * DTO de Lista de Transmissão de Chat.
  *
  * @readonly
  */
 final readonly class ChatTransmissionListDTO
 {
     /**
-     * @param  string  $name  Transmission list name.
-     * @param  string  $status  Status (draft, scheduled, etc).
-     * @param  string|null  $message  Message content.
-     * @param  array<string, mixed>|null  $filterCriteria  Contact filter criteria.
-     * @param  string|null  $instanceId  WhatsApp instance ID.
-     * @param  string|null  $scheduledAt  Scheduled dispatch datetime.
-     * @param  array<string, mixed>|null  $metadata  Additional transmission list metadata.
+     * @param  string  $name  Nome da lista de transmissão.
+     * @param  string  $status  Status da lista (draft, scheduled, etc.).
+     * @param  string|null  $message  Conteúdo da mensagem.
+     * @param  array<string, mixed>|null  $filterCriteria  Critérios de filtro para seleção de contatos.
+     * @param  string|null  $instanceId  ID da instância WhatsApp.
+     * @param  string|null  $scheduledAt  Data e hora agendada para o envio.
+     * @param  array<string, mixed>|null  $metadata  Metadados adicionais da lista de transmissão.
      */
     public function __construct(
         public string $name,
@@ -33,7 +33,7 @@ final readonly class ChatTransmissionListDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um Request HTTP.
      */
     public static function fromRequest(Request $request): self
     {

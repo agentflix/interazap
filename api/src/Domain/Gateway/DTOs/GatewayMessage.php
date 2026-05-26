@@ -8,15 +8,21 @@ use Domain\Gateway\Enums\GatewayDomain;
 use Illuminate\Support\Str;
 
 /**
- * DTO for gateway message.
+ * DTO imutável que representa uma mensagem enviada ao gateway NestJS via Redis Stream.
  *
- * @readonly
+ * Encapsula domínio, ação, provider, payload e metadados com correlationId
+ * único para rastreamento da resposta assíncrona.
  */
 final readonly class GatewayMessage
 {
     /**
-     * @param  array<string, mixed>  $payload
-     * @param  array<string, mixed>  $metadata
+     * @param  string  $correlationId  Identificador único para correlacionar a resposta
+     * @param  string  $timestamp  Data/hora ISO-8601 do envio
+     * @param  GatewayDomain  $domain  Domínio de destino (AI, WhatsApp, Payment)
+     * @param  string  $action  Ação a executar (ex: complete, send-message)
+     * @param  string  $provider  Provider de destino (ex: openai, zapi)
+     * @param  array<string, mixed>  $payload  Dados da operação
+     * @param  array<string, mixed>  $metadata  Metadados extras para rastreamento
      */
     public function __construct(
         public string $correlationId,
@@ -29,10 +35,11 @@ final readonly class GatewayMessage
     ) {}
 
     /**
-     * Factory method to create a new GatewayMessage with auto-generated correlationId and timestamp.
+     * Cria uma nova GatewayMessage com correlationId e timestamp gerados automaticamente.
      *
-     * @param  array<string, mixed>  $payload
-     * @param  array<string, mixed>  $metadata
+     * @param  array<string, mixed>  $payload  Dados da operação
+     * @param  array<string, mixed>  $metadata  Metadados extras
+     * @param  string|null  $correlationId  ID customizado; se nulo, gera UUID ordenado
      */
     public static function create(
         GatewayDomain $domain,
@@ -54,7 +61,7 @@ final readonly class GatewayMessage
     }
 
     /**
-     * Convert the message to an array for Redis stream.
+     * Converte a mensagem em array para publicação no Redis Stream.
      *
      * @return array<string, mixed>
      */

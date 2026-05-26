@@ -152,11 +152,11 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Returns an existing circuit or creates a new one with merged options.
+   * Retorna um circuito existente ou cria um novo com as opções mescladas com os defaults.
    *
-   * @param serviceName - Unique identifier for the circuit
-   * @param options - Circuit configuration (merged with defaults)
-   * @returns The circuit record for the given service name
+   * @param serviceName - Identificador único do circuito
+   * @param options - Configuração do circuito (mesclada com os defaults)
+   * @returns Registro do circuito para o nome de serviço fornecido
    */
   private getOrCreateCircuit(
     serviceName: string,
@@ -181,13 +181,13 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Determines whether the circuit should transition from OPEN to HALF_OPEN.
+   * Determina se o circuito deve transitar de OPEN para HALF_OPEN.
    *
-   * The circuit attempts a reset only after the configured reset timeout has
-   * elapsed since the last failure.
+   * O circuito tenta reset apenas após o timeout de reset configurado ter decorrido
+   * desde a última falha.
    *
-   * @param circuit - Circuit record to evaluate
-   * @returns true when enough time has passed to attempt a reset
+   * @param circuit - Registro do circuito a ser avaliado
+   * @returns true quando tempo suficiente passou para tentar um reset
    */
   private shouldAttemptReset(circuit: CircuitInfo): boolean {
     const timeSinceLastFailure = Date.now() - circuit.lastFailure;
@@ -195,13 +195,13 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Records a successful call against a circuit.
+   * Registra uma chamada bem-sucedida no circuito.
    *
-   * In HALF_OPEN state, increments the success counter and closes the circuit
-   * once the success threshold is met. In CLOSED state, resets the failure
-   * counter to allow normal operation to resume.
+   * No estado HALF_OPEN, incrementa o contador de sucessos e fecha o circuito
+   * quando o threshold de sucesso é atingido. No estado CLOSED, reseta o
+   * contador de falhas para permitir operação normal.
    *
-   * @param circuit - Circuit record to update
+   * @param circuit - Registro do circuito a ser atualizado
    */
   private onSuccess(circuit: CircuitInfo): void {
     if (circuit.state === CircuitState.HALF_OPEN) {
@@ -218,14 +218,13 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Records a failed call against a circuit.
+   * Registra uma chamada com falha no circuito.
    *
-   * Increments the failure counter and opens the circuit when the failure
-   * threshold is reached. In HALF_OPEN state any failure immediately re-opens
-   * the circuit.
+   * Incrementa o contador de falhas e abre o circuito quando o threshold de falhas é atingido.
+   * No estado HALF_OPEN, qualquer falha reabre imediatamente o circuito.
    *
-   * @param circuit - Circuit record to update
-   * @param error - Error that caused the failure (logged but not stored persistently)
+   * @param circuit - Registro do circuito a ser atualizado
+   * @param error - Erro que causou a falha (registrado no log, não armazenado persistentemente)
    */
   private onFailure(circuit: CircuitInfo, error: unknown): void {
     circuit.failures++;
@@ -247,13 +246,13 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Transitions a circuit to a new state, recording the change timestamp.
+   * Transita o circuito para um novo estado, registrando o timestamp da mudança.
    *
-   * Calls the user-provided `onStateChange` callback (if any) and silently
-   * swallows any errors it throws so state transitions never cascade.
+   * Invoca o callback `onStateChange` fornecido pelo usuário (se houver) e silencia
+   * qualquer erro que ele lance para que as transições de estado nunca cascateiem.
    *
-   * @param circuit - Circuit record to update
-   * @param newState - Target state (CLOSED, OPEN, or HALF_OPEN)
+   * @param circuit - Registro do circuito a ser atualizado
+   * @param newState - Estado destino (CLOSED, OPEN ou HALF_OPEN)
    */
   private transitionTo(circuit: CircuitInfo, newState: CircuitState): void {
     const oldState = circuit.state;

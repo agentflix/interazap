@@ -14,7 +14,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class ChatTransmissionListAudienceRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -32,6 +32,8 @@ final class ChatTransmissionListAudienceRequest extends FormRequest
     }
 
     /**
+     * Define as regras de validação que se aplicam à requisição.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -49,6 +51,8 @@ final class ChatTransmissionListAudienceRequest extends FormRequest
     }
 
     /**
+     * Mensagens de erro personalizadas.
+     *
      * @return array<string, string>
      */
     public function messages(): array

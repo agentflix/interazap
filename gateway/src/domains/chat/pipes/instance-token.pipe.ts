@@ -19,7 +19,7 @@ export class InstanceTokenPipe implements PipeTransform<string, string> {
       throw new BadRequestException('Invalid token format');
     }
 
-    // Allow common provider token chars while blocking obvious invalid input.
+    // Permite caracteres comuns de tokens de provedor e bloqueia entradas claramente invalidas.
     if (/[^A-Za-z0-9:_\-.~]/.test(token)) {
       throw new BadRequestException('Invalid token format');
     }

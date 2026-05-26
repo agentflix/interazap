@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Domain\Ai\Exceptions;
 
 /**
- * Exception thrown when embedding generation fails after retries.
+ * Exceção lançada quando a geração de embeddings falha após todas as tentativas.
+ *
+ * Indica falha permanente no pipeline de vetorização de chunks da Knowledge Base.
  */
 final class EmbeddingFailedException extends \RuntimeException {}

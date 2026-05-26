@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Webhok de Notificação.
+ * Webhook de Notificação.
  *
  * Configuração de endpoint externo para receber eventos de notificação
  * via POST, permitindo integrações com sistemas de terceiros.
@@ -41,7 +41,7 @@ final class ConfigurationNotificationWebhook extends Model
     ];
 
     /**
-     * Definir conversão de tipos para atributos.
+     * Define a conversão de tipos para os atributos do modelo.
      *
      * @return array<string, string>
      */

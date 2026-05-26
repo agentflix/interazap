@@ -9,13 +9,19 @@ use Domain\Shared\Scopes\TenantScope;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
- * Actions para prompts em Quarentena.
+ * Casos de uso de leitura para prompts de tenants em quarentena.
+ *
+ * Contexto: operações administrativas que ignoram o TenantScope global
+ * para acessar prompts pendentes de aprovação/rejeição em toda a plataforma.
  */
 final class AiPromptQuarantineActions
 {
     /**
-     * Listar prompts em Quarentena com paginação.
+     * Lista prompts em quarentena paginados com relações tenant e segment carregadas.
      *
+     * Ignora o TenantScope global para permitir visão cross-tenant pelo admin.
+     *
+     * @param  int  $perPage  Itens por página.
      * @return LengthAwarePaginator<int, AiPromptTenant>
      */
     public function list(int $perPage = 15): LengthAwarePaginator
@@ -29,7 +35,12 @@ final class AiPromptQuarantineActions
     }
 
     /**
-     * Buscar prompt (ignora o tenant scope).
+     * Busca um prompt pelo ID ignorando o TenantScope global.
+     *
+     * @param  string  $id  UUID do prompt.
+     * @return AiPromptTenant Prompt encontrado.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se não encontrado.
      */
     public function findById(string $id): AiPromptTenant
     {
@@ -39,7 +50,10 @@ final class AiPromptQuarantineActions
     }
 
     /**
-     * Carregar relações do prompt.
+     * Carrega as relações tenant e segment de um prompt.
+     *
+     * @param  AiPromptTenant  $prompt  Prompt a hidratar.
+     * @return AiPromptTenant Prompt com relações carregadas.
      */
     public function loadPrompt(AiPromptTenant $prompt): AiPromptTenant
     {

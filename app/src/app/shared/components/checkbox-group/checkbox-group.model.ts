@@ -1,11 +1,11 @@
 /**
- * Models and types for checkbox-group component.
+ * Modelos e tipos do componente de grupo de checkboxes.
  */
 
-/** Option for checkbox group */
+/** Opção para o grupo de checkboxes. */
 export interface AfCheckboxOption {
-  /** Option value (stored in array) */
+  /** Valor da opção (armazenado no array de selecionados) */
   value: string;
-  /** Display label */
+  /** Rótulo de exibição */
   label: string;
 }

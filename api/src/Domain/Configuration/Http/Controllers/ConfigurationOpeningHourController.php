@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
  */
 final class ConfigurationOpeningHourController extends BaseController
 {
+    /** Injeta as actions de horários de atendimento. */
     public function __construct(
         private readonly ConfigurationOpeningHourActions $actions
     ) {}

@@ -69,9 +69,7 @@ export class MediaTranscriptionSettingsPage {
     this.load();
   }
 
-  /**
-   * Load current settings from the API.
-   */
+  /** Carrega as configurações atuais de transcrição de mídia da API. */
   protected load(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -91,9 +89,7 @@ export class MediaTranscriptionSettingsPage {
       });
   }
 
-  /**
-   * Save settings to the API.
-   */
+  /** Salva as configurações de transcrição de mídia via API após validar o formulário. */
   protected save(): void {
     if (this.form.invalid || this.saving()) {
       return;
@@ -127,7 +123,8 @@ export class MediaTranscriptionSettingsPage {
   }
 
   /**
-   * Patch form controls with API data.
+   * Preenche os controles do formulário com os dados retornados pela API.
+   * @param data Configurações retornadas pelo backend
    */
   private patchForm(data: MediaTranscriptionSettings): void {
     this.form.patchValue({

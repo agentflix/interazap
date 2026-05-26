@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Configuracoes de agendamento por tenant.
+ * Configurações de agendamento por tenant.
  *
- * Controla o comportamento de confirmacao de eventos,
- * antecedencia de lembretes e canais de notificacao.
+ * Controla o comportamento de confirmação de eventos,
+ * antecedência de lembretes e canais de notificação.
  *
  * @property string $id
  * @property string $tenant_id
@@ -43,6 +43,8 @@ final class ConfigurationSchedulingSetting extends Model
     ];
 
     /**
+     * Define a conversão de tipos para os atributos do modelo.
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -56,10 +58,10 @@ final class ConfigurationSchedulingSetting extends Model
     }
 
     /**
-     * Buscar ou criar configuracao de agendamento para um tenant.
+     * Buscar ou criar configuração de agendamento para um tenant.
      *
      * @param  string  $tenantId  Identificador do tenant.
-     * @return self Configuracao encontrada ou criada com valores padrao.
+     * @return self Configuração encontrada ou criada com valores padrão.
      */
     public static function forTenant(string $tenantId): self
     {

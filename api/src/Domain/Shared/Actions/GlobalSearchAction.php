@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * Execute tenant-aware global search across multiple domains.
+ * Executa busca global com isolamento por tenant em múltiplos domínios.
+ *
+ * Consulta em paralelo contatos, empresas, negociações, tickets e usuários,
+ * respeitando as permissões do usuário autenticado e aplicando cache por TTL.
  */
 final class GlobalSearchAction
 {

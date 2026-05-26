@@ -9,7 +9,10 @@ export interface BroadcastEventDto {
   data: Record<string, unknown>;
 }
 
-/** Status aceitos para atualização de mensagens no canal interno. */
+/**
+ * Status aceitos para atualização de mensagens no canal interno.
+ * Representa o ciclo de vida completo de uma mensagem de chat.
+ */
 export type MessageStatus =
   | 'pending'
   | 'sent'

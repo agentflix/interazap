@@ -7,9 +7,9 @@ import { SIDEBAR_MENU, type AiFeatureFlag, type SidebarMenuItem } from './menu-c
 import { AfScrollAreaComponent } from '../../../shared/components/scroll-area/scroll-area';
 
 /**
- * Sidebar navigation panel — collapsible, neutral surface with hairline borders.
- * Renders menu items with icons, accordion groups, and active-route highlighting.
- * Light mode: white canvas with hairline border. Dark mode: neutral-900 surface.
+ * Painel de navegação lateral — recolhível, superfície neutra com bordas finas.
+ * Renderiza itens de menu com ícones, grupos accordion e destaque de rota ativa.
+ * Modo claro: fundo branco com borda fina. Modo escuro: superfície neutral-900.
  */
 @Component({
   selector: 'af-sidenav',
@@ -25,12 +25,14 @@ export class SidenavComponent {
 
   private openAccordions = signal<Set<string>>(new Set());
 
+  /** Retorna as classes CSS da sidebar dependendo do estado recolhido/expandido. */
   protected sidebarClasses(): string {
     return this.theme.sidebarCollapsed()
       ? 'w-[68px] bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800'
       : 'w-[260px] bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800';
   }
 
+  /** Retorna as classes CSS dos itens de menu do sidebar. */
   protected menuItemClasses(): string {
     return [
       'flex items-center gap-3 px-3 py-2 text-sm',
@@ -40,6 +42,10 @@ export class SidenavComponent {
     ].join(' ');
   }
 
+  /**
+   * Alterna o estado aberto/fechado de um grupo accordion.
+   * @param label Rótulo identificador do accordion
+   */
   protected toggleAccordion(label: string): void {
     this.openAccordions.update((set) => {
       const next = new Set(set);
@@ -52,6 +58,11 @@ export class SidenavComponent {
     });
   }
 
+  /**
+   * Verifica se um accordion está aberto.
+   * @param label Rótulo identificador do accordion
+   * @returns `true` se o accordion está expandido
+   */
   protected isAccordionOpen(label: string): boolean {
     return this.openAccordions().has(label);
   }

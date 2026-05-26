@@ -15,6 +15,12 @@ use Illuminate\Support\Facades\Schema;
  */
 final class BillingGeneratePurgeReportAction
 {
+    /**
+     * Gera e persiste o relatório de purge com snapshot de contagens e faturas do tenant.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a ser documentado antes da exclusão
+     * @return BillingPurgeReport Relatório criado com dados para compliance LGPD
+     */
     public function handle(PlatformTenant $tenant): BillingPurgeReport
     {
         $summary = [
@@ -53,6 +59,7 @@ final class BillingGeneratePurgeReportAction
         ]);
     }
 
+    /** Conta registros de um tenant em uma tabela, retornando 0 se a tabela não existir. */
     private function countTenantRows(string $table, string $tenantId): int
     {
         if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'tenant_id')) {

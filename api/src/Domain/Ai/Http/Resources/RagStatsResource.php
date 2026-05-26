@@ -8,14 +8,14 @@ use Domain\Ai\DTOs\RagStatsDTO;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for RAG statistics.
+ * Resource para serialização de estatísticas de consultas RAG.
  *
  * @mixin RagStatsDTO
  */
 final class RagStatsResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma o recurso em array.
      *
      * @return array<string, mixed>
      */

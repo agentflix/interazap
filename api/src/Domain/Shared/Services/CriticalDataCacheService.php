@@ -13,10 +13,11 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Service for caching frequently accessed critical data.
+ * Serviço de cache para dados críticos de acesso frequente.
  *
- * Provides cached lookups for subscription, chat instances, plan quotas,
- * funnels, and quick answers to reduce database load on hot paths.
+ * Fornece lookups em cache para assinaturas de tenant, instâncias de chat,
+ * cotas de plano, funis de negociação e respostas rápidas, reduzindo a
+ * carga no banco de dados em caminhos críticos (hot paths).
  */
 final class CriticalDataCacheService
 {
@@ -51,9 +52,10 @@ final class CriticalDataCacheService
     private const QUICK_ANSWERS_TTL = 1800;
 
     /**
-     * Get tenant subscription data from cache or database.
+     * Retorna dados de assinatura do tenant em cache ou banco.
      *
-     * @return array{plan_id: string|null, is_active: bool, tenant_code: string|null}|null
+     * @param  string  $tenantId  Identificador do tenant.
+     * @return array{plan_id: string|null, is_active: bool, tenant_code: string|null}|null Dados da assinatura ou null se não encontrado.
      */
     public function getTenantSubscription(string $tenantId): ?array
     {
@@ -80,7 +82,9 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Invalidate tenant subscription cache.
+     * Invalida o cache de assinatura do tenant.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
      */
     public function forgetTenantSubscription(string $tenantId): void
     {
@@ -88,7 +92,10 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Get chat instance by webhook token from cache or database.
+     * Retorna a instância de chat pelo token de webhook em cache ou banco.
+     *
+     * @param  string  $token  Token de webhook da instância.
+     * @return ChatInstance|null Instância encontrada ou null.
      */
     public function getChatInstanceByToken(string $token): ?ChatInstance
     {
@@ -119,7 +126,9 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Invalidate chat instance token cache.
+     * Invalida o cache de instância de chat pelo token de webhook.
+     *
+     * @param  string  $token  Token de webhook da instância.
      */
     public function forgetChatInstanceToken(string $token): void
     {
@@ -127,15 +136,16 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Get plan quotas from cache or database.
+     * Retorna as cotas do plano em cache ou banco.
      *
+     * @param  string  $planId  Identificador do plano.
      * @return array{
      *     limit_users: int,
      *     storage_limit_bytes: int,
      *     ai_enabled: bool,
      *     chat_channels_limit: int,
      *     negotiations_limit: int|null
-     * }|null
+     * }|null Cotas do plano ou null se não encontrado.
      */
     public function getPlanQuotas(string $planId): ?array
     {
@@ -171,7 +181,9 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Invalidate plan quotas cache.
+     * Invalida o cache de cotas do plano.
+     *
+     * @param  string  $planId  Identificador do plano.
      */
     public function forgetPlanQuotas(string $planId): void
     {
@@ -179,14 +191,15 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Get tenant configuration from cache or database.
+     * Retorna a configuração do tenant em cache ou banco.
      *
+     * @param  string  $tenantId  Identificador do tenant.
      * @return array{
      *     name: string,
      *     segment_id: string|null,
      *     is_active: bool,
      *     tenant_code: string|null
-     * }|null
+     * }|null Configuração do tenant ou null se não encontrado.
      */
     public function getTenantConfig(string $tenantId): ?array
     {
@@ -214,7 +227,9 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Invalidate tenant config cache.
+     * Invalida o cache de configuração do tenant.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
      */
     public function forgetTenantConfig(string $tenantId): void
     {
@@ -222,14 +237,16 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Get funnel with steps from cache or database.
+     * Retorna o funil com suas etapas em cache ou banco.
      *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $funnelId  Identificador do funil.
      * @return array{
      *     id: string,
      *     name: string,
      *     is_active: bool,
      *     steps: array<int, array{id: string, name: string, color: string, order: int, is_active: bool}>
-     * }|null
+     * }|null Funil com etapas ou null se não encontrado.
      */
     public function getFunnelWithSteps(string $tenantId, string $funnelId): ?array
     {
@@ -265,9 +282,10 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Get all funnels for a tenant from cache.
+     * Retorna todos os funis do tenant em cache ou banco.
      *
-     * @return Collection<array-key, array{id: string, name: string, is_active: bool}>
+     * @param  string  $tenantId  Identificador do tenant.
+     * @return Collection<array-key, array{id: string, name: string, is_active: bool}> Coleção de funis do tenant.
      */
     public function getTenantFunnels(string $tenantId): Collection
     {
@@ -292,7 +310,10 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Invalidate funnel cache.
+     * Invalida o cache do funil e da listagem de funis do tenant.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $funnelId  Identificador do funil.
      */
     public function forgetFunnel(string $tenantId, string $funnelId): void
     {
@@ -301,7 +322,9 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Invalidate all funnels cache for a tenant.
+     * Invalida o cache de todos os funis do tenant.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
      */
     public function forgetTenantFunnels(string $tenantId): void
     {
@@ -309,9 +332,10 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Get active quick answers for a tenant from cache.
+     * Retorna as respostas rápidas ativas do tenant em cache ou banco.
      *
-     * @return Collection<array-key, array{id: string, name: string, shortcut: string|null, content: string, category: string|null}>
+     * @param  string  $tenantId  Identificador do tenant.
+     * @return Collection<array-key, array{id: string, name: string, shortcut: string|null, content: string, category: string|null}> Coleção de respostas rápidas ativas.
      */
     public function getQuickAnswers(string $tenantId): Collection
     {
@@ -340,7 +364,9 @@ final class CriticalDataCacheService
     }
 
     /**
-     * Invalidate quick answers cache.
+     * Invalida o cache de respostas rápidas do tenant.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
      */
     public function forgetQuickAnswers(string $tenantId): void
     {

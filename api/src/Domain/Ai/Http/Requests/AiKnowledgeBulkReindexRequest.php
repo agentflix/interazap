@@ -7,21 +7,17 @@ namespace Domain\Ai\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Request validation for bulk reindex operations in AI knowledge base.
+ * Validação para reindexação em lote de documentos da base de conhecimento.
  */
 final class AiKnowledgeBulkReindexRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Verifica se o usuário possui permissão para gerenciar a base de conhecimento. */
     public function authorize(): bool
     {
         return $this->user()->can('ai.knowledge.manage');
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
     public function rules(): array

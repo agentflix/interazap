@@ -7,16 +7,22 @@ namespace Domain\Ai\Services;
 use Domain\Chat\Models\ChatMessage;
 
 /**
- * Service for managing AI conversation context windows.
+ * Gerencia a janela de contexto de conversas para a IA.
  *
- * @category Services
+ * Constrói um array de mensagens recentes (janela deslizante) com
+ * tamanho adaptativo baseado no total de mensagens. Quando disponível,
+ * prepende o resumo acumulado da conversa como mensagem de sistema.
  */
 final class ContextWindowManagerService
 {
     public function __construct(private readonly AiConversationSummaryService $summaryService) {}
 
     /**
-     * @return array<int, array<string, mixed>>
+     * Constrói a janela de contexto com mensagens recentes e resumo acumulado.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $ticketId  UUID do ticket.
+     * @return array<int, array<string, mixed>> Mensagens formatadas para o LLM.
      */
     public function buildWindow(string $tenantId, string $ticketId): array
     {
@@ -56,6 +62,12 @@ final class ContextWindowManagerService
         return $window;
     }
 
+    /**
+     * Define o tamanho da janela com base no volume total de mensagens.
+     *
+     * @param  int  $totalMessages  Total de mensagens do ticket.
+     * @return int Número de mensagens recentes a incluir na janela.
+     */
     private function resolveWindowSize(int $totalMessages): int
     {
         if ($totalMessages <= 10) {

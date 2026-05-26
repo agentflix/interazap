@@ -15,7 +15,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class CRMEventStoreRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -25,7 +25,9 @@ class CRMEventStoreRequest extends FormRequest
     }
 
     /**
-     * @return array<string, mixed>
+     * Retorna as regras de validação aplicadas à requisição.
+     *
+     * @return array<string, mixed> Regras de validação.
      */
     public function rules(): array
     {
@@ -66,7 +68,9 @@ class CRMEventStoreRequest extends FormRequest
     }
 
     /**
-     * @return array<string, string>
+     * Retorna mensagens de erro personalizadas para as regras de validação.
+     *
+     * @return array<string, string> Mensagens customizadas.
      */
     public function messages(): array
     {

@@ -1,13 +1,13 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * Visual separator line — horizontal or vertical.
+ * Linha separadora visual — horizontal ou vertical.
  *
  * @example
  * ```html
  * <af-divider />
  * <af-divider orientation="vertical" class="h-6" />
- * <af-divider label="OR" />
+ * <af-divider label="OU" />
  * ```
  */
 @Component({
@@ -17,10 +17,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './divider.html',
 })
 export class AfDividerComponent {
-  /** Divider orientation */
+  /** Orientação do separador */
   readonly orientation = input<'horizontal' | 'vertical'>('horizontal');
 
-  /** Optional centered label text */
+  /** Texto de rótulo centralizado opcional */
   readonly label = input<string | null>(null);
 
   protected readonly lineClasses = computed(() => {

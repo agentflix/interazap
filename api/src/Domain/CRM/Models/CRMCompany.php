@@ -13,10 +13,10 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Company (Client) in CRM.
+ * Empresa (Cliente) no CRM.
  *
- * Represents a business entity in the CRM system, supporting contacts,
- * deals, tags, and custom fields.
+ * Entidade jurídica ou comercial cadastrada no sistema, podendo estar
+ * vinculada a múltiplos contatos, negociações, tags e campos personalizados.
  *
  * @property string $id
  * @property string $tenant_id

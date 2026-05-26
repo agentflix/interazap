@@ -16,7 +16,9 @@ use Laravel\Sanctum\TransientToken;
 class BillingInvoiceIndexRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Verifica se o usuário está autorizado a listar faturas.
+     *
+     * Aceita permissão via Spatie ou ability de token Sanctum.
      */
     public function authorize(): bool
     {
@@ -33,6 +35,7 @@ class BillingInvoiceIndexRequest extends FormRequest
         return $user->can('billing.invoices.view');
     }
 
+    /** Verifica se o token Sanctum atual possui a ability informada ou wildcard '*'. */
     private function tokenAllows(Authenticatable $user, string $permission): bool
     {
         if (! method_exists($user, 'currentAccessToken')) {

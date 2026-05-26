@@ -20,13 +20,25 @@ final class RollbackTenantPromptAction
         private readonly AiPromptHashService $hashService,
     ) {}
 
+    /**
+     * Reverte o prompt do tenant para o conteúdo anterior via swap de campos.
+     *
+     * A lógica de swap permite reversões infinitas: content ↔ previous_content.
+     * Após o rollback, o prompt recebe status APPROVED e hash recalculado
+     * a partir do conteúdo restaurado.
+     *
+     * @param  AiPromptTenant  $tenantPrompt  Prompt a reverter.
+     * @return AiPromptTenant Prompt com conteúdo revertido.
+     *
+     * @throws \Domain\Ai\Exceptions\AiPromptNoPreviousContentException Se não houver versão anterior.
+     */
     public function execute(AiPromptTenant $tenantPrompt): AiPromptTenant
     {
         if (! $tenantPrompt->hasPreviousContent()) {
             throw new AiPromptNoPreviousContentException;
         }
 
-        // Swap logic
+        // Lógica de swap
         $currentContent = $tenantPrompt->content;
         $previousContent = $tenantPrompt->previous_content;
 

@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Domain\Ai\Enums;
 
 /**
- * Available tools/functions for AI agents.
+ * Constantes de ferramentas (tools/functions) disponíveis para agentes de IA.
  *
- * Defines the list of tools that can be invoked by AI agents
- * during autonomous task execution.
+ * Define os nomes de todas as ferramentas que podem ser invocadas pelo agente
+ * durante execução autônoma. Utilizado para autorização via AiAgentToolPermissionService
+ * e como identificadores no payload enviado ao gateway.
  */
 class AiToolEnum
 {

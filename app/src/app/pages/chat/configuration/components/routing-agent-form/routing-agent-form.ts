@@ -9,6 +9,13 @@ import {
 import { type User } from '@core/models/user.model';
 import { type ChatRoutingQueueAgent } from '../../../services/chat-routing-queue.service';
 
+/**
+ * Formulário para adicionar um agente à fila de roteamento.
+ *
+ * @remarks
+ * Filtra usuários já adicionados da lista de seleção.
+ * Emite `addAgent` com `{ userId, position? }` ao confirmar.
+ */
 @Component({
   selector: 'app-routing-agent-form',
   standalone: true,
@@ -32,6 +39,7 @@ export class RoutingAgentFormComponent {
     position: new FormControl<number | null>(null),
   });
 
+  /** Usuários disponíveis para adição (excluindo os já presentes na fila). */
   protected readonly availableUsers = computed(() => {
     const addedUserIds = new Set(this.agents().map((a) => a.user_id));
     return this.users()
@@ -39,6 +47,7 @@ export class RoutingAgentFormComponent {
       .map((u) => ({ value: u.id, label: u.name }));
   });
 
+  /** Emite o evento `addAgent` com userId e posição opcional ao submeter o formulário. */
   protected onSubmit(): void {
     if (this.form.invalid) {
       return;

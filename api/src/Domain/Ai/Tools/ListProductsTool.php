@@ -10,13 +10,15 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\CRM\Models\CRMProduct;
 
 /**
- * Tool to list CRM products catalog.
+ * Ferramenta de IA para listar o catálogo de produtos do CRM.
+ *
+ * Input esperado: active_only (boolean, padrão true) e limit (1-100, padrão 20).
+ * Output produzido: lista de produtos com id, nome, descrição e preço.
+ * Quando usar: cliente perguntar sobre produtos disponíveis ou antes de adicionar itens a uma negociação.
  */
 class ListProductsTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a listagem de produtos do catálogo. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $tenantId = (string) ($input->context['tenant_id'] ?? '');
@@ -43,24 +45,20 @@ class ListProductsTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::LIST_PRODUCTS;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Lists available CRM products with optional active filter.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

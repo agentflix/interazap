@@ -29,11 +29,11 @@ import { UserService } from '@core/services/user.service';
 import { type User } from '@core/models/user.model';
 
 /**
- * Ticket page — read-only CRUD listing for supervisors.
+ * Página de atendimentos — listagem somente leitura para supervisores.
  *
  * @remarks
- * Displays all tickets with metrics (wait/service duration), evaluation summary,
- * search by protocol/contact/agent, and force-close action for authorized users.
+ * Exibe todos os tickets com métricas (tempo de espera/atendimento), resumo de avaliação,
+ * busca por protocolo/contato/agente e ação de encerramento forçado para usuários autorizados.
  */
 @Component({
   selector: 'app-ticket-page',
@@ -177,18 +177,18 @@ export class TicketPage implements OnInit {
     this.loadTickets();
   }
 
-  /** Navigate to ticket details page */
+  /** Navega para a página de detalhes do ticket. */
   viewTicket(ticket: Called): void {
     void this.router.navigate(['/chat/ticket', ticket.id]);
   }
 
-  /** Open force close confirmation */
+  /** Abre o modal de confirmação de encerramento forçado. */
   openForceClose(ticket: Called): void {
     this.ticketToForceClose.set(ticket);
     this.showForceCloseModal.set(true);
   }
 
-  /** Execute force close after confirmation */
+  /** Executa o encerramento forçado após confirmação do modal. */
   handleForceCloseConfirmed(): void {
     const ticket = this.ticketToForceClose();
     if (!ticket || this.isForceClosing()) return;
@@ -214,7 +214,7 @@ export class TicketPage implements OnInit {
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
-  /** Map CalledStatus to AfStatusBadge status type */
+  /** Mapeia CalledStatus para o tipo de status do AfStatusBadge. */
   mapTicketStatus(status: CalledStatus): 'online' | 'warning' | 'idle' | 'offline' {
     const map: Record<CalledStatus, 'online' | 'warning' | 'idle' | 'offline'> = {
       open: 'online',
@@ -225,7 +225,7 @@ export class TicketPage implements OnInit {
     return map[status] ?? 'offline';
   }
 
-  /** Translate status to Portuguese label */
+  /** Traduz o status do ticket para rótulo em português. */
   translateStatus(status: CalledStatus): string {
     const map: Record<CalledStatus, string> = {
       open: 'Aberto',
@@ -236,7 +236,7 @@ export class TicketPage implements OnInit {
     return map[status] ?? status;
   }
 
-  /** Format seconds to a human-readable duration (e.g. 2h 15m, 45s) */
+  /** Formata segundos como duração legível (ex: 2h 15m, 45s). */
   formatDuration(seconds: number | null | undefined): string {
     if (seconds === null || seconds === undefined) return '—';
     if (seconds < 60) return `${seconds}s`;
@@ -296,7 +296,7 @@ export class TicketPage implements OnInit {
       });
   }
 
-  /** Compute from/to ISO dates based on the selected date range preset */
+  /** Calcula datas ISO de início/fim com base no intervalo pré-definido selecionado. */
   private computeDateRange(value: string): { from?: string; to?: string } {
     if (value === 'all') return {};
     const now = new Date();

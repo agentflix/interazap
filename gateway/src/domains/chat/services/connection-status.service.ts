@@ -8,10 +8,14 @@ import { StreamPayload } from './chat-webhook.types';
 import { WebhookRealtimeEmitter } from './webhook-realtime-emitter.service';
 
 /**
- * ConnectionStatusService
+ * Servico de gerenciamento de status de conexao de instancias WhatsApp com buffering de eventos.
  *
- * Manages WhatsApp instance connection status with event buffering.
- * Normalizes connection states and persists status changes to database.
+ * Contexto: normaliza estados de conexao recebidos de provedores (Uazapi, Z-API, Meta),
+ * emite eventos realtime via WebSocket, persiste mudancas no banco de dados atraves
+ * da api/ HTTP (via BullMQ job), e invalida caches Redis de resolucao de instancias.
+ * Estados intermediarios (connecting, qr) sao bufferizados por CONNECTION_BUFFER_MS
+ * antes de ser emitidos, enquanto estados terminais (connected/disconnected) sao
+ * emitidos imediatamente.
  */
 @Injectable()
 export class ConnectionStatusService {
@@ -55,15 +59,15 @@ export class ConnectionStatusService {
   }
 
   /**
-   * Processes a connection status event from a webhook stream payload.
+   * Processa um evento de status de conexao a partir do payload de stream do webhook.
    *
-   * Terminal states (connected/disconnected) are flushed immediately; intermediate
-   * states are buffered and flushed after a configurable delay.
+   * Estados terminais (connected/disconnected) sao emitidos imediatamente;
+   * estados intermediarios sao bufferizados e emitidos apos o atraso configuravel.
    *
-   * @param payload   - StreamPayload carrying tenant and instance metadata.
-   * @param instanceId - Optional instance identifier override.
-   * @param connection - Raw connection record from the webhook payload.
-   * @param statusPayload - Status sub-payload containing the connected flag.
+   * @param payload Payload de stream com metadados de tenant e instancia
+   * @param instanceId Identificador de instancia opcional como sobrescrita
+   * @param connection Record de conexao bruto do payload do webhook
+   * @param statusPayload Sub-payload de status contendo o flag connected
    */
   emitConnectionEvent(
     payload: StreamPayload,
@@ -116,12 +120,12 @@ export class ConnectionStatusService {
   }
 
   /**
-   * Persists a normalized connection status to the database and invalidates related Redis caches.
+   * Persiste um status de conexao normalizado no banco de dados e invalida caches Redis relacionados.
    *
-   * @param instanceId - The chat instance primary key.
-   * @param status     - Raw status string to be normalized before persistence.
-   * @param payload    - StreamPayload with webhook token for cache invalidation.
-   * @param connection - Raw connection record used to extract the owner field.
+   * @param instanceId Chave primaria da instancia de chat
+   * @param status String de status bruta a ser normalizada antes da persistencia
+   * @param payload Payload de stream com token do webhook para invalidacao de cache
+   * @param connection Record de conexao bruto usado para extrair o campo owner
    */
   async updateInstanceConnectionStatus(
     instanceId: string,
@@ -158,6 +162,9 @@ export class ConnectionStatusService {
     }
   }
 
+  /**
+   * Retorna a fila BullMQ de status de conexao, criando-a se necessario.
+   */
   private ensureConnectionStatusQueue(): Queue {
     if (!this.connectionStatusQueue) {
       this.connectionStatusQueue = this.queueFactory.createQueue(
@@ -168,8 +175,8 @@ export class ConnectionStatusService {
   }
 
   /**
-   * Resets the flush timer for a buffered connection event.
-   * Cancels any existing pending timer so only the latest event is flushed.
+   * Reagenda o timer de flush para um evento de conexao bufferizado.
+   * Cancela qualquer timer pendente existente para que apenas o evento mais recente seja emitido.
    */
   private scheduleConnectionFlush(bufferKey: string): void {
     const activeTimer = this.bufferedConnectionTimers.get(bufferKey);
@@ -184,8 +191,8 @@ export class ConnectionStatusService {
   }
 
   /**
-   * Emits a buffered connection event and clears its associated timer.
-   * No-op if no event is buffered for the given key.
+   * Emite um evento de conexao bufferizado e limpa o timer associado.
+   * Nao faz nada quando nenhum evento estiver bufferizado para a chave informada.
    */
   private flushBufferedConnectionEvent(bufferKey: string): void {
     const activeTimer = this.bufferedConnectionTimers.get(bufferKey);
@@ -206,8 +213,8 @@ export class ConnectionStatusService {
   }
 
   /**
-   * Normalizes a raw status string to a canonical form: connected | disconnected | qr | connecting | <original>.
-   * Returns null for unknown or generic values.
+   * Normaliza uma string de status bruta para forma canonica: connected | disconnected | qr | connecting | <original>.
+   * Retorna null para valores desconhecidos ou genericos.
    */
   private normalizeInstanceStatus(status: string): string | null {
     const lower = (status ?? '').toLowerCase().trim();

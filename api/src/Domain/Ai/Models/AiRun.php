@@ -10,21 +10,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
- * Model for AI completion runs.
+ * Registro de execução de uma completion de IA (modelo genérico).
  *
- * Tracks the status and results of AI completion requests
- * processed asynchronously via jobs.
+ * Rastreia o status e resultado de requisições de completion processadas
+ * de forma assíncrona pelo ProcessAIResponseJob. Diferente de AiAutopilotRun,
+ * este modelo representa execuções simples sem playbook ou contexto multi-turno.
  *
  * @property string $id
  * @property string $tenant_id
- * @property string $status
- * @property string $prompt
- * @property string|null $output
- * @property string|null $model
- * @property int|null $tokens_used
- * @property string|null $finish_reason
- * @property string|null $error
- * @property array|null $metadata
+ * @property string $status Status da execução (pending/processing/retrying/completed/failed).
+ * @property string $prompt Prompt enviado ao modelo.
+ * @property string|null $output Resposta gerada pelo modelo.
+ * @property string|null $model Nome do modelo utilizado.
+ * @property int|null $tokens_used Total de tokens consumidos.
+ * @property string|null $finish_reason Razão de parada do modelo.
+ * @property string|null $error Mensagem de erro em caso de falha.
+ * @property array|null $metadata Metadados adicionais da execução.
  * @property \Carbon\Carbon|null $started_at
  * @property \Carbon\Carbon|null $completed_at
  * @property \Carbon\Carbon $created_at
@@ -83,7 +84,7 @@ class AiRun extends Model
     public const STATUS_FAILED = 'failed';
 
     /**
-     * Initialize the model.
+     * Inicializa o modelo com UUID automático e status padrão PENDING.
      */
     protected static function booted(): void
     {
@@ -98,7 +99,7 @@ class AiRun extends Model
     }
 
     /**
-     * Check if the run is pending.
+     * Verifica se a execução está pendente.
      */
     public function isPending(): bool
     {
@@ -106,7 +107,7 @@ class AiRun extends Model
     }
 
     /**
-     * Check if the run is processing.
+     * Verifica se a execução está em processamento.
      */
     public function isProcessing(): bool
     {
@@ -114,7 +115,7 @@ class AiRun extends Model
     }
 
     /**
-     * Check if the run is completed.
+     * Verifica se a execução foi concluída com sucesso.
      */
     public function isCompleted(): bool
     {
@@ -122,7 +123,7 @@ class AiRun extends Model
     }
 
     /**
-     * Check if the run has failed.
+     * Verifica se a execução falhou.
      */
     public function hasFailed(): bool
     {

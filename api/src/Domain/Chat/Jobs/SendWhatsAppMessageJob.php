@@ -17,11 +17,10 @@ use Shared\Jobs\Middleware\RateLimitedJob;
 use Shared\Jobs\Traits\RetryableWithBackoff;
 
 /**
- * Job for sending WhatsApp messages with retry patterns and rate limiting.
+ * Job assíncrono de envio de mensagens WhatsApp com retry e rate limiting.
  *
- * This job handles the asynchronous delivery of WhatsApp messages,
- * with exponential backoff retry strategy and rate limiting to
- * comply with WhatsApp API limits.
+ * Gerencia a entrega assíncrona de mensagens utilizando backoff exponencial
+ * e limitação de taxa para respeitar os limites da API WhatsApp.
  */
 final class SendWhatsAppMessageJob implements ShouldQueue
 {
@@ -31,14 +30,11 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     use RetryableWithBackoff;
     use SerializesModels;
 
-    /**
-     * The tenant identifier.
-     */
+    /** Identificador do tenant proprietário da mensagem. */
     private readonly string $tenantId;
 
     /**
-     * Get the WhatsApp-specific backoff delays.
-     * More aggressive retries for transient API errors.
+     * Intervalos de backoff específicos para erros transientes da API WhatsApp.
      *
      * @return array<int, int>
      */
@@ -48,15 +44,13 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Create a new job instance.
-     *
-     * @param  string  $messageId  The message ID to send.
-     * @param  string  $tenantId  The tenant identifier.
-     * @param  string  $instanceId  The WhatsApp instance ID.
-     * @param  string  $to  The recipient phone number.
-     * @param  string  $content  The message content.
-     * @param  string  $type  The message type (text, image, document, etc.).
-     * @param  array<string, mixed>  $metadata  Additional metadata.
+     * @param  string  $messageId  ID da mensagem no banco de dados.
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $instanceId  ID da instância WhatsApp de envio.
+     * @param  string  $to  Número de telefone do destinatário.
+     * @param  string  $content  Conteúdo da mensagem.
+     * @param  string  $type  Tipo da mensagem (text, image, document, etc.).
+     * @param  array<string, mixed>  $metadata  Metadados adicionais.
      */
     public function __construct(
         private readonly string $messageId,
@@ -74,7 +68,7 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Get the middleware the job should pass through.
+     * Middlewares pelo qual o job deve passar (ex.: rate limiting por instância).
      *
      * @return array<int, object>
      */
@@ -86,7 +80,7 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Get the unique ID for the job.
+     * Retorna ID único do job para evitar envios duplicados.
      */
     public function uniqueId(): string
     {
@@ -94,7 +88,7 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Get the tags that should be assigned to the job.
+     * Tags para rastreamento e filtragem do job no painel de filas.
      *
      * @return array<int, string>
      */
@@ -109,7 +103,7 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * Envia a mensagem via gateway, atualiza o status e notifica o frontend via broadcast.
      */
     public function handle(ChatWhatsAppGatewayInterface $gateway, ChatBroadcastService $broadcast): void
     {
@@ -164,7 +158,7 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Handle a job failure.
+     * Trata a falha definitiva do job marcando a mensagem como `failed` e notificando o frontend.
      */
     public function failed(\Throwable $exception): void
     {
@@ -201,21 +195,21 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Determine if the exception should be retried.
+     * Determina se a exceção é irrecuperável e deve falhar imediatamente (sem retry).
      */
     protected function shouldFailImmediately(\Throwable $exception): bool
     {
-        // Don't retry on invalid phone numbers or content
+        // Não tenta novamente em números ou conteúdo inválidos
         if ($exception instanceof \InvalidArgumentException) {
             return true;
         }
 
-        // Don't retry on authentication errors
+        // Não tenta novamente em erros de autenticação
         if (str_contains($exception->getMessage(), 'authentication')) {
             return true;
         }
 
-        // Don't retry on invalid instance
+        // Não tenta novamente quando a instância não existe
         if (str_contains($exception->getMessage(), 'instance not found')) {
             return true;
         }
@@ -224,9 +218,9 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Update the message status in the database.
+     * Atualiza o status da mensagem no banco de dados.
      *
-     * @param  array<string, mixed>  $metadata
+     * @param  array<string, mixed>  $metadata  Dados adicionais a mesclar nos metadados.
      */
     private function updateMessageStatus(string $status, array $metadata = []): void
     {
@@ -242,7 +236,7 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Handle errors and update status accordingly.
+     * Registra o erro de tentativa e atualiza o status da mensagem para `pending`.
      */
     private function handleError(\Throwable $exception): void
     {
@@ -261,7 +255,7 @@ final class SendWhatsAppMessageJob implements ShouldQueue
     }
 
     /**
-     * Mask phone number for logging.
+     * Mascara o número de telefone para exibição segura em logs.
      */
     private function maskPhoneNumber(string $phone): string
     {

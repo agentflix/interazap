@@ -63,6 +63,7 @@ final class AuthTotpService
         return $this->generateCode($secret, $timeSlice, $digits);
     }
 
+    /** Gera o codigo OTP para um time-slice especifico usando HMAC-SHA1. */
     private function generateCode(string $secret, int $timeSlice, int $digits): string
     {
         $binarySecret = $this->base32Decode($secret);
@@ -86,6 +87,7 @@ final class AuthTotpService
         return str_pad($otp, $digits, '0', STR_PAD_LEFT);
     }
 
+    /** Codifica bytes binarios em string Base32 conforme RFC 4648. */
     private function base32Encode(string $data): string
     {
         $bits = '';
@@ -106,6 +108,7 @@ final class AuthTotpService
         return $encoded;
     }
 
+    /** Decodifica string Base32 para bytes binarios, ignorando caracteres invalidos. */
     private function base32Decode(string $secret): string
     {
         $cleanSecret = strtoupper(preg_replace('/[^A-Z2-7]/', '', $secret) ?? '');

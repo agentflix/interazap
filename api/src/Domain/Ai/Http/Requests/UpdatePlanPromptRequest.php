@@ -7,13 +7,11 @@ namespace Domain\Ai\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Request para atualização de Plan Prompts.
+ * Validação para atualização de plan prompts.
  */
 class UpdatePlanPromptRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Verifica se o usuário possui permissão para gerenciar prompts. */
     public function authorize(): bool
     {
         return $this->user()->can('ai.prompts.manage');

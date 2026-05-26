@@ -58,7 +58,7 @@ export class ChatWebhookService {
 
     const resolveStartedAt = Date.now();
 
-    // Early normalize for uazapi — reused below to avoid double-normalization.
+    // Normalizacao antecipada para uazapi — reutilizada abaixo para evitar dupla normalizacao.
     const earlyNormalized: ReturnType<UazapiProvider['normalize']> | null =
       provider.toLowerCase() === 'uazapi' && isUazapiWebhookEvent(event)
         ? this.uazapiProvider.normalize(token, event)
@@ -170,7 +170,7 @@ export class ChatWebhookService {
       token: idempotencyDescriptor.token ? '***' : null,
     });
 
-    // Connection events bypass idempotency — they must always propagate
+    // Eventos de conexao ignoram idempotencia — devem sempre ser propagados
     const isConnectionEvent =
       idempotencyDescriptor.normalizedEventType.startsWith('connection');
     const isPresenceEvent =
@@ -226,7 +226,7 @@ export class ChatWebhookService {
       payload: enrichedPayload,
     });
 
-    // Update chat_instances.status directly for connection events
+    // Atualiza chat_instances.status diretamente para eventos de conexao
     if (
       idempotencyDescriptor.normalizedEventType.startsWith('connection') &&
       resolvedInstanceId
@@ -268,7 +268,7 @@ export class ChatWebhookService {
   }
 
   // ──────────────────────────────────────────────────────────────
-  // Legacy compatibility — used by existing private-method tests
+  // Compatibilidade legada — usados pelos testes de metodos privados existentes
   // ──────────────────────────────────────────────────────────────
 
   /**

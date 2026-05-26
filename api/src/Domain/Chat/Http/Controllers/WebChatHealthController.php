@@ -9,18 +9,18 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redis;
 
 /**
- * Health check controller for Webchat module.
+ * Controller de verificação de saúde do módulo Webchat.
  *
  * @category Controllers
  */
 final class WebChatHealthController extends BaseController
 {
     /**
-     * Health check endpoint for webchat module.
+     * Retorna o status de saúde dos componentes do módulo Webchat.
      *
      * GET /api/webchat/health
      *
-     * @return JsonResponse Health status payload.
+     * @return JsonResponse Payload com status geral e estado do Redis.
      */
     public function __invoke(): JsonResponse
     {
@@ -36,7 +36,9 @@ final class WebChatHealthController extends BaseController
     }
 
     /**
-     * Verificar conexão com Redis.
+     * Verificar se a conexão com o Redis está operacional.
+     *
+     * @return bool True se o Redis responde corretamente ao ping.
      */
     private function checkRedis(): bool
     {

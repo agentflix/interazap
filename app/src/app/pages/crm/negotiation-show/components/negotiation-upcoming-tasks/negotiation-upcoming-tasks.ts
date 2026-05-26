@@ -4,7 +4,7 @@ import { type NegotiationTask } from 'src/app/core/services/negotiation-task.ser
 import { ButtonComponent } from '@shared/components/buttons';
 
 /**
- * Sidebar card showing upcoming tasks preview.
+ * Cartão na sidebar com prévia das próximas tarefas da negociação.
  */
 @Component({
   selector: 'app-negotiation-upcoming-tasks',

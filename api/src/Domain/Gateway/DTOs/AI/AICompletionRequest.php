@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace Domain\Gateway\DTOs\AI;
 
+/**
+ * DTO imutável que representa uma requisição de conclusão (completion) para um modelo de IA.
+ *
+ * Expõe construtores fluentes (withModel, withMaxTokens, etc.) para compor
+ * a requisição sem mutar o objeto original.
+ */
 final readonly class AICompletionRequest
 {
     /**
-     * @param  array<array{role: string, content: string}>  $messages
-     * @param  array<int, array<string, mixed>>|null  $tools
+     * @param  array<array{role: string, content: string}>  $messages  Histórico de mensagens do chat
+     * @param  array<int, array<string, mixed>>|null  $tools  Definições de ferramentas (tool calling)
      */
     public function __construct(
         public array $messages,
@@ -21,9 +27,9 @@ final readonly class AICompletionRequest
     ) {}
 
     /**
-     * Create a new AICompletionRequest with the given messages.
+     * Cria uma nova requisição com as mensagens informadas.
      *
-     * @param  array<array{role: string, content: string}>  $messages
+     * @param  array<array{role: string, content: string}>  $messages  Histórico de mensagens do chat
      */
     public static function create(array $messages): self
     {
@@ -31,7 +37,7 @@ final readonly class AICompletionRequest
     }
 
     /**
-     * Create a new instance with the specified model.
+     * Retorna nova instância com o modelo especificado.
      */
     public function withModel(string $model): self
     {
@@ -46,7 +52,7 @@ final readonly class AICompletionRequest
     }
 
     /**
-     * Create a new instance with the specified max tokens.
+     * Retorna nova instância com o limite máximo de tokens especificado.
      */
     public function withMaxTokens(int $maxTokens): self
     {
@@ -61,7 +67,7 @@ final readonly class AICompletionRequest
     }
 
     /**
-     * Create a new instance with the specified temperature.
+     * Retorna nova instância com a temperatura especificada.
      */
     public function withTemperature(float $temperature): self
     {
@@ -76,7 +82,7 @@ final readonly class AICompletionRequest
     }
 
     /**
-     * Create a new instance with streaming enabled or disabled.
+     * Retorna nova instância com streaming habilitado ou desabilitado.
      */
     public function withStream(bool $stream = true): self
     {
@@ -91,9 +97,9 @@ final readonly class AICompletionRequest
     }
 
     /**
-     * Create a new instance with tool definitions.
+     * Retorna nova instância com as definições de ferramentas (tool calling).
      *
-     * @param  array<int, array<string, mixed>>  $tools
+     * @param  array<int, array<string, mixed>>  $tools  Definições de ferramentas no formato da API
      */
     public function withTools(array $tools): self
     {
@@ -108,7 +114,7 @@ final readonly class AICompletionRequest
     }
 
     /**
-     * Convert the request to an array, filtering out null values.
+     * Converte a requisição em array, removendo campos nulos.
      *
      * @return array<string, mixed>
      */

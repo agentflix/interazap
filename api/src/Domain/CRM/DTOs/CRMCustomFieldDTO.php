@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for CRM custom field.
+ * DTO para campo personalizado do CRM.
  *
  * @readonly
  */
@@ -24,9 +24,7 @@ final readonly class CRMCustomFieldDTO
         public bool $is_required = false,
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria DTO a partir de um FormRequest já validado. */
     public static function fromRequest(FormRequest $request): self
     {
         return self::fromArray($request->validated());

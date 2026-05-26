@@ -16,6 +16,11 @@ use Illuminate\Support\Str;
 /**
  * Agente de IA configurável por tenant.
  *
+ * Representa um agente autônomo com papel, modelo LLM, prompt de sistema,
+ * limites de tokens e configurações de voz (STT/TTS). Pode ter gatilhos,
+ * ferramentas, canais, arquivos de contexto (IDENTITY.md, SOUL.md, etc.)
+ * e regras de delegação para outros agentes.
+ *
  * @category Models
  */
 class AiAgent extends Model
@@ -81,36 +86,57 @@ class AiAgent extends Model
         });
     }
 
+    /**
+     * Agente pai (para hierarquia de delegação).
+     */
     public function parentAgent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_agent_id');
     }
 
+    /**
+     * Arquivos de contexto vinculados ao agente (IDENTITY.md, SOUL.md, etc.).
+     */
     public function files(): HasMany
     {
         return $this->hasMany(AiAgentFile::class, 'agent_id');
     }
 
+    /**
+     * Gatilhos configurados para ativar o agente.
+     */
     public function triggers(): HasMany
     {
         return $this->hasMany(AiAgentTrigger::class, 'agent_id');
     }
 
+    /**
+     * Habilidades (skills/funções) habilitadas para o agente.
+     */
     public function skills(): HasMany
     {
         return $this->hasMany(AiAgentSkill::class, 'agent_id');
     }
 
+    /**
+     * Canais de comunicação vinculados ao agente.
+     */
     public function channels(): HasMany
     {
         return $this->hasMany(AiAgentChannel::class, 'agent_id');
     }
 
+    /**
+     * Delegações em que este agente é a origem.
+     */
     public function sourceDelegations(): HasMany
     {
         return $this->hasMany(AiAgentDelegation::class, 'source_agent_id');
     }
 
+    /**
+     * Delegações em que este agente é o destino.
+     */
     public function targetDelegations(): HasMany
     {
         return $this->hasMany(AiAgentDelegation::class, 'target_agent_id');

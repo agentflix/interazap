@@ -18,7 +18,7 @@ use Illuminate\Validation\Rule;
 final class PlatformPlanStoreRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -31,6 +31,8 @@ final class PlatformPlanStoreRequest extends FormRequest
     }
 
     /**
+     * Regras de validação para criação de plano.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -64,6 +66,8 @@ final class PlatformPlanStoreRequest extends FormRequest
     }
 
     /**
+     * Mensagens customizadas para erros de validação.
+     *
      * @return array<string, string>
      */
     public function messages(): array

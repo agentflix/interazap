@@ -10,7 +10,7 @@ import {
 import { Type } from 'class-transformer';
 
 /**
- * Chat Message for OpenAI API
+ * Representa uma mensagem individual em uma conversa de chat com a API de AI.
  */
 export class ChatMessageDto {
   @IsString()
@@ -25,7 +25,7 @@ export class ChatMessageDto {
 }
 
 /**
- * Command to request AI chat completion
+ * Comando para solicitar uma completion de chat ao domínio de AI.
  */
 export class AiChatCommandDto {
   @IsString()
@@ -57,7 +57,7 @@ export class AiChatCommandDto {
 }
 
 /**
- * Result of AI chat completion
+ * Resultado de uma completion de chat de AI.
  */
 export class AiChatResultDto {
   @IsString()

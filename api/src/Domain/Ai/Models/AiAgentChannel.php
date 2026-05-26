@@ -11,16 +11,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * Channel linked to an AI Agent.
+ * Canal de comunicação vinculado a um Agente de IA.
  *
- * Represents a communication channel (WhatsApp, web chat, etc.) associated
- * with an AI agent for routing interactions.
+ * Representa um canal (WhatsApp, webchat, etc.) associado ao agente
+ * para roteamento de interações. A referência externa (external_ref)
+ * identifica a instância específica do canal no provedor.
  *
  * @property string $id
  * @property string $tenant_id
  * @property string $agent_id
- * @property string $channel
- * @property string|null $external_ref
+ * @property string $channel Tipo de canal (whatsapp, webchat, etc.).
+ * @property string|null $external_ref Referência externa no provedor do canal.
  * @property bool $is_active
  * @property array|null $metadata
  */
@@ -62,6 +63,9 @@ class AiAgentChannel extends Model
         });
     }
 
+    /**
+     * Agente de IA ao qual este canal pertence.
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(AiAgent::class, 'agent_id');

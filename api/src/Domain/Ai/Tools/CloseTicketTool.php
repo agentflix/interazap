@@ -10,12 +10,16 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\Chat\Models\ChatTicket;
 
 /**
- * Tool to close a support ticket.
+ * Ferramenta de IA para encerrar um ticket de suporte.
  *
- * Security: Validates tenant_id to prevent cross-tenant access.
+ * Input esperado: ticket_id, reason (resolved|abandoned|spam|duplicate) e summary opcional.
+ * Output produzido: ID do ticket e status "closed".
+ * Quando usar: problema resolvido ou conversa encerrada sem necessidade de atendimento humano.
+ * Segurança: valida tenant_id para evitar acesso entre tenants.
  */
 class CloseTicketTool implements AiToolInterface
 {
+    /** Executa o encerramento do ticket. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $ticketId = $input->parameters['ticket_id'] ?? null;
@@ -57,17 +61,21 @@ class CloseTicketTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CLOSE_TICKET;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Closes a support ticket when the issue is resolved or the conversation is complete. Requires a reason for closing.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

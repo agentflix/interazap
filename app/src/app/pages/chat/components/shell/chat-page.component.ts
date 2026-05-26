@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
- * Chat page component for the Chat module.
- * @selector app-chat-page
+ * Componente shell da página de chat.
+ *
+ * Stub de estrutura que serve como ponto de entrada
+ * para o layout raiz do módulo de chat.
  */
 @Component({
   selector: 'app-chat-page',

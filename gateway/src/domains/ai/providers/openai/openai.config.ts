@@ -1,7 +1,8 @@
 /**
- * OpenAI Configuration Service
+ * Serviço de configuração tipada para o provider OpenAI.
  *
- * Configuração tipada para OpenAI com validação em startup.
+ * Contexto: lê as variáveis `OPENAI_API_KEY`, modelo padrão, modelo de embeddings, timeout
+ * e retries da configuração NestJS e valida a presença da chave de API no `onModuleInit`.
  */
 
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -9,39 +10,35 @@ import { ConfigService } from '@nestjs/config';
 import { OpenAIConfiguration } from '../../../../core/config/configuration';
 
 /**
- * Configuração do OpenAI com validação
+ * Interface tipada com os parâmetros de configuração do provider OpenAI.
  */
 export interface OpenAIConfig {
-  /**
-   * API key principal (obrigatória)
-   */
+  /** API key principal (obrigatória). */
   apiKey: string;
 
-  /**
-   * API key de fallback (opcional)
-   */
+  /** API key de fallback (opcional). */
   apiKeyFallback?: string;
 
   /**
-   * Modelo padrão para chat completions
+   * Modelo padrão para chat completions.
    * @default "gpt-4o"
    */
   defaultModel: string;
 
   /**
-   * Modelo para embeddings
+   * Modelo utilizado para geração de embeddings.
    * @default "text-embedding-3-small"
    */
   embeddingModel: string;
 
   /**
-   * Timeout em milliseconds
+   * Timeout em milissegundos.
    * @default 180000 (3 minutos)
    */
   timeoutMs: number;
 
   /**
-   * Número máximo de retries
+   * Número máximo de tentativas de retry.
    * @default 3
    */
   maxRetries: number;
@@ -72,8 +69,7 @@ export class OpenAIConfigService implements OnModuleInit {
   }
 
   /**
-   * Valida que a configuração obrigatória está presente
-   * @throws Error se OPENAI_API_KEY não está configurada
+   * Valida que a configuração obrigatória está presente, logando erro quando ausente.
    */
   private validateConfiguration(): void {
     if (!this.config.apiKey) {
@@ -93,57 +89,47 @@ export class OpenAIConfigService implements OnModuleInit {
     }
   }
 
-  /**
-   * Retorna a configuração completa
-   */
+  /** Retorna o objeto de configuração completo do OpenAI. */
   getConfig(): OpenAIConfig {
     return this.config;
   }
 
-  /**
-   * Retorna a API key principal
-   */
+  /** Retorna a API key principal do OpenAI. */
   getApiKey(): string {
     return this.config.apiKey;
   }
 
-  /**
-   * Retorna a API key de fallback (se configurada)
-   */
+  /** Retorna a API key de fallback quando configurada. */
   getFallbackApiKey(): string | undefined {
     return this.config.apiKeyFallback;
   }
 
   /**
-   * Verifica se tem fallback configurado
+   * Verifica se uma chave de API de fallback está configurada.
+   * @returns `true` quando a chave de fallback está presente
    */
   hasFallbackKey(): boolean {
     return !!this.config.apiKeyFallback;
   }
 
-  /**
-   * Retorna o modelo padrão
-   */
+  /** Retorna o nome do modelo OpenAI padrão configurado. */
   getDefaultModel(): string {
     return this.config.defaultModel;
   }
 
-  /**
-   * Retorna o timeout em ms
-   */
+  /** Retorna o timeout configurado em milissegundos. */
   getTimeoutMs(): number {
     return this.config.timeoutMs;
   }
 
-  /**
-   * Retorna max retries
-   */
+  /** Retorna o número máximo de tentativas configurado. */
   getMaxRetries(): number {
     return this.config.maxRetries;
   }
 
   /**
-   * Verifica se está configurado corretamente
+   * Verifica se o provider OpenAI está corretamente configurado.
+   * @returns `true` quando a chave de API está presente
    */
   isConfigured(): boolean {
     return !!this.config.apiKey;

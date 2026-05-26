@@ -70,10 +70,10 @@ export class IdempotentWebhookGuard implements CanActivate {
   ];
 
   /**
-   * Initializes the guard with Reflector for metadata reading and IdempotencyService for cache checks.
+   * Inicializa o guard com o Reflector para leitura de metadados e o IdempotencyService para verificações de cache.
    *
-   * @param reflector - NestJS service for reading route metadata (e.g. @Idempotent decorators)
-   * @param idempotencyService - Service that checks/marks idempotency keys in Redis
+   * @param reflector - Serviço NestJS para leitura de metadados de rota (ex.: decorator @Idempotent)
+   * @param idempotencyService - Serviço que verifica/marca chaves de idempotência no Redis
    */
   constructor(
     private readonly reflector: Reflector,
@@ -81,14 +81,14 @@ export class IdempotentWebhookGuard implements CanActivate {
   ) {}
 
   /**
-   * Determines whether the route handler may execute.
+   * Determina se o handler da rota pode ser executado.
    *
-   * Returns `true` immediately for non-idempotent routes or requests without an idempotency key.
-   * When a key is present, checks Redis for a prior result; if found, writes the cached
-   * response to the HTTP reply and returns `false` to short-circuit the handler.
+   * Retorna `true` imediatamente para rotas não-idempotentes ou requisições sem chave de idempotência.
+   * Quando uma chave está presente, verifica no Redis se já existe resultado anterior; se encontrado,
+   * escreve a resposta cacheada na resposta HTTP e retorna `false` para curto-circuitar o handler.
    *
-   * @param context - NestJS execution context providing access to request, response, and route handler
-   * @returns `true` to allow handler execution, `false` to short-circuit with cached response
+   * @param context - Contexto de execução do NestJS com acesso à requisição, resposta e handler
+   * @returns `true` para permitir a execução do handler, `false` para curto-circuitar com resposta cacheada
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const handler = context.getHandler();

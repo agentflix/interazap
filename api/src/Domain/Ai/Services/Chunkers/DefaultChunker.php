@@ -8,13 +8,11 @@ use Domain\Ai\Contracts\Chunkers\ChunkerStrategyInterface;
 use Domain\Ai\DTOs\ChunkDTO;
 
 /**
- * Default chunking strategy.
+ * Estratégia de chunking padrão para texto genérico.
  *
- * Implements the chunking algorithm from PRD:
- * 1. Split by paragraphs (\n\n)
- * 2. If paragraph > 500 tokens, split by sentences
- * 3. Group sentences until ~500 tokens
- * 4. Maintain 50 token overlap between chunks
+ * Divide por parágrafos, depois por sentenças se necessário.
+ * Agrupa sentenças até ~500 tokens com sobreposição de 50 tokens
+ * entre chunks consecutivos.
  */
 final class DefaultChunker implements ChunkerStrategyInterface
 {
@@ -25,9 +23,10 @@ final class DefaultChunker implements ChunkerStrategyInterface
     private const float DEFAULT_CHARS_PER_TOKEN = 3.5;
 
     /**
-     * Chunk text into smaller pieces with overlap.
+     * Divide o texto em chunks menores com sobreposição.
      *
-     * @return list<ChunkDTO>
+     * @param  string  $text  Texto a dividir.
+     * @return list<ChunkDTO> Chunks gerados com índice e estimativa de tokens.
      */
     public function chunk(string $text): array
     {
@@ -60,7 +59,10 @@ final class DefaultChunker implements ChunkerStrategyInterface
     }
 
     /**
-     * Estimate token count for a text.
+     * Estima a quantidade de tokens de um texto via divisão por caracteres.
+     *
+     * @param  string  $text  Texto a estimar.
+     * @return int Estimativa de tokens.
      */
     private function estimateTokens(string $text): int
     {
@@ -70,9 +72,10 @@ final class DefaultChunker implements ChunkerStrategyInterface
     }
 
     /**
-     * Split text by paragraphs.
+     * Divide o texto em parágrafos por sequências de linhas em branco.
      *
-     * @return list<string>
+     * @param  string  $text  Texto a dividir.
+     * @return list<string> Parágrafos não vazios.
      */
     private function splitByParagraphs(string $text): array
     {
@@ -88,9 +91,10 @@ final class DefaultChunker implements ChunkerStrategyInterface
     }
 
     /**
-     * Split text by sentences.
+     * Divide o texto em sentenças por pontuação terminal seguida de espaço.
      *
-     * @return list<string>
+     * @param  string  $text  Texto a dividir.
+     * @return list<string> Sentenças não vazias.
      */
     private function splitBySentences(string $text): array
     {
@@ -106,10 +110,10 @@ final class DefaultChunker implements ChunkerStrategyInterface
     }
 
     /**
-     * Group sentences into chunks with overlap.
+     * Agrupa sentenças em chunks com sobreposição configurada.
      *
-     * @param  list<string>  $sentences
-     * @return list<ChunkDTO>
+     * @param  list<string>  $sentences  Sentenças a agrupar.
+     * @return list<ChunkDTO> Chunks com sobreposição de OVERLAP_TOKENS.
      */
     private function groupIntoChunks(array $sentences): array
     {
@@ -160,10 +164,10 @@ final class DefaultChunker implements ChunkerStrategyInterface
     }
 
     /**
-     * Get sentences for overlap from the end of a chunk.
+     * Retorna as sentenças finais do chunk para compor a sobreposição do próximo.
      *
-     * @param  list<string>  $sentences
-     * @return list<string>
+     * @param  list<string>  $sentences  Sentenças do chunk atual.
+     * @return list<string> Sentenças que cabem dentro do limite OVERLAP_TOKENS.
      */
     private function getOverlapSentences(array $sentences): array
     {

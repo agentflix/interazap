@@ -7,12 +7,14 @@ namespace Domain\CRM\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Validation for CRM contact CSV export.
+ * Valida os dados para exportação de contatos do CRM em CSV.
+ *
+ * @return array<string, mixed> Regras de validação.
  */
 final class CRMContactExportRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -22,7 +24,9 @@ final class CRMContactExportRequest extends FormRequest
     }
 
     /**
-     * @return array<string, mixed>
+     * Retorna as regras de validação aplicadas à requisição.
+     *
+     * @return array<string, mixed> Regras de validação.
      */
     public function rules(): array
     {

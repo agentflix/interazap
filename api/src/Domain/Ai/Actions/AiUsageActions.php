@@ -9,12 +9,19 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Actions para métricas de uso de IA.
+ * Casos de uso para consulta de métricas de consumo de IA.
+ *
+ * Contexto: agrega dados do model AiUsageLog para relatórios de uso diário,
+ * ranking de agentes e histórico mensal. Todas as queries agrupam por tenant.
  */
 final class AiUsageActions
 {
     /**
-     * Estatísticas diárias dos últimos N dias.
+     * Retorna estatísticas diárias de uso dos últimos N dias.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  int  $days  Quantidade de dias retroativos.
+     * @return \Illuminate\Database\Eloquent\Collection<int, AiUsageLog> Coleção com date, requests, tokens e cost.
      */
     public function daily(string $tenantId, int $days): Collection
     {
@@ -35,7 +42,11 @@ final class AiUsageActions
     }
 
     /**
-     * Top agentes por consumo do mês.
+     * Retorna os N agentes com maior custo de IA no mês corrente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  int  $limit  Número máximo de agentes retornados.
+     * @return \Illuminate\Database\Eloquent\Collection<int, AiUsageLog> Coleção com agent_name, total_requests, total_tokens e total_cost.
      */
     public function topAgents(string $tenantId, int $limit): Collection
     {

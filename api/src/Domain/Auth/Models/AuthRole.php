@@ -19,7 +19,7 @@ class AuthRole extends Role
 
     // ── Roles de sistema com UUID fixo ──────────────────────────────────
 
-    /** Platform super-admin — exclusivo para conta InteraZap */
+    /** Identificador fixo do super-admin — exclusivo para a conta InteraZap. */
     public const ADMINISTRADOR_ID = '00000000-0000-4000-8000-000000000001';
 
     public const ADMINISTRADOR_NAME = 'Administrador';

@@ -8,14 +8,12 @@ use Domain\Shared\Services\HealthCheckService;
 use Illuminate\Http\JsonResponse;
 
 /**
- * Health Check Controller for deep system health monitoring.
+ * Endpoint de monitoramento profundo de saúde do sistema.
  *
- * Returns status of all critical services:
- * - Database connection
- * - Redis connection
- * - Queue workers
- *
- * @category Controllers
+ * Verifica a disponibilidade dos serviços críticos:
+ * - Conexão com banco de dados
+ * - Conexão com Redis
+ * - Workers de fila
  */
 final class HealthController extends BaseController
 {
@@ -26,9 +24,9 @@ final class HealthController extends BaseController
     /**
      * GET /health
      *
-     * Returns comprehensive health status of all services.
+     * Retorna o status de saúde consolidado de todos os serviços.
      *
-     * @return JsonResponse Health status with 200 (healthy) or 503 (unhealthy).
+     * @return JsonResponse Status 200 (saudável) ou 503 (degradado/indisponível).
      */
     public function __invoke(): JsonResponse
     {

@@ -1,6 +1,6 @@
 /**
- * Models and types for password-strength component.
+ * Modelos e tipos do componente de força da senha.
  */
 
-/** Password strength level */
+/** Nível de força da senha. */
 export type AfPasswordStrength = 'empty' | 'weak' | 'fair' | 'good' | 'strong';

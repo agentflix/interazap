@@ -24,6 +24,8 @@ class PromptQuarantinedNotification extends Notification implements ShouldQueue
     ) {}
 
     /**
+     * Define os canais de entrega da notificação (apenas e-mail para SuperAdmins).
+     *
      * @return array<int, string>
      */
     public function via(object $notifiable): array
@@ -31,6 +33,9 @@ class PromptQuarantinedNotification extends Notification implements ShouldQueue
         return ['mail'];
     }
 
+    /**
+     * Constrói o e-mail de alerta com trecho do prompt e link para revisão no painel.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $tenant = $this->tenantPrompt->tenant;
@@ -56,6 +61,8 @@ class PromptQuarantinedNotification extends Notification implements ShouldQueue
     }
 
     /**
+     * Serializa os dados da quarentena para o canal database (não utilizado aqui, retorno vazio).
+     *
      * @return array<string, mixed>
      */
     public function toArray(object $notifiable): array
@@ -71,6 +78,9 @@ class PromptQuarantinedNotification extends Notification implements ShouldQueue
         ];
     }
 
+    /**
+     * Retorna a URL do painel de revisão de quarentena para o prompt informado.
+     */
     private function getAdminUrl(): string
     {
         $baseUrl = config('app.url', 'http://localhost');

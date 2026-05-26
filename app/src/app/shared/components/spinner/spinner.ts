@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * Animated spinner indicator for loading states.
+ * Indicador animado de carregamento (spinner).
  *
  * @example
  * ```html
@@ -16,10 +16,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './spinner.html',
 })
 export class AfSpinnerComponent {
-  /** Spinner diameter */
+  /** Diâmetro do spinner */
   readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('md');
 
-  /** Color variant */
+  /** Variante de cor */
   readonly color = input<'default' | 'white' | 'accent'>('default');
 
   protected readonly svgClasses = computed(() => {

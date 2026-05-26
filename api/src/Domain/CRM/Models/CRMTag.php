@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * CRM Tag.
+ * Tag do CRM.
  *
- * Label/category tag that can be applied to contacts, companies,
- * and negotiations for segmentation and filtering.
+ * Etiqueta categorizadora que pode ser aplicada a contatos, empresas e
+ * negociações para segmentação e filtragem por categoria ou cor.
  *
  * @property string $id
  * @property string $tenant_id

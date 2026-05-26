@@ -14,12 +14,15 @@ use Domain\Configuration\Services\NotificationDispatcherService;
  */
 final class EvaluationNotificationListener
 {
+    /** Injeta o serviço de despacho de notificações. */
     public function __construct(
         private readonly NotificationDispatcherService $dispatcher,
     ) {}
 
     /**
-     * Handle the event.
+     * Processa evento de avaliação crítica e notifica gerentes e administradores do tenant.
+     *
+     * @param  EvaluationLowScoreEvent  $event  Evento disparado com os dados da avaliação.
      */
     public function handle(EvaluationLowScoreEvent $event): void
     {

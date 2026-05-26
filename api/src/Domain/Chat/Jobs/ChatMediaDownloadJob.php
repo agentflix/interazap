@@ -39,7 +39,7 @@ final class ChatMediaDownloadJob implements ShouldBeUnique, ShouldQueue
     use SerializesModels;
 
     /**
-     * Prevent duplicate media downloads.
+     * Impede downloads duplicados da mesma mídia durante 120 segundos.
      */
     public int $uniqueFor = 120;
 
@@ -63,7 +63,7 @@ final class ChatMediaDownloadJob implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Unique ID based on message ID.
+     * ID único do job baseado no ID da mensagem para evitar processamento duplicado.
      */
     public function uniqueId(): string
     {

@@ -13,13 +13,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Tool to link an existing contact to a company.
+ * Ferramenta de IA para vincular um contato existente a uma empresa no CRM.
+ *
+ * Input esperado: contact_id e company_id (UUIDs obrigatórios).
+ * Output produzido: contact_id e company_id da associação realizada.
+ * Quando usar: cliente revelar a empresa onde trabalha ou confirmar vínculo empresarial.
  */
 class LinkContactToCompanyTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa o vínculo entre contato e empresa. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $contactId = (string) ($input->parameters['contact_id'] ?? '');
@@ -72,24 +74,20 @@ class LinkContactToCompanyTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::LINK_CONTACT_TO_COMPANY;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Links an existing contact to an existing company in CRM.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

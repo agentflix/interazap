@@ -1,5 +1,14 @@
 /**
- * Masks sensitive values recursively from objects and arrays.
+ * Utilitário de mascaramento de segredos do gateway.
+ * Percorre objetos e arrays recursivamente substituindo valores de chaves sensíveis por `'***'`.
+ */
+
+/**
+ * Mascara recursivamente valores sensíveis em objetos e arrays.
+ * Chaves identificadas como secretas têm seu valor substituído por `'***'`.
+ *
+ * @param value - Valor (objeto, array ou primitivo) a ser mascarado
+ * @returns Cópia do valor com dados sensíveis substituídos
  */
 export function maskSecrets(value: unknown): unknown {
   if (Array.isArray(value)) {
@@ -26,13 +35,11 @@ export function maskSecrets(value: unknown): unknown {
 }
 
 /**
- * Determines whether a given object key represents a sensitive value.
+ * Determina se uma chave de objeto representa um valor sensível.
+ * Verifica substrings case-insensitive: token, secret, password, authorization, apikey, api_key.
  *
- * Matches keys containing case-insensitive substrings: token, secret,
- * password, authorization, apikey, or api_key.
- *
- * @param key - The object key to evaluate
- * @returns true if the key is considered a secret
+ * @param key - Chave do objeto a ser avaliada
+ * @returns true se a chave é considerada um segredo
  */
 function isSecretKey(key: string): boolean {
   const normalized = key.toLowerCase();

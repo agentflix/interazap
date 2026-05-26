@@ -2,7 +2,10 @@ import { appendFile, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 /**
- * Persist debug logs to a file so we can inspect WebSocket traffic without attaching to the console.
+ * Logger de arquivo para persistência de logs de debug do gateway.
+ *
+ * Contexto: utilizado para inspecionar tráfego WebSocket e eventos do gateway
+ * sem depender apenas do console. Escreve em `logs/gateway-events.log` de forma assíncrona.
  */
 export class GatewayFileLogger {
   private static readonly logFilePath = join(
@@ -16,54 +19,54 @@ export class GatewayFileLogger {
   private static readonly maxSerializedPayloadLength = 4_096;
 
   /**
-   * @param context - Logging context label (e.g. controller or service name).
+   * @param context - Rótulo de contexto de logging (ex.: nome do controller ou serviço).
    */
   constructor(private readonly context: string) {
     GatewayFileLogger.ensureLogFile();
   }
 
   /**
-   * Writes an INFO-level entry to the log file.
+   * Escreve uma entrada de nível INFO no arquivo de log.
    *
-   * @param message - Human-readable message.
-   * @param payload - Optional serializable object appended to the line.
+   * @param message - Mensagem legível da entrada.
+   * @param payload - Objeto serializável opcional anexado à linha.
    */
   info(message: string, payload?: unknown): void {
     this.write('INFO', message, payload);
   }
 
   /**
-   * Writes a DEBUG-level entry to the log file.
+   * Escreve uma entrada de nível DEBUG no arquivo de log.
    *
-   * @param message - Human-readable message.
-   * @param payload - Optional serializable object appended to the line.
+   * @param message - Mensagem legível da entrada.
+   * @param payload - Objeto serializável opcional anexado à linha.
    */
   debug(message: string, payload?: unknown): void {
     this.write('DEBUG', message, payload);
   }
 
   /**
-   * Writes an ERROR-level entry to the log file.
+   * Escreve uma entrada de nível ERROR no arquivo de log.
    *
-   * @param message - Human-readable message.
-   * @param payload - Optional serializable object appended to the line.
+   * @param message - Mensagem legível da entrada.
+   * @param payload - Objeto serializável opcional anexado à linha.
    */
   error(message: string, payload?: unknown): void {
     this.write('ERROR', message, payload);
   }
 
-  /** Queues a formatted line to be written asynchronously to the log file. */
+  /** Enfileira uma linha formatada para ser escrita de forma assíncrona no arquivo de log. */
   private write(level: string, message: string, payload?: unknown): void {
     GatewayFileLogger.appendLine(level, this.context, message, payload);
   }
 
   /**
-   * Formats and queues a single timestamped log line to disk.
+   * Formata e enfileira uma única linha de log com timestamp para escrita em disco.
    *
-   * @param level - Log level string (INFO, DEBUG, ERROR).
-   * @param context - Logging context label.
-   * @param message - Log message text.
-   * @param payload - Optional payload to serialize and append.
+   * @param level - Nível do log (INFO, DEBUG, ERROR).
+   * @param context - Rótulo de contexto do log.
+   * @param message - Texto da mensagem do log.
+   * @param payload - Payload opcional para serializar e anexar.
    */
   private static appendLine(
     level: string,
@@ -86,10 +89,10 @@ export class GatewayFileLogger {
   }
 
   /**
-   * Serializes a payload to JSON, truncating it if it exceeds maxSerializedPayloadLength.
+   * Serializa um payload para JSON, truncando se exceder o tamanho máximo permitido.
    *
-   * @param payload - Value to serialize.
-   * @returns JSON string or a placeholder when serialization fails or the payload is too large.
+   * @param payload - Valor a ser serializado.
+   * @returns String JSON ou um placeholder quando a serialização falha ou o payload é muito grande.
    */
   private static serialize(payload: unknown): string {
     try {
@@ -105,8 +108,8 @@ export class GatewayFileLogger {
   }
 
   /**
-   * Creates the logs directory and marks the logger as initialized.
-   * Idempotent — subsequent calls return immediately.
+   * Cria o diretório de logs e marca o logger como inicializado.
+   * Idempotente — chamadas subsequentes retornam imediatamente.
    */
   private static ensureLogFile(): void {
     if (GatewayFileLogger.initialized) {

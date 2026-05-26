@@ -14,18 +14,20 @@ import {
 } from './chat-webhook.types';
 
 /**
- * PayloadSemanticsResolver
+ * Resolve a semantica de payloads de webhook para determinar tipos de evento (conexao, mensagem, edicao).
  *
- * Resolves webhook payload semantics to determine event types (connection, message, edit).
- * Extracts and normalizes message content across different provider formats.
+ * Contexto: extrai e normaliza conteudo de mensagem entre formatos de diferentes provedores
+ * (Uazapi, Z-API, Meta). Utilizado por ChatWebhookService e WebhookIdempotencyService para
+ * identificar changeKind (new_message, edited, status, connection, presence) e compor
+ * chaves de idempotencia adequadas ao tipo de evento.
  */
 @Injectable()
 export class PayloadSemanticsResolver {
   /**
-   * Resolves the semantic metadata for a stream payload.
+   * Resolve os metadados semanticos de um payload de stream.
    *
-   * @param payload - Stream payload to analyze
-   * @returns Semantic metadata including event type and change kind
+   * @param payload Payload de stream a analisar
+   * @returns Metadados semanticos incluindo tipo de evento e tipo de mudanca
    */
   resolvePayloadSemantics(payload: StreamPayload): PayloadSemanticMetadata {
     const fallbackEvent = this.isFallbackPayload(payload)
@@ -97,10 +99,10 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Extracts the message payload from a stream payload.
+   * Extrai o payload de mensagem de um payload de stream.
    *
-   * @param payload - Stream payload
-   * @returns Message record or null
+   * @param payload Payload de stream
+   * @returns Record de mensagem ou null quando ausente
    */
   extractMessagePayload(payload: StreamPayload): JsonRecord | null {
     if (payload.message && isRecord(payload.message)) {
@@ -125,10 +127,10 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Extracts the raw payload from a stream payload.
+   * Extrai o payload bruto (raw) de um payload de stream.
    *
-   * @param payload - Stream payload
-   * @returns Raw payload record or null
+   * @param payload Payload de stream
+   * @returns Record do raw ou null quando ausente
    */
   extractRawPayload(payload: StreamPayload): JsonRecord | null {
     if (payload.raw && isRecord(payload.raw)) {
@@ -146,10 +148,10 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Extracts the raw message payload from a stream payload.
+   * Extrai o payload bruto da mensagem aninhada no raw de um payload de stream.
    *
-   * @param payload - Stream payload
-   * @returns Raw message record or null
+   * @param payload Payload de stream
+   * @returns Record da mensagem bruta ou null quando ausente
    */
   extractRawMessagePayload(payload: StreamPayload): JsonRecord | null {
     const rawPayload = this.extractRawPayload(payload);
@@ -162,11 +164,11 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Extracts the message content from normalized or raw message.
+   * Extrai o conteudo textual da mensagem normalizada ou do raw.
    *
-   * @param message - Normalized message payload
-   * @param rawMessage - Raw message payload
-   * @returns Extracted content string
+   * @param message Payload de mensagem normalizado
+   * @param rawMessage Payload bruto da mensagem
+   * @returns Conteudo textual extraido ou string vazia
    */
   extractMessageContent(
     message: JsonRecord | null,
@@ -197,10 +199,10 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Resolves the discriminator for message update events.
+   * Resolve o discriminador para eventos de atualizacao de mensagem.
    *
-   * @param payload - Stream payload
-   * @returns Discriminator string
+   * @param payload Payload de stream
+   * @returns String discriminadora para composicao da chave de idempotencia
    */
   resolveMessageUpdateDiscriminator(payload: StreamPayload): string {
     const outerRaw = payload.raw;
@@ -255,10 +257,10 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Resolves the edited message ID from payload.
+   * Resolve o ID da mensagem editada a partir do payload.
    *
-   * @param payload - Stream payload
-   * @returns Edited message ID or null
+   * @param payload Payload de stream do evento de edicao
+   * @returns ID da mensagem editada ou null quando nao identificado
    */
   resolveEditedMessageId(payload: StreamPayload): string | null {
     const message = this.extractMessagePayload(payload);
@@ -293,10 +295,10 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Resolves the edited event ID from payload.
+   * Resolve o ID do evento de edicao a partir do payload.
    *
-   * @param payload - Stream payload
-   * @returns Edited event ID or null
+   * @param payload Payload de stream do evento de edicao
+   * @returns ID do evento editado ou null quando nao identificado
    */
   resolveEditedEventId(payload: StreamPayload): string | null {
     const message = this.extractMessagePayload(payload);
@@ -323,10 +325,10 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Resolves the primary status message ID from nested event.
+   * Resolve o ID primario de mensagem de status a partir do evento aninhado.
    *
-   * @param payload - Stream payload
-   * @returns Primary message ID or null
+   * @param payload Payload de stream de evento messages_update
+   * @returns ID da primeira mensagem ou null quando ausente
    */
   private resolvePrimaryStatusMessageId(payload: StreamPayload): string | null {
     const outerRaw = payload.raw;
@@ -344,10 +346,10 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Returns the first non-empty string from candidates.
+   * Retorna o primeiro valor nao vazio do array de candidatos.
    *
-   * @param values - Array of string candidates
-   * @returns First non-empty string or null
+   * @param values Array de candidatos a string nao vazia
+   * @returns Primeiro valor nao vazio ou null
    */
   private firstNonEmptyString(
     values: Array<string | undefined>,
@@ -362,10 +364,10 @@ export class PayloadSemanticsResolver {
   }
 
   /**
-   * Checks if payload is a fallback payload type.
+   * Verifica se o payload e do tipo FallbackStreamPayload.
    *
-   * @param payload - Stream payload to check
-   * @returns True if fallback payload
+   * @param payload Payload de stream a verificar
+   * @returns true quando o payload e do tipo fallback
    */
   private isFallbackPayload(
     payload: StreamPayload,

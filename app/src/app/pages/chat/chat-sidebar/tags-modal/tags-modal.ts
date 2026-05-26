@@ -78,16 +78,19 @@ export class TagsModalComponent {
   @Output() readonly closed = new EventEmitter<void>();
   @Output() readonly tagsUpdated = new EventEmitter<ContactTag[]>();
 
+  /** Fecha o modal emitindo o evento `closed`. */
   close(): void {
     this.closed.emit();
   }
 
+  /** Trata atalhos de teclado (Enter/Espaço) para criar etiqueta a partir do input. */
   onInputKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
     this.createTagFromInput();
   }
 
+  /** Vincula uma etiqueta existente ao contato atual. */
   addTag(tag: TagChip): void {
     if (!this.contactId || !tag.id) return;
     if (this.appliedTagsSignal().some((existing) => existing.id === tag.id)) return;
@@ -111,6 +114,7 @@ export class TagsModalComponent {
       });
   }
 
+  /** Remove a vinculação de uma etiqueta do contato atual. */
   removeTag(tag: ContactTag): void {
     if (!this.contactId) return;
 

@@ -1,10 +1,10 @@
 import { IsObject, IsOptional, IsString } from 'class-validator';
 
 /**
- * DTO for triggering a WhatsApp billing collection notification.
+ * DTO para disparar notificação de cobrança via WhatsApp.
  *
- * Used by the BillingCollectionController to send a payment reminder
- * to a customer via the configured WhatsApp provider.
+ * Utilizado pelo BillingCollectionController para enviar um lembrete de pagamento
+ * ao cliente pelo provedor WhatsApp configurado para o tenant.
  */
 export class BillingCollectionSendDto {
   @IsString()

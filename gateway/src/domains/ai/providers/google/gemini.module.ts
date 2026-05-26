@@ -1,7 +1,8 @@
 /**
- * Gemini Module
- *
  * Módulo NestJS que configura e exporta o provider Google Gemini.
+ *
+ * Contexto: registra `GeminiConfigService`, `GeminiTranslator`, `GeminiProviderAdapter`
+ * e `CircuitBreakerService` como providers, exportando o config e o adapter para uso no `AIModule`.
  */
 
 import { Module } from '@nestjs/common';

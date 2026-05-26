@@ -3,21 +3,22 @@ import { ToolStrategyRuntime } from './tool-strategy.types';
 import { ToolExecutionContext } from '../../interfaces/tool-execution-context.interface';
 
 /**
- * Produces a brief summary of the conversation content.
+ * Estratégia responsável por produzir um resumo conciso do conteúdo da conversa.
  *
- * @remarks
- * Currently performs a simple truncation to 500 characters rather than
- * invoking an AI model. A future version may call a dedicated summarization endpoint.
+ * Atualmente realiza uma simples truncagem para 500 caracteres em vez de invocar
+ * um modelo de AI. Uma versão futura poderá chamar um endpoint dedicado de sumarização.
  */
 export class SummarizeConversationToolStrategy implements ToolStrategy {
   readonly name = 'summarize_conversation';
 
   /**
-   * @param _name     - Unused; present to satisfy ToolStrategy contract
-   * @param args      - Must contain 'content' string to summarize
-   * @param context   - Unused
-   * @param runtime   - Unused
-   * @returns Object with success flag and truncated summary
+   * Trunca o conteúdo da conversa em até 500 caracteres como resumo.
+   *
+   * @param _name   - Não utilizado; presente para satisfazer o contrato `ToolStrategy`
+   * @param args    - Deve conter a string `content` a ser resumida
+   * @param context - Não utilizado
+   * @param runtime - Não utilizado
+   * @returns Objeto com flag de sucesso e resumo truncado
    */
   execute(
     _name: string,

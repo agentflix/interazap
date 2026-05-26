@@ -7,10 +7,10 @@ export * from './checkbox-group.model';
 
 
 /**
- * Checkbox group component for multi-select with array of values.
+ * Grupo de checkboxes para seleção múltipla com array de valores.
  *
- * @description Renders multiple checkboxes where each selection adds/removes
- * the value from the FormControl array.
+ * Renderiza múltiplos checkboxes onde cada seleção adiciona ou remove
+ * o valor do array mantido pelo FormControl.
  *
  * @example
  * ```html
@@ -29,31 +29,31 @@ export * from './checkbox-group.model';
   templateUrl: './checkbox-group.html',
 })
 export class AfCheckboxGroupComponent {
-  /** FormControl containing array of selected values */
+  /** FormControl que armazena o array de valores selecionados */
   readonly control = input.required<FormControl<string[]>>();
 
-  /** Checkbox options */
+  /** Opções de checkbox disponíveis */
   readonly options = input.required<readonly AfCheckboxOption[]>();
 
-  /** data-test prefix for each checkbox */
+  /** Prefixo data-test para cada checkbox */
   readonly dataTest = input<string>('checkbox-group');
 
-  /** Group label */
+  /** Rótulo do grupo */
   readonly label = input<string>();
 
-  /** Check if a value is selected */
+  /** Verifica se um valor está selecionado */
   protected isSelected(value: string): boolean {
     const selectedValues = this.control().value ?? [];
     return selectedValues.includes(value);
   }
 
-  /** Toggle a value in the array */
+  /** Alterna um valor no array ao clicar */
   protected toggle(value: string, event: Event): void {
     event.stopPropagation();
     this.setValue(value);
   }
 
-  /** Toggle via Space key — prevents page scroll */
+  /** Alterna via tecla Space — previne rolagem da página */
   protected toggleSpace(value: string): void {
     this.setValue(value);
   }
@@ -68,7 +68,7 @@ export class AfCheckboxGroupComponent {
     this.control().markAsTouched();
   }
 
-  /** Dynamic box classes based on checked state */
+  /** Classes dinâmicas do checkbox baseadas no estado marcado */
   protected boxClasses(value: string): string {
     const isChecked = this.isSelected(value);
     const base = [

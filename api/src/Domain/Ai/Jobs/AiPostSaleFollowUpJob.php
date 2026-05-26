@@ -20,10 +20,11 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Job to process post-sale follow-up messages.
+ * Job para processar mensagens de follow-up pós-venda.
  *
- * Runs daily to send D+1, D+7, D+30 follow-up messages to customers
- * who completed a purchase.
+ * Executado diariamente para enviar mensagens D+1, D+7 e D+30 a clientes
+ * que concluíram uma compra (negociação ganha). Respeita condições de skip
+ * (opt-out, resposta recente, ticket ativo) para evitar spam.
  */
 class AiPostSaleFollowUpJob implements ShouldBeUnique, ShouldQueue
 {
@@ -44,7 +45,7 @@ class AiPostSaleFollowUpJob implements ShouldBeUnique, ShouldQueue
     private const BATCH_SIZE = 100;
 
     /**
-     * Execute the job.
+     * Processa o lote de agendamentos pendentes e envia as mensagens via WhatsApp.
      */
     public function handle(WhatsAppAdapterInterface $whatsApp): void
     {

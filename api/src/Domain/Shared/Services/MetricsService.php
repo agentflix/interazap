@@ -16,7 +16,10 @@ use Prometheus\Storage\InMemory;
 use Throwable;
 
 /**
- * Service responsible for recording and rendering Prometheus metrics.
+ * Serviço responsável por registrar e renderizar métricas Prometheus.
+ *
+ * Combina métricas persistentes (contadores/histogramas HTTP via middleware) com
+ * snapshots de negócio (tickets, mensagens, negociações) coletados sob demanda.
  */
 class MetricsService
 {
@@ -42,7 +45,9 @@ class MetricsService
     }
 
     /**
-     * Render all metrics (persistent + snapshot) in Prometheus format.
+     * Renderiza todas as métricas (persistentes + snapshot) no formato Prometheus.
+     *
+     * @return string Texto no formato Prometheus text exposition.
      */
     public function collect(): string
     {
@@ -66,9 +71,11 @@ class MetricsService
     }
 
     /**
-     * Increment a dynamic counter metric.
+     * Incrementa um contador dinâmico de métricas.
      *
-     * @param  array<string, string>  $labels
+     * @param  string  $name  Nome do contador.
+     * @param  int  $value  Valor a incrementar (padrão: 1).
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function incrementCounter(string $name, int $value = 1, array $labels = []): void
     {
@@ -77,9 +84,11 @@ class MetricsService
     }
 
     /**
-     * Set a dynamic gauge metric.
+     * Define o valor de um gauge dinâmico de métricas.
      *
-     * @param  array<string, string>  $labels
+     * @param  string  $name  Nome do gauge.
+     * @param  float  $value  Valor a definir.
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function setGauge(string $name, float $value, array $labels = []): void
     {
@@ -88,9 +97,11 @@ class MetricsService
     }
 
     /**
-     * Observe a value for a dynamic histogram metric.
+     * Registra uma observação em um histograma dinâmico de métricas.
      *
-     * @param  array<string, string>  $labels
+     * @param  string  $name  Nome do histograma.
+     * @param  float  $value  Valor a observar.
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function observeHistogram(string $name, float $value, array $labels = []): void
     {
@@ -105,9 +116,10 @@ class MetricsService
     }
 
     /**
-     * Record webhook processing duration (Autopilot Phase 4).
+     * Registra a duração de processamento de webhook do Autopilot como histograma.
      *
-     * @param  array<string, string>  $labels
+     * @param  float  $durationSeconds  Duração em segundos.
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function recordAutopilotWebhookDuration(float $durationSeconds, array $labels = []): void
     {
@@ -122,9 +134,9 @@ class MetricsService
     }
 
     /**
-     * Increment guardrail block counter (Autopilot Phase 4).
+     * Incrementa o contador de bloqueios por guardrail do Autopilot.
      *
-     * @param  array<string, string>  $labels
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function recordAutopilotGuardrailBlock(array $labels = []): void
     {
@@ -138,9 +150,10 @@ class MetricsService
     }
 
     /**
-     * Set budget usage ratio gauge (Autopilot Phase 4).
+     * Define o gauge de utilização de orçamento do Autopilot (0.0 a 1.0).
      *
-     * @param  array<string, string>  $labels
+     * @param  float  $ratio  Taxa de utilização do orçamento.
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function setAutopilotBudgetUsageRatio(float $ratio, array $labels = []): void
     {
@@ -154,9 +167,10 @@ class MetricsService
     }
 
     /**
-     * Record run duration observed in autopilot execution lifecycle.
+     * Registra a duração de execução de um run do Autopilot como histograma.
      *
-     * @param  array<string, string>  $labels
+     * @param  float  $seconds  Duração em segundos.
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function recordAutopilotRunDuration(float $seconds, array $labels = []): void
     {
@@ -171,9 +185,10 @@ class MetricsService
     }
 
     /**
-     * Record tool iterations count observed in a run.
+     * Registra o número de iterações de ferramentas em um run do Autopilot.
      *
-     * @param  array<string, string>  $labels
+     * @param  int  $count  Quantidade de iterações de ferramentas no run.
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function recordAutopilotToolIterations(int $count, array $labels = []): void
     {
@@ -188,9 +203,10 @@ class MetricsService
     }
 
     /**
-     * Record time spent waiting for approval resolution.
+     * Registra o tempo de espera por resolução de aprovação no Autopilot.
      *
-     * @param  array<string, string>  $labels
+     * @param  float  $seconds  Tempo de espera em segundos.
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function recordAutopilotApprovalWaitTime(float $seconds, array $labels = []): void
     {
@@ -205,9 +221,10 @@ class MetricsService
     }
 
     /**
-     * Record lock contention events on message dispatch idempotency lock.
+     * Registra eventos de contenção de lock de idempotência no Autopilot.
      *
-     * @param  array<string, string>  $labels
+     * @param  int  $count  Número de eventos de contenção (padrão: 1).
+     * @param  array<string, string>  $labels  Labels para segmentação da métrica.
      */
     public function recordAutopilotLockContention(int $count = 1, array $labels = []): void
     {
@@ -220,6 +237,7 @@ class MetricsService
         $counter->incBy($count, array_values($labels));
     }
 
+    /** Registra informações estáticas da aplicação (versão, ambiente). */
     private function recordAppInfo(CollectorRegistry $registry): void
     {
         $gauge = $registry->getOrRegisterGauge(
@@ -235,6 +253,7 @@ class MetricsService
         ]);
     }
 
+    /** Registra métricas de fila (total, pendentes, falhos). */
     private function recordQueueMetrics(CollectorRegistry $registry): void
     {
         $metrics = $this->getQueueMetrics();
@@ -247,6 +266,7 @@ class MetricsService
             ->set($metrics['jobs_failed']);
     }
 
+    /** Registra métricas de banco de dados (conexões ativas via pg_stat_activity). */
     private function recordDatabaseMetrics(CollectorRegistry $registry): void
     {
         $metrics = $this->getDatabaseMetrics();
@@ -255,6 +275,7 @@ class MetricsService
             ->set($metrics['connections']);
     }
 
+    /** Registra métricas de Redis (status de conexão e uso de memória). */
     private function recordRedisMetrics(CollectorRegistry $registry): void
     {
         $metrics = $this->getRedisMetrics();
@@ -265,6 +286,7 @@ class MetricsService
             ->set($metrics['memory_used']);
     }
 
+    /** Registra métricas de sistema PHP (uso e pico de memória). */
     private function recordSystemMetrics(CollectorRegistry $registry): void
     {
         $registry->getOrRegisterGauge('interazap', 'php_memory_usage_bytes', 'PHP memory usage in bytes')
@@ -273,6 +295,7 @@ class MetricsService
             ->set((float) memory_get_peak_usage(true));
     }
 
+    /** Registra métricas de negócio (tickets por status, mensagens por direção, negociações). */
     private function recordBusinessMetrics(CollectorRegistry $registry): void
     {
         $metrics = $this->getBusinessMetrics();
@@ -304,7 +327,12 @@ class MetricsService
     }
 
     /**
-     * @param  array<int, string>  $labelNames
+     * Obtém ou registra um Counter no registry persistente.
+     *
+     * @param  string  $name  Nome da métrica.
+     * @param  string  $help  Descrição da métrica.
+     * @param  array<int, string>  $labelNames  Nomes dos labels.
+     * @return Counter Instância do counter.
      */
     private function counter(string $name, string $help, array $labelNames): Counter
     {
@@ -323,7 +351,12 @@ class MetricsService
     }
 
     /**
-     * @param  array<int, string>  $labelNames
+     * Obtém ou registra um Gauge no registry persistente.
+     *
+     * @param  string  $name  Nome da métrica.
+     * @param  string  $help  Descrição da métrica.
+     * @param  array<int, string>  $labelNames  Nomes dos labels.
+     * @return Gauge Instância do gauge.
      */
     private function gauge(string $name, string $help, array $labelNames): Gauge
     {
@@ -342,8 +375,13 @@ class MetricsService
     }
 
     /**
-     * @param  array<int, string>  $labelNames
-     * @param  array<int, float>  $buckets
+     * Obtém ou registra um Histogram no registry persistente.
+     *
+     * @param  string  $name  Nome da métrica.
+     * @param  string  $help  Descrição da métrica.
+     * @param  array<int, string>  $labelNames  Nomes dos labels.
+     * @param  array<int, float>  $buckets  Buckets do histograma em segundos.
+     * @return Histogram Instância do histograma.
      */
     private function histogram(string $name, string $help, array $labelNames, array $buckets): Histogram
     {
@@ -363,13 +401,23 @@ class MetricsService
     }
 
     /**
-     * @param  array<int, string>  $labelNames
+     * Gera uma chave única para cache de instâncias de métricas.
+     *
+     * @param  string  $name  Nome da métrica.
+     * @param  array<int, string>  $labelNames  Nomes dos labels.
+     * @return string Chave composta no formato 'nome:label1,label2'.
      */
     private function metricKey(string $name, array $labelNames): string
     {
         return $name.':'.implode(',', $labelNames);
     }
 
+    /**
+     * Garante que as métricas HTTP baseline (counter e histogram) existam no registry.
+     *
+     * Necessário para que o endpoint /metrics sempre exiba essas métricas,
+     * mesmo sem nenhuma requisição processada ainda.
+     */
     private function ensureHttpBaseline(): void
     {
         $this->counter('http_requests_total', 'Total HTTP requests', [])->incBy(0);

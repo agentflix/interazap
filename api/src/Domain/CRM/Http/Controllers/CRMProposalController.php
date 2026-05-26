@@ -15,12 +15,24 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controlador para propostas de negociações.
+ * Controller para propostas comerciais de negociações do CRM.
+ *
+ * Gerencia criação, listagem, atualização, envio, duplicação e aceitação/rejeição pública de propostas. Requer autenticação Sanctum.
  */
 final class CRMProposalController extends BaseController
 {
+    /**
+     * @param  CRMProposalActions  $actions  Ação de gestão de propostas.
+     */
     public function __construct(private readonly CRMProposalActions $actions) {}
 
+    /**
+     * Lista propostas de uma negociação.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $negotiationId  ID da negociação.
+     * @return JsonResponse Lista paginada de propostas.
+     */
     public function index(Request $request, string $negotiationId): JsonResponse
     {
         $this->authorize('viewAny', CRMProposal::class);
@@ -32,6 +44,13 @@ final class CRMProposalController extends BaseController
         return $this->paginated($paginator, 'Propostas listadas');
     }
 
+    /**
+     * Cria nova proposta para uma negociação.
+     *
+     * @param  CRMProposalRequest  $request  Dados da requisição com título, itens e validade.
+     * @param  string  $negotiationId  ID da negociação.
+     * @return JsonResponse Proposta criada.
+     */
     public function store(CRMProposalRequest $request, string $negotiationId): JsonResponse
     {
         $this->authorize('create', CRMProposal::class);
@@ -42,6 +61,13 @@ final class CRMProposalController extends BaseController
         return $this->created(new CRMProposalResource($proposal), 'Proposta criada');
     }
 
+    /**
+     * Obtém detalhes de uma proposta.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $id  ID da proposta.
+     * @return JsonResponse Dados da proposta.
+     */
     public function show(Request $request, string $id): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -51,6 +77,13 @@ final class CRMProposalController extends BaseController
         return $this->success(new CRMProposalResource($proposal), 'Proposta carregada');
     }
 
+    /**
+     * Atualiza proposta.
+     *
+     * @param  CRMProposalRequest  $request  Dados atualizados da proposta.
+     * @param  string  $id  ID da proposta.
+     * @return JsonResponse Proposta atualizada.
+     */
     public function update(CRMProposalRequest $request, string $id): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -67,6 +100,13 @@ final class CRMProposalController extends BaseController
         return $this->success(new CRMProposalResource($proposal), 'Proposta atualizada');
     }
 
+    /**
+     * Remove proposta.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $id  ID da proposta.
+     * @return JsonResponse Resposta sem conteúdo.
+     */
     public function destroy(Request $request, string $id): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -78,6 +118,13 @@ final class CRMProposalController extends BaseController
         return $this->noContent();
     }
 
+    /**
+     * Envia proposta ao cliente.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $id  ID da proposta.
+     * @return JsonResponse Proposta com status atualizado para enviada.
+     */
     public function send(Request $request, string $id): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -89,6 +136,13 @@ final class CRMProposalController extends BaseController
         return $this->success(new CRMProposalResource($proposal), 'Proposta enviada');
     }
 
+    /**
+     * Duplica proposta existente.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $id  ID da proposta a ser duplicada.
+     * @return JsonResponse Nova proposta criada como cópia.
+     */
     public function duplicate(Request $request, string $id): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -100,6 +154,12 @@ final class CRMProposalController extends BaseController
         return $this->created(new CRMProposalResource($proposal), 'Proposta duplicada');
     }
 
+    /**
+     * Exibe proposta publicamente via token (sem autenticação).
+     *
+     * @param  string  $token  Token público da proposta.
+     * @return JsonResponse Dados da proposta e marca como visualizada.
+     */
     public function publicView(string $token): JsonResponse
     {
         $proposal = $this->actions->findByToken($token);
@@ -108,6 +168,13 @@ final class CRMProposalController extends BaseController
         return $this->success(new CRMProposalResource($proposal), 'Proposta carregada');
     }
 
+    /**
+     * Aceita proposta publicamente via token (sem autenticação).
+     *
+     * @param  CRMProposalPublicRequest  $request  Dados da requisição pública.
+     * @param  string  $token  Token público da proposta.
+     * @return JsonResponse Proposta com status aceito.
+     */
     public function publicAccept(CRMProposalPublicRequest $request, string $token): JsonResponse
     {
         $proposal = $this->actions->findByToken($token);
@@ -137,6 +204,13 @@ final class CRMProposalController extends BaseController
         return $this->success(new CRMProposalResource($proposal), 'Proposta aceita');
     }
 
+    /**
+     * Rejeita proposta publicamente via token (sem autenticação).
+     *
+     * @param  CRMProposalPublicRequest  $request  Dados da requisição pública.
+     * @param  string  $token  Token público da proposta.
+     * @return JsonResponse Proposta com status rejeitado.
+     */
     public function publicReject(CRMProposalPublicRequest $request, string $token): JsonResponse
     {
         $proposal = $this->actions->findByToken($token);

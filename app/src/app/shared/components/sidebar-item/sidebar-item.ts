@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfSidebarItemComponent — Single navigation item for sidebars.
+ * Item de navegação para sidebars.
  *
  * @example
  * ```html
@@ -18,21 +18,21 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './sidebar-item.html',
 })
 export class AfSidebarItemComponent {
-  /** Lucide icon name */
+  /** Nome do ícone Lucide */
   readonly icon = input<string>();
 
-  /** Item label */
+  /** Rótulo do item */
   readonly label = input('');
 
-  /** Navigation href */
+  /** Link de navegação */
   readonly href = input('#');
 
-  /** Whether this item is active */
+  /** Indica se este item está ativo */
   readonly active = input(false);
 
-  /** Whether sidebar is collapsed (icon-only mode) */
+  /** Indica se a sidebar está recolhida (modo somente ícone) */
   readonly collapsed = input(false);
 
-  /** Optional badge count */
+  /** Contagem opcional do badge */
   readonly badge = input<number | string>();
 }

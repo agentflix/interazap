@@ -7,7 +7,7 @@ export * from './tree-view.model';
 
 
 /**
- * AfTreeViewComponent — Recursive tree view with expand/collapse.
+ * Visualização em árvore recursiva com expansão/recolhimento.
  *
  * @example
  * ```html
@@ -22,13 +22,13 @@ export * from './tree-view.model';
   templateUrl: './tree-view.html',
 })
 export class AfTreeViewComponent {
-  /** Tree nodes */
+  /** Nós da árvore */
   readonly nodes = input<AfTreeNode[]>([]);
 
-  /** Nesting level (internal) */
+  /** Nível de aninhamento (interno) */
   readonly level = input(0);
 
-  /** Emitted when a leaf node is selected */
+  /** Emitido quando um nó folha é selecionado */
   readonly nodeSelected = output<string>();
 
   private readonly expandedIds = signal(new Set<string>());

@@ -186,6 +186,7 @@ final class BillingInvoiceController extends BaseController
         ], 'Dados do PIX');
     }
 
+    /** Verifica se o usuário tem permissão administrativa sobre faturas (super-admin ou token/permissão manage). */
     private function userCanManageInvoices(?AuthUser $user): bool
     {
         if ($user === null) {
@@ -207,6 +208,7 @@ final class BillingInvoiceController extends BaseController
         return $this->tokenAllowsInvoiceManagement($user);
     }
 
+    /** Verifica se o token Sanctum atual autoriza gerenciamento de faturas. */
     private function tokenAllowsInvoiceManagement(AuthUser $user): bool
     {
         $token = $user->currentAccessToken();

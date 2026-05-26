@@ -25,8 +25,11 @@ import {
 } from '@ai/models/ai.model';
 
 /**
- * Dashboard showing AI usage metrics and costs.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Dashboard de métricas de uso e custos da IA.
+ *
+ * Contexto: carrega em paralelo via forkJoin: resumo do período, breakdown diário (30 dias),
+ * top agentes por custo, status do budget de tokens e métricas de voz. Exibe gráfico de
+ * barras normalizado para 100px de altura máxima.
  */
 @Component({
   selector: 'app-ai-usage-dashboard',
@@ -86,7 +89,7 @@ export class UsageDashboardComponent implements OnInit {
   }
 
   /**
-   * Load all dashboard data.
+   * Carrega todos os dados do dashboard em paralelo via forkJoin.
    */
   private loadData(): void {
     this.isLoading.set(true);
@@ -114,15 +117,15 @@ export class UsageDashboardComponent implements OnInit {
     });
   }
 
-  /**
-   * Retry loading data.
-   */
+  /** Tenta recarregar todos os dados do dashboard após erro. */
   retry(): void {
     this.loadData();
   }
 
   /**
-   * Format large numbers.
+   * Formata números grandes com sufixos K e M.
+   * @param num Número a formatar
+   * @returns String formatada (ex.: "1.2K", "3.5M")
    */
   formatNumber(num: number): string {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -131,7 +134,9 @@ export class UsageDashboardComponent implements OnInit {
   }
 
   /**
-   * Format currency values as BRL.
+   * Formata valores monetários em BRL.
+   * @param value Valor numérico
+   * @returns String formatada em Real (ex.: "R$ 1,23")
    */
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {

@@ -53,7 +53,11 @@ type WorkspaceTabKey =
   | 'voice';
 
 /**
- * Agent Configuration Workspace — sidebar layout for full agent management.
+ * Workspace de configuração do Agente — layout com sidebar para gerenciamento completo.
+ *
+ * Contexto: gerencia o agente via abas (Geral, Arquivos, Ferramentas, Skills, Canais,
+ * Triggers, Voz). O botão "Salvar" global agrega dados de todas as abas ativas e os
+ * persiste concorrentemente via Promise.all.
  */
 @Component({
   selector: 'app-agent-workspace',
@@ -147,7 +151,9 @@ export class AgentWorkspaceComponent implements OnInit {
   }
 
   /**
-   * Global save: gathers form data from all active tabs and saves concurrently.
+   * Salva global: coleta dados de todas as abas ativas e persiste concorrentemente.
+   * Valida formulários antes de iniciar o salvamento. Em caso de erro em qualquer aba,
+   * exibe toast de erro e interrompe o processo.
    */
   async saveAll(): Promise<void> {
     const id = this.agentId();
@@ -225,7 +231,7 @@ export class AgentWorkspaceComponent implements OnInit {
   }
 
   /**
-   * Navigate to simulator with this agent pre-selected.
+   * Navega para o simulador com este agente pré-selecionado.
    */
   openSimulator(): void {
     void this.router.navigate(['/ai/simulator'], {
@@ -234,7 +240,7 @@ export class AgentWorkspaceComponent implements OnInit {
   }
 
   /**
-   * Navigate back to agent list.
+   * Navega de volta para a lista de agentes.
    */
   goBack(): void {
     void this.router.navigate(['/ai/agents']);

@@ -4,7 +4,7 @@ import type { ContactFilterState, ContactStatusFilter } from '@crm/models/contac
 export type { ContactFilterState, ContactStatusFilter } from '@crm/models/contact-filter.model';
 
 /**
- * Maps UI status filter value to API is_active value.
+ * Mapeia o valor de filtro de status da UI para o valor is_active da API.
  */
 export function mapStatusToIsActive(status: ContactStatusFilter): boolean | undefined {
   if (status === 'active') {
@@ -19,7 +19,9 @@ export function mapStatusToIsActive(status: ContactStatusFilter): boolean | unde
 }
 
 /**
- * Builds contact list filters keeping API contract intact.
+ * Valida se o contato possui pelo menos um canal de comunicação.
+ * @param contact Dados do contato
+ * @returns True se possui email ou telefone
  */
 export function buildContactFilters(state: ContactFilterState): ContactFilters {
   return {
@@ -33,7 +35,7 @@ export function buildContactFilters(state: ContactFilterState): ContactFilters {
 }
 
 /**
- * Computes selected IDs when toggling a single row checkbox.
+ * Calcula os IDs selecionados ao alternar o checkbox de uma linha.
  */
 export function computeNextSelectedIds(
   currentIds: string[],
@@ -52,14 +54,14 @@ export function computeNextSelectedIds(
 }
 
 /**
- * Returns selected IDs for current page based on select-all state.
+ * Retorna os IDs selecionados para a página atual com base no estado de seleção em massa.
  */
 export function computePageSelectionIds(contacts: Contact[], checked: boolean): string[] {
   return checked ? contacts.map((contact) => String(contact.id)) : [];
 }
 
 /**
- * Removes stale selected IDs that are not part of current page.
+ * Remove IDs selecionados que não fazem parte da página atual.
  */
 export function pruneSelectionToVisibleContacts(
   contacts: Contact[],
@@ -70,7 +72,7 @@ export function pruneSelectionToVisibleContacts(
 }
 
 /**
- * Returns true when all current page rows are selected.
+ * Retorna true quando todas as linhas da página atual estão selecionadas.
  */
 export function areAllPageContactsSelected(contacts: Contact[], selectedIds: string[]): boolean {
   if (contacts.length === 0) {
@@ -82,7 +84,7 @@ export function areAllPageContactsSelected(contacts: Contact[], selectedIds: str
 }
 
 /**
- * Builds delete confirmation message for single or bulk delete.
+ * Constrói mensagem de confirmação para exclusão única ou em massa.
  */
 export function buildDeleteConfirmationMessage(
   contact: Contact | null,

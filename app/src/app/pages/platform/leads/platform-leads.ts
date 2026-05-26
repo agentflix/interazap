@@ -30,6 +30,9 @@ import {
 import { LeadConvertModalComponent } from './components/lead-convert-modal/lead-convert-modal';
 import { LeadExportButtonComponent } from './components/lead-export-button/lead-export-button';
 
+/**
+ * Página de leads da plataforma — listagem, filtros, detalhes e conversão de leads em tenants.
+ */
 @Component({
   selector: 'app-platform-leads',
   standalone: true,

@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
- * Message composer component for the Chat module.
- * @selector app-message-composer
+ * Componente compositor de mensagens do módulo de Chat.
+ *
+ * Stub reservado para implementação futura do compositor de texto,
+ * mídia e outros tipos de mensagem.
  */
 @Component({
   selector: 'app-message-composer',

@@ -1,9 +1,9 @@
 /**
- * WebChat domain models for the public-facing chat widget.
- * These types are used across the webchat pages and services.
+ * Modelos de domínio do webchat para o widget de chat público.
+ * Estes tipos são utilizados nas páginas e serviços de webchat.
  */
 
-/** Result of creating a new webchat session */
+/** Resultado da criação de uma nova sessão de webchat. */
 export interface WebChatSessionResponse {
   token: string;
   sessionId: string;
@@ -14,20 +14,20 @@ export interface WebChatSessionResponse {
   protocol?: string;
 }
 
-/** Public ticket status for webchat lifecycle */
+/** Status público do ticket no ciclo de vida do webchat. */
 export type WebChatTicketStatus = 'open' | 'closed';
 
-/** Response data returned by POST /api/webchat/close */
+/** Dados retornados por POST /api/webchat/close. */
 export interface WebChatCloseResponse {
   ticketId: string;
   status: WebChatTicketStatus;
   closedAt?: string | null;
 }
 
-/** Supported message types for webchat requests */
+/** Tipos de mensagem suportados nas requisições do webchat. */
 export type WebChatMessageType = 'text' | 'image' | 'video' | 'audio' | 'document';
 
-/** Incoming message from the visitor */
+/** Corpo da requisição de envio de mensagem pelo visitante. */
 export interface WebChatMessageRequest {
   token: string;
   content?: string;
@@ -37,7 +37,7 @@ export interface WebChatMessageRequest {
   type?: WebChatMessageType;
 }
 
-/** Response after uploading a media file */
+/** Resposta após upload de arquivo de mídia. */
 export interface WebChatMediaUploadResponse {
   url: string;
   file_name: string;
@@ -45,12 +45,12 @@ export interface WebChatMediaUploadResponse {
   size: number;
 }
 
-/** Response after sending a message */
+/** Resposta após envio de mensagem com sucesso. */
 export interface WebChatMessageResponse {
   messageId: string;
 }
 
-/** A single message in the webchat conversation */
+/** Representa uma única mensagem na conversa do webchat. */
 export interface WebChatMessage {
   id: string;
   content: string;
@@ -65,30 +65,30 @@ export interface WebChatMessage {
   fileName?: string;
 }
 
-/** Data collected during pre-chat form */
+/** Dados coletados no formulário de pré-chat. */
 export interface PreChatData {
   name: string;
   whatsapp: string;
 }
 
-/** WebSocket events from the Gateway */
+/** Eventos WebSocket emitidos pelo Gateway para o widget. */
 export interface WebChatSocketEvents {
-  /** Server confirms the visitor joined the session room */
+  /** Servidor confirma que o visitante entrou na sala da sessão. */
   webchatJoined: { sessionId: string };
-  /** Server acknowledges a sent message */
+  /** Servidor confirma o recebimento de uma mensagem enviada. */
   webchatSent: { messageId: string; tempId?: string };
-  /** AI or agent response received */
+  /** Resposta da IA ou do atendente recebida. */
   webchatAiResponse: WebChatMessage;
-  /** Typing indicator */
+  /** Indicador de digitação. */
   webchatTyping: { isTyping: boolean; source?: 'ai' | 'agent' };
-  /** Error event */
+  /** Evento de erro. */
   webchatError: { code: string; message: string };
 }
 
-/** Connection state of the WebSocket */
+/** Estado da conexão WebSocket do webchat. */
 export type WebChatConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
 
-/** Form validity state for pre-chat */
+/** Estado de validade do formulário de pré-chat. */
 export interface PreChatFormState {
   name: string;
   whatsapp: string;
@@ -99,12 +99,12 @@ export interface PreChatFormState {
   };
 }
 
-/** Public tenant information for the webchat widget */
+/** Informações públicas do tenant exibidas no widget de webchat. */
 export interface WebChatTenantInfo {
   name: string;
 }
 
-/** Detail of an active webchat session */
+/** Detalhes de uma sessão de webchat ativa. */
 export interface WebChatSessionDetail {
   id: string;
   ticket: { id: string; status: string; protocol?: string } | null;

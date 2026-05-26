@@ -4,12 +4,12 @@ import { LucideAngularModule } from 'lucide-angular';
 import { AfScrollAreaComponent } from '../scroll-area/scroll-area';
 
 /**
- * AfSheetComponent — Bottom sheet overlay for mobile-friendly actions.
+ * Sheet (painel inferior) para ações mobile-friendly.
  *
  * @example
  * ```html
  * <af-sheet [open]="sheetOpen()" title="Opções" (closed)="sheetOpen.set(false)">
- *   <p>Content here</p>
+ *   <p>Conteúdo aqui</p>
  * </af-sheet>
  * ```
  */
@@ -21,12 +21,12 @@ import { AfScrollAreaComponent } from '../scroll-area/scroll-area';
   templateUrl: './sheet.html',
 })
 export class AfSheetComponent {
-  /** Whether the sheet is open */
+  /** Indica se o sheet está aberto */
   readonly open = input(false);
 
-  /** Sheet title */
+  /** Título do sheet */
   readonly title = input('');
 
-  /** Close event */
+  /** Evento de fechamento */
   readonly closed = output<void>();
 }

@@ -17,6 +17,13 @@ use Domain\Shared\Scopes\TenantScope;
  */
 final readonly class UpdateBillingWebhookEventStreamIdAction
 {
+    /**
+     * Atualiza o stream_id de um evento de webhook pelo seu ID.
+     *
+     * @param  string  $eventId  UUID do evento a atualizar
+     * @param  string  $streamId  Identificador do stream Redis associado
+     * @return bool Verdadeiro se o registro foi encontrado e atualizado
+     */
     public function execute(string $eventId, string $streamId): bool
     {
         $updated = BillingWebhookEvent::query()

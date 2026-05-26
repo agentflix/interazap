@@ -7,7 +7,7 @@ export * from './stepper.model';
 
 
 /**
- * AfStepperComponent — Multi-step progress indicator (wizard).
+ * Indicador de progresso multi-etapas (wizard).
  *
  * @example
  * ```html
@@ -22,9 +22,9 @@ export * from './stepper.model';
   templateUrl: './stepper.html',
 })
 export class AfStepperComponent {
-  /** Step definitions */
+  /** Definições das etapas */
   readonly steps = input<AfStepItem[]>([]);
 
-  /** Zero-based current step index */
+  /** Índice da etapa atual (base zero) */
   readonly currentStep = input(0);
 }

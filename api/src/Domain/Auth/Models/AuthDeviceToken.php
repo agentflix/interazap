@@ -47,6 +47,7 @@ final class AuthDeviceToken extends Model
         ];
     }
 
+    /** Retorna o usuário dono do token de dispositivo. */
     public function user(): BelongsTo
     {
         return $this->belongsTo(AuthUser::class, 'user_id');

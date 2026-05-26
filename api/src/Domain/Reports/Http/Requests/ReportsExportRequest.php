@@ -12,7 +12,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class ReportsExportRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Verifica se o usuário está autenticado com tenant para exportação.
      */
     public function authorize(): bool
     {

@@ -12,6 +12,13 @@ use Domain\Ai\Models\AiPromptMaster;
  */
 final class UpdateMasterPromptAction
 {
+    /**
+     * Atualiza um Master Prompt, incrementando a versão quando o conteúdo mudar.
+     *
+     * @param  AiPromptMaster  $master  Prompt a atualizar.
+     * @param  MasterPromptDTO  $dto  Novos dados do prompt.
+     * @return AiPromptMaster Prompt atualizado.
+     */
     public function execute(AiPromptMaster $master, MasterPromptDTO $dto): AiPromptMaster
     {
         $data = $dto->toArray();

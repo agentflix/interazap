@@ -8,13 +8,13 @@ const RETRY_DELAY_MS = 5_000;
 const ALLOWED_UPDATES = ['message', 'edited_message', 'message_reaction'];
 
 /**
- * Long-polling strategy for receiving Telegram updates.
+ * Estratégia de long-polling para receber atualizações do Telegram.
  *
- * Intended for development environments or as a production fallback
- * when the webhook cannot be reached. Uses Telegram's long-polling
- * endpoint with a 55 s keep-alive timeout (< 60 s limit).
+ * Contexto: módulo bot. Destinada a ambientes de desenvolvimento ou como
+ * fallback de produção quando o webhook não estiver acessível. Usa o endpoint
+ * de long-polling do Telegram com timeout de 55s (abaixo do limite de 60s).
  *
- * Emits `telegram.update` events for each individual update received.
+ * Emite eventos `telegram.update` para cada atualização recebida.
  */
 @Injectable()
 export class LongPollingStrategy implements PollingStrategy {
@@ -24,7 +24,7 @@ export class LongPollingStrategy implements PollingStrategy {
   private abortController: AbortController | null = null;
   private offset = 0;
 
-  /** Node EventEmitter used to broadcast received updates. */
+  /** EventEmitter Node.js utilizado para propagar as atualizações recebidas. */
   readonly events = new EventEmitter();
 
   private readonly logger = new Logger(LongPollingStrategy.name);
@@ -33,6 +33,12 @@ export class LongPollingStrategy implements PollingStrategy {
 
   // ─── Public API ────────────────────────────────────────────
 
+  /**
+   * Inicia o loop de long-polling para o bot informado.
+   * Remove o webhook existente antes de iniciar o polling.
+   * @param botToken Token da Telegram Bot API
+   * @param webhookToken Token único do bot no URL de webhook (não usado no polling)
+   */
   async start(botToken: string, webhookToken: string): Promise<void> {
     if (this.isRunning) {
       this.logger.warn(
@@ -59,6 +65,9 @@ export class LongPollingStrategy implements PollingStrategy {
     });
   }
 
+  /**
+   * Interrompe o loop de long-polling graciosamente, abortando a requisição em curso.
+   */
   async stop(): Promise<void> {
     if (!this.isRunning) {
       return;
@@ -73,12 +82,19 @@ export class LongPollingStrategy implements PollingStrategy {
     }
   }
 
+  /** Retorna true se o loop de polling estiver em execução. */
   isActive(): boolean {
     return this.isRunning;
   }
 
   // ─── Private ───────────────────────────────────────────────
 
+  /**
+   * Loop principal de polling que chama getUpdates repetidamente.
+   * Avança o offset para evitar reprocessamento e emite eventos para cada atualização.
+   * @param botToken Token da Telegram Bot API
+   * @param _webhookToken Não utilizado no polling (mantido para compatibilidade da interface)
+   */
   private async pollLoop(
     botToken: string,
     _webhookToken: string,
@@ -134,6 +150,10 @@ export class LongPollingStrategy implements PollingStrategy {
     this.logger.log('Long-polling loop exited');
   }
 
+  /**
+   * Aguarda o tempo especificado em milissegundos.
+   * @param ms Tempo de espera em milissegundos
+   */
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

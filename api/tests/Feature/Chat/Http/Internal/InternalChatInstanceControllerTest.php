@@ -17,10 +17,10 @@ beforeEach(function (): void {
 
 it('GET /by-webhook-token retorna 200 com instância encontrada por webhook_token', function (): void {
     $instance = ChatInstance::factory()->create([
-        'tenant_id'     => (string) $this->tenant->id,
+        'tenant_id' => (string) $this->tenant->id,
         'webhook_token' => 'wh-token-abc',
-        'provider'      => 'uazapi',
-        'status'        => 'connected',
+        'provider' => 'uazapi',
+        'status' => 'connected',
     ]);
 
     $this->withHeaders(['Authorization' => 'Bearer gw-secret'])
@@ -35,7 +35,7 @@ it('GET /by-webhook-token retorna 200 com instância encontrada por webhook_toke
 
 it('GET /by-webhook-token faz fallback por settings_json token', function (): void {
     $instance = ChatInstance::factory()->create([
-        'tenant_id'     => (string) $this->tenant->id,
+        'tenant_id' => (string) $this->tenant->id,
         'webhook_token' => 'outro-token',
         'settings_json' => ['token' => 'settings-tok-xyz'],
     ]);
@@ -95,12 +95,12 @@ it('GET /instances/{id} retorna 401 sem Authorization', function (): void {
 it('PATCH /connection-status atualiza status e last_status_at', function (): void {
     $instance = ChatInstance::factory()->create([
         'tenant_id' => (string) $this->tenant->id,
-        'status'    => 'disconnected',
+        'status' => 'disconnected',
     ]);
 
     $this->withHeaders(['Authorization' => 'Bearer gw-secret'])
         ->patchJson("/api/internal/chat/instances/{$instance->id}/connection-status", [
-            'status'       => 'connected',
+            'status' => 'connected',
             'connected_at' => '2026-05-24T10:00:00Z',
         ])
         ->assertOk()

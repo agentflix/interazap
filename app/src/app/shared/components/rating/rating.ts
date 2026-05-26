@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, output, signal, computed } f
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfRatingComponent — Star rating input/display.
+ * Campo ou exibição de avaliação por estrelas.
  *
  * @example
  * ```html
@@ -17,19 +17,19 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './rating.html',
 })
 export class AfRatingComponent {
-  /** Current rating value */
+  /** Valor atual da avaliação */
   readonly value = input(0);
 
-  /** Max number of stars */
+  /** Número máximo de estrelas */
   readonly max = input(5);
 
-  /** Display size */
+  /** Tamanho de exibição */
   readonly size = input<'sm' | 'md' | 'lg'>('md');
 
-  /** Read-only mode (display only) */
+  /** Modo somente leitura (apenas exibição) */
   readonly readonly = input(false);
 
-  /** Emitted when rating changes */
+  /** Emitido quando a avaliação muda */
   readonly valueChange = output<number>();
 
   protected readonly hovered = signal(0);

@@ -15,8 +15,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Job that reconciles failed AI message usage log entries by re-running
- * the check-and-increment counter. Marks successfully reconciled logs.
+ * Job que reconcilia entradas com falha de contagem de mensagens IA.
+ *
+ * Reexecuta o check-and-increment para registros em AiMessageUsageFailedLog
+ * que não foram processados. Marcará como reconciliado ao ter sucesso.
  */
 final class ReconcileFailedUsageJob implements ShouldQueue
 {
@@ -25,6 +27,9 @@ final class ReconcileFailedUsageJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    /**
+     * Reprocessa em lotes os registros de falha de uso das últimas 24 horas.
+     */
     public function handle(UsageCounterService $counter): void
     {
         AiMessageUsageFailedLog::query()

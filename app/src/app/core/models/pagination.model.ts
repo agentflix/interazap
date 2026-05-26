@@ -1,23 +1,28 @@
 /**
- * Extended pagination metadata with optional range indicators.
+ * Metadados de paginação com indicadores opcionais de intervalo.
+ *
+ * Contexto: retornado na maioria dos endpoints de listagem da API.
  */
 export interface PaginationMeta {
-  /** Current page number (1-based) */
+  /** Número da página atual (baseado em 1). */
   current_page: number;
-  /** Item number at the start of the current page (optional) */
+  /** Índice do primeiro item da página atual (opcional). */
   from?: number;
-  /** Last available page number */
+  /** Número da última página disponível. */
   last_page: number;
-  /** Number of items per page */
+  /** Quantidade de itens por página. */
   per_page: number;
-  /** Item number at the end of the current page (optional) */
+  /** Índice do último item da página atual (opcional). */
   to?: number;
-  /** Total number of items across all pages */
+  /** Total de itens em todas as páginas. */
   total: number;
 }
 
 /**
- * Standard paginated API response with optional success flag.
+ * Resposta paginada padrão da API com indicador opcional de sucesso.
+ *
+ * Contexto: tipo genérico usado como base para respostas de listagem
+ * em todo o frontend. Extenda com `extends PaginatedResponse<T>` nos models.
  *
  * @example
  * ```typescript
@@ -29,10 +34,10 @@ export interface PaginationMeta {
  * ```
  */
 export interface PaginatedResponse<T> {
-  /** Indicates whether the request was successful */
+  /** Indica se a requisição foi bem-sucedida. */
   success?: boolean;
-  /** Array of items for the current page */
+  /** Array de itens da página atual. */
   data: T[];
-  /** Pagination metadata */
+  /** Metadados de paginação. */
   meta: PaginationMeta;
 }

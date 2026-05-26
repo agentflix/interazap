@@ -17,7 +17,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class WebChatMediaStoreRequest extends FormRequest
 {
     /**
-     * JWT validado no controller — authorize retorna true.
+     * Autorização via JWT validado no controller — retorna sempre true aqui.
      */
     public function authorize(): bool
     {
@@ -25,6 +25,8 @@ final class WebChatMediaStoreRequest extends FormRequest
     }
 
     /**
+     * Define as regras de validação que se aplicam à requisição.
+     *
      * @return array<string, list<string>>
      */
     public function rules(): array
@@ -41,6 +43,8 @@ final class WebChatMediaStoreRequest extends FormRequest
     }
 
     /**
+     * Mensagens de erro personalizadas.
+     *
      * @return array<string, string>
      */
     public function messages(): array

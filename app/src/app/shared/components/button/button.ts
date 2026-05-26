@@ -1,13 +1,16 @@
 import { Component, ChangeDetectionStrategy, input, computed, output } from '@angular/core';
 
 /**
- * Primary button component for InteraZap UI Kit.
+ * Botão principal do UI Kit do InteraZap com suporte a variantes, tamanhos e estados.
+ *
+ * Contexto: componente base de ação em formulários, modais e barras de ferramentas
+ * em todo o sistema.
  *
  * @example
  * ```html
- * <af-button variant="primary" size="md">Save</af-button>
- * <af-button variant="ghost" size="sm">Cancel</af-button>
- * <af-button variant="danger" [disabled]="true">Delete</af-button>
+ * <af-button variant="primary" size="md">Salvar</af-button>
+ * <af-button variant="ghost" size="sm">Cancelar</af-button>
+ * <af-button variant="danger" [disabled]="true">Excluir</af-button>
  * ```
  */
 @Component({
@@ -21,36 +24,36 @@ import { Component, ChangeDetectionStrategy, input, computed, output } from '@an
   templateUrl: './button.html',
 })
 export class AfButtonComponent {
-  /** Visual style variant */
+  /** Variante visual do botão */
   readonly variant = input<
     'primary' | 'secondary' | 'ghost' | 'danger' | 'outline' | 'success' | 'default'
   >('primary');
 
-  /** Button size */
+  /** Tamanho do botão */
   readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('sm');
 
-  /** Whether button is disabled */
+  /** Desabilita o botão */
   readonly disabled = input(false);
 
-  /** HTML button type attribute */
+  /** Atributo type do elemento button HTML */
   readonly type = input<'button' | 'submit' | 'reset'>('button');
 
-  /** Full width button */
+  /** Ocupa toda a largura disponível */
   readonly block = input(false);
 
-  /** Legacy full-width alias. */
+  /** Alias legado para largura total */
   readonly fullWidth = input(false);
 
-  /** Legacy icon input for compatibility with older templates. */
+  /** Ícone legado para compatibilidade com templates antigos */
   readonly icon = input<string>();
 
-  /** data-test attribute */
+  /** Atributo data-test para testes E2E */
   readonly dataTest = input<string>();
 
-  /** Accessible label for screen readers */
+  /** Rótulo acessível para leitores de tela */
   readonly ariaLabel = input<string>('');
 
-  /** Legacy output alias for click */
+  /** Alias legado de saída para clique */
   readonly clicked = output<MouseEvent>();
 
   protected readonly hostClasses = computed(() => 'inline-flex');

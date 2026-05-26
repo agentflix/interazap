@@ -3,8 +3,8 @@ import { PreferencesComponent } from './preferences';
 import { unsavedChangesGuard } from '../../../core/guards/unsaved-changes.guard';
 
 /**
- * Route configuration for the user preferences page.
- * The `canDeactivate` guard prompts before leaving with unsaved changes.
+ * Configuração de rota para a página de preferências do usuário.
+ * O guard `canDeactivate` exibe confirmação ao sair com alterações não salvas.
  */
 export default {
   path: '',

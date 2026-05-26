@@ -55,7 +55,7 @@ import {
 import { ProposalListComponent } from '../proposals/proposal-list/proposal-list';
 
 /**
- * Parent page for negotiation details orchestrating feature components.
+ * Página de detalhes da negociação — orquestra os componentes de abas e painéis de informação.
  */
 @Component({
   selector: 'app-negotiation-show',

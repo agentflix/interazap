@@ -9,6 +9,12 @@ import { GatewayConfigService } from '../../../shared/services/gateway-config.se
 import { AiCancellationRegistry } from '../ai-cancellation.registry';
 import { toRecord } from '../../../shared/utils/payload-reader.util';
 
+/**
+ * Listener responsável por inscrever-se no canal Redis Pub/Sub de cancelamento de runs.
+ *
+ * Contexto: consome eventos publicados no canal configurado em `GatewayConfigService.aiRunCancelChannel`
+ * e delega a persistência da flag de cancelamento ao `AiCancellationRegistry`.
+ */
 @Injectable()
 export class AiRunCancelListener implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(AiRunCancelListener.name);
@@ -57,12 +63,20 @@ export class AiRunCancelListener implements OnModuleInit, OnModuleDestroy {
     private readonly registry: AiCancellationRegistry,
   ) {}
 
+  /**
+   * Inscreve o listener no canal Redis Pub/Sub quando o módulo é inicializado.
+   * @returns Promise resolvida após a subscrição ser confirmada pelo Redis.
+   */
   async onModuleInit(): Promise<void> {
     const client = this.redisService.getPubSubClient();
     await client.subscribe(this.gatewayConfigService.aiRunCancelChannel);
     client.on('message', this.messageHandler);
   }
 
+  /**
+   * Remove o handler e cancela a subscrição no Redis quando o módulo é destruído.
+   * @returns Promise resolvida após a desinscrição ser confirmada pelo Redis.
+   */
   async onModuleDestroy(): Promise<void> {
     const client = this.redisService.getPubSubClient();
     client.off('message', this.messageHandler);

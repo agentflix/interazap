@@ -1,6 +1,6 @@
 /**
- * Models and types for currency-input component.
+ * Modelos e tipos do componente de campo monetário.
  */
 
-/** Available sizes for the input */
+/** Tamanhos disponíveis para o campo */
 export type AfInputSize = 'sm' | 'md';

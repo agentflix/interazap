@@ -23,6 +23,11 @@ import { type SubscriptionPlan } from '@shared/models/subscription.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './billing-prefs-modal.html',
 })
+/**
+ * Modal para configuração das preferências de cobrança do tenant,
+ * permitindo escolher entre os modos "stop" (interromper ao atingir cota) e
+ * "overage" (cobrar excedente automaticamente).
+ */
 export class BillingPrefsModalComponent {
   private readonly service = inject(BillingPrefsService);
   private readonly destroyRef = inject(DestroyRef);
@@ -49,6 +54,11 @@ export class BillingPrefsModalComponent {
     });
   }
 
+  /**
+   * Formata um valor numérico como moeda BRL (R$).
+   * @param value Valor a formatar
+   * @returns String formatada em reais ou string vazia para valores nulos
+   */
   protected formatCurrencyBRL(value: number | null | undefined): string {
     if (value === null || value === undefined) return '';
     return new Intl.NumberFormat('pt-BR', {
@@ -59,6 +69,7 @@ export class BillingPrefsModalComponent {
     }).format(value);
   }
 
+  /** Persiste o modo de overage selecionado via API e emite os eventos de retorno. */
   protected save(): void {
     this.loading.set(true);
     this.errorMessage.set(null);

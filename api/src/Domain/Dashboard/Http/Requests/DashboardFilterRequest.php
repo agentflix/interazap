@@ -21,6 +21,8 @@ final class DashboardFilterRequest extends FormRequest
     }
 
     /**
+     * Regras de validação: period em dias ou date_from/date_to explícitos.
+     *
      * @return array<string, array<int, string>>
      */
     public function rules(): array

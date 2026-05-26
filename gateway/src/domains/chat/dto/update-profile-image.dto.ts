@@ -1,8 +1,8 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
 /**
- * Payload for updating the profile picture of a Uazapi instance.
- * The image field accepts a URL or base64-encoded string.
+ * Payload para atualizar a foto de perfil de uma instancia Uazapi.
+ * O campo image aceita URL ou string codificada em base64.
  */
 export class UpdateProfileImageDto {
   @IsString()

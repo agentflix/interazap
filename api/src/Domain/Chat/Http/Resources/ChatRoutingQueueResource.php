@@ -8,12 +8,15 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Chat Routing Queue serialization.
+ * Resource de serialização de Fila de Roteamento.
+ *
+ * Transforma a entidade ChatRoutingQueue no formato da API,
+ * incluindo os agentes e suas skills quando a relação estiver carregada.
  */
 final class ChatRoutingQueueResource extends BaseJsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */

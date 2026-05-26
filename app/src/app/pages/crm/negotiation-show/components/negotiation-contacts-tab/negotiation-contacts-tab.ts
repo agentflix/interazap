@@ -33,7 +33,7 @@ import {
 } from '@shared/components/inputs';
 
 /**
- * Tab content responsible for negotiation contacts links CRUD.
+ * Conteúdo da aba de contatos — gerencia o CRUD de vínculos de contatos da negociação.
  */
 @Component({
   selector: 'app-negotiation-contacts-tab',

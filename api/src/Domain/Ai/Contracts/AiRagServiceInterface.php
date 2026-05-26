@@ -8,12 +8,15 @@ use Domain\Ai\DTOs\KnowledgeSearchFiltersDTO;
 use Domain\Ai\Enums\AiRagSearchModeEnum;
 
 /**
- * Interface for RAG service.
+ * Contrato para o serviço de busca RAG (Retrieval-Augmented Generation).
+ *
+ * Define a interface para busca semântica na Knowledge Base e
+ * formatação dos resultados como contexto para o LLM.
  */
 interface AiRagServiceInterface
 {
     /**
-     * Search for relevant chunks by query.
+     * Busca chunks relevantes para a query.
      *
      * @return list<\Domain\Ai\DTOs\KnowledgeSearchResultDTO>
      */
@@ -27,7 +30,7 @@ interface AiRagServiceInterface
     ): array;
 
     /**
-     * Search and format results as context for LLM.
+     * Busca e formata os resultados como contexto para o LLM.
      */
     public function getContextForLLM(
         string $query,

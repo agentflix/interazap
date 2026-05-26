@@ -7,8 +7,8 @@ import {
 } from 'class-validator';
 
 /**
- * Payload for sending a file or media message via Uazapi.
- * Accepts either `url` or `file` (base64) as the content source.
+ * Payload para envio de arquivo ou midia via Uazapi.
+ * Aceita `url` ou `file` (base64) como fonte do conteudo.
  */
 export class SendFileDto {
   @IsString()

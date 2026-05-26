@@ -2,7 +2,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { IconButtonComponent } from 'src/app/shared/components/buttons';
 
 /**
- * Right action tabs extracted from chat page.
+ * Painel lateral direito com abas de ação extraído da página de chat.
+ *
+ * @remarks
+ * Renderiza os botões de alternância entre as abas de conversa,
+ * contato e negociação. Estado de aba ativa recebido via input signal.
  */
 @Component({
   selector: 'app-chat-page-sidebar',

@@ -16,7 +16,7 @@ import {
 } from '../../../shared/services/queue/queue-resilience.config';
 import { RedisStreamMessage } from '../../../infrastructure/redis/redis.service';
 
-// Blocking read configuration
+// Configuracao de leitura bloqueante
 const BLOCK_TIMEOUT_MS = 5000;
 const BATCH_SIZE = 10;
 
@@ -108,7 +108,7 @@ export class SendMessageConsumer implements OnModuleInit, OnModuleDestroy {
         `Consumer group ${this.consumerGroup} created for ${this.streamName}`,
       );
     } catch (error) {
-      // Group already exists - this is fine
+      // Grupo ja existe — comportamento esperado
       if ((error as Error).message?.includes('BUSYGROUP')) {
         this.logger.debug(
           `Consumer group ${this.consumerGroup} already exists`,
@@ -155,7 +155,7 @@ export class SendMessageConsumer implements OnModuleInit, OnModuleDestroy {
       } catch (error) {
         if (!this.isShuttingDown) {
           this.logger.error('Error in consume loop', (error as Error).stack);
-          await this.sleep(1000); // Back off on error
+          await this.sleep(1000); // Recua em caso de erro
         }
         this.isProcessing = false;
       }
@@ -177,7 +177,7 @@ export class SendMessageConsumer implements OnModuleInit, OnModuleDestroy {
         BATCH_SIZE,
       );
     } catch (error) {
-      // Don't log timeout errors during shutdown
+      // Nao loga erros de timeout durante desligamento
       if (!this.isShuttingDown) {
         this.logger.error('Failed to read messages from stream', error);
       }

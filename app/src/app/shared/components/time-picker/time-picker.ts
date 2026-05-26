@@ -3,7 +3,7 @@ import { type FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AfFormLabelComponent } from '../form-label/form-label';
 
 /**
- * AfTimePickerComponent — Native time input with design system styling.
+ * Campo de hora nativo com estilização do design system.
  *
  * @example
  * ```html
@@ -18,12 +18,12 @@ import { AfFormLabelComponent } from '../form-label/form-label';
   templateUrl: './time-picker.html',
 })
 export class AfTimePickerComponent {
-  /** FormControl binding */
+  /** Vinculação ao FormControl */
   readonly control = input.required<FormControl<string>>();
 
-  /** Field label */
+  /** Rótulo do campo */
   readonly label = input('');
 
-  /** Required */
+  /** Obrigatório */
   readonly required = input(false);
 }

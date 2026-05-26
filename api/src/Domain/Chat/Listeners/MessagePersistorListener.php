@@ -14,14 +14,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Notification;
 
 /**
- * Listener for message persistence events that invalidates conversation summaries.
+ * Listener para eventos de persistência de mensagem.
+ *
+ * Invalida o resumo de conversa gerado por IA, dispara push notifications
+ * para usuários ativos do tenant e, para mensagens recebidas (incoming),
+ * despacha o `ConversationResolverJob` para roteamento da conversa.
  */
 final class MessagePersistorListener
 {
     public function __construct(private readonly AiConversationSummaryService $summaryService) {}
 
     /**
-     * Handle the event.
+     * Processa o evento de mensagem persistida.
      */
     public function handle(MessagePersisted $event): void
     {
@@ -40,6 +44,9 @@ final class MessagePersistorListener
         );
     }
 
+    /**
+     * Envia push notification para todos os usuários ativos do tenant com tokens de dispositivo válidos.
+     */
     private function dispatchNewMessagePush(MessagePersisted $event): void
     {
         $users = AuthUser::query()

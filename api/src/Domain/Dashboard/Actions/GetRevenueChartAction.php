@@ -9,12 +9,19 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Returns monthly revenue data for the last 12 months.
+ * Retorna dados de receita mensal para exibição em gráfico no dashboard.
+ *
+ * Agrega negociações ganhas e abertas agrupadas por mês dentro do período solicitado.
  */
 final class GetRevenueChartAction
 {
     /**
-     * @return array<int, array<string, float|int>>
+     * Executa a geração dos dados do gráfico de receita.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  Carbon  $from  Data de início do período
+     * @param  Carbon  $to  Data de fim do período
+     * @return array<int, array<string, float|int>> Lista com month, year, won_amount e open_amount
      */
     public function execute(string $tenantId, Carbon $from, Carbon $to): array
     {

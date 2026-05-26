@@ -8,29 +8,30 @@ use Domain\Ai\DTOs\AiCompletionDTO;
 use Domain\Ai\DTOs\AiCompletionResultDTO;
 
 /**
- * Interface for AI provider services.
+ * Contrato para provedores de IA (LLM).
  *
- * Defines the contract for AI/LLM completion providers.
+ * Define a interface para execução de completions com qualquer provedor
+ * de modelo de linguagem integrado à plataforma.
  */
 interface AiProviderInterface
 {
     /**
-     * Generate a completion from the AI provider.
+     * Executa uma completion no provedor de IA.
      *
-     * @param  AiCompletionDTO  $request  The completion request.
-     * @return AiCompletionResultDTO The completion result.
+     * @param  AiCompletionDTO  $request  Requisição de completion.
+     * @return AiCompletionResultDTO Resultado da completion.
      *
-     * @throws \RuntimeException If the completion cannot be generated.
+     * @throws \RuntimeException Se a completion não puder ser gerada.
      */
     public function complete(AiCompletionDTO $request): AiCompletionResultDTO;
 
     /**
-     * Check if the provider is available.
+     * Verifica se o provedor está disponível.
      */
     public function isAvailable(): bool;
 
     /**
-     * Get the provider name.
+     * Retorna o nome do provedor.
      */
     public function getName(): string;
 }

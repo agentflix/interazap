@@ -8,11 +8,13 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Scheduling Settings serialization.
+ * Resource de serialização das configurações de agendamento.
  */
 final class ConfigurationSchedulingSettingResource extends BaseJsonResource
 {
     /**
+     * Retorna os atributos das configurações de agendamento para serialização.
+     *
      * @return array<string, mixed>
      */
     protected function data(Request $request): array

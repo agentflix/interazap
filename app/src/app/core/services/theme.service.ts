@@ -1,8 +1,8 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
 
 /**
- * Manages the application theme (light/dark/system) and sidebar collapse state.
- * Persists theme preference in localStorage.
+ * Gerencia o tema da aplicação (light/dark/system) e estado da sidebar.
+ * Persiste a preferência de tema no localStorage.
  *
  * @example
  * ```ts
@@ -18,22 +18,22 @@ export class ThemeService {
   private static readonly DENSITY_KEY = 'af-density';
   private static readonly FONT_SIZE_KEY = 'af-font-size';
 
-  /** Current theme — 'light', 'dark', or 'system'. */
+  /** Tema atual — 'light', 'dark' ou 'system'. */
   readonly theme = signal<'light' | 'dark' | 'system'>(this.loadTheme());
 
-  /** Current interface density. */
+  /** Densidade atual da interface. */
   readonly density = signal<'compact' | 'normal' | 'expanded'>(this.loadDensity());
 
-  /** Current font size. */
+  /** Tamanho atual da fonte. */
   readonly fontSize = signal<'small' | 'medium' | 'large'>(this.loadFontSize());
 
-  /** Whether the sidebar is collapsed (icons only) */
+  /** Indica se a sidebar está recolhida (apenas ícones). */
   readonly sidebarCollapsed = signal(false);
 
-  /** Whether the mobile sidebar overlay is open */
+  /** Indica se o overlay da sidebar mobile está aberto. */
   readonly mobileSidebarOpen = signal(false);
 
-  /** Derived: true when the resolved theme (after system detection) is dark */
+  /** Derivado: true quando o tema resolvido (após detecção do sistema) é dark. */
   readonly isDark = computed(() => {
     const t = this.theme();
     if (t === 'system') {
@@ -88,33 +88,33 @@ export class ThemeService {
   }
 
   /**
-   * Apply a specific theme immediately and persist the preference.
+   * Aplica um tema específico imediatamente e persiste a preferência.
    *
-   * @param theme - 'light', 'dark', or 'system'
+   * @param theme - 'light', 'dark' ou 'system'
    */
   applyTheme(theme: 'light' | 'dark' | 'system'): void {
     this.theme.set(theme);
   }
 
   /**
-   * Apply interface density and persist to localStorage.
+   * Aplica a densidade da interface e persiste no localStorage.
    *
-   * @param density - 'compact', 'normal', or 'expanded'
+   * @param density - 'compact', 'normal' ou 'expanded'
    */
   applyDensity(density: 'compact' | 'normal' | 'expanded'): void {
     this.density.set(density);
   }
 
   /**
-   * Apply font size and persist to localStorage.
+   * Aplica o tamanho da fonte e persiste no localStorage.
    *
-   * @param size - 'small', 'medium', or 'large'
+   * @param size - 'small', 'medium' ou 'large'
    */
   applyFontSize(size: 'small' | 'medium' | 'large'): void {
     this.fontSize.set(size);
   }
 
-  /** Toggle between light and dark themes (ignores system). */
+  /** Alterna entre temas light e dark (ignora system). */
   toggleTheme(): void {
     const current = this.theme();
     if (current === 'light') {
@@ -128,17 +128,17 @@ export class ThemeService {
     }
   }
 
-  /** Toggle sidebar collapsed state */
+  /** Alterna o estado de recolhimento da sidebar. */
   toggleSidebar(): void {
     this.sidebarCollapsed.update((v) => !v);
   }
 
-  /** Toggle mobile sidebar overlay */
+  /** Alterna o overlay da sidebar mobile. */
   toggleMobileSidebar(): void {
     this.mobileSidebarOpen.update((v) => !v);
   }
 
-  /** Close mobile sidebar */
+  /** Fecha o overlay da sidebar mobile. */
   closeMobileSidebar(): void {
     this.mobileSidebarOpen.set(false);
   }

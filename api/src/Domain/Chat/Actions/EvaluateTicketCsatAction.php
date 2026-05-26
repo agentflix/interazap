@@ -29,9 +29,14 @@ final class EvaluateTicketCsatAction
     ) {}
 
     /**
-     * Criar e enviar avaliação (CSAT) se habilitada na instância.
+     * Cria e envia solicitação de avaliação CSAT ao encerrar o ticket.
      *
-     * Chamado automaticamente ao encerrar ticket.
+     * Cria ou atualiza ChatTicketEvaluation com token único, constrói URL pública
+     * de avaliação e envia mensagem via gateway. Registra falha no log sem lançar exceção.
+     * Opera silenciosamente se a instância não tiver evaluation_enabled ou se o número
+     * de destino não estiver disponível.
+     *
+     * @param  ChatTicket  $ticket  Ticket encerrado para avaliação.
      */
     public function evaluate(ChatTicket $ticket): void
     {
@@ -114,7 +119,10 @@ final class EvaluateTicketCsatAction
     }
 
     /**
-     * Resolver número de telefone do contato.
+     * Resolve o número de telefone do contato do ticket em formato numérico puro.
+     *
+     * @param  ChatTicket  $ticket  Ticket com dados de contato.
+     * @return string|null Número limpo ou null se não disponível.
      */
     private function resolvePhone(ChatTicket $ticket): ?string
     {
@@ -135,7 +143,10 @@ final class EvaluateTicketCsatAction
     }
 
     /**
-     * Resolver token do gateway.
+     * Resolve o token de autenticação do gateway para a instância.
+     *
+     * @param  ChatInstance  $instance  Instância de chat.
+     * @return string|null Token ou null se não configurado.
      */
     private function resolveGatewayToken(ChatInstance $instance): ?string
     {

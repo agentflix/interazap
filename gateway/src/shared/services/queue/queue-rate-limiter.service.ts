@@ -23,9 +23,9 @@ export class QueueRateLimiterService {
   private readonly keyPrefix = 'queue:ratelimit:';
 
   /**
-   * Initializes the service with a Redis client.
+   * Inicializa o serviço com um cliente Redis para armazenamento dos contadores de rate limit.
    *
-   * @param redis - Redis service instance
+   * @param redis - Instância do RedisService
    */
   constructor(private readonly redis: RedisService) {}
 
@@ -178,11 +178,11 @@ export class QueueRateLimiterService {
   }
 
   /**
-   * Returns utilization statistics for a single queue's rate limiter.
+   * Retorna estatísticas de utilização do rate limiter de uma fila.
    *
-   * @param queueName - Name of the queue
-   * @param config - Rate limiter configuration
-   * @returns Statistics including current usage, limit, window, and utilization percent
+   * @param queueName - Nome da fila
+   * @param config - Configuração do rate limiter
+   * @returns Estatísticas com uso atual, limite, janela e percentual de utilização
    */
   async getStats(
     queueName: string,
@@ -203,10 +203,10 @@ export class QueueRateLimiterService {
   }
 
   /**
-   * Returns utilization statistics for all queues listed in the provided config map.
+   * Retorna estatísticas de utilização do rate limiter para todas as filas do mapa fornecido.
    *
-   * @param configs - Record of queue names to rate limiter configurations
-   * @returns Array of statistics, one per queue
+   * @param configs - Mapa de nomes de filas para configurações de rate limiter
+   * @returns Array de estatísticas, uma por fila
    */
   async getAllStats(
     configs: Record<string, QueueRateLimiter>,
@@ -221,11 +221,11 @@ export class QueueRateLimiterService {
   }
 
   /**
-   * Returns true when the queue has hit its rate limit ceiling.
+   * Retorna true quando a fila atingiu o teto do rate limit.
    *
-   * @param queueName - Name of the queue
-   * @param config - Rate limiter configuration
-   * @returns true if the current count equals or exceeds the limit
+   * @param queueName - Nome da fila
+   * @param config - Configuração do rate limiter
+   * @returns true se a contagem atual iguala ou supera o limite
    */
   async isRateLimited(
     queueName: string,
@@ -236,13 +236,13 @@ export class QueueRateLimiterService {
   }
 
   /**
-   * Blocks until a rate limit slot becomes available or the timeout is reached.
+   * Aguarda até que um slot de rate limit esteja disponível ou o timeout seja atingido.
    *
-   * @param queueName - Name of the queue
-   * @param config - Rate limiter configuration
-   * @param timeoutMs - Maximum time to wait in milliseconds (default 30000)
-   * @returns The consume result for the acquired slot
-   * @throws Error when timeout is exceeded before a slot is available
+   * @param queueName - Nome da fila
+   * @param config - Configuração do rate limiter
+   * @param timeoutMs - Tempo máximo de espera em milissegundos (padrão: 30000)
+   * @returns Resultado do consume para o slot adquirido
+   * @throws Error quando o timeout é ultrapassado antes de um slot ficar disponível
    */
   async waitForSlot(
     queueName: string,
@@ -269,20 +269,20 @@ export class QueueRateLimiterService {
   }
 
   /**
-   * Builds the Redis key for a queue's rate limit counter.
+   * Constrói a chave Redis para o contador de rate limit de uma fila.
    *
-   * @param queueName - Name of the queue
-   * @returns Full Redis key with the configured prefix
+   * @param queueName - Nome da fila
+   * @returns Chave Redis completa com o prefixo configurado
    */
   private getKey(queueName: string): string {
     return `${this.keyPrefix}${queueName}`;
   }
 
   /**
-   * Resolves after the specified number of milliseconds.
+   * Aguarda o número de milissegundos especificado antes de resolver a Promise.
    *
-   * @param ms - Duration to sleep in milliseconds
-   * @returns Promise that resolves after the delay
+   * @param ms - Duração da espera em milissegundos
+   * @returns Promise que resolve após o delay
    */
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));

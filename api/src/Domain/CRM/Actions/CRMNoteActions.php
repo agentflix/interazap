@@ -14,6 +14,12 @@ use Illuminate\Support\Str;
  */
 final class CRMNoteActions
 {
+    /**
+     * Lista as notas de uma entidade (contato, empresa ou negociação) com paginação.
+     *
+     * @param  string  $entityType  Tipo polimórfico da entidade
+     * @param  string  $entityId  ID da entidade
+     */
     public function list(string $tenantId, string $entityType, string $entityId): LengthAwarePaginator
     {
         return CRMNote::query()
@@ -25,6 +31,7 @@ final class CRMNoteActions
             ->paginate();
     }
 
+    /** Cria uma nota associada a uma entidade CRM. */
     public function create(string $tenantId, string $authUserId, CRMNoteDTO $dto): CRMNote
     {
         return CRMNote::query()->create([

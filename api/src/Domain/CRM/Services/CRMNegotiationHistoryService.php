@@ -12,12 +12,17 @@ use Domain\CRM\Models\CRMNegotiationFunnelStep;
 use Illuminate\Support\Str;
 
 /**
- * Formats and persists negotiation history notes.
+ * Formata e persiste notas de histórico de alterações em negociações CRM.
+ *
+ * Rastreia mudanças nos campos monitorados (título, funil, etapa, contato etc.)
+ * e registra mensagens legíveis com o nome do ator autenticado.
  */
 final class CRMNegotiationHistoryService
 {
     /**
-     * @param  array<string, mixed>  $before
+     * Registra uma nota de histórico comparando os atributos antes e depois da atualização.
+     *
+     * @param  array<string, mixed>  $before  Atributos originais da negociação antes da alteração
      */
     public function recordUpdate(string $tenantId, CRMNegotiation $negotiation, array $before): void
     {
@@ -54,6 +59,7 @@ final class CRMNegotiationHistoryService
         $this->record($negotiation, sprintf('%s alterou %s.', $this->actorName(), implode('; ', $changes)));
     }
 
+    /** Persiste uma nota de histórico com conteúdo livre na negociação. */
     public function record(CRMNegotiation $negotiation, string $content): void
     {
         $negotiation->historyNotes()->create([
@@ -64,6 +70,7 @@ final class CRMNegotiationHistoryService
         ]);
     }
 
+    /** Retorna o nome do usuário autenticado via Sanctum para uso nas mensagens de histórico. */
     public function actorName(): string
     {
         return (string) data_get(auth('sanctum')->user(), 'name', 'Usuário');

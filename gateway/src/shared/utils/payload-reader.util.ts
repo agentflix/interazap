@@ -1,3 +1,8 @@
+/**
+ * Utilitários de leitura de payload do gateway.
+ * Fornece extratores tipados de campos a partir de payloads desconhecidos,
+ * incluindo suporte a strings JSON e validação de mensagens de chat.
+ */
 import type { ChatMessageRole } from '../models/chat.model';
 export type { ChatMessageRole };
 

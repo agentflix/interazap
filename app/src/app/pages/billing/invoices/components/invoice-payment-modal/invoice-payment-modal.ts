@@ -91,6 +91,10 @@ function cardNumberPatternValidator(): ValidatorFn {
   };
 }
 
+/**
+ * Modal de pagamento de fatura que suporta PIX e cartão de crédito.
+ * O PAN do cartão nunca trafega para o backend — apenas o token emitido pelo gateway.
+ */
 @Component({
   selector: 'app-invoice-payment-modal',
   standalone: true,
@@ -102,10 +106,6 @@ function cardNumberPatternValidator(): ValidatorFn {
     AfTextInputComponent,
     AfButtonComponent,
     AfLoadingButtonComponent,
-/**
- * Invoice payment modal component for the Billing module.
- * @selector app-invoice-payment-modal
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './invoice-payment-modal.html',
@@ -169,6 +169,7 @@ export class InvoicePaymentModalComponent {
       .subscribe((value) => this.paymentMethod.set(value as BillingInvoicePaymentMethod));
   }
 
+  /** Processa o pagamento via PIX (gera QR Code) ou cartão de crédito (tokenizado). */
   submitPayment(): void {
     const currentInvoice = this.invoice();
     if (!currentInvoice || this.isPaying()) return;
@@ -224,6 +225,7 @@ export class InvoicePaymentModalComponent {
       });
   }
 
+  /** Copia o código PIX copia-e-cola para a área de transferência. */
   copyPixPayload(): void {
     const payload = this.pixPayload();
     if (!payload) return;
@@ -231,11 +233,17 @@ export class InvoicePaymentModalComponent {
     this.toast.success('Código PIX copiado.');
   }
 
+  /** Fecha o modal e redefine todos os estados internos. */
   close(): void {
     this.resetState();
     this.closed.emit();
   }
 
+  /**
+   * Retorna a mensagem de erro adequada para um campo do formulário de cartão.
+   * @param field Nome do campo do cartão
+   * @returns Mensagem de erro de padrão ou de campo obrigatório
+   */
   protected getCardFieldErrorMessage(field: CardFieldName): string {
     const control = this.cardForm.controls[field];
 

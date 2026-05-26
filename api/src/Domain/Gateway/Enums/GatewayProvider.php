@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Domain\Gateway\Enums;
 
 /**
- * Gateway service providers categorized by domain.
+ * Providers de serviços externos suportados pelo gateway, categorizados por domínio.
  *
- * AI: openai, gemini, minimax
+ * IA: openai, gemini, minimax
  * WhatsApp: zapi, uazapi
- * Payment: asaas
+ * Pagamento: asaas
  */
 enum GatewayProvider: string
 {

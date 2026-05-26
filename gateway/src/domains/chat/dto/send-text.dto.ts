@@ -1,8 +1,8 @@
 import { IsBoolean, IsOptional, IsString, Matches } from 'class-validator';
 
 /**
- * Payload for sending a text message via Uazapi.
- * Includes optional link preview fields and reply/mention support.
+ * Payload para envio de mensagem de texto via Uazapi.
+ * Inclui campos opcionais de link preview, resposta e mencao.
  */
 export class SendTextDto {
   @IsString()

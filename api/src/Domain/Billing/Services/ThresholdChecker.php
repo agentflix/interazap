@@ -8,19 +8,21 @@ use Domain\Billing\Models\TenantMessageUsage;
 use Illuminate\Support\Carbon;
 
 /**
- * Checks message usage thresholds and marks alerts as sent.
+ * Verifica limiares de uso de mensagens e marca alertas como enviados.
  *
- * Returns the list of thresholds (80, 100) that should trigger alerts,
- * marking them as sent on the usage row to prevent duplicate notifications.
+ * Retorna a lista de limiares (80, 100) que devem disparar alertas,
+ * marcando-os na linha de uso para evitar notificações duplicadas.
  */
 final class ThresholdChecker
 {
     /**
-     * Returns thresholds that should trigger alerts (not yet sent).
+     * Retorna os limiares que ainda não foram notificados e devem disparar alertas.
      *
-     * Modifies the $usage model in-place (saves to DB if any threshold fires).
+     * Modifica o modelo $usage in-place (salva no DB quando algum limiar é atingido).
      *
-     * @return list<int> e.g. [80], [100], [80, 100], []
+     * @param  TenantMessageUsage  $usage  Linha de uso do ciclo atual
+     * @param  int  $limit  Limite mensal de mensagens do plano
+     * @return list<int> Ex: [80], [100], [80, 100] ou []
      */
     public function check(TenantMessageUsage $usage, int $limit): array
     {

@@ -1,8 +1,8 @@
 /**
- * Gemini Translator (Anti-Corruption Layer)
+ * Tradutor responsável por converter respostas do SDK Google Gemini para o DTO normalizado.
  *
- * Traduz respostas do Google Gemini SDK para o DTO normalizado.
- * Isola o domínio das especificidades da API do Gemini.
+ * Contexto: camada anti-corrupção que isola o domínio de AI das especificidades
+ * do SDK `@google/generative-ai`, normalizando conteúdo, tokens e finish reason.
  */
 
 import { Injectable } from '@nestjs/common';
@@ -14,7 +14,7 @@ import {
 } from '../../interfaces/ai-completion-response.dto';
 
 /**
- * Mapeamento de finish reasons do Gemini para o formato normalizado
+ * Mapeamento dos finish reasons do Gemini para o formato normalizado do domínio.
  */
 const GEMINI_FINISH_REASON_MAP: Record<string, FinishReason> = {
   STOP: 'stop',
@@ -26,11 +26,10 @@ const GEMINI_FINISH_REASON_MAP: Record<string, FinishReason> = {
 @Injectable()
 export class GeminiTranslator {
   /**
-   * Traduz GenerateContentResult do Gemini para AICompletionResponseDto normalizado
-   *
-   * @param response - Resposta do Gemini SDK
-   * @param model - Nome do modelo usado na requisição
-   * @returns DTO normalizado
+   * Traduz o `GenerateContentResult` do Gemini para `AICompletionResponseDto` normalizado.
+   * @param response - Resposta retornada pelo SDK Gemini.
+   * @param model - Nome do modelo utilizado na requisição.
+   * @returns DTO normalizado com conteúdo, tokens e finish reason.
    */
   translate(
     response: GenerateContentResult,
@@ -50,7 +49,9 @@ export class GeminiTranslator {
   }
 
   /**
-   * Extrai o conteúdo textual da resposta
+   * Extrai o conteúdo textual da resposta Gemini, com fallback para candidates.
+   * @param response - Resposta do SDK Gemini.
+   * @returns Texto extraído ou string vazia quando não disponível.
    */
   private extractContent(response: GenerateContentResult): string {
     try {
@@ -78,14 +79,11 @@ export class GeminiTranslator {
   }
 
   /**
-   * Normaliza finish_reason do Gemini para nosso tipo
+   * Normaliza o finish reason do Gemini para o tipo interno do domínio.
    *
-   * Mapeamento:
-   * - "STOP" → "stop"
-   * - "MAX_TOKENS" → "length"
-   * - "SAFETY" → "content_filter"
-   * - "RECITATION" → "content_filter"
-   * - outros → "stop"
+   * Mapeamento: `STOP` → `stop`, `MAX_TOKENS` → `length`, `SAFETY`/`RECITATION` → `content_filter`, outros → `stop`.
+   * @param response - Resposta do SDK Gemini contendo candidates.
+   * @returns Finish reason normalizado ou `null` quando não disponível.
    */
   private normalizeFinishReason(response: GenerateContentResult): FinishReason {
     const candidates = response.response?.candidates;

@@ -3,23 +3,22 @@ import { ToolStrategyRuntime } from './tool-strategy.types';
 import { ToolExecutionContext } from '../../interfaces/tool-execution-context.interface';
 
 /**
- * Classifies user intent from the provided content string.
+ * Estratégia responsável por classificar a intenção do usuário a partir do conteúdo fornecido.
  *
- * @remarks
- * Returns 'cancelation' intent when the content mentions 'cancel';
- * otherwise returns 'general'. This is a lightweight rule-based classifier.
+ * Retorna a intenção `cancelation` quando o conteúdo menciona a palavra "cancel";
+ * caso contrário retorna `general`. Trata-se de um classificador leve baseado em regras.
  */
 export class ClassifyIntentToolStrategy implements ToolStrategy {
   readonly name = 'classify_intent';
 
   /**
-   * Executes intent classification based on keyword matching.
+   * Executa a classificação de intenção por correspondência de palavras-chave.
    *
-   * @param _name     - Unused; present to satisfy ToolStrategy contract
-   * @param args      - Must contain 'content' string
-   * @param context   - Unused
-   * @param runtime   - Unused
-   * @returns Object with success flag and detected intent
+   * @param _name   - Não utilizado; presente para satisfazer o contrato `ToolStrategy`
+   * @param args    - Deve conter a string `content` a ser classificada
+   * @param context - Não utilizado
+   * @param runtime - Não utilizado
+   * @returns Objeto com flag de sucesso e intenção detectada
    */
   execute(
     _name: string,

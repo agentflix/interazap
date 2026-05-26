@@ -8,16 +8,16 @@ import { BufferedRealtimeAdapter } from '../../../core/realtime/buffered-realtim
 import { ChatStore, type ChatRealtimeAdapterEvent } from './chat.store';
 
 /**
- * Adapter that bridges the realtime service events to the ChatStore.
+ * Adaptador que conecta os eventos do serviço realtime ao ChatStore.
  *
  * @remarks
- * Listens to the unified activity stream, edit events, and typing events
- * from the ChatRealtimeService and forwards them to the ChatStore via
- * a buffered adapter for deduplication and batching.
+ * Escuta o stream unificado de atividades, eventos de edição e digitação
+ * do ChatRealtimeService e os encaminha ao ChatStore via adaptador com
+ * buffer para deduplicação e processamento em lote.
  *
  * @example
  * ```typescript
- * // Adapter is automatically instantiated when ChatStore is used
+ * // Adaptador é instanciado automaticamente quando o ChatStore é utilizado
  * const adapter = new ChatRealtimeAdapter();
  * ```
  */

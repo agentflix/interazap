@@ -19,7 +19,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Serviço de enforcement de limites do plano.
+ * Serviço de verificação e aplicação dos limites do plano contratado pelo tenant.
+ *
+ * Centraliza as consultas de elegibilidade para criação de usuários, instâncias,
+ * negociações e uso de armazenamento conforme as regras do plano vigente.
  */
 final class PlatformPlanEnforcementService
 {
@@ -65,6 +68,12 @@ final class PlatformPlanEnforcementService
         ],
     ];
 
+    /**
+     * Retorna o plano vigente do tenant, priorizando a última fatura ativa.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @return PlatformPlan|null Plano vigente ou null se não houver.
+     */
     public function getCurrentPlan(string $tenantId): ?PlatformPlan
     {
         if ($this->cachedPlanTenantId === $tenantId) {
@@ -106,6 +115,11 @@ final class PlatformPlanEnforcementService
         return $this->cachedPlan;
     }
 
+    /**
+     * Verifica se a funcionalidade de IA está habilitada no plano do tenant.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     */
     public function isAiEnabled(string $tenantId): bool
     {
         $plan = $this->getCurrentPlan($tenantId);
@@ -116,6 +130,11 @@ final class PlatformPlanEnforcementService
         return (bool) $plan->ai_enabled;
     }
 
+    /**
+     * Verifica se o tenant pode criar mais usuários conforme o limite do plano.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     */
     public function canCreateUser(string $tenantId): bool
     {
         $plan = $this->getCurrentPlan($tenantId);
@@ -132,6 +151,11 @@ final class PlatformPlanEnforcementService
         return $count < $plan->limit_users;
     }
 
+    /**
+     * Verifica se o tenant pode criar mais instâncias de chat conforme o limite do plano.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     */
     public function canCreateInstance(string $tenantId): bool
     {
         $plan = $this->getCurrentPlan($tenantId);
@@ -148,6 +172,11 @@ final class PlatformPlanEnforcementService
         return $count < $plan->chat_channels_limit;
     }
 
+    /**
+     * Verifica se o tenant pode criar mais negociações conforme o limite do plano.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     */
     public function canCreateNegotiation(string $tenantId): bool
     {
         $plan = $this->getCurrentPlan($tenantId);
@@ -168,6 +197,12 @@ final class PlatformPlanEnforcementService
         return $count < $plan->negotiations_limit;
     }
 
+    /**
+     * Verifica se o tenant pode fazer upload de um arquivo com o tamanho informado.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  int  $newFileSizeBytes  Tamanho do novo arquivo em bytes.
+     */
     public function canUploadFile(string $tenantId, int $newFileSizeBytes = 0): bool
     {
         $limit = $this->getEffectiveStorageLimitBytes($tenantId);
@@ -177,6 +212,11 @@ final class PlatformPlanEnforcementService
         return ($used + $newFileSizeBytes) <= $limit;
     }
 
+    /**
+     * Verifica se o tenant pode baixar arquivos (abaixo do limite de armazenamento).
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     */
     public function canDownloadFile(string $tenantId): bool
     {
         $limit = $this->getEffectiveStorageLimitBytes($tenantId);
@@ -184,6 +224,12 @@ final class PlatformPlanEnforcementService
         return $this->getStorageUsageBytes($tenantId) < $limit;
     }
 
+    /**
+     * Retorna o limite efetivo de armazenamento em bytes para o tenant.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @return int Limite em bytes.
+     */
     public function getEffectiveStorageLimitBytes(string $tenantId): int
     {
         $plan = $this->getCurrentPlan($tenantId);
@@ -204,11 +250,20 @@ final class PlatformPlanEnforcementService
         return min($configuredLimit, self::MAX_STORAGE_LIMIT_BYTES);
     }
 
+    /**
+     * Retorna o total de bytes utilizados pelo tenant em armazenamento.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @return int Total de bytes usados.
+     */
     public function getStorageUsageBytes(string $tenantId): int
     {
         return $this->getTotalStorageUsageBytes($tenantId);
     }
 
+    /**
+     * Calcula o total de bytes usados somando arquivos CRM e armazenamento de chat.
+     */
     private function getTotalStorageUsageBytes(string $tenantId): int
     {
         $used = (int) CRMNegotiationFile::query()
@@ -218,6 +273,9 @@ final class PlatformPlanEnforcementService
         return $used + $this->getChatStorageUsageBytes($tenantId);
     }
 
+    /**
+     * Calcula o total de bytes usados no armazenamento de chat com cache de 5 minutos.
+     */
     private function getChatStorageUsageBytes(string $tenantId): int
     {
         $cacheKey = "tenant:{$tenantId}:chat_storage_bytes";
@@ -247,6 +305,12 @@ final class PlatformPlanEnforcementService
         });
     }
 
+    /**
+     * Retorna o modo de relatórios do plano vigente do tenant.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @return PlatformReportsMode Modo de relatórios (BASIC, ADVANCED ou FULL).
+     */
     public function getReportsMode(string $tenantId): PlatformReportsMode
     {
         $plan = $this->getCurrentPlan($tenantId);
@@ -278,6 +342,11 @@ final class PlatformPlanEnforcementService
         return in_array($permission, $allowedPermissions, true);
     }
 
+    /**
+     * Verifica se o usuário tem papel de administrador (inquilino).
+     *
+     * @param  AuthUser  $user  Usuário a verificar.
+     */
     public function isAdmin(AuthUser $user): bool
     {
         return $user->isInquilino();

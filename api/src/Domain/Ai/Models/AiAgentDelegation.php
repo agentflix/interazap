@@ -11,16 +11,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * Delegation rule between two AI Agents.
+ * Regra de delegação entre dois Agentes de IA.
  *
- * Defines rules for delegating conversations from one agent to another,
- * including maximum delegation depth to prevent infinite loops.
+ * Define a configuração de encaminhamento de uma conversa do agente origem
+ * para o agente destino, incluindo profundidade máxima de delegação para
+ * evitar loops infinitos em cadeias multi-agente.
  *
  * @property string $id
  * @property string $tenant_id
- * @property string $source_agent_id
- * @property string $target_agent_id
- * @property int $max_depth
+ * @property string $source_agent_id UUID do agente que delega.
+ * @property string $target_agent_id UUID do agente que recebe a delegação.
+ * @property int $max_depth Profundidade máxima de delegações encadeadas.
  * @property bool $is_active
  * @property array|null $metadata
  */
@@ -63,11 +64,17 @@ class AiAgentDelegation extends Model
         });
     }
 
+    /**
+     * Agente de origem da delegação.
+     */
     public function sourceAgent(): BelongsTo
     {
         return $this->belongsTo(AiAgent::class, 'source_agent_id');
     }
 
+    /**
+     * Agente destino da delegação.
+     */
     public function targetAgent(): BelongsTo
     {
         return $this->belongsTo(AiAgent::class, 'target_agent_id');

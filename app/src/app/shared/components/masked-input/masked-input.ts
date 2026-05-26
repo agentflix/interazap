@@ -6,10 +6,8 @@ import { AfMaskDirective, type AfMaskPreset } from '../../directives/mask.direct
 import { resolveInputContainerClass } from '../input-container.util';
 
 /**
- * Masked input component for InteraZap UI Kit.
- *
- * @description Input with auto-formatting masks for Brazilian formats:
- * CPF, CNPJ, CPF/CNPJ auto-detect, CEP, phone, and currency (R$).
+ * Campo com máscara automática para formatos brasileiros:
+ * CPF, CNPJ, CPF/CNPJ auto-detect, CEP, telefone e moeda (R$).
  *
  * @example
  * ```html
@@ -26,48 +24,48 @@ import { resolveInputContainerClass } from '../input-container.util';
   templateUrl: './masked-input.html',
 })
 export class AfMaskedInputComponent {
-  /** FormControl for the input */
+  /** FormControl do campo */
   readonly control = input.required<FormControl<string>>();
 
-  /** Mask preset to apply */
+  /** Predefinição de máscara a aplicar */
   readonly mask = input.required<AfMaskPreset | string>();
 
-  /** Label text */
+  /** Texto do rótulo */
   readonly label = input<string>();
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the field */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
-  /** Required asterisk on label */
+  /** Exibe asterisco de campo obrigatório no rótulo */
   readonly required = input(false);
 
-  /** Custom error message */
+  /** Mensagem de erro customizada */
   readonly errorMessage = input('Campo inválido.');
 
-  /** Custom placeholder (overrides auto) */
+  /** Placeholder customizado (sobrescreve o gerado automaticamente) */
   readonly placeholder = input<string>();
 
-  /** data-test attribute */
+  /** Atributo data-test */
   readonly dataTest = input<string>();
 
-  /** Input size */
+  /** Tamanho do campo */
   readonly size = input<'sm' | 'md'>('md');
 
-  /** Unique ID */
+  /** ID único do campo */
   protected readonly inputId = `masked-${Math.random().toString(36).slice(2, 9)}`;
 
-  /** Auto-generated placeholder based on mask preset */
+  /** Classes CSS do contêiner */
   protected readonly containerClasses = computed(() =>
     resolveInputContainerClass(this.classContainer(), this.spacing()),
   );
 
-  /** Auto-generated placeholder based on mask preset */
+  /** Placeholder gerado automaticamente baseado na predefinição de máscara */
   protected readonly placeholderText = computed(() => {
     if (this.placeholder()) return this.placeholder()!;
 
@@ -83,7 +81,7 @@ export class AfMaskedInputComponent {
     return presets[this.mask()] ?? '';
   });
 
-  /** Dynamic CSS classes */
+  /** Classes CSS dinâmicas do campo */
   protected readonly inputClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'h-8 px-2.5 text-xs' : 'h-10 px-3 text-sm';
 
@@ -103,7 +101,7 @@ export class AfMaskedInputComponent {
     ].join(' ');
   });
 
-  /** Whether to show error */
+  /** Indica se o erro deve ser exibido */
   protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
 }
 

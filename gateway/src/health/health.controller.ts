@@ -11,11 +11,6 @@ import { HealthStatus } from './models/health.model';
 @Controller({ version: '1', path: 'health' })
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class HealthController {
-  /**
-   * Initializes the controller with the health service.
-   *
-   * @param healthService - Service providing health check capabilities
-   */
   constructor(private readonly healthService: HealthService) {}
 
   /**

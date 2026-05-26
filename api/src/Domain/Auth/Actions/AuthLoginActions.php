@@ -165,6 +165,7 @@ final class AuthLoginActions
         return $session;
     }
 
+    /** Valida o codigo TOTP descriptografando o secret armazenado. */
     private function isValidTotpCode(AuthUser $user, string $code, AuthTotpService $totpService): bool
     {
         try {
@@ -280,7 +281,12 @@ final class AuthLoginActions
     }
 
     /**
-     * Criar o objeto de sessão padronizado.
+     * Constrói o objeto de sessão padronizado com permissões e plano do tenant.
+     *
+     * @param  AuthUser  $user  Usuário autenticado.
+     * @param  bool  $includeToken  Se deve emitir novo Sanctum token.
+     * @param  string|null  $deviceName  Nome do dispositivo para o token.
+     * @return AuthSessionDTO Sessão completa pronta para resposta.
      */
     public function createSession(AuthUser $user, bool $includeToken, ?string $deviceName = null): AuthSessionDTO
     {
@@ -411,6 +417,7 @@ final class AuthLoginActions
         return $filtered;
     }
 
+    /** Lança ValidationException 429 se o e-mail estiver bloqueado por rate limit. */
     private function ensureLoginIsNotRateLimited(string $email): void
     {
         $key = $this->loginThrottleKey($email);
@@ -436,16 +443,19 @@ final class AuthLoginActions
         throw $exception;
     }
 
+    /** Registra uma tentativa falha de login para o e-mail informado. */
     private function incrementLoginAttempts(string $email): void
     {
         RateLimiter::hit($this->loginThrottleKey($email), self::LOGIN_DECAY_SECONDS);
     }
 
+    /** Limpa o contador de tentativas de login após autenticação bem-sucedida. */
     private function clearLoginAttempts(string $email): void
     {
         RateLimiter::clear($this->loginThrottleKey($email));
     }
 
+    /** Retorna a chave de rate-limiter para o e-mail informado. */
     private function loginThrottleKey(string $email): string
     {
         return 'auth-login:'.Str::lower($email);

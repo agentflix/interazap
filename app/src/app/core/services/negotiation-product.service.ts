@@ -19,11 +19,11 @@ interface NegotiationProductApiItem {
 }
 
 /**
- * Service for managing products within a negotiation (negotiation line items).
+ * Gerencia produtos de uma negociação (itens de linha da negociação).
  *
  * @remarks
- * Handles CRUD operations for negotiation products, including quantity,
- * pricing, and discount management.
+ * Fornece operações de CRUD para produtos de negociação, incluindo
+ * quantidade, precificação e gerenciamento de desconto.
  */
 @Injectable({ providedIn: 'root' })
 export class NegotiationProductService {
@@ -31,10 +31,10 @@ export class NegotiationProductService {
   private readonly baseUrl = `${environment.apiUrl}/crm/negotiations`;
 
   /**
-   * Lists all products in a negotiation.
+   * Lista todos os produtos de uma negociação.
    *
-   * @param negotiationId - The negotiation identifier
-   * @returns Observable with products array and calculated total
+   * @param negotiationId - Identificador da negociação
+   * @returns Observable com o array de produtos e o total calculado
    */
   list(
     negotiationId: string | number,
@@ -51,11 +51,11 @@ export class NegotiationProductService {
   }
 
   /**
-   * Adds a product to a negotiation.
+   * Adiciona um produto a uma negociação.
    *
-   * @param negotiationId - The negotiation identifier
-   * @param payload - Product data (product_id, quantity, price, etc.)
-   * @returns Observable with created product item
+   * @param negotiationId - Identificador da negociação
+   * @param payload - Dados do produto (product_id, quantidade, preço, etc.)
+   * @returns Observable com o item de produto criado
    */
   create(
     negotiationId: string | number,
@@ -72,12 +72,12 @@ export class NegotiationProductService {
   }
 
   /**
-   * Updates a product item in a negotiation.
+   * Atualiza um item de produto em uma negociação.
    *
-   * @param negotiationId - The negotiation identifier
-   * @param productId - The product item identifier
-   * @param payload - Updated product data
-   * @returns Observable with updated product item
+   * @param negotiationId - Identificador da negociação
+   * @param productId - Identificador do item de produto
+   * @param payload - Dados atualizados do produto
+   * @returns Observable com o item de produto atualizado
    */
   update(
     negotiationId: string | number,
@@ -98,11 +98,11 @@ export class NegotiationProductService {
   }
 
   /**
-   * Removes a product from a negotiation.
+   * Remove um produto de uma negociação.
    *
-   * @param negotiationId - The negotiation identifier
-   * @param productId - The product item identifier
-   * @returns Observable completing on deletion
+   * @param negotiationId - Identificador da negociação
+   * @param productId - Identificador do item de produto
+   * @returns Observable que completa após a exclusão
    */
   delete(negotiationId: string | number, productId: string | number): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/crm/negotiation-products/${productId}`);

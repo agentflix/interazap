@@ -8,11 +8,10 @@ use Domain\Shared\Services\MetricsService;
 use Illuminate\Http\Response;
 
 /**
- * Prometheus-compatible metrics endpoint.
+ * Endpoint de métricas compatível com Prometheus.
  *
- * Exposes application metrics in Prometheus text format.
- *
- * @category Controllers
+ * Expõe métricas da aplicação no formato texto do Prometheus,
+ * incluindo contadores HTTP, histogramas de latência e métricas de negócio.
  */
 final class MetricsController extends BaseController
 {
@@ -23,9 +22,9 @@ final class MetricsController extends BaseController
     /**
      * GET /metrics
      *
-     * Returns metrics in Prometheus text format.
+     * Retorna todas as métricas no formato texto do Prometheus.
      *
-     * @return Response Prometheus-formatted metrics with Content-Type header.
+     * @return Response Métricas formatadas com Content-Type text/plain.
      */
     public function __invoke(): Response
     {

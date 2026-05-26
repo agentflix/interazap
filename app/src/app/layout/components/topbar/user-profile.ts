@@ -15,7 +15,7 @@ import { AfAvatarComponent } from '../../../shared/components/avatar/avatar';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * User profile avatar + dropdown menu (My Account, Logout).
+ * Avatar do perfil do usuário com menu dropdown (Minha Conta, Sair).
  *
  * @example
  * ```html
@@ -49,6 +49,7 @@ export class UserProfileComponent {
     this.authStore.user()?.is_supervisor === true ? 'Supervisor' : 'Usuário',
   );
 
+  /** Fecha o dropdown quando o usuário clica fora do componente. */
   protected onDocumentClick(event: Event): void {
     const el = event.target as HTMLElement;
     if (!el.closest('af-user-profile')) {
@@ -56,6 +57,7 @@ export class UserProfileComponent {
     }
   }
 
+  /** Realiza o logout do usuário, limpando a sessão e redirecionando para /login. */
   protected logout(): void {
     if (this.isLoggingOut()) {
       return;
@@ -75,12 +77,18 @@ export class UserProfileComponent {
       });
   }
 
+  /** Finaliza o logout limpando o store e navegando para /login. */
   private finishLogout(): void {
     this.authStore.logout();
     this.open.set(false);
     void this.router.navigate(['/login']);
   }
 
+  /**
+   * Extrai as iniciais do nome do usuário para exibição no avatar.
+   * @param name Nome completo do usuário
+   * @returns Duas letras maiúsculas (ex: "RS" para "Rafael Silva")
+   */
   private getInitials(name: string): string {
     const parts = name
       .trim()

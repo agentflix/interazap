@@ -48,9 +48,9 @@ final class InternalBillingController extends BaseController
     public function createWebhookEvent(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'tenant_id'   => ['required', 'uuid'],
-            'event_type'  => ['required', 'string', 'max:100'],
-            'payload'     => ['required', 'array'],
+            'tenant_id' => ['required', 'uuid'],
+            'event_type' => ['required', 'string', 'max:100'],
+            'payload' => ['required', 'array'],
             'external_id' => ['nullable', 'string', 'max:255'],
         ]);
 

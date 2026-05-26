@@ -10,13 +10,11 @@ import {
 } from '@ai/models/ai.model';
 
 /**
- * Realtime service for AI run websocket events.
+ * Serviço realtime para eventos WebSocket de execução da IA.
  *
- * Manages WebSocket subscriptions to AI run events (started, thinking,
- * tool calls, streaming, completed, failed, blocked) and exposes them
- * as Angular signals for reactive UI updates.
- *
- * @class AiRealtimeService
+ * Gerencia subscrições WebSocket para eventos de execução (iniciado, pensando,
+ * chamadas de ferramentas, streaming, concluído, falha, bloqueado) e os expõe
+ * como signals Angular para atualizações reativas da UI.
  */
 @Injectable({ providedIn: 'root' })
 export class AiRealtimeService {
@@ -35,20 +33,20 @@ export class AiRealtimeService {
   private readonly _eventCount = signal(0);
   private listenersBound = false;
 
-  /** Tracks processed event_ids to prevent duplicate events. */
+  /** Rastreia event_ids processados para evitar eventos duplicados. */
   private readonly processedEventIds = new Set<string>();
 
-  /** Indicates whether the WebSocket connection is active. */
+  /** Indica se a conexão WebSocket está ativa. */
   readonly connected = this._realtime.connected;
 
-  /** Exposes the underlying RealtimeService for room management. */
+  /** Expõe o RealtimeService subjacente para gerenciamento de salas. */
   readonly realtime = this._realtime;
 
   /**
-   * Aggregated view of the last received event for each type.
+   * Visão agregada do último evento recebido por tipo.
    *
-   * @returns An object containing the most recent event for each run phase,
-   * the event type name, and a version counter that increments on each event.
+   * @returns Objeto contendo o evento mais recente de cada fase de execução,
+   * o nome do tipo de evento e um contador de versão que incrementa a cada evento.
    */
   readonly lastEvent = computed(() => ({
     started: this._runStarted(),
@@ -64,7 +62,7 @@ export class AiRealtimeService {
   }));
 
   /**
-   * Establishes the WebSocket connection and binds all event listeners.
+   * Estabelece a conexão WebSocket e vincula todos os listeners de eventos.
    */
   connect(): void {
     this._realtime.connect();
@@ -72,8 +70,8 @@ export class AiRealtimeService {
   }
 
   /**
-   * Binds all AI run event listeners to the RealtimeService.
-   * Ensures listeners are only attached once per service instance.
+   * Vincula todos os listeners de eventos de execução da IA ao RealtimeService.
+   * Garante que os listeners sejam anexados apenas uma vez por instância do serviço.
    */
   private bindEvents(): void {
     if (this.listenersBound) {
@@ -102,10 +100,9 @@ export class AiRealtimeService {
   }
 
   /**
-   * Processes an incoming WebSocket event and updates the appropriate signal.
-   *
-   * @param eventName - The name of the event (e.g., 'ai.run.completed')
-   * @param payload - The raw event payload from the WebSocket
+   * Processa um evento WebSocket recebido e atualiza o signal correspondente.
+   * @param eventName Nome do evento (ex.: 'ai.run.completed')
+   * @param payload Payload bruto do evento WebSocket
    */
   private handleEvent(eventName: string, payload: unknown): void {
     const eventPayload = this.normalizePayload(payload);
@@ -170,10 +167,9 @@ export class AiRealtimeService {
   }
 
   /**
-   * Normalizes a raw WebSocket payload into a validated AiRunEvent.
-   *
-   * @param payload - Raw payload to normalize
-   * @returns Normalized payload or null if validation fails
+   * Normaliza um payload bruto de WebSocket para um AiRunEvent validado.
+   * @param payload Payload bruto a normalizar
+   * @returns Payload normalizado ou null se a validação falhar
    */
   private normalizePayload(payload: unknown): (AiRunEvent & Record<string, unknown>) | null {
     if (!this.isRecord(payload)) {
@@ -199,20 +195,18 @@ export class AiRealtimeService {
   }
 
   /**
-   * Type guard to check if a value is a plain object record.
-   *
-   * @param value - Value to check
-   * @returns True if value is a non-null object
+   * Type guard para verificar se um valor é um objeto simples (Record).
+   * @param value Valor a verificar
+   * @returns true se o valor for um objeto não nulo
    */
   private isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
   }
 
   /**
-   * Converts a normalized payload to AiRunToolCallEvent.
-   *
-   * @param payload - Normalized event payload
-   * @returns Tool call event or null if required fields are missing
+   * Converte um payload normalizado para AiRunToolCallEvent.
+   * @param payload Payload normalizado do evento
+   * @returns Evento de chamada de ferramenta ou null se campos obrigatórios estiverem ausentes
    */
   private toToolCallEvent(
     payload: AiRunEvent & Record<string, unknown>,
@@ -231,10 +225,9 @@ export class AiRealtimeService {
   }
 
   /**
-   * Converts a normalized payload to AiRunToolResultEvent.
-   *
-   * @param payload - Normalized event payload
-   * @returns Tool result event or null if required fields are missing
+   * Converte um payload normalizado para AiRunToolResultEvent.
+   * @param payload Payload normalizado do evento
+   * @returns Evento de resultado de ferramenta ou null se campos obrigatórios estiverem ausentes
    */
   private toToolResultEvent(
     payload: AiRunEvent & Record<string, unknown>,
@@ -254,10 +247,9 @@ export class AiRealtimeService {
   }
 
   /**
-   * Converts a normalized payload to AiRunCompletedEvent.
-   *
-   * @param payload - Normalized event payload
-   * @returns Completed event with parsed output
+   * Converte um payload normalizado para AiRunCompletedEvent.
+   * @param payload Payload normalizado do evento
+   * @returns Evento de conclusão com output analisado
    */
   private toCompletedEvent(
     payload: AiRunEvent & Record<string, unknown>,
@@ -298,10 +290,9 @@ export class AiRealtimeService {
   }
 
   /**
-   * Converts a normalized payload to AiStreamingEvent.
-   *
-   * @param payload - Normalized event payload
-   * @returns Streaming event or null if chunk is missing
+   * Converte um payload normalizado para AiStreamingEvent.
+   * @param payload Payload normalizado do evento
+   * @returns Evento de streaming ou null se o chunk estiver ausente
    */
   private toStreamingEvent(payload: AiRunEvent & Record<string, unknown>): AiStreamingEvent | null {
     const chunk = this.getString(payload, 'chunk');
@@ -319,11 +310,10 @@ export class AiRealtimeService {
   }
 
   /**
-   * Safely extracts a non-empty string from a record.
-   *
-   * @param value - Record to extract from
-   * @param key - Key to look up
-   * @returns The string value or null if not a valid non-empty string
+   * Extrai com segurança uma string não vazia de um record.
+   * @param value Record de onde extrair
+   * @param key Chave a buscar
+   * @returns Valor string ou null se não for uma string válida não vazia
    */
   private getString(value: Record<string, unknown>, key: string): string | null {
     const candidate = value[key];
@@ -331,11 +321,10 @@ export class AiRealtimeService {
   }
 
   /**
-   * Safely extracts a finite number from a record.
-   *
-   * @param value - Record to extract from
-   * @param key - Key to look up
-   * @returns The number value or null if not a valid finite number
+   * Extrai com segurança um número finito de um record.
+   * @param value Record de onde extrair
+   * @param key Chave a buscar
+   * @returns Valor numérico ou null se não for um número finito válido
    */
   private getNumber(value: Record<string, unknown>, key: string): number | null {
     const candidate = value[key];
@@ -343,11 +332,10 @@ export class AiRealtimeService {
   }
 
   /**
-   * Safely extracts a boolean from a record.
-   *
-   * @param value - Record to extract from
-   * @param key - Key to look up
-   * @returns The boolean value or null if not a boolean
+   * Extrai com segurança um booleano de um record.
+   * @param value Record de onde extrair
+   * @param key Chave a buscar
+   * @returns Valor booleano ou null se não for booleano
    */
   private getBoolean(value: Record<string, unknown>, key: string): boolean | null {
     const candidate = value[key];
@@ -355,11 +343,10 @@ export class AiRealtimeService {
   }
 
   /**
-   * Safely extracts a plain object from a record.
-   *
-   * @param value - Record to extract from
-   * @param key - Key to look up
-   * @returns The object value or null if not a valid object
+   * Extrai com segurança um objeto simples de um record.
+   * @param value Record de onde extrair
+   * @param key Chave a buscar
+   * @returns Valor objeto ou null se não for um objeto válido
    */
   private getRecord(value: Record<string, unknown>, key: string): Record<string, unknown> | null {
     const candidate = value[key];

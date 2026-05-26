@@ -2,12 +2,12 @@ import { Component, ChangeDetectionStrategy, input, computed, output } from '@an
 import { AfSpinnerComponent } from '../spinner/spinner';
 
 /**
- * Button that shows a spinner when loading. Disables interaction automatically.
+ * Botão que exibe um spinner durante carregamento e desativa interação automaticamente.
  *
  * @example
  * ```html
  * <af-loading-button [loading]="saving()" variant="primary" (click)="save()">
- *   Save Changes
+ *   Salvar
  * </af-loading-button>
  * ```
  */
@@ -19,34 +19,34 @@ import { AfSpinnerComponent } from '../spinner/spinner';
   templateUrl: './loading-button.html',
 })
 export class AfLoadingButtonComponent {
-  /** Visual style variant */
+  /** Variante de estilo visual */
   readonly variant = input<'primary' | 'secondary' | 'danger' | 'success'>('primary');
 
-  /** Button size */
+  /** Tamanho do botão */
   readonly size = input<'sm' | 'md' | 'lg'>('sm');
 
-  /** Whether button is in loading state */
+  /** Indica se o botão está em estado de carregamento */
   readonly loading = input(false);
 
-  /** Whether button is disabled */
+  /** Estado desabilitado */
   readonly disabled = input(false);
 
-  /** HTML button type attribute */
+  /** Atributo type do botão HTML */
   readonly type = input<'button' | 'submit'>('button');
 
-  /** Full width button */
+  /** Botão ocupa largura total */
   readonly block = input(false);
 
-  /** Legacy alias for full width button */
+  /** Alias legado para largura total */
   readonly fullWidth = input(false);
 
-  /** Loading text label */
+  /** Texto exibido durante carregamento */
   readonly loadingText = input('Carregando...');
 
-  /** data-test attribute */
+  /** Atributo data-test */
   readonly dataTest = input<string>();
 
-  /** Legacy output alias for click */
+  /** Alias legado de saída para o clique */
   readonly clicked = output<MouseEvent>();
 
   protected readonly spinnerSize = computed(() => {

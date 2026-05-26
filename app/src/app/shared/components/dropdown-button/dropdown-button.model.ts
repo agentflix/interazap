@@ -1,8 +1,8 @@
 /**
- * Models and types for dropdown-button component.
+ * Modelos e tipos do componente de botão com dropdown.
  */
 
-/** Option shown in the dropdown menu */
+/** Opção exibida no menu dropdown. */
 export interface AfDropdownOption {
   label: string;
   value: string;

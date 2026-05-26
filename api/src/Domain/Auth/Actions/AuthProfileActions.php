@@ -83,6 +83,8 @@ final class AuthProfileActions
     }
 
     /**
+     * Atualiza o avatar do usuário fazendo upload da nova imagem.
+     *
      * @return array{avatar_url:string}
      */
     public function updateAvatar(AuthUser $user, UploadedFile $image): array
@@ -91,6 +93,8 @@ final class AuthProfileActions
     }
 
     /**
+     * Remove o avatar atual do usuário.
+     *
      * @return array{avatar_url:null}
      */
     public function deleteAvatar(AuthUser $user): array

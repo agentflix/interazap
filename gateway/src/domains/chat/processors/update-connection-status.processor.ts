@@ -4,11 +4,19 @@ import { BullMQQueueFactory } from '../../../shared/services/queue/bullmq-queue-
 import { InternalApiClientService } from '../../../infrastructure/internal-api/internal-api-client.service';
 import { ConnectionStatusService } from '../services/connection-status.service';
 
+/**
+ * Dados do job de atualizacao de status de conexao de uma instancia WhatsApp.
+ */
 export interface UpdateConnectionStatusJobData {
+  /** ID da instancia de chat a atualizar. */
   instanceId: string;
+  /** Novo status de conexao normalizado. */
   status: string;
+  /** Timestamp ISO do momento da conexao. */
   connectedAt: string;
+  /** Telefone do proprietario da instancia quando disponivel. */
   owner?: string;
+  /** Token do webhook para invalidacao de cache. */
   webhookToken?: string;
 }
 
@@ -25,6 +33,9 @@ export class UpdateConnectionStatusProcessor implements OnModuleInit {
     private readonly internalApiClient: InternalApiClientService,
   ) {}
 
+  /**
+   * Registra o worker BullMQ para processar jobs de atualizacao de status de conexao.
+   */
   onModuleInit(): void {
     this.queueFactory.createWorker<UpdateConnectionStatusJobData, void>(
       ConnectionStatusService.CONNECTION_STATUS_QUEUE,
@@ -32,6 +43,12 @@ export class UpdateConnectionStatusProcessor implements OnModuleInit {
     );
   }
 
+  /**
+   * Processa um job de atualizacao de status de conexao chamando PATCH na api/.
+   *
+   * @param job Job BullMQ com dados da instancia e novo status
+   * @throws Error Quando a chamada HTTP para api/ falha
+   */
   private async process(
     job: Job<UpdateConnectionStatusJobData>,
   ): Promise<void> {

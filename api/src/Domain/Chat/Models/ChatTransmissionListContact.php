@@ -77,11 +77,17 @@ final class ChatTransmissionListContact extends Model
         });
     }
 
+    /**
+     * Relacionamento com a lista de transmissão pai.
+     */
     public function transmissionList(): BelongsTo
     {
         return $this->belongsTo(ChatTransmissionList::class, 'transmission_list_id');
     }
 
+    /**
+     * Relacionamento com o contato CRM vinculado.
+     */
     public function contact(): BelongsTo
     {
         return $this->belongsTo(\Domain\CRM\Models\CRMContact::class, 'contact_id');

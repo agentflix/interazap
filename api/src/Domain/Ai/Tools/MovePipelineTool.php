@@ -11,12 +11,16 @@ use Domain\CRM\Models\CRMNegotiation;
 use Domain\CRM\Models\CRMNegotiationFunnelStep;
 
 /**
- * Tool to move a negotiation to a different pipeline step.
+ * Ferramenta de IA para mover uma negociação para outra etapa do funil de vendas.
  *
- * Security: Validates tenant_id for both negotiation and step to prevent cross-tenant access.
+ * Input esperado: negotiation_id, step_id (obrigatórios) e reason opcional.
+ * Output produzido: negotiation_id, etapa anterior e nova etapa.
+ * Quando usar: o lead avançar ou regredir de etapa no funil de acordo com a conversa.
+ * Segurança: valida tenant_id em negociação e etapa para evitar acesso entre tenants.
  */
 class MovePipelineTool implements AiToolInterface
 {
+    /** Executa a movimentação da negociação para a nova etapa. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $negotiationId = $input->parameters['negotiation_id'] ?? null;
@@ -61,17 +65,21 @@ class MovePipelineTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::MOVE_PIPELINE;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Moves a negotiation to a different step in the sales pipeline/funnel.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

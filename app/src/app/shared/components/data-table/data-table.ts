@@ -1,13 +1,14 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfDataTableComponent — Styled table wrapper with standard row/column styling.
- * Use ng-content to project thead and tbody.
+ * Wrapper estilizado de tabela com estilos padrão de linha e coluna.
+ *
+ * Use ng-content para projetar thead e tbody.
  *
  * @example
  * ```html
  * <af-data-table [striped]="true" [hoverable]="true">
- *   <thead><tr><th>Name</th><th>Email</th></tr></thead>
+ *   <thead><tr><th>Nome</th><th>Email</th></tr></thead>
  *   <tbody><tr><td>João</td><td>j&#64;x.com</td></tr></tbody>
  * </af-data-table>
  * ```
@@ -20,13 +21,13 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   styleUrl: './data-table.scss',
 })
 export class AfDataTableComponent {
-  /** Zebra striping */
+  /** Aplica listras zebradas alternadas */
   readonly striped = input(false);
 
-  /** Hover highlight */
+  /** Aplica destaque ao passar o cursor */
   readonly hoverable = input(true);
 
-  /** Compact mode */
+  /** Modo compacto com menos espaçamento */
   readonly compact = input(false);
 
   protected readonly tableClasses = computed(() => {

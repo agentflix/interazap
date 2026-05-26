@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Sales Funnel for Negotiations.
+ * Funil de vendas para negociações CRM.
  *
- * Defines a pipeline structure with stages for tracking
- * the progress of deals through the sales process.
+ * Define a estrutura de pipeline com etapas para rastrear
+ * o progresso das negociações no processo comercial.
  *
  * @property string $id
  * @property string $tenant_id

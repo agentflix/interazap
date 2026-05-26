@@ -11,13 +11,15 @@ use Domain\CRM\Models\CRMContact;
 use Domain\Shared\Support\SearchSanitizer;
 
 /**
- * Tool to perform fuzzy contact search.
+ * Ferramenta de IA para busca difusa de contatos no CRM.
+ *
+ * Input esperado: query (obrigatório) e limit opcional (1-50).
+ * Output produzido: lista de contatos com id, nome, email, telefone e WhatsApp.
+ * Quando usar: identificar se o cliente já existe no CRM antes de criar um novo contato.
  */
 class SearchContactsTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a busca de contatos pelo termo informado. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $query = trim((string) ($input->parameters['query'] ?? ''));
@@ -54,24 +56,20 @@ class SearchContactsTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::SEARCH_CONTACTS;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Search contacts by name, email, phone, whatsapp or document.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

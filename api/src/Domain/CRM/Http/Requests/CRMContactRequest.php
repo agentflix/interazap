@@ -28,7 +28,7 @@ class CRMContactRequest extends FormRequest
     }
 
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -38,9 +38,9 @@ class CRMContactRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Retorna as regras de validação aplicadas à requisição.
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> Regras de validação.
      */
     public function rules(): array
     {

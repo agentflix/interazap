@@ -8,7 +8,7 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Tool serialization.
+ * Resource para serialização de ferramenta do autopilot.
  */
 final class AiAutopilotToolResource extends BaseJsonResource
 {

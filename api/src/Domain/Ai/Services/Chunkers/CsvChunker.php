@@ -8,11 +8,11 @@ use Domain\Ai\Contracts\Chunkers\ChunkerStrategyInterface;
 use Domain\Ai\DTOs\ChunkDTO;
 
 /**
- * CSV-aware chunking strategy.
+ * Estratégia de chunking otimizada para arquivos CSV.
  *
- * - Detects header (first line)
- * - Each chunk contains header + N rows until ~500 tokens
- * - Each chunk is self-sufficient (LLM doesn't need previous chunk)
+ * Detecta o cabeçalho (primeira linha) e o replica em cada chunk para
+ * torná-lo autossuficiente. Cada chunk contém cabeçalho e N linhas
+ * até atingir ~500 tokens.
  */
 final class CsvChunker implements ChunkerStrategyInterface
 {
@@ -21,7 +21,10 @@ final class CsvChunker implements ChunkerStrategyInterface
     private const float DEFAULT_CHARS_PER_TOKEN = 3.5;
 
     /**
-     * @return list<ChunkDTO>
+     * Divide o texto CSV em chunks com cabeçalho replicado.
+     *
+     * @param  string  $text  Conteúdo CSV bruto.
+     * @return list<ChunkDTO> Chunks gerados com índice e estimativa de tokens.
      */
     public function chunk(string $text): array
     {
@@ -94,7 +97,10 @@ final class CsvChunker implements ChunkerStrategyInterface
     }
 
     /**
-     * Estimate token count for a text.
+     * Estima a quantidade de tokens de um texto via divisão por caracteres.
+     *
+     * @param  string  $text  Texto a estimar.
+     * @return int Estimativa de tokens.
      */
     private function estimateTokens(string $text): int
     {

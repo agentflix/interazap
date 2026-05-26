@@ -35,7 +35,10 @@ final class AiPromptMasterController extends BaseController
     }
 
     /**
-     * Retorna um master prompt específico.
+     * Exibe um master prompt específico.
+     *
+     * @param  AiPromptMaster  $master  Instância do master prompt.
+     * @return MasterPromptResource Dados do master prompt.
      */
     public function show(AiPromptMaster $master): MasterPromptResource
     {
@@ -46,6 +49,10 @@ final class AiPromptMasterController extends BaseController
 
     /**
      * Cria um novo master prompt.
+     *
+     * @param  StoreMasterPromptRequest  $request  Dados validados do prompt.
+     * @param  CreateMasterPromptAction  $action  Ação de criação.
+     * @return JsonResponse Master prompt criado.
      */
     public function store(
         StoreMasterPromptRequest $request,
@@ -61,6 +68,11 @@ final class AiPromptMasterController extends BaseController
 
     /**
      * Atualiza um master prompt.
+     *
+     * @param  StoreMasterPromptRequest  $request  Dados validados do prompt.
+     * @param  AiPromptMaster  $master  Instância do master prompt a atualizar.
+     * @param  UpdateMasterPromptAction  $action  Ação de atualização.
+     * @return JsonResponse Master prompt atualizado.
      */
     public function update(
         StoreMasterPromptRequest $request,
@@ -77,6 +89,9 @@ final class AiPromptMasterController extends BaseController
 
     /**
      * Desativa um master prompt.
+     *
+     * @param  AiPromptMaster  $master  Instância do master prompt a desativar.
+     * @return JsonResponse Confirmação de desativação.
      */
     public function destroy(AiPromptMaster $master): JsonResponse
     {

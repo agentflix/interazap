@@ -10,7 +10,11 @@ use Illuminate\Redis\Connections\PredisConnection;
 use Illuminate\Support\Facades\Redis;
 
 /**
- * Command to consume AI run response stream messages from Redis.
+ * Comando para consumir mensagens do stream Redis de respostas de runs de IA.
+ *
+ * Lê o stream ai.run.response via Consumer Group e despacha AiRunTrackerJob
+ * para cada mensagem recebida. Projetado para rodar continuamente (55s por ciclo)
+ * com suporte a modo único (--once) para testes.
  */
 final class ConsumeAiRunResponsesCommand extends Command
 {
@@ -27,7 +31,7 @@ final class ConsumeAiRunResponsesCommand extends Command
     private int $blockMs = 1000;
 
     /**
-     * Execute the console command.
+     * Executa o consumo contínuo do stream Redis de respostas de runs.
      */
     public function handle(): int
     {

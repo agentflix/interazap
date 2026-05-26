@@ -23,7 +23,10 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Update/delete/task use-cases for CRM negotiations.
+ * Casos de uso de atualização, exclusão e gerenciamento de tarefas de negociações CRM.
+ *
+ * Aplica transições de status e etapa com side effects (eventos de automação,
+ * histórico de alterações) e gerencia o ciclo de vida das tarefas vinculadas.
  */
 final class UpdateCRMNegotiationAction
 {

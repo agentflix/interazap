@@ -8,12 +8,14 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Department serialization.
+ * Resource para serialização de departamento do CRM.
  */
 final class CRMDepartmentResource extends BaseJsonResource
 {
     /**
-     * @return array<string, mixed>
+     * Transforma o recurso em array para resposta JSON.
+     *
+     * @return array<string, mixed> Dados serializados do departamento.
      */
     protected function data(Request $request): array
     {

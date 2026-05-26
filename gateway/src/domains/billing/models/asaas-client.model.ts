@@ -73,3 +73,38 @@ export interface AsaasPaymentStatusResponse {
 export interface AsaasProductResponse {
   id?: string;
 }
+
+/** Payload para tokenização e consulta de método de pagamento. */
+export interface AsaasPaymentMethodPayload {
+  token: string;
+  customer: string;
+}
+
+/** Resposta com metadados do cartão tokenizado. */
+export interface AsaasPaymentMethodResponse {
+  brand?: string;
+  last4?: string;
+  expiryMonth?: string;
+  expiryYear?: string;
+}
+
+/** Payload para cobrança com token salvo. */
+export interface AsaasChargeWithTokenPayload {
+  customer: string;
+  billingType: 'CREDIT_CARD';
+  value: number;
+  dueDate: string;
+  description: string;
+  externalReference: string;
+  creditCardToken: string;
+}
+
+/** Resposta de cobrança com token. */
+export interface AsaasChargeWithTokenResponse {
+  id?: string;
+  status?: string;
+  creditCard?: {
+    creditCardBrand?: string;
+    creditCardNumber?: string;
+  };
+}

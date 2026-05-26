@@ -10,6 +10,9 @@ use Illuminate\Console\Command;
 
 /**
  * Reindexa todos os documentos ativos da base de conhecimento.
+ *
+ * Útil após alteração das dimensões de embedding ou troca de modelo de vetorização.
+ * Suporta filtragem por tenant (--tenant) e modo síncrono (--sync) para execução local.
  */
 class ReindexAllKnowledgeDocumentsCommand extends Command
 {
@@ -26,6 +29,9 @@ class ReindexAllKnowledgeDocumentsCommand extends Command
      */
     protected $description = 'Reindex all active AI knowledge documents with current embedding dimensions';
 
+    /**
+     * Despacha (ou executa de forma síncrona) jobs de reindexação para todos os documentos ativos.
+     */
     public function handle(): int
     {
         $tenantId = $this->option('tenant');

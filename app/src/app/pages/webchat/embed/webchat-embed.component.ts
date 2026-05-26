@@ -18,9 +18,9 @@ import { WebChatService } from '../services/webchat.service';
 import { AfSpinnerComponent } from '@shared/components';
 
 /**
- * WebChatEmbedComponent — embeddable chat widget for use in iframes on external sites.
- * Distinct from the full page: this version is self-contained and isolated (no outer layout).
- * Route: /embed/:tenantSlug
+ * Componente de chat incorporável para uso em iframes em sites externos.
+ * Difere da página completa: esta versão é autocontida e isolada (sem layout externo).
+ * Rota: /embed/:tenantSlug
  */
 @Component({
   selector: 'app-webchat-embed',
@@ -35,7 +35,7 @@ export class WebChatEmbedComponent implements OnInit, OnDestroy {
   private readonly webchatService = inject(WebChatService);
   private readonly document = inject(DOCUMENT);
 
-  /** Tracks whether dark mode was active before this embed forced light mode */
+  /** Indica se o modo escuro estava ativo antes do embed forçar o modo claro. */
   private wasDark = false;
 
   // ─── Child component references ────────────────────────────────────────────
@@ -88,9 +88,7 @@ export class WebChatEmbedComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Attempts to restore a session from sessionStorage when embedded.
-   */
+  /** Tenta restaurar uma sessão persistida no sessionStorage ao inicializar o embed. */
   private attemptSessionRestore(): void {
     const restored = this.webchatService.restoreSession();
     if (restored) {
@@ -110,7 +108,8 @@ export class WebChatEmbedComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Called when pre-chat form successfully creates a session.
+   * Chamado quando o formulário de pré-chat cria uma sessão com sucesso.
+   * @param data Token e ID da sessão recém-criada
    */
   onSessionReady(data: { token: string; sessionId: string }): void {
     this.visitorName.set(this.resolveVisitorName());

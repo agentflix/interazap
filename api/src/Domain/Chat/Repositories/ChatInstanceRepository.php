@@ -7,23 +7,23 @@ namespace Domain\Chat\Repositories;
 use Domain\Chat\Models\ChatInstance;
 
 /**
- * Contract to resolve chat instances by webhook token.
+ * Contrato de repositório para resolução de instâncias de chat por token de webhook.
  */
 interface ChatInstanceRepository
 {
     /**
-     * Resolve an active instance from the webhook token.
+     * Resolve uma instância ativa a partir do token de webhook.
      *
-     * @param  string  $token  Webhook token.
-     * @return ChatInstance|null Active instance or null when not found/inactive.
+     * @param  string  $token  Token de webhook da instância.
+     * @return ChatInstance|null Instância ativa ou null se não encontrada ou inativa.
      */
     public function resolveInstanceByToken(string $token): ?ChatInstance;
 
     /**
-     * Find instance by token without validating active status.
+     * Busca uma instância pelo token sem validar o status de ativação.
      *
-     * @param  string  $token  Webhook token.
-     * @return ChatInstance|null Found instance or null.
+     * @param  string  $token  Token de webhook da instância.
+     * @return ChatInstance|null Instância encontrada ou null.
      */
     public function findByWebhookToken(string $token): ?ChatInstance;
 }

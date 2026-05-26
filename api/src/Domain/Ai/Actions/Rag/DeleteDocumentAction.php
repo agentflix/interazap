@@ -8,21 +8,22 @@ use Domain\Ai\Models\AiKnowledgeDocument;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Action for deleting knowledge documents.
+ * Action para exclusão de documentos de conhecimento.
  *
- * Implements soft delete by setting is_active = false.
- * Optionally deletes file from storage.
+ * Implementa soft delete via is_active = false. Opcionalmente
+ * remove o arquivo físico do Storage.
  */
 final class DeleteDocumentAction
 {
     /**
-     * Delete (soft) a knowledge document.
+     * Realiza a exclusão lógica (soft delete) de um documento de conhecimento.
      *
-     * @param  bool  $deleteFile  Whether to also delete the file from storage
+     * @param  AiKnowledgeDocument  $document  Documento a excluir.
+     * @param  bool  $deleteFile  Se verdadeiro, também remove o arquivo do Storage.
      */
     public function execute(AiKnowledgeDocument $document, bool $deleteFile = false): void
     {
-        // Soft delete by marking inactive
+        // Exclusão lógica: marca como inativo
         $document->update(['is_active' => false]);
 
         // Optionally delete the file
@@ -32,11 +33,15 @@ final class DeleteDocumentAction
     }
 
     /**
-     * Hard delete a document and its chunks.
+     * Exclui permanentemente um documento e seus chunks do banco e do Storage.
+     *
+     * A exclusão dos chunks é tratada pelo evento deleting do model.
+     *
+     * @param  AiKnowledgeDocument  $document  Documento a excluir permanentemente.
      */
     public function forceDelete(AiKnowledgeDocument $document): void
     {
-        // Delete file from storage
+        // Remove arquivo físico do Storage
         if (Storage::exists($document->file_path)) {
             Storage::delete($document->file_path);
         }

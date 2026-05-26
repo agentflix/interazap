@@ -23,7 +23,18 @@ final class PlatformTenantHardDeleteAction
     private const PROTECTED_TENANT_DELETE_MESSAGE = 'Empresa principal InteraZap não pode ser excluída.';
 
     /**
-     * @return array{tenant_id:string,purged:bool}
+     * Executa o hard delete completo do tenant após validações de segurança.
+     *
+     * Valida a senha do admin, verifica ausência de pagamentos recentes e de super admins
+     * vinculados ao tenant, deleta todos os dados em tabelas relacionadas, remove storage e
+     * invalida o cache de status de cobrança.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a ser purgado.
+     * @param  string  $adminPassword  Senha do usuário admin para confirmação.
+     * @param  AuthUser  $actor  Usuário que está executando a ação.
+     * @return array{tenant_id:string,purged:bool} Resultado da operação.
+     *
+     * @throws \RuntimeException Quando a senha está incorreta, o tenant é protegido ou possui pagamentos/super admin.
      */
     public function execute(PlatformTenant $tenant, string $adminPassword, AuthUser $actor): array
     {
@@ -49,6 +60,11 @@ final class PlatformTenantHardDeleteAction
         ];
     }
 
+    /**
+     * Valida a senha do administrador que solicita o purge.
+     *
+     * @throws \RuntimeException Quando a senha está incorreta.
+     */
     private function validateAdminPassword(AuthUser $actor, string $password): void
     {
         if (! Hash::check($password, $actor->password)) {
@@ -56,6 +72,14 @@ final class PlatformTenantHardDeleteAction
         }
     }
 
+    /**
+     * Verifica condições de segurança antes de permitir o purge.
+     *
+     * Bloqueia o purge se: é o tenant protegido principal, tem pagamento nos últimos 30 dias
+     * ou possui algum usuário com papel de super admin.
+     *
+     * @throws \RuntimeException Em qualquer condição de bloqueio.
+     */
     private function assertSafetyChecks(PlatformTenant $tenant): void
     {
         if ($tenant->isProtectedDefaultTenant()) {
@@ -84,6 +108,14 @@ final class PlatformTenantHardDeleteAction
         }
     }
 
+    /**
+     * Deleta os dados do tenant em todas as tabelas relacionadas.
+     *
+     * Itera sobre a lista de tabelas, verifica existência de cada uma e exclui
+     * todos os registros com tenant_id correspondente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     */
     private function deleteTenantData(string $tenantId): void
     {
         $tables = [
@@ -126,12 +158,22 @@ final class PlatformTenantHardDeleteAction
         }
     }
 
+    /**
+     * Remove o diretório de armazenamento do tenant do disco configurado.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     */
     private function cleanupTenantStorage(string $tenantId): void
     {
         Storage::disk(config('filesystems.default'))
             ->deleteDirectory("tenants/{$tenantId}");
     }
 
+    /**
+     * Invalida o cache de status de cobrança do tenant.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     */
     private function forgetTenantStatusCache(string $tenantId): void
     {
         $prefix = (string) config('billing.delinquency.cache.billing_status_prefix', 'billing:tenant_status:');

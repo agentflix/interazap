@@ -21,6 +21,8 @@ final class CRMFunnelActions
     use GuardsUniqueName;
 
     /**
+     * Lista funis com filtros de busca e status, com paginação.
+     *
      * @param  array<string, mixed>  $filters
      */
     public function list(string $tenantId, array $filters = []): LengthAwarePaginator
@@ -49,6 +51,7 @@ final class CRMFunnelActions
             ->paginate();
     }
 
+    /** Retorna todos os funis ativos do tenant sem paginação, incluindo etapas. */
     public function all(string $tenantId): Collection
     {
         return CRMNegotiationFunnel::query()
@@ -59,6 +62,11 @@ final class CRMFunnelActions
             ->get();
     }
 
+    /**
+     * Cria um funil garantindo unicidade de nome no tenant.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o nome já existe no tenant
+     */
     public function create(string $tenantId, string $name, ?string $description = null, bool $isActive = true): CRMNegotiationFunnel
     {
         $this->guardUniqueName(CRMNegotiationFunnel::class, $tenantId, $name, 'Funil já cadastrado para este tenant.');
@@ -73,7 +81,12 @@ final class CRMFunnelActions
     }
 
     /**
-     * @param  array<string, mixed>  $data
+     * Atualiza os dados de um funil, verificando unicidade de nome se alterado.
+     *
+     * @param  array<string, mixed>  $data  Campos a atualizar (name, description, is_active)
+     * @return CRMNegotiationFunnel Funil atualizado com etapas carregadas
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o novo nome já existe no tenant
      */
     public function update(string $tenantId, string $id, array $data): CRMNegotiationFunnel
     {
@@ -92,12 +105,18 @@ final class CRMFunnelActions
         return $funnel->load('steps');
     }
 
+    /** Remove um funil pelo ID. */
     public function delete(string $tenantId, string $id): void
     {
         $funnel = $this->find($tenantId, $id);
         $funnel->delete();
     }
 
+    /**
+     * Adiciona uma etapa ao funil.
+     *
+     * @param  int  $order  Posição da etapa no funil
+     */
     public function addStep(
         string $tenantId,
         string $funnelId,
@@ -120,6 +139,8 @@ final class CRMFunnelActions
     }
 
     /**
+     * Lista as etapas de um funil ordenadas por posição.
+     *
      * @return \Illuminate\Support\Collection<int, CRMNegotiationFunnelStep>
      */
     public function listSteps(string $tenantId, string $funnelId): Collection
@@ -134,7 +155,10 @@ final class CRMFunnelActions
     }
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Atualiza os dados de uma etapa do funil.
+     *
+     * @param  array<string, mixed>  $payload  Campos a atualizar (name, color, is_active, order)
+     * @return CRMNegotiationFunnelStep Etapa atualizada
      */
     public function updateStep(string $tenantId, string $funnelId, string $stepId, array $payload): CRMNegotiationFunnelStep
     {
@@ -167,6 +191,7 @@ final class CRMFunnelActions
         return $step;
     }
 
+    /** Remove uma etapa de um funil pelo ID. */
     public function deleteStep(string $tenantId, string $funnelId, string $stepId): void
     {
         $this->find($tenantId, $funnelId);
@@ -179,7 +204,11 @@ final class CRMFunnelActions
     }
 
     /**
-     * @param  array<int, array<string, int|string>>  $steps
+     * Reordena as etapas de um funil conforme a lista fornecida.
+     *
+     * Usa offset de +1000 para evitar conflitos de chave única durante a reordenação atômica.
+     *
+     * @param  array<int, array<string, int|string>>  $steps  Lista de objetos com 'id' e 'order'
      */
     public function reorder(string $tenantId, string $funnelId, array $steps): void
     {
@@ -202,6 +231,7 @@ final class CRMFunnelActions
         });
     }
 
+    /** Retorna um funil pelo ID com suas etapas, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMNegotiationFunnel
     {
         return CRMNegotiationFunnel::query()

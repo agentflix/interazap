@@ -35,8 +35,7 @@ import type { ReasonLoss } from '@core/models/reason-loss.model';
 import { ReasonLossFormComponent } from './components/reason-loss-form/crm-reason-loss-form';
 
 /**
- * Reason Losses CRM page — CRUD with client-side search filtering.
- * Business logic preserved verbatim from source.
+ * Página de motivos de perda do CRM com CRUD completo e filtragem local por busca.
  */
 @Component({
   selector: 'app-reason-losses',

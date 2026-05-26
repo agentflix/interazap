@@ -2,15 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { ActivatedRoute, Router } from '@angular/router';
 import { AfAlertComponent, AfButtonComponent } from '@shared/components';
 
-/** Maps English backend messages to Portuguese user-friendly messages. */
+/** Mapeia mensagens do backend em inglês para mensagens amigáveis em português. */
 const MESSAGE_TRANSLATIONS: Record<string, string> = {
   'This action is unauthorized.': 'Você não tem permissão para realizar esta ação.',
   'Access denied.': 'Acesso negado.',
 };
 
 /**
- * Access Denied page — displayed when a user attempts an action
- * they do not have permission to perform (HTTP 403).
+ * Página de acesso negado — exibida quando o usuário tenta uma ação
+ * para a qual não possui permissão (HTTP 403).
  */
 @Component({
   selector: 'app-access-denied',
@@ -37,6 +37,7 @@ export class AccessDeniedComponent {
     }
   }
 
+  /** Navega para a página inicial da aplicação. */
   goHome(): void {
     void this.router.navigate(['/']);
   }

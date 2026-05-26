@@ -11,13 +11,23 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Evaluates active tenant guardrails against runtime actions.
+ * Avalia guardrails ativos do tenant contra ações de runtime.
+ *
+ * Verifica se as condições de cada guardrail são satisfeitas pela ação
+ * em execução. Guardrails do tipo BLOCK interrompem a ação imediatamente;
+ * do tipo LOG apenas registram a ocorrência. Combina guardrails estáticos
+ * (config) com guardrails dinâmicos (banco de dados).
  */
 final class GuardrailEvaluatorService
 {
     /**
-     * @param  array<string, mixed>  $input
-     * @param  array<string, mixed>  $output
+     * Avalia os guardrails do tenant contra a ação informada.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $actionType  Tipo da ação sendo executada.
+     * @param  array<string, mixed>  $input  Dados de entrada da ação.
+     * @param  array<string, mixed>  $output  Dados de saída da ação.
+     * @return GuardrailEvaluationResult Resultado da avaliação (passed ou blocked).
      */
     public function evaluate(
         string $tenantId,
@@ -58,6 +68,8 @@ final class GuardrailEvaluatorService
     }
 
     /**
+     * Resolve os guardrails ativos do tenant com cache de 5 minutos.
+     *
      * @return list<array<string, mixed>>
      */
     private function resolveGuardrails(string $tenantId): array
@@ -70,6 +82,8 @@ final class GuardrailEvaluatorService
     }
 
     /**
+     * Mescla guardrails estáticos (config) com guardrails do banco de dados.
+     *
      * @return list<array<string, mixed>>
      */
     private function mergeGuardrails(string $tenantId): array
@@ -100,15 +114,24 @@ final class GuardrailEvaluatorService
         return array_values([...$staticGuardrails, ...$dbGuardrails]);
     }
 
+    /** Gera a chave de cache para os guardrails do tenant. */
     private function guardrailsCacheKey(string $tenantId): string
     {
         return "autopilot:guardrails:tenant:{$tenantId}";
     }
 
     /**
-     * @param  array<string, mixed>  $conditions
-     * @param  array<string, mixed>  $input
-     * @param  array<string, mixed>  $output
+     * Verifica se as condições de um guardrail são satisfeitas pela ação.
+     *
+     * Suporta match por action_type, tool, operation, patterns regex,
+     * thresholds de desconto/tokens e menções a concorrentes.
+     *
+     * @param  array<string, mixed>  $conditions  Condições a verificar.
+     * @param  string  $actionType  Tipo da ação em execução.
+     * @param  array<string, mixed>  $input  Dados de entrada.
+     * @param  array<string, mixed>  $output  Dados de saída.
+     * @param  string  $ruleType  Tipo da regra (LOG ou BLOCK).
+     * @return bool True se todas as condições foram satisfeitas.
      */
     private function matchesConditions(
         array $conditions,

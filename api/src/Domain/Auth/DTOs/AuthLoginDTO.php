@@ -7,7 +7,7 @@ namespace Domain\Auth\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for login credentials.
+ * DTO para credenciais de login.
  *
  * @readonly
  */
@@ -21,7 +21,7 @@ final readonly class AuthLoginDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria DTO a partir da requisição HTTP.
      */
     public static function fromRequest(Request $request): self
     {
@@ -29,6 +29,8 @@ final readonly class AuthLoginDTO
     }
 
     /**
+     * Cria DTO a partir de array com dados de login.
+     *
      * @param  array<string, mixed>  $payload
      */
     public static function fromArray(array $payload): self
@@ -44,6 +46,8 @@ final readonly class AuthLoginDTO
     }
 
     /**
+     * Serializa o DTO para array.
+     *
      * @return array{email:string,password:string,remember:bool,device_name:?string}
      */
     public function toArray(): array

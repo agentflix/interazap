@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfProgressCircleComponent — Circular SVG progress indicator.
+ * Indicador de progresso circular SVG.
  *
  * @example
  * ```html
@@ -15,16 +15,16 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './progress-circle.html',
 })
 export class AfProgressCircleComponent {
-  /** Progress value (0–100) */
+  /** Valor do progresso (0–100) */
   readonly value = input(0);
 
-  /** Display size */
+  /** Tamanho de exibição */
   readonly size = input<'sm' | 'md' | 'lg'>('md');
 
-  /** Color variant */
+  /** Variante de cor */
   readonly variant = input<'accent' | 'info' | 'danger' | 'warning'>('accent');
 
-  /** Show percentage text */
+  /** Exibe o texto de percentual */
   readonly showValue = input(true);
 
   protected readonly radius = 15.5;

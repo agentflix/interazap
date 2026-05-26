@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfScrollAreaComponent — Custom scrollable container with thin scrollbar styling.
+ * Container de rolagem com estilização de barra fina.
  *
  * @example
  * ```html
@@ -9,9 +9,9 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
  *   <div class="space-y-2">...</div>
  * </af-scroll-area>
  *
- * <!-- Disable scrolling (overflow-visible) -->
+ * <!-- Desativa a rolagem (overflow-visible) -->
  * <af-scroll-area [scrollable]="false">
- *   <div>Content that can overflow...</div>
+ *   <div>Conteúdo que pode transbordar...</div>
  * </af-scroll-area>
  * ```
  */
@@ -23,13 +23,13 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   styleUrl: './scroll-area.scss',
 })
 export class AfScrollAreaComponent {
-  /** Max height of the scroll container */
+  /** Altura máxima do container de rolagem */
   readonly maxHeight = input('300px');
 
-  /** Whether scrolling is enabled. When false, uses overflow-visible and no max-height */
+  /** Indica se a rolagem está habilitada. Quando falso, usa overflow-visible sem max-height */
   readonly scrollable = input(true);
 
-  /** Container CSS classes based on scrollable state */
+  /** Classes CSS do container baseadas no estado de rolagem */
   protected readonly containerClasses = computed(() => {
     if (!this.scrollable()) {
       return 'overflow-visible';

@@ -4,8 +4,7 @@ import { AfApexchartComponent, AfCardComponent, AfEmptyStateComponent } from '@s
 import { type FunnelStep } from '../../models/dashboard.model';
 
 /**
- * Sales funnel chart — horizontal bar chart with step breakdown.
- * Business logic preserved verbatim from source.
+ * Gráfico de funil de vendas — barras horizontais com detalhamento por etapa.
  */
 @Component({
   selector: 'app-sales-funnel-chart',

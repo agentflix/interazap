@@ -12,9 +12,12 @@ use Domain\Chat\DTOs\ChatMessageDTO;
 use Domain\Chat\Models\ChatTicket;
 
 /**
- * Tool to send a message in a ticket.
+ * Ferramenta de IA para enviar mensagens em um ticket de atendimento.
  *
- * Security: Validates tenant_id to prevent cross-tenant access.
+ * Input esperado: ticket_id e content (obrigatórios); type, file_url, file_name, mime_type e file_size opcionais.
+ * Output produzido: message_id, ticket_id e status da mensagem enfileirada.
+ * Quando usar: responder ao cliente no contexto de um atendimento ativo.
+ * Segurança: valida tenant_id para evitar acesso entre tenants.
  */
 final class SendMessageTool implements AiToolInterface
 {
@@ -22,6 +25,7 @@ final class SendMessageTool implements AiToolInterface
         private SendChatMessageAction $messageActions,
     ) {}
 
+    /** Executa o envio da mensagem no ticket. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $ticketId = $input->parameters['ticket_id'] ?? null;
@@ -79,17 +83,21 @@ final class SendMessageTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::SEND_MESSAGE;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Sends a message to the customer in the context of a support ticket. The message will be queued for delivery via the appropriate channel.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

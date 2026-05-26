@@ -10,12 +10,15 @@ use Illuminate\Support\Facades\Queue;
 use Throwable;
 
 /**
- * Service for performing deep health checks on all system services.
+ * Serviço de verificação profunda de saúde dos serviços de sistema.
+ *
+ * Testa individualmente banco de dados, Redis e fila, retornando o status
+ * consolidado ('healthy', 'degraded' ou 'unhealthy') com latências medidas.
  */
 final class HealthCheckService
 {
     /**
-     * Perform comprehensive health check on all services.
+     * Executa verificação completa de saúde em todos os serviços.
      *
      * @return array{status: string, timestamp: string, services: array<string, array{status: string, latency_ms?: float, message?: string}>}
      */
@@ -37,7 +40,7 @@ final class HealthCheckService
     }
 
     /**
-     * Check database connectivity.
+     * Verifica a conectividade com o banco de dados.
      *
      * @return array{status: string, latency_ms?: float, message?: string}
      */
@@ -64,7 +67,7 @@ final class HealthCheckService
     }
 
     /**
-     * Check Redis connectivity.
+     * Verifica a conectividade com o Redis via escrita/leitura/deleção de chave.
      *
      * @return array{status: string, latency_ms?: float, message?: string}
      */
@@ -100,7 +103,7 @@ final class HealthCheckService
     }
 
     /**
-     * Check queue connectivity.
+     * Verifica a conectividade com a fila e retorna o tamanho atual da fila.
      *
      * @return array{status: string, latency_ms?: float, message?: string, queue_size?: int}
      */
@@ -129,9 +132,13 @@ final class HealthCheckService
     }
 
     /**
-     * Determine overall system status based on individual service statuses.
+     * Determina o status geral do sistema com base nos serviços individuais.
      *
-     * @param  array<string, array{status: string}>  $services
+     * Retorna 'healthy' se todos estiverem saudáveis, 'unhealthy' se todos
+     * falharam, ou 'degraded' se apenas parte dos serviços estiver falhando.
+     *
+     * @param  array<string, array{status: string}>  $services  Mapa de nome para status do serviço.
+     * @return string Status consolidado do sistema.
      */
     private function determineOverallStatus(array $services): string
     {

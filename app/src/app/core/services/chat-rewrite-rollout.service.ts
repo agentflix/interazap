@@ -5,16 +5,22 @@ const FORCE_KEY = 'chat_rewrite_v1_force';
 const ROLLOUT_KEY = 'chat_rewrite_v1_rollout';
 
 /**
- * Controls canary rollout for chat rewrite.
+ * Controla o rollout canário do chat rewrite.
  *
- * Priority order:
- * 1) local override (`chat_rewrite_v1_force` = on/off)
- * 2) tenant plan feature (`chat_rewrite_v1`) + rollout bucket
+ * Ordem de prioridade:
+ * 1) Override local (`chat_rewrite_v1_force` = on/off no localStorage)
+ * 2) Feature do plano do tenant (`chat_rewrite_v1`) + bucket de rollout estável
  */
 @Injectable({ providedIn: 'root' })
 export class ChatRewriteRolloutService {
   private readonly authStore = inject(AuthStoreService);
 
+  /**
+   * Verifica se o chat rewrite está habilitado para o usuário atual.
+   *
+   * Aplica ordem de prioridade: override local > feature do plano > bucket de rollout.
+   * @returns true se o recurso deve ser ativado para o usuário
+   */
   isEnabledForCurrentUser(): boolean {
     const force = this.getForcedDecision();
     if (force !== null) {

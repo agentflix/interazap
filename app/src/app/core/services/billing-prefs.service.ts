@@ -12,11 +12,24 @@ interface ApiResponse<T> {
   data: T;
 }
 
+/**
+ * Gerencia as preferências de cobrança do tenant autenticado.
+ *
+ * Permite configurar o modo de excedente (`overage_mode_override`):
+ * `stop` para bloquear uso ao atingir cota, `overage` para cobrar excedente,
+ * ou `null` para herdar o padrão do plano.
+ */
 @Injectable({ providedIn: 'root' })
 export class BillingPrefsService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/tenants/me`;
 
+  /**
+   * Atualiza o modo de excedente de cobrança do tenant.
+   *
+   * @param mode `stop` bloqueia uso, `overage` cobra excedente, `null` usa padrão do plano
+   * @returns Observable com as preferências atualizadas
+   */
   updateOverageMode(
     mode: 'stop' | 'overage' | null,
   ): Observable<ApiResponse<PlatformTenantBillingPrefs>> {

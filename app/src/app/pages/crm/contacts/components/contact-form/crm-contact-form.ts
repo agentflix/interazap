@@ -36,8 +36,8 @@ import { type CRMCompany, CRMCompanyService } from '@core/services/crm-company.s
 import { UtilsService } from '@core/services/utils.service';
 
 /**
- * Contact form component for creating and editing CRM contacts.
- * Follows Angular 20+ best practices with Signals and OnPush.
+ * Formulário de criação e edição de contatos do CRM.
+ * Suporta múltiplos telefones, e-mails, endereços e vínculo com empresa.
  */
 @Component({
   selector: 'app-contact-form',

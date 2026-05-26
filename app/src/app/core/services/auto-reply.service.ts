@@ -8,13 +8,11 @@ export type { AutoReplyAction, AutoReplyActionType, AutoReplyKeywordValidationRe
 
 
 /**
- * Service for Auto Reply rule management.
+ * Gerencia regras de resposta automática (auto reply).
  *
- * Responsible for configuring triggers based on keywords and automated actions,
- * such as sending messages or transferring to specific departments.
- *
- * @class AutoReplyService
- * @description Service for controlling input automation flows.
+ * Responsável por configurar gatilhos baseados em palavras-chave e ações
+ * automatizadas, como envio de mensagens ou transferência para departamentos
+ * específicos.
  */
 @Injectable({ providedIn: 'root' })
 export class AutoReplyService {
@@ -22,9 +20,9 @@ export class AutoReplyService {
   private readonly apiUrl = `${environment.apiUrl}/chat/auto-reply/rules`;
 
   /**
-   * Gets the list of configured auto reply rules with pagination support.
-   * @param params Pagination parameters.
-   * @returns {Observable<AutoReplyRuleListResponse>} Stream with encapsulated data.
+   * Retorna lista paginada de regras de auto reply configuradas.
+   * @param params Parâmetros de paginação: per_page, page
+   * @returns Observable com lista encapsulada de regras
    */
   list(params: { per_page?: number; page?: number } = {}): Observable<AutoReplyRuleListResponse> {
     let httpParams = new HttpParams();
@@ -54,62 +52,41 @@ export class AutoReplyService {
       );
   }
 
-  /**
-   * Retrieves details of a specific rule.
-   * @param id Rule identifier.
-   * @returns {Observable<AutoReplyRuleResponse>} Stream with the rule.
-   */
+  /** Retorna os detalhes de uma regra específica pelo ID. */
   show(id: string): Observable<AutoReplyRuleResponse> {
     return this.http
       .get<{ data: AutoReplyRule }>(`${this.apiUrl}/${id}`)
       .pipe(map((resp) => ({ success: true, data: resp.data })));
   }
 
-  /**
-   * Creates a new auto reply rule.
-   * @param payload Rule data.
-   * @returns {Observable<AutoReplyRuleResponse>} Stream with the created rule.
-   */
+  /** Cria uma nova regra de auto reply. */
   create(payload: AutoReplyRulePayload): Observable<AutoReplyRuleResponse> {
     return this.http
       .post<{ data: AutoReplyRule }>(this.apiUrl, payload)
       .pipe(map((resp) => ({ success: true, data: resp.data })));
   }
 
-  /**
-   * Updates an existing auto reply rule.
-   * @param id Rule identifier.
-   * @param payload Attributes to be changed.
-   * @returns {Observable<AutoReplyRuleResponse>} Stream with the updated rule.
-   */
+  /** Atualiza atributos de uma regra de auto reply existente. */
   update(id: string, payload: Partial<AutoReplyRulePayload>): Observable<AutoReplyRuleResponse> {
     return this.http
       .put<{ data: AutoReplyRule }>(`${this.apiUrl}/${id}`, payload)
       .pipe(map((resp) => ({ success: true, data: resp.data })));
   }
 
-  /**
-   * Removes a rule from the system.
-   * @param id Rule identifier.
-   * @returns {Observable<void>} Stream.
-   */
+  /** Remove uma regra de auto reply do sistema. */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Toggles the status (active/inactive) of a rule.
-   * @param id Rule identifier.
-   * @returns {Observable<AutoReplyRuleResponse>} Stream with the new status.
-   */
+  /** Alterna o status ativo/inativo de uma regra de auto reply. */
   toggle(id: string): Observable<AutoReplyRuleResponse> {
     return this.http.patch<AutoReplyRuleResponse>(`${this.apiUrl}/${id}/toggle`, {});
   }
 
   /**
-   * Validates if a keyword is available for use in the current context.
-   * @param params Validation criteria (keyword, instance, etc).
-   * @returns {Observable<AutoReplyKeywordValidationResponse>} Stream with availability result.
+   * Valida se uma palavra-chave está disponível para uso no contexto informado.
+   * @param params Critérios de validação: keyword, match_type, instance_id, department_id, rule_id
+   * @returns Observable com resultado de disponibilidade da palavra-chave
    */
   validateKeyword(params: {
     keyword: string;

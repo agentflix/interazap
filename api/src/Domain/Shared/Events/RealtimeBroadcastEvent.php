@@ -33,6 +33,8 @@ final class RealtimeBroadcastEvent implements ShouldBroadcastNow
     ) {}
 
     /**
+     * Retorna os canais privados para os quais o evento será transmitido.
+     *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn(): array
@@ -43,12 +45,17 @@ final class RealtimeBroadcastEvent implements ShouldBroadcastNow
         );
     }
 
+    /**
+     * Retorna o nome do evento a ser transmitido via broadcast.
+     */
     public function broadcastAs(): string
     {
         return $this->eventName;
     }
 
     /**
+     * Retorna o payload a ser enviado junto ao evento de broadcast.
+     *
      * @return array<string, mixed>
      */
     public function broadcastWith(): array

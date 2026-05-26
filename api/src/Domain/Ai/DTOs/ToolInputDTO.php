@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for tool execution input.
+ * DTO que representa os dados de entrada para execução de uma tool do Autopilot.
+ *
+ * Utilizado ao invocar uma ferramenta registrada, encapsulando o nome da tool,
+ * os parâmetros necessários e o contexto da conversa para que o handler
+ * processe a requisição corretamente.
  *
  * @readonly
  */

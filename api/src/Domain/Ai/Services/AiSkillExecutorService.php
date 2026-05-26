@@ -8,13 +8,26 @@ use Domain\Ai\Models\AiAgentSkill;
 use Illuminate\Support\Str;
 
 /**
- * Executes active skills bound to an AI agent.
+ * Serviço de execução das skills ativas vinculadas a um agente de IA.
+ *
+ * Contexto: as skills são executadas em duas fases: pré-run (antes da chamada LLM)
+ * para enrichment/routing do contexto, e pós-run (após a resposta LLM) para
+ * validação, sumarização e extração de dados. Skills são ordenadas por prioridade
+ * (metadata.priority, default 100, menor = primeiro).
  */
 final class AiSkillExecutorService
 {
     /**
-     * @param  array<string, mixed>  $context
+     * Executa as skills na fase pré-run (antes da chamada LLM).
+     *
+     * Aplica skills dos tipos classification, routing e custom para enriquecer
+     * o contexto antes da execução do agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  array<string, mixed>  $context  Contexto atual da run.
      * @return array{context: array<string, mixed>, trace: array<int, array<string, mixed>>}
+     *                                                                                       Contexto enriquecido e trace de skills aplicadas.
      */
     public function executePreRun(string $tenantId, string $agentId, array $context): array
     {
@@ -62,8 +75,16 @@ final class AiSkillExecutorService
     }
 
     /**
-     * @param  array<string, mixed>  $output
+     * Executa as skills na fase pós-run (após a resposta LLM).
+     *
+     * Aplica skills dos tipos validation, summarization e extraction sobre
+     * o output gerado pelo agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  array<string, mixed>  $output  Output da execução LLM.
      * @return array{output: array<string, mixed>, trace: array<int, array<string, mixed>>}
+     *                                                                                      Output enriquecido e trace de skills aplicadas.
      */
     public function executePostRun(string $tenantId, string $agentId, array $output): array
     {
@@ -127,7 +148,11 @@ final class AiSkillExecutorService
     }
 
     /**
-     * @return list<AiAgentSkill>
+     * Carrega e ordena as skills ativas do agente por prioridade.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @return list<AiAgentSkill> Skills ordenadas por metadata.priority (asc).
      */
     private function loadSkills(string $tenantId, string $agentId): array
     {
@@ -148,6 +173,12 @@ final class AiSkillExecutorService
             ->all();
     }
 
+    /**
+     * Resolve o tipo da skill a partir de metadata.type com fallback para 'custom'.
+     *
+     * @param  AiAgentSkill  $skill  Skill a processar.
+     * @return string Tipo normalizado (classification, extraction, routing, validation, summarization, custom).
+     */
     private function resolveType(AiAgentSkill $skill): string
     {
         $metadata = is_array($skill->metadata) ? $skill->metadata : [];

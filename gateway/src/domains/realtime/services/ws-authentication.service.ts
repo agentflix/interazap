@@ -33,7 +33,8 @@ export class WsAuthenticationService {
   }
 
   /**
-   * Initializes the cache lifecycle hooks.
+   * Inicializa os hooks de ciclo de vida do cache de tokens Sanctum.
+   * Agenda limpeza periódica a cada 60 segundos.
    */
   onModuleInit(): void {
     this.cleanupInterval = setInterval(() => {
@@ -44,7 +45,7 @@ export class WsAuthenticationService {
   }
 
   /**
-   * Clears in-memory cache references to avoid leaks on shutdown.
+   * Limpa as referências do cache em memória para evitar vazamentos ao desligar.
    */
   onModuleDestroy(): void {
     if (this.cleanupInterval) {
@@ -56,7 +57,11 @@ export class WsAuthenticationService {
   }
 
   /**
-   * Extracts a bearer token from websocket auth metadata.
+   * Extrai o token Bearer dos metadados de autenticação do WebSocket.
+   * Tenta em ordem: objeto `auth`, cabeçalho `Authorization`.
+   *
+   * @param client - Socket.IO Socket com handshake HTTP
+   * @returns Token Bearer ou `null` se não encontrado
    */
   extractToken(client: Socket): string | null {
     const handshake = client.handshake as unknown as AuthenticatedHandshake;
@@ -90,7 +95,11 @@ export class WsAuthenticationService {
   }
 
   /**
-   * Verifies JWT first, then falls back to Sanctum introspection.
+   * Verifica o token via JWT primeiro; em caso de falha, faz fallback para introspect Sanctum.
+   *
+   * @param token - Token a ser verificado (JWT ou Sanctum)
+   * @returns Payload com claims `sub`, `tenant_id` e opcionalmente `email`
+   * @throws Error se ambas as estratégias falharem
    */
   async verifyToken(token: string): Promise<JwtPayload> {
     const secret = this.configService.get<string>('jwt.secret');
@@ -273,7 +282,10 @@ export class WsAuthenticationService {
   }
 
   /**
-   * Resolve TTL do cache Sanctum em ms com clamp para janela efetiva (5-10 min).
+   * Resolve o TTL do cache Sanctum em ms com limite na janela efetiva (5-10 min).
+   * Lê `WS_SANCTUM_CACHE_TTL_MS`; usa 300.000ms como padrão se ausente ou inválido.
+   *
+   * @returns TTL em milissegundos dentro do intervalo [300.000, 600.000]
    */
   private resolveSanctumTokenCacheTtlMs(): number {
     const fallback = 300_000;
@@ -290,7 +302,10 @@ export class WsAuthenticationService {
   }
 
   /**
-   * Resolve limite máximo do cache Sanctum com limites seguros para pico de conexões.
+   * Resolve o limite máximo de entradas do cache Sanctum com valores seguros para pico de conexões.
+   * Lê `WS_SANCTUM_CACHE_MAX_ENTRIES`; usa 5.000 como padrão se ausente ou inválido.
+   *
+   * @returns Número máximo de entradas dentro do intervalo [2.000, 50.000]
    */
   private resolveSanctumTokenCacheMaxEntries(): number {
     const fallback = 5_000;

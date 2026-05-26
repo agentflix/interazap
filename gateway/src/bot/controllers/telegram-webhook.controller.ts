@@ -17,10 +17,11 @@ import type { NormalizedTelegramEvent } from '../services/telegram-normalizer.se
 const TELEGRAM_INBOUND_STREAM = 'telegram.inbound';
 
 /**
- * Receives webhook callbacks from Telegram Bot API.
+ * Recebe callbacks de webhook da Telegram Bot API.
  *
- * Every endpoint MUST return 200 quickly — Telegram retries on timeout.
- * Heavy processing is delegated to a Redis stream consumer.
+ * Contexto: módulo bot. Todo endpoint deve retornar 200 rapidamente —
+ * o Telegram reenvia em caso de timeout. O processamento pesado é
+ * delegado a um consumer do Redis Stream.
  */
 @Controller('webhooks/telegram')
 export class TelegramWebhookController {
@@ -34,8 +35,11 @@ export class TelegramWebhookController {
   /**
    * POST /webhooks/telegram/:token
    *
-   * Receives updates from Telegram Bot API.
-   * Protected by HMAC signature guard (X-Telegram-Bot-Api-Secret-Token header).
+   * Recebe atualizações da Telegram Bot API.
+   * Protegido pelo guard de assinatura HMAC (header X-Telegram-Bot-Api-Secret-Token).
+   * @param token Token único do bot na URL do webhook
+   * @param update Payload de atualização recebido do Telegram
+   * @returns Confirmação `{ ok: true }`
    */
   @Post(':token')
   @UseGuards(WebhookHmacSignatureGuard)
@@ -80,7 +84,8 @@ export class TelegramWebhookController {
   /**
    * GET /webhooks/telegram/health
    *
-   * Health check endpoint for monitoring.
+   * Endpoint de health check para monitoramento do serviço de webhook.
+   * @returns Objeto `{ status: 'ok', service: 'telegram-webhook' }`
    */
   @Get('health')
   health(): { status: 'ok'; service: 'telegram-webhook' } {
@@ -90,8 +95,9 @@ export class TelegramWebhookController {
   // ─── Private ───────────────────────────────────────────────
 
   /**
-   * Publishes a normalized Telegram event to the Redis stream
-   * for async processing by backend consumers.
+   * Publica um evento Telegram normalizado no Redis Stream
+   * para processamento assíncrono pelos consumers do backend.
+   * @param event Evento normalizado a ser publicado
    */
   private async publishToStream(event: NormalizedTelegramEvent): Promise<void> {
     const streamPayload: Record<string, unknown> = {

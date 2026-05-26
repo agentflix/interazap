@@ -7,7 +7,7 @@ export * from './sortable-list.model';
 
 
 /**
- * AfSortableListComponent — Reorderable list with drag handles.
+ * Lista reordenável com alças de arrasto.
  *
  * @example
  * ```html
@@ -22,10 +22,10 @@ export * from './sortable-list.model';
   templateUrl: './sortable-list.html',
 })
 export class AfSortableListComponent {
-  /** List items */
+  /** Itens da lista */
   readonly items = input<AfSortableItem[]>([]);
 
-  /** Emitted after reorder with new order */
+  /** Emitido após reordenação com a nova ordem */
   readonly reordered = output<AfSortableItem[]>();
 
   private dragIndex = -1;

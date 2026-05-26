@@ -15,9 +15,9 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Job that checks message usage thresholds and dispatches alert notifications.
+ * Job que verifica limiares de uso de mensagens e despacha notificações de alerta.
  *
- * Dispatched after each successful usage increment to fire 80%/100% alerts.
+ * Disparado após cada incremento bem-sucedido de uso para notificar nos limiares 80% e 100%.
  */
 final class CheckUsageThresholdsJob implements ShouldQueue
 {
@@ -31,6 +31,7 @@ final class CheckUsageThresholdsJob implements ShouldQueue
         public readonly string $cycleStart,
     ) {}
 
+    /** Verifica os limiares e despacha SendUsageAlertJob para cada limiar atingido. */
     public function handle(ThresholdChecker $checker): void
     {
         $thresholds = DB::transaction(function () use ($checker): array {

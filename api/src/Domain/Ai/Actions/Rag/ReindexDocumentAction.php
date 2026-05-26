@@ -10,18 +10,25 @@ use Domain\Ai\Models\AiKnowledgeChunk;
 use Domain\Ai\Models\AiKnowledgeDocument;
 
 /**
- * Action for reindexing a knowledge document.
+ * Action para reindexação de um documento de conhecimento.
  *
- * Deletes existing chunks and reprocesses the document.
+ * Remove todos os chunks existentes e reenfileira o processamento,
+ * resetando o status para PENDING. Só aceita documentos ativos e
+ * que não estejam em processamento.
  */
 final class ReindexDocumentAction
 {
     /**
-     * Reindex a document by reprocessing it.
+     * Reindexar um documento excluindo chunks existentes e reenfileirando o processamento.
+     *
+     * @param  AiKnowledgeDocument  $document  Documento a reindexar.
+     * @return AiKnowledgeDocument Documento com status resetado para PENDING.
+     *
+     * @throws \InvalidArgumentException Se o documento estiver inativo ou em processamento.
      */
     public function execute(AiKnowledgeDocument $document): AiKnowledgeDocument
     {
-        // Only reindex active documents
+        // Apenas documentos ativos podem ser reindexados
         if (! $document->is_active) {
             throw new \InvalidArgumentException('Cannot reindex inactive document');
         }

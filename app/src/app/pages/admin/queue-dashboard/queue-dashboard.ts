@@ -22,6 +22,10 @@ import {
 } from '@shared/components';
 import { type QueueMetrics, QueueService } from '@core/services/queue.service';
 
+/**
+ * Página de painel de monitoramento das filas BullMQ no módulo Admin.
+ * Exibe métricas em tempo real e permite pausar, retomar e limpar filas individualmente.
+ */
 @Component({
   selector: 'app-queue-dashboard',
   standalone: true,
@@ -36,10 +40,6 @@ import { type QueueMetrics, QueueService } from '@core/services/queue.service';
     AfDataTableComponent,
     AfStatusBadgeComponent,
     AfEmptyStateComponent,
-/**
- * Queue dashboard page component for the Admin module.
- * @selector app-queue-dashboard
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './queue-dashboard.html',
@@ -60,6 +60,7 @@ export class QueueDashboardComponent implements OnInit {
     this.subscribeToUpdates();
   }
 
+  /** Recarrega manualmente as métricas do painel de filas. */
   refresh(): void {
     this.loading.set(true);
     this.queueService
@@ -71,6 +72,10 @@ export class QueueDashboardComponent implements OnInit {
       });
   }
 
+  /**
+   * Pausa o processamento de uma fila específica.
+   * @param queueName Nome da fila a pausar
+   */
   pauseQueue(queueName: string): void {
     this.actionLoading.set(queueName);
     this.queueService
@@ -82,6 +87,10 @@ export class QueueDashboardComponent implements OnInit {
       });
   }
 
+  /**
+   * Retoma o processamento de uma fila pausada.
+   * @param queueName Nome da fila a retomar
+   */
   resumeQueue(queueName: string): void {
     this.actionLoading.set(queueName);
     this.queueService
@@ -93,6 +102,11 @@ export class QueueDashboardComponent implements OnInit {
       });
   }
 
+  /**
+   * Remove jobs com determinado status de uma fila.
+   * @param queueName Nome da fila a limpar
+   * @param status Status dos jobs a remover
+   */
   cleanQueue(queueName: string, status: 'completed' | 'failed' | 'delayed' | 'wait'): void {
     this.actionLoading.set(queueName);
     this.queueService

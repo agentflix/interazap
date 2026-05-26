@@ -26,6 +26,14 @@ interface ProductQuantityChangeEvent {
   value: string;
 }
 
+/**
+ * Aba de produtos da negociação — listagem e adição de itens de produto.
+ *
+ * @remarks
+ * Componente presentacional puro. Exibe produtos já vinculados com controles de
+ * quantidade e remoção, além de formulário para adicionar novos produtos com
+ * preço e desconto. Emite eventos granulares ao container.
+ */
 @Component({
   selector: 'app-negotiation-products-tab',
   standalone: true,
@@ -67,6 +75,7 @@ export class NegotiationProductsTabComponent {
     });
   }
 
+  /** Emite o evento de adição de produto à negociação. */
   emitAddProduct(): void {
     this.addProduct.emit();
   }
@@ -78,6 +87,7 @@ export class NegotiationProductsTabComponent {
     });
   }
 
+  /** Emite o evento de remoção de um produto da negociação. */
   emitRemoveProduct(item: NegotiationProductItem): void {
     this.removeProduct.emit(item);
   }

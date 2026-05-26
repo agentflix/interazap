@@ -12,12 +12,24 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+/**
+ * Controller de upload de mídia para Webchat público.
+ *
+ * Gerencia o recebimento e armazenamento de arquivos enviados por visitantes
+ * durante uma sessão webchat ativa, autenticada via JWT de sessão.
+ */
 final class WebChatMediaController extends BaseController
 {
     public function __construct(
         private readonly WebChatJwtService $jwtService,
     ) {}
 
+    /**
+     * Realizar o upload de um arquivo de mídia via sessão webchat.
+     *
+     * @param  WebChatMediaStoreRequest  $request  Solicitação validada contendo o arquivo e o token JWT.
+     * @return JsonResponse URL pública e metadados do arquivo armazenado.
+     */
     public function store(WebChatMediaStoreRequest $request): JsonResponse
     {
         $payload = $this->jwtService->validateToken($request->string('token')->toString());

@@ -27,7 +27,9 @@ final class AuthEventSubscriber
     ) {}
 
     /**
-     * Handle user login events.
+     * Registra log de login bem-sucedido no canal 'auth'.
+     *
+     * @param  Login  $event  Evento de login do Laravel.
      */
     public function handleLogin(Login $event): void
     {
@@ -50,7 +52,9 @@ final class AuthEventSubscriber
     }
 
     /**
-     * Handle failed login attempts.
+     * Registra log de tentativa de login com credenciais inválidas no canal 'auth'.
+     *
+     * @param  Failed  $event  Evento de falha de autenticação do Laravel.
      */
     public function handleFailed(Failed $event): void
     {
@@ -66,7 +70,9 @@ final class AuthEventSubscriber
     }
 
     /**
-     * Handle user logout events.
+     * Registra log de logout do usuário no canal 'auth'.
+     *
+     * @param  Logout  $event  Evento de logout do Laravel.
      */
     public function handleLogout(Logout $event): void
     {
@@ -88,7 +94,9 @@ final class AuthEventSubscriber
     }
 
     /**
-     * Handle password reset events.
+     * Registra log de redefinição de senha no canal 'auth'.
+     *
+     * @param  PasswordReset  $event  Evento de reset de senha do Laravel.
      */
     public function handlePasswordReset(PasswordReset $event): void
     {
@@ -109,9 +117,10 @@ final class AuthEventSubscriber
     }
 
     /**
-     * Register the listeners for the subscriber.
+     * Registra os listeners no dispatcher de eventos.
      *
-     * @return array<class-string, string>
+     * @param  Dispatcher  $events  Dispatcher de eventos do Laravel.
+     * @return array<class-string, string> Mapa de evento para nome do método handler.
      */
     public function subscribe(Dispatcher $events): array
     {

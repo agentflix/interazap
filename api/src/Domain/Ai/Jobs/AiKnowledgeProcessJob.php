@@ -26,16 +26,18 @@ use Illuminate\Support\Str;
 use Smalot\PdfParser\Parser;
 
 /**
- * Job for processing knowledge base documents.
+ * Job para processamento de documentos da base de conhecimento RAG.
  *
- * Flow:
- * 1. Update status to PROCESSING
- * 2. Read file from storage
- * 3. Extract text based on file type
- * 4. Chunk text using AiChunkingService
- * 5. Generate embeddings for each chunk
- * 6. Save chunks to database
- * 7. Update document status to READY
+ * Fluxo de execução:
+ * 1. Atualiza o status do documento para PROCESSING.
+ * 2. Lê o arquivo do storage.
+ * 3. Extrai texto conforme o tipo (TXT, CSV, JSON, PDF, HTML).
+ * 4. Fragmenta o texto via AiChunkingService.
+ * 5. Gera embeddings para cada chunk.
+ * 6. Persiste os chunks com deduplicação por hash SHA256.
+ * 7. Atualiza o status do documento para READY.
+ *
+ * Implementa ShouldBeUnique para evitar reprocessamento duplicado.
  */
 class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
 {
@@ -86,7 +88,7 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * Processa o documento: extrai texto, gera embeddings e persiste os chunks.
      */
     public function handle(
         AiChunkingServiceInterface $chunkingService,
@@ -517,7 +519,7 @@ class AiKnowledgeProcessJob implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Handle a job failure.
+     * Trata falha permanente: atualiza status para FAILED e dispara eventos de notificação.
      */
     public function failed(\Throwable $exception): void
     {

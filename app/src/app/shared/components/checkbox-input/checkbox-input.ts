@@ -15,12 +15,11 @@ import { AfFormErrorComponent } from '../form-error/form-error';
 import { resolveInputContainerClass } from '../input-container.util';
 
 /**
- * Checkbox input component for InteraZap UI Kit.
+ * Campo de checkbox estilizado com rótulo inline e integração com FormControl.
  *
- * @description Styled checkbox with inline label and FormControl integration.
- * Uses a custom visual checkbox (hidden native input + styled div overlay) to
- * ensure the checked state is always visible, including when set programmatically
- * (e.g. selectAll / bulk operations).
+ * Usa um checkbox visual customizado (input nativo oculto + div sobreposto) para
+ * garantir que o estado marcado fique visível mesmo quando definido programaticamente
+ * (ex.: selectAll / operações em lote).
  *
  * @example
  * ```html
@@ -42,34 +41,34 @@ export class AfCheckboxInputComponent {
   private readonly destroyRef = inject(DestroyRef);
   private syncedControl: FormControl<boolean> | null = null;
 
-  /** FormControl for the checkbox */
+  /** FormControl do checkbox */
   readonly control = input.required<FormControl<boolean>>();
 
-  /** Inline label text */
+  /** Texto do rótulo inline */
   readonly label = input<string>('');
 
-  /** data-test attribute for E2E tests */
+  /** Atributo data-test para testes E2E */
   readonly dataTest = input<string>();
 
-  /** aria-label for accessibility when no visible label is present */
+  /** aria-label para acessibilidade quando não há rótulo visível */
   readonly ariaLabel = input<string>();
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the field */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
-  /** Optional error message when control is invalid */
+  /** Mensagem de erro quando o controle é inválido */
   readonly errorMessage = input('Campo obrigatório.');
 
-  /** Unique ID for label-input association */
+  /** ID único para associação label-input */
   protected readonly checkboxId = `checkbox-${Math.random().toString(36).slice(2, 9)}`;
 
-  /** Reactive checked state — updated via valueChanges subscription */
+  /** Estado marcado reativo — atualizado via subscription no valueChanges */
   protected readonly isChecked = signal(false);
 
   protected readonly containerClasses = computed(() =>
@@ -78,7 +77,7 @@ export class AfCheckboxInputComponent {
 
   protected readonly showError = computed(() => this.control().invalid && this.control().touched);
 
-  /** Dynamic box classes based on checked state */
+  /** Classes dinâmicas do checkbox baseadas no estado marcado */
   protected readonly boxClasses = () => {
     const base = [
       'mt-0.5 size-4 shrink-0 rounded border cursor-pointer',
@@ -106,14 +105,14 @@ export class AfCheckboxInputComponent {
     });
   }
 
-  /** Toggle the control value when the custom box or label is clicked */
+  /** Alterna o valor do controle quando o checkbox ou rótulo é clicado */
   protected toggle(): void {
     if (this.control().disabled) return;
     this.control().setValue(!this.control().value);
     this.control().markAsTouched();
   }
 
-  /** Keep native checkbox in sync when the user interacts with it directly */
+  /** Mantém o checkbox nativo sincronizado quando o usuário interage diretamente */
   protected onNativeChange(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     this.isChecked.set(checked);

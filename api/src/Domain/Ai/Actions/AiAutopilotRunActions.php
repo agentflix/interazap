@@ -71,6 +71,15 @@ final class AiAutopilotRunActions
             ->findOrFail($id);
     }
 
+    /**
+     * Cancela uma execução em andamento e publica evento no Redis.
+     *
+     * Só cancela execuções nos status: queued, running ou paused.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $id  UUID da execução.
+     * @return AiAutopilotRun Execução com status atualizado.
+     */
     public function cancel(string $tenantId, string $id): AiAutopilotRun
     {
         $run = AiAutopilotRun::query()
@@ -96,6 +105,16 @@ final class AiAutopilotRunActions
         return $run;
     }
 
+    /**
+     * Cria o registro inicial da execução com status queued.
+     *
+     * Tenta resolver o playbook_id via contexto quando não informado diretamente
+     * (retrocompatibilidade com chamadas legadas que usavam context.playbook.name).
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  AiAutopilotRunDTO  $dto  Dados iniciais da execução.
+     * @return AiAutopilotRun Execução recém-criada.
+     */
     public function initiate(string $tenantId, AiAutopilotRunDTO $dto): AiAutopilotRun
     {
         $playbookId = $dto->playbookId;
@@ -120,14 +139,15 @@ final class AiAutopilotRunActions
     }
 
     /**
-     * Execute a single iteration of the tool loop.
+     * Executa uma única iteração do loop de tools.
      *
-     * Reads accumulated messages from $run->input_context['messages'],
-     * appends new messages from this iteration, and saves back to DB.
-     * If more tool calls remain, caller (AiRunExecutionJob) self-dispatches.
-     * If this is the final iteration, saves output and emits completion event.
+     * Lê as mensagens acumuladas de $run->input_context['messages'],
+     * anexa novas mensagens desta iteração e persiste de volta no banco.
+     * Se ainda houver tool calls pendentes, o caller (AiRunExecutionJob)
+     * faz auto-dispatch. Se for a iteração final, salva o output e emite
+     * o evento de conclusão.
      *
-     * @param  callable(string, array<string, mixed>):void|null  $emitEvent
+     * @param  callable(string, array<string, mixed>):void|null  $emitEvent  Callback para publicar eventos SSE/Redis.
      * @return array{messages: array<int, array<string, mixed>>, output: array<string, mixed>, hasMore: bool}
      */
     public function executeWithEvents(AiAutopilotRun $run, ?callable $emitEvent = null): array
@@ -194,7 +214,14 @@ final class AiAutopilotRunActions
     }
 
     /**
-     * Finalize a completed or blocked run — saves output, usage log, and emits event.
+     * Finaliza uma execução completa ou bloqueada.
+     *
+     * Salva o output, registra o uso no AiUsageLog e emite o evento
+     * correspondente (ai.run.completed ou ai.run.blocked).
+     *
+     * @param  AiAutopilotRun  $run  Execução a finalizar.
+     * @param  array<string, mixed>  $output  Resultado da execução.
+     * @param  callable(string, array<string, mixed>):void|null  $emitEvent  Callback de emissão de eventos.
      */
     public function finalizeRun(AiAutopilotRun $run, array $output, ?callable $emitEvent = null): void
     {
@@ -240,6 +267,13 @@ final class AiAutopilotRunActions
         }
     }
 
+    /**
+     * Inicia uma execução e despacha o job de processamento assíncrono.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  AiAutopilotRunDTO  $dto  Dados da execução.
+     * @return AiAutopilotRun Execução criada com status queued.
+     */
     public function run(string $tenantId, AiAutopilotRunDTO $dto): AiAutopilotRun
     {
         $run = $this->initiate($tenantId, $dto);
@@ -250,10 +284,13 @@ final class AiAutopilotRunActions
     }
 
     /**
-     * Gerar resposta via LLM baseada nas instruções do playbook.
+     * Gera a resposta via LLM com loop de tool calls e guardrails.
+     *
+     * Executa o loop: chamada LLM → avaliação de guardrail → execução de tool → nova chamada LLM,
+     * até atingir o máximo de iterações ou receber resposta final sem tool calls.
      *
      * @param  array<string, mixed>  $context  Contexto de entrada do usuário/sistema.
-     * @param  array<int, array<string, mixed>>  $toolDefinitions
+     * @param  array<int, array<string, mixed>>  $toolDefinitions  Definições de tools disponíveis ao agente.
      * @param  array<int, array<string, mixed>>  $initialMessages  Mensagens acumuladas de iterações anteriores (persisted in DB).
      * @return array{output: array<string, mixed>, messages: array<int, array<string, mixed>>}
      */
@@ -473,8 +510,11 @@ final class AiAutopilotRunActions
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $messages
-     * @param  array<int, array<string, mixed>>  $toolDefinitions
+     * Realiza chamada ao LLM com ferramentas disponíveis.
+     *
+     * @param  array<int, array<string, mixed>>  $messages  Histórico de mensagens da conversa.
+     * @param  array<int, array<string, mixed>>  $toolDefinitions  Definições de tools no formato OpenAI.
+     * @return AICompletionResponse Resposta do modelo.
      */
     private function completeWithTools(array $messages, array $toolDefinitions): AICompletionResponse
     {
@@ -487,11 +527,13 @@ final class AiAutopilotRunActions
         return $this->aiService->complete($request);
     }
 
+    /** Retorna o limite máximo de tokens configurado para respostas do Autopilot. */
     private function resolveMaxTokens(): int
     {
         return (int) config('ai.autopilot.max_tokens', self::DEFAULT_MAX_TOKENS);
     }
 
+    /** Retorna o número máximo de iterações de tools configurado para o Autopilot. */
     private function resolveMaxToolIterations(): int
     {
         return (int) config('ai.autopilot.max_tool_iterations', self::DEFAULT_MAX_TOOL_ITERATIONS);

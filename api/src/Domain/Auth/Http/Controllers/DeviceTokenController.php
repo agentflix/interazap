@@ -26,6 +26,12 @@ final class DeviceTokenController extends BaseController
         private readonly RevokeDeviceTokenAction $revokeDeviceTokenAction,
     ) {}
 
+    /**
+     * Registra ou reativa um token de dispositivo para push notifications.
+     *
+     * @param  RegisterDeviceTokenRequest  $request  Requisição com platform, token e device_name.
+     * @return JsonResponse Token registrado (201) ou reativado (200).
+     */
     public function register(RegisterDeviceTokenRequest $request): JsonResponse
     {
         $this->authorize('viewAny', AuthDeviceToken::class);
@@ -47,6 +53,13 @@ final class DeviceTokenController extends BaseController
         return $this->created(new AuthDeviceTokenResource($deviceToken), 'Token de dispositivo registrado');
     }
 
+    /**
+     * Revoga logicamente um token de dispositivo do usuário autenticado.
+     *
+     * @param  Request  $request  Requisição atual.
+     * @param  string  $id  UUID do token a revogar.
+     * @return JsonResponse Sem conteúdo (204) ou 403 se o token nao pertencer ao usuário.
+     */
     public function destroy(Request $request, string $id): JsonResponse
     {
         $this->authorize('viewAny', AuthDeviceToken::class);

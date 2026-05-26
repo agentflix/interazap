@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
  */
 final class ConfigurationNotificationController extends BaseController
 {
+    /** Injeta as actions de notificação. */
     public function __construct(
         private readonly ConfigurationNotificationActions $actions
     ) {}

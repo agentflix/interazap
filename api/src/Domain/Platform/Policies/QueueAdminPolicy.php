@@ -28,6 +28,7 @@ final class QueueAdminPolicy
         return $user->isSuperAdmin() || $this->hasManagePermission($user);
     }
 
+    /** Verifica se o usuário possui a permissão de gerenciamento de filas. */
     private function hasManagePermission(AuthUser $user): bool
     {
         try {

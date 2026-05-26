@@ -1,13 +1,16 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * Avatar component for user images or initials.
+ * Avatar de usuário com suporte a imagem, iniciais ou ícone de fallback.
+ *
+ * Contexto: utilizado em cabeçalhos de perfil, listas de contatos,
+ * itens de chat e qualquer área que identifique visualmente um usuário.
  *
  * @example
  * ```html
- * <af-avatar src="/img/user.jpg" alt="John Doe" size="md" />
- * <af-avatar initials="JD" size="lg" />
- * <af-avatar size="sm" />  <!-- Fallback icon -->
+ * <af-avatar src="/img/usuario.jpg" alt="João Silva" size="md" />
+ * <af-avatar initials="JS" size="lg" />
+ * <af-avatar size="sm" />  <!-- ícone de fallback -->
  * ```
  */
 @Component({
@@ -17,16 +20,16 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './avatar.html',
 })
 export class AfAvatarComponent {
-  /** Image source URL */
+  /** URL da imagem do avatar */
   readonly src = input<string | null>(null);
 
-  /** Image alt text */
+  /** Texto alternativo da imagem */
   readonly alt = input('');
 
-  /** Initials to show when no image */
+  /** Iniciais exibidas quando não há imagem */
   readonly initials = input<string | null>(null);
 
-  /** Avatar diameter */
+  /** Diâmetro do avatar */
   readonly size = input<'xs' | 'sm' | 'md' | 'lg' | 'xl'>('md');
 
   protected readonly avatarClasses = computed(() => {

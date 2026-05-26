@@ -10,7 +10,7 @@ export * from './radio-input.model';
 
 
 /**
- * AfRadioInputComponent — Styled radio button group with horizontal/vertical layout.
+ * Grupo de botões de rádio estilizado com layout horizontal ou vertical.
  *
  * @example
  * ```html
@@ -31,57 +31,57 @@ export * from './radio-input.model';
   templateUrl: './radio-input.html',
 })
 export class AfRadioInputComponent {
-  /** FormControl for the radio group */
+  /** FormControl do grupo de rádio */
   readonly control = input.required<FormControl<string>>();
 
-  /** Available options */
+  /** Opções disponíveis */
   readonly options = input.required<AfRadioOption[]>();
 
-  /** Radio group name (HTML name attribute) */
+  /** Atributo name do grupo de rádio HTML */
   readonly name = input.required<string>();
 
-  /** Group label */
+  /** Rótulo do grupo */
   readonly label = input<string>();
 
-  /** Show required asterisk */
+  /** Exibe asterisco de campo obrigatório */
   readonly required = input(false);
 
-  /** Layout orientation */
+  /** Orientação do layout */
   readonly orientation = input<'horizontal' | 'vertical'>('vertical');
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the field */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
-  /** Error message */
+  /** Mensagem de erro */
   readonly errorMessage = input('Selecione uma opção.');
 
-  /** data-test attribute for E2E */
+  /** Atributo data-test para testes E2E */
   readonly dataTest = input<string>();
 
-  /** Group flex direction based on orientation */
+  /** Classes CSS do contêiner */
   protected readonly containerClasses = computed(() =>
     resolveInputContainerClass(this.classContainer(), this.spacing()),
   );
 
-  /** Group flex direction based on orientation */
+  /** Direção flex do grupo baseada na orientação */
   protected readonly groupClasses = computed(() => {
     const base = 'flex gap-3';
     return this.orientation() === 'horizontal' ? `${base} flex-row flex-wrap` : `${base} flex-col`;
   });
 
-  /** Classes for each option label */
+  /** Classes de cada rótulo de opção */
   protected optionClasses(option: AfRadioOption): string {
     const base = 'inline-flex items-center gap-2.5 select-none';
     const cursor = option.disabled ? 'cursor-not-allowed' : 'cursor-pointer';
     return `${base} ${cursor}`;
   }
 
-  /** Whether to show error */
+  /** Indica se o erro deve ser exibido */
   protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
 }

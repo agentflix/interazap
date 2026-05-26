@@ -1,8 +1,6 @@
-/**
- * Models and types for autocomplete component.
- */
+/** Modelos e tipos do componente de autocompletar. */
 
-/** Autocomplete option */
+/** Opção exibida no menu suspenso do autocomplete. */
 export interface AfAutocompleteOption {
   value: string;
   label: string;

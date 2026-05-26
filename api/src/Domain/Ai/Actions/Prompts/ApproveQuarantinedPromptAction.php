@@ -18,6 +18,14 @@ final class ApproveQuarantinedPromptAction
         private readonly AiPromptHashService $hashService,
     ) {}
 
+    /**
+     * Aprova um prompt em quarentena, calculando e gravando o hash validado.
+     *
+     * @param  AiPromptTenant  $tenantPrompt  Prompt a aprovar.
+     * @return AiPromptTenant Prompt aprovado com hash atualizado.
+     *
+     * @throws AiPromptNotQuarantinedException Se o prompt não estiver em quarentena.
+     */
     public function execute(AiPromptTenant $tenantPrompt): AiPromptTenant
     {
         if (! $tenantPrompt->isQuarantined()) {

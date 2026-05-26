@@ -8,7 +8,11 @@ use Domain\Ai\Enums\AutopilotTriggerType;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Autopilot playbook.
+ * DTO que representa um playbook do Autopilot — um roteiro automatizado de ações.
+ *
+ * Utilizado para definir fluxos de trabalho que o agente de IA executa
+ * automaticamente quando condições específicas são atendidas, como
+ * classificação de tickets, respostas padrão ou escalonamento para humanos.
  *
  * @readonly
  */
@@ -29,7 +33,9 @@ final readonly class AiAutopilotPlaybookDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um request HTTP.
+     *
+     * @param  Request  $request  Requisição HTTP validada.
      */
     public static function fromRequest(Request $request): self
     {

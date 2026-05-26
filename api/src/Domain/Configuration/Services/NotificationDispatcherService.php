@@ -24,6 +24,7 @@ final class NotificationDispatcherService
 
     private const int DIGEST_LOCK_TTL_MINUTES = 1;
 
+    /** Injeta as dependências de criação de notificação e broadcast WebSocket. */
     public function __construct(
         private readonly ConfigurationNotificationActions $actions,
         private readonly GatewayBroadcastService $broadcast,
@@ -132,8 +133,10 @@ final class NotificationDispatcherService
     }
 
     /**
-     * @param  string|array<int, string>  $userIds
-     * @return array<int, string>
+     * Resolve a lista de IDs de destinatários, expandindo '*' para todos os usuários ativos do tenant.
+     *
+     * @param  string|array<int, string>  $userIds  Destinatários ou '*' para todos.
+     * @return array<int, string> Lista de UUIDs de usuários.
      */
     private function resolveRecipients(string $tenantId, string|array $userIds): array
     {
@@ -152,6 +155,14 @@ final class NotificationDispatcherService
         )));
     }
 
+    /**
+     * Busca a preferência de notificação persistida ou retorna um padrão em memória.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $userId  Identificador do usuário.
+     * @param  string  $type  Tipo de notificação.
+     * @return ConfigurationNotificationPreference Preferência encontrada ou padrão.
+     */
     private function resolvePreference(string $tenantId, string $userId, string $type): ConfigurationNotificationPreference
     {
         $preference = ConfigurationNotificationPreference::query()

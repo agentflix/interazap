@@ -200,4 +200,32 @@ class BillingGatewayServiceTest extends TestCase
 
         $this->assertTrue($result);
     }
+
+    public function test_create_payment_with_token_returns_payment_data(): void
+    {
+        Http::fake([
+            'http://gateway.test/internal/billing/payments' => Http::response([
+                'id' => 'pay-token-1',
+                'status' => 'CONFIRMED',
+                'creditCard' => [
+                    'creditCardBrand' => 'VISA',
+                    'creditCardNumber' => '4242',
+                ],
+            ], 200),
+        ]);
+
+        $service = new BillingGatewayService;
+        $result = $service->createPaymentWithToken(
+            customerId: 'cust-1',
+            cardToken: 'token-123',
+            amount: 99.9,
+            metadata: ['description' => 'Test', 'external_reference' => 'ext-1']
+        );
+
+        $this->assertSame('pay-token-1', $result['paymentId']);
+        $this->assertSame('CONFIRMED', $result['status']);
+        $this->assertSame('VISA', $result['brand']);
+        $this->assertSame('4242', $result['last4']);
+        $this->assertNull($service->getLastError());
+    }
 }

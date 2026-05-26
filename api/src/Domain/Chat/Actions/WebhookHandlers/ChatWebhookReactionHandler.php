@@ -8,14 +8,23 @@ use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Services\ChatBroadcastService;
 
 /**
- * Handler para reações em mensagens.
+ * Handler para eventos de reação em mensagens via webhook.
+ *
+ * Suporta detecção por tipo de evento e por conteúdo do payload (campo reaction).
+ * Emoji vazio remove a reação existente do remetente. Emite evento WebSocket de reação.
  */
 final class ChatWebhookReactionHandler implements ChatWebhookHandlerInterface
 {
     public function __construct(private readonly ChatBroadcastService $broadcastService) {}
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Suporta eventos de reação por tipo ('messages.reaction', 'message.reaction'),
+     * por tipo de mensagem no payload ('reaction', 'reactionmessage') ou pela
+     * presença do campo 'reaction' no payload.
+     *
+     * @param  string  $eventType  Tipo do evento recebido.
+     * @param  array<string, mixed>  $payload  Payload bruto do webhook.
+     * @return bool True para eventos de reação.
      */
     public function supports(string $eventType, array $payload): bool
     {
@@ -42,7 +51,13 @@ final class ChatWebhookReactionHandler implements ChatWebhookHandlerInterface
     }
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Processa o evento de reação, atualizando as reações da mensagem e emitindo broadcast.
+     *
+     * Opera silenciosamente se não encontrar message_id ou mensagem no banco.
+     * Emoji vazio remove reação existente do mesmo remetente (from_me).
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  array<string, mixed>  $payload  Payload bruto do evento de reação.
      */
     public function handle(string $tenantId, array $payload): void
     {

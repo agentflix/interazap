@@ -2,9 +2,9 @@ import { Component, ChangeDetectionStrategy, input, output, computed } from '@an
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfPaginationComponent — Navigates between pages of a paginated data set.
+ * Navega entre páginas de um conjunto de dados paginado.
  *
- * Follows the Laravel PaginationMeta contract:
+ * Segue o contrato de PaginationMeta do Laravel:
  * `{ current_page, last_page, per_page, total }`.
  *
  * @example
@@ -26,33 +26,33 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './pagination.html',
 })
 export class AfPaginationComponent {
-  /** Current active page (1-indexed) */
+  /** Página ativa atual (índice a partir de 1) */
   readonly currentPage = input.required<number>();
 
-  /** Last available page */
+  /** Última página disponível */
   readonly lastPage = input.required<number>();
 
-  /** Items per page */
+  /** Itens por página */
   readonly perPage = input(15);
 
-  /** Total number of items */
+  /** Total de itens */
   readonly total = input(0);
 
-  /** Emitted when user navigates to a new page */
+  /** Emitido quando o usuário navega para uma nova página */
   readonly pageChange = output<number>();
 
-  /** First item index on current page */
+  /** Índice do primeiro item na página atual */
   protected readonly rangeStart = computed(() => {
     if (this.total() === 0) return 0;
     return (this.currentPage() - 1) * this.perPage() + 1;
   });
 
-  /** Last item index on current page */
+  /** Índice do último item na página atual */
   protected readonly rangeEnd = computed(() =>
     Math.min(this.currentPage() * this.perPage(), this.total()),
   );
 
-  /** Array of page numbers to render, with -1 as ellipsis sentinel */
+  /** Array de números de página a renderizar, com -1 como sentinela de reticências */
   protected readonly visiblePages = computed(() => {
     const last = this.lastPage();
     const current = this.currentPage();

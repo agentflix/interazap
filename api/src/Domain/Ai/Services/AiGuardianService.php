@@ -153,7 +153,9 @@ PROMPT TO ANALYZE:
     }
 
     /**
-     * Cria uma instância do serviço a partir da configuração.
+     * Cria uma instância do serviço a partir da configuração da aplicação.
+     *
+     * Lê api_key, guardian_model e guardian_timeout de services.openai.*.
      */
     public static function fromConfig(): self
     {
@@ -165,7 +167,13 @@ PROMPT TO ANALYZE:
     }
 
     /**
-     * Extrai um JSON válido de uma string, se possível.
+     * Extrai o primeiro objeto JSON válido de uma string de resposta.
+     *
+     * Localiza a primeira ocorrência de `{` e a última de `}` para isolar
+     * o JSON mesmo quando o modelo inclui texto extra antes ou depois.
+     *
+     * @param  string  $content  Texto bruto da resposta do modelo.
+     * @return string|null Substring JSON ou null se não encontrado.
      */
     private function extractJsonObject(string $content): ?string
     {

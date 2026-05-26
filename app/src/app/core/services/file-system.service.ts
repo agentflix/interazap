@@ -5,15 +5,11 @@ export type { FileFilter } from '@core/models/file-system.model';
 
 
 /**
- * Filter for file open dialogs specifying allowed file types.
- */
-
-/**
- * Service for file system operations via Electron IPC.
+ * Realiza operações de sistema de arquivos via IPC do Electron.
  *
  * @remarks
- * Wraps Electron's file dialog and file writing APIs to provide
- * save, open, and export functionality for desktop builds.
+ * Encapsula os diálogos de arquivo e APIs de escrita do Electron para fornecer
+ * funcionalidades de salvar, abrir e exportar em builds desktop.
  */
 @Injectable({
   providedIn: 'root',
@@ -22,42 +18,42 @@ export class FileSystemService {
   private electronService = inject(ElectronService);
 
   /**
-   * Saves binary data to a file using Electron's save dialog.
+   * Salva dados binários em um arquivo usando o diálogo de salvar do Electron.
    *
-   * @param data - ArrayBuffer of file content
-   * @param filename - Default filename for the save dialog
-   * @returns Promise resolving to saved file path or null if cancelled
+   * @param data - `ArrayBuffer` com o conteúdo do arquivo
+   * @param filename - Nome de arquivo padrão para o diálogo
+   * @returns Promise com o caminho do arquivo salvo ou `null` se cancelado
    */
   async saveFile(data: ArrayBuffer, filename: string): Promise<string | null> {
     return this.electronService.saveFile(data, filename);
   }
 
   /**
-   * Opens a file using Electron's open dialog.
+   * Abre um arquivo usando o diálogo de abertura do Electron.
    *
-   * @param filters - Optional file type filters
-   * @returns Promise resolving to file path and content, or null if cancelled
+   * @param filters - Filtros opcionais de tipo de arquivo
+   * @returns Promise com caminho e conteúdo do arquivo, ou `null` se cancelado
    */
   async openFile(filters?: FileFilter[]): Promise<{ path: string; content: ArrayBuffer } | null> {
     return this.electronService.openFile({ filters });
   }
 
   /**
-   * Opens a folder in the system file explorer.
+   * Abre uma pasta no explorador de arquivos do sistema.
    *
-   * @param path - Folder path to open
-   * @returns Promise resolving to the opened folder path
+   * @param path - Caminho da pasta a abrir
+   * @returns Promise com o caminho da pasta aberta
    */
   async openFolder(path: string): Promise<string> {
     return this.electronService.openFolder(path);
   }
 
   /**
-   * Exports data as a JSON file.
+   * Exporta dados como arquivo JSON.
    *
-   * @param data - Object to serialize as JSON
-   * @param filename - Default filename for the save dialog
-   * @returns Promise resolving to saved file path or null if cancelled
+   * @param data - Objeto a serializar como JSON
+   * @param filename - Nome de arquivo padrão para o diálogo
+   * @returns Promise com o caminho do arquivo salvo ou `null` se cancelado
    */
   async exportJson(data: unknown, filename: string): Promise<string | null> {
     const jsonString = JSON.stringify(data, null, 2);
@@ -67,11 +63,11 @@ export class FileSystemService {
   }
 
   /**
-   * Exports an array of objects as a CSV file.
+   * Exporta um array de objetos como arquivo CSV.
    *
-   * @param data - Array of objects to convert to CSV
-   * @param filename - Default filename for the save dialog
-   * @returns Promise resolving to saved file path or null if no data
+   * @param data - Array de objetos a converter para CSV
+   * @param filename - Nome de arquivo padrão para o diálogo
+   * @returns Promise com o caminho do arquivo salvo ou `null` se não houver dados
    */
   async exportCsv(data: Record<string, unknown>[], filename: string): Promise<string | null> {
     if (data.length === 0) return null;
@@ -97,9 +93,9 @@ export class FileSystemService {
   }
 
   /**
-   * Imports a JSON file via open dialog.
+   * Importa um arquivo JSON via diálogo de abertura.
    *
-   * @returns Promise resolving to parsed JSON data or null if cancelled
+   * @returns Promise com os dados JSON analisados ou `null` se cancelado
    */
   async importJson<T>(): Promise<T | null> {
     const result = await this.openFile([{ name: 'JSON', extensions: ['json'] }]);

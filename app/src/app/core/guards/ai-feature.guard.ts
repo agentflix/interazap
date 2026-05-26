@@ -3,7 +3,7 @@ import { type CanActivateFn, Router } from '@angular/router';
 import { AuthStoreService } from '../services/auth-store.service';
 
 /**
- * Defines available AI feature flags that can be checked on a tenant plan.
+ * Flags de funcionalidades de IA disponíveis para verificação no plano do tenant.
  *
  * @example
  * ```typescript
@@ -21,20 +21,21 @@ interface AiPlanFeatures {
 }
 
 /**
- * Guard that checks if AI features are enabled for the current tenant plan.
- * First verifies that ai_enabled is true on the tenant plan.
- * Then optionally checks for a specific AI feature flag specified in route data.
- * If AI is disabled or the specific feature is not available, redirects to the home page.
+ * Protege rotas de IA verificando se as funcionalidades de IA estão habilitadas no plano do tenant.
  *
- * @param route - The route being activated, with optional data['aiFeature'] specifying which AI feature to check
- * @returns True if AI is enabled and the feature is available (or no feature specified), otherwise a UrlTree redirecting to /
+ * Primeiro verifica se `ai_enabled` é verdadeiro no plano. Em seguida, verifica
+ * opcionalmente uma flag de funcionalidade específica informada em `route.data['aiFeature']`.
+ * Redireciona para `/` se a IA estiver desabilitada ou a funcionalidade não estiver disponível.
+ *
+ * @param route - Rota sendo ativada; `data['aiFeature']` especifica qual flag verificar
+ * @returns `true` se a IA e a funcionalidade estiverem disponíveis, ou `UrlTree` redirecionando para `/`
  *
  * @example
  * ```typescript
- * // Check if AI is enabled at all
+ * // Verifica apenas se IA está habilitada
  * { path: 'ai', canActivate: [aiFeatureGuard] }
  *
- * // Check for specific AI feature
+ * // Verifica funcionalidade específica de IA
  * { path: 'ai/agents', canActivate: [aiFeatureGuard], data: { aiFeature: 'ai_agents_v2' } }
  * ```
  */

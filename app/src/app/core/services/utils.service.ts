@@ -6,19 +6,22 @@ import type { AddressData, CnpjData } from '@core/models/utils.model';
 export type { AddressData, CnpjData } from '@core/models/utils.model';
 
 
-/** CNPJ lookup response data */
-
-/** CEP lookup response data */
-
 /**
- * Utility service for external lookups (CNPJ, CEP) and formatting.
+ * Utilitários para consultas externas (CNPJ, CEP) e formatação de documentos/telefones.
+ *
+ * Contexto: service HTTP para lookup de dados públicos e helpers de formatação.
  */
 @Injectable({ providedIn: 'root' })
 export class UtilsService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
-  /** Lookup company data by CNPJ. */
+  /**
+   * Busca dados de empresa por CNPJ.
+   *
+   * @param cnpj - CNPJ limpo ou formatado
+   * @returns Observable com dados da empresa
+   */
   lookupCnpj(cnpj: string): Observable<{ data: { company_data: CnpjData } }> {
     const cleanCnpj = cnpj.replace(/\D/g, '');
     return this.http.get<{ data: { company_data: CnpjData } }>(
@@ -26,7 +29,12 @@ export class UtilsService {
     );
   }
 
-  /** Lookup address data by CEP. */
+  /**
+   * Busca dados de endereço por CEP.
+   *
+   * @param cep - CEP limpo ou formatado
+   * @returns Observable com dados do endereço
+   */
   lookupCep(cep: string): Observable<{ data: { address_data: AddressData } }> {
     const cleanCep = cep.replace(/\D/g, '');
     return this.http.get<{ data: { address_data: AddressData } }>(
@@ -34,7 +42,12 @@ export class UtilsService {
     );
   }
 
-  /** Formats a document string (CPF/CNPJ) for display */
+  /**
+   * Formata documento (CPF/CNPJ) para exibição.
+   *
+   * @param value - String com dígitos do documento
+   * @returns Documento formatado ou '—' se vazio
+   */
   formatDocument(value: string | undefined): string {
     if (!value) return '—';
     const digits = value.replace(/\D/g, '');
@@ -50,7 +63,12 @@ export class UtilsService {
     return value;
   }
 
-  /** Formats a phone number for display */
+  /**
+   * Formata número de telefone para exibição.
+   *
+   * @param value - String com dígitos do telefone
+   * @returns Telefone formatado ou '—' se vazio
+   */
   formatPhone(value: string | undefined): string {
     if (!value) return '—';
     const digits = value.replace(/\D/g, '');

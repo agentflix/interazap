@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * DTO for CRM model result.
+ * DTO genérico para resultado de model CRM.
  *
  * @readonly
  *

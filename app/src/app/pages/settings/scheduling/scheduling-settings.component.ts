@@ -24,7 +24,8 @@ import { ToastService } from '@core/services/toast.service';
 import type { SchedulingSettings } from '@core/models/configuration/scheduling-setting.model';
 
 /**
- * Scheduling settings page — event confirmation and reminder configuration.
+ * Página de configurações de agendamento — controla confirmação de eventos
+ * e notificações de lembrete com antecedência configurável.
  */
 @Component({
   selector: 'app-scheduling-settings',
@@ -96,6 +97,7 @@ export class SchedulingSettingsComponent implements OnInit {
 
   // ── Data loading ─────────────────────────────────────────────────────────
 
+  /** Carrega as configurações de agendamento da API e preenche o formulário. */
   loadSettings(): void {
     this.isLoading.set(true);
     this.error.set(null);
@@ -125,6 +127,7 @@ export class SchedulingSettingsComponent implements OnInit {
 
   // ── Actions ──────────────────────────────────────────────────────────────
 
+  /** Salva as configurações de agendamento via API após validar o formulário. */
   save(): void {
     if (this.isSaving()) {
       return;
@@ -149,6 +152,7 @@ export class SchedulingSettingsComponent implements OnInit {
     });
   }
 
+  /** Descarta alterações não salvas e recarrega as configurações da API. */
   reset(): void {
     this.form.reset();
     this.loadSettings();

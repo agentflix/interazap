@@ -35,8 +35,7 @@ import type { Tag } from '@core/models/tag.model';
 import { TagFormComponent } from './components/tag-form/tag-form';
 
 /**
- * Tags settings page — CRUD for CRM tags.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Página de configurações de tags do CRM com CRUD completo.
  */
 @Component({
   selector: 'app-tags',

@@ -10,11 +10,11 @@ import type {
 } from '@core/models/opening-hour.model';
 
 /**
- * Service for managing business opening hours.
+ * Gerencia os horários de atendimento do tenant.
  *
  * @remarks
- * Provides CRUD operations for defining weekly business hours schedules
- * and checking whether the business is currently open.
+ * Fornece operações de CRUD para definir agendas semanais de horário comercial
+ * e verificar se o negócio está aberto no momento.
  *
  * @example
  * ```typescript
@@ -30,69 +30,69 @@ export class OpeningHourService {
   private readonly apiUrl = `${environment.apiUrl}/opening-hours`;
 
   /**
-   * Lists all opening hour entries for the tenant.
+   * Lista todas as entradas de horário de atendimento do tenant.
    *
-   * @returns Observable with list of opening hours
+   * @returns Observable com a lista de horários
    */
   list(): Observable<OpeningHourListResponse> {
     return this.http.get<OpeningHourListResponse>(this.apiUrl);
   }
 
   /**
-   * Retrieves a single opening hour entry by ID.
+   * Retorna uma entrada de horário de atendimento pelo ID.
    *
-   * @param id - Opening hour identifier
-   * @returns Observable with opening hour data
+   * @param id - Identificador do horário
+   * @returns Observable com os dados do horário
    */
   show(id: string): Observable<OpeningHourResponse> {
     return this.http.get<OpeningHourResponse>(`${this.apiUrl}/${id}`);
   }
 
   /**
-   * Creates a new opening hour entry.
+   * Cria uma nova entrada de horário de atendimento.
    *
-   * @param data - Opening hour data (day_of_week, open_time, close_time, is_active)
-   * @returns Observable with created opening hour
+   * @param data - Dados do horário (day_of_week, open_time, close_time, is_active)
+   * @returns Observable com o horário criado
    */
   create(data: Partial<OpeningHour>): Observable<OpeningHourResponse> {
     return this.http.post<OpeningHourResponse>(this.apiUrl, data);
   }
 
   /**
-   * Updates an existing opening hour entry.
+   * Atualiza uma entrada de horário de atendimento existente.
    *
-   * @param id - Opening hour identifier
-   * @param data - Partial opening hour data to update
-   * @returns Observable with updated opening hour
+   * @param id - Identificador do horário
+   * @param data - Dados parciais do horário para atualização
+   * @returns Observable com o horário atualizado
    */
   update(id: string, data: Partial<OpeningHour>): Observable<OpeningHourResponse> {
     return this.http.put<OpeningHourResponse>(`${this.apiUrl}/${id}`, data);
   }
 
   /**
-   * Deletes an opening hour entry.
+   * Exclui uma entrada de horário de atendimento.
    *
-   * @param id - Opening hour identifier
-   * @returns Observable completing on deletion
+   * @param id - Identificador do horário
+   * @returns Observable que completa após a exclusão
    */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.apiUrl}/${id}`);
   }
 
   /**
-   * Performs a bulk update of all opening hours (replace all entries).
+   * Realiza atualização em lote de todos os horários (substitui todas as entradas).
    *
-   * @param data - Bulk update request with full opening hours array
-   * @returns Observable with updated list of opening hours
+   * @param data - Requisição de atualização em lote com o array completo de horários
+   * @returns Observable com a lista atualizada de horários
    */
   bulkUpdate(data: BulkUpdateOpeningHoursRequest): Observable<OpeningHourListResponse> {
     return this.http.put<OpeningHourListResponse>(`${this.apiUrl}/bulk`, data);
   }
 
   /**
-   * Checks whether the business is currently open based on configured hours.
+   * Verifica se o negócio está aberto com base nos horários configurados.
    *
-   * @returns Observable with is_open flag, current day, and current time
+   * @returns Observable com flag `is_open`, dia atual e hora atual
    */
   isOpen(): Observable<{
     success: boolean;

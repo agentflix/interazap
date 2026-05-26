@@ -4,8 +4,10 @@ import { lucideMessagesSquare } from '@ng-icons/lucide';
 import { ButtonComponent } from 'src/app/shared/components/buttons';
 
 /**
- * User chat empty state component for the Chat module.
- * @selector app-user-chat-empty-state
+ * Estado vazio da thread de chat.
+ *
+ * Exibido quando não há mensagens carregadas para o atendimento.
+ * Opcionalmente renderiza um botão para iniciar a conversa.
  */
 @Component({
   selector: 'app-user-chat-empty-state',

@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace Domain\Chat\Enums;
 
 /**
- * Communication service provider type.
+ * Tipo de provedor de comunicação suportado pela plataforma.
  */
 enum ProviderType: string
 {
     case UAZAPI = 'uazapi';
     case ZAPI = 'zapi';
     case META = 'meta';
+    /** Canal de atendimento via webchat embarcado. */
     case WEB = 'web';
     case TELEGRAM = 'telegram';
 
-    /**
-     * Returns label for display.
-     */
+    /** Retorna o rótulo amigável do provedor para exibição na interface. */
     public function label(): string
     {
         return match ($this) {

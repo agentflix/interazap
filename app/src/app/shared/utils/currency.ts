@@ -1,5 +1,5 @@
 /**
- * Formats a numeric value to BRL currency.
+ * Formata um valor numérico para moeda BRL (Real brasileiro).
  */
 export function formatCurrency(value?: number | null): string {
   return new Intl.NumberFormat('pt-BR', {

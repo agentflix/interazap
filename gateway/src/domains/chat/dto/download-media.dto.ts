@@ -1,8 +1,8 @@
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 /**
- * Payload for downloading media from Uazapi.
- * The media ID is required; output format flags are optional.
+ * Payload para download de midia recebida via Uazapi.
+ * O ID da midia e obrigatorio; os flags de formato de saida sao opcionais.
  */
 export class DownloadMediaDto {
   @IsString()

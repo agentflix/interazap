@@ -14,11 +14,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for complete tenant details (company + plan + resources).
+ * Resource de detalhes completos do tenant (empresa, plano contratado e recursos).
  */
 final class PlatformTenantDetailsResource extends JsonResource
 {
     /**
+     * Transforma o tenant em array com empresa, plano contratado e recursos consumidos.
+     *
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
@@ -34,6 +36,8 @@ final class PlatformTenantDetailsResource extends JsonResource
     }
 
     /**
+     * Constrói o bloco de dados da empresa do tenant.
+     *
      * @return array<string, mixed>
      */
     private function buildCompanyData(): array
@@ -63,7 +67,10 @@ final class PlatformTenantDetailsResource extends JsonResource
     }
 
     /**
-     * @return array<string, mixed>|null
+     * Constrói o bloco de dados do plano contratado.
+     *
+     * @param  PlatformPlan|null  $plan  Plano vigente ou null se não houver.
+     * @return array<string, mixed>|null Dados do plano ou null.
      */
     private function buildPlanData(?PlatformPlan $plan): ?array
     {
@@ -81,6 +88,10 @@ final class PlatformTenantDetailsResource extends JsonResource
     }
 
     /**
+     * Constrói o bloco de dados de recursos consumidos pelo tenant (usuários, instâncias, storage, negociações).
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  PlatformPlan|null  $plan  Plano vigente para calcular limites.
      * @return array<string, mixed>
      */
     private function buildResourcesData(string $tenantId, ?PlatformPlan $plan): array
@@ -140,7 +151,10 @@ final class PlatformTenantDetailsResource extends JsonResource
     }
 
     /**
-     * Calculate total storage usage for tenant in bytes.
+     * Calcula o uso total de armazenamento do tenant em bytes.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @return int Total de bytes utilizados.
      */
     private function calculateStorageUsedBytes(string $tenantId): int
     {

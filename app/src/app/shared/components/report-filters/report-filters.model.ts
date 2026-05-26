@@ -1,8 +1,8 @@
 /**
- * Models and types for report-filters component.
+ * Modelos e tipos do componente de filtros de relatório.
  */
 
-/** Payload emitted when filters are applied */
+/** Payload emitido quando os filtros são aplicados. */
 export interface AfReportFilterPayload {
   startDate: string;
   endDate: string;

@@ -1,13 +1,13 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfSplitPaneComponent — Two-panel split layout with flexible sizing.
+ * Layout dividido em dois painéis com dimensionamento flexível.
  *
  * @example
  * ```html
  * <af-split-pane direction="horizontal" [splitRatio]="30">
  *   <div left>Sidebar</div>
- *   <div right>Main</div>
+ *   <div right>Principal</div>
  * </af-split-pane>
  * ```
  */
@@ -19,10 +19,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   host: { class: 'block h-full' },
 })
 export class AfSplitPaneComponent {
-  /** Split direction */
+  /** Direção da divisão */
   readonly direction = input<'horizontal' | 'vertical'>('horizontal');
 
-  /** Left/top pane ratio as percentage */
+  /** Proporção do painel esquerdo/superior em porcentagem */
   readonly splitRatio = input(50);
 
   protected readonly wrapperClasses = computed(() => {

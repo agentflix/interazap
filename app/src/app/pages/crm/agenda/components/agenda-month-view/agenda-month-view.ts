@@ -13,8 +13,8 @@ import { AgendaCalendarViewComponent } from '../agenda-calendar-view/agenda-cale
 import { AgendaSidebarComponent, type AgendaTypeOption } from '../agenda-sidebar/agenda-sidebar';
 
 /**
- * Agenda month view component for the Crm module.
- * @selector app-agenda-month-view
+ * Visualização mensal da agenda usando FullCalendar (dayGridMonth).
+ * Expõe a API do calendário via getApi() para navegação pelo componente pai.
  */
 @Component({
   selector: 'app-agenda-month-view',

@@ -48,6 +48,9 @@ export class WebChatGateway
     private readonly wsAuthentication: WsAuthenticationService,
   ) {}
 
+  /**
+   * Inicializa o gateway, registrando o estado no log.
+   */
   onModuleInit(): void {
     this.logger.log('WebChatGateway initialized');
     this.fileLogger.info('WebChatGateway initialized');

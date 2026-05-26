@@ -18,7 +18,7 @@ interface ApiResponse<T> {
 }
 
 /**
- * Platform plan service page component for the Platform module.
+ * Service de planos da plataforma — CRUD completo com validação de slug e alternância de status.
  */
 @Injectable({ providedIn: 'root' })
 export class PlatformPlanService {

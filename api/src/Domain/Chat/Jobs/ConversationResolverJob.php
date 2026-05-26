@@ -13,6 +13,13 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Job assíncrono que roteia uma mensagem recebida para o destino correto.
+ *
+ * Após a persistência de uma mensagem, este job carrega o ticket e delega
+ * ao `ChatWebhookRouter` a decisão de encaminhar para IA, auto-reply ou
+ * agente humano conforme as configurações do tenant.
+ */
 final class ConversationResolverJob implements ShouldQueue
 {
     use Dispatchable;
@@ -22,7 +29,10 @@ final class ConversationResolverJob implements ShouldQueue
     use SerializesModels;
 
     /**
-     * @param  array<string, mixed>  $context
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $ticketId  Identificador do ticket a ser roteado.
+     * @param  string  $body  Conteúdo textual da mensagem recebida.
+     * @param  array<string, mixed>  $context  Contexto adicional do webhook (ex.: direction, session_id).
      */
     public function __construct(
         private readonly string $tenantId,
@@ -31,6 +41,9 @@ final class ConversationResolverJob implements ShouldQueue
         private readonly array $context = [],
     ) {}
 
+    /**
+     * Carrega o ticket e executa o roteamento da conversa.
+     */
     public function handle(ChatWebhookRouter $router): void
     {
         $ticket = ChatTicket::query()

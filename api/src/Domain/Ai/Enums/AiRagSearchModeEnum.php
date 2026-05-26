@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Domain\Ai\Enums;
 
 /**
- * Search mode for RAG retrieval.
+ * Modo de busca utilizado no pipeline RAG.
  *
- * - VECTOR: Pure vector similarity search
- * - HYBRID: Combined vector + keyword search
+ * - VECTOR: Busca exclusiva por similaridade vetorial (pgvector).
+ * - HYBRID: Busca combinada de similaridade vetorial + palavras-chave.
  */
 enum AiRagSearchModeEnum: string
 {
@@ -16,7 +16,7 @@ enum AiRagSearchModeEnum: string
     case HYBRID = 'hybrid';
 
     /**
-     * Returns label for display.
+     * Retorna o rótulo de exibição do modo de busca.
      */
     public function label(): string
     {

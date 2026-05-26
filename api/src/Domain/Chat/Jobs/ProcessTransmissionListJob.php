@@ -27,22 +27,28 @@ class ProcessTransmissionListJob implements ShouldBeUnique, ShouldQueue
     use SerializesModels;
 
     /**
-     * The number of seconds after which the job's unique lock will be released.
+     * Tempo em segundos até o bloqueio de unicidade ser liberado.
      */
     public int $uniqueFor = 300;
 
+    /**
+     * @param  ChatTransmissionList  $transmissionList  Lista de transmissão a ser processada.
+     */
     public function __construct(
         public ChatTransmissionList $transmissionList
     ) {}
 
     /**
-     * The unique ID of the job.
+     * ID único do job baseado no ID da lista de transmissão.
      */
     public function uniqueId(): string
     {
         return $this->transmissionList->id;
     }
 
+    /**
+     * Processa o próximo lote de contatos pendentes e agenda o lote seguinte se necessário.
+     */
     public function handle(ChatGatewayService $gateway): void
     {
         $this->transmissionList->refresh();
@@ -124,6 +130,9 @@ class ProcessTransmissionListJob implements ShouldBeUnique, ShouldQueue
         }
     }
 
+    /**
+     * Substitui variáveis de personalização ({{name}}, {{phone}}, etc.) pelos dados do contato.
+     */
     private function replaceVariables(string $message, object $contact): string
     {
         $vars = [
@@ -136,6 +145,9 @@ class ProcessTransmissionListJob implements ShouldBeUnique, ShouldQueue
         return str_replace(array_keys($vars), array_values($vars), $message);
     }
 
+    /**
+     * Obtém o token de webhook da instância de envio do tenant.
+     */
     private function getInstanceToken(string $tenantId, ?string $instanceId): ?string
     {
         // Simple lookup. Ideally inject a Repository or Service.

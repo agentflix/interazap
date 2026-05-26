@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for AI Notification serialization.
+ * Resource para serialização de notificação de vendedor da IA.
  */
 final class AiNotificationResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma o recurso em array.
      *
      * @return array<string, mixed>
      */

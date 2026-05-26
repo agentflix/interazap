@@ -8,12 +8,12 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for authenticated user serialization.
+ * Resource para serialização de usuário autenticado.
  */
 final class AuthUserResource extends BaseJsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma o resource em array de resposta.
      *
      * @return array<string, mixed>
      */

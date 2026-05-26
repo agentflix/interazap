@@ -8,12 +8,14 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Negotiation Task serialization.
+ * Resource para serialização de tarefa de negociação do CRM.
  */
 final class CRMNegotiationTaskResource extends BaseJsonResource
 {
     /**
-     * @return array<string, mixed>
+     * Transforma o recurso em array para resposta JSON.
+     *
+     * @return array<string, mixed> Dados serializados da tarefa.
      */
     protected function data(Request $request): array
     {

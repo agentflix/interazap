@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 /**
- * JWT-like service for WebChat session tokens.
+ * Serviço de tokens JWT para sessões WebChat.
  *
- * Gera e valida tokens signed para identificar sessões webchat,
+ * Gera e valida tokens assinados para identificar sessões webchat,
  * contendo claims: session_id, tenant_id, contact_id, ticket_id.
  *
  * Implementação própria usando HMAC-SHA256 sem dependência externa.
@@ -21,7 +21,7 @@ final class WebChatJwtService
 {
     private const ALGORITHM = 'sha256';
 
-    private const TTL_SECONDS = 86400; // 24 hours
+    private const TTL_SECONDS = 86400; // 24 horas
 
     private string $secret;
 

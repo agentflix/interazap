@@ -8,7 +8,7 @@ export * from './kanban-column.model';
 
 
 /**
- * AfKanbanColumnComponent — Single kanban board column.
+ * Coluna individual do quadro kanban.
  *
  * @example
  * ```html
@@ -24,18 +24,18 @@ export * from './kanban-column.model';
   templateUrl: './kanban-column.html',
 })
 export class AfKanbanColumnComponent {
-  /** Column title */
+  /** Título da coluna */
   readonly title = input('');
 
-  /** Column accent color */
+  /** Cor de destaque da coluna */
   readonly color = input('#6366f1');
 
-  /** Cards in this column */
+  /** Cards nesta coluna */
   readonly cards = input<AfKanbanCard[]>([]);
 
-  /** Card clicked */
+  /** Emitido quando um card é clicado */
   readonly cardClicked = output<string>();
 
-  /** Add new card */
+  /** Emitido ao clicar em adicionar novo card */
   readonly addClicked = output<void>();
 }

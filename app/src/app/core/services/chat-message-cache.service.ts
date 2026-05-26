@@ -6,8 +6,8 @@ export type { ChatMessageCacheDelegate } from '@core/models/chat-message-cache.m
 
 
 /**
- * Maximum number of ticket caches held in memory.
- * When limit is reached, the oldest cache is evicted.
+ * Número máximo de caches de ticket mantidos em memória.
+ * Quando o limite é atingido, o cache mais antigo é descartado.
  */
 const MAX_CACHE_SIZE = 10;
 
@@ -19,13 +19,13 @@ const MAX_CACHE_SIZE = 10;
  */
 
 /**
- * In-memory message cache per chat ticket.
+ * Cache de mensagens em memória por ticket de chat.
  *
  * @remarks
- * Stores message arrays as signals, keyed by ticketId.
- * Supports prepend, replace, and status update operations.
- * When a delegate is registered via `setDelegate()`, reads and writes
- * are forwarded to the delegate, eliminating duplicate caches.
+ * Armazena arrays de mensagens como signals, indexados por `ticketId`.
+ * Suporta operações de prepend, replace e atualização de status.
+ * Quando um delegate é registrado via `setDelegate()`, leituras e escritas
+ * são encaminhadas ao delegate, eliminando caches duplicados.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatMessageCacheService {
@@ -33,21 +33,21 @@ export class ChatMessageCacheService {
   private delegate: ChatMessageCacheDelegate | null = null;
 
   /**
-   * Registers an external store as the central source of truth for messages.
-   * Once set, read/write operations are forwarded to the delegate.
+   * Registra um store externo como fonte de verdade central para mensagens.
+   * Uma vez definido, operações de leitura/escrita são encaminhadas ao delegate.
    *
-   * @param delegate - The external message store implementing ChatMessageCacheDelegate
+   * @param delegate - Store externo de mensagens que implementa `ChatMessageCacheDelegate`
    */
   setDelegate(delegate: ChatMessageCacheDelegate): void {
     this.delegate = delegate;
   }
 
   /**
-   * Gets an existing cache signal for a ticket or creates a new empty one.
-   * When a delegate is set, the signal is synced from the delegate on first access.
+   * Retorna o signal de cache existente para um ticket ou cria um novo vazio.
+   * Quando um delegate está definido, o signal é sincronizado com o delegate no primeiro acesso.
    *
-   * @param ticketId - The ticket identifier
-   * @returns WritableSignal containing the message array for this ticket
+   * @param ticketId - Identificador do ticket
+   * @returns `WritableSignal` contendo o array de mensagens do ticket
    */
   getOrCreate(ticketId: string): WritableSignal<CalledMessage[]> {
     const existing = this.cache.get(ticketId);
@@ -76,10 +76,10 @@ export class ChatMessageCacheService {
   }
 
   /**
-   * Prepends a message to the beginning of the ticket's cache.
+   * Insere uma mensagem no início do cache do ticket.
    *
-   * @param ticketId - The ticket identifier
-   * @param message - The message to prepend
+   * @param ticketId - Identificador do ticket
+   * @param message - Mensagem a inserir no início
    */
   prepend(ticketId: string, message: CalledMessage): void {
     const sig = this.getOrCreate(ticketId);
@@ -91,10 +91,10 @@ export class ChatMessageCacheService {
   }
 
   /**
-   * Appends a message to the end of the ticket's cache.
+   * Adiciona uma mensagem ao final do cache do ticket.
    *
-   * @param ticketId - The ticket identifier
-   * @param message - The message to append
+   * @param ticketId - Identificador do ticket
+   * @param message - Mensagem a adicionar ao final
    */
   append(ticketId: string, message: CalledMessage): void {
     const sig = this.getOrCreate(ticketId);
@@ -106,10 +106,10 @@ export class ChatMessageCacheService {
   }
 
   /**
-   * Replaces all messages in a ticket's cache with the provided array.
+   * Substitui todas as mensagens do cache do ticket pelo array fornecido.
    *
-   * @param ticketId - The ticket identifier
-   * @param messages - Complete message array to set
+   * @param ticketId - Identificador do ticket
+   * @param messages - Array completo de mensagens a definir
    */
   setAll(ticketId: string, messages: CalledMessage[]): void {
     const sig = this.getOrCreate(ticketId);
@@ -118,11 +118,11 @@ export class ChatMessageCacheService {
   }
 
   /**
-   * Replaces a temporary (optimistic) message with the confirmed message from server.
+   * Substitui uma mensagem temporária (otimista) pela mensagem confirmada pelo servidor.
    *
-   * @param ticketId - The ticket identifier
-   * @param tempId - The temporary message ID to replace
-   * @param realMessage - The confirmed message from server
+   * @param ticketId - Identificador do ticket
+   * @param tempId - ID temporário da mensagem a substituir
+   * @param realMessage - Mensagem confirmada pelo servidor
    */
   replace(ticketId: string, tempId: string, realMessage: CalledMessage): void {
     const sig = this.cache.get(ticketId);
@@ -175,10 +175,10 @@ export class ChatMessageCacheService {
   }
 
   /**
-   * Updates message status (sent, delivered, read) in the ticket's cache.
+   * Atualiza o status (enviado, entregue, lido) de uma mensagem no cache do ticket.
    *
-   * @param ticketId - The ticket identifier
-   * @param event - Status event with message_id or external_id to match
+   * @param ticketId - Identificador do ticket
+   * @param event - Evento de status contendo `message_id` ou `external_id` para localizar a mensagem
    */
   updateStatus(ticketId: string, event: ChatMessageStatusEvent): void {
     const sig = this.cache.get(ticketId);
@@ -242,16 +242,16 @@ export class ChatMessageCacheService {
   }
 
   /**
-   * Removes the cache entry for a specific ticket.
+   * Remove a entrada de cache de um ticket específico.
    *
-   * @param ticketId - The ticket identifier
+   * @param ticketId - Identificador do ticket
    */
   invalidate(ticketId: string): void {
     this.cache.delete(ticketId);
   }
 
   /**
-   * Clears all cached message arrays.
+   * Limpa todos os arrays de mensagens em cache.
    */
   invalidateAll(): void {
     this.cache.clear();

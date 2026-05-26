@@ -7,7 +7,13 @@ namespace Domain\Chat\Services;
 use Domain\Chat\Models\ChatMessage;
 
 /**
- * Applies delivery/read/delete updates for existing chat messages.
+ * Aplica atualizações de entrega, leitura e deleção em mensagens de chat existentes.
+ *
+ * Localiza a mensagem pelo external_id e atualiza os campos de status e timestamps
+ * conforme o ack recebido (numérico ou string). Emite evento WebSocket de status ou
+ * deleção ao final quando o status efetivamente mudar.
+ *
+ * @category Services
  */
 final class ChatWebhookMessageStatusService
 {
@@ -16,7 +22,15 @@ final class ChatWebhookMessageStatusService
     ) {}
 
     /**
-     * @param  array<string, mixed>  $message
+     * Atualiza o status de entrega/leitura/deleção de uma mensagem existente.
+     *
+     * Suporta ack numérico (1=sent, 2=delivered, 3=read) e string (sent, delivered,
+     * read, deleted, revoke). Retorna false se a mensagem não for encontrada.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $externalId  ID externo da mensagem no provedor.
+     * @param  array<string, mixed>  $message  Payload do evento de status com chave 'ack' ou 'status'.
+     * @return bool True se a mensagem foi encontrada e processada.
      */
     public function update(string $tenantId, string $externalId, array $message): bool
     {

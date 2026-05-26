@@ -7,7 +7,10 @@ namespace Domain\Billing\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for invoice payment.
+ * DTO para pagamento de fatura via gateway.
+ *
+ * Carrega o método de pagamento (PIX ou CREDIT_CARD) e os dados opcionais
+ * de cartão e titular exigidos quando o método é cartão de crédito.
  *
  * @readonly
  *
@@ -26,15 +29,15 @@ final readonly class BillingInvoicePaymentDTO
         public ?array $holderInfo,
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria o DTO a partir de um FormRequest validado. */
     public static function fromRequest(FormRequest $request): self
     {
         return self::fromArray($request->validated());
     }
 
     /**
+     * Cria o DTO a partir de um array de dados.
+     *
      * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self

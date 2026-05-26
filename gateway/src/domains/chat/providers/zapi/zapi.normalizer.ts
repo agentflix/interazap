@@ -17,6 +17,12 @@ export class ZapiNormalizer {
 
   /**
    * Converte um payload bruto da Z-API em evento normalizado do dominio.
+   *
+   * @param webhookToken - Token do webhook da instancia
+   * @param payload - Payload bruto recebido da Z-API
+   * @param tenantId - Identificador do tenant dono da instancia
+   * @param instanceId - Identificador da instancia de chat
+   * @returns Evento normalizado no formato interno do gateway
    */
   normalize(
     webhookToken: string,
@@ -148,7 +154,7 @@ export class ZapiNormalizer {
       timestamp: new Date(),
       isFromMe: payload.fromMe ?? false,
       isGroup: payload.isGroup ?? false,
-      quotedMessageId: undefined, // Z-API doesn't provide this in standard payload
+      quotedMessageId: undefined, // Z-API nao fornece este campo no payload padrao
       senderPhoto: payload.senderPhoto ?? payload.photo ?? undefined,
     };
   }

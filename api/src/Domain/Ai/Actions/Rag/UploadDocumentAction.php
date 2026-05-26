@@ -16,9 +16,10 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Action for uploading and creating knowledge documents.
+ * Action para upload e criação de documentos de conhecimento.
  *
- * Handles file storage, versioning, and processing dispatch.
+ * Gerencia armazenamento do arquivo, versionamento (desativa versão anterior
+ * quando o nome já existe) e despacho do job de processamento.
  */
 final class UploadDocumentAction
 {
@@ -27,9 +28,18 @@ final class UploadDocumentAction
     ) {}
 
     /**
-     * Upload and create a knowledge document.
+     * Faz upload, cria o documento e enfileira o processamento.
      *
-     * @throws StorageLimitExceededException
+     * Se já existir um documento ativo com o mesmo nome, o anterior é
+     * desativado e o novo recebe a versão incrementada.
+     *
+     * @param  PlatformTenant  $tenant  Tenant dono do documento.
+     * @param  UploadedFile  $file  Arquivo enviado pelo usuário.
+     * @param  string|null  $name  Nome opcional; usa o nome do arquivo se omitido.
+     * @return AiKnowledgeDocument Documento criado com status PENDING.
+     *
+     * @throws StorageLimitExceededException Se o tenant não tiver espaço suficiente.
+     * @throws \InvalidArgumentException Se o tipo de arquivo não for suportado.
      */
     public function execute(
         PlatformTenant $tenant,
@@ -96,7 +106,11 @@ final class UploadDocumentAction
     }
 
     /**
-     * Store the uploaded file.
+     * Armazena o arquivo em caminho isolado por tenant e UUID único.
+     *
+     * @param  PlatformTenant  $tenant  Tenant dono do arquivo.
+     * @param  UploadedFile  $file  Arquivo a armazenar.
+     * @return string Caminho relativo no Storage.
      */
     private function storeFile(PlatformTenant $tenant, UploadedFile $file): string
     {

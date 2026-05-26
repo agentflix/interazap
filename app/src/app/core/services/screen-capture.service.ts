@@ -18,11 +18,10 @@ interface ElectronMediaConstraints {
 }
 
 /**
- * Service for screen capture and recording in Electron environments.
+ * Captura e gravação de tela em ambientes Electron.
  *
- * @remarks
- * Wraps the Electron desktopCapture API and MediaRecorder to provide
- * screen recording functionality with file saving capabilities.
+ * Contexto: wrapper da API desktopCapture do Electron e MediaRecorder para
+ * gravação de tela com salvamento de arquivo.
  */
 @Injectable({
   providedIn: 'root',
@@ -31,19 +30,19 @@ export class ScreenCaptureService {
   private electronService = inject(ElectronService);
 
   /**
-   * Retrieves available screen sources (displays/windows) for capture.
+   * Retorna as fontes de captura disponíveis (telas/janelas).
    *
-   * @returns Promise resolving to array of ScreenSource objects
+   * @returns Promise com array de objetos ScreenSource
    */
   async getScreenSources(): Promise<ScreenSource[]> {
     return this.electronService.getScreenSources();
   }
 
   /**
-   * Captures a screen or window using the specified source ID.
+   * Captura uma tela ou janela usando o ID de fonte especificado.
    *
-   * @param sourceId - The desktopCapture source ID to capture
-   * @returns Promise resolving to MediaStream or null if capture fails
+   * @param sourceId - ID da fonte desktopCapture para capturar
+   * @returns Promise com MediaStream ou null se a captura falhar
    */
   async captureScreen(sourceId: string): Promise<MediaStream | null> {
     try {
@@ -69,10 +68,10 @@ export class ScreenCaptureService {
   }
 
   /**
-   * Creates a MediaRecorder instance for the given stream.
+   * Cria uma instância MediaRecorder para o stream informado.
    *
-   * @param stream - The MediaStream to record
-   * @returns MediaRecorder instance or null if creation fails
+   * @param stream - MediaStream para gravar
+   * @returns MediaRecorder ou null se a criação falhar
    */
   startRecording(stream: MediaStream): MediaRecorder | null {
     try {
@@ -87,11 +86,11 @@ export class ScreenCaptureService {
   }
 
   /**
-   * Saves a recorded blob to disk via Electron's file save dialog.
+   * Salva um blob gravado no disco via diálogo de arquivo do Electron.
    *
-   * @param blob - The recorded blob data
-   * @param filename - The desired filename for the saved file
-   * @returns Promise resolving to saved file path or null on failure
+   * @param blob - Dados blob gravados
+   * @param filename - Nome desejado para o arquivo salvo
+   * @returns Promise com caminho do arquivo salvo ou null em caso de falha
    */
   async saveRecording(blob: Blob, filename: string): Promise<string | null> {
     const arrayBuffer = await blob.arrayBuffer();

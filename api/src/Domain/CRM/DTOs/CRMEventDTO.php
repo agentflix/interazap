@@ -9,7 +9,7 @@ use Domain\CRM\Models\CRMEvent;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for CRM calendar event.
+ * DTO para evento de agenda do CRM.
  *
  * @readonly
  */
@@ -40,9 +40,7 @@ final readonly class CRMEventDTO
         public array $reminders = [],
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria DTO a partir de um FormRequest, usando o tenant e usuário autenticado. */
     public static function fromRequest(FormRequest $request): self
     {
         $data = $request->validated();

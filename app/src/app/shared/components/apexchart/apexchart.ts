@@ -19,12 +19,14 @@ type ApexChartSeries = ApexAxisChartSeries | ApexNonAxisChartSeries;
 type ApexExtraOptions = Record<string, unknown>;
 
 /**
- * AfApexchartComponent — Lightweight wrapper around the ApexCharts library
- * that applies InteraZap design tokens and reacts to dark mode changes.
+ * Wrapper leve em torno da biblioteca ApexCharts, aplicando os design tokens
+ * do InteraZap e reagindo automaticamente às mudanças de tema escuro/claro.
  *
- * > Note: Requires `apexcharts` to be installed (`npm install apexcharts`).
- * > This component uses the vanilla JS API directly to avoid the need for
- * > the `ngx-apexcharts` Angular wrapper dependency.
+ * Requer `apexcharts` instalado (`npm install apexcharts`). Usa a API
+ * JavaScript pura para evitar a dependência do pacote `ngx-apexcharts`.
+ *
+ * Contexto: utilizado em dashboards e relatórios para exibir gráficos
+ * de barras, linhas, área, donuts, pizza e radial.
  *
  * @example
  * ```html
@@ -43,22 +45,22 @@ type ApexExtraOptions = Record<string, unknown>;
   templateUrl: './apexchart.html',
 })
 export class AfApexchartComponent implements OnDestroy {
-  /** Chart type */
+  /** Tipo do gráfico */
   readonly type = input<'line' | 'bar' | 'area' | 'donut' | 'pie' | 'radialBar' | 'radar'>('bar');
 
-  /** Data series */
+  /** Séries de dados */
   readonly series = input.required<ApexAxisChartSeries | ApexNonAxisChartSeries>();
 
-  /** X-axis category labels */
+  /** Rótulos de categoria do eixo X */
   readonly categories = input<string[]>([]);
 
-  /** Chart height in pixels */
+  /** Altura do gráfico em pixels */
   readonly height = input('320');
 
-  /** Optional chart title */
+  /** Título opcional do gráfico */
   readonly chartTitle = input<string>();
 
-  /** Custom color palette (defaults to InteraZap tokens) */
+  /** Paleta de cores customizada (padrão usa tokens do InteraZap) */
   readonly colors = input<string[]>([
     '#6366f1', // accent-500
     '#8b5cf6', // violet
@@ -68,23 +70,23 @@ export class AfApexchartComponent implements OnDestroy {
     '#10b981', // emerald
   ]);
 
-  /** Labels for donut/pie/radialBar charts */
+  /** Rótulos para gráficos donut/pie/radialBar */
   readonly labels = input<string[]>([]);
 
-  /** Extra ApexCharts options deep-merged into defaults (stacked, horizontal, radialBar, etc.) */
+  /** Opções extras do ApexCharts mescladas nas configurações padrão */
   readonly extraOptions = input<ApexExtraOptions>({});
 
   private readonly theme = inject(ThemeService);
   private readonly chartContainer = viewChild<ElementRef<HTMLDivElement>>('chartContainer');
 
-  /** Minimal interface for ApexCharts instance (avoids importing sparse third-party types) */
+  /** Interface mínima para instância do ApexCharts */
   private chart: { destroy(): void; render(): Promise<unknown> } | null = null;
   private renderVersion = 0;
 
   constructor() {
-    // Render chart when inputs or theme changes
+    // Renderiza o gráfico quando inputs ou tema mudam
     effect(() => {
-      // Read reactive inputs to track them
+      // Lê inputs reativos para rastreá-los
       const type = this.type();
       const series = this.series();
       const categories = this.categories();

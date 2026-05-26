@@ -40,8 +40,7 @@ import { SettingsUserFormComponent } from './components/settings-user-form/setti
 import { getInitials } from '@shared/utils/string.utils';
 
 /**
- * Users settings page — CRUD + status toggle for tenant users.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Página de usuários — CRUD completo com seleção em massa e alternância de status dos usuários do tenant.
  */
 @Component({
   selector: 'app-settings-users',
@@ -99,13 +98,17 @@ export class SettingsUsers implements OnInit {
     this.filterStatusControl.value !== 'all' ? 1 : 0,
   );
 
+  /** Abre o drawer de filtros. */
   openFilter(): void { this.isFilterOpen.set(true); }
+  /** Fecha o drawer de filtros. */
   closeFilter(): void { this.isFilterOpen.set(false); }
 
+  /** Limpa todos os filtros ativos. */
   clearFilter(): void {
     this.filterStatusControl.setValue('all');
   }
 
+  /** Aplica os filtros e fecha o drawer. */
   applyFilter(): void {
     this.closeFilter();
   }
@@ -187,6 +190,7 @@ export class SettingsUsers implements OnInit {
 
   // ── Data loading ─────────────────────────────────────────────────────────────
 
+  /** Carrega a lista paginada de usuários com filtros ativos aplicados. */
   loadUsers(): void {
     this.isLoading.set(true);
     this.hasError.set(false);
@@ -221,43 +225,66 @@ export class SettingsUsers implements OnInit {
       });
   }
 
+  /**
+   * Filtra a listagem pelo termo de busca.
+   * @param term Texto de busca
+   */
   onSearch(term: string): void {
     this.searchTerm = term;
     this.currentPage = 1;
     this.loadUsers();
   }
 
+  /**
+   * Navega para a página especificada da listagem.
+   * @param page Número da página
+   */
   loadPage(page: number): void {
     this.currentPage = page;
     this.loadUsers();
   }
 
+  /** Recarrega a listagem após erro. */
   retry(): void {
     this.loadUsers();
   }
 
   // ── CRUD actions ─────────────────────────────────────────────────────────────
 
+  /** Abre o modal no modo de criação de novo usuário. */
   openCreate(): void {
     this.selectedUser.set(null);
     this.showFormModal.set(true);
   }
 
+  /**
+   * Abre o modal no modo de edição do usuário.
+   * @param user Usuário a editar
+   */
   openEdit(user: SettingsUser): void {
     this.selectedUser.set(user);
     this.showFormModal.set(true);
   }
 
+  /**
+   * Abre o modal de confirmação de exclusão individual.
+   * @param user Usuário a excluir
+   */
   openDelete(user: SettingsUser): void {
     this.userToDelete.set(user);
     this.showDeleteModal.set(true);
   }
 
+  /** Abre o modal de confirmação de exclusão em massa dos usuários selecionados. */
   openBulkDelete(): void {
     this.userToDelete.set(null);
     this.showDeleteModal.set(true);
   }
 
+  /**
+   * Fecha o modal e recarrega a lista após salvar um usuário.
+   * @param user Usuário salvo
+   */
   handleFormSaved(user: SettingsUser): void {
     this.showFormModal.set(false);
     this.toast.success('Usuário salvo com sucesso.');
@@ -265,10 +292,12 @@ export class SettingsUsers implements OnInit {
     void user;
   }
 
+  /** Fecha o modal de formulário sem salvar. */
   handleFormCancelled(): void {
     this.showFormModal.set(false);
   }
 
+  /** Confirma e executa a exclusão individual ou em massa dos usuários selecionados. */
   handleDeleteConfirmed(): void {
     if (this.isDeleting()) return;
     const single = this.userToDelete();
@@ -297,6 +326,10 @@ export class SettingsUsers implements OnInit {
       });
   }
 
+  /**
+   * Alterna o status ativo/inativo do usuário.
+   * @param user Usuário a ter o status alternado
+   */
   toggleStatus(user: SettingsUser): void {
     if (user.is_primary_tenant_user) return;
     this.service
@@ -309,6 +342,11 @@ export class SettingsUsers implements OnInit {
 
   // ── Extra table actions ───────────────────────────────────────────────────────
 
+  /**
+   * Retorna as ações extras de linha para o usuário (ativar/inativar).
+   * @param user Usuário da linha
+   * @returns Lista de ações ou vazio se for o usuário principal do tenant
+   */
   getExtraActions(
     user: SettingsUser,
   ): { label: string; icon: string; action: () => void; variant?: string }[] {

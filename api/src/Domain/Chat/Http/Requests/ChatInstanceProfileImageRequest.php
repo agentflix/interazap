@@ -17,7 +17,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class ChatInstanceProfileImageRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -25,7 +25,7 @@ final class ChatInstanceProfileImageRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Define as regras de validação que se aplicam à requisição.
      *
      * @return array<string, array<int, string|\Closure>>
      */

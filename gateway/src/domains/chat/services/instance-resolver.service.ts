@@ -280,7 +280,10 @@ export class InstanceResolverService {
 
   /**
    * Consulta a instancia via api/ HTTP (substitui queries diretas ao banco).
-   * O endpoint aceita webhook_token (lookup primário) e settings_json->>'token' como fallback.
+   * O endpoint aceita webhook_token (lookup primario) e settings_json->>'token' como fallback.
+   *
+   * @param token - Token do webhook ou token de instancia a pesquisar
+   * @returns Instancia resolvida ou null quando nao encontrada
    */
   private async findByAnyToken(
     token: string,
@@ -310,6 +313,11 @@ export class InstanceResolverService {
 
   /**
    * Envolve uma Promise com um timeout rejeitando caso o prazo expire.
+   *
+   * @param promise - Promise a envolver com timeout
+   * @param timeoutMs - Limite de tempo em milissegundos
+   * @param message - Mensagem de erro do timeout
+   * @returns Resultado da Promise ou rejeicao por timeout
    */
   private withTimeout<T>(
     promise: Promise<T>,
@@ -337,6 +345,12 @@ export class InstanceResolverService {
     });
   }
 
+  /**
+   * Verifica se o erro e de timeout de resolucao de instancia.
+   *
+   * @param error - Erro a verificar
+   * @returns true quando o erro e de timeout de lookup
+   */
   private isLookupTimeoutError(error: unknown): boolean {
     return (
       error instanceof Error &&

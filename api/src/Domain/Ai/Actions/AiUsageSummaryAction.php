@@ -8,14 +8,18 @@ use Domain\Ai\Models\AiUsageLog;
 use Illuminate\Support\Carbon;
 
 /**
- * Action responsável por resumir métricas de uso de IA.
+ * Action responsável por resumir métricas de uso de IA do mês corrente com comparação mensal.
+ *
+ * Calcula total de requisições, tokens, custos, latência média e variação
+ * percentual de custo em relação ao mês anterior.
  */
 final class AiUsageSummaryAction
 {
     /**
-     * Resumo de uso do período atual com comparação mensal.
+     * Calcula o resumo de consumo de IA do mês corrente com comparação ao mês anterior.
      *
-     * @return array<string, mixed>
+     * @param  string  $tenantId  UUID do tenant.
+     * @return array<string, mixed> Resumo com requests, tokens, cost, avg_latency_ms e cost_change_percent.
      */
     public function execute(string $tenantId): array
     {

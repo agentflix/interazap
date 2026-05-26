@@ -35,6 +35,8 @@ final class MetaTemplateStatusUpdated implements ShouldBroadcast
     ) {}
 
     /**
+     * Canal privado do tenant para atualizações de templates.
+     *
      * @return array<int, PrivateChannel>
      */
     public function broadcastOn(): array
@@ -42,12 +44,15 @@ final class MetaTemplateStatusUpdated implements ShouldBroadcast
         return [new PrivateChannel('tenant.'.$this->tenantId.'.templates')];
     }
 
+    /** Nome do evento broadcast no frontend. */
     public function broadcastAs(): string
     {
         return 'chat.template.updated';
     }
 
     /**
+     * Dados enviados ao frontend junto com o evento broadcast.
+     *
      * @return array<string, mixed>
      */
     public function broadcastWith(): array

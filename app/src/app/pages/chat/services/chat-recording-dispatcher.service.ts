@@ -5,10 +5,10 @@ import { toast } from 'ngx-sonner';
 import { CalledMessageService } from 'src/app/core/services/called-message.service';
 
 /**
- * Handles the audio-recording → upload → send pipeline.
+ * Gerencia o pipeline de gravação de áudio → upload → envio como mensagem.
  *
- * Extracted from `Chat` host (FEAT-049). Replaces the previous nested
- * subscription with a `switchMap` to avoid leaking the inner observable.
+ * Extraído do host `Chat` (FEAT-049). Substitui a assinatura aninhada anterior
+ * por `switchMap` para evitar vazamento de Observable interno.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatRecordingDispatcher {
@@ -18,8 +18,12 @@ export class ChatRecordingDispatcher {
   readonly isSending: Signal<boolean> = this._isSending.asReadonly();
 
   /**
-   * Uploads the recorded blob and sends it as an audio message.
-   * Subscription is bound to the caller's DestroyRef.
+   * Faz upload do blob gravado e envia como mensagem de áudio.
+   * A assinatura é vinculada ao DestroyRef do chamador.
+   *
+   * @param blob - Blob do áudio gravado.
+   * @param ticketId - ID do ticket de destino.
+   * @param destroyRef - Referência de destruição do componente chamador.
    */
   dispatch(blob: Blob, ticketId: string | number, destroyRef: DestroyRef): void {
     if (!ticketId) return;

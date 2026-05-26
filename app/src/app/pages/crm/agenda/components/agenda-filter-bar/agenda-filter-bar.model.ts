@@ -1,5 +1,5 @@
 /**
- * Models and types for agenda-filter-bar component.
+ * Modelos e tipos para o componente de barra de filtros da agenda.
  */
 
 export type AgendaViewMode = 'list' | 'calendar';

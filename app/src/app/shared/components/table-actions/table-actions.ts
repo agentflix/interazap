@@ -3,7 +3,7 @@ import { AfIconButtonComponent } from '../icon-button/icon-button';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfTableActionsComponent — Standard view/edit/delete action buttons for table rows.
+ * Botões de ação padrão (ver/editar/excluir) para linhas de tabela.
  *
  * @example
  * ```html
@@ -23,24 +23,24 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './table-actions.html',
 })
 export class AfTableActionsComponent {
-  /** Show view button */
+  /** Exibe botão de visualização */
   readonly showView = input(false);
 
-  /** Show edit button */
+  /** Exibe botão de edição */
   readonly showEdit = input(true);
 
-  /** Show delete button */
+  /** Exibe botão de exclusão */
   readonly showDelete = input(true);
 
-  /** Disable delete action button */
+  /** Desabilita o botão de exclusão */
   readonly deleteDisabled = input(false);
 
-  /** Emitted on view click */
+  /** Emitido ao clicar em visualizar */
   readonly view = output<void>();
 
-  /** Emitted on edit click */
+  /** Emitido ao clicar em editar */
   readonly edit = output<void>();
 
-  /** Emitted on delete click */
+  /** Emitido ao clicar em excluir */
   readonly delete = output<void>();
 }

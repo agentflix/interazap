@@ -135,7 +135,10 @@ final class ChatTransmissionListController extends BaseController
     }
 
     /**
-     * Gerar preview da mensagem.
+     * Gerar pré-visualização de como a mensagem ficará após substituição de variáveis.
+     *
+     * @param  ChatTransmissionListPreviewRequest  $request  Dados validados (message).
+     * @return JsonResponse Mensagem com variáveis substituídas por exemplos.
      */
     public function preview(ChatTransmissionListPreviewRequest $request): JsonResponse
     {
@@ -148,7 +151,10 @@ final class ChatTransmissionListController extends BaseController
     }
 
     /**
-     * Contar público alvo baseado em filtros.
+     * Contar o público-alvo com base nos filtros de segmentação informados.
+     *
+     * @param  ChatTransmissionListAudienceRequest  $request  Critérios de filtragem (tags, funil, status, datas).
+     * @return JsonResponse Total de contatos que serão impactados.
      */
     public function audience(ChatTransmissionListAudienceRequest $request): JsonResponse
     {

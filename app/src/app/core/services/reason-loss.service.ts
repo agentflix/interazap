@@ -8,11 +8,10 @@ export type { ReasonLoss, ReasonLossFilters, ReasonLossItemResponse, ReasonLossL
 
 
 /**
- * Service for managing CRM reason losses (lost deal reasons).
+ * Gerencia os motivos de perda do CRM (lost deal reasons).
  *
- * @remarks
- * Provides CRUD operations for reason loss entries used to classify
- * why negotiations or deals were lost, including reordering support.
+ * Contexto: service HTTP para CRUD de entradas usadas para classificar
+ * por que negociações ou deals foram perdidos, incluindo suporte a reordenação.
  *
  * @example
  * ```typescript
@@ -26,10 +25,10 @@ export class ReasonLossService {
   private readonly baseUrl = `${environment.apiUrl}/crm/reason-losses`;
 
   /**
-   * Lists reason losses with optional filters and pagination.
+   * Lista motivos de perda com filtros opcionais e paginação.
    *
-   * @param filters - Optional filters (active, search, sort, pagination)
-   * @returns Observable with paginated list response
+   * @param filters - Filtros opcionais: active, search, sort, paginação
+   * @returns Observable com resposta de lista paginada
    */
   list(filters: ReasonLossFilters = {}): Observable<ReasonLossListResponse> {
     let params = new HttpParams();
@@ -43,60 +42,60 @@ export class ReasonLossService {
   }
 
   /**
-   * Retrieves all reason losses without pagination.
+   * Retorna todos os motivos de perda sem paginação.
    *
-   * @returns Observable with array of all reason losses
+   * @returns Observable com array de todos os motivos de perda
    */
   all(): Observable<{ data: ReasonLoss[] }> {
     return this.http.get<{ data: ReasonLoss[] }>(`${this.baseUrl}/all`);
   }
 
   /**
-   * Retrieves a single reason loss by ID.
+   * Retorna um motivo de perda pelo ID.
    *
-   * @param id - Reason loss identifier
-   * @returns Observable with single reason loss response
+   * @param id - Identificador do motivo de perda
+   * @returns Observable com resposta do motivo único
    */
   show(id: string | number): Observable<ReasonLossItemResponse> {
     return this.http.get<ReasonLossItemResponse>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * Creates a new reason loss entry.
+   * Cria um novo motivo de perda.
    *
-   * @param data - Partial reason loss data
-   * @returns Observable with created reason loss response
+   * @param data - Dados parciais do motivo de perda
+   * @returns Observable com o motivo de perda criado
    */
   create(data: Partial<ReasonLoss>): Observable<ReasonLossItemResponse> {
     return this.http.post<ReasonLossItemResponse>(this.baseUrl, data);
   }
 
   /**
-   * Updates an existing reason loss entry.
+   * Atualiza um motivo de perda existente.
    *
-   * @param id - Reason loss identifier
-   * @param data - Partial reason loss data to update
-   * @returns Observable with updated reason loss response
+   * @param id - Identificador do motivo de perda
+   * @param data - Dados parciais para atualização
+   * @returns Observable com o motivo de perda atualizado
    */
   update(id: string | number, data: Partial<ReasonLoss>): Observable<ReasonLossItemResponse> {
     return this.http.put<ReasonLossItemResponse>(`${this.baseUrl}/${id}`, data);
   }
 
   /**
-   * Deletes a reason loss entry.
+   * Exclui um motivo de perda.
    *
-   * @param id - Reason loss identifier
-   * @returns Observable completing on deletion
+   * @param id - Identificador do motivo de perda
+   * @returns Observable que completa após a exclusão
    */
   delete(id: string | number): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * Reorders reason losses by providing an ordered array of IDs.
+   * Reordena motivos de perda fornecendo um array ordenado de IDs.
    *
-   * @param order - Array of reason loss IDs in desired order
-   * @returns Observable completing on reorder
+   * @param order - Array de IDs de motivos de perda na ordem desejada
+   * @returns Observable que completa após a reordenação
    */
   reorder(order: (string | number)[]): Observable<null> {
     return this.http.post<null>(`${this.baseUrl}/reorder`, { order });

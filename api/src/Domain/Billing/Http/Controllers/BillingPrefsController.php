@@ -11,9 +11,9 @@ use Domain\Shared\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
 
 /**
- * Controller for tenant billing preferences.
+ * Controller para preferências de cobrança do tenant.
  *
- * Allows tenants to override the plan-level overage mode for their account.
+ * Permite que o tenant substitua o modo de excedente definido no plano pela sua conta.
  */
 final class BillingPrefsController extends BaseController
 {
@@ -21,6 +21,12 @@ final class BillingPrefsController extends BaseController
         private readonly AuditLogger $auditLogger,
     ) {}
 
+    /**
+     * Atualiza as preferências de cobrança do tenant (modo de excedente).
+     *
+     * @param  BillingPrefsUpdateRequest  $request  Payload com overage_mode_override
+     * @return JsonResponse `{overage_mode_override}` atualizado
+     */
     public function update(BillingPrefsUpdateRequest $request): JsonResponse
     {
         $tenantId = $this->tenantId($request);

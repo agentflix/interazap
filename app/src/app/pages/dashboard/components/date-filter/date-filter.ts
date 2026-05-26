@@ -16,6 +16,9 @@ import { AfButtonComponent } from '@shared/components/button/button';
 import { AfDateRangePickerComponent } from '@shared/components/date-range-picker/date-range-picker';
 import { type DashboardFilterOption, type DateRange } from '../../models/dashboard.model';
 
+/**
+ * Filtro de período do dashboard — seletor de intervalo de datas com opções predefinidas e período personalizado.
+ */
 @Component({
   selector: 'app-dashboard-date-filter',
   standalone: true,
@@ -34,13 +37,13 @@ import { type DashboardFilterOption, type DateRange } from '../../models/dashboa
 export class DashboardDateFilterComponent implements OnInit {
   private readonly datePipe = inject(DatePipe);
 
-  /** Emitted when the date range changes */
+  /** Emitido quando o intervalo de datas é alterado. */
   readonly filterChanged = output<DateRange>();
 
-  /** Current selection option */
+  /** Opção de período selecionada atualmente. */
   protected readonly selectedOption = signal<DashboardFilterOption>('last30');
 
-  /** Custom range controls */
+  /** Controles do período personalizado. */
   protected readonly customStart = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required],
@@ -58,7 +61,7 @@ export class DashboardDateFilterComponent implements OnInit {
     { label: 'Últimos 30 dias', value: 'last30' },
   ];
 
-  /** Computed label for the trigger button */
+  /** Rótulo calculado para o botão de acionamento do filtro. */
   protected readonly currentLabel = computed(() => {
     const opt = this.selectedOption();
     if (opt === 'custom') {
@@ -73,7 +76,6 @@ export class DashboardDateFilterComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // Apply default filter on init
     const range = this.calculateRange('last30');
     this.filterChanged.emit(range);
   }

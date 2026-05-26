@@ -22,15 +22,17 @@ interface AttachmentOption {
 }
 
 /**
- * AfChatComposerComponent — Message composition area with auto-resizing textarea,
- * attachment button, and send action. Supports Enter to send and Shift+Enter for newline.
+ * Área de composição de mensagens com textarea de redimensionamento automático,
+ * botão de anexo e ação de envio. Suporta Enter para enviar e Shift+Enter para nova linha.
+ *
+ * Contexto: utilizado na janela de chat como barra de entrada de mensagens do operador.
  *
  * @example
  * ```html
  * <af-chat-composer
  *   placeholder="Digite sua mensagem..."
- *   (messageSent)="onSend($event)"
- *   (attachmentClicked)="openFileDialog()"
+ *   (messageSent)="onEnviar($event)"
+ *   (attachmentClicked)="abrirSeletor()"
  * />
  * ```
  */
@@ -42,31 +44,31 @@ interface AttachmentOption {
   templateUrl: './chat-composer.html',
 })
 export class AfChatComposerComponent implements AfterViewInit {
-  /** Placeholder text */
+  /** Texto de placeholder */
   readonly placeholder = input('Digite sua mensagem...');
 
-  /** Whether the composer is disabled */
+  /** Indica se o compositor está desabilitado */
   readonly disabled = input(false);
 
-  /** Maximum message length */
+  /** Comprimento máximo da mensagem */
   readonly maxLength = input<number | null>(null);
 
-  /** Emitted with the message text when sent */
+  /** Emitido com o texto da mensagem ao enviar */
   readonly messageSent = output<string>();
 
-  /** Emitted when the attachment button is clicked */
+  /** Emitido ao clicar no botão de anexo */
   readonly attachmentClicked = output<void>();
 
-  /** Emitted with attachment type selected from dropdown */
+  /** Emitido com o tipo de anexo selecionado no dropdown */
   readonly attachmentTypeSelected = output<AttachmentType>();
 
-  /** Current message length */
+  /** Comprimento atual da mensagem */
   protected readonly messageLength = signal(0);
 
-  /** Whether there is content to send */
+  /** Indica se há conteúdo para enviar */
   protected readonly canSend = signal(false);
 
-  /** Attachment dropdown visibility */
+  /** Visibilidade do menu de anexos */
   protected readonly attachmentMenuOpen = signal(false);
 
   protected readonly attachmentOptions: AttachmentOption[] = [
@@ -83,7 +85,7 @@ export class AfChatComposerComponent implements AfterViewInit {
     this.autoResize();
   }
 
-  /** Handle input for auto-resize and state updates */
+  /** Trata entrada de texto para redimensionamento automático e atualização de estado */
   protected onInput(): void {
     const el = this.textareaRef()?.nativeElement;
     if (el) {
@@ -103,6 +105,7 @@ export class AfChatComposerComponent implements AfterViewInit {
     this.attachmentMenuOpen.update((open) => !open);
   }
 
+  /** Seleciona um tipo de anexo no dropdown */
   protected selectAttachment(type: AttachmentType): void {
     this.attachmentTypeSelected.emit(type);
     this.attachmentMenuOpen.set(false);
@@ -116,7 +119,7 @@ export class AfChatComposerComponent implements AfterViewInit {
     }
   }
 
-  /** Emit the message and clear the input */
+  /** Emite a mensagem e limpa o campo de entrada */
   protected send(): void {
     const el = this.textareaRef()?.nativeElement;
     if (!el) return;
@@ -148,7 +151,7 @@ export class AfChatComposerComponent implements AfterViewInit {
     }
   }
 
-  /** Auto-resize textarea based on content */
+  /** Redimensiona automaticamente o textarea com base no conteúdo */
   private autoResize(): void {
     const el = this.textareaRef()?.nativeElement;
     if (el) {

@@ -3,8 +3,8 @@ import { DatePipe } from '@angular/common';
 import { type Event as CRMEvent, type EventType } from 'src/app/core/services/event.service';
 
 /**
- * Shows the next 5 upcoming events sorted by start time.
- * Each event is clickable to open the edit modal.
+ * Exibe os próximos 5 eventos agendados ordenados por horário de início.
+ * Cada evento é clicável para abrir o modal de edição.
  */
 @Component({
   selector: 'app-agenda-upcoming-list',
@@ -14,10 +14,10 @@ import { type Event as CRMEvent, type EventType } from 'src/app/core/services/ev
   templateUrl: './agenda-upcoming-list.html',
 })
 export class AgendaUpcomingListComponent {
-  /** All events to compute upcoming from */
+  /** Todos os eventos para calcular os próximos. */
   readonly events = input<CRMEvent[]>([]);
 
-  /** Emits when user clicks an event */
+  /** Emitido quando o usuário clica em um evento. */
   readonly eventClicked = output<CRMEvent>();
 
   protected readonly upcomingEvents = computed(() => {

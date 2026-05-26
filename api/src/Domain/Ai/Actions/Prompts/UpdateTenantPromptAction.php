@@ -24,6 +24,19 @@ final class UpdateTenantPromptAction
         private readonly AiPromptRegexValidator $regexValidator,
     ) {}
 
+    /**
+     * Atualiza o prompt personalizado do tenant com validação e versionamento.
+     *
+     * Fluxo: validação regex síncrona → swap content/previous_content →
+     * salva com status PENDING → despacha AiPromptGuardianJob para validação LLM assíncrona.
+     *
+     * @param  PlatformTenant  $tenant  Tenant dono do prompt.
+     * @param  TenantPromptDTO  $dto  Novo conteúdo do prompt.
+     * @return AiPromptTenant Prompt atualizado com status PENDING.
+     *
+     * @throws \Domain\Ai\Exceptions\AiPromptInjectionDetectedException Se padrão de injeção for detectado pelo regex.
+     * @throws \RuntimeException Se não houver segmento disponível para criação de novo prompt.
+     */
     public function execute(PlatformTenant $tenant, TenantPromptDTO $dto): AiPromptTenant
     {
         // 1. Validação Regex síncrona

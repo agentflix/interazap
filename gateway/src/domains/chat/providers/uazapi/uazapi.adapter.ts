@@ -164,8 +164,8 @@ export class UazapiAdapter implements WhatsAppProvider {
       normalized.direction === 'outgoing' ? 'outbound' : 'inbound';
 
     return Promise.resolve({
-      tenantId: '',
-      instanceId: '',
+      tenantId: '',  // Resolvido posteriormente pelo ChatWebhookService
+      instanceId: '', // Resolvido posteriormente pelo ChatWebhookService
       instanceWebhookToken: token,
       provider: 'uazapi',
       eventType: normalized.event_type,

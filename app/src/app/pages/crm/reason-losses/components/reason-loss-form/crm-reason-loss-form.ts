@@ -21,8 +21,7 @@ import { ReasonLossService } from '@core/services/crm-reason-loss.service';
 import type { ReasonLoss } from '@core/models/reason-loss.model';
 
 /**
- * Reason loss form component — create/edit loss reasons.
- * Business logic preserved verbatim from source.
+ * Formulário de criação e edição de motivos de perda de negociação.
  */
 @Component({
   selector: 'app-reason-loss-form',

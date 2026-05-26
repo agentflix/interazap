@@ -4,12 +4,22 @@ import { TimeoutError, catchError, throwError, timeout } from 'rxjs';
 const REQUEST_TIMEOUT_MS = 15000;
 
 /**
- * Allows opt-out for requests that must not be timed out globally.
+ * Token de contexto HTTP para pular o timeout global em requisições específicas.
+ *
+ * @example
+ * ```ts
+ * this.http.get('/endpoint', { context: new HttpContext().set(SKIP_REQUEST_TIMEOUT, true) });
+ * ```
  */
 export const SKIP_REQUEST_TIMEOUT = new HttpContextToken<boolean>(() => false);
 
 /**
- * Enforces a default timeout to prevent pending requests from freezing UI state.
+ * Aplica um timeout global de 15 segundos em todas as requisições HTTP
+ * para evitar que requests pendentes congelem o estado da UI.
+ *
+ * Requisições de upload (com `reportProgress`) e uploads de mídia do chat
+ * são automaticamente isentas do timeout. Use `SKIP_REQUEST_TIMEOUT` para
+ * isentar outras requisições de longa duração.
  */
 export const requestTimeoutInterceptor: HttpInterceptorFn = (req, next) => {
   const skipTimeout = req.context.get(SKIP_REQUEST_TIMEOUT);

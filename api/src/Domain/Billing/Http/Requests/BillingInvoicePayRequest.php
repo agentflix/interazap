@@ -15,7 +15,9 @@ use Laravel\Sanctum\TransientToken;
 final class BillingInvoicePayRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Verifica se o usuário está autorizado a pagar faturas.
+     *
+     * Aceita permissão via Spatie ou ability de token Sanctum.
      */
     public function authorize(): bool
     {
@@ -32,6 +34,7 @@ final class BillingInvoicePayRequest extends FormRequest
         return $user->can('billing.invoices.pay');
     }
 
+    /** Verifica se o token Sanctum atual possui a ability informada ou wildcard '*'. */
     private function tokenAllows(Authenticatable $user, string $permission): bool
     {
         if (! method_exists($user, 'currentAccessToken')) {

@@ -2,12 +2,12 @@ import { Component, ChangeDetectionStrategy, input, output, signal } from '@angu
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfCollapsibleComponent — Generic expandable/collapsible container.
+ * Contêiner expansível/recolhível genérico.
  *
  * @example
  * ```html
  * <af-collapsible title="Opções avançadas">
- *   <p>Hidden content...</p>
+ *   <p>Conteúdo oculto...</p>
  * </af-collapsible>
  * ```
  */
@@ -19,10 +19,10 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './collapsible.html',
 })
 export class AfCollapsibleComponent {
-  /** Collapsible trigger label */
+  /** Rótulo do gatilho para expandir/recolher */
   readonly title = input('');
 
-  /** Start expanded */
+  /** Inicia expandido */
   readonly open = input(false);
 
   protected readonly isOpen = signal(false);

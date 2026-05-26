@@ -22,7 +22,16 @@ final class BillingPlanChangePreviewAction
     ) {}
 
     /**
-     * @return array<string, mixed>
+     * Calcula o impacto financeiro e operacional de uma troca de plano.
+     *
+     * Para upgrade: calcula o valor pro-rata a cobrar pelo restante do mês.
+     * Para downgrade: calcula o crédito pro-rata e lista recursos a desativar.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  string  $newPlanId  UUID do plano de destino
+     * @return array<string, mixed> Preview com tipo, novo plano, financeiro e recursos afetados
+     *
+     * @throws \DomainException Quando o plano de destino é o mesmo plano atual ('plan_unchanged')
      */
     public function execute(string $tenantId, string $newPlanId): array
     {
@@ -94,6 +103,7 @@ final class BillingPlanChangePreviewAction
         ];
     }
 
+    /** Determina se a troca é 'upgrade' ou 'downgrade' com base no preço mensal. */
     private function resolveType(?PlatformPlan $currentPlan, PlatformPlan $newPlan): string
     {
         if ($currentPlan === null) {
@@ -104,6 +114,8 @@ final class BillingPlanChangePreviewAction
     }
 
     /**
+     * Calcula os recursos (usuários, instâncias, storage) que seriam afetados pelo downgrade.
+     *
      * @return array<string, mixed>
      */
     private function calculateAffectedResources(PlatformTenant $tenant, PlatformPlan $newPlan): array
@@ -201,6 +213,7 @@ final class BillingPlanChangePreviewAction
         ];
     }
 
+    /** Retorna o número de dias restantes no mês corrente, incluindo o dia de hoje. */
     private function daysRemainingInclusive(): int
     {
         $today = now()->startOfDay();

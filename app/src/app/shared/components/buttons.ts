@@ -1,3 +1,4 @@
+/** Re-exportações dos componentes de botão do UI Kit. */
 export { AfButtonComponent as ButtonComponent } from './button/button';
 export { AfIconButtonComponent as IconButtonComponent } from './icon-button/icon-button';
 export { AfButtonGroupComponent as ButtonGroupComponent } from './button-group/button-group';

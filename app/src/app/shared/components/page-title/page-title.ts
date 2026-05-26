@@ -1,12 +1,12 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * Page title with optional subtitle and breadcrumb area.
+ * Título de página com subtítulo e área de breadcrumb opcionais.
  *
  * @example
  * ```html
- * <af-page-title title="Contacts" subtitle="Manage your CRM contacts">
- *   <button>+ New Contact</button>
+ * <af-page-title title="Contatos" subtitle="Gerencie seus contatos CRM">
+ *   <button>+ Novo Contato</button>
  * </af-page-title>
  * ```
  */
@@ -17,13 +17,13 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './page-title.html',
 })
 export class AfPageTitleComponent {
-  /** Page heading text */
+  /** Texto do título da página */
   readonly title = input.required<string>();
 
-  /** Optional description below the title */
+  /** Descrição opcional abaixo do título */
   readonly subtitle = input<string | null>(null);
 
-  /** Heading visual weight */
+  /** Peso visual do título */
   readonly size = input<'sm' | 'md' | 'lg'>('md');
 
   protected readonly titleClasses = computed(() => {

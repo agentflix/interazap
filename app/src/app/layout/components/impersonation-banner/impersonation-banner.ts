@@ -23,6 +23,7 @@ export class ImpersonationBannerComponent {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
 
+  /** Encerra a sessão de impersonação e retorna à sessão do super admin. */
   protected stopImpersonating(): void {
     this.authService.stopImpersonating().subscribe({
       next: (response) => {

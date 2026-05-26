@@ -65,6 +65,10 @@ export * from './negotiations.model';
 
 type NegotiationStatusFilter = 'all' | NegotiationStatus;
 
+/**
+ * Página de negociações do CRM com visualização em lista e kanban.
+ * Suporta filtros avançados, busca, ordenação e criação de negociações por drag-and-drop.
+ */
 @Component({
   selector: 'app-negotiations',
   standalone: true,
@@ -677,7 +681,7 @@ export class Negotiations {
       });
   }
 
-  /** Loads negotiations for the list view */
+  /** Carrega as negociações para a visualização em lista. */
   private loadList(): void {
     this.isListLoading.set(true);
     const filters = this.getCurrentFilters();

@@ -27,6 +27,9 @@ import { PlatformPlanService } from '@platform/services/platform-plan.service';
 import { ToastService } from '@core/services/toast.service';
 import { applyServerErrors } from '@core/utils/form-server-errors.util';
 
+/**
+ * Formulário de criação e edição de planos da plataforma — gerencia limites, preços e modos de cobrança excedente.
+ */
 @Component({
   selector: 'app-plan-crud-form',
   standalone: true,
@@ -37,10 +40,6 @@ import { applyServerErrors } from '@core/utils/form-server-errors.util';
     AfSelectInputComponent,
     AfCurrencyInputComponent,
     AfSwitchInputComponent,
-/**
- * Plan crud form component for the Platform module.
- * @selector app-plan-crud-form
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './plan-crud-form.html',

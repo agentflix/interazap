@@ -8,12 +8,20 @@ use Domain\Ai\DTOs\RagStatsDTO;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Action for getting RAG query statistics.
+ * Action para obter estatísticas de consultas RAG do tenant.
+ *
+ * Executa queries PostgreSQL diretamente para calcular métricas de qualidade:
+ * taxa de zero resultados, latências percentis (p50/p95/p99), score médio
+ * e distribuição por modo de busca.
  */
 final class GetRagStatsAction
 {
     /**
-     * Get RAG statistics for a tenant over the last N days.
+     * Calcula estatísticas de consultas RAG dos últimos N dias.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  int  $days  Janela de dias a considerar.
+     * @return RagStatsDTO Estatísticas consolidadas do período.
      */
     public function execute(string $tenantId, int $days): RagStatsDTO
     {

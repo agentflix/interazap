@@ -7,7 +7,7 @@ namespace Domain\CRM\Actions;
 use Domain\CRM\Models\CRMNegotiation;
 
 /**
- * Assign a negotiation to a user.
+ * Atribui uma negociação a um responsável dentro do tenant.
  */
 final class AssignNegotiationAction
 {

@@ -8,7 +8,7 @@ import {
 } from '@shared/models/preferences.model';
 
 /**
- * Service for fetching and updating the authenticated user's preferences.
+ * Consulta e atualiza as preferências do usuário autenticado.
  *
  * @example
  * ```ts
@@ -22,18 +22,18 @@ export class PreferencesService {
   private readonly http = inject(HttpClient);
 
   /**
-   * Fetch the current user's preferences from the backend.
-   * Returns full defaults for new users with no stored preferences.
+   * Retorna as preferências do usuário atual do backend.
+   * Devolve os padrões completos para novos usuários sem preferências salvas.
    */
   getPreferences(): Observable<UserPreferencesResponse> {
     return this.http.get<UserPreferencesResponse>(this.baseUrl);
   }
 
   /**
-   * Partially update the user's preferences.
-   * The backend performs a deep merge so unchanged sections are preserved.
+   * Atualiza parcialmente as preferências do usuário.
+   * O backend realiza deep merge, preservando seções não alteradas.
    *
-   * @param data - Partial preferences object to merge with existing values
+   * @param data - Objeto parcial de preferências a mesclar com os valores existentes
    */
   updatePreferences(data: Partial<UserPreferences>): Observable<UserPreferencesResponse> {
     return this.http.patch<UserPreferencesResponse>(this.baseUrl, data);

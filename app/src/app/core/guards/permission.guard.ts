@@ -3,13 +3,14 @@ import { inject } from '@angular/core';
 import { AuthStoreService } from '../services/auth-store.service';
 
 /**
- * Guard that checks if the authenticated user has a specific permission.
- * The permission name is read from the route's data['permission'] property.
- * If no permission is specified, access is allowed.
- * If the user lacks the required permission, redirects to the home page.
+ * Protege rotas verificando se o usuário autenticado possui uma permissão específica.
  *
- * @param route - The route being activated, must contain data['permission'] with the required permission string
- * @returns True if permission is satisfied or not specified, otherwise a UrlTree redirecting to /
+ * O nome da permissão é lido de `route.data['permission']`. Se nenhuma permissão for
+ * especificada, o acesso é liberado. Caso o usuário não possua a permissão exigida,
+ * redireciona para `/`.
+ *
+ * @param route - Rota sendo ativada; deve conter `data['permission']` com a permissão requerida
+ * @returns `true` se a permissão for satisfeita ou não especificada, ou `UrlTree` redirecionando para `/`
  *
  * @example
  * ```typescript

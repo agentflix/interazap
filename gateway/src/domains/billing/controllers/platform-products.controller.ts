@@ -26,10 +26,10 @@ export class PlatformProductsController {
   constructor(private readonly asaasClient: AsaasClient) {}
 
   /**
-   * Creates a new product in Asaas.
+   * Cria um novo produto no Asaas.
    *
-   * @param payload - Product creation data
-   * @returns Created product data
+   * @param payload - Dados do produto (nome, descrição, valor, referência externa)
+   * @returns Dados do produto criado com ID gerado pelo Asaas
    */
   @Post()
   createProduct(@Body() payload: CreateAsaasProductDto) {
@@ -37,11 +37,11 @@ export class PlatformProductsController {
   }
 
   /**
-   * Updates an existing product in Asaas.
+   * Atualiza um produto existente no Asaas.
    *
-   * @param productId - Product ID to update
-   * @param payload - Product update data
-   * @returns Updated product data
+   * @param productId - Identificador do produto a ser atualizado
+   * @param payload - Dados de atualização do produto
+   * @returns Dados do produto atualizado
    */
   @Post(':productId')
   updateProduct(

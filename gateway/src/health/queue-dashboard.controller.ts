@@ -25,26 +25,16 @@ import {
 } from '../shared/services/queue';
 
 /**
- * Dashboard controller for queue management.
+ * Controller de dashboard administrativo para gerenciamento de filas.
  *
- * Provides endpoints to monitor queue status, DLQ,
- * and perform administrative operations for both
- * Redis Streams and BullMQ queues.
+ * Contexto: módulo health. Expõe endpoints para monitorar status, DLQ
+ * e executar operações administrativas em filas Redis Streams e BullMQ.
+ * Protegido pelo guard de API key interna.
  */
 @Controller({ version: '1', path: 'admin/queues' })
 @UseGuards(InternalApiKeyGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class QueueDashboardController {
-  /**
-   * Initializes the controller with queue management dependencies.
-   *
-   * @param redis              - Redis client for stream operations
-   * @param streamDlqService   - Service for Redis Streams DLQ management
-   * @param bullmqDlqService   - Service for BullMQ DLQ management
-   * @param queueFactory       - Factory for BullMQ queue operations
-   * @param rateLimiter        - Service for queue rate limiting
-   * @param dlqReprocessingWorker - Worker for DLQ entry reprocessing
-   */
   constructor(
     private readonly redis: RedisService,
     private readonly streamDlqService: StreamDlqService,
@@ -55,7 +45,8 @@ export class QueueDashboardController {
   ) {}
 
   /**
-   * Get overview of all queues (Redis Streams + BullMQ).
+   * GET /admin/queues
+   * Retorna visão geral de todas as filas (Redis Streams + BullMQ) com tamanho e DLQ.
    */
   @Get()
   async getOverview() {
@@ -117,7 +108,9 @@ export class QueueDashboardController {
   }
 
   /**
-   * Get details for a specific Redis Streams queue.
+   * GET /admin/queues/streams/:name
+   * Retorna detalhes de um stream Redis específico: tamanho, DLQ e configuração.
+   * @param name Nome do stream
    */
   @Get('streams/:name')
   async getStreamQueue(@Param('name') name: string) {
@@ -136,7 +129,9 @@ export class QueueDashboardController {
   }
 
   /**
-   * Get details for a specific BullMQ queue.
+   * GET /admin/queues/bullmq/:name
+   * Retorna detalhes de uma fila BullMQ específica: stats, DLQ, rate limiter e configuração.
+   * @param name Nome da fila
    */
   @Get('bullmq/:name')
   async getBullMQQueue(@Param('name') name: string) {
@@ -167,7 +162,10 @@ export class QueueDashboardController {
   }
 
   /**
-   * Get DLQ entries for a Redis Streams queue.
+   * GET /admin/queues/streams/:name/dlq
+   * Lista entradas na DLQ de um stream Redis.
+   * @param name Nome do stream
+   * @param limit Número máximo de entradas a retornar (padrão: 100)
    */
   @Get('streams/:name/dlq')
   async getStreamDlqEntries(
@@ -189,7 +187,10 @@ export class QueueDashboardController {
   }
 
   /**
-   * Get DLQ entries for a BullMQ queue.
+   * GET /admin/queues/bullmq/:name/dlq
+   * Lista entradas na DLQ de uma fila BullMQ.
+   * @param name Nome da fila
+   * @param limit Número máximo de entradas a retornar (padrão: 100)
    */
   @Get('bullmq/:name/dlq')
   async getBullMQDlqEntries(
@@ -210,7 +211,10 @@ export class QueueDashboardController {
   }
 
   /**
-   * Retry a specific DLQ entry (Redis Streams).
+   * POST /admin/queues/streams/:name/dlq/:messageId/retry
+   * Reenfileira uma entrada específica da DLQ de um stream Redis.
+   * @param name Nome do stream
+   * @param messageId ID da mensagem na DLQ
    */
   @Post('streams/:name/dlq/:messageId/retry')
   @HttpCode(200)
@@ -230,7 +234,10 @@ export class QueueDashboardController {
   }
 
   /**
-   * Retry a specific DLQ entry (BullMQ).
+   * POST /admin/queues/bullmq/:name/dlq/:jobId/retry
+   * Reprocessa uma entrada específica da DLQ de uma fila BullMQ.
+   * @param name Nome da fila
+   * @param jobId ID do job na DLQ
    */
   @Post('bullmq/:name/dlq/:jobId/retry')
   @HttpCode(200)
@@ -249,7 +256,9 @@ export class QueueDashboardController {
   }
 
   /**
-   * Purge all DLQ entries for a BullMQ queue.
+   * DELETE /admin/queues/bullmq/:name/dlq
+   * Remove todas as entradas da DLQ de uma fila BullMQ.
+   * @param name Nome da fila
    */
   @Delete('bullmq/:name/dlq')
   @HttpCode(200)
@@ -265,7 +274,9 @@ export class QueueDashboardController {
   }
 
   /**
-   * Pause a BullMQ queue.
+   * POST /admin/queues/bullmq/:name/pause
+   * Pausa o processamento de uma fila BullMQ.
+   * @param name Nome da fila
    */
   @Post('bullmq/:name/pause')
   @HttpCode(200)
@@ -281,7 +292,9 @@ export class QueueDashboardController {
   }
 
   /**
-   * Resume a BullMQ queue.
+   * POST /admin/queues/bullmq/:name/resume
+   * Retoma o processamento de uma fila BullMQ pausada.
+   * @param name Nome da fila
    */
   @Post('bullmq/:name/resume')
   @HttpCode(200)
@@ -297,7 +310,10 @@ export class QueueDashboardController {
   }
 
   /**
-   * Clean completed jobs from a BullMQ queue.
+   * POST /admin/queues/bullmq/:name/clean
+   * Remove jobs completados (ou com falha) de uma fila BullMQ.
+   * @param name Nome da fila
+   * @param body `grace` (ms de graça, padrão 3600000) e `status` (completed|failed)
    */
   @Post('bullmq/:name/clean')
   @HttpCode(200)
@@ -319,7 +335,9 @@ export class QueueDashboardController {
   }
 
   /**
-   * Get DLQ stats for all queues.
+   * GET /admin/queues/dlq/stats
+   * Retorna estatísticas consolidadas de DLQ para todas as filas (streams e BullMQ).
+   * Inclui alertas quando o tamanho da DLQ excede o threshold configurado.
    */
   @Get('dlq/stats')
   async getDlqStats() {
@@ -351,7 +369,8 @@ export class QueueDashboardController {
   }
 
   /**
-   * Get rate limiter stats for all configured queues.
+   * GET /admin/queues/rate-limits
+   * Retorna estatísticas de rate limiter para todas as filas BullMQ configuradas.
    */
   @Get('rate-limits')
   async getRateLimiterStats() {
@@ -372,7 +391,8 @@ export class QueueDashboardController {
   }
 
   /**
-   * Get DLQ worker stats.
+   * GET /admin/queues/dlq/workers
+   * Retorna estatísticas dos workers de reprocessamento da DLQ.
    */
   @Get('dlq/workers')
   getDlqWorkerStats() {
@@ -385,7 +405,9 @@ export class QueueDashboardController {
   }
 
   /**
-   * Pause DLQ worker for a queue.
+   * POST /admin/queues/dlq/workers/:name/pause
+   * Pausa o worker de reprocessamento da DLQ para uma fila específica.
+   * @param name Nome da fila
    */
   @Post('dlq/workers/:name/pause')
   @HttpCode(200)
@@ -401,7 +423,9 @@ export class QueueDashboardController {
   }
 
   /**
-   * Resume DLQ worker for a queue.
+   * POST /admin/queues/dlq/workers/:name/resume
+   * Retoma o worker de reprocessamento da DLQ para uma fila específica.
+   * @param name Nome da fila
    */
   @Post('dlq/workers/:name/resume')
   @HttpCode(200)
@@ -416,6 +440,12 @@ export class QueueDashboardController {
     };
   }
 
+  /**
+   * Retorna o número de entradas em um Redis Stream via XLEN.
+   * Retorna 0 silenciosamente em caso de erro para não impactar o overview.
+   * @param streamName Nome do stream
+   * @returns Número de entradas no stream
+   */
   private async getStreamQueueSize(streamName: string): Promise<number> {
     try {
       const client = this.redis.getClient();

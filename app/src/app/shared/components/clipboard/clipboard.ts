@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, signal } from '@angular/core
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfClipboardComponent — Click-to-copy text with visual feedback.
+ * Componente de cópia para área de transferência com feedback visual ao clicar.
  *
  * @example
  * ```html
@@ -17,7 +17,7 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './clipboard.html',
 })
 export class AfClipboardComponent {
-  /** Text to copy */
+  /** Texto a ser copiado */
   readonly text = input('');
 
   protected readonly copied = signal(false);

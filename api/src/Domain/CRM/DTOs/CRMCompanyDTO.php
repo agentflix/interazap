@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for CRM company.
+ * DTO para empresa do CRM.
  *
  * @readonly
  */
@@ -25,9 +25,7 @@ final readonly class CRMCompanyDTO
         public bool $is_active = true,
     ) {}
 
-    /**
-     * Create DTO from request.
-     */
+    /** Cria DTO a partir de uma request HTTP. */
     public static function fromRequest(Request $request): self
     {
         return new self(

@@ -17,9 +17,8 @@ export * from './agenda-sidebar.model';
 
 
 /**
- * Sidebar for the calendar view containing:
- * 1. Upcoming events list
- * 2. Drag-and-drop event type chips (preserved from original)
+ * Sidebar da visualização de calendário com lista de próximos eventos
+ * e chips de tipo de evento arrastáveis para criar novos eventos via drag-and-drop.
  */
 @Component({
   selector: 'app-agenda-sidebar',
@@ -29,23 +28,23 @@ export * from './agenda-sidebar.model';
   templateUrl: './agenda-sidebar.html',
 })
 export class AgendaSidebarComponent implements AfterViewInit {
-  /** All events for upcoming list */
+  /** Todos os eventos para a lista de próximos. */
   readonly events = input<CRMEvent[]>([]);
 
-  /** Event type options for drag chips */
+  /** Opções de tipo de evento para os chips arrastáveis. */
   readonly typeOptions = input<AgendaTypeOption[]>([]);
 
-  /** Control for "remove after drop" checkbox */
+  /** Controle do checkbox "remover após soltar". */
   readonly dropRemoveControl = input.required<FormControl<boolean>>();
 
-  /** Emitted when an upcoming event is clicked */
+  /** Emitido quando o usuário clica em um evento da lista. */
   readonly eventClicked = output<CRMEvent>();
 
   ngAfterViewInit(): void {
     this.initDraggables();
   }
 
-  /** CSS class for drag event chip by type */
+  /** Retorna a classe CSS do chip de drag por tipo de evento. */
   protected getTypeClass(type: EventType): string {
     const map: Record<EventType, string> = {
       meeting: '!bg-info-500 !border-info-500',
@@ -58,7 +57,7 @@ export class AgendaSidebarComponent implements AfterViewInit {
     return map[type] ?? '!bg-neutral-500 !border-neutral-500';
   }
 
-  /** Initialize FullCalendar Draggable on external events container */
+  /** Inicializa o Draggable do FullCalendar no container de eventos externos. */
   private initDraggables(): void {
     const externalEl = document.getElementById('external-events');
     if (externalEl) {

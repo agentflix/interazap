@@ -12,6 +12,14 @@ export type { MediaBatchEvent, MediaBatchPhase } from '@core/models/chat-media-b
 
 
 
+/**
+ * Gerencia upload e envio em lote de múltiplos itens de mídia em uma conversa.
+ *
+ * Controla a concorrência de uploads via `mergeMap` com limite configurável
+ * e emite eventos de progresso (`MediaBatchEvent`) por item processado.
+ *
+ * @see CalledMessageService
+ */
 @Injectable({ providedIn: 'root' })
 export class ChatMediaBatchService {
   private readonly messageService = inject(CalledMessageService);

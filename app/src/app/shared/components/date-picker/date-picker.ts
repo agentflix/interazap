@@ -6,7 +6,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { resolveInputContainerClass } from '../input-container.util';
 
 /**
- * AfDatePickerComponent — Native date input with design system styling.
+ * Campo de data nativo com estilos do design system.
  *
  * @example
  * ```html
@@ -21,28 +21,28 @@ import { resolveInputContainerClass } from '../input-container.util';
   templateUrl: './date-picker.html',
 })
 export class AfDatePickerComponent {
-  /** FormControl binding */
+  /** FormControl do campo */
   readonly control = input.required<FormControl<string>>();
 
-  /** Field label */
+  /** Rótulo do campo */
   readonly label = input('');
 
-  /** Required field */
+  /** Indica se o campo é obrigatório */
   readonly required = input(false);
 
-  /** Minimum date (YYYY-MM-DD) */
+  /** Data mínima (AAAA-MM-DD) */
   readonly min = input('');
 
-  /** Maximum date (YYYY-MM-DD) */
+  /** Data máxima (AAAA-MM-DD) */
   readonly max = input('');
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the field */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
   protected readonly containerClasses = computed(() =>

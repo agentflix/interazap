@@ -3,22 +3,23 @@ import { ToolStrategyRuntime } from './tool-strategy.types';
 import { ToolExecutionContext } from '../../interfaces/tool-execution-context.interface';
 
 /**
- * Sends a message to a ticket or conversation via RPC with HTTP fallback.
+ * Estratégia responsável por enviar uma mensagem para um ticket ou conversa via RPC com fallback HTTP.
  *
- * @remarks
- * First normalizes the raw tool arguments using the runtime, then attempts
- * an RPC call. If the RPC fails, falls back to an HTTP POST to the chat service.
- * Returns a normalized success/error response regardless of transport.
+ * Primeiro normaliza os argumentos brutos da tool usando o runtime, depois tenta uma chamada
+ * RPC. Se o RPC falhar, usa um POST HTTP para o serviço de chat como fallback. Retorna uma
+ * resposta normalizada de sucesso ou erro independente do transporte utilizado.
  */
 export class SendMessageToolStrategy implements ToolStrategy {
   readonly name = 'send_message';
 
   /**
-   * @param _name     - Unused; present to satisfy ToolStrategy contract
-   * @param args      - Tool arguments (ticket_id, content, etc.)
-   * @param context   - Execution context
-   * @param runtime   - Runtime with RPC/HTTP fallback support
-   * @returns Normalized result with success flag and optional error message
+   * Normaliza os argumentos e executa o envio da mensagem via RPC ou HTTP.
+   *
+   * @param _name   - Não utilizado; presente para satisfazer o contrato `ToolStrategy`
+   * @param args    - Argumentos da tool (ticket_id, content, etc.)
+   * @param context - Contexto operacional da run atual
+   * @param runtime - Runtime com suporte a RPC e fallback HTTP
+   * @returns Resultado normalizado com flag de sucesso e mensagem de erro opcional
    */
   async execute(
     _name: string,

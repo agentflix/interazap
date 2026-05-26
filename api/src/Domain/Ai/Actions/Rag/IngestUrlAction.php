@@ -16,7 +16,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Action for ingesting a URL into AI knowledge base.
+ * Action para ingestão de conteúdo de URL na base de conhecimento.
+ *
+ * Faz download do HTML da URL, verifica limite de armazenamento,
+ * persiste o arquivo no Storage e cria o documento com status PENDING,
+ * disparando o job de processamento assíncrono.
  */
 final class IngestUrlAction
 {
@@ -25,9 +29,15 @@ final class IngestUrlAction
     ) {}
 
     /**
-     * Download URL content, store, and dispatch processing.
+     * Faz o download, armazena e enfileira o processamento do conteúdo da URL.
      *
-     * @throws StorageLimitExceededException
+     * @param  PlatformTenant  $tenant  Tenant dono do documento.
+     * @param  string  $url  URL a ser ingerida.
+     * @param  string  $title  Título para identificar o documento.
+     * @return AiKnowledgeDocument Documento criado com status PENDING.
+     *
+     * @throws StorageLimitExceededException Se o tenant não tiver espaço suficiente.
+     * @throws \RuntimeException Se a URL retornar erro HTTP.
      */
     public function execute(PlatformTenant $tenant, string $url, string $title): AiKnowledgeDocument
     {

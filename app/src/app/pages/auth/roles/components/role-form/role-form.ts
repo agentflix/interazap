@@ -27,7 +27,7 @@ import {
 } from '../../../../../core/models/role.model';
 import { RoleService } from '@core/services/role.service';
 
-/** Map module keys to Portuguese labels */
+/** Mapeia chaves de módulo para rótulos em português. */
 const MODULE_LABELS: Record<string, string> = {
   users: 'Usuários',
   chat: 'Chat',
@@ -47,7 +47,7 @@ const MODULE_LABELS: Record<string, string> = {
   gateway: 'Gateway',
 };
 
-/** Map permission suffix to Portuguese verb */
+/** Mapeia sufixos de permissão para verbos em português. */
 const PERMISSION_VERB_LABELS: Record<string, string> = {
   view: 'Visualizar',
   manage: 'Gerenciar',
@@ -61,8 +61,7 @@ const PERMISSION_VERB_LABELS: Record<string, string> = {
 };
 
 /**
- * Role form — create/edit access profiles with granular permissions.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Formulário de perfil de acesso — criação e edição com controle granular de permissões.
  */
 @Component({
   selector: 'app-role-form',
@@ -85,7 +84,7 @@ export class RoleFormComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly lastLoadedId = signal<string | null>(null);
 
-  /** @input Role to edit; null for create mode */
+  /** Perfil a editar; null indica modo de criação. */
   readonly role = input<Role | null>(null);
   readonly saved = output<Role>();
   readonly cancelled = output<void>();
@@ -136,8 +135,9 @@ export class RoleFormComponent implements OnInit {
     this.loadPermissions();
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────────────
+  // ── Ações ─────────────────────────────────────────────────────────────────────
 
+  /** Valida e envia o formulário para criação ou atualização do perfil de acesso. */
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -169,12 +169,17 @@ export class RoleFormComponent implements OnInit {
     });
   }
 
+  /** Emite o evento de cancelamento do formulário. */
   cancel(): void {
     this.cancelled.emit();
   }
 
-  // ── Permission toggles ────────────────────────────────────────────────────────
+  // ── Alternância de permissões ─────────────────────────────────────────────────
 
+  /**
+   * Alterna a seleção de uma permissão individual.
+   * @param permission Chave da permissão
+   */
   togglePermission(permission: string): void {
     const set = new Set(this.selectedPermissions());
     if (set.has(permission)) {
@@ -186,6 +191,10 @@ export class RoleFormComponent implements OnInit {
     this.syncModuleControl(this.getModuleForPermission(permission));
   }
 
+  /**
+   * Seleciona ou desmarca todas as permissões de um módulo.
+   * @param module Chave do módulo
+   */
   toggleModule(module: string): void {
     const perms = this.groupedPermissions()[module];
     const allSelected = this.isModuleFullySelected(module);
@@ -216,8 +225,12 @@ export class RoleFormComponent implements OnInit {
     return perms.filter((p) => this.selectedPermissions().has(p)).length;
   }
 
-  // ── Module collapse ───────────────────────────────────────────────────────────
+  // ── Colapso de módulos ────────────────────────────────────────────────────────
 
+  /**
+   * Retorna verdadeiro se o accordion do módulo está expandido.
+   * @param module Chave do módulo
+   */
   isModuleExpanded(module: string): boolean {
     return this.expandedModules().has(module);
   }
@@ -266,20 +279,29 @@ export class RoleFormComponent implements OnInit {
     return ctrl as FormControl<boolean>;
   }
 
-  // ── Labels ────────────────────────────────────────────────────────────────────
+  // ── Rótulos ───────────────────────────────────────────────────────────────────
 
+  /**
+   * Retorna o rótulo em português do módulo.
+   * @param module Chave do módulo
+   */
   formatModuleLabel(module: string): string {
     return MODULE_LABELS[module] ?? module.charAt(0).toUpperCase() + module.slice(1);
   }
 
+  /**
+   * Retorna o rótulo em português da ação de permissão.
+   * @param permission Chave completa da permissão (ex.: `chat.view`)
+   */
   formatPermissionLabel(permission: string): string {
     const parts = permission.split('.');
     const suffix = parts.at(-1) ?? '';
     return PERMISSION_VERB_LABELS[suffix] ?? suffix.charAt(0).toUpperCase() + suffix.slice(1);
   }
 
-  // ── Error getter ──────────────────────────────────────────────────────────────
+  // ── Getter de erro ────────────────────────────────────────────────────────────
 
+  /** Retorna a mensagem de erro do campo nome quando tocado e inválido. */
   nameError(): string {
     const c = this.form.controls.name;
     if (!c.touched || !c.errors) return '';

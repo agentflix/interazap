@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
 final class BillingInvoiceUpdateRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Verifica se o usuário está autorizado a editar faturas.
      */
     public function authorize(): bool
     {

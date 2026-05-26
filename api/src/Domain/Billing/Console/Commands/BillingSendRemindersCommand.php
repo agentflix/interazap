@@ -23,7 +23,7 @@ final class BillingSendRemindersCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * Executa o envio de lembretes de cobrança.
      */
     public function handle(): int
     {

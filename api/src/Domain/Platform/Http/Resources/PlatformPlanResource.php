@@ -10,7 +10,7 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Platform Plan serialization.
+ * Resource de serialização de plano da plataforma.
  */
 final class PlatformPlanResource extends BaseJsonResource
 {

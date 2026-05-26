@@ -9,7 +9,10 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 
 /**
- * Resource for Report serialization with standard envelope.
+ * Resource JSON para serialização de relatórios com envelope padronizado.
+ *
+ * Envolve os dados do relatório em {data, meta} onde meta contém período
+ * e timestamp de geração.
  */
 final class ReportResource extends JsonResource
 {
@@ -28,9 +31,9 @@ final class ReportResource extends JsonResource
     }
 
     /**
-     * Serialize the report data in standard format.
+     * Serializa os dados do relatório no formato envelope padrão.
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> Estrutura com chaves data e meta
      */
     public function toArray(Request $request): array
     {

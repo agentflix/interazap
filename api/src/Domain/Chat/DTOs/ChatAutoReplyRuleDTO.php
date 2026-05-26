@@ -7,19 +7,19 @@ namespace Domain\Chat\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Auto Reply Rule.
+ * DTO de Regra de Auto Resposta.
  *
  * @readonly
  */
 final readonly class ChatAutoReplyRuleDTO
 {
     /**
-     * @param  string  $name  Rule identifier name.
-     * @param  string  $triggerText  Keyword or text that triggers the rule.
-     * @param  string  $responseText  Response text to send.
-     * @param  bool  $isActive  Whether the rule is enabled.
-     * @param  bool  $isWelcome  Whether this is the welcome rule.
-     * @param  int  $cooldownSeconds  Cooldown before allowing new trigger for same ticket.
+     * @param  string  $name  Nome identificador da regra.
+     * @param  string  $triggerText  Palavra-chave ou texto que dispara a regra.
+     * @param  string  $responseText  Texto de resposta a ser enviado.
+     * @param  bool  $isActive  Indica se a regra está ativa.
+     * @param  bool  $isWelcome  Indica se esta é a regra de boas-vindas.
+     * @param  int  $cooldownSeconds  Intervalo em segundos antes de permitir novo disparo para o mesmo ticket.
      */
     public function __construct(
         public string $name,
@@ -31,7 +31,7 @@ final readonly class ChatAutoReplyRuleDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um Request HTTP.
      */
     public static function fromRequest(Request $request): self
     {

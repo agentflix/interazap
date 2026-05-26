@@ -69,7 +69,7 @@ export class MetaProvider {
     const value = change?.value;
     const field = change?.field ?? 'messages';
 
-    // Branch: message_template_status_update — não tem metadata.phone_number_id
+    // Ramo: message_template_status_update — nao possui metadata.phone_number_id
     if (field === 'message_template_status_update') {
       const template = this.extractTemplate(value);
       return {
@@ -87,7 +87,7 @@ export class MetaProvider {
     const phoneNumberId = metadata?.phone_number_id ?? '';
     const displayPhoneNumber = metadata?.display_phone_number ?? '';
 
-    // Determine event type and direction
+    // Determina o tipo e a direcao do evento
     const eventType = this.resolveEventType(value, field);
     const direction = this.resolveDirection(value, eventType);
 
@@ -100,7 +100,7 @@ export class MetaProvider {
       raw: payload,
     };
 
-    // Extract message if present
+    // Extrai mensagem quando presente
     if (direction === 'inbound' || direction === 'outbound') {
       const message = this.extractMessage(value, displayPhoneNumber);
       if (message) {
@@ -108,7 +108,7 @@ export class MetaProvider {
       }
     }
 
-    // Extract status if present
+    // Extrai status quando presente
     if (direction === 'status') {
       const status = this.extractStatus(value);
       if (status) {
@@ -126,17 +126,17 @@ export class MetaProvider {
     value: MetaWebhookPayload['entry'][0]['changes'][0]['value'],
     field: string,
   ): string {
-    // Check if it's a status update
+    // Verifica se e uma atualizacao de status
     if (value?.statuses && value.statuses.length > 0) {
       return 'message_status';
     }
 
-    // Check if it's a message
+    // Verifica se e uma mensagem
     if (value?.messages && value.messages.length > 0) {
       return 'message_received';
     }
 
-    // Fallback to field value
+    // Fallback para o valor do campo
     return field;
   }
 
@@ -152,9 +152,9 @@ export class MetaProvider {
     }
 
     if (value?.messages && value.messages.length > 0) {
-      // Messages from the business to the user are outbound
-      // Messages from the user to the business are inbound
-      // For now, we treat all received messages as inbound
+      // Mensagens do business para o usuario sao outbound.
+      // Mensagens do usuario para o business sao inbound.
+      // Por ora, todas as mensagens recebidas sao tratadas como inbound.
       return 'inbound';
     }
 
@@ -182,7 +182,7 @@ export class MetaProvider {
       type,
       text: msg.text?.body,
       timestamp: new Date(parseInt(msg.timestamp) * 1000),
-      isFromMe: false, // Meta doesn't provide this directly
+      isFromMe: false, // A Meta nao fornece este campo diretamente
       isGroup: false,
       mimeType: this.extractMimeType(msg),
     };

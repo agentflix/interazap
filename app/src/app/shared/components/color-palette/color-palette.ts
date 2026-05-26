@@ -6,7 +6,7 @@ export * from './color-palette.model';
 
 
 /**
- * AfColorPaletteComponent — Selectable color palette.
+ * Paleta de cores selecionável.
  *
  * @example
  * ```html
@@ -20,12 +20,12 @@ export * from './color-palette.model';
   templateUrl: './color-palette.html',
 })
 export class AfColorPaletteComponent {
-  /** Available color options */
+  /** Opções de cor disponíveis */
   readonly colors = input<AfColorOption[]>([]);
 
-  /** Currently selected color value */
+  /** Valor da cor atualmente selecionada */
   readonly selected = input('');
 
-  /** Emitted when a color is selected */
+  /** Emitido quando uma cor é selecionada */
   readonly colorSelected = output<string>();
 }

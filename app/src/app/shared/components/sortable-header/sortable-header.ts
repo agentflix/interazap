@@ -3,11 +3,11 @@ import { LucideAngularModule } from 'lucide-angular';
 import { type SortDirection } from '../crud-page/models/index';
 
 /**
- * AfSortableHeaderComponent — Reusable sortable table header cell.
+ * Célula de cabeçalho de tabela reutilizável com ordenação por clique.
  *
- * Renders a `<th>` with click-to-sort and a visual indicator
- * showing the current sort direction. Designed to be used inside
- * `<thead>` rows of `af-data-table`.
+ * Renderiza um `<th>` com clique para ordenar e indicador visual
+ * da direção atual da ordenação. Projetado para uso dentro de
+ * linhas `<thead>` do `af-data-table`.
  *
  * @example
  * ```html
@@ -35,55 +35,55 @@ import { type SortDirection } from '../crud-page/models/index';
   templateUrl: './sortable-header.html',
 })
 export class AfSortableHeaderComponent {
-  /** Column display label */
+  /** Rótulo de exibição da coluna */
   readonly label = input.required<string>();
 
-  /** Field name sent to the API */
+  /** Nome do campo enviado à API */
   readonly field = input.required<string>();
 
-  /** Currently active sort field */
+  /** Campo de ordenação ativo atualmente */
   readonly currentField = input<string>('');
 
-  /** Currently active sort direction */
+  /** Direção de ordenação ativa atualmente */
   readonly currentDir = input<SortDirection>('asc');
 
-  /** Extra CSS classes for the host `<th>` */
+  /** Classes CSS extras para o `<th>` hospedeiro */
   readonly class = input<string>('');
 
-  /** Emitted when user toggles sort — payload is `{ field, dir }` */
+  /** Emitido ao alternar ordenação — payload é `{ field, dir }` */
   readonly sortChange = output<{ field: string; dir: SortDirection }>();
 
-  /** Whether this column is the active sort target */
+  /** Indica se esta coluna é o alvo da ordenação ativa */
   protected readonly isActive = computed(() => this.currentField() === this.field());
 
-  /** Host element classes */
+  /** Classes do elemento hospedeiro */
   protected readonly hostClasses = computed(() => {
     const base = 'px-3.5 py-2 text-start text-sm font-medium';
     const extra = this.class();
     return extra ? `${base} ${extra}` : base;
   });
 
-  /** ARIA sort attribute value */
+  /** Valor do atributo ARIA sort */
   protected readonly ariaSort = computed(() => {
     if (!this.isActive()) return 'none';
     return this.currentDir() === 'asc' ? 'ascending' : 'descending';
   });
 
-  /** Up chevron highlight */
+  /** Destaque do ícone de seta para cima */
   protected readonly upIconClasses = computed(() =>
     this.isActive() && this.currentDir() === 'asc'
       ? 'text-primary'
       : 'text-neutral-300 dark:text-neutral-600',
   );
 
-  /** Down chevron highlight */
+  /** Destaque do ícone de seta para baixo */
   protected readonly downIconClasses = computed(() =>
     this.isActive() && this.currentDir() === 'desc'
       ? 'text-primary'
       : 'text-neutral-300 dark:text-neutral-600',
   );
 
-  /** Toggle sort direction: asc → desc → asc */
+  /** Alterna a direção da ordenação: asc → desc → asc */
   toggleSort(): void {
     const nextDir: SortDirection = this.isActive() && this.currentDir() === 'asc' ? 'desc' : 'asc';
     this.sortChange.emit({ field: this.field(), dir: nextDir });

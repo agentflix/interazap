@@ -7,7 +7,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { resolveInputContainerClass } from '../input-container.util';
 
 /**
- * AfNumberInputComponent — Numeric input with increment/decrement buttons.
+ * Campo numérico com botões de incremento e decremento.
  *
  * @example
  * ```html
@@ -28,34 +28,34 @@ import { resolveInputContainerClass } from '../input-container.util';
   templateUrl: './number-input.html',
 })
 export class AfNumberInputComponent {
-  /** FormControl binding */
+  /** FormControl do campo */
   readonly control = input.required<FormControl<number>>();
 
-  /** Field label */
+  /** Rótulo do campo */
   readonly label = input('');
 
-  /** Minimum value */
+  /** Valor mínimo */
   readonly min = input<number | null>(null);
 
-  /** Maximum value */
+  /** Valor máximo */
   readonly max = input<number | null>(null);
 
-  /** Step increment */
+  /** Incremento por passo */
   readonly step = input(1);
 
-  /** Required */
+  /** Campo obrigatório */
   readonly required = input(false);
 
-  /** Error message */
+  /** Mensagem de erro */
   readonly errorMessage = input('');
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the field */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
   protected readonly containerClasses = computed(() =>

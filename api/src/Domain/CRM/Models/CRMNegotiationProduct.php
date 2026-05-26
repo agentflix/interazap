@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Product item linked to a Negotiation.
+ * Item de produto vinculado a uma negociação CRM.
  *
- * Represents a product line item in a deal, storing
- * quantity and pricing information.
+ * Representa uma linha de produto em uma negociação, armazenando
+ * quantidade, preço unitário e valor total calculado.
  *
  * @property string $id
  * @property string $tenant_id

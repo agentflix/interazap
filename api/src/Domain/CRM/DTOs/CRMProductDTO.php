@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for CRM product/service.
+ * DTO para produto ou serviço do catálogo CRM.
  *
  * @readonly
  */
@@ -29,9 +29,7 @@ final readonly class CRMProductDTO
         public int $stock = 0,
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria DTO a partir de um FormRequest já validado. */
     public static function fromRequest(FormRequest $request): self
     {
         return self::fromArray($request->validated());

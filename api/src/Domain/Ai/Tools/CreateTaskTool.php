@@ -13,7 +13,11 @@ use Domain\CRM\Models\CRMNegotiationTask;
 use Illuminate\Support\Str;
 
 /**
- * Ferramenta para criar tarefas em negociações.
+ * Ferramenta de IA para criar tarefas de acompanhamento vinculadas a negociações.
+ *
+ * Input esperado: title (obrigatório); negotiation_id, ticket_id, contact_id, due_date e assigned_to opcionais.
+ * Output produzido: task_id, negotiation_id e due_date da tarefa criada.
+ * Quando usar: agendar callbacks, reuniões ou lembretes de ações de acompanhamento.
  */
 class CreateTaskTool implements AiToolInterface
 {
@@ -21,6 +25,7 @@ class CreateTaskTool implements AiToolInterface
         private readonly AiToolEntityResolver $entityResolver,
     ) {}
 
+    /** Executa a criação da tarefa de acompanhamento. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $title = $input->parameters['title'] ?? '';
@@ -88,17 +93,21 @@ class CreateTaskTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CREATE_TASK;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Creates a follow-up task associated with a negotiation. Use to schedule callbacks, meetings, or reminder actions.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

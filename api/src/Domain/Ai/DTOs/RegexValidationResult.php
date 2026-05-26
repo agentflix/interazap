@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for regex validation result (anti-injection).
+ * DTO para resultado de validação regex anti-injeção de prompt.
+ *
+ * Encapsula o resultado da primeira camada de proteção (síncrona) antes
+ * do Guardian LLM (assíncrono). Construído via named constructors passed/failed.
  *
  * @readonly
  */
@@ -18,10 +21,7 @@ final readonly class RegexValidationResult
     ) {}
 
     /**
-     * Cria um resultado de validação bem-sucedida.
-     */
-    /**
-     * Create passed result.
+     * Cria um resultado indicando que a validação passou sem problemas.
      */
     public static function passed(): self
     {
@@ -29,10 +29,10 @@ final readonly class RegexValidationResult
     }
 
     /**
-     * Cria um resultado de validação falha.
-     */
-    /**
-     * Create failed result.
+     * Cria um resultado indicando que um padrão proibido foi encontrado.
+     *
+     * @param  string  $patternName  Nome do padrão que casou.
+     * @param  string  $regex  Expressão regular que casou.
      */
     public static function failed(string $patternName, string $regex): self
     {
@@ -46,19 +46,13 @@ final readonly class RegexValidationResult
     /**
      * Verifica se a validação passou.
      */
-    /**
-     * Check if validation passed.
-     */
     public function isValid(): bool
     {
         return $this->passed;
     }
 
     /**
-     * Verifica se a validação falhou.
-     */
-    /**
-     * Check if validation failed.
+     * Verifica se a validação falhou (padrão proibido detectado).
      */
     public function hasFailed(): bool
     {
@@ -66,10 +60,7 @@ final readonly class RegexValidationResult
     }
 
     /**
-     * Retorna mensagem de erro formatada.
-     */
-    /**
-     * Get formatted error message.
+     * Retorna mensagem de erro formatada ou null se a validação passou.
      */
     public function getErrorMessage(): ?string
     {

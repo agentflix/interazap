@@ -10,12 +10,16 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\CRM\Models\CRMNegotiation;
 
 /**
- * Tool to update the lead score of a negotiation.
+ * Ferramenta de IA para atualizar a pontuação do lead de uma negociação.
  *
- * Security: Validates tenant_id to prevent cross-tenant access.
+ * Input esperado: negotiation_id e score (0-100, obrigatórios); reason opcional.
+ * Output produzido: negotiation_id, pontuação anterior, nova pontuação e motivo.
+ * Quando usar: engajamento ou qualificação do lead mudarem durante a conversa.
+ * Segurança: valida tenant_id para evitar acesso entre tenants.
  */
 class UpdateLeadScoreTool implements AiToolInterface
 {
+    /** Executa a atualização da pontuação do lead. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $negotiationId = $input->parameters['negotiation_id'] ?? null;
@@ -55,17 +59,21 @@ class UpdateLeadScoreTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::UPDATE_LEAD_SCORE;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Updates the lead score of a negotiation based on engagement and qualification criteria. Score ranges from 0 (cold) to 100 (hot).';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

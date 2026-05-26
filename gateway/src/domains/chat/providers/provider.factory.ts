@@ -22,7 +22,7 @@ export class ProviderFactory {
   ) {
     this.providers = new Map<ProviderName, WhatsAppProvider>();
 
-    // Register providers
+    // Registra provedores na fabrica
     this.providers.set('uazapi', uazapiAdapter);
     this.providers.set('zapi', zapiAdapter);
     this.providers.set('meta', metaAdapter);

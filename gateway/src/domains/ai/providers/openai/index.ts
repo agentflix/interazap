@@ -1,7 +1,7 @@
 /**
- * OpenAI Provider Index
+ * Índice do provider OpenAI.
  *
- * Re-exports all OpenAI provider components
+ * Re-exporta config, tradutor, adapter e módulo do provider OpenAI para uso no `AIModule`.
  */
 
 export * from './openai.config';

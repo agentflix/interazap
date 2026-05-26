@@ -2,8 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { AfCardComponent, AfPageTitleComponent } from '@shared/components';
 
 /**
- * Starter page component for the Platform module.
- * @selector app-starter
+ * Página inicial do módulo de plataforma.
  */
 @Component({
   selector: 'app-starter',

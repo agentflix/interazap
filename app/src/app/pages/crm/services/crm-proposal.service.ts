@@ -6,31 +6,11 @@ import type { PaginatedResponse, Proposal, ProposalPayload } from '@crm/models/p
 export type { PaginatedResponse, Proposal, ProposalItem, ProposalPayload, ProposalStatus } from '@crm/models/proposal.model';
 
 
-/** Possible states of a proposal throughout its lifecycle. */
-
 /**
- * Individual line item within a proposal.
- */
-
-/**
- * A commercial proposal sent to a negotiation contact.
- */
-
-/**
- * Payload for creating or updating a proposal.
- */
-
-/**
- * Standard paginated response envelope.
- */
-
-/**
- * Service for CRM proposal lifecycle management.
+ * Serviço para gerenciamento do ciclo de vida de propostas do CRM.
  *
- * Handles CRUD operations, sending, accepting/rejecting proposals,
- * and public-facing client views.
- *
- * @class CRMProposalService
+ * Responsável por operações CRUD, envio, aceite/rejeição de propostas
+ * e visualizações públicas para clientes.
  */
 @Injectable({ providedIn: 'root' })
 export class CRMProposalService {
@@ -38,10 +18,9 @@ export class CRMProposalService {
   private readonly baseUrl = `${environment.apiUrl}/crm/proposals`;
 
   /**
-   * Lists all proposals attached to a specific negotiation.
-   *
-   * @param negotiationId - ID of the parent negotiation
-   * @returns Observable with paginated proposal list
+   * Lista todas as propostas vinculadas a uma negociação específica.
+   * @param negotiationId ID da negociação pai
+   * @returns Observable com lista paginada de propostas
    */
   listByNegotiation(negotiationId: string | number): Observable<PaginatedResponse<Proposal>> {
     return this.http.get<PaginatedResponse<Proposal>>(
@@ -50,21 +29,19 @@ export class CRMProposalService {
   }
 
   /**
-   * Retrieves a single proposal by ID.
-   *
-   * @param id - Proposal identifier
-   * @returns Observable with the proposal data
+   * Recupera uma proposta específica por ID.
+   * @param id Identificador da proposta
+   * @returns Observable com os dados da proposta
    */
   get(id: string | number): Observable<{ data: { proposal: Proposal } }> {
     return this.http.get<{ data: { proposal: Proposal } }>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * Creates a new proposal for a negotiation.
-   *
-   * @param negotiationId - Parent negotiation ID
-   * @param payload - Proposal data
-   * @returns Observable with the created proposal
+   * Cria uma nova proposta para uma negociação.
+   * @param negotiationId ID da negociação pai
+   * @param payload Dados da proposta
+   * @returns Observable com a proposta criada
    */
   create(
     negotiationId: string | number,
@@ -77,11 +54,10 @@ export class CRMProposalService {
   }
 
   /**
-   * Updates an existing proposal.
-   *
-   * @param id - Proposal ID
-   * @param payload - Fields to update
-   * @returns Observable with the updated proposal
+   * Atualiza uma proposta existente.
+   * @param id ID da proposta
+   * @param payload Campos a atualizar
+   * @returns Observable com a proposta atualizada
    */
   update(
     id: string | number,
@@ -91,40 +67,36 @@ export class CRMProposalService {
   }
 
   /**
-   * Permanently deletes a proposal.
-   *
-   * @param id - Proposal ID
-   * @returns Observable that completes on deletion
+   * Exclui permanentemente uma proposta.
+   * @param id ID da proposta
+   * @returns Observable que completa após exclusão
    */
   delete(id: string | number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * Sends the proposal to the client via email with a public link.
-   *
-   * @param id - Proposal ID
-   * @returns Observable with the updated proposal
+   * Envia a proposta ao cliente por e-mail com link público.
+   * @param id ID da proposta
+   * @returns Observable com a proposta atualizada
    */
   send(id: string | number): Observable<{ data: { proposal: Proposal } }> {
     return this.http.post<{ data: { proposal: Proposal } }>(`${this.baseUrl}/${id}/send`, {});
   }
 
   /**
-   * Creates a copy of an existing proposal as a new draft.
-   *
-   * @param id - Source proposal ID
-   * @returns Observable with the new proposal
+   * Cria uma cópia de uma proposta existente como novo rascunho.
+   * @param id ID da proposta origem
+   * @returns Observable com a nova proposta
    */
   duplicate(id: string | number): Observable<{ data: { proposal: Proposal } }> {
     return this.http.post<{ data: { proposal: Proposal } }>(`${this.baseUrl}/${id}/duplicate`, {});
   }
 
   /**
-   * Retrieves a proposal for public client view using the public token.
-   *
-   * @param token - Public access token from the proposal link
-   * @returns Observable with the proposal (without sensitive internal data)
+   * Recupera uma proposta para visualização pública do cliente usando o token público.
+   * @param token Token de acesso público do link da proposta
+   * @returns Observable com a proposta (sem dados internos sensíveis)
    */
   publicView(token: string): Observable<{ data: { proposal: Proposal } }> {
     return this.http.get<{ data: { proposal: Proposal } }>(
@@ -133,10 +105,9 @@ export class CRMProposalService {
   }
 
   /**
-   * Marks a proposal as accepted via the public client interface.
-   *
-   * @param token - Public access token from the proposal link
-   * @returns Observable with the updated proposal
+   * Marca uma proposta como aceita pela interface pública do cliente.
+   * @param token Token de acesso público do link da proposta
+   * @returns Observable com a proposta atualizada
    */
   publicAccept(token: string): Observable<{ data: { proposal: Proposal } }> {
     return this.http.post<{ data: { proposal: Proposal } }>(
@@ -146,10 +117,9 @@ export class CRMProposalService {
   }
 
   /**
-   * Marks a proposal as rejected via the public client interface.
-   *
-   * @param token - Public access token from the proposal link
-   * @returns Observable with the updated proposal
+   * Marca uma proposta como rejeitada pela interface pública do cliente.
+   * @param token Token de acesso público do link da proposta
+   * @returns Observable com a proposta atualizada
    */
   publicReject(token: string): Observable<{ data: { proposal: Proposal } }> {
     return this.http.post<{ data: { proposal: Proposal } }>(

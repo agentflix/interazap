@@ -1,7 +1,8 @@
 /**
- * Gemini Configuration Service
+ * Serviço de configuração tipada para o provider Google Gemini.
  *
- * Configuração tipada para Google Gemini com validação em startup.
+ * Contexto: lê as variáveis `GOOGLE_AI_API_KEY`, modelo padrão, timeout e retries
+ * da configuração NestJS e valida a presença da chave de API no `onModuleInit`.
  */
 
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -9,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleConfiguration } from '../../../../core/config/configuration';
 
 /**
- * Configuração do Gemini com validação
+ * Interface tipada com os parâmetros de configuração do provider Gemini.
  */
 export interface GeminiConfig {
   /**
@@ -59,7 +60,7 @@ export class GeminiConfigService implements OnModuleInit {
   }
 
   /**
-   * Valida que a configuração está presente (não lança erro, apenas loga warning)
+   * Valida que a chave de API está presente, logando aviso sem lançar exceção.
    */
   private validateConfiguration(): void {
     if (!this.config.apiKey) {
@@ -73,43 +74,34 @@ export class GeminiConfigService implements OnModuleInit {
     }
   }
 
-  /**
-   * Retorna a configuração completa
-   */
+  /** Retorna o objeto de configuração completo do Gemini. */
   getConfig(): GeminiConfig {
     return this.config;
   }
 
-  /**
-   * Retorna a API key
-   */
+  /** Retorna a chave de API do Google AI. */
   getApiKey(): string {
     return this.config.apiKey;
   }
 
-  /**
-   * Retorna o modelo padrão
-   */
+  /** Retorna o nome do modelo Gemini padrão configurado. */
   getDefaultModel(): string {
     return this.config.defaultModel;
   }
 
-  /**
-   * Retorna o timeout em ms
-   */
+  /** Retorna o timeout configurado em milissegundos. */
   getTimeoutMs(): number {
     return this.config.timeoutMs;
   }
 
-  /**
-   * Retorna o número máximo de retries
-   */
+  /** Retorna o número máximo de tentativas configurado. */
   getMaxRetries(): number {
     return this.config.maxRetries;
   }
 
   /**
-   * Verifica se está configurado corretamente
+   * Verifica se o provider Gemini está corretamente configurado.
+   * @returns `true` quando a chave de API está presente.
    */
   isConfigured(): boolean {
     return !!this.config.apiKey;

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 
 /**
- * AfVirtualScrollComponent — Virtualized list rendering only visible items.
+ * Lista virtualizada que renderiza apenas os itens visíveis.
  *
  * @example
  * ```html
@@ -30,16 +30,16 @@ import {
   host: { class: 'block' },
 })
 export class AfVirtualScrollComponent {
-  /** Total number of items */
+  /** Número total de itens */
   readonly itemCount = input(0);
 
-  /** Height of each item in px */
+  /** Altura de cada item em px */
   readonly itemHeight = input(48);
 
-  /** Container height in px */
+  /** Altura do container em px */
   readonly containerHeight = input(400);
 
-  /** Buffer items above/below viewport */
+  /** Itens de buffer acima/abaixo da viewport */
   readonly bufferSize = input(5);
 
   protected readonly scrollTop = signal(0);

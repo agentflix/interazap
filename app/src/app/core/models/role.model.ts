@@ -1,61 +1,52 @@
 /**
- * Represents an access control role (perfil de acesso) in the system.
- * Contains role metadata along with associated permissions and user counts.
+ * Representa um perfil de acesso (role) no sistema de controle de permissões.
  *
- * @example
- * ```typescript
- * const role: Role = {
- *   id: 'role-123',
- *   name: 'Admin',
- *   permissions: ['users.view', 'users.edit', 'reports.view'],
- *   permissions_count: 3,
- *   users_count: 5
- * };
- * ```
+ * Contexto: usado no módulo de Configurações para gerenciar papéis e permissões
+ * atribuídos aos usuários. Cada role agrupa um conjunto de permissões.
  */
 export interface Role {
   id: string;
   name: string;
+  /** Lista de permissões atribuídas a este perfil (ex: 'chat.called.view'). */
   permissions: string[];
+  /** Quantidade total de permissões atribuídas. */
   permissions_count: number;
+  /** Quantidade de usuários com este perfil atribuído. */
   users_count: number;
   created_at: string;
   updated_at: string;
 }
 
 /**
- * Permissions organized by module/group name.
- * Keys represent module names and values are arrays of permission strings.
+ * Permissões agrupadas por módulo/grupo.
+ *
+ * Contexto: usado na tela de edição de perfil para exibir as permissões
+ * organizadas por módulo (chat, crm, billing, etc.).
  *
  * @example
  * ```typescript
  * const grouped: GroupedPermissions = {
- *   'users': ['users.view', 'users.edit', 'users.delete'],
- *   'reports': ['reports.view', 'reports.export']
+ *   'chat': ['chat.called.view', 'chat.called.manage'],
+ *   'crm': ['crm.contact.view', 'crm.contact.manage']
  * };
  * ```
  */
 export type GroupedPermissions = Record<string, string[]>;
 
 /**
- * Payload data required for creating or updating a role.
- *
- * @example
- * ```typescript
- * const payload: RolePayload = {
- *   name: 'Editor',
- *   permissions: ['posts.view', 'posts.edit']
- * };
- * ```
+ * Payload para criação ou atualização de um perfil de acesso.
  */
 export interface RolePayload {
   name: string;
+  /** Lista de permissões a atribuir ao perfil. */
   permissions: string[];
 }
 
 /**
- * Represents a user listed within a role context.
- * Contains user metadata and their assigned roles.
+ * Representa um usuário listado no contexto de um perfil de acesso.
+ *
+ * Contexto: exibido na tela de detalhes de um perfil para mostrar
+ * quais usuários possuem aquele perfil atribuído.
  */
 export interface RoleUser {
   id: string;
@@ -70,7 +61,7 @@ export interface RoleUser {
 }
 
 /**
- * Paginated response for role users listing.
+ * Resposta paginada da API para listagem de usuários de um perfil.
  */
 export interface PaginatedRoleUsers {
   data: RoleUser[];
@@ -83,7 +74,7 @@ export interface PaginatedRoleUsers {
 }
 
 /**
- * Filters for listing roles.
+ * Filtros para listagem de perfis de acesso.
  */
 export interface RoleFilters {
   search?: string;
@@ -92,7 +83,7 @@ export interface RoleFilters {
 }
 
 /**
- * Filters for listing users by role.
+ * Filtros para listagem de usuários por perfil de acesso.
  */
 export interface RoleUsersFilters {
   search?: string;
@@ -101,7 +92,7 @@ export interface RoleUsersFilters {
 }
 
 /**
- * Paginated response for roles listing.
+ * Resposta paginada da API para listagem de perfis de acesso.
  */
 export interface PaginatedRoles {
   data: Role[];
@@ -114,7 +105,9 @@ export interface PaginatedRoles {
 }
 
 /**
- * Generic API response wrapper.
+ * Envelope genérico de resposta da API com indicador de sucesso.
+ *
+ * @template T Tipo do dado retornado no campo `data`.
  */
 export interface ApiResponse<T> {
   success: boolean;

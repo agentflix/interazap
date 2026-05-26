@@ -5,7 +5,7 @@ import { type NegotiationContactSummary } from 'src/app/core/services/negotiatio
 import { ButtonComponent } from '@shared/components/buttons';
 
 /**
- * Sidebar card for primary negotiation contact.
+ * Cartão na sidebar com informações do contato principal da negociação.
  */
 @Component({
   selector: 'app-negotiation-contact-card',

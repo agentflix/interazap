@@ -15,11 +15,14 @@ import {
 } from '../../contracts/meta-provider.interface';
 
 /**
- * Configuracao do provider Meta.
+ * Configuracao do provider Meta carregada das variaveis de ambiente.
  */
 interface MetaConfiguration {
+  /** URL base da Meta Graph API. */
   baseUrl: string;
+  /** Segredo da aplicacao Meta para validacao HMAC. */
   appSecret: string;
+  /** URL da Meta Graph API para chamadas diretas. */
   graphApiUrl: string;
 }
 
@@ -41,12 +44,12 @@ export class MetaClient {
       timeout: 30000,
     });
 
-    // Request interceptor to add headers
+    // Interceptor de requisicao para adicionar cabecalhos
     this.http.interceptors.request.use((config) => {
       return config;
     });
 
-    // Response interceptor for error handling
+    // Interceptor de resposta para tratamento de erros
     this.http.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
@@ -96,7 +99,7 @@ export class MetaClient {
       params.limit = filters.limit;
     }
 
-    // Build components filter if status is specified
+    // Constroi filtro de componentes quando status estiver especificado
     const statusFilter = filters.status ?? 'APPROVED';
 
     try {
@@ -107,7 +110,7 @@ export class MetaClient {
 
       const allTemplates = response.data.data;
 
-      // Filter by status if specified
+      // Filtra por status quando especificado
       const filteredTemplates = statusFilter
         ? allTemplates.filter((t) => t.status.toUpperCase() === statusFilter)
         : allTemplates;
@@ -149,7 +152,7 @@ export class MetaClient {
       },
     };
 
-    // Add template parameters if provided
+    // Adiciona parametros do template quando fornecidos
     if (request.templateParams && request.templateParams.length > 0) {
       payload.template.components = [
         {

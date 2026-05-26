@@ -16,7 +16,7 @@ export * from './dropdown-menu.model';
 
 
 /**
- * AfDropdownMenuComponent — Context/action dropdown menu triggered by arbitrary content.
+ * Menu dropdown de contexto/ação acionado por conteúdo arbitrário.
  *
  * @example
  * ```html
@@ -35,13 +35,13 @@ export * from './dropdown-menu.model';
   templateUrl: './dropdown-menu.html',
 })
 export class AfDropdownMenuComponent {
-  /** Menu items */
+  /** Itens do menu */
   readonly items = input<AfDropdownMenuItem[]>([]);
 
-  /** Menu alignment */
+  /** Alinhamento do menu */
   readonly align = input<'start' | 'end'>('end');
 
-  /** Emitted when an item is selected */
+  /** Emitido quando um item é selecionado */
   readonly itemSelected = output<string>();
 
   protected readonly isOpen = signal(false);

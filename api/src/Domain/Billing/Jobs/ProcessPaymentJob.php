@@ -17,10 +17,10 @@ use Shared\Jobs\Traits\Idempotent;
 use Shared\Jobs\Traits\RetryableWithBackoff;
 
 /**
- * Job for processing payments with idempotency and retry patterns.
+ * Job para processamento de pagamentos com idempotência e retry com backoff.
  *
- * This job handles payment processing with strong idempotency guarantees
- * to prevent duplicate charges. Uses transaction_id for deduplication.
+ * Garante que cobranças não sejam duplicadas usando transaction_id como chave
+ * de idempotência no cache. Integra com o BillingGatewayService via Asaas.
  */
 final class ProcessPaymentJob implements ShouldQueue
 {
@@ -31,19 +31,14 @@ final class ProcessPaymentJob implements ShouldQueue
     use RetryableWithBackoff;
     use SerializesModels;
 
-    /**
-     * Idempotency TTL: 7 days.
-     */
+    /** TTL de idempotência: 7 dias em segundos. */
     protected int $idempotencyTtl = 604800;
 
-    /**
-     * The tenant identifier.
-     */
+    /** UUID do tenant dono do pagamento. */
     private readonly string $tenantId;
 
     /**
-     * Get Payment-specific backoff delays.
-     * More conservative retries for payment processing.
+     * Retorna os intervalos de backoff (em segundos) para tentativas de reprocessamento.
      *
      * @return array<int, int>
      */
@@ -53,14 +48,14 @@ final class ProcessPaymentJob implements ShouldQueue
     }
 
     /**
-     * Create a new job instance.
+     * Cria nova instância do job.
      *
-     * @param  string  $transactionId  Unique transaction identifier for idempotency.
-     * @param  string  $tenantId  The tenant identifier.
-     * @param  string  $invoiceId  The invoice ID to process payment for.
-     * @param  int  $amount  Amount in cents.
-     * @param  string  $paymentMethod  Payment method (pix, credit_card, boleto).
-     * @param  array<string, mixed>  $paymentData  Additional payment data.
+     * @param  string  $transactionId  Identificador único da transação para idempotência
+     * @param  string  $tenantId  UUID do tenant
+     * @param  string  $invoiceId  UUID da fatura a ser paga
+     * @param  int  $amount  Valor em centavos
+     * @param  string  $paymentMethod  Método de pagamento (pix, credit_card, boleto)
+     * @param  array<string, mixed>  $paymentData  Dados adicionais (ex: dados de cartão)
      */
     public function __construct(
         private readonly string $transactionId,
@@ -77,7 +72,7 @@ final class ProcessPaymentJob implements ShouldQueue
     }
 
     /**
-     * Get the middleware the job should pass through.
+     * Middlewares que o job deve atravessar (ex: rate limiting de pagamentos).
      *
      * @return array<int, object>
      */
@@ -88,16 +83,14 @@ final class ProcessPaymentJob implements ShouldQueue
         ];
     }
 
-    /**
-     * Get the unique ID for the job.
-     */
+    /** Retorna o ID único do job baseado no transactionId (evita duplicatas na fila). */
     public function uniqueId(): string
     {
         return "payment:{$this->transactionId}";
     }
 
     /**
-     * Get the tags that should be assigned to the job.
+     * Retorna as tags do job para filtragem no Horizon.
      *
      * @return array<int, string>
      */
@@ -112,7 +105,7 @@ final class ProcessPaymentJob implements ShouldQueue
     }
 
     /**
-     * Execute the job with idempotency.
+     * Executa o job delegando ao trait Idempotent para garantir unicidade.
      */
     public function handle(BillingGatewayService $gateway): void
     {
@@ -120,7 +113,7 @@ final class ProcessPaymentJob implements ShouldQueue
     }
 
     /**
-     * Get the idempotency payload.
+     * Retorna o payload de idempotência usado pelo trait Idempotent como chave de cache.
      *
      * @return array<string, mixed>
      */
@@ -136,7 +129,10 @@ final class ProcessPaymentJob implements ShouldQueue
     }
 
     /**
-     * Process the payment (called by Idempotent trait).
+     * Processa efetivamente o pagamento via gateway (chamado pelo trait Idempotent).
+     *
+     * @throws \InvalidArgumentException Quando fatura não existe ou valor diverge
+     * @throws \RuntimeException Quando o gateway rejeita a cobrança
      */
     protected function process(): void
     {
@@ -238,7 +234,7 @@ final class ProcessPaymentJob implements ShouldQueue
     }
 
     /**
-     * Handle a job failure.
+     * Trata falha definitiva do job, registrando erro e atualizando status da fatura.
      */
     public function failed(\Throwable $exception): void
     {
@@ -261,7 +257,9 @@ final class ProcessPaymentJob implements ShouldQueue
     }
 
     /**
-     * Determine if the exception should cause immediate failure.
+     * Determina se a exceção deve causar falha imediata sem tentativas de retry.
+     *
+     * Cartão inválido, sem saldo e fraude são erros não recuperáveis.
      */
     protected function shouldFailImmediately(\Throwable $exception): bool
     {
@@ -290,9 +288,7 @@ final class ProcessPaymentJob implements ShouldQueue
         return false;
     }
 
-    /**
-     * Get the invoice from the database.
-     */
+    /** Busca a fatura no banco de dados garantindo pertencimento ao tenant. */
     private function getInvoice(): ?BillingInvoice
     {
         return BillingInvoice::query()
@@ -301,9 +297,9 @@ final class ProcessPaymentJob implements ShouldQueue
     }
 
     /**
-     * Update invoice status.
+     * Atualiza o status de pagamento da fatura nos metadados.
      *
-     * @param  array<string, mixed>  $paymentData
+     * @param  array<string, mixed>  $paymentData  Dados adicionais a mesclar nos metadados
      */
     private function updateInvoiceStatus(BillingInvoice $invoice, string $status, array $paymentData = []): void
     {

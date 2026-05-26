@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for department.
+ * DTO para departamento do CRM.
  *
  * @readonly
  */
@@ -19,9 +19,7 @@ final readonly class CRMDepartmentDTO
         public bool $isActive,
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria DTO a partir de um FormRequest já validado. */
     public static function fromRequest(FormRequest $request): self
     {
         return self::fromArray($request->validated());

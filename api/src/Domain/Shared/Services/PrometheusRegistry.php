@@ -10,7 +10,11 @@ use Prometheus\Storage\Redis;
 use Throwable;
 
 /**
- * Factory-like service that builds a CollectorRegistry backed by Redis when available.
+ * Serviço factory que constrói um CollectorRegistry com backend Redis quando disponível.
+ *
+ * Tenta usar Redis como storage para persistência de métricas entre requisições.
+ * Caso o Redis não esteja disponível ou a extensão não esteja carregada, faz fallback
+ * para InMemory (métricas não persistidas entre requests).
  */
 final class PrometheusRegistry
 {
@@ -52,6 +56,11 @@ final class PrometheusRegistry
         }
     }
 
+    /**
+     * Retorna o CollectorRegistry configurado (Redis ou InMemory).
+     *
+     * @return CollectorRegistry Instância do registry Prometheus.
+     */
     public function get(): CollectorRegistry
     {
         return $this->registry;

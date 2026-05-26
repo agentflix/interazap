@@ -8,11 +8,11 @@ export type { PresencePayload, PresenceResponse } from '@core/models/chat-presen
 
 
 /**
- * Service for sending presence indicators (typing, recording) to chat contacts.
+ * Envia indicadores de presença (digitando, gravando) ao backend para relay ao contato do ticket.
  *
  * @remarks
- * Sends presence signals to the backend which relays them to the contact
- * via WhatsApp or other messaging channels.
+ * O backend repassa os sinais de presença ao contato via WhatsApp ou
+ * outros canais de mensageria configurados.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatPresenceService {

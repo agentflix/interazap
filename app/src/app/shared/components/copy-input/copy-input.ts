@@ -4,10 +4,9 @@ import { AfFormLabelComponent } from '../form-label/form-label';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * Copy-to-clipboard input for InteraZap UI Kit.
+ * Campo de texto somente leitura com botão para copiar o valor para a área de transferência.
  *
- * @description Read-only text input with a trailing copy button.
- * Copies the value to the clipboard and briefly shows a check icon.
+ * Ao copiar, exibe brevemente um ícone de confirmação.
  *
  * @example
  * ```html
@@ -25,25 +24,25 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './copy-input.html',
 })
 export class AfCopyInputComponent {
-  /** FormControl holding the value to copy */
+  /** FormControl que contém o valor a ser copiado */
   readonly control = input.required<FormControl<string>>();
 
-  /** Label text */
+  /** Texto do rótulo */
   readonly label = input<string>();
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string>('mb-4');
 
-  /** data-test attribute */
+  /** Atributo data-test */
   readonly dataTest = input<string>();
 
-  /** Whether the value was just copied */
+  /** Indica se o valor acabou de ser copiado */
   protected readonly copied = signal(false);
 
-  /** Unique ID */
+  /** ID único do campo */
   protected readonly inputId = `copy-${Math.random().toString(36).slice(2, 9)}`;
 
-  /** Copy to clipboard */
+  /** Copia o valor para a área de transferência */
   protected async copyValue(): Promise<void> {
     const value = this.control().value;
     if (!value) return;

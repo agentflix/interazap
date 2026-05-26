@@ -11,12 +11,12 @@ import { AuthStoreService } from '@core/services/auth-store.service';
 import type { AfSelectOption } from '@shared/components';
 
 /**
- * External Chat page — displays public widget URL and embed code for external sites.
+ * Página de Chat Externo — exibe a URL pública do widget e o código de incorporação.
  *
  * @remarks
- * Allows admins to copy the public chat widget URL and a JavaScript embed snippet
- * to place on external websites. The public widget is accessible at
- * `/chat/external/{tenantId}` and the embed version at `/embed/{tenantId}`.
+ * Permite que administradores copiem a URL pública do widget de chat e um trecho
+ * JavaScript de embed para incluir em sites externos.
+ * O widget público é acessível em `/chat/external/{tenantId}` e a versão embed em `/embed/{tenantId}`.
  */
 @Component({
   selector: 'app-external-chat-page',

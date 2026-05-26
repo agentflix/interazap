@@ -50,9 +50,9 @@ it('GET /by-webhook-token retorna 401 com key inválida', function (): void {
 it('POST /webhook-events cria evento de billing', function (): void {
     $response = $this->withHeaders(['X-Internal-Api-Key' => 'test-internal-key'])
         ->postJson('/api/internal/billing/webhook-events', [
-            'tenant_id'   => (string) $this->tenant->id,
-            'event_type'  => 'PAYMENT_RECEIVED',
-            'payload'     => ['amount' => 100],
+            'tenant_id' => (string) $this->tenant->id,
+            'event_type' => 'PAYMENT_RECEIVED',
+            'payload' => ['amount' => 100],
             'external_id' => 'ext-abc-123',
         ]);
 
@@ -61,19 +61,19 @@ it('POST /webhook-events cria evento de billing', function (): void {
         ->assertJsonStructure(['data' => ['event_id', 'created_at']]);
 
     $this->assertDatabaseHas('shared_webhook_events', [
-        'tenant_id'         => (string) $this->tenant->id,
-        'event_type'        => 'PAYMENT_RECEIVED',
+        'tenant_id' => (string) $this->tenant->id,
+        'event_type' => 'PAYMENT_RECEIVED',
         'provider_event_id' => 'ext-abc-123',
-        'domain'            => 'billing',
+        'domain' => 'billing',
     ]);
 });
 
 it('POST /webhook-events cria evento sem external_id', function (): void {
     $response = $this->withHeaders(['X-Internal-Api-Key' => 'test-internal-key'])
         ->postJson('/api/internal/billing/webhook-events', [
-            'tenant_id'  => (string) $this->tenant->id,
+            'tenant_id' => (string) $this->tenant->id,
             'event_type' => 'PAYMENT_OVERDUE',
-            'payload'    => ['invoice_id' => 'inv-001'],
+            'payload' => ['invoice_id' => 'inv-001'],
         ]);
 
     $response->assertCreated()
@@ -82,9 +82,9 @@ it('POST /webhook-events cria evento sem external_id', function (): void {
 
 it('POST /webhook-events retorna 401 sem header', function (): void {
     $this->postJson('/api/internal/billing/webhook-events', [
-        'tenant_id'  => (string) $this->tenant->id,
+        'tenant_id' => (string) $this->tenant->id,
         'event_type' => 'X',
-        'payload'    => [],
+        'payload' => [],
     ])->assertUnauthorized();
 });
 
@@ -98,11 +98,11 @@ it('POST /webhook-events retorna 422 com payload inválido', function (): void {
 
 it('PATCH /stream-id atualiza stream_id de evento existente', function (): void {
     $event = BillingWebhookEvent::create([
-        'id'                     => (string) Str::orderedUuid(),
-        'tenant_id'              => (string) $this->tenant->id,
-        'event_type'             => 'PAYMENT_RECEIVED',
-        'payload'                => ['amount' => 50],
-        'provider'               => 'billing',
+        'id' => (string) Str::orderedUuid(),
+        'tenant_id' => (string) $this->tenant->id,
+        'event_type' => 'PAYMENT_RECEIVED',
+        'payload' => ['amount' => 50],
+        'provider' => 'billing',
         'instance_webhook_token' => 'billing',
     ]);
 
@@ -114,7 +114,7 @@ it('PATCH /stream-id atualiza stream_id de evento existente', function (): void 
         ->assertJsonPath('data.updated', true);
 
     $this->assertDatabaseHas('shared_webhook_events', [
-        'id'        => $event->id,
+        'id' => $event->id,
         'stream_id' => '1234567890-0',
     ]);
 });

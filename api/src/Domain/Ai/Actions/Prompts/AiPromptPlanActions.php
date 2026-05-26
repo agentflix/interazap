@@ -9,13 +9,17 @@ use Domain\Platform\Models\PlatformPlan;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
- * Actions para Plan Prompts.
+ * Casos de uso de leitura para prompts de planos da plataforma.
+ *
+ * Contexto: consultas sobre AiPromptPlan vinculados a PlatformPlan.
+ * Prompts de plano são globais à plataforma (não isolados por tenant).
  */
 final class AiPromptPlanActions
 {
     /**
-     * Listar prompts de planos com paginação.
+     * Lista prompts de planos paginados com a relação plan carregada.
      *
+     * @param  int  $perPage  Itens por página.
      * @return LengthAwarePaginator<int, AiPromptPlan>
      */
     public function list(int $perPage = 15): LengthAwarePaginator
@@ -26,7 +30,10 @@ final class AiPromptPlanActions
     }
 
     /**
-     * Buscar prompt do plano.
+     * Busca o prompt associado a um plano específico.
+     *
+     * @param  PlatformPlan  $plan  Plano a consultar.
+     * @return AiPromptPlan|null Prompt do plano ou null se não configurado.
      */
     public function findByPlan(PlatformPlan $plan): ?AiPromptPlan
     {

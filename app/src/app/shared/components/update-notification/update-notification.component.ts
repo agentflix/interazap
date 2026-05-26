@@ -3,8 +3,8 @@ import { UpdateService } from '../../../core/services/update.service';
 import { AfButtonComponent } from '../button/button';
 
 /**
- * Update notification shared component for the Shared module.
- * @selector app-update-notification
+ * Notificação de atualização da aplicação (PWA/Electron).
+ * Exibe um banner quando uma nova versão está disponível para download.
  */
 @Component({
   selector: 'app-update-notification',

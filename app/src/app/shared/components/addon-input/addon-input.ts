@@ -5,10 +5,13 @@ import { AfFormErrorComponent } from '../form-error/form-error';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * Input group with a leading addon (button or icon) on the left.
+ * Campo de texto com botão addon à esquerda (ícone ou texto clicável).
  *
- * @description Renders a text input with a clickable button addon on the
- * left side. Ideal for "Add" actions, prefix selectors, or icon-triggered inputs.
+ * Ideal para ações do tipo "Adicionar", seletores de prefixo ou entradas
+ * acionadas por ícone. O botão addon emite o evento `addonClick`.
+ *
+ * Contexto: utilizado em formulários de tags, filtros rápidos e qualquer
+ * campo que necessite de uma ação contextual anexada à entrada.
  *
  * @example
  * ```html
@@ -16,7 +19,7 @@ import { LucideAngularModule } from 'lucide-angular';
  *   [control]="tagControl"
  *   label="Tag"
  *   addonIcon="plus"
- *   addonLabel="Add"
+ *   addonLabel="Adicionar"
  *   placeholder="Nova tag..."
  *   (addonClick)="onAddTag()"
  * />
@@ -30,43 +33,43 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './addon-input.html',
 })
 export class AfAddonInputComponent {
-  /** FormControl for the input */
+  /** FormControl do campo de texto */
   readonly control = input.required<FormControl<string>>();
 
-  /** Label text */
+  /** Texto do rótulo */
   readonly label = input<string>();
 
-  /** Container CSS class */
+  /** Classe CSS do container */
   readonly classContainer = input<string>('mb-4');
 
-  /** Input type */
+  /** Tipo do input HTML */
   readonly type = input<string>('text');
 
-  /** Placeholder text */
+  /** Texto de placeholder */
   readonly placeholder = input('');
 
-  /** Required asterisk on label */
+  /** Exibe asterisco de campo obrigatório no rótulo */
   readonly required = input(false);
 
-  /** Error message */
+  /** Mensagem de erro de validação */
   readonly errorMessage = input('Campo obrigatório.');
 
-  /** Lucide icon name for the addon button */
+  /** Nome do ícone Lucide para o botão addon */
   readonly addonIcon = input<string>();
 
-  /** Text label for the addon button */
+  /** Texto do botão addon */
   readonly addonLabel = input<string>();
 
-  /** data-test attribute */
+  /** Atributo data-test para testes E2E */
   readonly dataTest = input<string>();
 
-  /** Emitted when addon button is clicked */
+  /** Emitido ao clicar no botão addon */
   readonly addonClick = output<void>();
 
-  /** Unique ID */
+  /** ID único para associar label e input */
   protected readonly inputId = `addon-${Math.random().toString(36).slice(2, 9)}`;
 
-  /** Addon button styling */
+  /** Classes CSS do botão addon */
   protected readonly addonClasses = computed(() =>
     [
       'inline-flex items-center gap-1.5 px-3',
@@ -80,7 +83,7 @@ export class AfAddonInputComponent {
     ].join(' '),
   );
 
-  /** Input styling */
+  /** Classes CSS do campo de texto */
   protected readonly inputClasses = computed(() => {
     const borderColor = this.showError()
       ? 'border-red-500 dark:border-red-400'
@@ -98,6 +101,6 @@ export class AfAddonInputComponent {
     ].join(' ');
   });
 
-  /** Whether to show error */
+  /** Indica se o erro de validação deve ser exibido */
   protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
 }

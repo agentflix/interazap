@@ -12,6 +12,14 @@ import { WsRoomAccessService } from './services/ws-room-access.service';
 import { WsSessionService } from './services/ws-session.service';
 import { WebChatProxyService } from './services/webchat-proxy.service';
 
+/**
+ * Módulo do domínio Realtime.
+ *
+ * Registra os gateways WebSocket (EventsGateway e WebChatGateway),
+ * o serviço de fan-out de eventos Redis PubSub, os guards de autenticação
+ * e os controllers internos para broadcast e proxy do webchat.
+ * Exporta os gateways para uso no domínio internal.
+ */
 @Module({
   imports: [MulterModule.register({ limits: { fileSize: 50 * 1024 * 1024 } })],
   controllers: [InternalBroadcastController, WebChatController],

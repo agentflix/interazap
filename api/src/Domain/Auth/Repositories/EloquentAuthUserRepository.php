@@ -14,16 +14,23 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 final class EloquentAuthUserRepository implements AuthUserRepository
 {
+    /** Busca usuario pelo e-mail (sem escopo de tenant). */
     public function findByEmail(string $email): ?AuthUser
     {
         return AuthUser::where('email', $email)->first();
     }
 
+    /** Persiste o usuario no banco de dados. */
     public function save(AuthUser $user): void
     {
         $user->save();
     }
 
+    /**
+     * Retorna lista paginada aplicando filtros de busca, tenant, status e role.
+     *
+     * @return LengthAwarePaginator<int, AuthUser>
+     */
     public function paginate(AuthUserFiltersDTO $filters): LengthAwarePaginator
     {
         $query = AuthUser::query()->with(['roles', 'tenant']);
@@ -53,16 +60,23 @@ final class EloquentAuthUserRepository implements AuthUserRepository
             ->paginate($filters->sanitizedPerPage());
     }
 
+    /**
+     * Busca usuario por ID carregando as relacoes solicitadas mais 'tenant'.
+     *
+     * @param  array<int, string>  $relations
+     */
     public function findOrFail(string $id, array $relations = []): AuthUser
     {
         return AuthUser::with(array_values(array_unique([...$relations, 'tenant'])))->findOrFail($id);
     }
 
+    /** Cria e persiste novo usuario com os atributos fornecidos. */
     public function create(array $attributes): AuthUser
     {
         return AuthUser::create($attributes);
     }
 
+    /** Remove o usuario aplicando soft-delete. */
     public function delete(AuthUser $user): void
     {
         $user->delete();

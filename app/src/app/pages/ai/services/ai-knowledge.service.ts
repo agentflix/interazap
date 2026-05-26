@@ -52,12 +52,10 @@ interface BulkCountResponse {
 }
 
 /**
- * Service para gestão da Base de Conhecimento da IA.
+ * Serviço para gestão da Base de Conhecimento da IA.
  *
  * Responsável por upload, indexação e consulta de documentos
  * que alimentam o contexto dos agentes de IA.
- *
- * @class AiKnowledgeService
  */
 @Injectable({ providedIn: 'root' })
 export class AiKnowledgeService {
@@ -128,7 +126,9 @@ export class AiKnowledgeService {
   }
 
   /**
-   * Ingest a public URL into the knowledge base.
+   * Ingere uma URL pública na base de conhecimento.
+   * @param url URL pública a ser ingerida
+   * @param title Título da entrada
    */
   ingestUrl(url: string, title: string): Observable<AiKnowledge> {
     return this.http
@@ -155,7 +155,8 @@ export class AiKnowledgeService {
   }
 
   /**
-   * Bulk delete documents by ID.
+   * Remove múltiplos documentos em lote pelos IDs.
+   * @param ids Lista de IDs dos documentos a excluir
    */
   bulkDelete(ids: string[]): Observable<BulkCountResponse> {
     return this.http.delete<BulkCountResponse>(`${this.baseUrl}/bulk`, {
@@ -164,7 +165,8 @@ export class AiKnowledgeService {
   }
 
   /**
-   * Bulk reindex documents by ID.
+   * Reindexação em lote de documentos pelos IDs.
+   * @param ids Lista de IDs dos documentos a reindexar
    */
   bulkReindex(ids: string[]): Observable<BulkCountResponse> {
     return this.http.post<BulkCountResponse>(`${this.baseUrl}/bulk-reindex`, { ids });
@@ -217,11 +219,10 @@ export class AiKnowledgeService {
   }
 
   /**
-   * Maps an API knowledge item to the application model, applying
-   * compatibility aliases for field names and status values.
-   *
-   * @param item - Raw API response item
-   * @returns Normalized AiKnowledge object
+   * Converte um item da API para o modelo da aplicação, aplicando
+   * aliases de compatibilidade para nomes de campos e valores de status.
+   * @param item Item bruto da resposta da API
+   * @returns Objeto AiKnowledge normalizado
    */
   private mapKnowledge(item: AiKnowledgeApiItem): AiKnowledge {
     const contentTypeMap: Record<AiKnowledgeApiItem['file_type'], AiKnowledge['content_type']> = {

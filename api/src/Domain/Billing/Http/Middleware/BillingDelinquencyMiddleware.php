@@ -53,6 +53,7 @@ final class BillingDelinquencyMiddleware
         return $this->lockedResponse($tenantId, $billingState);
     }
 
+    /** Verifica se o módulo de inadimplência está habilitado pela config. */
     private function isFeatureEnabled(): bool
     {
         return (bool) config('billing.delinquency.enabled', true);
@@ -91,6 +92,7 @@ final class BillingDelinquencyMiddleware
         return $state;
     }
 
+    /** Verifica se a rota atual está na lista de permissões para tenants bloqueados. */
     private function isWhitelistedRoute(Request $request): bool
     {
         $allowedRoutes = [
@@ -138,6 +140,7 @@ final class BillingDelinquencyMiddleware
         return false;
     }
 
+    /** Verifica se a rota corresponde ao método e padrão informados (suporta wildcards). */
     private function matchesRoutePattern(Request $request, ?string $method, string $pattern): bool
     {
         if ($method !== null && strtoupper($request->method()) !== strtoupper($method)) {
@@ -148,6 +151,8 @@ final class BillingDelinquencyMiddleware
     }
 
     /**
+     * Retorna a resposta HTTP 423 com detalhes de bloqueio e faturas em aberto.
+     *
      * @param  array{billing_status:string,billing_locked_at:string|null,billing_purge_deadline:string|null}  $billingState
      */
     private function lockedResponse(string $tenantId, array $billingState): JsonResponse

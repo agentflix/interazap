@@ -7,7 +7,11 @@ namespace Domain\Ai\DTOs;
 use Domain\Ai\Enums\SentimentLevel;
 
 /**
- * DTO for sentiment analysis result.
+ * DTO que representa o resultado da análise de sentimento de uma mensagem.
+ *
+ * Utilizado nos fluxos de monitoramento de satisfação do cliente, onde
+ * a IA classifica o tom da mensagem (positivo, neutro, negativo) para
+ * detectar insatisfação e acionar escalonamentos quando necessário.
  *
  * @readonly
  */

@@ -7,18 +7,18 @@ namespace Domain\Chat\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Quick Answers.
+ * DTO de Resposta Rápida.
  *
  * @readonly
  */
 final readonly class ChatQuickAnswerDTO
 {
     /**
-     * @param  string  $name  Answer identifier name.
-     * @param  string  $content  Response text inserted in chat.
-     * @param  string|null  $shortcut  Optional shortcut (e.g. /hello) for quick search.
-     * @param  string|null  $category  Category for organization.
-     * @param  bool  $isActive  Whether the answer is available.
+     * @param  string  $name  Nome identificador da resposta.
+     * @param  string  $content  Texto de resposta inserido no chat.
+     * @param  string|null  $shortcut  Atalho opcional (ex.: /ola) para busca rápida.
+     * @param  string|null  $category  Categoria para organização.
+     * @param  bool  $isActive  Indica se a resposta está disponível.
      */
     public function __construct(
         public string $name,
@@ -29,7 +29,7 @@ final readonly class ChatQuickAnswerDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um Request HTTP.
      */
     public static function fromRequest(Request $request): self
     {
@@ -43,7 +43,7 @@ final readonly class ChatQuickAnswerDTO
     }
 
     /**
-     * Create DTO from array.
+     * Cria o DTO a partir de um array.
      *
      * @param  array<string, mixed>  $data
      */

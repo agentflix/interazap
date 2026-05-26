@@ -1,19 +1,19 @@
 /**
- * Models and types for phone-input component.
+ * Modelos e tipos do componente de campo de telefone.
  */
 
-/** Available sizes for the input */
+/** Tamanhos disponíveis para o campo */
 export type AfInputSize = 'sm' | 'md';
 
-/** Country code entry */
+/** Entrada de código de país (DDI). */
 export interface AfCountryCode {
-  /** Country name */
+  /** Nome do país */
   name: string;
-  /** ISO dial code (e.g. +55) */
+  /** Código de discagem ISO (ex.: +55) */
   code: string;
-  /** ISO 2-letter country code */
+  /** Código ISO de 2 letras do país */
   iso: string;
-  /** Flag emoji */
+  /** Emoji da bandeira */
   flag: string;
 }
 

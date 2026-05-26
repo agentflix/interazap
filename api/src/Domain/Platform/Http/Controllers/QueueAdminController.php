@@ -12,11 +12,10 @@ use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 
 /**
- * Controller for queue administration endpoints.
+ * Controlador de administração de filas.
  *
- * Proxies administrative queue operations to the Gateway service
- * using the internal API key for authentication. All mutating
- * actions are audited for compliance and traceability.
+ * Atua como proxy entre a API e o serviço Gateway para operações administrativas de filas,
+ * utilizando a chave de API interna para autenticação. Todas as ações mutantes são auditadas.
  */
 final class QueueAdminController extends BaseController
 {
@@ -28,7 +27,7 @@ final class QueueAdminController extends BaseController
     ) {}
 
     /**
-     * Get overview of all queues.
+     * Retorna visão geral de todas as filas.
      *
      * @return JsonResponse Visão geral das filas.
      */
@@ -42,7 +41,7 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Get details for a specific queue.
+     * Retorna os detalhes de uma fila específica.
      *
      * @param  string  $name  Nome da fila.
      * @return JsonResponse Detalhes da fila.
@@ -57,7 +56,7 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Pause a queue.
+     * Pausa o processamento de uma fila.
      *
      * @param  string  $name  Nome da fila.
      * @return JsonResponse Resultado da operação.
@@ -74,7 +73,7 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Resume a queue.
+     * Retoma o processamento de uma fila pausada.
      *
      * @param  string  $name  Nome da fila.
      * @return JsonResponse Resultado da operação.
@@ -91,9 +90,9 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Clean completed/failed jobs from a queue.
+     * Remove jobs concluídos ou com falha de uma fila.
      *
-     * @param  Request  $request  Dados da limpeza.
+     * @param  Request  $request  Dados da limpeza (status, count).
      * @param  string  $name  Nome da fila.
      * @return JsonResponse Resultado da operação.
      */
@@ -110,9 +109,9 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * List dead letter queue entries.
+     * Lista os jobs na Dead Letter Queue (DLQ).
      *
-     * @param  Request  $request  Solicitação HTTP.
+     * @param  Request  $request  Requisição com parâmetros de filtragem.
      * @return JsonResponse Lista de jobs na DLQ.
      */
     public function deadLetterIndex(Request $request): JsonResponse
@@ -127,9 +126,9 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Retry a specific DLQ job.
+     * Reprocessa um job específico da DLQ.
      *
-     * @param  string  $id  Identificador do job.
+     * @param  string  $id  Identificador do job na DLQ.
      * @return JsonResponse Resultado da operação.
      */
     public function deadLetterRetry(string $id): JsonResponse
@@ -144,9 +143,9 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Retry all DLQ jobs.
+     * Reprocessa todos os jobs da DLQ com filtros opcionais.
      *
-     * @param  Request  $request  Filtros opcionais.
+     * @param  Request  $request  Filtros opcionais (queue, job_name, tenant_id).
      * @return JsonResponse Resultado da operação.
      */
     public function deadLetterRetryAll(Request $request): JsonResponse
@@ -162,9 +161,9 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Remove a specific DLQ job.
+     * Remove permanentemente um job específico da DLQ.
      *
-     * @param  string  $id  Identificador do job.
+     * @param  string  $id  Identificador do job na DLQ.
      * @return JsonResponse Resultado da operação.
      */
     public function deadLetterPurge(string $id): JsonResponse
@@ -179,9 +178,9 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Purge all DLQ jobs.
+     * Remove permanentemente todos os jobs da DLQ com filtros opcionais.
      *
-     * @param  Request  $request  Filtros opcionais.
+     * @param  Request  $request  Filtros opcionais (queue, job_name, tenant_id).
      * @return JsonResponse Resultado da operação.
      */
     public function deadLetterPurgeAll(Request $request): JsonResponse
@@ -197,7 +196,7 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Get circuit breaker status for all circuits.
+     * Retorna o status de todos os circuit breakers.
      *
      * @return JsonResponse Status dos circuit breakers.
      */
@@ -211,7 +210,7 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Get circuit breaker status for a specific circuit.
+     * Retorna o status de um circuit breaker específico.
      *
      * @param  string  $name  Nome do circuit breaker.
      * @return JsonResponse Status do circuit breaker.
@@ -226,7 +225,7 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Reset a circuit breaker to CLOSED state.
+     * Redefine um circuit breaker para o estado FECHADO (CLOSED).
      *
      * @param  string  $name  Nome do circuit breaker.
      * @return JsonResponse Resultado da operação.
@@ -243,7 +242,7 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Force open a circuit breaker.
+     * Força a abertura de um circuit breaker (estado OPEN).
      *
      * @param  string  $name  Nome do circuit breaker.
      * @return JsonResponse Resultado da operação.
@@ -260,7 +259,7 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Proxy a GET request to the Gateway.
+     * Encaminha uma requisição GET ao Gateway.
      *
      * @param  string  $endpoint  Endpoint no Gateway.
      * @param  array<string, mixed>  $query  Parâmetros de query.
@@ -274,10 +273,10 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Proxy a POST request to the Gateway.
+     * Encaminha uma requisição POST ao Gateway.
      *
      * @param  string  $endpoint  Endpoint no Gateway.
-     * @param  array<string, mixed>  $data  Dados do corpo.
+     * @param  array<string, mixed>  $data  Dados do corpo da requisição.
      * @return array<mixed> Resposta do Gateway.
      *
      * @throws \Illuminate\Http\Client\RequestException
@@ -288,7 +287,7 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Proxy a DELETE request to the Gateway.
+     * Encaminha uma requisição DELETE ao Gateway.
      *
      * @param  string  $endpoint  Endpoint no Gateway.
      * @return array<mixed> Resposta do Gateway.
@@ -301,10 +300,9 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Create a configured HTTP request to the Gateway.
+     * Cria uma requisição HTTP configurada para o Gateway com autenticação por API key.
      *
-     *
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException Quando URL ou API key não estão configurados.
      */
     private function gatewayRequest(): \Illuminate\Http\Client\PendingRequest
     {
@@ -329,10 +327,10 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Register an audit log entry for a queue administration action.
+     * Registra uma entrada de auditoria para uma ação administrativa de fila.
      *
-     * Logs the event name, queue/circuit identifier, action type,
-     * and sanitized payload for compliance traceability.
+     * Loga o nome do evento, identificador da fila/circuito, tipo de ação e
+     * payload sanitizado para rastreabilidade de conformidade.
      *
      * @param  string  $event  Nome do evento de auditoria.
      * @param  string  $queue  Identificador da fila ou circuito.
@@ -365,10 +363,11 @@ final class QueueAdminController extends BaseController
     }
 
     /**
-     * Resolve the gateway endpoint string for audit context.
+     * Resolve a string do endpoint do gateway para contexto de auditoria.
      *
      * @param  string  $queue  Identificador da fila ou circuito.
      * @param  string  $action  Tipo de ação executada.
+     * @return string Endpoint correspondente à ação.
      */
     private function resolveGatewayEndpoint(string $queue, string $action): string
     {

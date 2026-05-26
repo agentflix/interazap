@@ -40,7 +40,19 @@ export type {
 } from './models/configuration.model';
 
 /**
+ * Fábricas de configuração do gateway registradas com `registerAs` do NestJS Config.
+ *
+ * Contexto: módulo core/config. Cada fábrica mapeia variáveis de ambiente para
+ * um namespace tipado acessível via `ConfigService.get<T>(namespace)`.
+ * Re-exporta todos os tipos do modelo de configuração para uso nos serviços.
+ */
+
+/**
  * Converte uma variável de ambiente em inteiro positivo com fallback seguro.
+ * Retorna o fallback se o valor não for um inteiro positivo finito.
+ * @param value Valor bruto da variável de ambiente
+ * @param fallback Valor padrão a retornar em caso de valor inválido
+ * @returns Inteiro positivo ou fallback
  */
 const parsePositiveInteger = (
   value: string | undefined,

@@ -113,7 +113,7 @@ export class MetaLookupService {
 
     const cacheKey = `meta:lookup:waba:${wabaId}`;
 
-    // Cache lookup
+    // Verifica cache
     try {
       const cached = await this.redisService.getClient().get(cacheKey);
       if (cached) {
@@ -167,7 +167,7 @@ export class MetaLookupService {
         instanceId: response.data.instance_id,
       };
 
-      // Cache for 5 minutes
+      // Armazena em cache por 5 minutos
       try {
         await this.redisService
           .getClient()

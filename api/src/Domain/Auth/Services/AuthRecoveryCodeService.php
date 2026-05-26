@@ -37,6 +37,8 @@ final class AuthRecoveryCodeService
     }
 
     /**
+     * Decodifica os codigos de recuperacao armazenados como JSON no usuario.
+     *
      * @return array<int, string>
      */
     private function decodeCodes(AuthUser $user): array

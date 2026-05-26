@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for agent delegation payloads.
+ * DTO que representa uma regra de delegação entre agentes de IA.
+ *
+ * Utilizado quando um agente precisa transferir o controle da conversa para
+ * outro agente especializado, definindo o alvo, profundidade máxima da cadeia
+ * de delegação e metadados de contexto.
  *
  * @readonly
  */

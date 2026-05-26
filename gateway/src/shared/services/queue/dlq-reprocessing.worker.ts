@@ -1,8 +1,8 @@
 /**
- * DLQ Reprocessing Worker.
+ * Worker de reprocessamento de DLQ do BullMQ.
  *
- * Processes failed jobs from DLQs and attempts to requeue them
- * to their original queues with proper delay and retry tracking.
+ * Processa jobs com falha dos DLQs e tenta reenfileirá-los para suas
+ * filas originais com delay adequado e rastreamento de tentativas.
  */
 
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -34,10 +34,10 @@ export class DlqReprocessingWorker implements OnModuleInit {
   > = [];
 
   /**
-   * Initializes the worker with the DLQ service and config service.
+   * Inicializa o worker com o serviço DLQ e o serviço de configuração.
    *
-   * @param dlqService - Service for DLQ operations
-   * @param configService - NestJS config service for REDIS_URL
+   * @param dlqService - Serviço para operações de DLQ
+   * @param configService - Serviço de configuração NestJS para leitura de REDIS_URL
    */
   constructor(
     private readonly dlqService: BullMQDlqService,
@@ -45,8 +45,8 @@ export class DlqReprocessingWorker implements OnModuleInit {
   ) {}
 
   /**
-   * Lifecycle hook called when the module initializes.
-   * Logs readiness; actual workers are created lazily via `registerQueue`.
+   * Hook de ciclo de vida chamado quando o módulo inicializa.
+   * Registra prontidão; os workers reais são criados de forma lazy via `registerQueue`.
    */
   onModuleInit(): void {
     // Workers are initialized when queues are registered
@@ -335,10 +335,10 @@ export class DlqReprocessingWorker implements OnModuleInit {
   }
 
   /**
-   * Pauses the DLQ worker for a given original queue.
+   * Pausa o worker DLQ de uma fila original.
    *
-   * @param queueName - Name of the original queue whose DLQ worker should pause
-   * @returns true if paused successfully, false if the worker was not found
+   * @param queueName - Nome da fila original cujo worker DLQ deve ser pausado
+   * @returns true se pausado com sucesso, false se o worker não foi encontrado
    */
   async pauseWorker(queueName: string): Promise<boolean> {
     const dlqName = getDlqName(queueName);
@@ -354,10 +354,10 @@ export class DlqReprocessingWorker implements OnModuleInit {
   }
 
   /**
-   * Resumes the DLQ worker for a given original queue.
+   * Retoma o worker DLQ de uma fila original.
    *
-   * @param queueName - Name of the original queue whose DLQ worker should resume
-   * @returns true if resumed successfully, false if the worker was not found
+   * @param queueName - Nome da fila original cujo worker DLQ deve ser retomado
+   * @returns true se retomado com sucesso, false se o worker não foi encontrado
    */
   resumeWorker(queueName: string): boolean {
     const dlqName = getDlqName(queueName);
@@ -373,7 +373,7 @@ export class DlqReprocessingWorker implements OnModuleInit {
   }
 
   /**
-   * Gracefully shutdown all workers.
+   * Encerra todos os workers DLQ de forma graciosa aguardando a conclusão dos jobs em andamento.
    */
   async shutdown(): Promise<void> {
     this.logger.log('Shutting down DLQ workers...');

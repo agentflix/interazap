@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
 /**
- * AfCodeBlockComponent — Syntax-highlighted code block display.
+ * Bloco de código com destaque de sintaxe.
  *
  * @example
  * ```html
@@ -15,12 +15,12 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
   templateUrl: './code-block.html',
 })
 export class AfCodeBlockComponent {
-  /** Code string to display */
+  /** String de código a ser exibida */
   readonly code = input('');
 
-  /** Optional language label */
+  /** Rótulo opcional do bloco */
   readonly label = input('');
 
-  /** Language for syntax (future: highlighting) */
+  /** Linguagem para destaque de sintaxe (futuro) */
   readonly language = input('');
 }

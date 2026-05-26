@@ -3,9 +3,9 @@ import { AfCardComponent } from '../card/card';
 import { AfEmptyStateComponent } from '../empty-state/empty-state';
 
 /**
- * AfReportEmptyComponent — Empty state wrapper for report pages.
+ * Wrapper de estado vazio para páginas de relatório.
  *
- * Wraps af-empty-state inside an af-card for consistent report layouts.
+ * Envolve af-empty-state dentro de um af-card para layouts de relatório consistentes.
  *
  * @example
  * ```html
@@ -23,9 +23,9 @@ import { AfEmptyStateComponent } from '../empty-state/empty-state';
   templateUrl: './report-empty.html',
 })
 export class AfReportEmptyComponent {
-  /** Empty state title */
+  /** Título do estado vazio */
   readonly title = input.required<string>();
 
-  /** Empty state description */
+  /** Descrição do estado vazio */
   readonly description = input<string | null>(null);
 }

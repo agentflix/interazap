@@ -19,7 +19,7 @@ export * from './mention-input.model';
 
 
 /**
- * AfMentionInputComponent — Text input with @mention suggestion dropdown.
+ * Campo de texto com dropdown de sugestões de @menção.
  *
  * @example
  * ```html
@@ -34,19 +34,19 @@ export * from './mention-input.model';
   templateUrl: './mention-input.html',
 })
 export class AfMentionInputComponent {
-  /** Placeholder text */
+  /** Texto placeholder */
   readonly placeholder = input('');
 
-  /** Textarea rows */
+  /** Número de linhas do textarea */
   readonly rows = input(3);
 
-  /** Users available for mention */
+  /** Usuários disponíveis para menção */
   readonly users = input<AfMentionUser[]>([]);
 
-  /** Value changed */
+  /** Emitido quando o valor do campo muda */
   readonly valueChange = output<string>();
 
-  /** User mentioned */
+  /** Emitido quando um usuário é mencionado */
   readonly mentioned = output<string>();
 
   protected readonly textCtrl = new FormControl('', { nonNullable: true });

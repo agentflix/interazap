@@ -8,12 +8,15 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Chat Transmission List serialization.
+ * Resource de serialização de Lista de Transmissão.
+ *
+ * Transforma a entidade ChatTransmissionList no formato da API,
+ * expondo critérios de filtragem, status de envio e agendamento.
  */
 final class ChatTransmissionListResource extends BaseJsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */

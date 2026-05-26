@@ -26,8 +26,8 @@ import { WebChatService } from '../../services/webchat.service';
 import { type WebChatMessage, type WebChatMessageType } from '../../webchat.model';
 
 /**
- * ChatWindowComponent — displays the chat messages list, typing indicator,
- * and message composer for the active webchat session.
+ * Componente de janela de chat que exibe a lista de mensagens, indicador de digitação
+ * e o compositor de mensagens para a sessão de webchat ativa.
  */
 @Component({
   selector: 'app-chat-window',
@@ -80,7 +80,7 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
   readonly uploadError = signal<string | null>(null);
   private readonly pendingAttachmentType = signal<WebChatMessageType | null>(null);
 
-  /** Accept attribute for the hidden file input, derived from selected attachment type */
+  /** Atributo `accept` do input oculto de arquivo, derivado do tipo de anexo selecionado. */
   protected readonly fileAccept = computed(() => {
     switch (this.pendingAttachmentType()) {
       case 'image':
@@ -163,7 +163,13 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
 
   // ─── Public API ───────────────────────────────────────────────────────────
 
-  /** Initializes the component with session data */
+  /**
+   * Inicializa o componente com os dados da sessão ativa.
+   * @param sessionId Identificador da sessão
+   * @param visitorName Nome do visitante
+   * @param visitorPhone Telefone do visitante (opcional)
+   * @param protocol Protocolo do chamado (opcional)
+   */
   init(sessionId: string, visitorName: string, visitorPhone?: string, protocol?: string): void {
     this.sessionId.set(sessionId);
     this.visitorName.set(visitorName);
@@ -175,7 +181,10 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
     this.unreadCount.set(0);
   }
 
-  /** Handles message send from the composer */
+  /**
+   * Processa o envio de mensagem de texto originado pelo compositor.
+   * @param content Conteúdo da mensagem digitada
+   */
   onMessageSent(content: string): void {
     const sessionId = this.sessionId();
     if (!sessionId || !content.trim() || this.isClosed()) return;
@@ -190,14 +199,20 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
     });
   }
 
-  /** Triggered by af-chat-composer (attachmentTypeSelected) — opens file picker for the given type */
+  /**
+   * Acionado pelo compositor ao selecionar tipo de anexo — abre seletor de arquivo.
+   * @param type Tipo de mídia a enviar (imagem, vídeo, áudio ou documento)
+   */
   onAttachmentSelected(type: WebChatMessageType): void {
     if (this.isClosed() || this.isUploading()) return;
     this.pendingAttachmentType.set(type);
     this.fileInputRef.nativeElement.click();
   }
 
-  /** Triggered by the hidden file input (change) — uploads file then sends message */
+  /**
+   * Acionado pelo input oculto de arquivo — realiza upload e envia a mensagem de mídia.
+   * @param event Evento de mudança do input de arquivo
+   */
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -240,6 +255,7 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
       });
   }
 
+  /** Abre o modal de confirmação para encerramento do chamado. */
   openCloseModal(): void {
     if (this.isClosed() || this.isClosing()) {
       return;
@@ -247,6 +263,7 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
     this.isCloseModalOpen.set(true);
   }
 
+  /** Fecha o modal de confirmação de encerramento sem executar a ação. */
   closeCloseModal(): void {
     if (this.isClosing()) {
       return;
@@ -254,6 +271,7 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
     this.isCloseModalOpen.set(false);
   }
 
+  /** Confirma o encerramento do chamado via API e emite evento de retorno. */
   confirmClose(): void {
     if (this.isClosed() || this.isClosing()) {
       return;
@@ -270,7 +288,11 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
       });
   }
 
-  /** Formats a timestamp for display */
+  /**
+   * Formata um timestamp ISO para exibição no formato HH:MM.
+   * @param isoString Data/hora em formato ISO 8601
+   * @returns Hora formatada ou string vazia em caso de erro
+   */
   formatTime(isoString: string): string {
     try {
       const date = new Date(isoString);
@@ -283,12 +305,20 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /** Determines the bubble direction CSS class */
+  /**
+   * Mapeia a direção da mensagem para a classe CSS do balão.
+   * @param direction Direção da mensagem ("incoming" ou "outgoing")
+   * @returns "in" para mensagens recebidas, "out" para enviadas
+   */
   getBubbleDirection(direction: 'incoming' | 'outgoing'): 'in' | 'out' {
     return direction === 'outgoing' ? 'out' : 'in';
   }
 
-  /** Maps internal message status to bubble component status */
+  /**
+   * Converte o status interno da mensagem para o status aceito pelo componente de balão.
+   * @param status Status interno da mensagem
+   * @returns Status compatível com AfChatBubbleComponent
+   */
   getStatusForBubble(status: WebChatMessage['status']): 'sent' | 'delivered' | 'read' {
     if (status === 'sent' || status === 'delivered' || status === 'read') {
       return status;
@@ -296,7 +326,7 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
     return 'sent';
   }
 
-  /** Connection status dot CSS class */
+  /** Classe CSS do indicador visual de status da conexão WebSocket. */
   readonly connectionStatusDot = computed(() => {
     switch (this.connectionState()) {
       case 'connected':
@@ -310,7 +340,7 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
     }
   });
 
-  /** Connection status label text */
+  /** Texto descritivo do estado atual da conexão WebSocket. */
   readonly connectionLabel = computed(() => {
     switch (this.connectionState()) {
       case 'connected':
@@ -324,11 +354,17 @@ export class ChatWindowComponent implements OnInit, AfterViewInit {
     }
   });
 
-  /** Track by message ID for @for */
+  /**
+   * Função de rastreamento por ID para o laço @for de mensagens.
+   * @param _index Índice do elemento
+   * @param message Mensagem a rastrear
+   * @returns ID único da mensagem
+   */
   trackByMessageId(_index: number, message: WebChatMessage): string {
     return message.id;
   }
 
+  /** Rola para o final da lista ao clicar no botão flutuante e zera o contador de não lidas. */
   protected scrollToBottomClick(): void {
     this.scrollToBottom('smooth');
     this.showScrollToBottom.set(false);

@@ -91,7 +91,7 @@ class AiPostSaleSchedule extends Model
     }
 
     /**
-     * Boot method to auto-generate UUID and calculate scheduled_at.
+     * Inicializa o modelo, gera UUID automático e calcula scheduled_at quando não informado.
      */
     protected static function boot(): void
     {
@@ -111,7 +111,7 @@ class AiPostSaleSchedule extends Model
     }
 
     /**
-     * Get the factory instance for this model.
+     * Retorna a instância de factory do modelo.
      */
     protected static function newFactory(): AiPostSaleScheduleFactory
     {

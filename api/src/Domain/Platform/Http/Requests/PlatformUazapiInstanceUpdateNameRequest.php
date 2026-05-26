@@ -12,7 +12,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class PlatformUazapiInstanceUpdateNameRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -20,7 +20,7 @@ final class PlatformUazapiInstanceUpdateNameRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para atualização do nome da instância.
      *
      * @return array<string, array<int, string>>
      */

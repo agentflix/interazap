@@ -9,12 +9,17 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 
 /**
- * Controlador público para renderização da página de avaliação CSAT.
+ * Controller público para renderização da página de avaliação CSAT.
+ *
+ * Serve a view HTML pública que permite ao cliente avaliar o atendimento via token.
  */
 final class ChatTicketEvaluationPublicPageController
 {
     /**
-     * Renderiza a página pública de avaliação para um token válido e não submetido.
+     * Renderizar a página pública de avaliação para um token válido e ainda não submetido.
+     *
+     * @param  string  $token  Token único da avaliação vinculado ao ticket.
+     * @return Factory|View View HTML da avaliação ou 404 se o token for inválido/já usado.
      */
     public function __invoke(string $token): Factory|View
     {

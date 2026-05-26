@@ -9,9 +9,10 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Event dispatched when a budget threshold is exceeded.
+ * Evento disparado quando o consumo do tenant ultrapassa um limiar de orçamento.
  *
- * Phase 4: Token Budget System
+ * Emitido pelo sistema de monitoramento de budget (nível warning ou critical)
+ * para notificar administradores via AiBudgetThresholdNotificationListener.
  */
 final class AiBudgetThresholdExceeded
 {
@@ -20,12 +21,12 @@ final class AiBudgetThresholdExceeded
     use SerializesModels;
 
     /**
-     * @param  string  $tenantId  Tenant UUID
-     * @param  string  $period  Period type ('daily' or 'monthly')
-     * @param  float  $usage  Current usage in dollars
-     * @param  float  $limit  Budget limit in dollars
-     * @param  float  $ratio  Usage ratio (0.0-1.0+)
-     * @param  string  $level  Alert level ('warning' or 'critical')
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $period  Período de apuração ('daily' ou 'monthly').
+     * @param  float  $usage  Uso atual em dólares.
+     * @param  float  $limit  Limite de orçamento em dólares.
+     * @param  float  $ratio  Razão de uso (0.0–1.0+); valores acima de 1.0 indicam estouro.
+     * @param  string  $level  Nível do alerta ('warning' ou 'critical').
      */
     public function __construct(
         public readonly string $tenantId,

@@ -13,9 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * File attached to a Negotiation.
+ * Arquivo anexado a uma negociação CRM.
  *
- * Represents a document or file uploaded and linked to a CRM negotiation.
+ * Representa um documento ou arquivo enviado e vinculado a uma negociação,
+ * com rastreamento de caminho no disco, tamanho e tipo MIME.
  *
  * @property string $id
  * @property string $tenant_id

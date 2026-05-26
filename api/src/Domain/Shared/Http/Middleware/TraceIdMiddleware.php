@@ -11,11 +11,11 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Middleware for trace ID propagation.
+ * Middleware para propagação de trace ID entre serviços.
  *
- * Generates or reads X-Trace-ID header and propagates it through:
- * - Log context
- * - Response headers
+ * Lê ou gera um UUID como X-Trace-ID e o propaga via:
+ * - Contexto compartilhado de log (Log::shareContext)
+ * - Header da resposta HTTP
  */
 final class TraceIdMiddleware
 {
@@ -24,7 +24,11 @@ final class TraceIdMiddleware
     public const CONTEXT_KEY = 'trace_id';
 
     /**
-     * Handle an incoming request.
+     * Injeta o trace ID no contexto de log e nos headers da resposta.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @param  Closure  $next  Próximo middleware na cadeia.
+     * @return Response Resposta com header X-Trace-ID adicionado.
      */
     public function handle(Request $request, Closure $next): Response
     {

@@ -1,5 +1,9 @@
 /**
  * Modelos tipados da configuração do Gateway.
+ *
+ * Contexto: módulo core/config. Define todas as interfaces de configuração
+ * por namespace (app, redis, database, providers, jwt, etc.) e a interface
+ * consolidada `Configuration` que agrega todos os namespaces.
  */
 
 /** Configurações gerais da aplicação. */

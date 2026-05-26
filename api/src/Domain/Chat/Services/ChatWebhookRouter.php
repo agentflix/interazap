@@ -9,13 +9,15 @@ use Domain\Chat\Models\ChatTicket;
 use Domain\Platform\Services\PlatformPlanEnforcementService;
 
 /**
- * Router for inbound webhook messages.
+ * Roteador de mensagens inbound recebidas via webhook.
  *
- * Routing is determined by the tenant's contracted plan:
- * - Plan with ai_enabled=true → AI Autopilot flow
- * - Plan without AI or no plan → Auto Reply flow (rule-based)
+ * O roteamento é determinado pelo plano contratado do tenant:
+ * - Plano com ai_enabled=true → fluxo de Autopilot com IA
+ * - Plano sem IA ou sem plano → fluxo de Auto-Reply (baseado em regras)
  *
- * The instance mode field is NOT used for routing decisions.
+ * O campo mode da instância NÃO é utilizado nas decisões de roteamento.
+ *
+ * @category Services
  */
 final class ChatWebhookRouter
 {
@@ -25,12 +27,15 @@ final class ChatWebhookRouter
     ) {}
 
     /**
-     * Routes inbound messages to the proper automation flow.
+     * Roteia mensagens inbound para o fluxo de automação correto.
      *
-     * @param  string  $tenantId  Tenant identifier.
-     * @param  ChatTicket  $ticket  Related ticket.
-     * @param  string  $body  Incoming message content.
-     * @param  array<string, mixed>  $context  Context data (instance_id, message_id, message_type, is_first_interaction).
+     * Mensagens com takeover humano ativo são ignoradas. Mensagens vazias
+     * também são descartadas sem processamento.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  ChatTicket  $ticket  Ticket relacionado à mensagem.
+     * @param  string  $body  Conteúdo da mensagem recebida.
+     * @param  array<string, mixed>  $context  Dados de contexto (instance_id, message_id, message_type, is_first_interaction).
      */
     public function routeInbound(string $tenantId, ChatTicket $ticket, string $body, array $context = []): void
     {
@@ -69,12 +74,14 @@ final class ChatWebhookRouter
     }
 
     /**
-     * Handles the AI Autopilot flow.
+     * Processa o fluxo de Autopilot com IA.
      *
-     * @param  string  $tenantId  Tenant identifier.
-     * @param  ChatTicket  $ticket  Related ticket.
-     * @param  string  $body  Incoming message content.
-     * @param  array<string, mixed>  $context  Context data.
+     * Dispara o evento AiRunRequested para processamento assíncrono pelo módulo de IA.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  ChatTicket  $ticket  Ticket relacionado à mensagem.
+     * @param  string  $body  Conteúdo da mensagem recebida.
+     * @param  array<string, mixed>  $context  Dados de contexto adicionais.
      */
     private function handleAiFlow(string $tenantId, ChatTicket $ticket, string $body, array $context): void
     {

@@ -10,13 +10,15 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\CRM\Models\CRMNegotiation;
 
 /**
- * Tool to retrieve full negotiation information.
+ * Ferramenta de IA para recuperar informações completas de uma negociação.
+ *
+ * Input esperado: negotiation_id (UUID da negociação).
+ * Output produzido: dados completos incluindo contato, empresa, funil, etapa, produtos e motivo de perda.
+ * Quando usar: contextualizar o agente sobre uma negociação antes de tomar ações relacionadas.
  */
 class GetNegotiationInfoTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a recuperação dos dados da negociação com seus relacionamentos. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $negotiationId = (string) ($input->parameters['negotiation_id'] ?? '');
@@ -89,24 +91,20 @@ class GetNegotiationInfoTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::GET_NEGOTIATION_INFO;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Returns complete negotiation information with related entities.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

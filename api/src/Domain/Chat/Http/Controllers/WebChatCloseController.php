@@ -11,6 +11,11 @@ use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controller para encerramento de sessão Webchat.
+ *
+ * Gerencia o fechamento de tickets originados via webchat, validando o JWT de sessão.
+ */
 final class WebChatCloseController extends BaseController
 {
     public function __construct(
@@ -18,6 +23,12 @@ final class WebChatCloseController extends BaseController
         private readonly UpdateChatTicketAction $updateAction,
     ) {}
 
+    /**
+     * Encerrar o ticket associado ao token de sessão webchat.
+     *
+     * @param  Request  $request  Solicitação HTTP com o campo 'token' (JWT de sessão).
+     * @return JsonResponse Dados do ticket encerrado ou erro de autenticação.
+     */
     public function store(Request $request): JsonResponse
     {
         $token = $request->input('token');

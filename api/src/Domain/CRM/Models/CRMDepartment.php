@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * CRM Department.
+ * Departamento do CRM.
  *
- * Organizational unit for grouping users and managing
- * permissions within the CRM system.
+ * Unidade organizacional para agrupamento de usuários e gestão de
+ * permissões dentro do sistema CRM.
  *
  * @property string $id
  * @property string $tenant_id

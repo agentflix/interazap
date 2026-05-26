@@ -7,12 +7,17 @@ namespace Domain\Shared\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Base request for list filtering payloads shared across domains.
+ * FormRequest base para filtros de listagem compartilhados entre domínios.
+ *
+ * Define as regras comuns de paginação, busca, ordenação e direção
+ * que podem ser estendidas por requests específicos de cada domínio.
  */
 class FilterRequest extends FormRequest
 {
     /**
-     * Determine whether the user is authorized to make this request.
+     * Autoriza a requisição — sempre permitida para usuários autenticados.
+     *
+     * @return bool Sempre verdadeiro.
      */
     public function authorize(): bool
     {
@@ -20,7 +25,9 @@ class FilterRequest extends FormRequest
     }
 
     /**
-     * @return array<string, mixed>
+     * Retorna as regras de validação para os parâmetros de filtro.
+     *
+     * @return array<string, mixed> Mapa de campo para regras de validação.
      */
     public function rules(): array
     {

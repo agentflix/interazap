@@ -27,7 +27,7 @@ import { QueueStats } from '../../models/queue.model';
 export type { QueueStats };
 
 /**
- * Tipo de função processadora de jobs do BullMQ.
+ * Representa o tipo de função processadora de jobs do BullMQ.
  */
 export type JobProcessor<T = unknown, R = unknown> = (
   job: Job<T>,
@@ -36,8 +36,8 @@ export type JobProcessor<T = unknown, R = unknown> = (
 /**
  * Fábrica para criação e gerenciamento de filas BullMQ com resiliência.
  *
- * Responsible for creating queues, workers, and DLQ pairs with sensible defaults,
- * and for coordinating graceful shutdown of all BullMQ resources on module destroy.
+ * Responsável por criar filas, workers e pares DLQ com configurações sensatas,
+ * e por coordenar o desligamento gracioso de todos os recursos BullMQ no destroy do módulo.
  */
 @Injectable()
 export class BullMQQueueFactory implements OnModuleInit, OnModuleDestroy {
@@ -48,12 +48,12 @@ export class BullMQQueueFactory implements OnModuleInit, OnModuleDestroy {
   private readonly redisUrl: string;
 
   /**
-   * Initializes the factory with all required dependencies.
+   * Inicializa a fábrica com todas as dependências necessárias.
    *
-   * @param configService - NestJS ConfigService for REDIS_URL
-   * @param dlqService - BullMQDlqService used to register DLQ queues
-   * @param dlqReprocessingWorker - Worker that reprocesses entries from DLQs
-   * @param rateLimiter - QueueRateLimiterService for worker-side rate limiting
+   * @param configService - ConfigService do NestJS para leitura de REDIS_URL
+   * @param dlqService - BullMQDlqService usado para registrar filas DLQ
+   * @param dlqReprocessingWorker - Worker que reprocessa entradas dos DLQs
+   * @param rateLimiter - QueueRateLimiterService para rate limiting no lado do worker
    */
   constructor(
     private readonly configService: ConfigService,
@@ -66,18 +66,18 @@ export class BullMQQueueFactory implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Lifecycle hook called once when the NestJS module initialises.
-   * Logs the startup of the factory; actual queue/worker creation is deferred
-   * to {@link createQueue} and {@link createWorker} which domains call explicitly.
+   * Hook de ciclo de vida chamado uma vez quando o módulo NestJS inicializa.
+   * Registra a inicialização da fábrica; a criação de filas/workers é adiada
+   * para {@link createQueue} e {@link createWorker} que os domínios chamam explicitamente.
    */
   onModuleInit(): void {
     this.logger.log('Initializing BullMQ Queue Factory');
   }
 
   /**
-   * Lifecycle hook called when the NestJS module is shutting down.
-   * Gracefully closes all workers, queue events, queues, and the DLQ reprocessing
-   * worker before clearing internal maps.
+   * Hook de ciclo de vida chamado quando o módulo NestJS está sendo desligado.
+   * Fecha graciosamente todos os workers, eventos de fila, filas e o worker de
+   * reprocessamento DLQ antes de limpar os mapas internos.
    */
   async onModuleDestroy(): Promise<void> {
     await this.shutdown();
@@ -362,7 +362,8 @@ export class BullMQQueueFactory implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Shutdown all queues and workers gracefully.
+   * Desliga todas as filas e workers de forma graciosa.
+   * Fecha workers primeiro, depois eventos de fila, depois as filas, e por fim o worker DLQ.
    */
   async shutdown(): Promise<void> {
     this.logger.log('Shutting down BullMQ queues and workers...');

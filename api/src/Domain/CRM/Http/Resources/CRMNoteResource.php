@@ -8,12 +8,14 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for CRM Note serialization.
+ * Resource para serialização de nota do CRM.
  */
 final class CRMNoteResource extends BaseJsonResource
 {
     /**
-     * @return array<string, mixed>
+     * Transforma o recurso em array para resposta JSON.
+     *
+     * @return array<string, mixed> Dados serializados da nota.
      */
     protected function data(Request $request): array
     {

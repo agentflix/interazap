@@ -23,11 +23,11 @@ import { ToastService } from '@core/services/toast.service';
 import { type Called, type CalledStatus, CalledService } from '@core/services/called.service';
 
 /**
- * Ticket Detail page — read-only detail view with message history.
+ * Página de detalhes do atendimento — visualização somente leitura com histórico de mensagens.
  *
  * @remarks
- * Shows ticket metadata, metrics, evaluation, and chat-like read-only message history.
- * Supports force close from the detail page.
+ * Exibe metadados, métricas, avaliação e histórico de mensagens do ticket.
+ * Suporta encerramento forçado diretamente da página de detalhes.
  *
  * @example
  * ```html
@@ -138,7 +138,7 @@ export class TicketDetailPage implements OnInit {
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
-  /** Build ticket info description items — extracted to reduce computed complexity */
+  /** Constrói os itens descritivos do ticket — extraído para reduzir complexidade do computed. */
   private buildTicketInfoItems(t: Called): AfDescriptionItem[] {
     const closedModeMap: Record<string, string> = { forced: 'Forçado', normal: 'Normal' };
     const closedModeDetail =
@@ -161,7 +161,7 @@ export class TicketDetailPage implements OnInit {
     ];
   }
 
-  /** Build metrics description items — extracted to reduce computed complexity */
+  /** Constrói os itens de métricas do ticket — extraído para reduzir complexidade do computed. */
   private buildMetricsItems(t: Called): AfDescriptionItem[] {
     const hasEval = t.evaluation?.has_evaluation === true;
     const evalDetail = hasEval ? `${t.evaluation?.rating ?? '—'} estrelas` : 'Sem avaliação';

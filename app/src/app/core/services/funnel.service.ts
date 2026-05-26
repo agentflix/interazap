@@ -10,11 +10,11 @@ export type { Funnel, FunnelFilters, FunnelPayload, FunnelStep, FunnelStepPayloa
 
 
 /**
- * Service for managing CRM funnels and their steps.
+ * Gerencia funis de vendas e suas etapas no CRM.
  *
  * @remarks
- * Provides CRUD operations for sales funnels and pipeline steps,
- * including bulk step reordering support.
+ * Fornece operações de CRUD para funis e etapas de pipeline,
+ * incluindo suporte a reordenação em lote.
  *
  * @example
  * ```typescript
@@ -32,10 +32,10 @@ export class FunnelService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   /**
-   * Lists funnels with optional filters and pagination.
+   * Lista funis com filtros e paginação opcionais.
    *
-   * @param filters - Optional filters (search, is_active, pagination)
-   * @returns Observable with paginated funnel list
+   * @param filters - Filtros opcionais (busca, is_active, paginação)
+   * @returns Observable com lista paginada de funis
    */
   list(filters: FunnelFilters = {}): Observable<PaginatedResponse<Funnel>> {
     let params = new HttpParams();
@@ -56,9 +56,9 @@ export class FunnelService {
   }
 
   /**
-   * Retrieves all funnels without pagination (for dropdowns/selects).
+   * Retorna todos os funis sem paginação (para dropdowns/selects).
    *
-   * @returns Observable with all funnels wrapped in data object
+   * @returns Observable com todos os funis encapsulados no objeto data
    */
   all(): Observable<{ data: { funnels: Funnel[] } }> {
     return this.http.get<{ data: Funnel[] | { funnels?: Funnel[] } }>(`${this.baseUrl}/all`).pipe(
@@ -72,41 +72,41 @@ export class FunnelService {
   }
 
   /**
-   * Retrieves a single funnel by ID.
+   * Retorna um único funil pelo ID.
    *
-   * @param id - Funnel identifier
-   * @returns Observable with funnel data
+   * @param id - Identificador do funil
+   * @returns Observable com os dados do funil
    */
   get(id: string | number): Observable<{ data: { funnel: Funnel } }> {
     return this.http.get<{ data: { funnel: Funnel } }>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * Creates a new funnel.
+   * Cria um novo funil.
    *
-   * @param payload - Funnel data (name, description, is_active, steps)
-   * @returns Observable with created funnel
+   * @param payload - Dados do funil (nome, descrição, is_active, etapas)
+   * @returns Observable com o funil criado
    */
   create(payload: FunnelPayload): Observable<{ data: { funnel: Funnel } }> {
     return this.http.post<{ data: { funnel: Funnel } }>(this.baseUrl, payload);
   }
 
   /**
-   * Updates an existing funnel.
+   * Atualiza um funil existente.
    *
-   * @param id - Funnel identifier
-   * @param payload - Partial funnel data to update
-   * @returns Observable with updated funnel
+   * @param id - Identificador do funil
+   * @param payload - Dados parciais do funil para atualização
+   * @returns Observable com o funil atualizado
    */
   update(id: string | number, payload: FunnelPayload): Observable<{ data: { funnel: Funnel } }> {
     return this.http.put<{ data: { funnel: Funnel } }>(`${this.baseUrl}/${id}`, payload);
   }
 
   /**
-   * Deletes a funnel.
+   * Exclui um funil.
    *
-   * @param id - Funnel identifier
-   * @returns Observable completing on deletion
+   * @param id - Identificador do funil
+   * @returns Observable que completa após a exclusão
    */
   delete(id: string | number): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
@@ -117,21 +117,21 @@ export class FunnelService {
   // ─────────────────────────────────────────────────────────────────────────────
 
   /**
-   * Lists all steps for a specific funnel.
+   * Lista todas as etapas de um funil específico.
    *
-   * @param funnelId - Parent funnel identifier
-   * @returns Observable with array of steps
+   * @param funnelId - Identificador do funil pai
+   * @returns Observable com array de etapas
    */
   listSteps(funnelId: string | number): Observable<{ data: { steps: FunnelStep[] } }> {
     return this.http.get<{ data: { steps: FunnelStep[] } }>(`${this.baseUrl}/${funnelId}/steps`);
   }
 
   /**
-   * Creates a new step within a funnel.
+   * Cria uma nova etapa dentro de um funil.
    *
-   * @param funnelId - Parent funnel identifier
-   * @param payload - Step data (name, order, color, is_active)
-   * @returns Observable with created step
+   * @param funnelId - Identificador do funil pai
+   * @param payload - Dados da etapa (nome, ordem, cor, is_active)
+   * @returns Observable com a etapa criada
    */
   createStep(
     funnelId: string | number,
@@ -144,12 +144,12 @@ export class FunnelService {
   }
 
   /**
-   * Updates an existing funnel step.
+   * Atualiza uma etapa existente de um funil.
    *
-   * @param funnelId - Parent funnel identifier
-   * @param stepId - Step identifier
-   * @param payload - Partial step data to update
-   * @returns Observable with updated step
+   * @param funnelId - Identificador do funil pai
+   * @param stepId - Identificador da etapa
+   * @param payload - Dados parciais da etapa para atualização
+   * @returns Observable com a etapa atualizada
    */
   updateStep(
     funnelId: string | number,
@@ -163,22 +163,22 @@ export class FunnelService {
   }
 
   /**
-   * Deletes a step from a funnel.
+   * Exclui uma etapa de um funil.
    *
-   * @param funnelId - Parent funnel identifier
-   * @param stepId - Step identifier
-   * @returns Observable completing on deletion
+   * @param funnelId - Identificador do funil pai
+   * @param stepId - Identificador da etapa
+   * @returns Observable que completa após a exclusão
    */
   deleteStep(funnelId: string | number, stepId: string | number): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${funnelId}/steps/${stepId}`);
   }
 
   /**
-   * Reorders steps within a funnel by providing an ordered list of step IDs.
+   * Reordena as etapas de um funil fornecendo a lista de IDs na ordem desejada.
    *
-   * @param funnelId - Parent funnel identifier
-   * @param stepIds - Array of step IDs in the desired order
-   * @returns Observable completing on reorder
+   * @param funnelId - Identificador do funil pai
+   * @param stepIds - Array de IDs de etapas na ordem desejada
+   * @returns Observable que completa após a reordenação
    */
   reorderSteps(funnelId: string | number, stepIds: (string | number)[]): Observable<null> {
     const steps = stepIds.map((id, index) => ({ id, order: index + 1 }));

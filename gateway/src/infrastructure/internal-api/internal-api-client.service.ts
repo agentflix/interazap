@@ -13,9 +13,12 @@ interface CircuitBreakerState {
 /**
  * Cliente HTTP centralizado para comunicação gateway → api/.
  *
- * Keep-alive HTTP, header x-api-key automático, retry exponencial
- * (máx 3, delay 100ms * 2^attempt), circuit breaker simples
- * (5 erros consecutivos → rejeita por 30s), histograma Prometheus.
+ * Contexto: módulo infra/internal-api. Características:
+ * - Keep-alive HTTP para reuso de conexões
+ * - Header `x-api-key` injetado automaticamente em todas as requisições
+ * - Retry exponencial (máx 3 tentativas, delay inicial 100ms × 2^attempt)
+ * - Circuit breaker simples (5 erros consecutivos abrem o circuito por 30s)
+ * - Histograma Prometheus `gateway_internal_api_duration_seconds`
  */
 @Injectable()
 export class InternalApiClientService implements OnModuleInit {
@@ -39,6 +42,10 @@ export class InternalApiClientService implements OnModuleInit {
     private readonly metricsService: MetricsService,
   ) {}
 
+  /**
+   * Inicializa a instância Axios com keep-alive, headers de autenticação e o histograma Prometheus.
+   * Lê a URL base, API key, gateway secret e timeout do ConfigService.
+   */
   onModuleInit(): void {
     const baseURL =
       this.configService.get<string>('internal.apiUrl') ??
@@ -73,18 +80,47 @@ export class InternalApiClientService implements OnModuleInit {
     });
   }
 
+  /**
+   * Executa uma requisição GET para a api/ interna com retry e circuit breaker.
+   * @param path Caminho relativo à URL base (ex: `/internal/instances`)
+   * @param operation Nome da operação para labels Prometheus e logs
+   * @returns Dados tipados da resposta
+   */
   async get<T>(path: string, operation: string): Promise<T> {
     return this.execute<T>('get', path, undefined, operation);
   }
 
+  /**
+   * Executa uma requisição POST para a api/ interna com retry e circuit breaker.
+   * @param path Caminho relativo à URL base
+   * @param body Corpo da requisição
+   * @param operation Nome da operação para labels Prometheus e logs
+   * @returns Dados tipados da resposta
+   */
   async post<T>(path: string, body: unknown, operation: string): Promise<T> {
     return this.execute<T>('post', path, body, operation);
   }
 
+  /**
+   * Executa uma requisição PATCH para a api/ interna com retry e circuit breaker.
+   * @param path Caminho relativo à URL base
+   * @param body Corpo da requisição parcial
+   * @param operation Nome da operação para labels Prometheus e logs
+   * @returns Dados tipados da resposta
+   */
   async patch<T>(path: string, body: unknown, operation: string): Promise<T> {
     return this.execute<T>('patch', path, body, operation);
   }
 
+  /**
+   * Executa uma requisição HTTP com retry exponencial e circuit breaker.
+   * Erros 4xx (exceto 429) não são retentados e abrem o circuito imediatamente.
+   * @param method Método HTTP: get, post ou patch
+   * @param path Caminho relativo
+   * @param body Corpo da requisição (para post/patch)
+   * @param operation Nome da operação para observabilidade
+   * @returns Dados tipados da resposta
+   */
   private async execute<T>(
     method: 'get' | 'post' | 'patch',
     path: string,
@@ -150,6 +186,12 @@ export class InternalApiClientService implements OnModuleInit {
     throw lastError ?? new Error(`[${operation}] all retries exhausted`);
   }
 
+  /**
+   * Verifica se o circuit breaker está fechado antes de permitir a requisição.
+   * Se estiver aberto e o tempo de reset já tiver expirado, fecha o circuito automaticamente.
+   * @param operation Nome da operação (usado na mensagem de erro)
+   * @throws Error se o circuito estiver aberto
+   */
   private assertCircuitClosed(operation: string): void {
     if (this.cbState.openedAt === null) return;
 
@@ -169,10 +211,15 @@ export class InternalApiClientService implements OnModuleInit {
     );
   }
 
+  /** Zera o contador de erros consecutivos após uma requisição bem-sucedida. */
   private onSuccess(): void {
     this.cbState.consecutiveErrors = 0;
   }
 
+  /**
+   * Incrementa o contador de erros consecutivos e abre o circuito
+   * quando o threshold de falhas é atingido.
+   */
   private onError(): void {
     this.cbState.consecutiveErrors++;
 
@@ -184,6 +231,12 @@ export class InternalApiClientService implements OnModuleInit {
     }
   }
 
+  /**
+   * Registra a duração da requisição no histograma Prometheus.
+   * @param operation Nome da operação (label)
+   * @param statusCode Código HTTP da resposta ou 'network_error' (label)
+   * @param startMs Timestamp de início em milissegundos
+   */
   private recordDuration(
     operation: string,
     statusCode: string,
@@ -196,6 +249,10 @@ export class InternalApiClientService implements OnModuleInit {
     );
   }
 
+  /**
+   * Aguarda o tempo especificado antes de tentar nova requisição.
+   * @param ms Tempo de espera em milissegundos
+   */
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

@@ -7,7 +7,7 @@ namespace Domain\Auth\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for authenticated user profile update.
+ * DTO para atualização de perfil do usuário autenticado.
  *
  * @readonly
  */
@@ -20,7 +20,7 @@ final readonly class AuthProfileDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria DTO a partir da requisição HTTP.
      */
     public static function fromRequest(Request $request): self
     {
@@ -28,6 +28,8 @@ final readonly class AuthProfileDTO
     }
 
     /**
+     * Cria DTO a partir de array com dados de perfil.
+     *
      * @param  array<string, mixed>  $payload
      */
     public static function fromArray(array $payload): self
@@ -40,6 +42,8 @@ final readonly class AuthProfileDTO
     }
 
     /**
+     * Serializa o DTO para array, omitindo valores nulos.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

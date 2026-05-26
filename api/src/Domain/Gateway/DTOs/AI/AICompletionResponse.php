@@ -6,10 +6,15 @@ namespace Domain\Gateway\DTOs\AI;
 
 use Domain\Gateway\Enums\AIFinishReason;
 
+/**
+ * DTO imutável que representa a resposta de uma conclusão (completion) recebida do gateway de IA.
+ *
+ * Contém conteúdo gerado, contagens de tokens, modelo utilizado e chamadas de ferramentas.
+ */
 final readonly class AICompletionResponse
 {
     /**
-     * @param  array<int, array<string, mixed>>  $toolCalls
+     * @param  array<int, array<string, mixed>>  $toolCalls  Chamadas de ferramentas retornadas pelo modelo
      */
     public function __construct(
         public string $content,
@@ -22,9 +27,9 @@ final readonly class AICompletionResponse
     ) {}
 
     /**
-     * Create an AICompletionResponse from an array (typically from Gateway response).
+     * Cria uma instância a partir de um array, tipicamente vindo da resposta do gateway.
      *
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $data  Dados brutos da resposta
      */
     public static function fromArray(array $data): self
     {
@@ -41,18 +46,19 @@ final readonly class AICompletionResponse
         );
     }
 
+    /** Verifica se a resposta contém chamadas de ferramentas. */
     public function hasToolCalls(): bool
     {
         return $this->toolCalls !== [];
     }
 
     /**
-     * Normalizes tool call data from different AI providers.
+     * Normaliza os dados de tool calls para formato unificado entre providers.
      *
-     * OpenAI sends camelCase (functionName, toolCallId).
-     * Some providers may send snake_case (function_name, tool_call_id).
+     * OpenAI envia camelCase (functionName, toolCallId); outros providers
+     * podem usar snake_case (function_name, tool_call_id).
      *
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $data  Dados brutos da resposta
      * @return array<int, array<string, mixed>>
      */
     private static function normalizeToolCalls(array $data): array

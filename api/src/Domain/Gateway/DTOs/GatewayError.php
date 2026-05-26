@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace Domain\Gateway\DTOs;
 
 /**
- * Represents a structured error response from a gateway provider.
+ * Representa um erro estruturado retornado pelo gateway ou provider externo.
  *
- * Contains error code, human-readable message, retryability flag,
- * and optional details for debugging or logging.
- *
- * @readonly
+ * Contém código de erro, mensagem legível, indicador de tentativa novamente
+ * e detalhes opcionais para depuração ou logging.
  */
 final readonly class GatewayError
 {
     /**
-     * @param  array<string, mixed>|null  $details
+     * @param  string  $code  Código identificador do erro
+     * @param  string  $message  Mensagem legível do erro
+     * @param  bool  $retryable  Indica se a operação pode ser tentada novamente
+     * @param  array<string, mixed>|null  $details  Detalhes adicionais para depuração
      */
     public function __construct(
         public string $code,
@@ -25,7 +26,9 @@ final readonly class GatewayError
     ) {}
 
     /**
-     * @param  array<string, mixed>  $data
+     * Cria uma instância a partir de um array de dados brutos.
+     *
+     * @param  array<string, mixed>  $data  Dados do erro vindos do gateway
      */
     public static function fromArray(array $data): self
     {

@@ -8,11 +8,11 @@ import {
 } from '@angular/core';
 
 /**
- * AfTypewriterComponent — Typewriter text animation.
+ * Animação de texto estilo máquina de escrever.
  *
  * @example
  * ```html
- * <af-typewriter [texts]="['Hello World', 'Welcome to InteraZap']" [speed]="80" />
+ * <af-typewriter [texts]="['Olá Mundo', 'Bem-vindo ao InteraZap']" [speed]="80" />
  * ```
  */
 @Component({
@@ -22,16 +22,16 @@ import {
   templateUrl: './typewriter.html',
 })
 export class AfTypewriterComponent implements OnInit, OnDestroy {
-  /** Array of texts to cycle through */
+  /** Array de textos para ciclar */
   readonly texts = input<string[]>(['']);
 
-  /** Typing speed in ms per character */
+  /** Velocidade de digitação em ms por caractere */
   readonly speed = input(80);
 
-  /** Pause between texts in ms */
+  /** Pausa entre textos em ms */
   readonly pauseDuration = input(1500);
 
-  /** Loop animation */
+  /** Loop da animação */
   readonly loop = input(true);
 
   protected readonly displayText = signal('');

@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for agent trigger payloads.
+ * DTO que representa um gatilho (trigger) configurado para um agente de IA.
+ *
+ * Utilizado para definir condições que ativam automaticamente ações do agente,
+ * como recebimento de mensagem com palavras-chave, eventos de timer ou
+ * mudanças no status do ticket.
  *
  * @readonly
  */

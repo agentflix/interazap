@@ -7,7 +7,7 @@ export * from './locale-switch.model';
 
 
 /**
- * AfLocaleSwitchComponent — Language/locale selector.
+ * Seletor de idioma/localidade.
  *
  * @example
  * ```html
@@ -22,12 +22,12 @@ export * from './locale-switch.model';
   templateUrl: './locale-switch.html',
 })
 export class AfLocaleSwitchComponent {
-  /** Available locales */
+  /** Localidades disponíveis */
   readonly locales = input<AfLocaleOption[]>([]);
 
-  /** Current locale code */
+  /** Código da localidade atual */
   readonly current = input('');
 
-  /** Locale changed */
+  /** Emitido quando a localidade muda */
   readonly localeChange = output<string>();
 }

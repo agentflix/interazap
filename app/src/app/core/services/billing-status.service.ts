@@ -4,19 +4,10 @@ export type { BillingLockoutData, BillingLockoutInvoice } from '@core/models/bil
 
 
 /**
- * Minimal overdue invoice payload used by the lockout screen.
- */
-
-/**
- * Lockout response data returned by backend when tenant access is blocked.
- */
-
-/**
- * Stores billing lockout state used by interceptor and lockout UI.
+ * Armazena o estado de bloqueio de cobrança, utilizado pelo interceptor e pela UI de lockout.
  *
- * @remarks
- * Holds the lockout data returned by the API when a tenant has overdue invoices,
- * used to block access and display payment prompts.
+ * Mantém os dados de lockout retornados pela API quando o tenant possui faturas em atraso,
+ * bloqueando acesso e exibindo prompts de pagamento.
  */
 @Injectable({ providedIn: 'root' })
 export class BillingStatusService {
@@ -25,16 +16,12 @@ export class BillingStatusService {
   readonly lockoutData = this.lockoutState.asReadonly();
   readonly isLocked = computed(() => this.lockoutState() !== null);
 
-  /**
-   * Sets tenant lockout data from API responses.
-   */
+  /** Define os dados de bloqueio do tenant a partir da resposta da API. */
   setLocked(data: BillingLockoutData): void {
     this.lockoutState.set(data);
   }
 
-  /**
-   * Clears lockout data when user logs out or tenant is unlocked.
-   */
+  /** Limpa o estado de bloqueio quando o usuário faz logout ou o tenant é desbloqueado. */
   clearLockout(): void {
     this.lockoutState.set(null);
   }

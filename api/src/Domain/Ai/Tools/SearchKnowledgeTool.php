@@ -11,12 +11,17 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\Ai\Enums\AiRagSearchModeEnum;
 
 /**
- * Ferramenta para pesquisar na base de conhecimento.
+ * Ferramenta de IA para pesquisar na base de conhecimento via RAG.
+ *
+ * Input esperado: query (obrigatório); limit, min_score e mode opcionais.
+ * Output produzido: lista de chunks relevantes com conteúdo, fonte e relevância.
+ * Quando usar: responder perguntas sobre produtos, políticas, procedimentos ou FAQs do tenant.
  */
 class SearchKnowledgeTool implements AiToolInterface
 {
     public function __construct(private readonly AiRagServiceInterface $ragService) {}
 
+    /** Executa a busca vetorial na base de conhecimento. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $query = $input->parameters['query'] ?? '';
@@ -58,17 +63,21 @@ class SearchKnowledgeTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::SEARCH_KNOWLEDGE;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Searches the knowledge base for relevant information. Use to find answers about products, policies, procedures, or FAQs.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

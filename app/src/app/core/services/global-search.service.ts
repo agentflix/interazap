@@ -13,13 +13,20 @@ const RECENT_SEARCHES_KEY = 'interazap:recent_searches';
 const RECENT_SEARCHES_LIMIT = 5;
 
 /**
- * Service responsible for global spotlight search and recent history persistence.
+ * Executa a busca global (spotlight) e persiste o histórico de buscas recentes no localStorage.
  */
 @Injectable({ providedIn: 'root' })
 export class GlobalSearchService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/search`;
 
+  /**
+   * Executa busca global (spotlight) nos tipos especificados.
+   * @param query Termo de busca
+   * @param types Tipos de entidade a incluir na busca (contato, empresa, negociação, ticket, usuário)
+   * @param perType Limite de resultados por tipo
+   * @returns Observable com resultados da busca
+   */
   search(
     query: string,
     types?: GlobalSearchType[],
@@ -41,6 +48,7 @@ export class GlobalSearchService {
     return this.http.get<GlobalSearchResponse>(this.baseUrl, { params });
   }
 
+  /** Retorna as buscas recentes do usuário, ordenadas por mais recente. */
   getRecentSearches(): RecentSearch[] {
     const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
     if (!raw) {
@@ -55,6 +63,7 @@ export class GlobalSearchService {
     }
   }
 
+  /** Adiciona um item ao histórico de buscas recentes, removendo duplicatas. */
   addRecentSearch(item: GlobalSearchItem): void {
     const current = this.getRecentSearches();
     const nextItem: RecentSearch = {
@@ -73,13 +82,14 @@ export class GlobalSearchService {
     localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
   }
 
+  /** Limpa o histórico de buscas recentes do localStorage. */
   clearRecentSearches(): void {
     localStorage.removeItem(RECENT_SEARCHES_KEY);
   }
 
   /**
-   * @param types spotlight item types
-   * @returns backend accepted plural keys
+   * @param types Tipos de item do spotlight
+   * @returns Chaves no plural aceitas pelo backend
    */
   private mapTypes(
     types: GlobalSearchType[],

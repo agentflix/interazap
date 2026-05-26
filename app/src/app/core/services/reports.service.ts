@@ -24,6 +24,9 @@ import {
 
 /**
  * Serviço para chamadas HTTP aos endpoints de relatórios.
+ *
+ * Contexto: service HTTP que centraliza todos os relatórios da plataforma
+ * (vendas, receita, SLA, IA, faturamento, etc.) com filtros comuns de data e granularidade.
  */
 @Injectable({ providedIn: 'root' })
 export class ReportsService {

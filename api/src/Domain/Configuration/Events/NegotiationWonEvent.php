@@ -15,6 +15,12 @@ final class NegotiationWonEvent
     use Dispatchable;
     use SerializesModels;
 
+    /**
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $negotiationId  Identificador da negociação ganha.
+     * @param  string  $title  Título da negociação.
+     * @param  float  $amount  Valor da negociação fechada.
+     */
     public function __construct(
         public readonly string $tenantId,
         public readonly string $negotiationId,

@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for conversation summary payloads.
+ * DTO que representa o resumo gerado por IA de uma conversa de ticket.
+ *
+ * Utilizado nos fluxos de compactação de contexto e handoff para agentes
+ * humanos, condensando o histórico de mensagens em um resumo estruturado
+ * com contagem de mensagens e timestamp de geração.
  *
  * @readonly
  */

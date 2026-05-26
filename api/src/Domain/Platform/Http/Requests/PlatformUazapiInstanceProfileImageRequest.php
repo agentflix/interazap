@@ -17,7 +17,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class PlatformUazapiInstanceProfileImageRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -25,7 +25,7 @@ final class PlatformUazapiInstanceProfileImageRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para alteração da imagem de perfil da instância.
      *
      * @return array<string, array<int, string|\Closure>>
      */

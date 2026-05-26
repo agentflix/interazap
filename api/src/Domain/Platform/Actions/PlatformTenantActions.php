@@ -16,14 +16,19 @@ use Illuminate\Support\Str;
 use RuntimeException;
 
 /**
- * Acoes para gerenciamento de tenants da plataforma.
+ * Ações para gerenciamento de tenants da plataforma.
+ *
+ * Concentra listagem, criação, atualização, exclusão, restauração e toggle de status de tenants.
  */
 final class PlatformTenantActions
 {
     private const PROTECTED_TENANT_DELETE_MESSAGE = 'Empresa principal InteraZap não pode ser excluída.';
 
     /**
-     * @param  array<string, mixed>  $filters
+     * Lista tenants com filtros, ordenação e paginação.
+     *
+     * @param  array<string, mixed>  $filters  Filtros de busca, status, datas e paginação.
+     * @return LengthAwarePaginator Lista paginada de tenants.
      */
     public function list(array $filters = []): LengthAwarePaginator
     {
@@ -37,8 +42,10 @@ final class PlatformTenantActions
     }
 
     /**
-     * @param  array<string, mixed>  $filters
-     * @return Builder<PlatformTenant>
+     * Retorna query de tenants ordenada para exportação (sem paginação).
+     *
+     * @param  array<string, mixed>  $filters  Filtros de busca e ordenação.
+     * @return Builder<PlatformTenant> Query pronta para iteração via cursor.
      */
     public function queryForExport(array $filters = []): Builder
     {
@@ -49,6 +56,13 @@ final class PlatformTenantActions
         return $query->orderBy($sortBy, $sortDir);
     }
 
+    /**
+     * Busca um tenant pelo ID, com opção de incluir registros excluídos.
+     *
+     * @param  string  $id  UUID do tenant.
+     * @param  bool  $withTrashed  Se verdadeiro, inclui registros soft-deleted.
+     * @return PlatformTenant Tenant encontrado.
+     */
     public function find(string $id, bool $withTrashed = false): PlatformTenant
     {
         $query = PlatformTenant::query();
@@ -60,6 +74,13 @@ final class PlatformTenantActions
         return $query->findOrFail($id);
     }
 
+    /**
+     * Cria um novo tenant, resolvendo segmento, código e plano padrão automaticamente.
+     *
+     * @param  PlatformTenantDTO  $dto  Dados do tenant.
+     * @param  AuthUser|null  $actor  Usuário que executa a ação (super admin ou null).
+     * @return PlatformTenant Tenant criado.
+     */
     public function create(PlatformTenantDTO $dto, ?AuthUser $actor = null): PlatformTenant
     {
         $payload = $dto->toArray();
@@ -81,6 +102,14 @@ final class PlatformTenantActions
         return PlatformTenant::query()->create($payload);
     }
 
+    /**
+     * Resolve o segment_id para criação do tenant, priorizando o informado no DTO
+     * ou buscando o segmento SAAS/GENERAL para super admins.
+     *
+     * @param  PlatformTenantDTO  $dto  Dados do tenant.
+     * @param  AuthUser|null  $actor  Usuário executando a ação.
+     * @return string|null ID do segmento resolvido.
+     */
     private function resolveSegmentIdForCreation(PlatformTenantDTO $dto, ?AuthUser $actor): ?string
     {
         if ($actor?->isSuperAdmin() !== true) {
@@ -108,6 +137,13 @@ final class PlatformTenantActions
         return null;
     }
 
+    /**
+     * Atualiza os dados de um tenant existente.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a ser atualizado.
+     * @param  PlatformTenantDTO  $dto  Novos dados do tenant.
+     * @return PlatformTenant Tenant atualizado.
+     */
     public function update(PlatformTenant $tenant, PlatformTenantDTO $dto): PlatformTenant
     {
         $payload = $dto->toArray();
@@ -126,6 +162,13 @@ final class PlatformTenantActions
         return $tenant->refresh();
     }
 
+    /**
+     * Executa soft delete do tenant, verificando se não é o tenant principal protegido.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a ser excluído.
+     *
+     * @throws \RuntimeException Quando o tenant é o principal protegido.
+     */
     public function delete(PlatformTenant $tenant): void
     {
         $this->assertTenantCanBeDeleted($tenant);
@@ -133,6 +176,12 @@ final class PlatformTenantActions
         $tenant->delete();
     }
 
+    /**
+     * Restaura um tenant previamente excluído (soft delete).
+     *
+     * @param  string  $id  UUID do tenant.
+     * @return PlatformTenant Tenant restaurado.
+     */
     public function restore(string $id): PlatformTenant
     {
         $tenant = $this->find($id, true);
@@ -141,6 +190,13 @@ final class PlatformTenantActions
         return $tenant->refresh();
     }
 
+    /**
+     * Remove permanentemente o tenant do banco de dados.
+     *
+     * @param  string  $id  UUID do tenant.
+     *
+     * @throws \RuntimeException Quando o tenant é o principal protegido.
+     */
     public function forceDelete(string $id): void
     {
         $tenant = $this->find($id, true);
@@ -149,6 +205,11 @@ final class PlatformTenantActions
         $tenant->forceDelete();
     }
 
+    /**
+     * Garante que o tenant pode ser excluído, bloqueando o tenant principal protegido.
+     *
+     * @throws \RuntimeException Quando o tenant é o principal protegido.
+     */
     private function assertTenantCanBeDeleted(PlatformTenant $tenant): void
     {
         if ($tenant->isProtectedDefaultTenant()) {
@@ -156,6 +217,12 @@ final class PlatformTenantActions
         }
     }
 
+    /**
+     * Alterna o status ativo/inativo do tenant.
+     *
+     * @param  string  $id  UUID do tenant.
+     * @return PlatformTenant Tenant com status atualizado.
+     */
     public function toggleActive(string $id): PlatformTenant
     {
         $tenant = $this->find($id);
@@ -164,6 +231,9 @@ final class PlatformTenantActions
         return $tenant->refresh();
     }
 
+    /**
+     * Sanitiza o campo de ordenação, aceitando apenas colunas permitidas.
+     */
     private function sanitizeSortBy(string $sortBy): string
     {
         return in_array($sortBy, ['name', 'document', 'is_active', 'created_at', 'tenant_code', 'primary_email'], true)
@@ -171,16 +241,27 @@ final class PlatformTenantActions
             : 'name';
     }
 
+    /**
+     * Sanitiza a direção de ordenação para 'asc' ou 'desc'.
+     */
     private function sanitizeSortDirection(string $sortDirection): string
     {
         return strtolower($sortDirection) === 'desc' ? 'desc' : 'asc';
     }
 
+    /**
+     * Garante que o número de itens por página fique entre 1 e 100.
+     */
     private function sanitizePerPage(int $perPage): int
     {
         return min(max($perPage, 1), 100);
     }
 
+    /**
+     * Resolve o ID do plano padrão: tenta 'starter', depois qualquer plano ativo.
+     *
+     * @return string|null UUID do plano ou null se nenhum ativo existir.
+     */
     private function resolveDefaultPlanId(): ?string
     {
         $starterPlan = \Domain\Platform\Models\PlatformPlan::query()
@@ -199,6 +280,9 @@ final class PlatformTenantActions
         return $anyPlan instanceof \Domain\Platform\Models\PlatformPlan ? $anyPlan->id : null;
     }
 
+    /**
+     * Gera um código único de tenant com 8 caracteres (até 12 em caso de colisão).
+     */
     private function generateTenantCode(): string
     {
         for ($attempt = 0; $attempt < 5; $attempt++) {
@@ -212,8 +296,10 @@ final class PlatformTenantActions
     }
 
     /**
-     * @param  array<string, mixed>  $filters
-     * @return Builder<PlatformTenant>
+     * Constrói a query de tenants com filtros aplicados.
+     *
+     * @param  array<string, mixed>  $filters  Filtros de busca e status.
+     * @return Builder<PlatformTenant> Query filtrada.
      */
     private function buildFilteredQuery(array $filters = []): Builder
     {

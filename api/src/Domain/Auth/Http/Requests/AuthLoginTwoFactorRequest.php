@@ -11,9 +11,7 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 final class AuthLoginTwoFactorRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Endpoint público — sempre autorizado. */
     public function authorize(): bool
     {
         // Public endpoint
@@ -21,7 +19,7 @@ final class AuthLoginTwoFactorRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para o desafio 2FA.
      *
      * @return array<string, mixed>
      */

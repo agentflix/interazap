@@ -7,7 +7,11 @@ namespace Domain\Ai\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Autopilot guardrail.
+ * DTO que representa uma regra de proteção (guardrail) do Autopilot.
+ *
+ * Utilizado para definir barreiras de segurança que validam mensagens antes
+ * e depois do processamento pela IA, prevenindo respostas inadequadas,
+ * vazamento de dados ou comportamento fora do escopo definido.
  *
  * @readonly
  */
@@ -26,7 +30,9 @@ final readonly class AiAutopilotGuardrailDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um request HTTP.
+     *
+     * @param  Request  $request  Requisição HTTP validada.
      */
     public static function fromRequest(Request $request): self
     {

@@ -8,12 +8,15 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 /**
- * Helpers for parsing and previewing CSV files used during contact import.
+ * Utilitários para análise e pré-visualização de arquivos CSV durante a importação de contatos.
  */
 final class CRMCsvParsingService
 {
     /**
-     * Auto-detect the best delimiter for a CSV file.
+     * Detecta automaticamente o melhor delimitador para um arquivo CSV.
+     *
+     * @param  string  $filePath  Caminho absoluto do arquivo CSV
+     * @return string O delimitador mais adequado (,  ;  \t  |)
      */
     public function detectDelimiter(string $filePath): string
     {
@@ -42,7 +45,12 @@ final class CRMCsvParsingService
     }
 
     /**
-     * Count non-empty data rows in a CSV file.
+     * Conta as linhas não-vazias de um arquivo CSV.
+     *
+     * @param  string  $filePath  Caminho absoluto do arquivo
+     * @param  string  $delimiter  Delimitador de colunas
+     * @param  bool  $hasHeader  Indica se a primeira linha é cabeçalho (não contada)
+     * @return int Total de linhas de dados
      */
     public function countRows(string $filePath, string $delimiter, bool $hasHeader): int
     {
@@ -71,8 +79,11 @@ final class CRMCsvParsingService
     }
 
     /**
-     * Extract headers and sample rows from a CSV file.
+     * Extrai cabeçalhos e linhas de amostra de um arquivo CSV para pré-visualização.
      *
+     * @param  string  $filePath  Caminho absoluto do arquivo
+     * @param  string  $delimiter  Delimitador de colunas
+     * @param  int  $sampleRows  Quantidade máxima de linhas de amostra
      * @return array{header: array<int, string>, sample: array<int, array<int, string|null>>}
      */
     public function getPreview(string $filePath, string $delimiter, int $sampleRows): array

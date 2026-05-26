@@ -12,8 +12,11 @@ import { type AiAgent } from '@ai/models/ai.model';
 import { AI_MODEL_OPTIONS } from '@ai/constants/ai-model-options';
 
 /**
- * Overview tab for the agent workspace.
- * Contains basic config fields organized in card sections.
+ * Aba de visão geral do workspace do agente.
+ *
+ * Contexto: contém campos básicos de configuração (nome, descrição, tipo, modelo, temperatura,
+ * max_tokens, mensagem de fallback e status). Populada via effect quando o agente pai muda.
+ * O salvamento é delegado ao workspace global.
  */
 @Component({
   selector: 'app-agent-overview-tab',

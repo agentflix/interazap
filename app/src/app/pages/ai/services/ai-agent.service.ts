@@ -19,12 +19,10 @@ import {
 } from '@ai/models/ai.model';
 
 /**
- * Service para gestão de Agentes de IA v2.
+ * Serviço para gestão de Agentes de IA v2.
  *
- * Responsável por operações CRUD de agentes, files, tools, skills,
- * channels, triggers e voice config.
- *
- * @class AiAgentService
+ * Responsável por operações CRUD de agentes, arquivos de configuração, ferramentas,
+ * skills, canais, triggers e configuração de voz.
  */
 @Injectable({ providedIn: 'root' })
 export class AiAgentService {
@@ -351,10 +349,9 @@ export class AiAgentService {
   }
 
   /**
-   * Normalizes a raw tool link object from the API into a structured AiAgentToolLink.
-   *
-   * @param item - Raw tool object from API
-   * @returns Normalized tool link or null if required fields are missing
+   * Normaliza um objeto bruto de tool recebido da API para AiAgentToolLink.
+   * @param item Objeto bruto da API
+   * @returns Tool link normalizado ou null se campos obrigatórios estiverem ausentes
    */
   private normalizeToolLink(item: Record<string, unknown>): AiAgentToolLink | null {
     const toolName = this.readString(item['tool_name']) ?? this.readString(item['name']);
@@ -371,10 +368,9 @@ export class AiAgentService {
   }
 
   /**
-   * Normalizes legacy voice response mode values to the current enum values.
-   *
-   * @param mode - Raw mode value from API
-   * @returns Normalized voice response mode
+   * Normaliza valores legados do modo de resposta por voz para o enum atual.
+   * @param mode Valor bruto recebido da API
+   * @returns Modo de resposta por voz normalizado
    */
   private normalizeVoiceResponseMode(mode: unknown): AiAgentVoiceConfig['voice_response_mode'] {
     if (mode === 'text_only') return 'text';
@@ -385,10 +381,9 @@ export class AiAgentService {
   }
 
   /**
-   * Safely extracts a non-empty trimmed string from an unknown value.
-   *
-   * @param value - Value to extract from
-   * @returns String or null if not a valid non-empty string
+   * Extrai com segurança uma string não vazia e sem espaços de um valor desconhecido.
+   * @param value Valor de onde extrair
+   * @returns String ou null se não for uma string válida não vazia
    */
   private readString(value: unknown): string | null {
     if (typeof value !== 'string') {

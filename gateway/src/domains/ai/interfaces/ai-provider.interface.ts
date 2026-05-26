@@ -1,5 +1,5 @@
 /**
- * AI Provider Interface (Port)
+ * Interface de provider de AI (porta do domínio).
  *
  * Contrato que todo adapter de IA deve implementar.
  * Segue o padrão Ports & Adapters para permitir múltiplos providers.
@@ -9,7 +9,7 @@ import { AICompletionRequest } from './ai-completion-request.dto';
 import { AICompletionResponseDto } from './ai-completion-response.dto';
 
 /**
- * Interface que todo provider de IA deve implementar
+ * Contrato que todo adapter de IA deve implementar.
  *
  * Cada provider (OpenAI, Gemini, Anthropic, etc.) implementa esta interface,
  * permitindo que o consumer seja agnóstico ao provider específico.
@@ -37,50 +37,47 @@ export interface AIProvider {
   /**
    * Executa completion e retorna resposta normalizada.
    *
-   * @param request - Request de completion com mensagens e configurações
+   * @param request - Requisição de completion com mensagens e configurações
    * @returns Resposta normalizada com conteúdo e métricas de tokens
-   * @throws Error em caso de falha (timeout, rate limit, etc.)
+   * @throws Error Em caso de falha (timeout, rate limit, etc.)
    */
   complete(request: AICompletionRequest): Promise<AICompletionResponseDto>;
 
   /**
-   * Streaming de resposta (opcional - preparação para fase 2).
+   * Transmite a resposta em streaming retornando um `AsyncGenerator` de chunks de texto.
    *
-   * Quando implementado, retorna um AsyncGenerator que emite
-   * chunks de texto à medida que são gerados.
+   * Método opcional preparado para uso futuro. Quando implementado, emite chunks
+   * de texto à medida que são gerados pelo modelo.
    *
-   * @param request - Request de completion
+   * @param request - Requisição de completion
    * @yields Chunks de texto da resposta
-   *
-   * @note Este método é opcional e será implementado em fase futura.
-   *       A interface já o inclui para preparar a arquitetura.
    */
   stream?(request: AICompletionRequest): AsyncGenerator<string, void, unknown>;
 
   /**
-   * Verifica se o provider está disponível/saudável.
+   * Verifica se o provider está disponível e saudável.
    *
-   * @returns true se o provider está pronto para receber requests
+   * @returns `true` quando o provider está pronto para receber requisições
    */
   isHealthy?(): Promise<boolean>;
 }
 
-/**
- * Token de injeção para providers
- */
+/** Token de injeção para providers de AI no container NestJS. */
 export const AI_PROVIDER_TOKEN = Symbol('AI_PROVIDER');
 
-/**
- * Tipo para map de providers
- */
+/** Mapa tipado que associa nomes de providers às suas instâncias. */
 export type AIProviderMap = Map<string, AIProvider>;
 
 /**
- * Metadata para registro de provider
+ * Metadados de registro de um provider de AI para uso na factory.
  */
 export interface AIProviderMetadata {
+  /** Nome único do provider. */
   name: string;
+  /** Descrição textual das capacidades do provider. */
   description?: string;
+  /** Lista de modelos suportados pelo provider. */
   supportedModels?: string[];
+  /** Indica se o provider suporta streaming de respostas. */
   supportsStreaming?: boolean;
 }

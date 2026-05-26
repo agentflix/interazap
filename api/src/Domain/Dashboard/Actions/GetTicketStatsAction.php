@@ -9,12 +9,20 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Aggregates ticket stats for the dashboard.
+ * Agrega estatísticas de tickets de atendimento para o dashboard.
+ *
+ * Retorna volume diário, distribuição por prioridade, taxa de conformidade de SLA
+ * e tempo médio de primeira resposta.
  */
 final class GetTicketStatsAction
 {
     /**
-     * @return array<string, mixed>
+     * Executa a agregação de estatísticas de tickets para o período informado.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  Carbon  $from  Data de início do período
+     * @param  Carbon  $to  Data de fim do período
+     * @return array<string, mixed> Com chaves daily_volume, by_priority, sla_compliance_rate e avg_first_response_minutes
      */
     public function execute(string $tenantId, Carbon $from, Carbon $to): array
     {

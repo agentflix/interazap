@@ -49,8 +49,8 @@ const STATUS_COLUMNS = [
 ];
 
 /**
- * Negotiation tasks page component for the Crm module.
- * @selector app-negotiation-tasks
+ * Página de tarefas do CRM com visualização kanban (pendente, em progresso, concluída).
+ * Suporta drag-and-drop entre colunas e atualização em tempo real via WebSocket.
  */
 @Component({
   selector: 'app-negotiation-tasks',

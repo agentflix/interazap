@@ -1,3 +1,8 @@
+/**
+ * Re-exporta todos os DTOs e interfaces do módulo bot relacionados à Telegram Bot API.
+ *
+ * Contexto: módulo bot.
+ */
 export {
   TelegramUpdateDto,
   TelegramMessageDto,

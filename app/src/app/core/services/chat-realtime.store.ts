@@ -2,11 +2,11 @@ import { computed, Injectable, signal } from '@angular/core';
 import { type ChatRealtimeEvent, type ChatTypingEvent } from './chat-realtime.events';
 
 /**
- * In-memory event store for chat realtime events.
+ * Store em memória para eventos de chat em tempo real.
  *
  * @remarks
- * Maintains a rolling buffer of up to 500 events, indexed by ticket for fast lookup.
- * Also tracks typing indicators per ticket.
+ * Mantém um buffer rotativo de até 500 eventos, indexados por ticket para consulta rápida.
+ * Também rastreia indicadores de digitação por ticket.
  */
 const MAX_EVENT_HISTORY = 500;
 
@@ -22,9 +22,9 @@ export class ChatRealtimeStore {
   readonly typingByTicket = computed(() => this._typingByTicket());
 
   /**
-   * Appends an event to the store and updates ticket-indexed caches.
+   * Adiciona um evento ao store e atualiza os caches indexados por ticket.
    *
-   * @param event - The realtime event to push
+   * @param event - Evento em tempo real a registrar
    */
   push(event: ChatRealtimeEvent): void {
     this._events.update((current) => {
@@ -57,7 +57,7 @@ export class ChatRealtimeStore {
   }
 
   /**
-   * Clears all events and typing indicators from the store.
+   * Limpa todos os eventos e indicadores de digitação do store.
    */
   clear(): void {
     this._events.set([]);
@@ -66,9 +66,9 @@ export class ChatRealtimeStore {
   }
 
   /**
-   * Sets or clears the typing indicator for a specific ticket.
+   * Define ou remove o indicador de digitação de um ticket específico.
    *
-   * @param event - The typing event containing ticket_id and is_typing flag
+   * @param event - Evento de digitação contendo `ticket_id` e flag `is_typing`
    */
   setTyping(event: ChatTypingEvent): void {
     this.updateTyping(event);

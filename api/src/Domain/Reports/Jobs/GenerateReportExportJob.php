@@ -100,7 +100,9 @@ final class GenerateReportExportJob implements ShouldQueue
     }
 
     /**
-     * Resolve a action de relatório pelo tipo.
+     * Resolve a action de relatório pelo tipo via ReportActionRegistry.
+     *
+     * @throws \InvalidArgumentException Quando o tipo de relatório não existe no registry
      */
     private function resolveAction(): ReportActionInterface
     {

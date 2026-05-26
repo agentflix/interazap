@@ -1,82 +1,66 @@
 import type { PaginatedResponse } from '@core/models/pagination.model';
 
 /**
- * Represents a CRM contact entity.
+ * Representa um contato do CRM.
  *
- * @example
- * ```typescript
- * const contact: Contact = {
- *   id: '123',
- *   name: 'John Doe',
- *   email: 'john@example.com',
- *   is_active: true,
- *   crm_company_id: '456'
- * };
- * ```
+ * Contexto: entidade central do módulo CRM. Contatos são vinculados a tickets,
+ * negociações e empresas. Podem ser importados via CSV ou criados manualmente.
  */
 export interface Contact {
-  /** Unique identifier for the contact */
+  /** Identificador único do contato. */
   id: string | number;
-  /** Full name of the contact */
+  /** Nome completo do contato. */
   name: string;
-  /** Phone number */
+  /** Número de telefone principal. */
   phone?: string;
-  /** WhatsApp number */
+  /** Número de WhatsApp. */
   whatsapp?: string;
-  /** Email address */
+  /** Endereço de e-mail. */
   email?: string;
-  /** URL to the contact's avatar image (legacy alias) */
+  /** URL do avatar do contato (alias legado). */
   avatar?: string;
-  /** URL to the contact's avatar image */
+  /** URL do avatar do contato. */
   avatar_url?: string | null;
-  /** Jabber ID for messaging */
+  /** Jabber ID para mensagens. */
   jid?: string;
-  /** Line ID for messaging */
+  /** Line ID para mensagens. */
   lid?: string;
-  /** Tax identification document (CPF/CNPJ) */
+  /** Documento fiscal (CPF/CNPJ). */
   document?: string;
-  /** Source where the contact originated from */
+  /** Origem do cadastro do contato. */
   source?: string;
-  /** Whether the contact is currently active */
+  /** Indica se o contato está ativo. */
   is_active: boolean;
-  /** ID of the associated company (platform tenant) */
+  /** ID da empresa (tenant) ao qual o contato pertence. */
   company_id?: string;
-  /** ID of the associated CRM company */
+  /** ID da empresa CRM vinculada ao contato. */
   crm_company_id?: string;
-  /** Associated company details */
+  /** Dados da empresa CRM vinculada. */
   company?: {
     id: string;
     name: string;
     document?: string;
   };
-  /** Dynamic key-value pair custom fields */
+  /** Campos personalizados dinâmicos (chave-valor). */
   custom_fields?: Record<string, unknown>;
-  /** Internal notes about the contact */
+  /** Notas internas sobre o contato. */
   notes?: string;
-  /** Timestamp of the last contact made */
+  /** Data do último contato realizado. */
   last_contact_at?: string;
-  /** Tags associated with the contact */
+  /** Etiquetas associadas ao contato. */
   tags?: { id: string; name: string }[] | string[];
-  /** Number of calls made to/from this contact */
+  /** Quantidade de tickets abertos com este contato. */
   calleds_count?: number;
-  /** Creation timestamp */
+  /** Data de criação do registro. */
   created_at: string;
-  /** Last update timestamp */
+  /** Data da última atualização do registro. */
   updated_at: string;
 }
 
 /**
- * Filter parameters for querying contacts list.
+ * Filtros para listagem de contatos.
  *
- * @example
- * ```typescript
- * const filters: ContactFilters = {
- *   search: 'John',
- *   is_active: true,
- *   tag: 'vip',
- *   per_page: 20
- * };
- * ```
+ * Contexto: parâmetros aceitos pelo endpoint de listagem de contatos do CRM.
  */
 export interface ContactFilters {
   search?: string;
@@ -90,87 +74,65 @@ export interface ContactFilters {
 }
 
 /**
- * Response structure for paginated contact list.
+ * Resposta paginada da API para listagem de contatos.
  */
 export interface ContactListResponse extends PaginatedResponse<Contact> {
-  /** Success flag */
+  /** Indicador de sucesso da requisição. */
   success: boolean;
 }
 
 /**
- * Response structure for a single contact.
+ * Resposta da API para um único contato.
  */
 export interface ContactResponse {
-  /** Success flag */
+  /** Indicador de sucesso da requisição. */
   success: boolean;
-  /** Message from the API */
+  /** Mensagem descritiva retornada pela API. */
   message: string;
-  /** Contact data wrapper */
+  /** Dados do contato. */
   data: Contact;
 }
 
 /**
- * Response from uploading a CSV file for contact import.
- * Contains metadata about the file structure for preview before confirmation.
+ * Resposta do upload de arquivo CSV para importação de contatos.
  *
- * @example
- * ```typescript
- * const response: ContactImportUploadResponse = {
- *   data: {
- *     import_id: 'uuid-here',
- *     headers: ['name', 'email', 'phone'],
- *     sample: [['John', 'john@example.com', '+5511999999999']],
- *     delimiter: ',',
- *     has_header: true
- *   }
- * };
- * ```
+ * Contém metadados sobre a estrutura do arquivo para prévia antes da confirmação.
  */
 export interface ContactImportUploadResponse {
   data: {
+    /** ID temporário da importação para confirmar na etapa seguinte. */
     import_id: string;
+    /** Cabeçalhos detectados no arquivo CSV. */
     headers: string[];
+    /** Amostra das primeiras linhas do arquivo. */
     sample: string[][];
+    /** Delimitador detectado no arquivo CSV. */
     delimiter: ',' | ';';
+    /** Indica se o arquivo possui linha de cabeçalho. */
     has_header: boolean;
   };
 }
 
 /**
- * Summary result of a contact import operation.
- * Contains counts of processed, imported, skipped, and failed records.
+ * Resumo do resultado de uma operação de importação de contatos.
  *
- * @example
- * ```typescript
- * const summary: ContactImportSummary = {
- *   processed: 100,
- *   imported: 95,
- *   skipped: 3,
- *   failed: 2,
- *   errors: [{ line: 5, message: 'Invalid email format' }]
- * };
- * ```
+ * Contexto: retornado após a confirmação da importação CSV,
+ * com contagem de registros processados, importados, ignorados e com falha.
  */
 export interface ContactImportSummary {
   processed: number;
   imported: number;
   skipped: number;
   failed: number;
+  /** Lista de erros por linha do arquivo. */
   errors?: { line?: number; message: string }[];
+  /** Indica se a importação foi enfileirada para processamento assíncrono. */
   queued?: boolean;
   rows?: number;
 }
 
 /**
- * Response returned after a contact import operation completes.
- * Wraps the import summary with a standard response envelope.
- *
- * @example
- * ```typescript
- * const response: ContactImportResponse = {
- *   data: { processed: 50, imported: 48, skipped: 1, failed: 1 }
- * };
- * ```
+ * Resposta da API após conclusão de uma operação de importação de contatos.
  */
 export interface ContactImportResponse {
   data: ContactImportSummary;

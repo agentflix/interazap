@@ -8,7 +8,12 @@ use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatTicket;
 
 /**
- * Publishes compact realtime payloads for chat messages and tickets.
+ * Publica payloads compactos de mensagens e tickets em tempo real via WebSocket.
+ *
+ * Sanitiza metadados sensíveis (raw, JPEGThumbnail, base64) antes da transmissão
+ * para evitar payloads volumosos no canal de atividade do chat.
+ *
+ * @category Services
  */
 final class ChatMessageRealtimePublisher
 {
@@ -16,6 +21,15 @@ final class ChatMessageRealtimePublisher
         private readonly ChatActivityBroadcastService $activityBroadcast,
     ) {}
 
+    /**
+     * Emite evento de nova mensagem recebida/enviada no canal de atividade do ticket.
+     *
+     * Inclui dados sanitizados da mensagem e do ticket. Propaga client_message_id
+     * quando presente nos metadados para reconciliação no frontend.
+     *
+     * @param  ChatMessage  $message  Mensagem a publicar.
+     * @param  ChatTicket|null  $ticket  Ticket relacionado (incluído no payload se fornecido).
+     */
     public function emitNewMessage(ChatMessage $message, ?ChatTicket $ticket): void
     {
         $ticketData = $ticket instanceof ChatTicket ? $this->sanitizeTicket($ticket) : null;
@@ -42,6 +56,11 @@ final class ChatMessageRealtimePublisher
         );
     }
 
+    /**
+     * Emite evento de atualização de status de mensagem (sent, delivered, read, failed).
+     *
+     * @param  ChatMessage  $message  Mensagem com status atualizado.
+     */
     public function emitStatus(ChatMessage $message): void
     {
         $message->loadMissing('extended');
@@ -58,7 +77,9 @@ final class ChatMessageRealtimePublisher
     }
 
     /**
-     * @return array<string, mixed>
+     * Converte a mensagem para array sanitizado, removendo metadados volumosos.
+     *
+     * @return array<string, mixed> Dados da mensagem prontos para transmissão.
      */
     private function sanitizeMessage(ChatMessage $message): array
     {
@@ -66,7 +87,9 @@ final class ChatMessageRealtimePublisher
     }
 
     /**
-     * @return array<string, mixed>
+     * Converte o ticket para array sanitizado, removendo metadados volumosos da última mensagem.
+     *
+     * @return array<string, mixed> Dados do ticket prontos para transmissão.
      */
     private function sanitizeTicket(ChatTicket $ticket): array
     {
@@ -84,8 +107,10 @@ final class ChatMessageRealtimePublisher
     }
 
     /**
-     * @param  array<string, mixed>  $data
-     * @return array<string, mixed>
+     * Sanitiza os metadados de um array de mensagem.
+     *
+     * @param  array<string, mixed>  $data  Dados brutos da mensagem.
+     * @return array<string, mixed> Dados sanitizados.
      */
     private function sanitizeMessageArray(array $data): array
     {
@@ -97,8 +122,10 @@ final class ChatMessageRealtimePublisher
     }
 
     /**
-     * @param  array<string, mixed>  $metadata
-     * @return array<string, mixed>
+     * Remove chaves sensíveis ou volumosas dos metadados da mensagem.
+     *
+     * @param  array<string, mixed>  $metadata  Metadados brutos.
+     * @return array<string, mixed> Metadados sem as chaves banidas.
      */
     private function sanitizeMetadata(array $metadata): array
     {
@@ -106,9 +133,11 @@ final class ChatMessageRealtimePublisher
     }
 
     /**
-     * @param  array<string, mixed>  $data
-     * @param  list<string>  $keys
-     * @return array<string, mixed>
+     * Remove recursivamente as chaves especificadas de um array aninhado.
+     *
+     * @param  array<string, mixed>  $data  Array de dados.
+     * @param  list<string>  $keys  Chaves a remover em todos os níveis.
+     * @return array<string, mixed> Array sem as chaves removidas.
      */
     private function stripKeysRecursive(array $data, array $keys): array
     {

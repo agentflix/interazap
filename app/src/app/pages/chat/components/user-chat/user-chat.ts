@@ -10,8 +10,12 @@ import { type CalledMessage } from 'src/app/core/services/called-message.service
 import { UserChatThreadComponent } from '../user-chat-thread/user-chat-thread.component';
 
 /**
- * User chat component for the Chat module.
- * @selector app-user-chat
+ * Componente de chat do usuário — wrapper da thread de mensagens.
+ *
+ * @remarks
+ * Encapsula o `UserChatThreadComponent` e expõe os métodos
+ * `appendMessage` e `replaceMessage` para que o container pai
+ * possa inserir ou atualizar mensagens sem recarregar a thread.
  */
 @Component({
   selector: 'app-user-chat',

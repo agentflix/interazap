@@ -21,6 +21,8 @@ function buildPlan(overrides: Partial<SubscriptionPlan> = {}): SubscriptionPlan 
     overage_mode: 'stop' as const,
     overage_price_per_message: 0.05,
     is_current: true,
+    cycle_days: 30,
+    is_trial: false,
     features: [
       { label: '5 usuários', included: true },
       { label: '1 canal WhatsApp', included: true },

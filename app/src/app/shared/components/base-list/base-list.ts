@@ -1,16 +1,18 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 /**
- * AfBaseListComponent — Card wrapper with named content projection slots
- * for building standard list pages: header, filters, table, pagination.
+ * Contêiner card com slots nomeados para construção de páginas de lista padrão.
+ *
+ * Contexto: utilizado como estrutura base em todas as páginas de listagem
+ * do sistema, organizando cabeçalho, filtros, tabela e paginação.
  *
  * @example
  * ```html
  * <af-base-list>
- *   <div header>Title + actions</div>
- *   <div filters>Search + filter chips</div>
- *   <div table>Table content</div>
- *   <div pagination>Pagination controls</div>
+ *   <div header>Título + ações</div>
+ *   <div filters>Busca + chips de filtro</div>
+ *   <div table>Conteúdo da tabela</div>
+ *   <div pagination>Controles de paginação</div>
  * </af-base-list>
  * ```
  */

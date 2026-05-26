@@ -29,7 +29,7 @@ export class UazapiWebhookDto {
     to?: string;
     body?: string;
     timestamp?: number | string;
-    // other fields are kept as-is
+    // campos desconhecidos preservados como estao
     [key: string]: unknown;
   };
 

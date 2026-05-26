@@ -10,11 +10,12 @@ const msToSec = (ms: number): number => Math.max(1, Math.ceil(ms / 1000));
 const INVALIDATION_CHANNEL = 'cache:invalidate:instance';
 
 /**
- * Facade de cache em duas camadas: L1 LRU em memória + L2 Redis.
+ * Fachada de cache em duas camadas: L1 LRU em memória + L2 Redis.
  *
- * getOrFetch<T>(key, fetcher, strategy): verifica L1 → L2 → fetcher, popula ambas.
- * Invalidação via pub/sub Redis no canal 'cache:invalidate:instance'.
- * Contadores Prometheus gateway_cache_hits_total e gateway_cache_misses_total.
+ * Contexto: módulo infra/cache. Abstrai a lógica de cache hierárquico para
+ * os domínios do gateway, expondo um único método `getOrFetch`. A invalidação
+ * entre instâncias é feita via pub/sub Redis no canal `cache:invalidate:instance`.
+ * Registra contadores Prometheus `gateway_cache_hits_total` e `gateway_cache_misses_total`.
  */
 @Injectable()
 export class GatewayCacheService implements OnModuleInit {
@@ -33,6 +34,7 @@ export class GatewayCacheService implements OnModuleInit {
     private readonly metricsService: MetricsService,
   ) {}
 
+  /** Registra os contadores Prometheus e inicia a subscrição de invalidação via pub/sub Redis. */
   onModuleInit(): void {
     const registry = this.metricsService.getRegistry();
 
@@ -54,8 +56,14 @@ export class GatewayCacheService implements OnModuleInit {
   }
 
   /**
-   * Verifica L1, depois L2, executa fetcher se miss total.
-   * Popula as camadas não preenchidas.
+   * Retorna o valor da chave a partir da camada mais próxima disponível.
+   * Ordem: L1 (LRU memória) → L2 (Redis) → fetcher (origem).
+   * Após miss total, popula as camadas ausentes com o valor obtido.
+   * @param key Chave de cache
+   * @param fetcher Função assíncrona que busca o valor na origem em caso de miss total
+   * @param strategy Estratégia com TTLs para L1 e L2
+   * @param operation Nome da operação para labels Prometheus
+   * @returns Valor tipado da cache ou da origem
    */
   async getOrFetch<T extends object>(
     key: string,
@@ -105,7 +113,10 @@ export class GatewayCacheService implements OnModuleInit {
     return value;
   }
 
-  /** Remove uma entrada de L1 e L2. */
+  /**
+   * Remove uma entrada das camadas L1 (LRU) e L2 (Redis).
+   * @param key Chave de cache a ser invalidada
+   */
   async invalidate(key: string): Promise<void> {
     this.l1.delete(key);
     try {
@@ -117,6 +128,10 @@ export class GatewayCacheService implements OnModuleInit {
     }
   }
 
+  /**
+   * Subscreve ao canal Redis de invalidação para remover entradas L1 quando
+   * outros nós publicarem uma chave para invalidar.
+   */
   private subscribeInvalidation(): void {
     const subscriber = this.redisService.getPubSubClient();
 
@@ -141,6 +156,11 @@ export class GatewayCacheService implements OnModuleInit {
     });
   }
 
+  /**
+   * Prefixa a chave com o namespace do cache para evitar colisões no Redis.
+   * @param key Chave lógica de cache
+   * @returns Chave Redis no formato `gw:cache:{key}`
+   */
   private redisKey(key: string): string {
     return `gw:cache:${key}`;
   }

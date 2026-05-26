@@ -12,6 +12,15 @@ use Domain\Ai\Models\AiPromptSegment;
  */
 final class UpdateSegmentPromptAction
 {
+    /**
+     * Atualiza um Segment Prompt, protegendo o campo code do segmento GENERAL.
+     *
+     * O segmento padrão (GENERAL) não pode ter seu código alterado.
+     *
+     * @param  AiPromptSegment  $segment  Segmento a atualizar.
+     * @param  SegmentPromptDTO  $dto  Novos dados do segmento.
+     * @return AiPromptSegment Segmento atualizado.
+     */
     public function execute(AiPromptSegment $segment, SegmentPromptDTO $dto): AiPromptSegment
     {
         $data = $dto->toArray();

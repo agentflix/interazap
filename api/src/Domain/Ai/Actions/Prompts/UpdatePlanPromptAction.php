@@ -13,6 +13,13 @@ use Domain\Platform\Models\PlatformPlan;
  */
 final class UpdatePlanPromptAction
 {
+    /**
+     * Cria ou atualiza o prompt de um plano (upsert por plan_id).
+     *
+     * @param  PlatformPlan  $plan  Plano dono do prompt.
+     * @param  PlanPromptDTO  $dto  Novos dados do prompt.
+     * @return AiPromptPlan Prompt criado ou atualizado.
+     */
     public function execute(PlatformPlan $plan, PlanPromptDTO $dto): AiPromptPlan
     {
         $data = $dto->toArray();

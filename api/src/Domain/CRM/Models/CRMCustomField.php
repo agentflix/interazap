@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
- * Custom Field definition for CRM entities.
+ * Definição de campo personalizado para entidades CRM.
  *
- * Defines a dynamic field that can be attached to contacts,
- * companies, or negotiations with various field types.
+ * Permite que o tenant configure campos dinâmicos (texto, número, data, seleção etc.)
+ * associados a contatos, empresas ou negociações.
  *
  * @property string $id
  * @property string $tenant_id

@@ -5,7 +5,7 @@ import { environment } from '@env/environment';
 import { type SchedulingSettingsResponse } from '@core/models/configuration/scheduling-setting.model';
 
 /**
- * Service for fetching and updating tenant scheduling settings.
+ * Consulta e atualiza as configurações de agendamento do tenant autenticado.
  *
  * @example
  * ```ts
@@ -19,16 +19,16 @@ export class SchedulingSettingsService {
   private readonly http = inject(HttpClient);
 
   /**
-   * Fetch the scheduling settings for the authenticated tenant.
+   * Retorna as configurações de agendamento do tenant autenticado.
    */
   getSettings(): Observable<SchedulingSettingsResponse> {
     return this.http.get<SchedulingSettingsResponse>(this.baseUrl);
   }
 
   /**
-   * Update the scheduling settings for the authenticated tenant.
+   * Atualiza as configurações de agendamento do tenant autenticado.
    *
-   * @param data - Partial settings object to update
+   * @param data - Objeto parcial com as configurações a atualizar
    */
   updateSettings(
     data: Partial<SchedulingSettingsResponse['data']>,

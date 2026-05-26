@@ -53,6 +53,11 @@ final class AuthRoleActions
             ->paginate($filters->sanitizedPerPage());
     }
 
+    /**
+     * Busca perfil de acesso pelo ID com permissões e contagem de usuários.
+     *
+     * @param  string  $id  UUID do perfil.
+     */
     public function find(string $id): AuthRole
     {
         return AuthRole::with(['permissions:id,name'])
@@ -60,6 +65,12 @@ final class AuthRoleActions
             ->findOrFail($id);
     }
 
+    /**
+     * Cria um novo perfil de acesso com permissões sincronizadas.
+     *
+     * @param  AuthRoleDTO  $dto  Dados do perfil a criar.
+     * @return AuthRole Perfil criado com permissões carregadas.
+     */
     public function create(AuthRoleDTO $dto): AuthRole
     {
         return DB::transaction(function () use ($dto) {
@@ -81,6 +92,13 @@ final class AuthRoleActions
         });
     }
 
+    /**
+     * Atualiza nome e permissões de um perfil de acesso existente.
+     *
+     * @param  string|AuthRole  $role  UUID ou instância da role.
+     * @param  AuthRoleDTO  $dto  Dados atualizados.
+     * @return AuthRole Perfil atualizado com permissões carregadas.
+     */
     public function update(string|AuthRole $role, AuthRoleDTO $dto): AuthRole
     {
         $resolvedRole = $this->resolveRole($role);
@@ -98,6 +116,13 @@ final class AuthRoleActions
         });
     }
 
+    /**
+     * Exclui um perfil de acesso, impedindo a remoção de perfis do sistema.
+     *
+     * @param  string|AuthRole  $role  UUID ou instância da role.
+     *
+     * @throws HttpException 403 se a role for um perfil de sistema protegido.
+     */
     public function delete(string|AuthRole $role): void
     {
         $resolvedRole = $this->resolveRole($role);
@@ -109,6 +134,11 @@ final class AuthRoleActions
         $resolvedRole->delete();
     }
 
+    /**
+     * Resolve o argumento role para instância de AuthRole.
+     *
+     * @param  string|AuthRole  $role  UUID ou instância.
+     */
     private function resolveRole(string|AuthRole $role): AuthRole
     {
         if ($role instanceof AuthRole) {

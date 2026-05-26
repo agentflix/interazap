@@ -5,10 +5,10 @@ import { IdempotencyDescriptor, StreamPayload } from './chat-webhook.types';
 import { PayloadSemanticsResolver } from './payload-semantics-resolver.service';
 
 /**
- * WebhookIdempotencyService
+ * Garante processamento idempotente de eventos de webhook usando deduplicacao via Redis.
  *
- * Ensures webhook events are processed idempotently using Redis-based deduplication.
- * Handles connection events, message edits, and message updates with proper key composition.
+ * Contexto: trata eventos de conexao, edicoes de mensagem e atualizacoes de status
+ * compondo chaves de idempotencia adequadas ao tipo de evento recebido.
  */
 @Injectable()
 export class WebhookIdempotencyService {
@@ -19,6 +19,12 @@ export class WebhookIdempotencyService {
     private readonly payloadSemanticsResolver: PayloadSemanticsResolver,
   ) {}
 
+  /**
+   * Constroi o descritor de idempotencia para o payload de stream informado.
+   *
+   * @param payload - Payload de stream a processar
+   * @returns Descritor com chave, provider, tipo de evento e semantica
+   */
   buildIdempotencyKey(payload: StreamPayload): IdempotencyDescriptor {
     const fallbackId = this.isFallbackPayload(payload)
       ? payload.payload.message?.id
@@ -77,6 +83,14 @@ export class WebhookIdempotencyService {
     };
   }
 
+  /**
+   * Verifica idempotencia com timeout para evitar bloqueio do loop de eventos.
+   *
+   * @param key - Chave de idempotencia a verificar no Redis
+   * @param ttlSeconds - TTL em segundos para a chave
+   * @param timeoutMs - Timeout da operacao Redis em milissegundos
+   * @returns true quando primeiro registro, false quando duplicado, null em timeout ou erro
+   */
   async ensureIdempotentWithTimeout(
     key: string,
     ttlSeconds: number,
@@ -104,6 +118,13 @@ export class WebhookIdempotencyService {
     }
   }
 
+  /**
+   * Resolve o discriminador de idempotencia para eventos de edicao de mensagem.
+   *
+   * @param payload - Payload de stream do evento de edicao
+   * @param semantics - Metadados semanticos pre-calculados
+   * @returns String discriminadora para composicao da chave
+   */
   private resolveEditIdempotencyDiscriminator(
     payload: StreamPayload,
     semantics: IdempotencyDescriptor['semantics'],
@@ -142,6 +163,12 @@ export class WebhookIdempotencyService {
     return `edit_sig:${signature}`;
   }
 
+  /**
+   * Extrai o status de conexao do payload de stream para discriminacao de idempotencia.
+   *
+   * @param payload - Payload de stream de evento de conexao
+   * @returns Status de conexao ou undefined quando nao determinavel
+   */
   private resolveConnectionStatus(payload: StreamPayload): string | undefined {
     const raw =
       payload.raw &&
@@ -178,6 +205,15 @@ export class WebhookIdempotencyService {
     return undefined;
   }
 
+  /**
+   * Compoe a chave de idempotencia a partir das partes do evento.
+   *
+   * @param provider - Nome do provedor
+   * @param eventType - Tipo do evento
+   * @param token - Token do webhook da instancia
+   * @param discriminator - Discriminador especifico do evento
+   * @returns Chave de idempotencia normalizada
+   */
   private composeIdempotencyKey(
     provider: string,
     eventType: string,
@@ -191,6 +227,12 @@ export class WebhookIdempotencyService {
     return this.normalizeIdempotencyKey(rawKey);
   }
 
+  /**
+   * Normaliza a chave de idempotencia truncando via hash quando excede 255 caracteres.
+   *
+   * @param key - Chave bruta a normalizar
+   * @returns Chave com no maximo 255 caracteres
+   */
   private normalizeIdempotencyKey(key: string): string {
     const maxLength = 255;
     if (key.length <= maxLength) {
@@ -200,6 +242,12 @@ export class WebhookIdempotencyService {
     return `idempo_hash:${composeIdempotencyKey([key])}`;
   }
 
+  /**
+   * Retorna o primeiro valor nao vazio do array de candidatos.
+   *
+   * @param values - Candidatos a string nao vazia
+   * @returns Primeiro valor nao vazio ou null
+   */
   private firstNonEmptyString(
     values: Array<string | undefined>,
   ): string | null {
@@ -212,6 +260,13 @@ export class WebhookIdempotencyService {
     return null;
   }
 
+  /**
+   * Extrai um campo string de um Record de forma tipada.
+   *
+   * @param source - Record de origem
+   * @param key - Nome da chave a extrair
+   * @returns Valor string ou undefined quando ausente ou de tipo diferente
+   */
   private getString(
     source: Record<string, unknown>,
     key: string,
@@ -220,6 +275,12 @@ export class WebhookIdempotencyService {
     return typeof value === 'string' ? value : undefined;
   }
 
+  /**
+   * Verifica se o payload e do tipo FallbackStreamPayload.
+   *
+   * @param payload - Payload a verificar
+   * @returns true quando o payload e do tipo fallback
+   */
   private isFallbackPayload(
     payload: StreamPayload,
   ): payload is StreamPayload & {

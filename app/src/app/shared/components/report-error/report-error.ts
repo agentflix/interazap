@@ -3,9 +3,9 @@ import { AfButtonComponent } from '../button/button';
 import { AfCardComponent } from '../card/card';
 
 /**
- * AfReportErrorComponent — Error state card for report pages.
+ * Card de estado de erro para páginas de relatório.
  *
- * Displays an error message with a retry button.
+ * Exibe uma mensagem de erro com botão de tentar novamente.
  *
  * @example
  * ```html
@@ -24,12 +24,12 @@ import { AfCardComponent } from '../card/card';
   templateUrl: './report-error.html',
 })
 export class AfReportErrorComponent {
-  /** Error title */
+  /** Título do erro */
   readonly title = input('Erro ao carregar dados');
 
-  /** Error description message */
+  /** Mensagem descritiva do erro */
   readonly message = input('Não foi possível carregar o relatório.');
 
-  /** Emitted when user clicks the retry button */
+  /** Emitido ao clicar no botão de tentar novamente */
   readonly retry = output<void>();
 }

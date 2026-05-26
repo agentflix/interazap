@@ -31,6 +31,14 @@ import {
 } from '@core/models/chat-message-template.model';
 import { ChatMessageTemplateService } from '../../services/chat-message-template.service';
 
+/**
+ * Página de criação e edição de templates de mensagem Meta.
+ *
+ * @remarks
+ * Em modo de edição de template Meta, bloqueia campos sensíveis (nome, idioma,
+ * categoria, corpo) e permite editar apenas atalho e status.
+ * Exibe preview em tempo real do corpo, cabeçalho e rodapé enquanto o usuário digita.
+ */
 @Component({
   selector: 'app-chat-template-form-page',
   standalone: true,

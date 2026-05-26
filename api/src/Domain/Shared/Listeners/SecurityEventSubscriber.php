@@ -27,7 +27,9 @@ final class SecurityEventSubscriber
     ) {}
 
     /**
-     * Handle 2FA enabled event.
+     * Registra log de habilitação de 2FA no canal 'auth'.
+     *
+     * @param  TwoFactorEnabled  $event  Evento de habilitação de 2FA.
      */
     public function handleTwoFactorEnabled(TwoFactorEnabled $event): void
     {
@@ -41,7 +43,9 @@ final class SecurityEventSubscriber
     }
 
     /**
-     * Handle 2FA disabled event.
+     * Registra log de desabilitação de 2FA no canal 'auth' com nível warning.
+     *
+     * @param  TwoFactorDisabled  $event  Evento de desabilitação de 2FA.
      */
     public function handleTwoFactorDisabled(TwoFactorDisabled $event): void
     {
@@ -55,7 +59,9 @@ final class SecurityEventSubscriber
     }
 
     /**
-     * Handle token created event.
+     * Registra log de criação de token de acesso no canal 'auth'.
+     *
+     * @param  TokenCreated  $event  Evento de criação de token.
      */
     public function handleTokenCreated(TokenCreated $event): void
     {
@@ -70,7 +76,9 @@ final class SecurityEventSubscriber
     }
 
     /**
-     * Handle token revoked event.
+     * Registra log de revogação de token de acesso no canal 'auth'.
+     *
+     * @param  TokenRevoked  $event  Evento de revogação de token.
      */
     public function handleTokenRevoked(TokenRevoked $event): void
     {
@@ -84,9 +92,10 @@ final class SecurityEventSubscriber
     }
 
     /**
-     * Register the listeners for the subscriber.
+     * Registra os listeners de segurança no dispatcher de eventos.
      *
-     * @return array<class-string, string>
+     * @param  Dispatcher  $events  Dispatcher de eventos do Laravel.
+     * @return array<class-string, string> Mapa de evento para nome do método handler.
      */
     public function subscribe(Dispatcher $events): array
     {

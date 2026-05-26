@@ -9,7 +9,9 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Payment serialization.
+ * Resource para serialização de Pagamentos de Billing.
+ *
+ * Inclui label de status localizado para exibição no frontend.
  */
 final class BillingPaymentResource extends BaseJsonResource
 {

@@ -18,6 +18,12 @@ export type { CircuitBreakerOverview, CircuitBreakerStatus, CircuitState, Circui
 
 
 
+/**
+ * Gerencia filas de jobs (BullMQ), circuit breakers e dead letter queue (DLQ).
+ *
+ * Contexto: service com signals reativos para métricas de filas, polling automático
+ * e subscrição a eventos WebSocket em tempo real. Endpoints em /admin/queues.
+ */
 @Injectable({ providedIn: 'root' })
 export class QueueService {
   private readonly http = inject(HttpClient);

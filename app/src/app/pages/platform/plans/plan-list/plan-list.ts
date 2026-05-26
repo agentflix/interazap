@@ -30,6 +30,9 @@ import { ToastService } from '@core/services/toast.service';
 import { formatCurrency } from '@shared/utils/currency';
 import { PlanCrudFormComponent } from './components/plan-crud-form/plan-crud-form';
 
+/**
+ * Página de listagem de planos da plataforma — CRUD completo com seleção em massa.
+ */
 @Component({
   selector: 'app-platform-plan-list',
   standalone: true,
@@ -47,10 +50,6 @@ import { PlanCrudFormComponent } from './components/plan-crud-form/plan-crud-for
     AfTableActionsComponent,
     AfAlertComponent,
     PlanCrudFormComponent,
-/**
- * Plan list page component for the Platform module.
- * @selector app-platform-plan-list
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './plan-list.html',

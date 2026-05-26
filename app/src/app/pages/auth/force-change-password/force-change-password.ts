@@ -20,10 +20,8 @@ import { ProfileService } from '@core/services/profile.service';
 import { ToastService } from '@core/services/toast.service';
 
 /**
- * Force password change page — users with force_password_change flag
- * are redirected here and cannot navigate away until they set a new password.
- *
- * @selector app-force-change-password
+ * Página de troca obrigatória de senha — usuários com o flag `force_password_change`
+ * são redirecionados aqui e não podem navegar até definir uma nova senha.
  */
 @Component({
   selector: 'app-force-change-password',
@@ -79,6 +77,7 @@ export class ForceChangePassword {
     return 'Campo inválido.';
   });
 
+  /** Envia a nova senha ao servidor após validar formulário e correspondência de senhas. */
   submit(): void {
     if (this.form.invalid || this.passwordsMismatch() || this.isSaving()) {
       this.form.markAllAsTouched();

@@ -17,8 +17,7 @@ import {
 import { AuthPageWrapperComponent } from '@layout/auth-layout/auth-page-wrapper.component';
 
 /**
- * Create password page component for the Auth module.
- * @selector app-create-password
+ * Página de criação de senha para novos usuários do módulo de autenticação.
  */
 @Component({
   selector: 'app-create-password',
@@ -68,6 +67,7 @@ export default class CreatePasswordComponent {
     return 'Campo inválido.';
   });
 
+  /** Envia o formulário de criação de senha após validação local. */
   submit(): void {
     if (this.form.invalid || this.passwordsMismatch()) {
       this.form.markAllAsTouched();

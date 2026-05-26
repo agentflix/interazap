@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for Knowledge Document serialization.
+ * Resource para serialização de documento da base de conhecimento.
  *
  * @mixin AiKnowledgeDocument
  */
 final class KnowledgeDocumentResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma o recurso em array.
      *
      * @return array<string, mixed>
      */

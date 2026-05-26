@@ -402,6 +402,9 @@ final class InternalAiController extends BaseController
     }
 
     /**
+     * Resolve os componentes de prompt (master, segmento e plano) para o tenant.
+     *
+     * @param  string  $tenantId  UUID do tenant.
      * @return array{super_prompt: string, segment_prompt: string, plan_prompt: string}
      */
     private function resolvePromptComponents(string $tenantId): array
@@ -427,7 +430,10 @@ final class InternalAiController extends BaseController
     }
 
     /**
-     * @return list<string>
+     * Resolve os prompts de arquivos associados ao agente.
+     *
+     * @param  AiAgent  $agent  Instância do agente.
+     * @return list<string> Lista de blocos de texto formatados por arquivo.
      */
     private function resolveAgentFilePrompts(AiAgent $agent): array
     {
@@ -445,8 +451,12 @@ final class InternalAiController extends BaseController
     }
 
     /**
-     * @param  array{super_prompt: string, segment_prompt: string, plan_prompt: string}  $promptComponents
-     * @param  list<string>  $agentFilePrompts
+     * Constrói o snapshot completo do prompt para a execução delegada.
+     *
+     * @param  array{super_prompt: string, segment_prompt: string, plan_prompt: string}  $promptComponents  Componentes do prompt resolvidos.
+     * @param  AiAgent  $agent  Agente de destino.
+     * @param  list<string>  $agentFilePrompts  Prompts dos arquivos do agente.
+     * @return string Prompt completo concatenado.
      */
     private function buildPromptSnapshot(array $promptComponents, AiAgent $agent, array $agentFilePrompts): string
     {
@@ -465,7 +475,10 @@ final class InternalAiController extends BaseController
     }
 
     /**
-     * @return list<string>
+     * Resolve os nomes das ferramentas autorizadas para o agente.
+     *
+     * @param  AiAgent  $agent  Instância do agente.
+     * @return list<string> Lista de nomes de ferramentas.
      */
     private function resolveAgentToolsSnapshot(AiAgent $agent): array
     {

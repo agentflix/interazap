@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 /**
- * Application footer with copyright and version info.
+ * Rodapé da aplicação com copyright e informações de versão.
  *
  * @example
  * ```html

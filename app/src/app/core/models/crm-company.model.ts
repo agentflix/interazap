@@ -1,6 +1,13 @@
+/**
+ * Representa uma empresa do CRM (diferente do tenant/Company da plataforma).
+ *
+ * Contexto: usado no módulo CRM para gerenciar empresas vinculadas a contatos
+ * e negociações. Separado do model `Company` que representa os tenants da plataforma.
+ */
 export interface CRMCompany {
   id: string;
   name: string;
+  /** Documento fiscal da empresa (CNPJ). */
   document?: string;
   email?: string;
   phone?: string;
@@ -13,6 +20,9 @@ export interface CRMCompany {
   updated_at?: string;
 }
 
+/**
+ * Filtros para listagem de empresas do CRM.
+ */
 export interface CRMCompanyFilters {
   search?: string;
   is_active?: boolean;
@@ -22,6 +32,9 @@ export interface CRMCompanyFilters {
   sort_dir?: string;
 }
 
+/**
+ * Payload para criação ou atualização de uma empresa do CRM.
+ */
 export interface CRMCompanyPayload {
   name: string;
   document?: string;
@@ -34,6 +47,9 @@ export interface CRMCompanyPayload {
   is_active?: boolean;
 }
 
+/**
+ * Resposta paginada da API para listagem de empresas do CRM.
+ */
 export interface CRMCompanyListResponse {
   success: boolean;
   data: CRMCompany[];
@@ -47,6 +63,9 @@ export interface CRMCompanyListResponse {
   };
 }
 
+/**
+ * Resposta da API para uma única empresa do CRM.
+ */
 export interface CRMCompanyResponse {
   success: boolean;
   data: CRMCompany;

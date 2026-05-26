@@ -1,5 +1,5 @@
 /**
- * Model for tenant details panel data (company + plan + resources).
+ * Modelo de detalhes do tenant (empresa + plano + recursos).
  */
 export interface TenantDetails {
   company: TenantCompanyInfo;
@@ -7,7 +7,7 @@ export interface TenantDetails {
   resources: TenantResourcesInfo;
 }
 
-/** Company/organization data for the tenant. */
+/** Dados da empresa/organização do tenant. */
 export interface TenantCompanyInfo {
   id: string;
   name: string;
@@ -27,7 +27,7 @@ export interface TenantCompanyInfo {
   created_at: string | null;
 }
 
-/** Contracted plan info for the tenant. */
+/** Informações do plano contratado do tenant. */
 export interface TenantPlanInfo {
   id: string;
   name: string;
@@ -36,7 +36,7 @@ export interface TenantPlanInfo {
   is_active: boolean;
 }
 
-/** Resource usage and limits for the tenant. */
+/** Uso e limites de recursos do tenant. */
 export interface TenantResourcesInfo {
   users: ResourceUsage;
   instances: ResourceUsage;
@@ -45,14 +45,14 @@ export interface TenantResourcesInfo {
   negotiations: NegotiationUsage;
 }
 
-/** Generic resource usage with current/limit/available. */
+/** Uso genérico de recurso com atual/limite/disponível. */
 export interface ResourceUsage {
   current: number;
   limit: number | null;
   available: number | null;
 }
 
-/** Storage-specific usage data. */
+/** Dados de uso específicos de storage. */
 export interface StorageUsage {
   used_bytes: number;
   limit_bytes: number | null;
@@ -63,12 +63,12 @@ export interface StorageUsage {
   mode: 'LIMITED' | 'UNLIMITED';
 }
 
-/** AI feature availability. */
+/** Disponibilidade de funcionalidades de IA. */
 export interface AiUsage {
   enabled: boolean;
 }
 
-/** Negotiation resource usage. */
+/** Uso de recurso de negociações. */
 export interface NegotiationUsage {
   current: number;
   limit: number | null;

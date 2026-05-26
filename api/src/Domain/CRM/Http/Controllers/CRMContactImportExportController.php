@@ -22,17 +22,26 @@ use League\Csv\Writer;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Importação e exportação simples de contatos via CSV.
+ * Controller para importação e exportação de contatos do CRM.
+ *
+ * Gerencia upload de CSV, importação com mapeamento de colunas e exportação. Requer autenticação Sanctum.
  */
 final class CRMContactImportExportController extends BaseController
 {
+    /**
+     * @param  CRMContactImportActions  $importActions  Ação de importação de contatos.
+     * @param  CRMCsvParsingService  $csvService  Serviço de parsing de CSV.
+     */
     public function __construct(
         private readonly CRMContactImportActions $importActions,
         private readonly CRMCsvParsingService $csvService,
     ) {}
 
     /**
-     * Upload a CSV file and return headers + sample rows for mapping.
+     * Recebe o arquivo CSV e retorna cabeçalhos e linhas de amostra para mapeamento.
+     *
+     * @param  CRMContactImportUploadRequest  $request  Dados da requisição com o arquivo.
+     * @return JsonResponse Metadados do arquivo enviado.
      */
     public function upload(CRMContactImportUploadRequest $request): JsonResponse
     {
@@ -72,7 +81,10 @@ final class CRMContactImportExportController extends BaseController
     }
 
     /**
-     * Import contacts from a previously uploaded CSV file.
+     * Importa contatos a partir de um arquivo CSV previamente enviado.
+     *
+     * @param  CRMContactImportRequest  $request  Dados da requisição com mapeamento de colunas.
+     * @return JsonResponse Resumo da importação ou confirmação de enfileiramento.
      */
     public function import(CRMContactImportRequest $request): JsonResponse
     {
@@ -97,7 +109,10 @@ final class CRMContactImportExportController extends BaseController
     }
 
     /**
-     * Export contacts as a streamed CSV download.
+     * Exporta contatos em formato CSV com download em stream.
+     *
+     * @param  CRMContactExportRequest  $request  Dados da requisição com filtros opcionais.
+     * @return StreamedResponse Arquivo CSV para download.
      */
     public function export(CRMContactExportRequest $request): StreamedResponse
     {

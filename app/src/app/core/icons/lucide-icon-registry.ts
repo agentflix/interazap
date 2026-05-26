@@ -1,22 +1,22 @@
 import { icons, type LucideIconData, type LucideIcons } from 'lucide-angular';
 
 /**
- * Type assertion helper that validates a value as LucideIconData.
- * Used internally to cast raw icon data from the lucide-angular icons map.
+ * Auxiliar de asserção de tipo para converter um valor em LucideIconData.
+ * Usado internamente para tipar os dados brutos do mapa de ícones do lucide-angular.
  *
- * @param value - The value to cast
- * @returns The value typed as LucideIconData
+ * @param value Valor a ser convertido
+ * @returns O valor tipado como LucideIconData
  */
 function asLucideIconData(value: unknown): LucideIconData {
   return value as LucideIconData;
 }
 
 /**
- * Builds a complete registry of all available Lucide icons.
- * Casts all icons from the lucide-angular library to the proper LucideIconData type.
- * Also adds aliases for legacy/common icon names used across the app.
+ * Constrói o registro completo de todos os ícones Lucide disponíveis.
+ * Converte todos os ícones da biblioteca lucide-angular para o tipo LucideIconData correto.
+ * Também adiciona aliases para nomes legados e comuns usados na aplicação.
  *
- * @returns A LucideIcons object mapping icon names to their icon data
+ * @returns Objeto LucideIcons mapeando nomes de ícones para seus dados
  *
  * @example
  * ```typescript

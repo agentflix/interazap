@@ -20,9 +20,11 @@ use Symfony\Component\HttpFoundation\Response;
 final class LogAccessDeniedMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Intercepta a requisição e registra acessos negados (403).
      *
-     * @param  Closure(Request): Response  $next
+     * @param  Request  $request  Requisição HTTP.
+     * @param  Closure(Request): Response  $next  Próximo middleware na cadeia.
+     * @return Response Resposta original sem modificação.
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -36,7 +38,10 @@ final class LogAccessDeniedMiddleware
     }
 
     /**
-     * Log access denied details.
+     * Registra os detalhes do acesso negado no canal 'access-denied'.
+     *
+     * @param  Request  $request  Requisição que gerou o 403.
+     * @param  Response  $response  Resposta HTTP com status 403.
      */
     private function logAccessDenied(Request $request, Response $response): void
     {

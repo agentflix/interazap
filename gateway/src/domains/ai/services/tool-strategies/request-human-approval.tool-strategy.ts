@@ -3,24 +3,22 @@ import { ToolStrategyRuntime } from './tool-strategy.types';
 import { ToolExecutionContext } from '../../interfaces/tool-execution-context.interface';
 
 /**
- * Signals that a human approval step is required before the run can continue.
+ * Estratégia responsável por sinalizar que uma aprovação humana é necessária antes de continuar.
  *
- * @remarks
- * This strategy does not perform any actual I/O. The runtime or orchestrator
- * is responsible for surfacing the pending state to the end user and resuming
- * the run once approval is granted.
+ * Esta estratégia não realiza nenhuma operação de I/O. O runtime ou orquestrador é
+ * responsável por expor o estado pendente ao usuário final e retomar a run após aprovação.
  */
 export class RequestHumanApprovalToolStrategy implements ToolStrategy {
   readonly name = 'request_human_approval';
 
   /**
-   * Returns a pending-approval status without performing any action.
+   * Retorna um status de aprovação pendente sem executar nenhuma ação.
    *
-   * @param name     - Unused
-   * @param args     - Unused
-   * @param context  - Unused
-   * @param runtime  - Unused
-   * @returns Object with success flag and pending_human_approval status
+   * @param name    - Não utilizado
+   * @param args    - Não utilizado
+   * @param context - Não utilizado
+   * @param runtime - Não utilizado
+   * @returns Objeto com flag de sucesso e status `pending_human_approval`
    */
   execute(
     name: string,

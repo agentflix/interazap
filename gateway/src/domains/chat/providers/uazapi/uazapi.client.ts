@@ -248,7 +248,7 @@ export class UazapiClient {
     token: string,
     body: Record<string, unknown>,
   ): Promise<unknown> {
-    // Uazapi spec: POST /send/media for all media types
+    // Especificacao Uazapi: POST /send/media para todos os tipos de midia
     return this.post<unknown>('/send/media', body, {
       headers: this.headers(token),
     });
@@ -456,6 +456,13 @@ export class UazapiClient {
     return typeof err.message === 'string' ? err.message : undefined;
   }
 
+  /**
+   * Garante que o webhook esta configurado para a instancia informada.
+   * Tenta configurar o webhook com retentativas e retorna os metadados da configuracao.
+   *
+   * @param token - Token de autenticacao da instancia
+   * @returns Metadados de webhook configurado ou null quando URL nao configurada
+   */
   private async ensureWebhookConfigured(
     token: string,
   ): Promise<WebhookMetadata | null> {

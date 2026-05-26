@@ -32,7 +32,7 @@ class PurgeAiUsageLogsCommand extends Command
     protected $description = 'Purge AI usage logs older than the retention period (LGPD compliance)';
 
     /**
-     * Execute the console command.
+     * Executa a purga de logs de uso de IA mais antigos que o período de retenção.
      */
     public function handle(): int
     {

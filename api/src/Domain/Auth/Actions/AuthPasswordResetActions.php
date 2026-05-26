@@ -27,7 +27,10 @@ final class AuthPasswordResetActions
     }
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Redefine a senha do usuário usando o token enviado por e-mail.
+     *
+     * @param  array<string, mixed>  $payload  Dados com email, password, password_confirmation e token.
+     * @return string Constante do Password broker: Password::PASSWORD_RESET ou erro equivalente.
      */
     public function reset(array $payload): string
     {

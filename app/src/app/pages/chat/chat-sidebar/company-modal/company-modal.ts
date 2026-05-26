@@ -121,19 +121,27 @@ export class CompanyModalComponent {
   @Output() readonly closed = new EventEmitter<void>();
   @Output() readonly companyUpdated = new EventEmitter<Contact>();
 
+  /** Fecha o modal emitindo o evento `closed`. */
   close(): void {
     this.closed.emit();
   }
 
+  /** Abre o sub-modal de criação de nova empresa. */
   openCreateModal(): void {
     this.createForm.reset();
     this.isCreateModalOpen.set(true);
   }
 
+  /** Fecha o sub-modal de criação de empresa. */
   closeCreateModal(): void {
     this.isCreateModalOpen.set(false);
   }
 
+  /**
+   * Vincula a empresa selecionada ao contato atual via API.
+   *
+   * @param company - Empresa a vincular.
+   */
   selectCompany(company: CRMCompany): void {
     if (this.contactId === null) return;
     this.isSaving.set(true);
@@ -162,6 +170,7 @@ export class CompanyModalComponent {
       });
   }
 
+  /** Cria uma nova empresa e auto-seleciona para o contato atual. */
   createCompany(): void {
     if (this.createForm.invalid || this.isSaving()) {
       this.createForm.markAllAsTouched();

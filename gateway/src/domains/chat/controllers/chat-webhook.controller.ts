@@ -36,12 +36,12 @@ export class ChatWebhookController {
   private readonly logger = new Logger(ChatWebhookController.name);
 
   /**
-   * Initializes the webhook controller with required services.
+   * Inicializa o controller de webhook com os servicos necessarios.
    *
-   * @param chatWebhookService - Service for processing incoming webhooks
-   * @param instanceResolverService - Service for resolving tenant/instance from webhook token
-   * @param redisService - Redis service for idempotency checks
-   * @param metricsService - Metrics service for recording ACK latency and outcomes
+   * @param chatWebhookService Servico para processar webhooks recebidos
+   * @param instanceResolverService Servico para resolver tenant/instancia a partir do token de webhook
+   * @param redisService Servico Redis para verificacoes de idempotencia
+   * @param metricsService Servico de metricas para registrar latencia e resultados do ACK
    */
   constructor(
     private readonly chatWebhookService: ChatWebhookService,
@@ -73,7 +73,7 @@ export class ChatWebhookController {
     let ackOutcome: AckOutcome = 'accepted_unkeyed';
 
     this.logger.log(`Webhook received from ${provider}`);
-    // Preserve the original raw body to avoid whitelist stripping fields
+    // Preserva o corpo bruto original para evitar remocao de campos pelo whitelist
     const body: unknown = request.body;
     const rawBody =
       typeof body === 'object' && body !== null
@@ -84,8 +84,8 @@ export class ChatWebhookController {
       raw: rawBody,
     };
 
-    // Resolution is deferred to fire-and-forget handler to keep ACK < 150ms.
-    // service.handle() already falls back: resolvedOverride ?? resolveByWebhookToken(token)
+    // Resolucao adiada para o handler fire-and-forget a fim de manter ACK < 150ms.
+    // service.handle() ja usa fallback: resolvedOverride ?? resolveByWebhookToken(token)
     tenantLabel = 'deferred';
 
     try {
@@ -125,9 +125,9 @@ export class ChatWebhookController {
       );
     }
 
-    // Fire-and-forget: ACK the webhook immediately (< 150ms target).
-    // Processing (DB writes, stream publish) runs in the background.
-    // resolvedInstance is null — handle() will resolve lazily.
+    // Fire-and-forget: responde ACK imediatamente (meta < 150ms).
+    // O processamento (escritas no BD, publicacao no stream) ocorre em background.
+    // resolvedInstance e null — handle() resolve a instancia de forma lazy.
     this.chatWebhookService
       .handle(provider, token, enrichedPayload, null)
       .catch((error: unknown) => {

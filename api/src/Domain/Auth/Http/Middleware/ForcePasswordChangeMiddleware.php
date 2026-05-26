@@ -29,7 +29,9 @@ final class ForcePasswordChangeMiddleware
     ];
 
     /**
-     * Handle an incoming request.
+     * Processa a requisição, bloqueando acesso se troca de senha estiver pendente.
+     *
+     * Retorna 403 com code FORCE_PASSWORD_CHANGE para rotas nao permitidas.
      */
     public function handle(Request $request, Closure $next): Response
     {

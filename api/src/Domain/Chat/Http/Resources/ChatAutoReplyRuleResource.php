@@ -8,12 +8,15 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Auto Reply Rule serialization.
+ * Resource de serialização de Regra de Auto Reply.
+ *
+ * Transforma a entidade ChatAutoReplyRule no formato esperado pelo frontend,
+ * normalizando os campos de trigger e resposta para o contrato de API.
  */
 final class ChatAutoReplyRuleResource extends BaseJsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */

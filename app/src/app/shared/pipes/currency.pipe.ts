@@ -1,9 +1,9 @@
 /**
- * Re-exports Angular's built-in CurrencyPipe for consistent usage across the application.
+ * Reexporta o CurrencyPipe nativo do Angular para uso consistente na aplicação.
  *
  * @remarks
- * This re-export allows the currency pipe to be used in standalone component
- * imports without referencing the Angular common module directly.
+ * Este reexport permite usar o currency pipe em imports de componentes standalone
+ * sem referenciar o módulo common do Angular diretamente.
  *
  * @see {@link https://angular.io/api/common/CurrencyPipe|Angular CurrencyPipe}
  *
@@ -16,7 +16,7 @@
  *   imports: [CurrencyPipe],
  *   template: `{{ amount | currency:'BRL' }}`
  * })
- * export class MyComponent {
+ * export class MeuComponent {
  *   amount = 1234.56;
  * }
  * ```

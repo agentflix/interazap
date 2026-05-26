@@ -20,6 +20,9 @@ use Illuminate\Support\Str;
  */
 final class AiRunDelegatedStickyAgentListener
 {
+    /**
+     * Persiste o agente alvo como sticky agent no ticket após a delegação.
+     */
     public function handle(AiRunDelegated $event): void
     {
         $ticketId = (string) ($event->payload['ticket_id'] ?? '');

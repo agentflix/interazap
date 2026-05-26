@@ -9,15 +9,20 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
 /**
- * Validação para envio de template aprovado em um ticket Meta.
+ * Validação para envio de mensagem template aprovada (HSM) em um ticket Meta.
  *
  * Body esperado (use uma das opções):
  *   - template_id:   uuid do template (prioridade)
  *   - template_name: nome do template (alternativa quando UUID não disponível)
  *   - variables:     objeto com chaves "1","2",... ou array posicional (opcional)
+ *
+ * @category Requests
  */
 final class SendTemplateMessageRequest extends FormRequest
 {
+    /**
+     * Determina se o usuário está autorizado a fazer esta requisição.
+     */
     public function authorize(): bool
     {
         $user = $this->user();
@@ -26,6 +31,8 @@ final class SendTemplateMessageRequest extends FormRequest
     }
 
     /**
+     * Define as regras de validação que se aplicam à requisição.
+     *
      * @return array<string, array<int, string>|string>
      */
     public function rules(): array
@@ -38,6 +45,9 @@ final class SendTemplateMessageRequest extends FormRequest
         ];
     }
 
+    /**
+     * Adicionar validação adicional: ao menos um dos campos template_id ou template_name deve ser informado.
+     */
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $v): void {

@@ -1,8 +1,8 @@
 /**
- * Models and types for mention-input component.
+ * Modelos e tipos do componente de campo com menção.
  */
 
-/** Mention suggestion */
+/** Sugestão de menção de usuário. */
 export interface AfMentionUser {
   id: string;
   name: string;

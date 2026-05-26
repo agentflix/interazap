@@ -75,7 +75,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
    */
 
   getStatus(_instanceToken: string): Promise<InstanceStatus> {
-    // Meta Business API instances are always "connected" as they use webhooks
+    // Instancias Meta Business API sao sempre "connected" pois usam webhooks
     return Promise.resolve({
       connected: true,
       loggedIn: true,
@@ -115,7 +115,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       ? `meta:templates:all:${instanceToken}`
       : `meta:templates:approved:${instanceToken}`;
 
-    // Check cache first
+    // Verifica cache primeiro
     try {
       const cached = await this.redisService.getClient().get(cacheKey);
       if (cached) {
@@ -128,7 +128,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       );
     }
 
-    // Fetch from Meta API
+    // Busca na Meta API
     this.logger.debug(
       `Fetching templates from Meta API for instance ${instanceToken}`,
     );
@@ -136,7 +136,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       status: includeAll ? undefined : 'APPROVED',
     });
 
-    // Cache for 15 minutes
+    // Armazena em cache por 15 minutos
     try {
       await this.redisService
         .getClient()
@@ -166,7 +166,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     instanceToken: string,
     request: SendTemplateRequest,
   ): Promise<SendMessageResult> {
-    // Validate template parameters count
+    // Valida a quantidade de parametros do template
     const templates = await this.listTemplates(instanceToken);
     const template = templates.find((t) => t.name === request.templateName);
 
@@ -177,7 +177,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       };
     }
 
-    // Validate parameter count
+    // Valida a quantidade de parametros
     const bodyParams =
       template.components.find((c) => c.type === 'BODY')?.params ?? [];
     if ((request.templateParams?.length ?? 0) !== bodyParams.length) {
@@ -187,7 +187,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       };
     }
 
-    // Extract phone_number_id from instanceToken (expected format: phoneNumberId:accessToken)
+    // Extrai phone_number_id do instanceToken (formato esperado: phoneNumberId:accessToken)
     const { phoneNumberId, accessToken } =
       this.parseInstanceToken(instanceToken);
 
@@ -264,8 +264,11 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   }
 
   /**
-   * Parse waba token to extract waba_id and access_token.
-   * Expected format: wabaId:accessToken
+   * Decompoe o token WABA no formato 'wabaId:accessToken'.
+   *
+   * @param wabaToken - Token no formato 'wabaId:accessToken'
+   * @returns Objeto com wabaId e accessToken separados
+   * @throws Error quando o formato nao e valido
    */
   private parseWabaToken(wabaToken: string): {
     phoneNumberId: string;
@@ -298,7 +301,7 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     const change = entry?.changes?.[0];
     const field = change?.field ?? 'messages';
 
-    // Branch: template_status_update — sem phone_number_id, lookup por waba_id
+    // Ramo: template_status_update — sem phone_number_id, lookup por waba_id
     if (field === 'message_template_status_update') {
       const wabaId = entry?.id ?? '';
       if (!wabaId) {
@@ -331,14 +334,14 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       };
     }
 
-    // Default branch: messages / statuses — usa phone_number_id
+    // Ramo padrao: messages / statuses — usa phone_number_id
     const phoneNumberId = change?.value?.metadata?.phone_number_id ?? '';
 
     if (!phoneNumberId) {
       throw new Error('phone_number_id not found in webhook payload');
     }
 
-    // Resolve instance via HTTP to Backend
+    // Resolve instancia via HTTP para o Backend
     const instance =
       await this.lookupService.resolvePhoneNumberId(phoneNumberId);
 
@@ -348,12 +351,12 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       );
     }
 
-    // Validate webhook token
+    // Valida o token do webhook
     if (instance.webhookToken !== webhookToken) {
       throw new Error('Webhook token mismatch');
     }
 
-    // Normalize using the provider
+    // Normaliza usando o provider
     const normalized = this.provider.normalize(payload);
 
     return {
@@ -396,8 +399,10 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   }
 
   /**
-   * Parse instance token to extract phone_number_id and access_token.
-   * Expected format: phoneNumberId:accessToken
+   * Decompoe o token de instancia no formato 'phoneNumberId:accessToken'.
+   *
+   * @param instanceToken - Token no formato 'phoneNumberId:accessToken'
+   * @returns Objeto com phoneNumberId e accessToken separados
    */
   private parseInstanceToken(instanceToken: string): {
     phoneNumberId: string;

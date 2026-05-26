@@ -14,6 +14,11 @@ import { Type } from 'class-transformer';
 
 // ─── TelegramUserDto ────────────────────────────────────────────────────────
 
+/**
+ * Representa um usuário ou bot no Telegram.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramUserDto {
   @IsInt()
   id: number;
@@ -39,6 +44,11 @@ export class TelegramUserDto {
 
 // ─── TelegramChatDto ────────────────────────────────────────────────────────
 
+/**
+ * Representa um chat no Telegram (privado, grupo, supergrupo ou canal).
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramChatDto {
   @IsInt()
   id: number;
@@ -65,6 +75,11 @@ export class TelegramChatDto {
 
 // ─── TelegramPhotoSizeDto ───────────────────────────────────────────────────
 
+/**
+ * Representa um tamanho de foto disponível no Telegram.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramPhotoSizeDto {
   @IsString()
   file_id: string;
@@ -87,6 +102,11 @@ export class TelegramPhotoSizeDto {
 
 // ─── TelegramVideoDto ───────────────────────────────────────────────────────
 
+/**
+ * Representa um arquivo de vídeo recebido via Telegram.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramVideoDto {
   @IsString()
   file_id: string;
@@ -122,6 +142,11 @@ export class TelegramVideoDto {
 
 // ─── TelegramVoiceDto ───────────────────────────────────────────────────────
 
+/**
+ * Representa uma mensagem de voz recebida via Telegram.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramVoiceDto {
   @IsString()
   file_id: string;
@@ -144,6 +169,11 @@ export class TelegramVoiceDto {
 
 // ─── TelegramAudioDto ───────────────────────────────────────────────────────
 
+/**
+ * Representa um arquivo de áudio recebido via Telegram.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramAudioDto {
   @IsString()
   file_id: string;
@@ -179,6 +209,11 @@ export class TelegramAudioDto {
 
 // ─── TelegramDocumentDto ────────────────────────────────────────────────────
 
+/**
+ * Representa um documento ou arquivo genérico recebido via Telegram.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramDocumentDto {
   @IsString()
   file_id: string;
@@ -206,6 +241,11 @@ export class TelegramDocumentDto {
 
 // ─── TelegramStickerDto ─────────────────────────────────────────────────────
 
+/**
+ * Representa um sticker recebido via Telegram (estático, animado ou em vídeo).
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramStickerDto {
   @IsString()
   file_id: string;
@@ -250,6 +290,11 @@ export class TelegramStickerDto {
 
 // ─── TelegramLocationDto ────────────────────────────────────────────────────
 
+/**
+ * Representa uma localização geográfica enviada via Telegram.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramLocationDto {
   @IsNumber()
   latitude: number;
@@ -260,6 +305,11 @@ export class TelegramLocationDto {
 
 // ─── TelegramContactDto ─────────────────────────────────────────────────────
 
+/**
+ * Representa um contato de telefone compartilhado via Telegram.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramContactDto {
   @IsString()
   phone_number: string;
@@ -278,6 +328,11 @@ export class TelegramContactDto {
 
 // ─── TelegramFileDto ────────────────────────────────────────────────────────
 
+/**
+ * Representa os metadados de um arquivo no Telegram (retorno de getFile).
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramFileDto {
   @IsString()
   file_id: string;
@@ -296,6 +351,11 @@ export class TelegramFileDto {
 
 // ─── TelegramReactionTypeDto ────────────────────────────────────────────────
 
+/**
+ * Representa o tipo de uma reação de mensagem no Telegram (emoji padrão ou customizado).
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramReactionTypeDto {
   @IsEnum(['emoji', 'custom_emoji'])
   type: 'emoji' | 'custom_emoji';
@@ -311,6 +371,12 @@ export class TelegramReactionTypeDto {
 
 // ─── TelegramMessageReactionDto ─────────────────────────────────────────────
 
+/**
+ * Representa o evento de reação a uma mensagem no Telegram.
+ * Contém a lista de reações anteriores e novas do usuário.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramMessageReactionDto {
   @ValidateNested()
   @Type(() => TelegramChatDto)
@@ -340,6 +406,12 @@ export class TelegramMessageReactionDto {
 
 // ─── TelegramMessageDto ─────────────────────────────────────────────────────
 
+/**
+ * Representa uma mensagem recebida ou enviada no Telegram.
+ * Suporta texto, mídia, localização, contato e resposta encadeada.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramMessageDto {
   @IsInt()
   @Min(1)
@@ -421,6 +493,11 @@ export class TelegramMessageDto {
 
 // ─── TelegramWebhookInfoDto ─────────────────────────────────────────────────
 
+/**
+ * Informações do webhook registrado no Telegram (retorno de getWebhookInfo).
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramWebhookInfoDto {
   @IsString()
   url: string;
@@ -442,6 +519,12 @@ export class TelegramWebhookInfoDto {
 
 // ─── TelegramUpdateDto (root) ───────────────────────────────────────────────
 
+/**
+ * DTO raiz de uma atualização recebida do Telegram via webhook ou getUpdates.
+ * Contém exatamente um dos campos opcionais preenchido por atualização.
+ *
+ * Contexto: módulo bot, DTOs de entrada do webhook.
+ */
 export class TelegramUpdateDto {
   @IsInt()
   @Min(0)

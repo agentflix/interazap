@@ -1,8 +1,8 @@
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 /**
- * Payload for sending a transient presence update via Uazapi.
- * Represents typing or recording indicators, not persistent presence state.
+ * Payload para envio de indicador transitorio de presenca via Uazapi.
+ * Representa estado de digitacao ou gravacao, nao presenca global persistente.
  */
 export class SendPresenceDto {
   @IsString()

@@ -10,7 +10,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * Model representing failed AI message usage attempts for reconciliation.
+ * Model que registra tentativas de uso de mensagens IA que falharam para reconciliação posterior.
+ *
+ * Quando o gateway não consegue contactar o endpoint de check-and-increment (fail-open),
+ * o evento é salvo aqui e reprocessado pelo {@see \Domain\Billing\Jobs\ReconcileFailedUsageJob}.
+ *
+ * @see \Domain\Billing\Jobs\ReconcileFailedUsageJob
  *
  * @property string $id
  * @property string $tenant_id

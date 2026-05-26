@@ -49,12 +49,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
       lucideMic,
       lucideAlertCircle,
     }),
-/**
- * Media preview component for the Chat module.
- * @selector app-media-preview
- */
   ],
 })
+/**
+ * Componente de pré-visualização de mídia antes do envio.
+ *
+ * @remarks
+ * Exibe uma lista de arquivos selecionados com navegação entre itens,
+ * campo de legenda por item, barra de progresso de upload e botão de envio.
+ * Emite eventos para adicionar/remover arquivos, atualizar legenda e confirmar envio.
+ */
 export class MediaPreviewComponent {
   private readonly destroyRef = inject(DestroyRef);
   readonly open = input(false);

@@ -10,6 +10,12 @@ use Domain\Platform\Services\UazapiGatewayService;
 use Illuminate\Support\Arr;
 use RuntimeException;
 
+/**
+ * Conector de instância WhatsApp para o provedor UzAPI.
+ *
+ * Implementa o InstanceConnectorPort para operações de conexão, desconexão,
+ * reinício e configuração de webhooks via UazapiGatewayService.
+ */
 final class UzapiConnector implements InstanceConnectorPort
 {
     public function __construct(
@@ -17,6 +23,15 @@ final class UzapiConnector implements InstanceConnectorPort
         private readonly string $token,
     ) {}
 
+    /**
+     * Inicia a conexão da instância via QR code ou código de pareamento.
+     *
+     * @param  string  $mode  Modo de conexão: 'qr' ou 'pair'.
+     * @param  string|null  $phone  Número de telefone para pareamento (obrigatório em modo 'pair').
+     * @return ConnectionResultDTO Resultado com QR code ou código de pareamento.
+     *
+     * @throws \RuntimeException Se o gateway não retornar QR code nem código de pareamento.
+     */
     public function connect(string $mode, ?string $phone = null): ConnectionResultDTO
     {
         $mode = $mode === 'pair' ? 'pair' : 'qr';
@@ -36,6 +51,11 @@ final class UzapiConnector implements InstanceConnectorPort
         return $connection;
     }
 
+    /**
+     * Desconecta a instância WhatsApp.
+     *
+     * @return bool Verdadeiro se a desconexão foi bem-sucedida.
+     */
     public function disconnect(): bool
     {
         $response = $this->gateway->disconnectInstance($this->token);
@@ -43,6 +63,11 @@ final class UzapiConnector implements InstanceConnectorPort
         return (bool) ($response['success'] ?? true);
     }
 
+    /**
+     * Reinicia a instância realizando desconexão e reconexão.
+     *
+     * @return bool Verdadeiro se o reinício foi bem-sucedido.
+     */
     public function restart(): bool
     {
         $success = $this->disconnect();
@@ -50,6 +75,13 @@ final class UzapiConnector implements InstanceConnectorPort
         return $success;
     }
 
+    /**
+     * Configura os webhooks da instância no provedor UzAPI.
+     *
+     * @param  string  $webhookUrl  URL de destino para os eventos de webhook.
+     * @param  array<string>  $events  Lista de tipos de evento a registrar.
+     * @return bool Verdadeiro se a configuração foi aplicada com sucesso.
+     */
     public function configureWebhooks(string $webhookUrl, array $events): bool
     {
         $response = $this->gateway->configureWebhook($this->token, [

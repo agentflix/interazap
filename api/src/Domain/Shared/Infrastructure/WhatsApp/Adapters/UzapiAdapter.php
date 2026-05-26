@@ -17,6 +17,13 @@ use Domain\Shared\Infrastructure\WhatsApp\Concerns\HasRetryPolicy;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Str;
 
+/**
+ * Adapter para o provedor WhatsApp UzAPI.
+ *
+ * Implementa o WhatsAppProviderPort com circuit breaker, retry com backoff
+ * exponencial e observabilidade via logs estruturados. Todas as operações
+ * são auditadas com latência e status de sucesso/falha.
+ */
 final class UzapiAdapter implements WhatsAppProviderPort
 {
     use HasCircuitBreaker;
@@ -32,11 +39,18 @@ final class UzapiAdapter implements WhatsAppProviderPort
         $this->baseUrl = rtrim($baseUrl, '/');
     }
 
+    /** Retorna o nome do provedor: 'uazapi'. */
     public function getProviderName(): string
     {
         return 'uazapi';
     }
 
+    /**
+     * Envia uma mensagem de texto via UzAPI com circuit breaker e observabilidade.
+     *
+     * @param  SendTextPayloadDTO  $payload  Dados da mensagem a enviar.
+     * @return ProviderMessageDTO Resultado da operação com ID da mensagem ou erro.
+     */
     public function sendText(SendTextPayloadDTO $payload): ProviderMessageDTO
     {
         $this->generateRequestId();
@@ -66,6 +80,12 @@ final class UzapiAdapter implements WhatsAppProviderPort
         }
     }
 
+    /**
+     * Envia um arquivo de mídia via UzAPI com circuit breaker e observabilidade.
+     *
+     * @param  SendMediaPayloadDTO  $payload  Dados da mídia a enviar.
+     * @return ProviderMessageDTO Resultado da operação com ID da mensagem ou erro.
+     */
     public function sendMedia(SendMediaPayloadDTO $payload): ProviderMessageDTO
     {
         $this->generateRequestId();
@@ -99,6 +119,12 @@ final class UzapiAdapter implements WhatsAppProviderPort
         }
     }
 
+    /**
+     * Marca o chat como lido no provedor.
+     *
+     * @param  string  $chatId  Identificador do chat no formato JID do WhatsApp.
+     * @return bool Verdadeiro em caso de sucesso.
+     */
     public function markAsRead(string $chatId): bool
     {
         $this->generateRequestId();
@@ -124,6 +150,13 @@ final class UzapiAdapter implements WhatsAppProviderPort
         }
     }
 
+    /**
+     * Envia indicador de presença (digitando, gravando áudio) para o chat.
+     *
+     * @param  string  $chatId  Identificador do chat.
+     * @param  string  $presence  Tipo de presença (ex: 'composing', 'recording').
+     * @return bool Verdadeiro em caso de sucesso.
+     */
     public function sendPresence(string $chatId, string $presence): bool
     {
         $this->generateRequestId();
@@ -149,6 +182,11 @@ final class UzapiAdapter implements WhatsAppProviderPort
         }
     }
 
+    /**
+     * Retorna o status de conexão da instância WhatsApp.
+     *
+     * @return ProviderStatusDTO Status com indicador de conexão, telefone e nome do perfil.
+     */
     public function getInstanceStatus(): ProviderStatusDTO
     {
         $this->generateRequestId();
@@ -181,6 +219,12 @@ final class UzapiAdapter implements WhatsAppProviderPort
         }
     }
 
+    /**
+     * Verifica se o número de telefone existe no WhatsApp.
+     *
+     * @param  string  $phone  Número no formato internacional sem '+'.
+     * @return bool Verdadeiro se o número possui conta WhatsApp ativa.
+     */
     public function checkNumberExists(string $phone): bool
     {
         $this->generateRequestId();
@@ -204,6 +248,12 @@ final class UzapiAdapter implements WhatsAppProviderPort
         }
     }
 
+    /**
+     * Retorna a URL da foto de perfil do número informado.
+     *
+     * @param  string  $phone  Número no formato internacional sem '+'.
+     * @return string|null URL da foto de perfil ou null se não disponível.
+     */
     public function getProfilePicture(string $phone): ?string
     {
         $this->generateRequestId();

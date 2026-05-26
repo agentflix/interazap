@@ -6,7 +6,7 @@ import { type MetricCard, type NegotiationBadge } from '../../negotiation-show.m
 import { badgeClass } from '../../negotiation-show.utils';
 
 /**
- * Presentational header for negotiation show page.
+ * Cabeçalho presentacional da página de detalhes da negociação.
  */
 @Component({
   selector: 'app-negotiation-header',

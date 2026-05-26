@@ -3,21 +3,22 @@ import { ToolStrategyRuntime } from './tool-strategy.types';
 import { ToolExecutionContext } from '../../interfaces/tool-execution-context.interface';
 
 /**
- * Catch-all strategy for any tool not explicitly registered.
+ * Estratégia padrão utilizada para qualquer tool não registrada explicitamente.
  *
- * @remarks
- * Matches on name '*' and delegates to the runtime's RPC executor with HTTP fallback,
- * allowing arbitrary tools to be called without a dedicated strategy.
+ * Responde ao nome `*` e delega ao executor RPC do runtime com fallback para HTTP,
+ * permitindo que tools arbitrárias sejam chamadas sem necessidade de uma estratégia dedicada.
  */
 export class RpcFallbackToolStrategy implements ToolStrategy {
   readonly name = '*';
 
   /**
-   * @param name     - Tool name to invoke
-   * @param args     - Tool arguments
-   * @param context  - Execution context
-   * @param runtime  - Runtime with RPC + HTTP fallback support
-   * @returns Result of the tool invocation
+   * Delega a execução ao runtime via RPC com fallback HTTP.
+   *
+   * @param name    - Nome da tool a ser invocada
+   * @param args    - Argumentos da tool
+   * @param context - Contexto operacional da run atual
+   * @param runtime - Runtime com suporte a RPC e fallback HTTP
+   * @returns Resultado da invocação da tool
    */
   async execute(
     name: string,

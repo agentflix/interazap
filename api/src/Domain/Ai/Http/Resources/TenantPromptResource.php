@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for Tenant Prompt serialization.
+ * Resource para serialização de prompt customizado do tenant.
  *
  * @mixin AiPromptTenant
  */

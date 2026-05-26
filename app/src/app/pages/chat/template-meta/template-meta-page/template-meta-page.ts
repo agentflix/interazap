@@ -39,6 +39,14 @@ import {
   type TemplateBadgeVariant,
 } from '../helpers/template-status';
 
+/**
+ * Página de listagem e gestão de templates Meta WhatsApp.
+ *
+ * @remarks
+ * Exibe tabela paginada com filtros por canal e status.
+ * Permite sincronização manual com a API da Meta, edição e exclusão de templates.
+ * Navegação para criação/edição usa rotas `/chat/template-meta/new` e `/:id/edit`.
+ */
 @Component({
   selector: 'app-chat-template-meta-page',
   standalone: true,

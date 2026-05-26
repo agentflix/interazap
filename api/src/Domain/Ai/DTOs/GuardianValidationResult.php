@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for LLM Guardian validation result.
+ * DTO para resultado de validação do Guardian LLM.
  *
  * @readonly
  */
@@ -18,10 +18,7 @@ final readonly class GuardianValidationResult
     ) {}
 
     /**
-     * Cria um resultado seguro.
-     */
-    /**
-     * Create safe result.
+     * Cria um resultado indicando que o conteúdo é seguro.
      */
     public static function safe(): self
     {
@@ -29,10 +26,10 @@ final readonly class GuardianValidationResult
     }
 
     /**
-     * Cria um resultado inseguro.
-     */
-    /**
-     * Create unsafe result.
+     * Cria um resultado indicando que o conteúdo é inseguro.
+     *
+     * @param  string  $reason  Motivo da classificação como inseguro.
+     * @param  string|null  $category  Categoria da ameaça detectada.
      */
     public static function unsafe(string $reason, ?string $category = null): self
     {
@@ -46,9 +43,6 @@ final readonly class GuardianValidationResult
     /**
      * Verifica se o conteúdo é seguro.
      */
-    /**
-     * Check if content is safe.
-     */
     public function isSafe(): bool
     {
         return $this->safe;
@@ -56,9 +50,6 @@ final readonly class GuardianValidationResult
 
     /**
      * Verifica se o conteúdo é inseguro.
-     */
-    /**
-     * Check if content is unsafe.
      */
     public function isUnsafe(): bool
     {

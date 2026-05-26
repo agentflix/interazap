@@ -57,7 +57,7 @@ export class ChatTicketItemComponent {
     return ticket.profile_picture_url ?? ticket.contact?.profile_picture_url ?? null;
   }
 
-  /** Hides img element on load error so initials fallback shows through. */
+  /** Oculta o elemento de imagem em caso de erro para exibir o fallback de iniciais. */
   handleImageError(event: Event): void {
     (event.target as HTMLImageElement).style.display = 'none';
   }

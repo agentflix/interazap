@@ -11,7 +11,10 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Notification sent when tenant autopilot budget reaches warning/critical levels.
+ * Notificação enviada quando o orçamento do Autopilot de um tenant atinge nível de alerta.
+ *
+ * Enviada por e-mail e canal in-app (database) quando o consumo ultrapassa
+ * os limiares de warning ou critical configurados no sistema de budget.
  */
 final class AiBudgetThresholdNotification extends Notification implements ShouldQueue
 {
@@ -20,6 +23,8 @@ final class AiBudgetThresholdNotification extends Notification implements Should
     public function __construct(public readonly AiBudgetThresholdExceeded $event) {}
 
     /**
+     * Define os canais de entrega da notificação (e-mail e banco de dados).
+     *
      * @return array<int, string>
      */
     public function via(object $notifiable): array
@@ -27,6 +32,9 @@ final class AiBudgetThresholdNotification extends Notification implements Should
         return ['mail', 'database'];
     }
 
+    /**
+     * Constrói a mensagem de e-mail com os detalhes do alerta de orçamento.
+     */
     public function toMail(object $notifiable): MailMessage
     {
         $percentage = number_format($this->event->ratio * 100, 2);
@@ -44,6 +52,8 @@ final class AiBudgetThresholdNotification extends Notification implements Should
     }
 
     /**
+     * Serializa os dados do alerta para armazenamento no banco de dados (canal database).
+     *
      * @return array<string, mixed>
      */
     public function toArray(object $notifiable): array

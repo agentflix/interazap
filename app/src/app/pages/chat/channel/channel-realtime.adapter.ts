@@ -7,11 +7,11 @@ import { shouldFlushIntegrationConnectionImmediately } from '@core/services/inte
 import { BufferedRealtimeAdapter } from '../../../core/realtime/buffered-realtime-adapter';
 
 /**
- * Adapter for integration realtime connection events.
+ * Adaptador para eventos realtime de conexão de integrações (canais).
  *
  * @remarks
- * Listens to integration connection events from ChatRealtimeService,
- * buffers them, and publishes to the realtime service when appropriate.
+ * Escuta os eventos de conexão de integração do ChatRealtimeService,
+ * aplica buffer e publica no serviço realtime quando apropriado.
  *
  * @example
  * ```typescript

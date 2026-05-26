@@ -19,17 +19,17 @@ use Illuminate\Support\Facades\Log;
 final class SendMessageAction
 {
     /**
-     * Cache TTL in seconds (1 hour).
+     * TTL do cache em segundos (1 hora).
      */
     private const IDEMPOTENCY_TTL = 3600;
 
     /**
-     * Cache prefix for idempotency keys.
+     * Prefixo das chaves de idempotência no cache.
      */
     private const CACHE_PREFIX = 'message_idempotent';
 
     /**
-     * Time window in seconds for duplicate detection.
+     * Janela de tempo em segundos para detecção de duplicatas.
      */
     private const DEDUP_WINDOW_SECONDS = 5;
 

@@ -23,17 +23,17 @@ import { InstanceTokenPipe } from '../pipes/instance-token.pipe';
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class ZapiInstancesController {
   /**
-   * Initializes the Z-API instances controller with the Zapi adapter.
+   * Inicializa o controller de instancias Z-API com o adaptador Zapi.
    *
-   * @param zapiAdapter - Adapter for Z-API WhatsApp provider
+   * @param zapiAdapter Adaptador do provedor Z-API WhatsApp
    */
   constructor(private readonly zapiAdapter: ZapiAdapter) {}
 
   /**
-   * Initiates connection to Z-API instance via QR code.
+   * Inicia conexao da instancia Z-API via QR code.
    *
-   * @param token - Instance token
-   * @returns QR code data for connection
+   * @param token Token da instancia
+   * @returns Dados do QR code para conexao
    */
   @Post(':token/connect')
   async connect(@Param('token', new InstanceTokenPipe()) token: string) {
@@ -49,10 +49,10 @@ export class ZapiInstancesController {
   }
 
   /**
-   * Gets the connection status of a Z-API instance.
+   * Consulta o status de conexao de uma instancia Z-API.
    *
-   * @param token - Instance token
-   * @returns Instance status
+   * @param token Token da instancia
+   * @returns Status atual da instancia
    */
   @Get(':token/status')
   async status(@Param('token', new InstanceTokenPipe()) token: string) {
@@ -60,10 +60,10 @@ export class ZapiInstancesController {
   }
 
   /**
-   * Disconnects a Z-API instance.
+   * Desconecta uma instancia Z-API.
    *
-   * @param token - Instance token
-   * @returns Disconnection result
+   * @param token Token da instancia
+   * @returns Resultado da desconexao
    */
   @Post(':token/disconnect')
   async disconnect(@Param('token', new InstanceTokenPipe()) token: string) {
@@ -72,10 +72,10 @@ export class ZapiInstancesController {
   }
 
   /**
-   * Gets the QR code for a Z-API instance.
+   * Recupera o QR code de uma instancia Z-API.
    *
-   * @param token - Instance token
-   * @returns QR code data
+   * @param token Token da instancia
+   * @returns Dados do QR code
    */
   @Get(':token/qr')
   async getQrCode(@Param('token', new InstanceTokenPipe()) token: string) {
@@ -84,10 +84,10 @@ export class ZapiInstancesController {
   }
 
   /**
-   * Returns an error indicating webhooks must be configured via admin panel.
+   * Retorna indicacao de que webhooks Z-API devem ser configurados via painel admin.
    *
-   * @param token - Instance token
-   * @returns Error response
+   * @param token Token da instancia
+   * @returns Resposta de erro informando a restricao
    */
   @Post(':token/webhook')
   configureWebhook(@Param('token', new InstanceTokenPipe()) token: string) {

@@ -1,8 +1,8 @@
 /**
- * Models and types for tree-view component.
+ * Modelos e tipos do componente de árvore.
  */
 
-/** Tree node */
+/** Nó da árvore */
 export interface AfTreeNode {
   id: string;
   label: string;

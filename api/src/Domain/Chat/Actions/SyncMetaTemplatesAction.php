@@ -23,7 +23,15 @@ final readonly class SyncMetaTemplatesAction
     /**
      * Sincroniza os templates da Meta para a instância informada.
      *
+     * Busca templates via Gateway, faz upsert por (chat_instance_id, name, language)
+     * e marca como 'disabled' os templates locais não presentes na resposta.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $chatInstanceId  ID da instância Meta a sincronizar.
      * @return int Quantidade de templates criados ou atualizados (exclui os marcados como disabled).
+     *
+     * @throws \RuntimeException Se a chamada ao Gateway falhar.
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se a instância não for encontrada.
      */
     public function execute(string $tenantId, string $chatInstanceId): int
     {
@@ -145,7 +153,8 @@ final readonly class SyncMetaTemplatesAction
     /**
      * Extrai o texto do componente BODY do array de components da Meta.
      *
-     * @param  array<int|string, mixed>  $components
+     * @param  array<int|string, mixed>  $components  Components do template Meta.
+     * @return string Texto do body ou string vazia se não encontrado.
      */
     private function extractBodyText(array $components): string
     {
@@ -164,7 +173,12 @@ final readonly class SyncMetaTemplatesAction
     }
 
     /**
-     * @param  array<int|string, mixed>  $data
+     * Lê valor string de um array, retornando $default se ausente ou não-string.
+     *
+     * @param  array<int|string, mixed>  $data  Array de dados.
+     * @param  string  $key  Chave a buscar.
+     * @param  string  $default  Valor padrão.
+     * @return string Valor encontrado ou padrão.
      */
     private function stringValue(array $data, string $key, string $default = ''): string
     {
@@ -174,7 +188,11 @@ final readonly class SyncMetaTemplatesAction
     }
 
     /**
-     * @param  array<int|string, mixed>  $data
+     * Lê valor nullable string de um array, retornando null se ausente ou não-string.
+     *
+     * @param  array<int|string, mixed>  $data  Array de dados.
+     * @param  string  $key  Chave a buscar.
+     * @return string|null Valor encontrado ou null.
      */
     private function nullableString(array $data, string $key): ?string
     {
@@ -183,6 +201,12 @@ final readonly class SyncMetaTemplatesAction
         return is_string($value) ? $value : null;
     }
 
+    /**
+     * Lê configuração como string, retornando vazio se não for string.
+     *
+     * @param  string  $key  Chave de configuração.
+     * @return string Valor da configuração ou string vazia.
+     */
     private function stringConfig(string $key): string
     {
         $value = config($key);

@@ -1,8 +1,8 @@
 /**
- * Gemini Provider Adapter
+ * Adapter do provider Google Gemini para o domínio de AI do gateway.
  *
- * Implementação do AIProvider para Google Gemini usando SDK oficial.
- * Suporta circuit breaker compartilhado.
+ * Contexto: implementa a interface `AIProvider` usando o SDK oficial `@google/generative-ai`.
+ * Suporta circuit breaker compartilhado e mapeia erros do SDK para `GeminiProviderError`.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -24,7 +24,7 @@ import {
 import { getCircuitBreakerOptions } from '../../../../core/config/circuit-breaker.config';
 
 /**
- * Erro customizado do provider com código padronizado
+ * Erro customizado do provider Gemini com código de erro padronizado do gateway.
  */
 export class GeminiProviderError extends Error {
   constructor(
@@ -46,7 +46,7 @@ export class GeminiProviderAdapter implements AIProvider {
   private readonly logger = new Logger(GeminiProviderAdapter.name);
 
   /**
-   * Metadata do provider para discovery
+   * Metadados do provider Gemini para discovery na factory.
    */
   static readonly metadata: AIProviderMetadata = {
     name: 'google',
@@ -72,7 +72,10 @@ export class GeminiProviderAdapter implements AIProvider {
   private readonly client: GoogleGenerativeAI;
 
   /**
-   * Executa completion e retorna resposta normalizada
+   * Executa uma completion no Gemini e retorna resposta normalizada.
+   * @param request - Requisição de completion normalizada.
+   * @returns Resposta normalizada do provider Gemini.
+   * @throws GeminiProviderError Quando a chave de API não está configurada ou ocorre erro na chamada.
    */
   async complete(
     request: AICompletionRequest,
@@ -111,7 +114,10 @@ export class GeminiProviderAdapter implements AIProvider {
   }
 
   /**
-   * Executa a chamada ao Gemini SDK
+   * Executa a chamada ao Gemini SDK com o modelo e configuração fornecidos.
+   * @param request - Requisição de completion normalizada.
+   * @param model - Nome do modelo a utilizar.
+   * @returns Resposta normalizada após tradução pelo `GeminiTranslator`.
    */
   private async executeCompletion(
     request: AICompletionRequest,
@@ -145,7 +151,9 @@ export class GeminiProviderAdapter implements AIProvider {
   }
 
   /**
-   * Extrai system instruction das mensagens (primeira mensagem com role=system)
+   * Extrai a instrução de sistema das mensagens com papel `system`.
+   * @param request - Requisição de completion contendo o histórico de mensagens.
+   * @returns Texto concatenado das mensagens de sistema, ou `undefined` quando ausente.
    */
   private extractSystemInstruction(
     request: AICompletionRequest,
@@ -158,11 +166,11 @@ export class GeminiProviderAdapter implements AIProvider {
   }
 
   /**
-   * Converte mensagens do formato normalizado para o formato Google Content[]
+   * Converte mensagens do formato normalizado para o formato `Content[]` do SDK Google.
    *
-   * - user → user
-   * - assistant → model
-   * - system é excluído (vai para systemInstruction)
+   * Mapeamento: `user` → `user`, `assistant` → `model`, `system` → excluído (vai para `systemInstruction`).
+   * @param request - Requisição com o histórico de mensagens a converter.
+   * @returns Array no formato `Content[]` aceito pelo SDK Gemini.
    */
   private convertMessages(request: AICompletionRequest): Content[] {
     return request.messages
@@ -174,7 +182,9 @@ export class GeminiProviderAdapter implements AIProvider {
   }
 
   /**
-   * Mapeia erros do SDK para erros padronizados do gateway
+   * Mapeia erros do SDK Gemini para instâncias de `GeminiProviderError` com código padronizado.
+   * @param error - Erro capturado durante a chamada ao Gemini.
+   * @returns Instância de `GeminiProviderError` com código e flag de retentativa.
    */
   private mapError(error: unknown): GeminiProviderError {
     if (!(error instanceof Error)) {

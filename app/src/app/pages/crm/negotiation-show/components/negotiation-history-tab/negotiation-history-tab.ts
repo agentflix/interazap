@@ -22,7 +22,7 @@ import { ModalComponent } from '@shared/components/modal/modal';
 import { TextareaInputComponent } from '@shared/components/inputs';
 
 /**
- * Tab content responsible for negotiation annotations history.
+ * Conteúdo da aba de histórico — gerencia as anotações e o histórico de atividades da negociação.
  */
 @Component({
   selector: 'app-negotiation-history-tab',

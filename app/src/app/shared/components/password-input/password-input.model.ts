@@ -1,6 +1,6 @@
 /**
- * Models and types for password-input component.
+ * Modelos e tipos do componente de campo de senha.
  */
 
-/** Available sizes for the input */
+/** Tamanhos disponíveis para o campo */
 export type AfInputSize = 'sm' | 'md';

@@ -9,7 +9,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Exception thrown when storage limit is exceeded.
+ * Exceção lançada quando o tenant excede o limite de armazenamento da Knowledge Base.
+ *
+ * Carrega os valores de uso atual, limite do plano e tamanho do arquivo
+ * solicitado para facilitar a resposta informativa ao cliente.
  */
 class StorageLimitExceededException extends Exception
 {
@@ -29,7 +32,7 @@ class StorageLimitExceededException extends Exception
     }
 
     /**
-     * Render the exception as an HTTP response.
+     * Renderiza a exceção como resposta HTTP 422 com detalhes de uso e limite.
      */
     public function render(Request $request): JsonResponse
     {

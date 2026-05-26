@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 
 /**
- * AfInfiniteScrollComponent — Triggers load-more when scrolling near bottom.
+ * Dispara o carregamento de mais itens ao rolar próximo ao fim da lista.
  *
  * @example
  * ```html
@@ -30,13 +30,13 @@ import {
   host: { class: 'block' },
 })
 export class AfInfiniteScrollComponent implements OnInit, OnDestroy {
-  /** Whether currently loading */
+  /** Indica se está carregando */
   readonly loading = input(false);
 
-  /** Threshold in pixels before bottom to trigger */
+  /** Distância em pixels do fim para disparar o evento */
   readonly threshold = input(100);
 
-  /** Emitted when more content should be loaded */
+  /** Emitido quando mais conteúdo deve ser carregado */
   readonly loadMore = output<void>();
 
   private readonly sentinelRef = viewChild<ElementRef<HTMLElement>>('sentinel');

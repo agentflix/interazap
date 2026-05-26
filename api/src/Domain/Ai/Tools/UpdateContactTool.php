@@ -10,13 +10,15 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\CRM\Models\CRMContact;
 
 /**
- * Tool to update a CRM contact.
+ * Ferramenta de IA para atualizar dados de um contato no CRM.
+ *
+ * Input esperado: contact_id (obrigatório) e campos opcionais: name, email, phone, whatsapp, position, document, notes, city.
+ * Output produzido: contact_id e lista de campos atualizados.
+ * Quando usar: cliente fornecer ou corrigir informações de cadastro durante a conversa.
  */
 class UpdateContactTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a atualização dos dados do contato. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $contactId = (string) ($input->parameters['contact_id'] ?? '');
@@ -80,24 +82,20 @@ class UpdateContactTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::UPDATE_CONTACT;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Updates CRM contact information such as name, email, city, phone, whatsapp, position, document and notes.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

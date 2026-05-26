@@ -1,12 +1,12 @@
 /**
- * Derives up to 2 uppercase initials from a person name.
+ * Deriva até 2 iniciais maiúsculas a partir de um nome de pessoa.
  *
- * Each word contributes its first letter. Only the first two resulting
- * characters are returned so the output always fits a compact avatar.
+ * Cada palavra contribui com sua primeira letra. Apenas os dois primeiros
+ * caracteres resultantes são retornados para caber em um avatar compacto.
  *
- * @param name - Full or partial name string.
- * @param fallback - Value returned when the name produces no initials. Defaults to `''`.
- * @returns Up to 2 uppercase initial characters, or `fallback`.
+ * @param name - Nome completo ou parcial.
+ * @param fallback - Valor retornado quando o nome não produz iniciais. Padrão `''`.
+ * @returns Até 2 caracteres iniciais em maiúscula, ou `fallback`.
  *
  * @example
  * getInitials('João Silva')      // 'JS'
@@ -25,13 +25,13 @@ export function getInitials(name: string, fallback = ''): string {
 }
 
 /**
- * Formats an ISO date string as a short `pt-BR` locale date (day/month/year).
+ * Formata uma string de data ISO como data curta no locale `pt-BR` (dia/mês/ano).
  *
- * Returns `fallback` when the value is absent or unparseable.
+ * Retorna `fallback` quando o valor está ausente ou não é parseável.
  *
- * @param value - ISO date string (e.g. `'2024-01-15'`) or nullish.
- * @param fallback - Value returned for absent/invalid input. Defaults to `'-'`.
- * @returns Locale-formatted date string or `fallback`.
+ * @param value - String de data ISO (ex.: `'2024-01-15'`) ou nulo.
+ * @param fallback - Valor retornado para entrada ausente/inválida. Padrão `'-'`.
+ * @returns String de data formatada no locale ou `fallback`.
  *
  * @example
  * formatDate('2024-01-15')         // '15/01/2024'

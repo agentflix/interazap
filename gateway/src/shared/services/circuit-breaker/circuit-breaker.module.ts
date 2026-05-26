@@ -2,25 +2,25 @@ import { Global, Module } from '@nestjs/common';
 import { CircuitBreakerService } from './circuit-breaker.service';
 
 /**
- * Circuit Breaker Module.
+ * Módulo global de circuit breaker do gateway.
  *
- * Provides the CircuitBreakerService globally to protect
- * external service calls from cascading failures.
+ * Disponibiliza o CircuitBreakerService globalmente para proteger
+ * chamadas a serviços externos de falhas em cascata.
  *
- * Usage:
- * 1. Import CircuitBreakerModule in AppModule
- * 2. Inject CircuitBreakerService in your services
- * 3. Use circuitBreaker.call() or @CircuitBreaker decorator
+ * Uso:
+ * 1. Importar CircuitBreakerModule no AppModule
+ * 2. Injetar CircuitBreakerService nos serviços
+ * 3. Usar circuitBreaker.call() ou o decorator @CircuitBreaker
  *
  * @example
  * ```typescript
- * // In app.module.ts
+ * // Em app.module.ts
  * @Module({
  *   imports: [CircuitBreakerModule],
  * })
  * export class AppModule {}
  *
- * // In your service
+ * // Em seu serviço
  * @Injectable()
  * class MyService {
  *   constructor(private circuitBreaker: CircuitBreakerService) {}

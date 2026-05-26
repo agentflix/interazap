@@ -4,8 +4,12 @@ import { ChatMessageMediaComponent } from '../chat-message-media/chat-message-me
 import { MessageBubbleComponent } from '../message-bubble/message-bubble.component';
 
 /**
- * User chat message bubble component for the Chat module.
- * @selector app-user-chat-message-bubble
+ * Bolha de mensagem individual da thread de chat.
+ *
+ * @remarks
+ * Determina direção (incoming/outgoing) e tipo de conteúdo (texto, mídia)
+ * a partir da mensagem recebida. Exibe picker de reações emoji e emite
+ * evento de resposta ao clicar em responder.
  */
 @Component({
   selector: 'app-user-chat-message-bubble',

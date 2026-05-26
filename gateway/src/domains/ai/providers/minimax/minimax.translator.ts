@@ -1,7 +1,8 @@
 /**
- * MiniMax Translator (Anti-Corruption Layer)
+ * Tradutor responsável por converter respostas da API MiniMax para o DTO normalizado.
  *
- * Traduz respostas da API MiniMax (OpenAI-compatible) para o DTO normalizado.
+ * Contexto: camada anti-corrupção que isola o domínio de AI do formato de resposta
+ * OpenAI-compatible da API MiniMax, normalizando conteúdo, tokens e finish reason.
  */
 
 import { Injectable } from '@nestjs/common';
@@ -11,7 +12,9 @@ import {
   createAICompletionResponse,
 } from '../../interfaces/ai-completion-response.dto';
 
-/** Shape da resposta MiniMax (OpenAI-compatible) */
+/**
+ * Formato da resposta retornada pela API MiniMax, compatível com o padrão OpenAI.
+ */
 export interface MiniMaxChatResponse {
   id: string;
   object: string;
@@ -41,11 +44,10 @@ const FINISH_REASON_MAP: Record<string, FinishReason> = {
 @Injectable()
 export class MiniMaxTranslator {
   /**
-   * Traduz resposta MiniMax para DTO normalizado
-   *
-   * @param response - Resposta bruta da API MiniMax
-   * @param model - Nome do modelo utilizado
-   * @returns Resposta normalizada no formato AICompletionResponseDto
+   * Traduz a resposta bruta da API MiniMax para `AICompletionResponseDto` normalizado.
+   * @param response - Resposta bruta retornada pela API MiniMax.
+   * @param model - Nome do modelo utilizado na requisição.
+   * @returns DTO normalizado com conteúdo, tokens e finish reason.
    */
   translate(
     response: MiniMaxChatResponse,
@@ -65,14 +67,18 @@ export class MiniMaxTranslator {
   }
 
   /**
-   * Extrai conteúdo textual da primeira choice
+   * Extrai o conteúdo textual da primeira choice da resposta MiniMax.
+   * @param response - Resposta bruta da API.
+   * @returns Texto extraído ou string vazia quando não disponível.
    */
   private extractContent(response: MiniMaxChatResponse): string {
     return response.choices?.[0]?.message?.content ?? '';
   }
 
   /**
-   * Normaliza finish_reason para enum interno
+   * Normaliza o finish reason da resposta MiniMax para o tipo interno do domínio.
+   * @param response - Resposta bruta da API.
+   * @returns Finish reason normalizado ou `null` quando não disponível.
    */
   private normalizeFinishReason(response: MiniMaxChatResponse): FinishReason {
     const reason = response.choices?.[0]?.finish_reason;

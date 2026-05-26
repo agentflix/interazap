@@ -16,8 +16,7 @@ use Illuminate\Support\Str;
  *
  * Constrói um payload estruturado com dados do ticket, contato
  * e histórico recente de mensagens para orientar a IA.
- *
- * @category Services
+ * Inclui sanitização de input contra prompt injection.
  */
 final class AiContextBuilderService
 {
@@ -103,6 +102,14 @@ final class AiContextBuilderService
         ];
     }
 
+    /**
+     * Sanitiza e envolve o input do usuário para prevenir prompt injection.
+     *
+     * Trunca no limite configurado, escapa delimitadores e loga padrões suspeitos.
+     *
+     * @param  string  $body  Texto bruto enviado pelo usuário.
+     * @return string Texto sanitizado e delimitado por <<<USER_INPUT>>> / <<<END>>>.
+     */
     public function sanitizeUserInput(string $body): string
     {
         $maxChars = (int) config('ai.autopilot.input_sanitization.max_chars', 4000);

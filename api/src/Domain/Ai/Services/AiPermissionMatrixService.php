@@ -7,7 +7,12 @@ namespace Domain\Ai\Services;
 use Domain\Ai\Enums\AiAgentRole;
 
 /**
- * Serviço de matriz de permissões Role × Tool.
+ * Serviço de matriz de permissões Role × Tool para agentes de IA.
+ *
+ * Define quais tools cada papel (role) pode utilizar via constante MATRIX.
+ * Role GENERAL tem acesso irrestrito a todas as tools. Utilizado como
+ * fallback legacy quando o agente não possui configuração explícita
+ * na pivot ai_agent_tools.
  */
 class AiPermissionMatrixService
 {

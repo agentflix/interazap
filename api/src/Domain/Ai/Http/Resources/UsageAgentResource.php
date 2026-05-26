@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for Usage Agent serialization.
+ * Resource para serialização de consumo de IA por agente.
  */
 final class UsageAgentResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma o recurso em array.
      *
      * @return array<string, mixed>
      */

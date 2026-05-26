@@ -15,14 +15,25 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controlador para motivos de perda.
+ * Controller para motivos de perda de negociações do CRM.
+ *
+ * Gerencia criação, listagem, atualização e remoção de motivos de perda. Requer autenticação Sanctum.
  */
 final class CRMReasonLossController extends BaseController
 {
     use HandlesCrudOperations;
 
+    /**
+     * @param  CRMReasonLossActions  $actions  Ação de gestão de motivos de perda.
+     */
     public function __construct(private readonly CRMReasonLossActions $actions) {}
 
+    /**
+     * Lista motivos de perda com filtro opcional por status ativo.
+     *
+     * @param  Request  $request  Dados da requisição com filtro opcional active.
+     * @return JsonResponse Lista paginada de motivos de perda.
+     */
     public function index(Request $request): JsonResponse
     {
         return $this->crudIndex(
@@ -37,6 +48,12 @@ final class CRMReasonLossController extends BaseController
         );
     }
 
+    /**
+     * Lista todos os motivos de perda sem paginação.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @return JsonResponse Lista completa de motivos de perda.
+     */
     public function all(Request $request): JsonResponse
     {
         $this->authorize('viewAny', CRMReasonLoss::class);
@@ -48,6 +65,12 @@ final class CRMReasonLossController extends BaseController
         return $this->success($reasons, 'Motivos de perda carregados');
     }
 
+    /**
+     * Cria novo motivo de perda.
+     *
+     * @param  CRMReasonLossRequest  $request  Dados da requisição com nome e descrição.
+     * @return JsonResponse Motivo de perda criado.
+     */
     public function store(CRMReasonLossRequest $request): JsonResponse
     {
         return $this->crudStore(
@@ -59,6 +82,13 @@ final class CRMReasonLossController extends BaseController
         );
     }
 
+    /**
+     * Atualiza motivo de perda.
+     *
+     * @param  CRMReasonLossRequest  $request  Dados atualizados do motivo.
+     * @param  string  $id  ID do motivo de perda.
+     * @return JsonResponse Motivo de perda atualizado.
+     */
     public function update(CRMReasonLossRequest $request, string $id): JsonResponse
     {
         return $this->crudUpdate(
@@ -71,6 +101,13 @@ final class CRMReasonLossController extends BaseController
         );
     }
 
+    /**
+     * Remove motivo de perda.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $id  ID do motivo de perda.
+     * @return JsonResponse Resposta sem conteúdo.
+     */
     public function destroy(Request $request, string $id): JsonResponse
     {
         return $this->crudDestroy(

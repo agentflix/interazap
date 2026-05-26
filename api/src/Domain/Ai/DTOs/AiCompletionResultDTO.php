@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for AI completion results.
+ * DTO para resultados de completude de IA.
  *
  * @readonly
  */
 final readonly class AiCompletionResultDTO
 {
     /**
-     * @param  string  $content  The generated content.
-     * @param  string  $model  The model used.
-     * @param  int  $tokensUsed  Total tokens used (prompt + completion).
-     * @param  int  $promptTokens  Tokens used in the prompt.
-     * @param  int  $completionTokens  Tokens used in the completion.
-     * @param  string  $finishReason  Reason for completion (stop, length, etc.).
-     * @param  array<string, mixed>  $metadata  Additional metadata.
+     * @param  string  $content  Conteúdo gerado pelo modelo.
+     * @param  string  $model  Modelo utilizado.
+     * @param  int  $tokensUsed  Total de tokens utilizados (prompt + completude).
+     * @param  int  $promptTokens  Tokens utilizados no prompt.
+     * @param  int  $completionTokens  Tokens utilizados na completude.
+     * @param  string  $finishReason  Motivo do encerramento (stop, length, etc.).
+     * @param  array<string, mixed>  $metadata  Metadados adicionais.
      */
     public function __construct(
         public string $content,

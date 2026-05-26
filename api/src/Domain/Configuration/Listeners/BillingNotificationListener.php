@@ -14,12 +14,15 @@ use Domain\Configuration\Services\NotificationDispatcherService;
  */
 final class BillingNotificationListener
 {
+    /** Injeta o serviço de despacho de notificações. */
     public function __construct(
         private readonly NotificationDispatcherService $dispatcher,
     ) {}
 
     /**
-     * Handle the event.
+     * Processa eventos de cobrança e despacha notificação ao tenant.
+     *
+     * @param  BillingInvoiceCreatedEvent|BillingPaymentConfirmedEvent|BillingPaymentOverdueEvent  $event  Evento disparado.
      */
     public function handle(BillingInvoiceCreatedEvent|BillingPaymentConfirmedEvent|BillingPaymentOverdueEvent $event): void
     {

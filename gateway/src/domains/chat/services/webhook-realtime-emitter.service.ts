@@ -3,21 +3,21 @@ import { CHAT_EVENTS, tenantRoom, ticketRoom } from '../../../shared/constants';
 import { EventsGateway } from '../../realtime/gateways/events.gateway';
 
 /**
- * WebhookRealtimeEmitter
+ * Emite eventos de webhook para salas WebSocket para atualizacoes em tempo real no frontend.
  *
- * Emits webhook events to WebSocket rooms for real-time frontend updates.
- * Routes events to tenant-specific or global rooms based on context.
+ * Contexto: roteia eventos para salas especificas de tenant ou globais com base no contexto
+ * do evento processado pelo ChatWebhookRealtimeProcessor.
  */
 @Injectable()
 export class WebhookRealtimeEmitter {
   constructor(private readonly eventsGateway: EventsGateway) {}
 
   /**
-   * Emits an event to a tenant's room.
+   * Emite um evento para a sala de um tenant.
    *
-   * @param tenantId - Tenant identifier
-   * @param channel - Event channel name
-   * @param payload - Event payload
+   * @param tenantId - Identificador do tenant
+   * @param channel - Nome do canal de evento
+   * @param payload - Payload do evento
    */
   emitToTenant(
     tenantId: string,
@@ -28,11 +28,11 @@ export class WebhookRealtimeEmitter {
   }
 
   /**
-   * Emits an event to a ticket's room.
+   * Emite um evento para a sala de um ticket.
    *
-   * @param ticketId - Ticket identifier
-   * @param channel - Event channel name
-   * @param payload - Event payload
+   * @param ticketId - Identificador do ticket
+   * @param channel - Nome do canal de evento
+   * @param payload - Payload do evento
    */
   emitToTicket(
     ticketId: string,
@@ -43,10 +43,10 @@ export class WebhookRealtimeEmitter {
   }
 
   /**
-   * Emits a channel connection event.
+   * Emite um evento de conexao de canal WhatsApp.
    *
-   * @param tenantId - Tenant identifier or null for global
-   * @param payload - Connection event payload
+   * @param tenantId - Identificador do tenant ou null para emissao global
+   * @param payload - Payload do evento de conexao
    */
   emitChannelConnection(
     tenantId: string | null,

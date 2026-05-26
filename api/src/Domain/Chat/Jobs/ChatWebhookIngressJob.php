@@ -17,7 +17,11 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Context;
 
 /**
- * Async webhook ingress job for normalized provider payloads.
+ * Job assíncrono de ingestão de webhooks normalizados de provedores de chat.
+ *
+ * Recebe o payload já normalizado pelo Gateway, adiciona contexto de log
+ * e delega o processamento ao `ChatWebhookIngestor`. Garante idempotência
+ * através do controle de unicidade por `message_id`.
  */
 final class ChatWebhookIngressJob implements ShouldBeUnique, ShouldQueue
 {
@@ -30,8 +34,9 @@ final class ChatWebhookIngressJob implements ShouldBeUnique, ShouldQueue
     public int $uniqueFor = 60;
 
     /**
-     * @param  array<string, mixed>  $payload
-     * @param  array<string, mixed>  $descriptor
+     * @param  string  $tenantId  Identificador do tenant proprietário da instância.
+     * @param  array<string, mixed>  $payload  Payload normalizado do evento de webhook.
+     * @param  array<string, mixed>  $descriptor  Metadados auxiliares do evento (ex.: message_id).
      */
     public function __construct(
         private readonly string $tenantId,
@@ -39,11 +44,15 @@ final class ChatWebhookIngressJob implements ShouldBeUnique, ShouldQueue
         private readonly array $descriptor,
     ) {}
 
+    /** Retorna ID único do job baseado no message_id ou hash do payload. */
     public function uniqueId(): string
     {
         return $this->descriptor['message_id'] ?? $this->tenantId.'_'.md5(json_encode($this->payload));
     }
 
+    /**
+     * Injeta contexto de rastreamento, ingere o evento e emite realtime ao frontend.
+     */
     public function handle(ChatWebhookIngestor $ingestor, ChatBroadcastService $broadcast): void
     {
         Context::add([

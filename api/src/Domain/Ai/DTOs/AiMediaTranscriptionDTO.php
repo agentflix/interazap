@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for media transcription results.
+ * DTO para resultados de transcrição e descrição de mídias.
+ *
+ * Encapsula o retorno de transcrição de áudio (Whisper), descrição
+ * de imagem (Vision) e transcrição de vídeo (FFmpeg + Whisper + Vision),
+ * incluindo métricas de custo, tokens e latência.
  *
  * @readonly
  */
@@ -26,22 +30,6 @@ final readonly class AiMediaTranscriptionDTO
      * @param  int  $latencyMs  Latência em milissegundos.
      * @param  int|null  $durationSeconds  Duração da mídia em segundos (áudio/vídeo).
      * @param  int|null  $fileSizeKb  Tamanho do arquivo em KB.
-     */
-    /**
-     * @param  string  $messageId  UUID of transcribed message.
-     * @param  string  $tenantId  UUID of owning tenant.
-     * @param  string  $mediaType  Media type: audio, image, video.
-     * @param  string  $filePath  File path in Storage.
-     * @param  string|null  $mimeType  MIME type of file.
-     * @param  string|null  $transcription  Transcription/extracted text.
-     * @param  string|null  $provider  Provider used (openai).
-     * @param  string|null  $modelName  Model name (whisper-1, gpt-4o).
-     * @param  int  $inputTokens  Input tokens consumed.
-     * @param  int  $outputTokens  Output tokens consumed.
-     * @param  float  $cost  Total cost in USD.
-     * @param  int  $latencyMs  Latency in milliseconds.
-     * @param  int|null  $durationSeconds  Media duration in seconds (audio/video).
-     * @param  int|null  $fileSizeKb  File size in KB.
      */
     public function __construct(
         public string $messageId,

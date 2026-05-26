@@ -11,16 +11,14 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 final class AuthTwoFactorPasswordRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Permite apenas usuários autenticados. */
     public function authorize(): bool
     {
         return $this->user() !== null;
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para operações de 2FA que exigem confirmação de senha.
      *
      * @return array<string, mixed>
      */

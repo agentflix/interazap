@@ -1,8 +1,9 @@
 /**
- * AI Provider Factory
+ * Factory responsável por resolver o adapter correto por nome de provider de AI.
  *
- * Factory que resolve o adapter correto por nome do provider.
- * Permite adicionar novos providers sem modificar consumers.
+ * Contexto: registra automaticamente os adapters OpenAI, Gemini e MiniMax na inicialização
+ * e expõe métodos para resolução por nome (case-insensitive) e verificação de saúde.
+ * Permite adicionar novos providers sem modificar os consumers.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -16,7 +17,7 @@ import {
 } from '../../../common/interfaces/gateway-response.interface';
 
 /**
- * Erro quando provider não é encontrado
+ * Erro lançado quando o provider solicitado não está registrado na factory.
  */
 export class UnknownProviderError extends Error {
   readonly code: GatewayErrorCode = 'UNKNOWN_PROVIDER';
@@ -46,7 +47,7 @@ export class AIProviderFactory {
   }
 
   /**
-   * Registra todos os providers disponíveis
+   * Registra todos os providers disponíveis na inicialização da factory.
    */
   private registerProviders(): void {
     // Registra OpenAI
@@ -64,7 +65,8 @@ export class AIProviderFactory {
   }
 
   /**
-   * Registra um provider no factory
+   * Registra um provider de AI na factory pelo seu nome normalizado.
+   * @param provider - Instância do provider a ser registrada.
    */
   registerProvider(provider: AIProvider): void {
     const name = provider.name.toLowerCase();
@@ -73,11 +75,10 @@ export class AIProviderFactory {
   }
 
   /**
-   * Resolve provider por nome
-   *
-   * @param name - Nome do provider (case insensitive)
-   * @returns AIProvider instance
-   * @throws UnknownProviderError se provider não existe
+   * Resolve o provider pelo nome informado, sem diferenciação de maiúsculas.
+   * @param name - Nome do provider a ser resolvido (case insensitive).
+   * @returns Instância do provider registrado.
+   * @throws UnknownProviderError Quando o provider não está registrado na factory.
    */
   getProvider(name: string): AIProvider {
     const normalizedName = name.toLowerCase();
@@ -91,28 +92,33 @@ export class AIProviderFactory {
   }
 
   /**
-   * Verifica se um provider existe
+   * Verifica se um provider está registrado na factory.
+   * @param name - Nome do provider a verificar.
+   * @returns `true` quando o provider estiver registrado.
    */
   hasProvider(name: string): boolean {
     return this.providers.has(name.toLowerCase());
   }
 
   /**
-   * Lista todos os providers disponíveis
+   * Lista os nomes de todos os providers registrados.
+   * @returns Array com os nomes normalizados dos providers disponíveis.
    */
   listProviders(): string[] {
     return Array.from(this.providers.keys());
   }
 
   /**
-   * Retorna o provider padrão (OpenAI)
+   * Retorna o provider padrão da plataforma (OpenAI).
+   * @returns Instância do adapter OpenAI.
    */
   getDefaultProvider(): AIProvider {
     return this.openaiAdapter;
   }
 
   /**
-   * Verifica health de todos os providers
+   * Verifica a saúde de todos os providers registrados em paralelo.
+   * @returns Mapa com o nome do provider e seu status de saúde.
    */
   async checkHealth(): Promise<Map<string, boolean>> {
     const health = new Map<string, boolean>();

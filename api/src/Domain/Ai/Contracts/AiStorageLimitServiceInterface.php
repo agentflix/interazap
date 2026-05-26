@@ -7,22 +7,24 @@ namespace Domain\Ai\Contracts;
 use Domain\Platform\Models\PlatformTenant;
 
 /**
- * Interface for storage limit service.
+ * Contrato para o serviço de limite de armazenamento da Knowledge Base.
+ *
+ * Verifica cotas de armazenamento do tenant de acordo com o plano contratado.
  */
 interface AiStorageLimitServiceInterface
 {
     /**
-     * Check if tenant can upload a file of given size.
+     * Verifica se o tenant pode fazer upload de um arquivo do tamanho informado.
      */
     public function canUpload(PlatformTenant $tenant, int $fileSize): bool;
 
     /**
-     * Get current storage usage for tenant.
+     * Retorna o uso atual de armazenamento do tenant em bytes.
      */
     public function getCurrentUsage(PlatformTenant $tenant): int;
 
     /**
-     * Get storage limit for tenant's plan.
+     * Retorna o limite de armazenamento do plano do tenant em bytes.
      */
     public function getStorageLimit(PlatformTenant $tenant): int;
 }

@@ -72,16 +72,12 @@ interface MessageEventData extends Partial<CalledMessage> {
 }
 
 /**
- * Event structure for realtime adapter events.
- */
-
-/**
- * Chat store managing ticket list state, messages, and realtime updates.
+ * Store de chat que gerencia a lista de tickets, mensagens e atualizações realtime.
  *
  * @remarks
- * Handles the full ticket list state including filtering, pagination, and LRU cache management.
- * Processes realtime events (new tickets, messages, edits, status changes) and applies
- * batched updates to minimize change detection cycles.
+ * Controla o estado completo da lista de tickets incluindo filtros, paginação e cache LRU.
+ * Processa eventos realtime (novos tickets, mensagens, edições, mudanças de status) e aplica
+ * atualizações em lote para minimizar ciclos de change detection.
  *
  * @example
  * ```typescript

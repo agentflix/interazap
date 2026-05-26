@@ -11,7 +11,7 @@
  * @category Utils
  */
 
-/** interface mínima com campos exigidos para ordenação estável. */
+/** Interface mínima com campos exigidos para ordenação estável de mensagens. */
 export interface StablyOrderedMessage {
   id: string | number;
   created_at?: string | null;

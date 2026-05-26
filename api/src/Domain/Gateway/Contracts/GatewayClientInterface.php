@@ -9,25 +9,31 @@ use Domain\Gateway\DTOs\GatewayResponse;
 use Domain\Gateway\Exceptions\GatewayTimeoutException;
 use Domain\Gateway\Exceptions\ProviderException;
 
+/**
+ * Contrato para clientes de comunicação com o gateway NestJS via Redis Streams.
+ *
+ * Define duas modalidades: envio bloqueante (aguarda resposta) e
+ * disparo sem espera (fire-and-forget).
+ */
 interface GatewayClientInterface
 {
     /**
-     * Send a message and WAIT for response (blocking).
+     * Envia uma mensagem e aguarda a resposta (bloqueante).
      *
-     * @param  GatewayMessage  $message  The message to send
-     * @param  int  $timeoutSeconds  Maximum time to wait for response
-     * @return GatewayResponse The response from the gateway
+     * @param  GatewayMessage  $message  Mensagem a ser enviada ao gateway
+     * @param  int  $timeoutSeconds  Tempo máximo de espera pela resposta em segundos
+     * @return GatewayResponse Resposta recebida do gateway
      *
-     * @throws GatewayTimeoutException If timeout expires before receiving response
-     * @throws ProviderException If provider returns an error
+     * @throws GatewayTimeoutException Quando o tempo limite expira antes da resposta
+     * @throws ProviderException Quando o provider retorna um erro
      */
     public function send(GatewayMessage $message, int $timeoutSeconds = 180): GatewayResponse;
 
     /**
-     * Send a message WITHOUT waiting for response (fire-and-forget).
+     * Envia uma mensagem sem aguardar resposta (fire-and-forget).
      *
-     * @param  GatewayMessage  $message  The message to dispatch
-     * @return string The correlationId for tracking
+     * @param  GatewayMessage  $message  Mensagem a ser despachada ao gateway
+     * @return string O correlationId gerado para rastreamento posterior
      */
     public function dispatch(GatewayMessage $message): string;
 }

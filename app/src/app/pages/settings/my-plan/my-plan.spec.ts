@@ -30,6 +30,8 @@ function buildSubscriptionResponse(): { data: SubscriptionSummary } {
         message_limit_monthly: 800,
         overage_mode: 'stop' as const,
         overage_price_per_message: 0.05,
+        cycle_days: 30,
+        is_trial: false,
       },
       usage: {
         users: { current: 2, limit: 10, percentage: 20 },
@@ -85,6 +87,8 @@ function buildPlansResponse(): { data: SubscriptionPlan[] } {
         overage_mode: 'stop' as const,
         overage_price_per_message: 0.05,
         is_current: true,
+        cycle_days: 30,
+        is_trial: false,
       },
       {
         id: 'plan-pro',
@@ -102,6 +106,8 @@ function buildPlansResponse(): { data: SubscriptionPlan[] } {
         overage_mode: 'stop' as const,
         overage_price_per_message: 0.05,
         is_current: false,
+        cycle_days: 30,
+        is_trial: false,
       },
     ],
   };

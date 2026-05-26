@@ -15,7 +15,9 @@ use Illuminate\Foundation\Http\FormRequest;
 final class ChatTicketCloseRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
+     *
+     * Verifica que o ticket pertence ao tenant do usuário e que ele tem permissão de atualização.
      */
     public function authorize(): bool
     {
@@ -25,7 +27,7 @@ final class ChatTicketCloseRequest extends FormRequest
             return false;
         }
 
-        // Verify ticket belongs to user's tenant
+        // Verifica se o ticket pertence ao tenant do usuário
         $ticket = ChatTicket::query()
             ->where('id', $this->route('id'))
             ->where('tenant_id', $user->tenant_id)
@@ -39,6 +41,8 @@ final class ChatTicketCloseRequest extends FormRequest
     }
 
     /**
+     * Define as regras de validação que se aplicam à requisição.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -50,6 +54,8 @@ final class ChatTicketCloseRequest extends FormRequest
     }
 
     /**
+     * Mensagens de erro personalizadas.
+     *
      * @return array<string, string>
      */
     public function messages(): array

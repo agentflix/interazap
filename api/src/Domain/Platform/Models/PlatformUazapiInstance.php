@@ -70,6 +70,8 @@ final class PlatformUazapiInstance extends Model
 
     /**
      * Relacionamento com o Tenant.
+     *
+     * @return BelongsTo<PlatformTenant, $this>
      */
     public function tenant(): BelongsTo
     {
@@ -77,7 +79,7 @@ final class PlatformUazapiInstance extends Model
     }
 
     /**
-     * Create a new factory instance for the model.
+     * Cria uma nova instância da Factory para testes.
      */
     protected static function newFactory(): \Database\Factories\PlatformUazapiInstanceFactory
     {

@@ -159,7 +159,7 @@ final class ChatTicketController extends BaseController
     /**
      * Encerrar um ticket formalmente.
      *
-     * Supports forced close mode (mode=forced) which skips customer notification.
+     * Suporta o modo de encerramento forçado (mode=forced) que ignora a notificação ao cliente.
      *
      * @param  ChatTicketCloseRequest  $request  Solicitação HTTP validada.
      * @param  string  $id  Identificador UUID do ticket.

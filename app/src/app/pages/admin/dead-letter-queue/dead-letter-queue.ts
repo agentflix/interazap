@@ -33,6 +33,10 @@ import {
   QueueService,
 } from '@core/services/queue.service';
 
+/**
+ * Página da fila de mensagens mortas (Dead Letter Queue) no módulo Admin.
+ * Lista jobs que falharam definitivamente, com opções de reprocessamento ou descarte.
+ */
 @Component({
   selector: 'app-dead-letter-queue',
   standalone: true,
@@ -53,10 +57,6 @@ import {
     AfPaginationComponent,
     AfEmptyStateComponent,
     AfModalComponent,
-/**
- * Dead letter queue page component for the Admin module.
- * @selector app-dead-letter-queue
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dead-letter-queue.html',
@@ -115,10 +115,16 @@ export class DeadLetterQueueComponent implements OnInit {
     this.subscribeToNewJobs();
   }
 
+  /** Recarrega a lista de jobs da fila de mensagens mortas. */
   refresh(): void {
     this.loadJobs();
   }
 
+  /**
+   * Atualiza um filtro específico e recarrega a lista a partir da primeira página.
+   * @param key Chave do filtro a atualizar
+   * @param value Novo valor do filtro
+   */
   updateFilter(key: keyof DeadLetterFilters, value: string): void {
     this.filters.update((f) => ({
       ...f,
@@ -128,6 +134,7 @@ export class DeadLetterQueueComponent implements OnInit {
     this.loadJobs();
   }
 
+  /** Limpa todos os filtros ativos e recarrega a lista. */
   clearFilters(): void {
     this.filters.set({ page: 1, per_page: 10 });
     this.queueControl.setValue('', { emitEvent: false });
@@ -137,11 +144,19 @@ export class DeadLetterQueueComponent implements OnInit {
     this.loadJobs();
   }
 
+  /**
+   * Navega para uma página específica da listagem.
+   * @param page Número da página desejada
+   */
   goToPage(page: number): void {
     this.filters.update((f) => ({ ...f, page }));
     this.loadJobs();
   }
 
+  /**
+   * Reenvia um job específico da DLQ para reprocessamento.
+   * @param jobId ID do job a reprocessar
+   */
   retryJob(jobId: string): void {
     this.actionLoading.set(jobId);
     this.queueService
@@ -156,6 +171,7 @@ export class DeadLetterQueueComponent implements OnInit {
       });
   }
 
+  /** Reenvia todos os jobs da DLQ (respeitando filtros ativos) para reprocessamento. */
   retryAll(): void {
     this.loading.set(true);
     this.queueService
@@ -170,6 +186,10 @@ export class DeadLetterQueueComponent implements OnInit {
       });
   }
 
+  /**
+   * Remove permanentemente um job específico da DLQ.
+   * @param jobId ID do job a descartar
+   */
   purgeJob(jobId: string): void {
     this.actionLoading.set(jobId);
     this.queueService
@@ -184,6 +204,7 @@ export class DeadLetterQueueComponent implements OnInit {
       });
   }
 
+  /** Remove permanentemente todos os jobs da DLQ (respeitando filtros ativos). */
   purgeAll(): void {
     this.loading.set(true);
     this.queueService
@@ -198,14 +219,23 @@ export class DeadLetterQueueComponent implements OnInit {
       });
   }
 
+  /**
+   * Exibe os detalhes de um job no painel de informações.
+   * @param job Job selecionado para visualização
+   */
   showDetails(job: DeadLetterJob): void {
     this.selectedJob.set(job);
   }
 
+  /**
+   * Exibe o stacktrace de um job no painel de informações.
+   * @param job Job cujo stacktrace será exibido
+   */
   showStacktrace(job: DeadLetterJob): void {
     this.selectedJob.set(job);
   }
 
+  /** Fecha o painel de detalhes e limpa o job selecionado. */
   closeModal(): void {
     this.selectedJob.set(null);
   }

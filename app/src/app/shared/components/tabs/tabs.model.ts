@@ -1,8 +1,8 @@
 /**
- * Models and types for tabs component.
+ * Modelos e tipos do componente de abas.
  */
 
-/** Tab item definition */
+/** Definição de item de aba */
 export interface AfTabItem {
   id: string;
   label: string;

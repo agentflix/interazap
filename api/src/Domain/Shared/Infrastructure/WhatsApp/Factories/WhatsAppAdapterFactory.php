@@ -15,14 +15,26 @@ use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 
 /**
- * Factory para criação de adapters de provedores WhatsApp.
+ * Factory para criação de adapters, conectores e normalizadores de provedores WhatsApp.
+ *
+ * Centraliza a instanciação de implementações concretas por provedor (uazapi),
+ * substituindo por FakeWhatsAppAdapter em ambiente de testes quando configurado.
  */
 final class WhatsAppAdapterFactory
 {
     public function __construct(private readonly Container $container) {}
 
     /**
-     * @param  array<string, mixed>  $credentials
+     * Cria o adapter de envio de mensagens para o provedor informado.
+     *
+     * Em ambiente de teste, retorna FakeWhatsAppAdapter quando não configurado
+     * para usar o provedor real.
+     *
+     * @param  string  $provider  Nome do provedor (ex: 'uazapi').
+     * @param  array<string, mixed>  $credentials  Credenciais de autenticação do provedor.
+     * @return WhatsAppProviderPort Adapter concreto do provedor.
+     *
+     * @throws \InvalidArgumentException Se o provedor não for suportado.
      */
     public function makeProvider(string $provider, array $credentials): WhatsAppProviderPort
     {
@@ -40,7 +52,13 @@ final class WhatsAppAdapterFactory
     }
 
     /**
-     * @param  array<string, mixed>  $credentials
+     * Cria o conector de instância para o provedor informado.
+     *
+     * @param  string  $provider  Nome do provedor (ex: 'uazapi').
+     * @param  array<string, mixed>  $credentials  Credenciais de autenticação do provedor.
+     * @return InstanceConnectorPort Conector concreto do provedor.
+     *
+     * @throws \InvalidArgumentException Se o provedor não for suportado.
      */
     public function makeConnector(string $provider, array $credentials): InstanceConnectorPort
     {
@@ -52,6 +70,14 @@ final class WhatsAppAdapterFactory
         };
     }
 
+    /**
+     * Cria o normalizador de webhook para o provedor informado.
+     *
+     * @param  string  $provider  Nome do provedor (ex: 'uazapi').
+     * @return WebhookNormalizerPort Normalizador concreto do provedor.
+     *
+     * @throws \InvalidArgumentException Se o provedor não for suportado.
+     */
     public function makeNormalizer(string $provider): WebhookNormalizerPort
     {
         return match ($provider) {
@@ -61,7 +87,9 @@ final class WhatsAppAdapterFactory
     }
 
     /**
-     * @return array<string>
+     * Retorna a lista de provedores suportados pela factory.
+     *
+     * @return array<string> Nomes dos provedores suportados.
      */
     public function getSupportedProviders(): array
     {

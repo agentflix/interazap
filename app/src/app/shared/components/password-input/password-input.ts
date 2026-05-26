@@ -11,10 +11,9 @@ import type { AfInputSize } from './password-input.model';
 export * from './password-input.model';
 
 /**
- * Password input with show/hide toggle.
+ * Campo de senha com alternância de visibilidade via ícone de olho.
  *
- * @description Input field that toggles between text and password visibility
- * via an eye icon button. Ideal for login, register, and settings forms.
+ * Ideal para formulários de login, cadastro e configurações.
  *
  * @example
  * ```html
@@ -34,46 +33,46 @@ export * from './password-input.model';
   templateUrl: './password-input.html',
 })
 export class AfPasswordInputComponent {
-  /** FormControl for the password */
+  /** FormControl da senha */
   readonly control = input.required<FormControl<string>>();
 
-  /** Label text */
+  /** Texto do rótulo */
   readonly label = input<string>();
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the field */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
-  /** Placeholder text */
+  /** Texto placeholder */
   readonly placeholder = input('••••••••');
 
-  /** Required asterisk on label */
+  /** Exibe asterisco de campo obrigatório no rótulo */
   readonly required = input(false);
 
-  /** Error message */
+  /** Mensagem de erro */
   readonly errorMessage = input('Senha é obrigatória.');
 
-  /** data-test attribute */
+  /** Atributo data-test */
   readonly dataTest = input<string>();
 
-  /** Input size: sm for compact fields, md for the default comfortable field */
+  /** Tamanho do campo: sm para compacto, md para o padrão */
   readonly size = input<AfInputSize>('md');
 
-  /** Whether the input is read-only (prevents browser autofill) */
+  /** Desativa o preenchimento automático do navegador */
   readonly disableAutofill = input(false);
 
-  /** Emitted when the input receives focus */
+  /** Emitido quando o campo recebe foco */
   readonly focusEmitter = output<void>();
 
-  /** Emitted when the input loses focus */
+  /** Emitido quando o campo perde o foco */
   readonly blurEmitter = output<void>();
 
-  /** Autocomplete attribute for browser autofill control */
+  /** Atributo autocomplete para controle do preenchimento automático */
   readonly autocomplete = input<string>('off');
 
   // Tracks status/value changes so computed signals react to setErrors() / markAsTouched()
@@ -84,18 +83,18 @@ export class AfPasswordInputComponent {
     { initialValue: null },
   );
 
-  /** Password visibility state */
+  /** Estado de visibilidade da senha */
   protected readonly visible = signal(false);
 
-  /** Unique ID */
+  /** ID único do campo */
   protected readonly inputId = `password-${Math.random().toString(36).slice(2, 9)}`;
 
-  /** Dynamic CSS classes */
+  /** Classes CSS do contêiner */
   protected readonly containerClasses = computed(() =>
     resolveInputContainerClass(this.classContainer(), this.spacing()),
   );
 
-  /** Dynamic CSS classes */
+  /** Classes CSS dinâmicas do campo */
   protected readonly inputClasses = computed(() => {
     const borderColor = this.showError()
       ? 'border-red-500 dark:border-red-400'
@@ -116,13 +115,13 @@ export class AfPasswordInputComponent {
     ].join(' ');
   });
 
-  /** Whether to show error — depends on _controlChanges to stay reactive after setErrors/markAsTouched */
+  /** Indica se o erro deve ser exibido — depende de _controlChanges para reagir a setErrors/markAsTouched */
   protected readonly showError = computed(() => {
     this._controlChanges();
     return this.control()?.invalid && this.control()?.touched;
   });
 
-  /** Toggle password visibility */
+  /** Alterna a visibilidade da senha */
   protected toggleVisibility(): void {
     this.visible.update((v) => !v);
   }

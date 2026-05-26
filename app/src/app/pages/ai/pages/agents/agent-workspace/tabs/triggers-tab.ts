@@ -30,7 +30,10 @@ import {
 import { AiAgentService } from '@ai/services/ai-agent.service';
 
 /**
- * Triggers tab — CRUD for agent triggers (cron, webhook, event).
+ * Aba de Triggers — CRUD de triggers do agente (cron, webhook, evento).
+ *
+ * Contexto: gerencia triggers com tipos distintos (cron com expressão, webhook com URL,
+ * evento com nome de evento). Modal de criação/edição. Normaliza nomes legados do config.
  */
 @Component({
   selector: 'app-agent-triggers-tab',
@@ -90,7 +93,9 @@ export class AgentTriggersTabComponent implements OnInit {
   }
 
   /**
-   * Format trigger type label.
+   * Retorna o rótulo legível para o tipo de trigger.
+   * @param type Tipo de trigger
+   * @returns Rótulo em português
    */
   formatTriggerType(type: AiTriggerType): string {
     const labels: Record<AiTriggerType, string> = {
@@ -102,7 +107,9 @@ export class AgentTriggersTabComponent implements OnInit {
   }
 
   /**
-   * Get icon name for trigger type.
+   * Retorna o nome do ícone Lucide para o tipo de trigger.
+   * @param type Tipo de trigger
+   * @returns Nome do ícone
    */
   triggerIcon(type: AiTriggerType): string {
     const icons: Record<AiTriggerType, string> = {
@@ -114,7 +121,9 @@ export class AgentTriggersTabComponent implements OnInit {
   }
 
   /**
-   * Get icon class for trigger type.
+   * Retorna a classe CSS para o ícone do tipo de trigger.
+   * @param type Tipo de trigger
+   * @returns Classe CSS com cor e fundo correspondentes
    */
   triggerIconClass(type: AiTriggerType): string {
     const classes: Record<string, string> = {
@@ -128,7 +137,7 @@ export class AgentTriggersTabComponent implements OnInit {
   }
 
   /**
-   * Open modal for creating a trigger.
+   * Abre o modal para criação de trigger.
    */
   openCreateModal(): void {
     this.editingTrigger.set(null);
@@ -144,7 +153,8 @@ export class AgentTriggersTabComponent implements OnInit {
   }
 
   /**
-   * Open modal for editing a trigger.
+   * Abre o modal para edição de trigger existente.
+   * @param trigger Trigger a ser editado
    */
   openEditModal(trigger: AiAgentTrigger): void {
     const normalized = this.normalizeTrigger(trigger);
@@ -162,7 +172,7 @@ export class AgentTriggersTabComponent implements OnInit {
   }
 
   /**
-   * Close the modal.
+   * Fecha o modal de criação/edição.
    */
   closeModal(): void {
     this.showModal.set(false);
@@ -170,7 +180,7 @@ export class AgentTriggersTabComponent implements OnInit {
   }
 
   /**
-   * Save (create or update) trigger.
+   * Salva (cria ou atualiza) um trigger.
    */
   saveTrigger(): void {
     if (this.triggerForm.invalid) return;
@@ -208,7 +218,10 @@ export class AgentTriggersTabComponent implements OnInit {
   }
 
   /**
-   * Build config record from form values based on trigger type.
+   * Constrói o objeto de configuração do trigger a partir dos valores do formulário.
+   * @param type Tipo de trigger selecionado
+   * @param formVal Valores brutos do formulário
+   * @returns Configuração do trigger
    */
   private buildTriggerConfig(
     type: AiTriggerType,
@@ -254,7 +267,8 @@ export class AgentTriggersTabComponent implements OnInit {
   }
 
   /**
-   * Delete a trigger.
+   * Exclui um trigger após confirmação do usuário.
+   * @param trigger Trigger a ser excluído
    */
   deleteTrigger(trigger: AiAgentTrigger): void {
     if (!confirm(`Excluir trigger "${this.resolveTriggerName(trigger)}"?`)) return;

@@ -24,7 +24,7 @@ final class AiResponseListener
     ) {}
 
     /**
-     * Handle the AI response received event.
+     * Processa o evento de resposta da IA e publica a mensagem no Redis para o Gateway webchat.
      */
     public function handle(AiResponseReceived $event): void
     {

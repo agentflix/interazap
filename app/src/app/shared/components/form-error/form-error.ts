@@ -1,11 +1,11 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
 /**
- * Form error message atom — renders a validation error below an input.
+ * Átomo de mensagem de erro de formulário — exibe um erro de validação abaixo de um campo.
  *
  * @example
  * ```html
- * <af-form-error [show]="showError()" message="This field is required." />
+ * <af-form-error [show]="showError()" message="Campo obrigatório." />
  * ```
  */
 @Component({
@@ -15,9 +15,9 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
   templateUrl: './form-error.html',
 })
 export class AfFormErrorComponent {
-  /** Whether to display the error message */
+  /** Indica se a mensagem de erro deve ser exibida */
   readonly show = input(false);
 
-  /** Error message text */
+  /** Texto da mensagem de erro */
   readonly message = input('Campo obrigatório.');
 }

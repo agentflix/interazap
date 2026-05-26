@@ -14,10 +14,10 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
 
 /**
- * Note/Annotation for CRM entities.
+ * Nota ou anotação para entidades CRM.
  *
- * Represents a text note or comment attached to
- * contacts, companies, or negotiations.
+ * Representa um comentário textual vinculado por polimorfismo a
+ * contatos, empresas ou negociações, incluindo o histórico de alterações.
  *
  * @property string $id
  * @property string $tenant_id

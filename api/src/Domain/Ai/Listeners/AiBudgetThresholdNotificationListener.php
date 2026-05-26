@@ -13,12 +13,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 /**
- * Sends budget threshold notifications via e-mail and in-app channels.
+ * Listener que envia notificações de alerta de orçamento por e-mail e canal in-app.
+ *
+ * Reage ao evento AiBudgetThresholdExceeded e notifica todos os usuários
+ * com papel de Inquilino ou Administrador do tenant afetado.
  */
 final class AiBudgetThresholdNotificationListener
 {
     /**
-     * Handle the event.
+     * Processa o evento de estouro de orçamento e envia as notificações.
      */
     public function handle(AiBudgetThresholdExceeded $event): void
     {

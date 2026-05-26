@@ -25,6 +25,13 @@ import {
   EventService,
 } from 'src/app/core/services/event.service';
 
+/**
+ * Formulário de criação e edição de eventos da agenda do CRM.
+ *
+ * Contexto: gerencia o formulário reativo com campos de título, tipo, status, datas,
+ * dia inteiro, local e descrição. Em modo de edição, carrega os dados via effect. O salvamento
+ * usa o EventService diretamente.
+ */
 @Component({
   selector: 'app-agenda-form',
   standalone: true,
@@ -35,10 +42,6 @@ import {
     TextareaInputComponent,
     CheckboxInputComponent,
     SelectInputComponent,
-/**
- * Agenda form component for the Crm module.
- * @selector app-agenda-form
- */
   ],
   templateUrl: './agenda-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -122,6 +125,7 @@ export class AgendaFormComponent {
     });
   }
 
+  /** Envia o formulário para criar ou atualizar o evento. */
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -148,6 +152,7 @@ export class AgendaFormComponent {
     });
   }
 
+  /** Cancela o formulário e emite o evento de cancelamento. */
   cancel(): void {
     this.cancelled.emit();
   }

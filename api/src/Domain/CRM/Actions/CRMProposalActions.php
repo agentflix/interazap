@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
  */
 final class CRMProposalActions
 {
+    /** Lista propostas vinculadas a uma negociação com paginação. */
     public function listByNegotiation(string $tenantId, string $negotiationId): LengthAwarePaginator
     {
         $this->guardNegotiation($tenantId, $negotiationId);
@@ -29,6 +30,7 @@ final class CRMProposalActions
             ->paginate();
     }
 
+    /** Retorna uma proposta pelo ID com seus itens, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMProposal
     {
         return CRMProposal::query()
@@ -37,6 +39,7 @@ final class CRMProposalActions
             ->findOrFail($id);
     }
 
+    /** Cria uma proposta com seus itens em transação e calcula o total. */
     public function create(string $tenantId, CRMProposalDTO $dto): CRMProposal
     {
         $this->guardNegotiation($tenantId, $dto->crm_negotiation_id);
@@ -55,6 +58,9 @@ final class CRMProposalActions
         });
     }
 
+    /**
+     * Atualiza proposta e seus itens; marca a negociação como ganha se a proposta for aceita.
+     */
     public function update(string $tenantId, string $id, CRMProposalDTO $dto): CRMProposal
     {
         $proposal = $this->find($tenantId, $id);
@@ -89,12 +95,16 @@ final class CRMProposalActions
         });
     }
 
+    /** Remove uma proposta pelo ID. */
     public function delete(string $tenantId, string $id): void
     {
         $proposal = $this->find($tenantId, $id);
         $proposal->delete();
     }
 
+    /**
+     * Marca a proposta como enviada e gera um token público para acesso externo.
+     */
     public function send(string $tenantId, string $id): CRMProposal
     {
         $proposal = $this->find($tenantId, $id);
@@ -109,6 +119,7 @@ final class CRMProposalActions
         return $proposal->fresh('items');
     }
 
+    /** Duplica uma proposta existente como rascunho, copiando todos os itens. */
     public function duplicate(string $tenantId, string $id): CRMProposal
     {
         $proposal = $this->find($tenantId, $id);
@@ -154,6 +165,7 @@ final class CRMProposalActions
         });
     }
 
+    /** Retorna uma proposta pelo token público (rota sem autenticação). */
     public function findByToken(string $token): CRMProposal
     {
         return CRMProposal::query()
@@ -162,6 +174,7 @@ final class CRMProposalActions
             ->firstOrFail();
     }
 
+    /** Registra a data/hora de primeira visualização da proposta. */
     public function markViewed(CRMProposal $proposal): CRMProposal
     {
         if ($proposal->viewed_at === null) {

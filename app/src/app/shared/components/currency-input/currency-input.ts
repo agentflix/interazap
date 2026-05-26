@@ -28,8 +28,9 @@ import type { AfInputSize } from './currency-input.model';
 export * from './currency-input.model';
 
 /**
- * AfCurrencyInputComponent — Masked currency input for BRL (R$) values.
- * Implements ControlValueAccessor. Value is stored as number (cents / raw).
+ * Campo monetário com máscara para valores em BRL (R$).
+ *
+ * Implementa ControlValueAccessor. O valor é armazenado como número (centavos/bruto).
  *
  * @example
  * ```html
@@ -53,51 +54,51 @@ export * from './currency-input.model';
 export class AfCurrencyInputComponent implements ControlValueAccessor, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
 
-  /** FormControl binding */
+  /** FormControl do campo */
   readonly control = input<FormControl<number | null>>();
 
-  /** Field label */
+  /** Rótulo do campo */
   readonly label = input('');
 
-  /** Placeholder text */
+  /** Texto placeholder */
   readonly placeholder = input('0,00');
 
-  /** Whether field is required */
+  /** Indica se o campo é obrigatório */
   readonly required = input(false);
 
-  /** Error message */
+  /** Mensagem de erro */
   readonly errorMessage = input('Valor inválido.');
 
-  /** data-test attribute for E2E tests */
+  /** Atributo data-test para testes E2E */
   readonly dataTest = input<string | null>(null);
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the field */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
-  /** Currency prefix */
+  /** Prefixo da moeda */
   readonly prefix = input('R$');
 
-  /** Decimal separator */
+  /** Separador decimal */
   readonly decimalSeparator = input<'.' | ','>(',');
 
-  /** Thousands separator */
+  /** Separador de milhar */
   readonly thousandsSeparator = input<'.' | ','>('.');
 
-  /** Input size: sm for compact fields, md for the default comfortable field */
+  /** Tamanho do campo: sm para compacto, md para o padrão */
   readonly size = input<AfInputSize>('md');
 
-  /** Whether to show error */
+  /** Classes CSS do contêiner */
   protected readonly containerClasses = computed(() =>
     resolveInputContainerClass(this.classContainer(), this.spacing()),
   );
 
-  /** Dynamic CSS classes for wrapper based on size */
+  /** Classes CSS dinâmicas do wrapper baseadas no tamanho */
   protected readonly wrapperClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'h-8' : 'h-10';
     return [
@@ -109,7 +110,7 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
     ].join(' ');
   });
 
-  /** Dynamic CSS classes for prefix based on size */
+  /** Classes CSS dinâmicas do prefixo baseadas no tamanho */
   protected readonly prefixClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'px-2 text-xs' : 'px-3 text-sm';
     return [
@@ -119,7 +120,7 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
     ].join(' ');
   });
 
-  /** Dynamic CSS classes for input based on size */
+  /** Classes CSS dinâmicas do input baseadas no tamanho */
   protected readonly inputClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'px-2 py-1.5 text-xs' : 'px-3 py-2 text-sm';
     return [
@@ -133,20 +134,20 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
 
   private readonly controlRevision = signal(0);
 
-  /** Whether to show error */
+  /** Indica se o erro deve ser exibido */
   protected readonly showError = computed(() => {
     this.controlRevision();
     const ctrl = this.control();
     return !!ctrl && ctrl.invalid && ctrl.touched;
   });
 
-  /** True when the control has Validators.required (or required input is set) */
+  /** Verdadeiro quando o controle possui Validators.required ou o input required está ativo */
   protected readonly isRequired = computed(() => {
     this.controlRevision();
     return this.required() || !!this.control()?.hasValidator(Validators.required);
   });
 
-  /** Error message: server error takes precedence over static errorMessage input */
+  /** Mensagem de erro: erro do servidor tem precedência sobre o input estático */
   protected readonly resolvedErrorMessage = computed(() => {
     this.controlRevision();
     const serverMsg = this.control()?.errors?.['server'];

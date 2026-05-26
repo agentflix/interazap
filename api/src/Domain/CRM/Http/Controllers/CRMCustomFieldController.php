@@ -14,12 +14,23 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controlador para campos personalizados do CRM.
+ * Controller para campos personalizados do CRM.
+ *
+ * Gerencia criação, listagem, atualização e remoção de campos customizados. Requer autenticação Sanctum.
  */
 final class CRMCustomFieldController extends BaseController
 {
+    /**
+     * @param  CRMCustomFieldActions  $actions  Ação de gestão de campos personalizados.
+     */
     public function __construct(private readonly CRMCustomFieldActions $actions) {}
 
+    /**
+     * Lista campos personalizados do tenant.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @return JsonResponse Lista paginada de campos personalizados.
+     */
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', CRMCustomField::class);
@@ -31,6 +42,12 @@ final class CRMCustomFieldController extends BaseController
         return $this->paginated($paginator, 'Campos personalizados listados');
     }
 
+    /**
+     * Cria novo campo personalizado.
+     *
+     * @param  CRMCustomFieldRequest  $request  Dados da requisição com nome, tipo e entidade.
+     * @return JsonResponse Campo personalizado criado.
+     */
     public function store(CRMCustomFieldRequest $request): JsonResponse
     {
         $this->authorize('create', CRMCustomField::class);
@@ -41,6 +58,13 @@ final class CRMCustomFieldController extends BaseController
         return $this->created(new CRMCustomFieldResource($field), 'Campo criado');
     }
 
+    /**
+     * Atualiza campo personalizado.
+     *
+     * @param  CRMCustomFieldRequest  $request  Dados atualizados do campo.
+     * @param  string  $id  ID do campo personalizado.
+     * @return JsonResponse Campo personalizado atualizado.
+     */
     public function update(CRMCustomFieldRequest $request, string $id): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -52,6 +76,13 @@ final class CRMCustomFieldController extends BaseController
         return $this->success(new CRMCustomFieldResource($field), 'Campo atualizado');
     }
 
+    /**
+     * Remove campo personalizado.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $id  ID do campo personalizado.
+     * @return JsonResponse Resposta sem conteúdo.
+     */
     public function destroy(Request $request, string $id): JsonResponse
     {
         $tenantId = $this->tenantId();

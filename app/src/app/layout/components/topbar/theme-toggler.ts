@@ -3,7 +3,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * Dark/Light theme toggler button with smooth icon rotation animation.
+ * Botão alternador de tema claro/escuro com animação suave de rotação do ícone.
  *
  * @example
  * ```html

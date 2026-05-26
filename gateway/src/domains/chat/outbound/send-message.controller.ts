@@ -12,35 +12,36 @@ import { GatewayConfigService } from '../../../shared/services/gateway-config.se
 import { InternalApiKeyGuard } from '../../realtime/guards/internal-api-key.guard';
 
 /**
- * SendMessageController
+ * Controller de gerenciamento da Dead Letter Queue (DLQ) para mensagens outbound.
  *
- * Gerencia Dead Letter Queue (DLQ) para mensagens outbound.
- * Permite visualizar estatísticas e realizar retry de mensagens com falha.
+ * Contexto: expoe endpoints internos protegidos por InternalApiKeyGuard para
+ * visualizar estatisticas da DLQ e realizar retry de mensagens que falharam
+ * no Redis Stream de saida do chat.
  */
 @Controller({ path: 'outbound', version: '1' })
 @UseGuards(InternalApiKeyGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class SendMessageController {
   /**
-   * Initializes the DLQ controller with required services.
+   * Inicializa o controller de DLQ com os servicos necessarios.
    *
-   * @param streamDlqService - Service for DLQ stream operations
-   * @param gatewayConfigService - Service for gateway configuration including stream name
+   * @param streamDlqService Servico para operacoes de stream DLQ
+   * @param gatewayConfigService Servico de configuracao do gateway incluindo nome do stream
    */
   constructor(
     private readonly streamDlqService: StreamDlqService,
     private readonly gatewayConfigService: GatewayConfigService,
   ) {}
 
-  /**
-   * Returns the Redis stream name for chat outbound messages.
-   */
+  /** Retorna o nome do Redis Stream para mensagens outbound do chat. */
   private get streamName(): string {
     return this.gatewayConfigService.chatOutboundStream;
   }
 
   /**
-   * Returns DLQ statistics for the chat outbound stream.
+   * Retorna estatisticas da DLQ para o stream outbound do chat.
+   *
+   * @returns Objeto com nome do stream, tamanho da DLQ e timestamp
    */
   @Get('dlq/stats')
   async getDlqStats() {
@@ -54,9 +55,10 @@ export class SendMessageController {
   }
 
   /**
-   * Retries a failed message from the DLQ by messageId.
+   * Reenvia uma mensagem com falha da DLQ pelo seu ID.
    *
-   * @param messageId - ID of the message to retry
+   * @param messageId ID da mensagem a reenviar
+   * @returns Objeto com nome do stream, messageId e indicador de sucesso
    */
   @Post('dlq/retry/:messageId')
   async retryFromDlq(@Param('messageId') messageId: string) {

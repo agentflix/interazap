@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * Event link to CRM/Chat entities.
+ * Vínculo polimórfico entre evento de agenda e entidades CRM/Chat.
  *
- * Associates a calendar event with related entities such as
- * contacts, companies, deals, or tickets.
+ * Associa um evento de calendário a entidades relacionadas como
+ * contatos, empresas, negociações ou tickets de atendimento.
  *
  * @property string $id
  * @property string $tenant_id
@@ -71,6 +71,7 @@ class CRMEventLink extends Model
         ];
     }
 
+    /** Resolve o nome completo da classe a partir do alias (contact, company, deal, ticket). */
     public static function resolveLinkableType(string $alias): ?string
     {
         return self::linkableTypes()[$alias] ?? null;

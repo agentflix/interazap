@@ -126,9 +126,9 @@ import {
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * UI Kit Showcase page — renders every UI Kit primitive with all variants.
- * Accessible at /ui-kit. Does not depend on any API.
- * Organized by themed sections for easy browsing.
+ * Página de vitrine do UI Kit — renderiza todos os primitivos com suas variantes.
+ * Acessível em /ui-kit. Não depende de nenhuma API.
+ * Organizada por seções temáticas para fácil navegação.
  */
 @Component({
   selector: 'app-ui-kit',
@@ -510,14 +510,23 @@ export default class UiKitComponent {
     { value: 'completed', label: 'Concluído' },
   ];
 
+  /** Alterna entre os modos claro e escuro via ThemeService. */
   protected toggleTheme(): void {
     this.theme.toggleTheme();
   }
 
+  /**
+   * Atualiza o estado do switch autônomo de demonstração.
+   * @param value Novo valor do switch
+   */
   protected onSwitchToggle(value: boolean): void {
     this.switchStandalone.set(value);
   }
 
+  /**
+   * Registra o comando selecionado na paleta de comandos e fecha o painel.
+   * @param commandId ID do comando executado
+   */
   protected onPreviewCommand(commandId: string): void {
     this.lastPreviewCommand.set(commandId);
     this.previewPaletteOpen.set(false);

@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
- * DTO for CRM paginator result.
+ * DTO para resultado paginado de listagens CRM.
  *
  * @readonly
  */

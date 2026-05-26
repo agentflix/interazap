@@ -32,10 +32,10 @@ import type {
 } from '@core/models/funnel.model';
 
 /**
- * Funnel form component — create/edit funnels with nested step management.
- * Steps can be drag-and-drop reordered (native HTML5 DnD).
- * For new funnels, steps are stored locally and sent with the create payload.
- * For existing funnels, steps are managed via API.
+ * Formulário de criação e edição de funis com gerenciamento de etapas aninhadas.
+ * Etapas podem ser reordenadas via drag-and-drop (HTML5 nativo).
+ * Para novos funis, as etapas são armazenadas localmente e enviadas junto ao payload de criação.
+ * Para funis existentes, as etapas são gerenciadas via API.
  */
 @Component({
   selector: 'app-funnel-form',

@@ -12,7 +12,10 @@ use Domain\Ai\Models\AiKnowledgeDocument;
 use Domain\Platform\Models\PlatformTenant;
 
 /**
- * Action for getting knowledge base statistics.
+ * Action para obter estatísticas da base de conhecimento do tenant.
+ *
+ * Agrega contagens de documentos por status de embedding, uso e limite
+ * de armazenamento e total de chunks, retornando um DTO estruturado.
  */
 final class GetKnowledgeStatsAction
 {
@@ -21,11 +24,14 @@ final class GetKnowledgeStatsAction
     ) {}
 
     /**
-     * Get statistics for tenant's knowledge base.
+     * Calcula e retorna as estatísticas da base de conhecimento do tenant.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a consultar.
+     * @return KnowledgeStatsDTO Estatísticas consolidadas.
      */
     public function execute(PlatformTenant $tenant): KnowledgeStatsDTO
     {
-        // Get document counts by status
+        // Contagens de documentos por status
         $statusCounts = AiKnowledgeDocument::query()
             ->where('tenant_id', $tenant->id)
             ->where('is_active', true)

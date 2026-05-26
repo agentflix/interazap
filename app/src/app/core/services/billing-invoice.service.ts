@@ -9,10 +9,9 @@ export type { BillingInvoice, BillingInvoiceFilters, BillingInvoicePaymentMethod
 
 
 /**
- * Service for tenant-facing billing invoice operations.
+ * Operações de faturas de cobrança para o tenant autenticado.
  *
- * @remarks
- * Handles invoice listing, viewing, creation, and payment (PIX, credit card).
+ * Cobre listagem, visualização, criação e pagamento de faturas via PIX ou cartão de crédito.
  */
 @Injectable({ providedIn: 'root' })
 export class BillingInvoiceService {
@@ -20,10 +19,10 @@ export class BillingInvoiceService {
   private readonly baseUrl = `${environment.apiUrl}/billing/invoices`;
 
   /**
-   * Lists invoices with optional filters and pagination.
+   * Lista faturas com filtros opcionais e paginação.
    *
-   * @param filters - Filter criteria (search, status, dates, etc.)
-   * @returns Observable with paginated invoice response
+   * @param filters Critérios de filtro: search, status, datas, método de pagamento, etc.
+   * @returns Observable com resposta paginada de faturas
    */
   list(filters: BillingInvoiceFilters = {}): Observable<PaginatedResponse<BillingInvoice>> {
     let params = new HttpParams();
@@ -41,53 +40,32 @@ export class BillingInvoiceService {
     return this.http.get<PaginatedResponse<BillingInvoice>>(this.baseUrl, { params });
   }
 
-  /**
-   * Retrieves a single invoice by ID.
-   *
-   * @param id - Invoice identifier
-   * @returns Observable with invoice response
-   */
+  /** Retorna uma fatura específica pelo ID. */
   find(id: string): Observable<InvoiceResponse> {
     return this.http.get<InvoiceResponse>(`${this.baseUrl}/${id}`);
   }
 
-  /**
-   * Creates a new invoice.
-   *
-   * @param payload - Invoice data
-   * @returns Observable with created invoice response
-   */
+  /** Cria uma nova fatura. */
   create(payload: Partial<BillingInvoice>): Observable<InvoiceResponse> {
     return this.http.post<InvoiceResponse>(this.baseUrl, payload);
   }
 
-  /**
-   * Updates an existing invoice.
-   *
-   * @param id - Invoice identifier
-   * @param payload - Updated invoice data
-   * @returns Observable with updated invoice response
-   */
+  /** Atualiza dados de uma fatura existente. */
   update(id: string, payload: Partial<BillingInvoice>): Observable<InvoiceResponse> {
     return this.http.put<InvoiceResponse>(`${this.baseUrl}/${id}`, payload);
   }
 
-  /**
-   * Deletes an invoice.
-   *
-   * @param id - Invoice identifier
-   * @returns Observable completing on deletion
-   */
+  /** Remove uma fatura pelo ID. */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * Processes payment for an invoice via PIX or credit card.
+   * Processa o pagamento de uma fatura via PIX ou cartão de crédito.
    *
-   * @param id - Invoice identifier
-   * @param payload - Payment method and optional card/holder details
-   * @returns Observable with payment response including QR code for PIX
+   * @param id ID da fatura
+   * @param payload Método de pagamento e dados opcionais de cartão/portador
+   * @returns Observable com resposta de pagamento (inclui QR code para PIX)
    */
   pay(
     id: string,
@@ -113,22 +91,12 @@ export class BillingInvoiceService {
     return this.http.post<BillingInvoicePaymentResponse>(`${this.baseUrl}/${id}/pay`, payload);
   }
 
-  /**
-   * Retrieves PIX payment data (payload and QR code) for an invoice.
-   *
-   * @param id - Invoice identifier
-   * @returns Observable with PIX payload and QR code
-   */
+  /** Retorna dados de pagamento PIX (payload e QR code) de uma fatura. */
   getPix(id: string): Observable<PixResponse> {
     return this.http.get<PixResponse>(`${this.baseUrl}/${id}/pix`);
   }
 
-  /**
-   * Retrieves the payment receipt for an invoice.
-   *
-   * @param id - Invoice identifier
-   * @returns Observable with receipt data
-   */
+  /** Retorna o comprovante de pagamento de uma fatura. */
   getReceipt(id: string): Observable<BillingInvoiceReceiptResponse> {
     return this.http.get<BillingInvoiceReceiptResponse>(`${this.baseUrl}/${id}/receipt`);
   }

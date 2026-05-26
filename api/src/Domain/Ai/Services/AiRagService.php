@@ -14,9 +14,12 @@ use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
- * Service for RAG search functionality.
+ * Serviço de busca RAG (Retrieval-Augmented Generation) na base de conhecimento.
  *
- * Uses pgvector cosine similarity for semantic search.
+ * Contexto: executa busca semântica via pgvector (similaridade cosseno) e busca híbrida
+ * (vetorial + keyword full-text com pesos configuráveis). Suporta expansão de chunks
+ * vizinhos para melhorar o contexto entregue ao LLM. Pesos vector_weight + keyword_weight
+ * devem somar 1.0 (tolerância de 0.001), validado no construtor.
  */
 final class AiRagService implements AiRagServiceInterface
 {
@@ -43,9 +46,15 @@ final class AiRagService implements AiRagServiceInterface
     }
 
     /**
-     * Search for relevant chunks by query.
+     * Busca chunks relevantes na base de conhecimento para a query informada.
      *
-     * @return list<KnowledgeSearchResultDTO>
+     * @param  string  $query  Texto da consulta do usuário.
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  int  $limit  Número máximo de resultados retornados.
+     * @param  float  $minScore  Score mínimo de relevância (0.0–1.0).
+     * @param  AiRagSearchModeEnum  $mode  Modo de busca (VECTOR ou HYBRID).
+     * @param  KnowledgeSearchFiltersDTO|null  $filters  Filtros facetados opcionais.
+     * @return list<KnowledgeSearchResultDTO> Lista de chunks ordenados por score decrescente.
      */
     public function search(
         string $query,
@@ -161,9 +170,10 @@ final class AiRagService implements AiRagServiceInterface
     }
 
     /**
-     * Build filter SQL fragments and bindings.
+     * Constrói fragmentos SQL e bindings para os filtros facetados.
      *
-     * @return array{sql: string, bindings: list<mixed>}
+     * @param  KnowledgeSearchFiltersDTO|null  $filters  Filtros a aplicar.
+     * @return array{sql: string, bindings: list<mixed>} SQL parcial e bindings correspondentes.
      */
     private function buildFilterSql(?KnowledgeSearchFiltersDTO $filters): array
     {
@@ -206,10 +216,14 @@ final class AiRagService implements AiRagServiceInterface
     }
 
     /**
-     * Execute vector search with optional filters.
+     * Executa busca vetorial (similaridade cosseno) com filtros opcionais.
      *
-     * @param  array{sql: string, bindings: list<mixed>}  $filterSql
-     * @return list<object>
+     * @param  string  $embeddingString  Vetor de consulta no formato pgvector.
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  float  $minScore  Score mínimo de relevância.
+     * @param  int  $limit  Número máximo de resultados.
+     * @param  array{sql: string, bindings: list<mixed>}  $filterSql  SQL e bindings de filtro.
+     * @return list<object> Linhas brutas retornadas pelo banco.
      */
     private function executeVectorSearch(
         string $embeddingString,
@@ -259,10 +273,15 @@ final class AiRagService implements AiRagServiceInterface
     }
 
     /**
-     * Execute hybrid search with optional filters.
+     * Executa busca híbrida (vetorial + keyword) com pesos configuráveis e filtros opcionais.
      *
-     * @param  array{sql: string, bindings: list<mixed>}  $filterSql
-     * @return list<object>
+     * @param  string  $embeddingString  Vetor de consulta no formato pgvector.
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $query  Texto da consulta para full-text search.
+     * @param  float  $minScore  Score mínimo de relevância combinado.
+     * @param  int  $limit  Número máximo de resultados.
+     * @param  array{sql: string, bindings: list<mixed>}  $filterSql  SQL e bindings de filtro.
+     * @return list<object> Linhas brutas retornadas pelo banco.
      */
     private function executeHybridSearch(
         string $embeddingString,
@@ -328,10 +347,11 @@ final class AiRagService implements AiRagServiceInterface
     }
 
     /**
-     * Expand search results with neighboring chunks.
+     * Expande os resultados de busca com chunks vizinhos para enriquecer o contexto.
      *
-     * @param  list<KnowledgeSearchResultDTO>  $results
-     * @return list<KnowledgeSearchResultDTO>
+     * @param  list<KnowledgeSearchResultDTO>  $results  Resultados da busca inicial.
+     * @param  string  $tenantId  UUID do tenant.
+     * @return list<KnowledgeSearchResultDTO> Resultados ampliados, ordenados por documento e índice.
      */
     private function expandNeighbors(array $results, string $tenantId): array
     {
@@ -399,7 +419,14 @@ final class AiRagService implements AiRagServiceInterface
     }
 
     /**
-     * Search and format results as context for LLM.
+     * Busca e formata os resultados como contexto textual para o LLM.
+     *
+     * @param  string  $query  Texto da consulta.
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  int  $limit  Número máximo de resultados.
+     * @param  float  $minScore  Score mínimo de relevância.
+     * @param  AiRagSearchModeEnum  $mode  Modo de busca.
+     * @return string Contexto formatado ou string vazia se sem resultados.
      */
     public function getContextForLLM(
         string $query,

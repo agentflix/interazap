@@ -19,7 +19,12 @@ use Illuminate\Support\Facades\Redis;
 use Throwable;
 
 /**
- * Job assíncrono para análise de sentimento por ticket.
+ * Job assíncrono para análise de sentimento de mensagem de um ticket.
+ *
+ * Utiliza um lock Redis para evitar análises concorrentes no mesmo ticket.
+ * Aplica média ponderada (40/60) entre o score anterior e o novo para suavizar
+ * variações bruscas de sentimento. Emite evento Redis para o gateway quando
+ * o score é atualizado, e cria alerta de sentimento negativo se score > 80.
  */
 final class AiAnalyzeSentimentJob implements ShouldQueue
 {
@@ -38,6 +43,9 @@ final class AiAnalyzeSentimentJob implements ShouldQueue
         public readonly string $tenantId,
     ) {}
 
+    /**
+     * Executa a análise de sentimento, atualiza o ticket e notifica o frontend.
+     */
     public function handle(AiSentimentService $service, AiNotificationActions $notificationActions): void
     {
         if (! app(PlatformPlanEnforcementService::class)->isAiEnabled($this->tenantId)) {

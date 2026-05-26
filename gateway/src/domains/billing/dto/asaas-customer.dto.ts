@@ -1,10 +1,10 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
 /**
- * DTO for creating a customer in Asaas (Brazilian payment gateway).
+ * DTO para criação de cliente no Asaas (gateway de pagamentos brasileiro).
  *
- * Used when registering a new tenant or user as a customer in Asaas
- * so that payments, invoices, and subscriptions can be managed.
+ * Utilizado ao registrar um novo tenant ou usuário como cliente no Asaas
+ * para que cobranças, faturas e assinaturas possam ser gerenciadas.
  */
 export class CreateAsaasCustomerDto {
   @IsString()

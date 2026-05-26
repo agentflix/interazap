@@ -116,21 +116,33 @@ export class QuickAnswers implements OnInit {
   }
 
   // ─── Actions ───────────────────────────────────────────────────────────────
+  /** Abre o modal de criação de resposta rápida. */
   openCreate(): void {
     this.selectedItem.set(null);
     this.showFormModal.set(true);
   }
 
+  /**
+   * Abre o modal de edição com a resposta rápida selecionada.
+   *
+   * @param item - Resposta rápida a editar.
+   */
   openEdit(item: QuickAnswer): void {
     this.selectedItem.set(item);
     this.showFormModal.set(true);
   }
 
+  /**
+   * Abre o modal de exclusão com a resposta rápida selecionada.
+   *
+   * @param item - Resposta rápida a excluir.
+   */
   openDelete(item: QuickAnswer): void {
     this.itemToDelete.set(item);
     this.showDeleteModal.set(true);
   }
 
+  /** Retorna a mensagem de confirmação para exclusão. */
   deleteMessage(): string {
     return `Tem certeza que deseja excluir a resposta rápida '${this.itemToDelete()?.name ?? ''}'? Esta ação não pode ser desfeita.`;
   }

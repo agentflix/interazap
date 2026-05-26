@@ -1,6 +1,6 @@
 type BufferStrategy = 'window' | 'debounce';
 
-/** Configuration for buffered realtime adapters. */
+/** Configuração para adaptadores de eventos em tempo real com buffer. */
 export interface BufferedRealtimeAdapterOptions<TEvent> {
   windowMs: number;
   strategy: BufferStrategy;
@@ -9,14 +9,14 @@ export interface BufferedRealtimeAdapterOptions<TEvent> {
   flushImmediately?: (event: TEvent) => boolean;
 }
 
-/** Reusable buffering adapter for realtime event streams. */
+/** Adaptador de buffer reutilizável para streams de eventos em tempo real. */
 export class BufferedRealtimeAdapter<TEvent> {
   private readonly buffer: TEvent[] = [];
   private timer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private readonly options: BufferedRealtimeAdapterOptions<TEvent>) {}
 
-  /** Adds a new event into the buffer strategy pipeline. */
+  /** Adiciona um novo evento ao pipeline da estratégia de buffer. */
   push(event: TEvent): void {
     if (this.options.flushImmediately?.(event) === true) {
       this.flushBuffer();
@@ -28,7 +28,7 @@ export class BufferedRealtimeAdapter<TEvent> {
     this.scheduleFlush();
   }
 
-  /** Disposes timers and pending buffered state. */
+  /** Descarta timers e o estado de buffer pendente. */
   dispose(): void {
     this.clearTimer();
     this.buffer.length = 0;

@@ -12,23 +12,23 @@ use Domain\CRM\Models\CRMEvent;
 use Domain\CRM\Models\CRMEventClientConfirmation;
 
 /**
- * Tool to confirm or decline an event booking by client response.
+ * Ferramenta de IA para confirmar ou recusar um agendamento com base na resposta do cliente.
  *
- * Updates the confirmation status and the associated CRM event,
- * then notifies the tenant users about the result.
+ * Input esperado: confirmation_id e action (confirmed|declined).
+ * Output produzido: status do evento e dados do agendamento.
+ * Quando usar: cliente responder a uma solicitação de confirmação de agendamento.
+ * Atualiza o status da confirmação, do evento CRM e notifica usuários do tenant.
  */
 class ConfirmEventBookingTool implements AiToolInterface
 {
     /**
-     * Create a new tool instance.
+     * Cria nova instância da ferramenta.
      */
     public function __construct(
         private readonly NotificationDispatcherService $notifications,
     ) {}
 
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a confirmação ou recusa do agendamento. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $confirmationId = (string) ($input->parameters['confirmation_id'] ?? '');
@@ -133,24 +133,20 @@ class ConfirmEventBookingTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CONFIRM_EVENT_BOOKING;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Confirms or declines an event booking based on client response, updates the event status and notifies the tenant.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

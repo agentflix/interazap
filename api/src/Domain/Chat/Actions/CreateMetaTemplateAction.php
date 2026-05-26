@@ -29,9 +29,13 @@ use Illuminate\Validation\ValidationException;
 final readonly class CreateMetaTemplateAction
 {
     /**
-     * Cria template Meta local + dispatcha job.
+     * Cria template Meta local com status 'pending' e despacha job de submissão assíncrono.
      *
-     * @param  array<string, mixed>  $data
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  array<string, mixed>  $data  Dados do template (chat_instance_id, name, language, category, components, shortcut).
+     * @return ChatMessageTemplate Template criado com status 'pending'.
+     *
+     * @throws \Illuminate\Validation\ValidationException Se chat_instance_id ou name forem inválidos.
      */
     public function execute(string $tenantId, array $data): ChatMessageTemplate
     {
@@ -95,7 +99,10 @@ final readonly class CreateMetaTemplateAction
     }
 
     /**
-     * @param  array<int|string, mixed>  $components
+     * Extrai o texto do componente BODY da lista de components do template.
+     *
+     * @param  array<int|string, mixed>  $components  Components do template Meta.
+     * @return string Texto do body ou string vazia se não encontrado.
      */
     private function extractBodyText(array $components): string
     {

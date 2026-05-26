@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Domain\Billing\DTOs;
 
-use Illuminate\Http\Request;
-
 /**
- * DTO for invoice data transfer.
+ * DTO para transferência de dados de fatura.
  *
  * @readonly
  */
@@ -26,9 +24,7 @@ final readonly class BillingInvoiceDTO
         public ?array $metadata = null,
     ) {}
 
-    /**
-     * Create DTO from validated form request.
-     */
+    /** Cria o DTO a partir de um FormRequest validado. */
     public static function fromRequest(\Illuminate\Foundation\Http\FormRequest $request): self
     {
         $data = $request->validated();

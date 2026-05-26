@@ -17,8 +17,8 @@ import { AfButtonComponent } from '../button/button';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfCrudPageComponent — Standard CRUD listing layout that orchestrates
- * a page title, search bar, content slot, pagination, and empty state.
+ * Layout padrão de listagem CRUD que orquestra título, barra de busca,
+ * slot de conteúdo, paginação e estado vazio.
  *
  * @example
  * ```html
@@ -57,80 +57,80 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './crud-page.html',
 })
 export class AfCrudPageComponent<TItem = unknown> {
-  /** Page heading */
+  /** Título da página */
   readonly title = input.required<string>();
 
-  /** Optional subtitle */
+  /** Subtítulo opcional */
   readonly subtitle = input<string | null>(null);
 
-  /** Label for the create button (omit to hide) */
+  /** Rótulo do botão de criação (omitir para ocultar) */
   readonly createLabel = input<string>();
 
-  /** Search placeholder text */
+  /** Placeholder do campo de busca */
   readonly searchPlaceholder = input('Buscar...');
 
-  /** Optional search input label */
+  /** Rótulo opcional do campo de busca */
   readonly searchLabel = input<string>();
 
-  /** Whether data is currently loading */
+  /** Indica se os dados estão sendo carregados */
   readonly loading = input(false);
 
-  /** Whether the data set is empty (after loading) */
+  /** Indica se o conjunto de dados está vazio (após carregamento) */
   readonly empty = input(false);
 
-  /** Empty-state heading */
+  /** Título do estado vazio */
   readonly emptyTitle = input('Nenhum registro encontrado');
 
-  /** Empty-state description */
+  /** Descrição do estado vazio */
   readonly emptyDescription = input('Crie seu primeiro registro para começar.');
 
-  /** Number of skeleton columns */
+  /** Número de colunas do skeleton */
   readonly skeletonColumns = input(4);
 
-  /** Number of skeleton rows */
+  /** Número de linhas do skeleton */
   readonly skeletonRows = input(5);
 
-  /** Current page (1-indexed) */
+  /** Página atual (índice a partir de 1) */
   readonly currentPage = input(1);
 
-  /** Last available page */
+  /** Última página disponível */
   readonly lastPage = input(1);
 
-  /** Items per page */
+  /** Itens por página */
   readonly perPage = input(15);
 
-  /** Total number of records */
+  /** Total de registros */
   readonly total = input(0);
 
-  /** Legacy CRUD service input */
+  /** Serviço CRUD legado */
   readonly service = input<unknown>();
 
-  /** Legacy CRUD config input */
+  /** Configuração CRUD legada */
   readonly config = input<unknown>();
 
-  /** Legacy columns input */
+  /** Colunas legadas */
   readonly columns = input<unknown>();
 
-  /** Legacy actions input */
+  /** Ações legadas */
   readonly actions = input<unknown>();
 
-  /** Emitted when the create button is clicked */
+  /** Emitido quando o botão de criação é clicado */
   readonly create = output<void>();
 
-  /** Emitted when a search term changes */
+  /** Emitido quando o termo de busca muda */
   // eslint-disable-next-line @angular-eslint/no-output-native
   readonly search = output<string>();
 
-  /** Emitted when user navigates to a different page */
+  /** Emitido quando o usuário navega para uma página diferente */
   readonly pageChange = output<number>();
 
-  /** Legacy custom action output */
+  /** Saída de ação customizada legada — emite ação e item alvo */
   readonly customAction = output<{ action: string; item: TItem }>();
 
-  /** Internal search control */
+  /** Controle interno de busca */
   protected readonly searchControl = new FormControl('', { nonNullable: true });
 
-  /** Legacy temporary status control */
+  /** Controle de status temporário legado */
   readonly tempStatusControl = new FormControl<string>('');
 
   private readonly destroyRef = inject(DestroyRef);
@@ -141,22 +141,29 @@ export class AfCrudPageComponent<TItem = unknown> {
       .subscribe((value) => this.search.emit(value));
   }
 
+  /** Emite o evento de criação */
   openCreate(): void {
     this.create.emit();
   }
 
+  /** Placeholder para tratamento de item salvo (herança) */
   handleFormSaved(_item: TItem): void {}
 
+  /** Placeholder para fechamento de modal (herança) */
   closeModal(): void {}
 
+  /** Placeholder para recarregamento da lista (herança) */
   reloadList(): void {}
 
+  /** Emite a página selecionada para o pai */
   goToPage(page: number): void {
     this.pageChange.emit(page);
   }
 
+  /** Placeholder para exibição de erro (herança) */
   showError(_message: string): void {}
 
+  /** Placeholder para exibição de sucesso (herança) */
   showSuccess(_message: string): void {}
 }
 

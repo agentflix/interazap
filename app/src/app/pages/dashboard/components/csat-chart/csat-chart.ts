@@ -9,8 +9,7 @@ interface RatingRow {
 }
 
 /**
- * CSAT chart — radial bar with rating distribution breakdown.
- * Business logic preserved verbatim from source.
+ * Gráfico CSAT — barra radial com distribuição de notas de satisfação.
  */
 @Component({
   selector: 'app-csat-chart',

@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
- * Detail panel component for the Chat module.
- * @selector app-detail-panel
+ * Painel de detalhes do módulo de Chat.
+ *
+ * Stub reservado para implementação futura do painel
+ * de detalhes e informações adicionais do atendimento.
  */
 @Component({
   selector: 'app-detail-panel',

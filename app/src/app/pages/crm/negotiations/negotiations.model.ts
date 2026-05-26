@@ -1,5 +1,5 @@
 /**
- * Models and types for negotiations component.
+ * Modelos e tipos para o componente de negociações do CRM.
  */
 
 export interface NegotiationFilterChip {

@@ -4,9 +4,9 @@ import { type UserPreferences } from '@shared/models/preferences.model';
 import { PreferencesService } from './preferences.service';
 
 /**
- * Signal-based store for user preferences.
- * Manages loading, saving, dirty-state tracking, and error handling.
- * Signals drive Angular's automatic change detection, so no ChangeDetectorRef is needed.
+ * Store baseado em signals para preferências do usuário.
+ * Gerencia carregamento, salvamento, rastreamento de estado sujo e tratamento de erros.
+ * Signals conduzem a detecção automática de mudanças do Angular, dispensando `ChangeDetectorRef`.
  *
  * @example
  * ```ts
@@ -21,32 +21,32 @@ export class PreferencesStore {
 
   // ── State signals ────────────────────────────────────────────────────────────
 
-  /** Current preferences loaded from the backend. Null until first load. */
+  /** Preferências atuais carregadas do backend. Nulo até o primeiro carregamento. */
   readonly preferences = signal<UserPreferences | null>(null);
 
-  /** True when there are unsaved changes in the form. */
+  /** `true` quando há alterações não salvas no formulário. */
   readonly isDirty = signal(false);
 
-  /** True while a save request is in flight. */
+  /** `true` enquanto uma requisição de salvamento está em andamento. */
   readonly isSaving = signal(false);
 
-  /** True while the initial load request is in flight. */
+  /** `true` enquanto a requisição de carregamento inicial está em andamento. */
   readonly isLoading = signal(false);
 
-  /** Error message from the last failed operation. */
+  /** Mensagem de erro da última operação com falha. */
   readonly error = signal<string | null>(null);
 
   // ── Computed ─────────────────────────────────────────────────────────────────
 
-  /** Convenience alias — true when there are unsaved changes. */
+  /** Alias de conveniência — `true` quando há alterações não salvas. */
   readonly hasUnsavedChanges = computed(() => this.isDirty());
 
   // ── Actions ──────────────────────────────────────────────────────────────────
 
   /**
-   * Load preferences from the backend.
-   * On success, replaces the current preferences and resets dirty state.
-   * On failure, sets the error signal.
+   * Carrega as preferências do backend.
+   * Em caso de sucesso, substitui as preferências atuais e reinicia o estado sujo.
+   * Em caso de falha, define o signal de erro.
    */
   load(): void {
     this.isLoading.set(true);
@@ -69,10 +69,10 @@ export class PreferencesStore {
   }
 
   /**
-   * Save the given preferences to the backend.
-   * Resets dirty state on success; preserves dirty state on failure.
+   * Salva as preferências fornecidas no backend.
+   * Reinicia o estado sujo em caso de sucesso; preserva em caso de falha.
    *
-   * @param prefs - Complete preferences object to persist
+   * @param prefs - Objeto completo de preferências a persistir
    */
   save(prefs: UserPreferences): void {
     if (this.isSaving()) {
@@ -99,15 +99,15 @@ export class PreferencesStore {
   }
 
   /**
-   * Reload preferences from the backend, discarding any unsaved changes.
+   * Recarrega as preferências do backend, descartando quaisquer alterações não salvas.
    */
   reset(): void {
     this.load();
   }
 
   /**
-   * Mark the form as having unsaved changes.
-   * Call this whenever any preference control value changes.
+   * Marca o formulário como tendo alterações não salvas.
+   * Chamar sempre que qualquer controle de preferência tiver o valor alterado.
    */
   markDirty(): void {
     this.isDirty.set(true);

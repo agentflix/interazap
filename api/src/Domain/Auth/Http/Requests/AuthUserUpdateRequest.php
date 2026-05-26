@@ -17,6 +17,12 @@ use Illuminate\Validation\Rule;
  */
 final class AuthUserUpdateRequest extends FormRequest
 {
+    /**
+     * Prepara os dados antes da validação, injetando tenant_id e formatando o telefone.
+     *
+     * Super admins na rota platform/users podem atualizar usuários de qualquer tenant;
+     * usuários comuns têm o tenant_id fixado ao seu próprio tenant.
+     */
     protected function prepareForValidation(): void
     {
         $user = $this->user('sanctum');
@@ -67,6 +73,7 @@ final class AuthUserUpdateRequest extends FormRequest
         }
     }
 
+    /** Verifica se a requisição é proveniente de uma rota do módulo platform/users. */
     private function isPlatformUsersRoute(): bool
     {
         $uri = (string) ($this->route()?->uri() ?? '');
@@ -77,7 +84,9 @@ final class AuthUserUpdateRequest extends FormRequest
     }
 
     /**
-     * Determine if the user is authorized to make this request.
+     * Autoriza a atualização verificando permissão via policy e impedindo atribuição de super-admin.
+     *
+     * @throws AuthorizationException Se tentar atribuir o perfil Administrador sem ser super-admin.
      */
     public function authorize(): bool
     {
@@ -121,7 +130,7 @@ final class AuthUserUpdateRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para atualização de usuário (campos opcionais).
      *
      * @return array<string, mixed>
      */

@@ -16,7 +16,10 @@ final class AiEscalationRequiredEvent
     use SerializesModels;
 
     /**
-     * @param  array<string, mixed>  $data
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $title  Título da notificação de escalonamento.
+     * @param  string  $message  Mensagem descritiva do escalonamento.
+     * @param  array<string, mixed>  $data  Dados adicionais do contexto.
      */
     public function __construct(
         public readonly string $tenantId,

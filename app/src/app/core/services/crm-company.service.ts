@@ -6,18 +6,19 @@ import type { CRMCompany, CRMCompanyFilters, CRMCompanyListResponse, CRMCompanyP
 export type { CRMCompany, CRMCompanyFilters, CRMCompanyListResponse, CRMCompanyPayload, CRMCompanyResponse } from '@core/models/crm-company.model';
 
 
-/** CRM Company model */
-
 /**
- * Service for managing CRM companies.
- * Preserved verbatim from source — no business logic changes.
+ * Gerencia empresas do CRM com operações de CRUD e listagem completa.
  */
 @Injectable({ providedIn: 'root' })
 export class CRMCompanyService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/crm/companies`;
 
-  /** List companies with filters and pagination. */
+  /**
+   * Lista empresas com filtros e paginação.
+   * @param params Filtros opcionais: search, is_active, paginação, ordenação
+   * @returns Observable com lista paginada de empresas do CRM
+   */
   list(params: CRMCompanyFilters = {}): Observable<CRMCompanyListResponse> {
     let httpParams = new HttpParams();
     httpParams = this.appendTrimmedString(httpParams, 'search', params.search);
@@ -29,29 +30,49 @@ export class CRMCompanyService {
     return this.http.get<CRMCompanyListResponse>(this.baseUrl, { params: httpParams });
   }
 
-  /** List all companies without pagination. */
+  /**
+   * Lista todas as empresas sem paginação (para selects/dropdowns).
+   * @returns Observable com array completo de empresas
+   */
   all(): Observable<CRMCompany[]> {
     return this.http
       .get<{ data: CRMCompany[] } | CRMCompany[]>(`${this.baseUrl}/all`)
       .pipe(map((resp) => ('data' in resp ? resp.data : resp)));
   }
 
-  /** Get a single company by ID. */
+  /**
+   * Retorna uma empresa pelo ID.
+   * @param id Identificador da empresa
+   * @returns Observable com dados da empresa
+   */
   get(id: string): Observable<CRMCompanyResponse> {
     return this.http.get<CRMCompanyResponse>(`${this.baseUrl}/${id}`);
   }
 
-  /** Create a new company. */
+  /**
+   * Cria uma nova empresa no CRM.
+   * @param payload Dados da empresa (nome, documento, endereço, etc.)
+   * @returns Observable com a empresa criada
+   */
   create(payload: CRMCompanyPayload): Observable<CRMCompanyResponse> {
     return this.http.post<CRMCompanyResponse>(this.baseUrl, payload);
   }
 
-  /** Update an existing company. */
+  /**
+   * Atualiza dados de uma empresa existente.
+   * @param id Identificador da empresa
+   * @param payload Dados atualizados da empresa
+   * @returns Observable com a empresa atualizada
+   */
   update(id: string, payload: CRMCompanyPayload): Observable<CRMCompanyResponse> {
     return this.http.put<CRMCompanyResponse>(`${this.baseUrl}/${id}`, payload);
   }
 
-  /** Delete a company. */
+  /**
+   * Exclui uma empresa do CRM.
+   * @param id Identificador da empresa
+   * @returns Observable que completa após a exclusão
+   */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }

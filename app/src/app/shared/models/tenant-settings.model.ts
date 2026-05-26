@@ -1,11 +1,11 @@
 /**
- * Tenant settings model.
- * Mirrors the backend `settings_localization`, `settings_privacy`, and `settings_chat`
- * JSONB columns stored in `platform_tenants`.
+ * Modelo de configurações do tenant.
+ * Espelha as colunas JSONB `settings_localization`, `settings_privacy` e `settings_chat`
+ * armazenadas em `platform_tenants`.
  */
 
 /**
- * Localization settings — timezone, date, time, and currency formats.
+ * Configurações de localização — fuso horário, formatos de data, hora e moeda.
  */
 export interface TenantLocalizationSettings {
   timezone: string;
@@ -15,7 +15,7 @@ export interface TenantLocalizationSettings {
 }
 
 /**
- * Privacy settings — presence visibility, read receipts, and notification previews.
+ * Configurações de privacidade — visibilidade de presença, confirmação de leitura e previews.
  */
 export interface TenantPrivacySettings {
   presence: 'all' | 'team' | 'hidden';
@@ -24,7 +24,7 @@ export interface TenantPrivacySettings {
 }
 
 /**
- * Chat auto-close settings — automatically close tickets after inactivity.
+ * Configurações de auto-fechamento de chat — fecha tickets automaticamente após inatividade.
  */
 export interface TenantChatAutoCloseSettings {
   auto_close_inactivity_enabled: boolean;
@@ -34,7 +34,7 @@ export interface TenantChatAutoCloseSettings {
 }
 
 /**
- * Complete tenant settings structure persisted in the backend.
+ * Estrutura completa de configurações do tenant persistida no backend.
  */
 export interface TenantSettings {
   settings_localization: TenantLocalizationSettings;
@@ -43,7 +43,7 @@ export interface TenantSettings {
 }
 
 /**
- * API response envelope for tenant settings.
+ * Envelope de resposta da API para configurações do tenant.
  */
 export interface TenantSettingsResponse {
   data: TenantSettings;

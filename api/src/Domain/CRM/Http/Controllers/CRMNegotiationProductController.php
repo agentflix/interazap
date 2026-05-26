@@ -16,12 +16,24 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controlador para itens de negociação.
+ * Controller para itens (produtos/serviços) de negociações do CRM.
+ *
+ * Gerencia adição, listagem, atualização e remoção de itens vinculados a negociações. Requer autenticação Sanctum.
  */
 final class CRMNegotiationProductController extends BaseController
 {
+    /**
+     * @param  CRMNegotiationProductActions  $actions  Ação de gestão de itens de negociação.
+     */
     public function __construct(private readonly CRMNegotiationProductActions $actions) {}
 
+    /**
+     * Lista itens de uma negociação.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $negotiationId  ID da negociação.
+     * @return JsonResponse Lista de itens da negociação.
+     */
     public function index(Request $request, string $negotiationId): JsonResponse
     {
         $negotiation = CRMNegotiation::query()->findOrFail($negotiationId);
@@ -33,6 +45,13 @@ final class CRMNegotiationProductController extends BaseController
         return $this->success($items, 'Itens da negociação listados');
     }
 
+    /**
+     * Adiciona item a uma negociação.
+     *
+     * @param  CRMNegotiationProductRequest  $request  Dados da requisição com nome, quantidade e preço.
+     * @param  string  $negotiationId  ID da negociação.
+     * @return JsonResponse Item adicionado.
+     */
     public function store(CRMNegotiationProductRequest $request, string $negotiationId): JsonResponse
     {
         $negotiation = CRMNegotiation::query()->findOrFail($negotiationId);
@@ -43,6 +62,13 @@ final class CRMNegotiationProductController extends BaseController
         return $this->created(new CRMNegotiationProductResource($item), 'Item adicionado à negociação');
     }
 
+    /**
+     * Atualiza item de negociação.
+     *
+     * @param  CRMNegotiationProductUpdateRequest  $request  Dados atualizados do item.
+     * @param  string  $id  ID do item.
+     * @return JsonResponse Item atualizado.
+     */
     public function update(CRMNegotiationProductUpdateRequest $request, string $id): JsonResponse
     {
         $item = CRMNegotiationProduct::query()
@@ -61,6 +87,13 @@ final class CRMNegotiationProductController extends BaseController
         return $this->success(new CRMNegotiationProductResource($item), 'Item atualizado');
     }
 
+    /**
+     * Remove item de negociação.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $id  ID do item.
+     * @return JsonResponse Resposta sem conteúdo.
+     */
     public function destroy(Request $request, string $id): JsonResponse
     {
         $item = CRMNegotiationProduct::query()

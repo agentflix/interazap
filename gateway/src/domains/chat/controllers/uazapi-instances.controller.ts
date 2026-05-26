@@ -29,17 +29,17 @@ export class UazapiInstancesController {
   private readonly logger = new Logger(UazapiInstancesController.name);
 
   /**
-   * Initializes the instances controller with the Uazapi client.
+   * Inicializa o controller de instancias com o cliente Uazapi.
    *
-   * @param client - Uazapi HTTP client for instance lifecycle operations
+   * @param client Cliente HTTP Uazapi para operacoes de ciclo de vida de instancias
    */
   constructor(private readonly client: UazapiClient) {}
 
   /**
-   * Initializes a new Uazapi instance.
+   * Inicializa uma nova instancia Uazapi.
    *
-   * @param body - Instance initialization payload
-   * @returns Created instance data
+   * @param body Payload de inicializacao da instancia
+   * @returns Dados da instancia criada
    */
   @Post()
   initInstance(@Body() body: Record<string, unknown>) {
@@ -48,9 +48,9 @@ export class UazapiInstancesController {
   }
 
   /**
-   * Lists all Uazapi instances.
+   * Lista todas as instancias Uazapi disponiveis.
    *
-   * @returns List of instances
+   * @returns Lista de instancias
    */
   @Get()
   listInstances() {
@@ -59,11 +59,11 @@ export class UazapiInstancesController {
   }
 
   /**
-   * Connects an existing Uazapi instance.
+   * Conecta uma instancia Uazapi existente.
    *
-   * @param token - Instance token
-   * @param body - Connection payload
-   * @returns Connection result
+   * @param token Token da instancia
+   * @param body Payload de conexao
+   * @returns Resultado da conexao
    */
   @Post(':token/connect')
   connect(@Param('token') token: string, @Body() body: ConnectInstanceDto) {
@@ -75,10 +75,10 @@ export class UazapiInstancesController {
   }
 
   /**
-   * Disconnects a Uazapi instance.
+   * Desconecta uma instancia Uazapi.
    *
-   * @param token - Instance token
-   * @returns Disconnection result
+   * @param token Token da instancia
+   * @returns Resultado da desconexao
    */
   @Post(':token/disconnect')
   disconnect(@Param('token') token: string) {
@@ -87,11 +87,11 @@ export class UazapiInstancesController {
   }
 
   /**
-   * Configures webhook for a Uazapi instance.
+   * Configura o webhook de uma instancia Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Webhook configuration payload
-   * @returns Webhook configuration result
+   * @param token Token da instancia
+   * @param body Payload de configuracao do webhook
+   * @returns Resultado da configuracao
    */
   @Post(':token/webhook')
   configureWebhook(
@@ -103,10 +103,10 @@ export class UazapiInstancesController {
   }
 
   /**
-   * Gets the status of a Uazapi instance.
+   * Consulta o status de uma instancia Uazapi.
    *
-   * @param token - Instance token
-   * @returns Instance status
+   * @param token Token da instancia
+   * @returns Status atual da instancia
    */
   @Get(':token/status')
   status(@Param('token') token: string) {
@@ -115,10 +115,10 @@ export class UazapiInstancesController {
   }
 
   /**
-   * Deletes a Uazapi instance.
+   * Remove uma instancia Uazapi.
    *
-   * @param token - Instance token
-   * @returns Deletion result
+   * @param token Token da instancia
+   * @returns Resultado da remocao
    */
   @Post(':token/delete')
   delete(@Param('token') token: string) {
@@ -127,11 +127,11 @@ export class UazapiInstancesController {
   }
 
   /**
-   * Updates the profile image of a Uazapi instance.
+   * Atualiza a imagem de perfil de uma instancia Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Profile image update payload
-   * @returns Update result
+   * @param token Token da instancia
+   * @param body Payload com a nova imagem de perfil
+   * @returns Resultado da atualizacao
    */
   @Post(':token/profile-image')
   updateProfileImage(
@@ -143,11 +143,11 @@ export class UazapiInstancesController {
   }
 
   /**
-   * Updates the presence status of a Uazapi instance.
+   * Atualiza o status de presenca de uma instancia Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Presence update payload
-   * @returns Update result
+   * @param token Token da instancia
+   * @param body Payload com o novo status de presenca
+   * @returns Resultado da atualizacao
    */
   @Post(':token/presence')
   updatePresence(

@@ -48,6 +48,9 @@ import { PlatformUserFormComponent } from '../users/components/platform-user-for
 
 type TenantSortField = 'name' | 'document' | 'is_active' | 'created_at';
 
+/**
+ * Página de tenants da plataforma — CRUD completo com impersonação, exportação e gerenciamento de usuários.
+ */
 @Component({
   selector: 'app-tenants',
   standalone: true,

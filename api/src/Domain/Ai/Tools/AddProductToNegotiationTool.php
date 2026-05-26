@@ -13,13 +13,15 @@ use Domain\CRM\Models\CRMProduct;
 use Illuminate\Support\Str;
 
 /**
- * Tool to add products to a negotiation.
+ * Ferramenta de IA para adicionar produtos a uma negociação.
+ *
+ * Input esperado: negotiation_id (obrigatório), product_id ou name, qty e unit_price.
+ * Output produzido: ID do item criado, quantidades e total adicionado.
+ * Quando usar: o cliente confirmar interesse em um produto e o agente precisar registrá-lo na negociação.
  */
 class AddProductToNegotiationTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a adição do produto na negociação. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $negotiationId = (string) ($input->parameters['negotiation_id'] ?? '');
@@ -90,24 +92,20 @@ class AddProductToNegotiationTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::ADD_PRODUCT_TO_NEGOTIATION;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Adds a product/item to an existing negotiation.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

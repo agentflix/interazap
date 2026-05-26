@@ -12,9 +12,7 @@ import type {
 } from '@core/models/contact.model';
 
 /**
- * Service for managing CRM contacts.
- * Provides methods for CRUD operations, import/export, and status management.
- * Preserved verbatim from source — no business logic changes.
+ * Gerencia contatos do CRM com operações de CRUD, importação/exportação e controle de status.
  */
 @Injectable({ providedIn: 'root' })
 export class ContactService {
@@ -22,9 +20,9 @@ export class ContactService {
   private readonly baseUrl = `${environment.apiUrl}/crm/contacts`;
 
   /**
-   * Retrieves a paginated list of contacts based on provided filters.
-   * @param filters - Optional filtering and pagination parameters.
-   * @returns Observable of ContactListResponse.
+   * Retorna lista paginada de contatos com base nos filtros fornecidos.
+   * @param filters - Parâmetros opcionais de filtragem e paginação.
+   * @returns Observable de `ContactListResponse`.
    */
   list(filters: ContactFilters = {}): Observable<ContactListResponse> {
     let params = new HttpParams();
@@ -39,55 +37,55 @@ export class ContactService {
   }
 
   /**
-   * Retrieves a single contact by its ID.
-   * @param id - Contact identifier.
-   * @returns Observable of ContactResponse.
+   * Retorna um contato pelo seu ID.
+   * @param id - Identificador do contato.
+   * @returns Observable de `ContactResponse`.
    */
   find(id: string): Observable<ContactResponse> {
     return this.http.get<ContactResponse>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * Creates a new contact in the system.
-   * @param data - Partial contact data for creation.
-   * @returns Observable of ContactResponse.
+   * Cria um novo contato no sistema.
+   * @param data - Dados parciais do contato para criação.
+   * @returns Observable de `ContactResponse`.
    */
   create(data: Partial<Contact>): Observable<ContactResponse> {
     return this.http.post<ContactResponse>(this.baseUrl, data);
   }
 
   /**
-   * Updates an existing contact.
-   * @param id - Contact identifier.
-   * @param data - Partial contact data for update.
-   * @returns Observable of ContactResponse.
+   * Atualiza um contato existente.
+   * @param id - Identificador do contato.
+   * @param data - Dados parciais do contato para atualização.
+   * @returns Observable de `ContactResponse`.
    */
   update(id: string, data: Partial<Contact>): Observable<ContactResponse> {
     return this.http.put<ContactResponse>(`${this.baseUrl}/${id}`, data);
   }
 
   /**
-   * Deletes a contact from the system.
-   * @param id - Contact identifier.
-   * @returns Observable of null on success.
+   * Exclui um contato do sistema.
+   * @param id - Identificador do contato.
+   * @returns Observable de `null` em caso de sucesso.
    */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * Toggles the active/inactive status of a contact.
-   * @param id - Contact identifier.
-   * @returns Observable of updated ContactResponse.
+   * Alterna o status ativo/inativo de um contato.
+   * @param id - Identificador do contato.
+   * @returns Observable de `ContactResponse` atualizado.
    */
   toggleActive(id: string): Observable<ContactResponse> {
     return this.http.patch<ContactResponse>(`${this.baseUrl}/${id}/toggle-active`, {});
   }
 
   /**
-   * Exports contacts to a CSV file.
-   * @param filters - Optional filters to apply to the export.
-   * @returns Observable of a Blob containing the CSV data.
+   * Exporta contatos para um arquivo CSV.
+   * @param filters - Filtros opcionais a aplicar na exportação.
+   * @returns Observable de `Blob` contendo os dados CSV.
    */
   export(filters: ContactFilters = {}): Observable<Blob> {
     let params = new HttpParams();
@@ -98,9 +96,9 @@ export class ContactService {
   }
 
   /**
-   * Uploads a CSV file to be prepared for import.
-   * @param file - The CSV file to upload.
-   * @returns Observable of ContactImportUploadResponse with mapping information.
+   * Faz upload de um arquivo CSV para preparação da importação.
+   * @param file - Arquivo CSV a enviar.
+   * @returns Observable de `ContactImportUploadResponse` com informações de mapeamento.
    */
   uploadImport(file: File): Observable<ContactImportUploadResponse> {
     const formData = new FormData();
@@ -109,9 +107,9 @@ export class ContactService {
   }
 
   /**
-   * Finalizes the contact import process with field mapping.
-   * @param payload - Import details including mapping and delimiter.
-   * @returns Observable of ContactImportResponse.
+   * Finaliza o processo de importação de contatos com mapeamento de campos.
+   * @param payload - Detalhes da importação incluindo mapeamento e delimitador.
+   * @returns Observable de `ContactImportResponse`.
    */
   importContacts(payload: {
     import_id: string;
@@ -123,7 +121,7 @@ export class ContactService {
   }
 
   /**
-   * Helper to append a trimmed string to HttpParams if it exists and is not empty.
+   * Auxiliar: adiciona string sem espaços extras aos HttpParams se não estiver vazia.
    * @private
    */
   private appendTrimmedString(params: HttpParams, key: string, value?: string): HttpParams {
@@ -134,7 +132,7 @@ export class ContactService {
   }
 
   /**
-   * Helper to append a boolean value to HttpParams.
+   * Auxiliar: adiciona valor booleano aos HttpParams.
    * @private
    */
   private appendBoolean(params: HttpParams, key: string, value?: boolean): HttpParams {
@@ -143,7 +141,7 @@ export class ContactService {
   }
 
   /**
-   * Helper to append sort direction to HttpParams.
+   * Auxiliar: adiciona direção de ordenação aos HttpParams.
    * @private
    */
   private appendSortDir(params: HttpParams, value?: 'asc' | 'desc'): HttpParams {
@@ -152,7 +150,7 @@ export class ContactService {
   }
 
   /**
-   * Helper to append a number to HttpParams.
+   * Auxiliar: adiciona valor numérico aos HttpParams.
    * @private
    */
   private appendNumber(params: HttpParams, key: string, value?: number): HttpParams {

@@ -5,7 +5,10 @@ import { EMPTY, catchError, throwError } from 'rxjs';
 import { BillingStatusService, type BillingLockoutData } from '../services/billing-status.service';
 
 /**
- * Captures billing lockout responses and redirects user to lockout page.
+ * Intercepta respostas de bloqueio por inadimplência (HTTP 423 com `tenant_locked`)
+ * e redireciona o usuário para a página de lockout de cobrança.
+ *
+ * Rotas de autenticação (/auth/*) são ignoradas para não bloquear o logout.
  */
 export const billingLockoutInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);

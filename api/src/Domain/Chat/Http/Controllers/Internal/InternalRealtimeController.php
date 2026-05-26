@@ -22,15 +22,19 @@ use Illuminate\Http\Request;
 final class InternalRealtimeController extends BaseController
 {
     /**
+     * Validar se o tenant possui acesso (ownership) a uma room de realtime.
+     *
      * GET /api/internal/realtime/room-access
      *
-     * Valida se tenant possui ownership de uma room.
      * Query params: room (formato `ticket:{uuid}` ou `run:{uuid}`), tenant_id.
+     *
+     * @param  Request  $request  Parâmetros room e tenant_id.
+     * @return JsonResponse Objeto com campo 'allowed' (bool).
      */
     public function roomAccess(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'room'      => ['required', 'string', 'regex:/^(ticket|run):[0-9a-f\-]{36}$/i'],
+            'room' => ['required', 'string', 'regex:/^(ticket|run):[0-9a-f\-]{36}$/i'],
             'tenant_id' => ['required', 'string', 'uuid'],
         ]);
 
@@ -39,6 +43,13 @@ final class InternalRealtimeController extends BaseController
         return response()->json(['allowed' => $allowed]);
     }
 
+    /**
+     * Verificar acesso a uma room com base no tipo (ticket ou run) e no tenant.
+     *
+     * @param  string  $room  Identificador no formato 'tipo:uuid'.
+     * @param  string  $tenantId  UUID do tenant solicitante.
+     * @return bool True se o tenant possui acesso à room.
+     */
     private function checkRoomAccess(string $room, string $tenantId): bool
     {
         [$type, $id] = explode(':', $room, 2);

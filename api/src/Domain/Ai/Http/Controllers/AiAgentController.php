@@ -30,9 +30,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
- * Controller de CRUD de agentes de IA.
- *
- * @category Controllers
+ * Controller para gerenciamento de agentes de IA do módulo de IA.
  */
 final class AiAgentController extends BaseController
 {
@@ -44,10 +42,10 @@ final class AiAgentController extends BaseController
     ) {}
 
     /**
-     * List all AI agents for the tenant.
+     * Lista todos os agentes de IA do tenant.
      *
-     * @param  Request  $request  HTTP request with optional search filter.
-     * @return JsonResponse Paginated list of agents.
+     * @param  Request  $request  Requisição HTTP com filtro de busca opcional.
+     * @return JsonResponse Lista paginada de agentes.
      */
     public function index(Request $request): JsonResponse
     {
@@ -62,10 +60,10 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Create a new AI agent.
+     * Cria um novo agente de IA.
      *
-     * @param  AiAgentStoreRequest  $request  Validated agent data.
-     * @return JsonResponse Created agent resource.
+     * @param  AiAgentStoreRequest  $request  Dados validados do agente.
+     * @return JsonResponse Agente criado.
      */
     public function store(AiAgentStoreRequest $request): JsonResponse
     {
@@ -78,11 +76,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Get a specific AI agent.
+     * Exibe um agente de IA específico.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Agent resource.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Dados do agente.
      */
     public function show(Request $request, string $id): JsonResponse
     {
@@ -95,11 +93,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Update an existing AI agent.
+     * Atualiza um agente de IA existente.
      *
-     * @param  AiAgentUpdateRequest  $request  Validated agent data.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Updated agent resource.
+     * @param  AiAgentUpdateRequest  $request  Dados validados do agente.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Agente atualizado.
      */
     public function update(AiAgentUpdateRequest $request, string $id): JsonResponse
     {
@@ -114,11 +112,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Delete an AI agent.
+     * Remove um agente de IA.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse No content on success.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Sem conteúdo em caso de sucesso.
      */
     public function destroy(Request $request, string $id): JsonResponse
     {
@@ -131,11 +129,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Toggle agent active status.
+     * Alterna o status ativo/inativo do agente.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Updated agent with toggled status.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Agente com status atualizado.
      */
     public function toggle(Request $request, string $id): JsonResponse
     {
@@ -148,11 +146,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * List all files associated with an agent.
+     * Lista todos os arquivos associados a um agente.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Collection of agent files.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Coleção de arquivos do agente.
      */
     public function files(Request $request, string $id): JsonResponse
     {
@@ -171,12 +169,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Get a specific agent file by slug.
+     * Exibe um arquivo específico do agente pelo slug.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @param  string  $slug  File slug identifier.
-     * @return JsonResponse File contents and metadata.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @param  string  $slug  Identificador slug do arquivo.
+     * @return JsonResponse Conteúdo e metadados do arquivo.
      */
     public function fileShow(Request $request, string $id, string $slug): JsonResponse
     {
@@ -195,12 +193,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Create or update an agent file.
+     * Cria ou atualiza um arquivo do agente.
      *
-     * @param  Request  $request  HTTP request with 'content' field.
-     * @param  string  $id  UUID of the agent.
-     * @param  string  $slug  File slug identifier.
-     * @return JsonResponse Updated file.
+     * @param  Request  $request  Requisição HTTP com campo 'content'.
+     * @param  string  $id  UUID do agente.
+     * @param  string  $slug  Identificador slug do arquivo.
+     * @return JsonResponse Arquivo atualizado.
      */
     public function fileUpdate(Request $request, string $id, string $slug): JsonResponse
     {
@@ -230,10 +228,10 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Get catalog of all available tools.
+     * Lista o catálogo de todas as ferramentas disponíveis.
      *
-     * @param  Request  $request  HTTP request.
-     * @return JsonResponse List of available tools with definitions.
+     * @param  Request  $request  Requisição HTTP.
+     * @return JsonResponse Lista de ferramentas disponíveis com definições.
      */
     public function toolsCatalog(Request $request): JsonResponse
     {
@@ -245,12 +243,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Get preset tools for a specific agent role.
+     * Lista ferramentas predefinidas para um papel de agente específico.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $role  Agent role (e.g., 'general', 'seller').
-     * @param  \Domain\Ai\Services\AiPermissionMatrixService  $matrix  Permission matrix service.
-     * @return JsonResponse List of available tools for the role.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $role  Papel do agente (ex.: 'general', 'seller').
+     * @param  \Domain\Ai\Services\AiPermissionMatrixService  $matrix  Serviço de matriz de permissões.
+     * @return JsonResponse Lista de ferramentas disponíveis para o papel.
      */
     public function toolsPreset(Request $request, string $role, \Domain\Ai\Services\AiPermissionMatrixService $matrix): JsonResponse
     {
@@ -263,13 +261,13 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * List tools configured for an agent.
+     * Lista as ferramentas configuradas para um agente.
      *
-     * Reads tool names from the ai_agent_tools pivot table via AiAgentToolPermissionService.
+     * Lê os nomes das ferramentas da tabela pivot ai_agent_tools via AiAgentToolPermissionService.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse List of selected tools with metadata.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Lista de ferramentas selecionadas com metadados.
      */
     public function tools(Request $request, string $id): JsonResponse
     {
@@ -287,14 +285,14 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Update tools assigned to an agent.
+     * Atualiza as ferramentas atribuídas a um agente.
      *
-     * Synchronizes the ai_agent_tools pivot table via AiAgentToolPermissionService
-     * and removes legacy metadata.tool_names if present.
+     * Sincroniza a tabela pivot ai_agent_tools via AiAgentToolPermissionService
+     * e remove o legacy metadata.tool_names caso presente.
      *
-     * @param  AiAgentToolsUpdateRequest  $request  Validated request with tool_names.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Updated list of selected tools.
+     * @param  AiAgentToolsUpdateRequest  $request  Requisição validada com tool_names.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Lista atualizada de ferramentas selecionadas.
      */
     public function toolsUpdate(AiAgentToolsUpdateRequest $request, string $id): JsonResponse
     {
@@ -336,11 +334,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * List all triggers for an agent.
+     * Lista todos os gatilhos configurados para um agente.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Collection of agent triggers.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Coleção de gatilhos do agente.
      */
     public function triggers(Request $request, string $id): JsonResponse
     {
@@ -359,11 +357,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Create a new trigger for an agent.
+     * Cria um novo gatilho para um agente.
      *
-     * @param  AiAgentTriggerStoreRequest  $request  Validated trigger data.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Created trigger.
+     * @param  AiAgentTriggerStoreRequest  $request  Dados validados do gatilho.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Gatilho criado.
      */
     public function triggerStore(AiAgentTriggerStoreRequest $request, string $id): JsonResponse
     {
@@ -383,12 +381,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Update an existing trigger.
+     * Atualiza um gatilho existente.
      *
-     * @param  AiAgentTriggerStoreRequest  $request  Validated trigger data.
-     * @param  string  $id  UUID of the agent.
-     * @param  string  $triggerId  UUID of the trigger.
-     * @return JsonResponse Updated trigger.
+     * @param  AiAgentTriggerStoreRequest  $request  Dados validados do gatilho.
+     * @param  string  $id  UUID do agente.
+     * @param  string  $triggerId  UUID do gatilho.
+     * @return JsonResponse Gatilho atualizado.
      */
     public function triggerUpdate(AiAgentTriggerStoreRequest $request, string $id, string $triggerId): JsonResponse
     {
@@ -409,12 +407,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Delete a trigger.
+     * Remove um gatilho.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @param  string  $triggerId  UUID of the trigger.
-     * @return JsonResponse No content on success.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @param  string  $triggerId  UUID do gatilho.
+     * @return JsonResponse Sem conteúdo em caso de sucesso.
      */
     public function triggerDestroy(Request $request, string $id, string $triggerId): JsonResponse
     {
@@ -433,11 +431,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * List all channels configured for an agent.
+     * Lista todos os canais configurados para um agente.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Collection of agent channels.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Coleção de canais do agente.
      */
     public function channels(Request $request, string $id): JsonResponse
     {
@@ -457,11 +455,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Create a new channel for an agent.
+     * Cria um novo canal para um agente.
      *
-     * @param  AiAgentChannelStoreRequest  $request  Validated channel data.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Created channel.
+     * @param  AiAgentChannelStoreRequest  $request  Dados validados do canal.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Canal criado.
      */
     public function channelStore(AiAgentChannelStoreRequest $request, string $id): JsonResponse
     {
@@ -481,12 +479,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Update an existing channel.
+     * Atualiza um canal existente.
      *
-     * @param  AiAgentChannelStoreRequest  $request  Validated channel data.
-     * @param  string  $id  UUID of the agent.
-     * @param  string  $channelId  UUID of the channel.
-     * @return JsonResponse Updated channel.
+     * @param  AiAgentChannelStoreRequest  $request  Dados validados do canal.
+     * @param  string  $id  UUID do agente.
+     * @param  string  $channelId  UUID do canal.
+     * @return JsonResponse Canal atualizado.
      */
     public function channelUpdate(AiAgentChannelStoreRequest $request, string $id, string $channelId): JsonResponse
     {
@@ -507,12 +505,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Delete a channel.
+     * Remove um canal.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @param  string  $channelId  UUID of the channel.
-     * @return JsonResponse No content on success.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @param  string  $channelId  UUID do canal.
+     * @return JsonResponse Sem conteúdo em caso de sucesso.
      */
     public function channelDestroy(Request $request, string $id, string $channelId): JsonResponse
     {
@@ -531,11 +529,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * List all skills configured for an agent.
+     * Lista todas as habilidades configuradas para um agente.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Collection of agent skills.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Coleção de habilidades do agente.
      */
     public function skills(Request $request, string $id): JsonResponse
     {
@@ -554,11 +552,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Create a new skill for an agent.
+     * Cria uma nova habilidade para um agente.
      *
-     * @param  AiAgentSkillStoreRequest  $request  Validated skill data.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Created skill.
+     * @param  AiAgentSkillStoreRequest  $request  Dados validados da habilidade.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Habilidade criada.
      */
     public function skillStore(AiAgentSkillStoreRequest $request, string $id): JsonResponse
     {
@@ -578,12 +576,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Update an existing skill.
+     * Atualiza uma habilidade existente.
      *
-     * @param  AiAgentSkillStoreRequest  $request  Validated skill data.
-     * @param  string  $id  UUID of the agent.
-     * @param  string  $skillId  UUID of the skill.
-     * @return JsonResponse Updated skill.
+     * @param  AiAgentSkillStoreRequest  $request  Dados validados da habilidade.
+     * @param  string  $id  UUID do agente.
+     * @param  string  $skillId  UUID da habilidade.
+     * @return JsonResponse Habilidade atualizada.
      */
     public function skillUpdate(AiAgentSkillStoreRequest $request, string $id, string $skillId): JsonResponse
     {
@@ -604,12 +602,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Delete a skill.
+     * Remove uma habilidade.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @param  string  $skillId  UUID of the skill.
-     * @return JsonResponse No content on success.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @param  string  $skillId  UUID da habilidade.
+     * @return JsonResponse Sem conteúdo em caso de sucesso.
      */
     public function skillDestroy(Request $request, string $id, string $skillId): JsonResponse
     {
@@ -628,11 +626,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * List all delegations configured for an agent.
+     * Lista todas as delegações configuradas para um agente.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent (source).
-     * @return JsonResponse Collection of agent delegations.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente de origem.
+     * @return JsonResponse Coleção de delegações do agente.
      */
     public function delegations(Request $request, string $id): JsonResponse
     {
@@ -652,11 +650,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Create or update a delegation from one agent to another.
+     * Cria ou atualiza uma delegação de um agente para outro.
      *
-     * @param  AiAgentDelegationStoreRequest  $request  Validated delegation data.
-     * @param  string  $id  UUID of the source agent.
-     * @return JsonResponse Upserted delegation.
+     * @param  AiAgentDelegationStoreRequest  $request  Dados validados da delegação.
+     * @param  string  $id  UUID do agente de origem.
+     * @return JsonResponse Delegação criada ou atualizada.
      */
     public function delegationStore(AiAgentDelegationStoreRequest $request, string $id): JsonResponse
     {
@@ -690,12 +688,12 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Delete a delegation.
+     * Remove uma delegação.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the source agent.
-     * @param  string  $delegationId  UUID of the delegation.
-     * @return JsonResponse No content on success.
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente de origem.
+     * @param  string  $delegationId  UUID da delegação.
+     * @return JsonResponse Sem conteúdo em caso de sucesso.
      */
     public function delegationDestroy(Request $request, string $id, string $delegationId): JsonResponse
     {
@@ -714,11 +712,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Get voice configuration for an agent.
+     * Obtém a configuração de voz de um agente.
      *
-     * @param  Request  $request  HTTP request.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Voice configuration (STT/TTS models, voice, speed).
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Configuração de voz (modelos STT/TTS, voz, velocidade).
      */
     public function voice(Request $request, string $id): JsonResponse
     {
@@ -738,11 +736,11 @@ final class AiAgentController extends BaseController
     }
 
     /**
-     * Update voice configuration for an agent.
+     * Atualiza a configuração de voz de um agente.
      *
-     * @param  AiAgentVoiceUpdateRequest  $request  Validated voice config data.
-     * @param  string  $id  UUID of the agent.
-     * @return JsonResponse Updated agent with voice config.
+     * @param  AiAgentVoiceUpdateRequest  $request  Dados validados da configuração de voz.
+     * @param  string  $id  UUID do agente.
+     * @return JsonResponse Agente atualizado com configuração de voz.
      */
     public function voiceUpdate(AiAgentVoiceUpdateRequest $request, string $id): JsonResponse
     {

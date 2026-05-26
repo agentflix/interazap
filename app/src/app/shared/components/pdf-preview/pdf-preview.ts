@@ -3,8 +3,7 @@ import { type SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { AfButtonComponent } from '../button/button';
 
 /**
- * Af pdf preview shared component for the Shared module.
- * @selector af-pdf-preview
+ * Pré-visualização de PDF com iframe e botão de abrir em nova aba.
  */
 @Component({
   selector: 'af-pdf-preview',

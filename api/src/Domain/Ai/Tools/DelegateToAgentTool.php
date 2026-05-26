@@ -10,12 +10,17 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\Ai\Services\AiAgentDelegationService;
 
 /**
- * Delegates execution to a target agent by creating a child run.
+ * Ferramenta de IA para delegar a execução a outro agente criando uma child run.
+ *
+ * Input esperado: target_agent_id (nome ou UUID do agente de destino); target_playbook_id e return_after opcionais.
+ * Output produzido: child_run_id e status da delegação.
+ * Quando usar: a conversa exige especialização de outro agente (ex.: Vendas, Suporte, Qualificação).
  */
 final class DelegateToAgentTool implements AiToolInterface
 {
     public function __construct(private readonly AiAgentDelegationService $delegationService) {}
 
+    /** Executa a delegação criando uma child run para o agente de destino. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $tenantId = (string) ($input->context['tenant_id'] ?? '');
@@ -42,16 +47,23 @@ final class DelegateToAgentTool implements AiToolInterface
         return ToolResultDTO::success((string) $result['message'], $result);
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::DELEGATE_TO_AGENT;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Delegates the current execution to another configured agent and creates a child run.';
     }
 
+    /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
+     * @return array<string, array<string, mixed>>
+     */
     public function getParameters(): array
     {
         return [

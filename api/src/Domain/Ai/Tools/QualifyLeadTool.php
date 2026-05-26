@@ -13,13 +13,15 @@ use Domain\CRM\Models\CRMTag;
 use Illuminate\Support\Str;
 
 /**
- * Tool to qualify a lead in a single operation.
+ * Ferramenta de IA para qualificar um lead em uma única operação.
+ *
+ * Input esperado: negotiation_id (obrigatório); score (0-100), tags e step_id opcionais.
+ * Output produzido: negotiation_id, campos aplicados, lead_score e step_id resultantes.
+ * Quando usar: consolidar informações coletadas na conversa atualizando pontuação, etapa e tags do lead.
  */
 class QualifyLeadTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a qualificação do lead com os dados fornecidos. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $negotiationId = (string) ($input->parameters['negotiation_id'] ?? '');
@@ -117,24 +119,20 @@ class QualifyLeadTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::QUALIFY_LEAD;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Qualifies a lead by updating score, tags and funnel step in a single call.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array<string, mixed>>
      */

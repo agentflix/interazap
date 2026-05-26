@@ -16,9 +16,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 /**
- * Controller for AI Usage analytics endpoints.
+ * Controller para endpoints de análise de consumo de IA do módulo de IA.
  *
- * Provides usage metrics, costs, and trends for tenant's AI consumption.
+ * Fornece métricas de uso, custos e tendências do consumo de IA do tenant.
  */
 final class AiUsageController extends BaseController
 {
@@ -29,7 +29,10 @@ final class AiUsageController extends BaseController
     ) {}
 
     /**
-     * Get usage summary for current period.
+     * Retorna o resumo de consumo do período atual.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @return JsonResponse Totais de requisições, tokens, custo e tendência.
      */
     public function summary(Request $request): JsonResponse
     {
@@ -45,7 +48,10 @@ final class AiUsageController extends BaseController
     }
 
     /**
-     * Get daily usage breakdown for last 30 days.
+     * Retorna o consumo diário dos últimos 30 dias.
+     *
+     * @param  Request  $request  Requisição HTTP com parâmetro 'days' opcional (máx. 90).
+     * @return AnonymousResourceCollection Série temporal de consumo diário.
      */
     public function daily(Request $request): AnonymousResourceCollection
     {
@@ -60,7 +66,10 @@ final class AiUsageController extends BaseController
     }
 
     /**
-     * Get top AI agents by usage.
+     * Lista os agentes de IA com maior consumo.
+     *
+     * @param  Request  $request  Requisição HTTP com parâmetro 'limit' opcional (máx. 50).
+     * @return AnonymousResourceCollection Agentes ordenados por consumo decrescente.
      */
     public function topAgents(Request $request): AnonymousResourceCollection
     {
@@ -75,7 +84,10 @@ final class AiUsageController extends BaseController
     }
 
     /**
-     * Get monthly usage history.
+     * Retorna o histórico mensal de consumo.
+     *
+     * @param  Request  $request  Requisição HTTP com parâmetro 'months' opcional (máx. 12).
+     * @return JsonResponse Série temporal de consumo mensal.
      */
     public function monthlyHistory(Request $request): JsonResponse
     {
@@ -92,7 +104,10 @@ final class AiUsageController extends BaseController
     }
 
     /**
-     * Get media transcription usage report.
+     * Retorna o relatório de consumo de transcrição de mídia.
+     *
+     * @param  Request  $request  Requisição HTTP com start_date e end_date opcionais.
+     * @return JsonResponse Relatório de transcrições no período.
      */
     public function transcriptionReport(Request $request): JsonResponse
     {

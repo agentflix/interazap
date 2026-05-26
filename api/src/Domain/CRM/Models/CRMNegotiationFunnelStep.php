@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Stage of a Sales Funnel.
+ * Etapa de um funil de vendas.
  *
- * Represents a single step/stage within a negotiation funnel,
- * such as "Lead", "Proposal", "Negotiation", "Closed".
+ * Representa uma coluna/estágio dentro de um funil de negociações,
+ * como "Prospecção", "Proposta", "Negociação", "Fechado".
  *
  * @property string $id
  * @property string $tenant_id

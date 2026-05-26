@@ -16,7 +16,10 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Context;
 
 /**
- * Async job for CSV contact import.
+ * Job assíncrono para importação de contatos CRM a partir de arquivo CSV.
+ *
+ * Implementa ShouldBeUnique para evitar importações duplicadas do mesmo arquivo
+ * durante janela de 300 segundos.
  */
 final class CRMContactImportJob implements ShouldBeUnique, ShouldQueue
 {
@@ -26,24 +29,21 @@ final class CRMContactImportJob implements ShouldBeUnique, ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    /**
-     * Prevent duplicate imports for the same file.
-     */
+    /** Janela de unicidade em segundos: impede importações duplicadas do mesmo arquivo. */
     public int $uniqueFor = 300;
 
     /**
-     * @param  array<string, mixed>  $payload
+     * @param  array<string, mixed>  $payload  Payload serializado do CRMContactImportDTO
      */
     public function __construct(private readonly array $payload) {}
 
-    /**
-     * Unique ID based on file path to prevent duplicate imports.
-     */
+    /** ID único baseado no hash do caminho do arquivo para deduplicação na fila. */
     public function uniqueId(): string
     {
         return md5($this->payload['filePath'] ?? $this->payload['tenantId'] ?? 'default');
     }
 
+    /** Executa a importação delegando ao CRMContactImportActions com contexto de tenant. */
     public function handle(CRMContactImportActions $actions): void
     {
         $dto = CRMContactImportDTO::fromArray($this->payload);

@@ -31,7 +31,14 @@ final class PlatformTenantBootstrapAction
     ) {}
 
     /**
-     * @return array<string, mixed>
+     * Executa o bootstrap de dados padrão para o tenant.
+     *
+     * Cria prompt de IA, agentes, funis, motivos de perda, tags, departamentos e empresa padrão
+     * a partir do catálogo do segmento associado ao tenant.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a ser inicializado.
+     * @param  bool  $dryRun  Se verdadeiro, retorna relatório sem persistir alterações.
+     * @return array<string, mixed> Relatório com contadores de cada recurso criado.
      */
     public function execute(PlatformTenant $tenant, bool $dryRun = false): array
     {
@@ -86,6 +93,14 @@ final class PlatformTenantBootstrapAction
         return $report;
     }
 
+    /**
+     * Resolve o segmento do tenant, caindo de volta para o segmento GENERAL se necessário.
+     *
+     * @param  PlatformTenant  $tenant  Tenant cujo segmento será resolvido.
+     * @return AiPromptSegment Segmento encontrado.
+     *
+     * @throws \RuntimeException Quando o segmento GENERAL não está cadastrado.
+     */
     private function resolveSegment(PlatformTenant $tenant): AiPromptSegment
     {
         if (is_string($tenant->segment_id) && $tenant->segment_id !== '') {
@@ -106,6 +121,14 @@ final class PlatformTenantBootstrapAction
         return $generalSegment;
     }
 
+    /**
+     * Cria ou atualiza o prompt de IA do tenant combinando conteúdo do segmento com sufixo.
+     *
+     * @param  PlatformTenant  $tenant  Tenant alvo.
+     * @param  AiPromptSegment  $segment  Segmento com conteúdo base do prompt.
+     * @param  string  $promptSuffix  Sufixo adicional específico do catálogo.
+     * @return int 1 se o prompt foi criado/atualizado.
+     */
     private function syncPrompt(PlatformTenant $tenant, AiPromptSegment $segment, string $promptSuffix): int
     {
         $content = trim($segment->content."\n\n".$promptSuffix);
@@ -213,7 +236,12 @@ final class PlatformTenantBootstrapAction
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $skills
+     * Sincroniza as skills de um agente a partir dos dados do catálogo.
+     *
+     * @param  PlatformTenant  $tenant  Tenant alvo.
+     * @param  AiAgent  $agent  Agente ao qual as skills pertencem.
+     * @param  array<int, array<string, mixed>>  $skills  Lista de skills do catálogo.
+     * @return int Quantidade de skills sincronizadas.
      */
     private function syncAgentSkills(PlatformTenant $tenant, AiAgent $agent, array $skills): int
     {
@@ -249,7 +277,12 @@ final class PlatformTenantBootstrapAction
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $files
+     * Sincroniza os arquivos de conhecimento de um agente a partir dos dados do catálogo.
+     *
+     * @param  PlatformTenant  $tenant  Tenant alvo.
+     * @param  AiAgent  $agent  Agente ao qual os arquivos pertencem.
+     * @param  array<int, array<string, mixed>>  $files  Lista de arquivos do catálogo.
+     * @return int Quantidade de arquivos sincronizados.
      */
     private function syncAgentFiles(PlatformTenant $tenant, AiAgent $agent, array $files): int
     {
@@ -280,7 +313,14 @@ final class PlatformTenantBootstrapAction
     }
 
     /**
-     * @param  array<int, array<string, mixed>|string>  $channels
+     * Sincroniza os canais de um agente a partir dos dados do catálogo.
+     *
+     * Aceita tanto strings simples quanto arrays com metadados de canal.
+     *
+     * @param  PlatformTenant  $tenant  Tenant alvo.
+     * @param  AiAgent  $agent  Agente ao qual os canais pertencem.
+     * @param  array<int, array<string, mixed>|string>  $channels  Lista de canais do catálogo.
+     * @return int Quantidade de canais sincronizados.
      */
     private function syncAgentChannels(PlatformTenant $tenant, AiAgent $agent, array $channels): int
     {
@@ -329,8 +369,10 @@ final class PlatformTenantBootstrapAction
     }
 
     /**
-     * @param  array<int, mixed>  $items
-     * @return array<int, string>
+     * Normaliza uma lista de itens mistos para uma lista de strings não vazias.
+     *
+     * @param  array<int, mixed>  $items  Lista de itens a normalizar.
+     * @return array<int, string> Lista de strings filtradas.
      */
     private function normalizeStringList(array $items): array
     {
@@ -341,8 +383,11 @@ final class PlatformTenantBootstrapAction
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $funnels
-     * @return array{funnels: int, steps: int}
+     * Sincroniza os funis de negociação e seus passos a partir dos dados do catálogo.
+     *
+     * @param  PlatformTenant  $tenant  Tenant alvo.
+     * @param  array<int, array<string, mixed>>  $funnels  Lista de funis do catálogo.
+     * @return array{funnels: int, steps: int} Contadores de funis e passos criados.
      */
     private function syncFunnels(PlatformTenant $tenant, array $funnels): array
     {
@@ -386,7 +431,11 @@ final class PlatformTenantBootstrapAction
     }
 
     /**
-     * @param  array<int, string>  $reasons
+     * Sincroniza os motivos de perda de negociação a partir dos dados do catálogo.
+     *
+     * @param  PlatformTenant  $tenant  Tenant alvo.
+     * @param  array<int, string>  $reasons  Lista de motivos de perda.
+     * @return int Quantidade de motivos sincronizados.
      */
     private function syncLossReasons(PlatformTenant $tenant, array $reasons): int
     {
@@ -415,7 +464,13 @@ final class PlatformTenantBootstrapAction
     }
 
     /**
-     * @param  array<int, string>  $tags
+     * Sincroniza as tags do CRM a partir dos dados do catálogo.
+     *
+     * A cor de cada tag é gerada automaticamente a partir do hash do nome.
+     *
+     * @param  PlatformTenant  $tenant  Tenant alvo.
+     * @param  array<int, string>  $tags  Lista de nomes de tags.
+     * @return int Quantidade de tags sincronizadas.
      */
     private function syncTags(PlatformTenant $tenant, array $tags): int
     {
@@ -461,7 +516,13 @@ final class PlatformTenantBootstrapAction
     ];
 
     /**
-     * @param  array<int, string>  $departments
+     * Sincroniza os departamentos do CRM a partir dos dados do catálogo.
+     *
+     * A descrição é resolvida pelo nome do departamento usando a constante DEPARTMENT_DESCRIPTIONS.
+     *
+     * @param  PlatformTenant  $tenant  Tenant alvo.
+     * @param  array<int, string>  $departments  Lista de nomes de departamentos.
+     * @return int Quantidade de departamentos sincronizados.
      */
     private function syncDepartments(PlatformTenant $tenant, array $departments): int
     {

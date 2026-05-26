@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
 /**
- * Form label atom — renders a styled `<label>` with optional required indicator.
+ * Átomo de rótulo de formulário — renderiza um &lt;label&gt; estilizado com indicador opcional de obrigatório.
  *
  * @example
  * ```html
@@ -15,12 +15,12 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
   templateUrl: './form-label.html',
 })
 export class AfFormLabelComponent {
-  /** Label text to display */
+  /** Texto do rótulo a exibir */
   readonly label = input<string>();
 
-  /** HTML for attribute linking to the input id */
+  /** Atributo HTML for vinculado ao ID do campo */
   readonly for = input<string>();
 
-  /** Whether to show the red asterisk required indicator */
+  /** Exibe o asterisco vermelho de campo obrigatório */
   readonly required = input(false);
 }

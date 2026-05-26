@@ -1,8 +1,8 @@
 /**
  * DTO de resposta normalizada de completion para AI.
  *
- * DTO para respostas normalizadas de qualquer provider de IA.
- * Estrutura unificada que abstrai diferenças entre OpenAI, Gemini, etc.
+ * Estrutura unificada para respostas de qualquer provider de IA, abstraindo
+ * as diferenças entre OpenAI, Gemini, MiniMax etc.
  */
 import type {
   AICompletionResponseDto,

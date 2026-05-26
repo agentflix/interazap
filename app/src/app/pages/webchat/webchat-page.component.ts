@@ -19,8 +19,8 @@ import { WebChatService } from './services/webchat.service';
 import { AfSpinnerComponent } from '@shared/components';
 
 /**
- * WebChatPageComponent — public-facing chat page at /chat/:tenantSlug.
- * Shows either the PreChat form (no session) or the ChatWindow (session active).
+ * Página pública de chat acessível em /chat/:tenantSlug.
+ * Exibe o formulário de pré-chat (sem sessão) ou a janela de chat (sessão ativa).
  */
 @Component({
   selector: 'app-webchat-page',
@@ -35,27 +35,27 @@ export class WebChatPageComponent implements OnInit, OnDestroy {
   private readonly webchatService = inject(WebChatService);
   private readonly document = inject(DOCUMENT);
 
-  /** Tracks whether dark mode was active before this page forced light mode */
+  /** Indica se o modo escuro estava ativo antes da página forçar o modo claro. */
   private wasDark = false;
 
   // ─── Child component references ────────────────────────────────────────────
   readonly chatWindowRef = viewChild<ChatWindowComponent>('chatWindow');
 
   // ─── UI State ──────────────────────────────────────────────────────────────
-  /** Whether we have an active session */
+  /** Indica se existe uma sessão ativa. */
   readonly hasSession = signal(false);
-  /** Visitor name from pre-chat */
+  /** Nome do visitante coletado no pré-chat. */
   readonly visitorName = signal('Visitante');
-  /** Visitor phone */
+  /** Telefone do visitante coletado no pré-chat. */
   readonly visitorPhone = signal<string | undefined>(undefined);
-  /** Call protocol */
+  /** Protocolo do chamado. */
   readonly protocol = signal<string | undefined>(undefined);
 
-  /** Tenant name fetched from backend */
+  /** Nome do tenant obtido do backend. */
   readonly tenantName = signal<string | null>(null);
-  /** Whether tenant validation failed */
+  /** Indica se a validação do tenant falhou. */
   readonly tenantError = signal(false);
-  /** Whether we are loading (validating tenant / restoring session) */
+  /** Indica carregamento (validando tenant ou restaurando sessão). */
   readonly isCarregando = signal(true);
 
   // ─── Computed ───────────────────────────────────────────────────────────────
@@ -165,7 +165,8 @@ export class WebChatPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Called when pre-chat form successfully creates a session.
+   * Chamado quando o formulário de pré-chat cria uma sessão com sucesso.
+   * @param data Dados da sessão: token, ID, nome, telefone e protocolo
    */
   onSessionReady(data: {
     token: string;

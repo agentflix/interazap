@@ -72,8 +72,11 @@ interface SimulatorChatMessage {
 }
 
 /**
- * AI Autopilot simulator with realtime timeline.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Simulador do Autopilot de IA com timeline em tempo real.
+ *
+ * Contexto: permite enviar mensagens de chat para um agente selecionado e visualizar
+ * todos os eventos de execução (tool calls, streaming, resultados) em uma timeline lateral.
+ * Suporta histórico de execuções paginado e fallback para polling quando WebSocket não está disponível.
  */
 @Component({
   selector: 'app-ai-simulator',
@@ -232,7 +235,7 @@ export class AiSimulatorComponent {
   }
 
   /**
-   * Send a chat message and execute the agent.
+   * Envia uma mensagem de chat e inicia a execução do agente selecionado.
    */
   sendChatMessage(): void {
     const text = this.form.controls.message.value?.trim();
@@ -278,7 +281,9 @@ export class AiSimulatorComponent {
   }
 
   /**
-   * Execute a run with selected agent.
+   * Inicia a execução do agente com a mensagem do usuário.
+   * @param agentId ID do agente selecionado
+   * @param userMessage Mensagem enviada pelo usuário
    */
   private executeRun(agentId: string, userMessage: string): void {
     this.timeline.set([]);
@@ -416,7 +421,7 @@ export class AiSimulatorComponent {
   }
 
   /**
-   * Switch debug panel to history view.
+   * Alterna o painel de debug para a visão de histórico.
    */
   switchToHistory(): void {
     this.selectTab('history');
@@ -468,7 +473,9 @@ export class AiSimulatorComponent {
   }
 
   /**
-   * Update the last assistant message with streaming text.
+   * Atualiza a última mensagem do assistente com o texto de streaming acumulado.
+   * @param text Texto acumulado até o momento
+   * @param isFinal Indica se é o último chunk do stream
    */
   private updateStreamingMessage(text: string, isFinal: boolean): void {
     this.chatMessages.update((msgs) => {
@@ -486,7 +493,9 @@ export class AiSimulatorComponent {
   }
 
   /**
-   * Finalize the last assistant message (stream ended or response received).
+   * Finaliza a última mensagem do assistente (stream encerrado ou resposta recebida).
+   * @param text Texto final da resposta
+   * @param audioUrl URL de áudio da resposta (opcional)
    */
   private finalizeAssistantMessage(text: string, audioUrl: string | null = null): void {
     this.chatMessages.update((msgs) => {

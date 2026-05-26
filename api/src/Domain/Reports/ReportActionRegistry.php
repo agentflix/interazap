@@ -22,7 +22,10 @@ use Domain\Reports\Contracts\ReportActionInterface;
 use InvalidArgumentException;
 
 /**
- * Registro centralizado de report_type → action class.
+ * Registro centralizado que mapeia tipo de relatório para sua respectiva action class.
+ *
+ * Usado pelo ReportsController e pelo GenerateReportExportJob para resolver
+ * a action correta a partir de uma string de tipo (ex: "sales-funnel").
  */
 final class ReportActionRegistry
 {
@@ -45,7 +48,12 @@ final class ReportActionRegistry
     ];
 
     /**
-     * Resolve a action para o tipo de relatório.
+     * Resolve a action correspondente ao tipo de relatório informado.
+     *
+     * @param  string  $type  Tipo do relatório (ex: sales-funnel, billing)
+     * @return ReportActionInterface|null Null quando o tipo não está registrado
+     *
+     * @throws \InvalidArgumentException Quando a classe registrada não implementa a interface
      */
     public function resolve(string $type): ?ReportActionInterface
     {

@@ -193,6 +193,11 @@ export class BillingUsageClient {
     }
   }
 
+  /**
+   * Aguarda um intervalo de tempo antes da próxima operação.
+   *
+   * @param ms - Tempo de espera em milissegundos
+   */
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

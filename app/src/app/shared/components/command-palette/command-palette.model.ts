@@ -1,8 +1,8 @@
 /**
- * Models and types for command-palette component.
+ * Modelos e tipos do componente de paleta de comandos.
  */
 
-/** Command palette item */
+/** Item da paleta de comandos. */
 export interface AfCommandItem {
   id: string;
   label: string;

@@ -1,7 +1,7 @@
 /**
- * AI Interfaces Index
+ * Índice de interfaces do domínio AI.
  *
- * Re-exports all AI module interfaces for easy importing
+ * Re-exporta contratos, DTOs e interfaces do domínio AI para facilitar as importações.
  */
 
 export * from './ai-completion-request.dto';

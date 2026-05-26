@@ -8,12 +8,15 @@ use Domain\Ai\Models\AiPromptPlan;
 use Domain\Auth\Models\AuthUser;
 
 /**
- * Policy para Plan Prompts.
+ * Policy para Plan Prompts (Nível 3 da hierarquia de prompts).
+ *
+ * Todas as operações exigem que o usuário seja SuperAdmin com a permissão
+ * 'ai.prompts.manage'. Define regras mandatórias por plano de assinatura.
  */
 final class AiPromptPlanPolicy
 {
     /**
-     * Determine if the user can view any plan prompts.
+     * Verifica se o usuário pode listar plan prompts.
      */
     public function viewAny(AuthUser $user): bool
     {
@@ -21,7 +24,7 @@ final class AiPromptPlanPolicy
     }
 
     /**
-     * Determine if the user can view a plan prompt.
+     * Verifica se o usuário pode visualizar um plan prompt específico.
      */
     public function view(AuthUser $user, AiPromptPlan $planPrompt): bool
     {
@@ -29,7 +32,7 @@ final class AiPromptPlanPolicy
     }
 
     /**
-     * Determine if the user can create a plan prompt.
+     * Verifica se o usuário pode criar um plan prompt.
      */
     public function create(AuthUser $user): bool
     {
@@ -37,7 +40,7 @@ final class AiPromptPlanPolicy
     }
 
     /**
-     * Determine if the user can update a plan prompt.
+     * Verifica se o usuário pode atualizar um plan prompt.
      */
     public function update(AuthUser $user, AiPromptPlan $planPrompt): bool
     {
@@ -45,7 +48,7 @@ final class AiPromptPlanPolicy
     }
 
     /**
-     * Determine if the user can delete a plan prompt.
+     * Verifica se o usuário pode excluir um plan prompt.
      */
     public function delete(AuthUser $user, AiPromptPlan $planPrompt): bool
     {

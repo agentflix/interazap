@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io';
 
 /**
- * JWT Payload extracted from authentication token.
+ * Payload JWT extraído do token de autenticação WebSocket.
  */
 export interface JwtPayload {
   sub: string;
@@ -12,7 +12,7 @@ export interface JwtPayload {
 }
 
 /**
- * Socket data attached during authentication.
+ * Dados do socket anexados durante a autenticação bem-sucedida.
  */
 export interface SocketData {
   user?: JwtPayload;
@@ -20,14 +20,14 @@ export interface SocketData {
 }
 
 /**
- * Authenticated Socket with typed data property.
+ * Socket autenticado com propriedade `data` tipada.
  */
 export interface AuthenticatedSocket extends Socket {
   data: SocketData;
 }
 
 /**
- * Socket.IO handshake with typed auth property.
+ * Handshake do Socket.IO com a propriedade `auth` tipada.
  */
 export interface AuthenticatedHandshake {
   auth?: {

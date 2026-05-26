@@ -18,6 +18,9 @@ import {
   type PlatformLeadFilters,
 } from '@core/services/platform-lead.service';
 
+/**
+ * Botão de exportação de leads com dropdown para escolha de filtros e geração de arquivo CSV.
+ */
 @Component({
   selector: 'app-lead-export-button',
   standalone: true,

@@ -7,25 +7,30 @@ namespace Domain\Chat\Repositories;
 use Domain\Chat\Models\ChatInstance;
 
 /**
- * Eloquent implementation for resolving instances by webhook token.
+ * Implementação Eloquent do repositório de instâncias de chat.
+ *
+ * Suporta lookup por `webhook_token` direto ou pelo campo `settings_json->token`,
+ * com compatibilidade para PostgreSQL (jsonb) e SQLite (json_extract).
  */
 final class EloquentChatInstanceRepository implements ChatInstanceRepository
 {
+    /** Retorna a primeira instância ativa que corresponda ao token informado. */
     public function resolveInstanceByToken(string $token): ?ChatInstance
     {
         return $this->buildTokenQuery($token, true)->first();
     }
 
+    /** Busca instância pelo token sem filtro de status de ativação. */
     public function findByWebhookToken(string $token): ?ChatInstance
     {
         return $this->buildTokenQuery($token, false)->first();
     }
 
     /**
-     * Builds the token lookup query (with or without active filter).
+     * Constrói a query de busca por token com suporte multi-driver.
      *
-     * @param  string  $token  Webhook token.
-     * @param  bool  $onlyActive  Restrict to active instances.
+     * @param  string  $token  Token de webhook a pesquisar.
+     * @param  bool  $onlyActive  Quando true, filtra apenas instâncias ativas.
      * @return \Illuminate\Database\Eloquent\Builder<ChatInstance>
      */
     private function buildTokenQuery(string $token, bool $onlyActive)

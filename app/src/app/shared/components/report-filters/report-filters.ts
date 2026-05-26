@@ -21,8 +21,7 @@ export * from './report-filters.model';
 
 
 /**
- * AfReportFiltersComponent — Horizontal filter bar for reports with
- * date range and status selector.
+ * Barra de filtros horizontal para relatórios com intervalo de datas e seletor de status.
  *
  * @example
  * ```html
@@ -50,10 +49,10 @@ export class AfReportFiltersComponent implements OnInit {
 
   readonly showFields = input<string[]>(['granularity', 'channel']);
 
-  /** Status filter options */
+  /** Opções do filtro de status */
   readonly statusOptions = input<AfSelectOption[]>([]);
 
-  /** Emitted when user clicks "Filtrar" */
+  /** Emitido quando o usuário clica em "Filtrar" */
   readonly filtersApplied = output<AfReportFilterPayload>();
 
   protected readonly startDateControl = new FormControl(this.defaultStartDate(), {

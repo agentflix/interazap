@@ -15,9 +15,9 @@ export class StreamDlqService {
   private readonly logger = new Logger(StreamDlqService.name);
 
   /**
-   * Initializes the service with a Redis client.
+   * Inicializa o serviço com um cliente Redis para operações nos streams DLQ.
    *
-   * @param redis - Redis service instance
+   * @param redis - Instância do RedisService
    */
   constructor(private readonly redis: RedisService) {}
 
@@ -236,21 +236,21 @@ export class StreamDlqService {
   }
 
   /**
-   * Flattens a key-value record into a flat string array suitable for Redis Stream XADD.
+   * Converte um registro chave-valor em um array plano de strings adequado para XADD do Redis Stream.
    *
-   * @param entry - Key-value record representing a DLQ entry
-   * @returns Flattened array alternating key, value
+   * @param entry - Registro chave-valor representando uma entrada DLQ
+   * @returns Array plano alternando chave e valor
    */
   private flattenEntry(entry: Record<string, string>): string[] {
     return Object.entries(entry).flat();
   }
 
   /**
-   * Parses a flat Redis Stream entry fields array back into a typed DlqEntry.
+   * Parseia o array plano de campos de uma entrada Redis Stream em um DlqEntry tipado.
    *
-   * @param id - Redis Stream message ID
-   * @param fields - Flattened alternating key/value array from XREAD/XRANGE
-   * @returns Structured DlqEntry object
+   * @param id - ID da mensagem no Redis Stream
+   * @param fields - Array plano alternando chave/valor originado de XREAD/XRANGE
+   * @returns Objeto DlqEntry estruturado
    */
   private parseEntry(id: string, fields: string[]): DlqEntry {
     const parsed: Record<string, string> = {};

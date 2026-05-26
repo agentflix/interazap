@@ -36,6 +36,16 @@ import {
 import { RoutingAgentListComponent } from './components/routing-agent-list/routing-agent-list';
 import { RoutingAgentFormComponent } from './components/routing-agent-form/routing-agent-form';
 
+/**
+ * Página de configurações do módulo de Chat.
+ *
+ * @remarks
+ * Agrupa duas seções principais:
+ * - **Roteamento automático**: fila global, estratégia (round-robin, menor carga,
+ *   por habilidade), limite de tickets por agente e gestão dos agentes da fila.
+ * - **Fechamento automático**: inatividade configurável com mensagem personalizada
+ *   e alvo (ambos, cliente, atendente).
+ */
 @Component({
   selector: 'app-chat-configuration',
   standalone: true,
@@ -200,6 +210,7 @@ export class ChatConfigurationPage implements OnInit {
   }
 
   // ── Auto-close: load ─────────────────────────────────────────────────────
+  /** Carrega as configurações de auto-fechamento do tenant e preenche o formulário. */
   loadAutoCloseSettings(): void {
     const tenantId = this.authStore.user()?.tenant_id;
     if (!tenantId) {

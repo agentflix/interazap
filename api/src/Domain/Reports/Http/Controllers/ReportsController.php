@@ -33,10 +33,31 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Controlador para relatórios analíticos do InteraZap.
+ * Controlador HTTP para os relatórios analíticos do InteraZap.
+ *
+ * Cada método delega para uma action especializada e retorna os dados
+ * encapsulados em ReportResource. O método export suporta CSV e XLSX
+ * resolvendo a action via ReportActionRegistry.
  */
 final class ReportsController extends BaseController
 {
+    /**
+     * @param  GetSalesFunnelReportAction  $salesFunnelAction  Relatório de funil de vendas
+     * @param  GetRevenueSalesReportAction  $revenueSalesAction  Relatório de receita e vendas
+     * @param  GetSalespersonPerformanceReportAction  $salespersonAction  Relatório de performance de vendedores
+     * @param  GetLossReasonReportAction  $lossReasonAction  Relatório de motivos de perda
+     * @param  GetSlaResolutionReportAction  $slaResolutionAction  Relatório de SLA e resolução
+     * @param  GetAgentPerformanceReportAction  $agentPerformanceAction  Relatório de performance de agentes
+     * @param  GetCsatNpsReportAction  $csatNpsAction  Relatório de CSAT/NPS
+     * @param  GetChatVolumeReportAction  $chatVolumeAction  Relatório de volume de atendimento
+     * @param  GetAiUsageCostReportAction  $aiUsageCostAction  Relatório de uso e custo de IA
+     * @param  GetBillingReportAction  $billingAction  Relatório de faturamento
+     * @param  GetProductPerformanceReportAction  $productPerformanceAction  Relatório de performance de produtos
+     * @param  GetAutopilotPerformanceReportAction  $autopilotAction  Relatório de performance de automações
+     * @param  GetTeamActivityReportAction  $teamActivityAction  Relatório de atividade da equipe
+     * @param  GetContactCrmReportAction  $contactCrmAction  Relatório de contatos CRM
+     * @param  ReportActionRegistry  $registry  Registry para resolução de actions por tipo
+     */
     public function __construct(
         private readonly GetSalesFunnelReportAction $salesFunnelAction,
         private readonly GetRevenueSalesReportAction $revenueSalesAction,
@@ -280,7 +301,11 @@ final class ReportsController extends BaseController
     }
 
     /**
-     * Exporta um relatório para CSV ou XLSX.
+     * Exporta um relatório para CSV ou XLSX via download direto ou job assíncrono.
+     *
+     * @param  ReportsExportRequest  $request  Requisição com filtros e formato de exportação
+     * @param  string  $report  Tipo do relatório (ex: sales-funnel, billing)
+     * @return JsonResponse|StreamedResponse|BinaryFileResponse Resposta com o arquivo gerado
      */
     public function export(ReportsExportRequest $request, string $report): JsonResponse|StreamedResponse|BinaryFileResponse
     {

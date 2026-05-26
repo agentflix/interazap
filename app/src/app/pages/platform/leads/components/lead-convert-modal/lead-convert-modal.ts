@@ -23,6 +23,9 @@ import { type PlatformLead, PlatformLeadService } from '@core/services/platform-
 import { PlatformPlanService } from '@platform/services/platform-plan.service';
 import { applyServerErrors } from '@core/utils/form-server-errors.util';
 
+/**
+ * Modal de conversão de lead em tenant — preenche dados de empresa e seleciona o plano inicial.
+ */
 @Component({
   selector: 'app-lead-convert-modal',
   standalone: true,

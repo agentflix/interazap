@@ -3,10 +3,9 @@ import { AfModalComponent } from '../modal/modal';
 import { AfButtonComponent } from '../button/button';
 
 /**
- * Confirm modal component for InteraZap UI Kit.
+ * Modal de confirmação com ícone, mensagem e botões de ação.
  *
- * @description Pre-built confirmation dialog with icon, message, and action buttons.
- * Supports danger and warning variants for destructive actions.
+ * Suporta variantes danger e warning para ações destrutivas.
  *
  * @example
  * ```html
@@ -29,39 +28,40 @@ import { AfButtonComponent } from '../button/button';
   templateUrl: './confirm-modal.html',
 })
 export class AfConfirmModalComponent {
-  /** Whether the confirm modal is open */
+  /** Indica se o modal está aberto */
   readonly open = input(false);
   readonly isOpen = input<boolean | undefined>(undefined);
 
-  /** Title for the modal header */
+  /** Título exibido no cabeçalho do modal */
   readonly title = input('Confirmar');
 
-  /** Message body explaining the action */
+  /** Corpo da mensagem explicando a ação */
   readonly message = input('Tem certeza que deseja realizar esta ação?');
 
-  /** Confirm button label */
+  /** Rótulo do botão de confirmação */
   readonly confirmLabel = input('Confirmar');
 
-  /** Cancel button label */
+  /** Rótulo do botão de cancelamento */
   readonly cancelLabel = input('Cancelar');
 
-  /** Visual variant: danger shows red, warning shows yellow */
+  /** Variante visual: danger exibe vermelho, warning exibe amarelo */
   readonly variant = input<'danger' | 'warning' | 'default' | 'primary'>('default');
 
+  /** Indica estado de carregamento do botão de confirmação */
   readonly isLoading = input(false);
 
-  /** Lucide icon name */
+  /** Nome do ícone Lucide */
   readonly iconName = input<string>('alert-triangle');
 
-  /** Emitted when user confirms */
+  /** Emitido quando o usuário confirma */
   readonly confirmed = output<void>();
 
-  /** Emitted when user cancels */
+  /** Emitido quando o usuário cancela */
   readonly cancelled = output<void>();
 
   protected readonly resolvedOpen = computed(() => this.isOpen() ?? this.open());
 
-  /** Icon background class based on variant */
+  /** Classe de fundo do ícone baseada na variante */
   protected get iconBgClass(): string {
     const map: Record<string, string> = {
       danger: 'bg-red-100 dark:bg-red-900/30',
@@ -72,7 +72,7 @@ export class AfConfirmModalComponent {
     return map[this.variant()];
   }
 
-  /** Icon color class based on variant */
+  /** Classe de cor do ícone baseada na variante */
   protected get iconColorClass(): string {
     const map: Record<string, string> = {
       danger: 'text-red-600 dark:text-red-400',
@@ -83,12 +83,12 @@ export class AfConfirmModalComponent {
     return map[this.variant()];
   }
 
-  /** Emit confirm event */
+  /** Emite o evento de confirmação */
   protected onConfirm(): void {
     this.confirmed.emit();
   }
 
-  /** Emit cancel event */
+  /** Emite o evento de cancelamento */
   protected onCancel(): void {
     this.cancelled.emit();
   }

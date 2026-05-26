@@ -25,6 +25,8 @@ final class AuthTwoFactorActions
     public function __construct(private readonly AuthTotpService $totpService) {}
 
     /**
+     * Retorna o status atual do 2FA do usuário.
+     *
      * @return array<string, mixed>
      */
     public function getStatus(AuthUser $user): array
@@ -36,9 +38,14 @@ final class AuthTwoFactorActions
     }
 
     /**
-     * @return array<string, mixed>
+     * Inicia a configuração do 2FA gerando secret e URL para QR code.
      *
-     * @throws ValidationException
+     * O secret é armazenado criptografado. O usuário deve escanear o QR code
+     * e confirmar via `validate` antes de o 2FA ser ativado.
+     *
+     * @return array<string, mixed> Contém 'secret' e 'qr_code_url'.
+     *
+     * @throws ValidationException Se o 2FA já estiver ativo.
      */
     public function setup(AuthUser $user): array
     {
@@ -75,9 +82,15 @@ final class AuthTwoFactorActions
     }
 
     /**
-     * @return array<string, mixed>
+     * Valida o código TOTP e ativa o 2FA para o usuário.
      *
-     * @throws ValidationException
+     * Ativa o 2FA e gera os códigos de recuperação após validação bem-sucedida.
+     *
+     * @param  AuthUser  $user  Usuário que está ativando o 2FA.
+     * @param  string  $code  Código TOTP de 6 dígitos.
+     * @return array<string, mixed> Contém 'recovery_codes'.
+     *
+     * @throws ValidationException Se o código for inválido ou o setup não foi iniciado.
      */
     public function validate(AuthUser $user, string $code): array
     {
@@ -107,7 +120,12 @@ final class AuthTwoFactorActions
     }
 
     /**
-     * @throws ValidationException
+     * Desativa o 2FA após confirmar a senha do usuário.
+     *
+     * @param  AuthUser  $user  Usuário que está desativando o 2FA.
+     * @param  string  $password  Senha atual para confirmação.
+     *
+     * @throws ValidationException Se a senha estiver incorreta.
      */
     public function disable(AuthUser $user, string $password): void
     {
@@ -124,9 +142,13 @@ final class AuthTwoFactorActions
     }
 
     /**
-     * @return array<int, string>
+     * Regenera os códigos de recuperação após confirmar a senha.
      *
-     * @throws ValidationException
+     * @param  AuthUser  $user  Usuário solicitante.
+     * @param  string  $password  Senha atual para confirmação.
+     * @return array<int, string> Novos códigos de recuperação.
+     *
+     * @throws ValidationException Se o 2FA não estiver ativo ou a senha estiver incorreta.
      */
     public function regenerateRecoveryCodes(AuthUser $user, string $password): array
     {
@@ -150,6 +172,8 @@ final class AuthTwoFactorActions
     }
 
     /**
+     * Gera um conjunto de códigos de recuperação aleatórios.
+     *
      * @return array<int, string>
      */
     private function generateRecoveryCodes(): array

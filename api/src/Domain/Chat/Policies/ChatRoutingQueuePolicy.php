@@ -15,6 +15,7 @@ use Domain\Chat\Models\ChatRoutingQueue;
  */
 final class ChatRoutingQueuePolicy
 {
+    /** Determina se o usuário pode visualizar uma fila de roteamento específica. */
     public function view(AuthUser $user, ChatRoutingQueue $queue): bool
     {
         if ($user->isSuperAdmin()) {
@@ -25,6 +26,11 @@ final class ChatRoutingQueuePolicy
             && $user->can('chat.routing.view');
     }
 
+    /**
+     * Determina se o usuário pode criar ou alterar configurações de uma fila de roteamento.
+     *
+     * Quando `$queue` é fornecida, valida também o isolamento de tenant.
+     */
     public function manage(AuthUser $user, ?ChatRoutingQueue $queue = null): bool
     {
         if ($user->isSuperAdmin()) {

@@ -10,14 +10,14 @@ import {
 } from '@angular/core';
 
 /**
- * AfPopoverComponent — Click-triggered popover with arbitrary content.
+ * Popover acionado por clique com conteúdo arbitrário projetado.
  *
  * @example
  * ```html
  * <af-popover>
- *   <button trigger>Click me</button>
+ *   <button trigger>Clique aqui</button>
  *   <div content>
- *     <p>Popover content</p>
+ *     <p>Conteúdo do popover</p>
  *   </div>
  * </af-popover>
  * ```
@@ -29,7 +29,7 @@ import {
   templateUrl: './popover.html',
 })
 export class AfPopoverComponent {
-  /** Horizontal alignment */
+  /** Alinhamento horizontal */
   readonly align = input<'start' | 'center' | 'end'>('start');
 
   protected readonly isOpen = signal(false);

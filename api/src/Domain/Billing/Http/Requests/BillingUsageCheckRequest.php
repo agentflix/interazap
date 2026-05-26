@@ -7,7 +7,9 @@ namespace Domain\Billing\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Request validation for the check-and-increment usage endpoint.
+ * Validação do payload para o endpoint de check-and-increment de uso de mensagens IA.
+ *
+ * Protegido pelo middleware internal.api.key — chamado exclusivamente pelo gateway.
  */
 final class BillingUsageCheckRequest extends FormRequest
 {

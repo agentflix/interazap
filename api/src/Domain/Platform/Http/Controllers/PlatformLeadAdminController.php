@@ -22,6 +22,12 @@ final class PlatformLeadAdminController extends BaseController
         private readonly PlatformLeadAdminActions $actions,
     ) {}
 
+    /**
+     * Lista leads com filtros e paginação.
+     *
+     * @param  Request  $request  Requisição com filtros de busca e ordenação.
+     * @return JsonResponse Lista paginada de leads.
+     */
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', PlatformLead::class);
@@ -40,6 +46,13 @@ final class PlatformLeadAdminController extends BaseController
         return $this->paginated($paginator, 'Leads listados');
     }
 
+    /**
+     * Exibe os detalhes de um lead específico.
+     *
+     * @param  Request  $request  Requisição HTTP atual.
+     * @param  string  $id  UUID do lead.
+     * @return JsonResponse Dados do lead ou erro 404.
+     */
     public function show(Request $request, string $id): JsonResponse
     {
         $this->authorize('viewAny', PlatformLead::class);
@@ -53,6 +66,13 @@ final class PlatformLeadAdminController extends BaseController
         }
     }
 
+    /**
+     * Converte um lead em tenant criando empresa, usuário e executando bootstrap.
+     *
+     * @param  PlatformLeadConvertRequest  $request  Requisição com dados de conversão.
+     * @param  string  $id  UUID do lead a ser convertido.
+     * @return JsonResponse Lead convertido ou erro de domínio.
+     */
     public function convert(PlatformLeadConvertRequest $request, string $id): JsonResponse
     {
         $lead = PlatformLead::query()->findOrFail($id);
@@ -69,6 +89,12 @@ final class PlatformLeadAdminController extends BaseController
         return $this->success(new PlatformLeadAdminResource($converted), 'Lead convertido com sucesso');
     }
 
+    /**
+     * Exporta os leads filtrados em formato CSV com BOM UTF-8.
+     *
+     * @param  Request  $request  Requisição com filtros de busca e ordenação.
+     * @return StreamedResponse Arquivo CSV para download.
+     */
     public function export(Request $request): StreamedResponse
     {
         $this->authorize('viewAny', PlatformLead::class);
@@ -126,6 +152,12 @@ final class PlatformLeadAdminController extends BaseController
         ]);
     }
 
+    /**
+     * Sanitiza o valor de uma célula CSV para prevenir injeção de fórmula.
+     *
+     * @param  string  $value  Valor da célula.
+     * @return string Valor sanitizado.
+     */
     private static function sanitizeCsvCell(string $value): string
     {
         if ($value === '') {

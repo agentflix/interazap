@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Domain\Gateway\Enums;
 
 /**
- * Reason why an AI completion finished.
+ * Motivo pelo qual uma conclusão de IA foi encerrada.
+ *
+ * Valores possíveis: parada normal, limite de tokens, filtro de conteúdo ou chamada de ferramenta.
  */
 enum AIFinishReason: string
 {
@@ -14,9 +16,7 @@ enum AIFinishReason: string
     case CONTENT_FILTER = 'content_filter';
     case TOOL_CALLS = 'tool_calls';
 
-    /**
-     * Returns label for display.
-     */
+    /** Retorna o rótulo legível para exibição. */
     public function label(): string
     {
         return match ($this) {

@@ -93,7 +93,7 @@ class AiSellerNotification extends Model
     }
 
     /**
-     * Boot method to auto-generate UUID.
+     * Inicializa o modelo com geração automática de UUID.
      */
     protected static function boot(): void
     {
@@ -107,7 +107,7 @@ class AiSellerNotification extends Model
     }
 
     /**
-     * Get the factory instance for this model.
+     * Retorna a instância de factory do modelo.
      */
     protected static function newFactory(): AiSellerNotificationFactory
     {

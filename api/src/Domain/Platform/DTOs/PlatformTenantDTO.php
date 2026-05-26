@@ -7,7 +7,9 @@ namespace Domain\Platform\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for platform tenant creation and update.
+ * DTO para criação e atualização de tenants da plataforma.
+ *
+ * Normaliza telefone, documento, estado e CEP antes de transportar os dados ao domínio.
  *
  * @readonly
  */
@@ -32,7 +34,10 @@ final readonly class PlatformTenantDTO
     ) {}
 
     /**
-     * Create DTO from form request.
+     * Cria o DTO a partir de um FormRequest validado.
+     *
+     * @param  FormRequest  $request  Requisição validada.
+     * @return self DTO preenchido.
      */
     public static function fromRequest(FormRequest $request): self
     {
@@ -40,7 +45,10 @@ final readonly class PlatformTenantDTO
     }
 
     /**
-     * @param  array<string, mixed>  $data
+     * Cria o DTO a partir de um array de dados normalizando campos de endereço e contato.
+     *
+     * @param  array<string, mixed>  $data  Dados do tenant.
+     * @return self DTO preenchido.
      */
     public static function fromArray(array $data): self
     {
@@ -81,7 +89,9 @@ final readonly class PlatformTenantDTO
     }
 
     /**
-     * @return array<string, mixed>
+     * Converte o DTO em array para persistência no banco.
+     *
+     * @return array<string, mixed> Representação em array do tenant.
      */
     public function toArray(): array
     {
@@ -104,6 +114,12 @@ final readonly class PlatformTenantDTO
         ];
     }
 
+    /**
+     * Converte valor para string ou null, eliminando strings em branco.
+     *
+     * @param  mixed  $value  Valor a ser sanitizado.
+     * @return string|null String trimada ou null se vazia.
+     */
     private static function sanitizeNullableString(mixed $value): ?string
     {
         if (! is_string($value)) {

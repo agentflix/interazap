@@ -2,9 +2,11 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfChatBubbleComponent — Renders a single chat message bubble with
- * directional styling (incoming vs outgoing), timestamp, and read receipts.
- * Supports text, image, video, audio, and document/file types.
+ * Bolha de mensagem de chat com estilo direcional (entrada vs. saída),
+ * horário e confirmações de leitura. Suporta texto, imagem, vídeo, áudio e arquivos.
+ *
+ * Contexto: utilizado na janela de conversa do chat para renderizar cada
+ * mensagem individual enviada ou recebida.
  *
  * @example
  * ```html
@@ -24,34 +26,34 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './chat-bubble.html',
 })
 export class AfChatBubbleComponent {
-  /** Message text */
+  /** Texto da mensagem */
   readonly message = input.required<string>();
 
-  /** Formatted timestamp string */
+  /** String de horário formatada */
   readonly timestamp = input.required<string>();
 
-  /** Sender display name */
+  /** Nome de exibição do remetente */
   readonly senderName = input<string>();
 
-  /** Message direction: incoming or outgoing */
+  /** Direção da mensagem: entrada ou saída */
   readonly direction = input.required<'in' | 'out'>();
 
-  /** Delivery status (outgoing only) */
+  /** Status de entrega (apenas para mensagens de saída) */
   readonly status = input<'sent' | 'delivered' | 'read'>('sent');
 
-  /** Message type — controls how media is rendered */
+  /** Tipo da mensagem — controla como a mídia é renderizada */
   readonly type = input<'text' | 'image' | 'video' | 'audio' | 'file' | 'document'>('text');
 
-  /** Media file URL (used when type is not 'text') */
+  /** URL do arquivo de mídia (usado quando type não é 'text') */
   readonly fileUrl = input<string | undefined>(undefined);
 
-  /** MIME type of the media (e.g. 'image/jpeg', 'video/mp4') */
+  /** Tipo MIME da mídia (ex.: 'image/jpeg', 'video/mp4') */
   readonly mimeType = input<string | undefined>(undefined);
 
-  /** Original file name (for file/document messages) */
+  /** Nome original do arquivo (para mensagens de arquivo/documento) */
   readonly fileName = input<string | undefined>(undefined);
 
-  /** Display name for the file — uses fileName input, falls back to message content or URL basename */
+  /** Nome de exibição do arquivo — usa fileName, com fallback para mensagem ou basename da URL */
   protected readonly displayFileName = computed(() => {
     const name = this.fileName()?.trim() || this.message()?.trim();
     if (name) return name;
@@ -66,34 +68,34 @@ export class AfChatBubbleComponent {
     return 'Arquivo';
   });
 
-  /** True when this bubble contains an image to render */
+  /** Verdadeiro quando a bolha contém uma imagem */
   protected readonly isImage = computed(() => this.type() === 'image');
 
-  /** True when this bubble contains a video to render */
+  /** Verdadeiro quando a bolha contém um vídeo */
   protected readonly isVideo = computed(() => this.type() === 'video');
 
-  /** True when this bubble contains audio to render */
+  /** Verdadeiro quando a bolha contém áudio */
   protected readonly isAudio = computed(() => this.type() === 'audio');
 
-  /** True when this bubble contains a downloadable file/document */
+  /** Verdadeiro quando a bolha contém um arquivo para download */
   protected readonly isFile = computed(
     () => this.type() === 'file' || this.type() === 'document',
   );
 
-  /** True when there is a media URL to show */
+  /** Verdadeiro quando há URL de mídia disponível */
   protected readonly hasMedia = computed(
     () =>
       (this.isImage() || this.isVideo() || this.isAudio() || this.isFile()) &&
       !!this.fileUrl(),
   );
 
-  /** Wrapper alignment */
+  /** Alinhamento do contêiner da bolha */
   protected readonly wrapperClasses = computed(() => {
     const base = 'flex flex-col w-full';
     return this.direction() === 'out' ? `${base} items-end` : `${base} items-start`;
   });
 
-  /** Bubble styling varies by direction */
+  /** Estilo da bolha varia por direção */
   protected readonly bubbleClasses = computed(() => {
     const base = 'px-3.5 py-2 rounded-2xl max-w-[95%] overflow-hidden';
     return this.direction() === 'out'
@@ -102,8 +104,8 @@ export class AfChatBubbleComponent {
   });
 
   /**
-   * True when the message content is a readable caption (not a URL or hex hash).
-   * Prevents raw URLs / file hashes from appearing below images/videos.
+   * Verdadeiro quando o conteúdo da mensagem é uma legenda legível (não URL ou hash hex).
+   * Evita que URLs brutas ou hashes apareçam abaixo de imagens e vídeos.
    */
   protected readonly hasReadableCaption = computed(() => {
     const content = this.message()?.trim();
@@ -113,7 +115,7 @@ export class AfChatBubbleComponent {
     return true;
   });
 
-  /** Opens a URL in a new tab (used when clicking an image to view full-size) */
+  /** Abre uma URL em nova aba (usado ao clicar em imagem para visualização em tamanho real) */
   protected openUrl(url: string): void {
     window.open(url, '_blank', 'noopener,noreferrer');
   }

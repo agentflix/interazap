@@ -8,7 +8,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Event emitted after a child run is created by delegation.
+ * Evento emitido após a criação do run filho resultante de uma delegação.
+ *
+ * Consumido pelo AiRunDelegatedStickyAgentListener para persistir o agente
+ * alvo como sticky agent no ticket, de modo que mensagens futuras sejam
+ * roteadas diretamente ao especialista sem passar pelo roteador principal.
  */
 final class AiRunDelegated
 {

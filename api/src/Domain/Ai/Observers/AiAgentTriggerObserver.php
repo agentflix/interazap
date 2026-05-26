@@ -8,12 +8,15 @@ use Domain\Ai\Models\AiAgentTrigger;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Keeps tenant trigger cache synchronized with trigger lifecycle changes.
+ * Mantém o cache de triggers do tenant sincronizado com o ciclo de vida dos triggers.
+ *
+ * Sempre que um trigger é salvo ou excluído, o cache utilizado pelo
+ * DispatchAutopilotRunJob é reconstruído para refletir o estado atual.
  */
 final class AiAgentTriggerObserver
 {
     /**
-     * Handle the AiAgentTrigger "saved" event.
+     * Reconstrói o cache de triggers ao salvar um trigger.
      */
     public function saved(AiAgentTrigger $trigger): void
     {
@@ -21,7 +24,7 @@ final class AiAgentTriggerObserver
     }
 
     /**
-     * Handle the AiAgentTrigger "deleted" event.
+     * Reconstrói o cache de triggers ao excluir um trigger.
      */
     public function deleted(AiAgentTrigger $trigger): void
     {
@@ -29,7 +32,7 @@ final class AiAgentTriggerObserver
     }
 
     /**
-     * Build cache key for active tenant triggers used by the dispatcher.
+     * Retorna a chave de cache dos triggers ativos do tenant usada pelo dispatcher.
      */
     public static function cacheKey(string $tenantId): string
     {

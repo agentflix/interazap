@@ -19,7 +19,7 @@ export * from './password-strength.model';
 
 
 
-/** Strength check result */
+/** Resultado da verificação de força da senha. */
 interface StrengthResult {
   level: AfPasswordStrength;
   score: number;
@@ -28,18 +28,17 @@ interface StrengthResult {
   checks: PasswordCheck[];
 }
 
-/** Individual check item */
+/** Item individual de verificação de requisito da senha. */
 interface PasswordCheck {
   label: string;
   passed: boolean;
 }
 
 /**
- * Password input with strength meter and visibility toggle.
+ * Campo de senha com medidor de força em tempo real e alternância de visibilidade.
  *
- * @description Extended password field that shows a real-time strength
- * indicator bar and individual requirement checklist. Ideal for
- * registration and "create password" wizard forms.
+ * Exibe barra de força e checklist de requisitos individuais.
+ * Ideal para cadastros e formulários de criação de senha.
  *
  * @example
  * ```html
@@ -58,43 +57,43 @@ interface PasswordCheck {
   templateUrl: './password-strength.html',
 })
 export class AfPasswordStrengthComponent implements OnInit {
-  /** FormControl for the password */
+  /** FormControl da senha */
   readonly control = input.required<FormControl<string>>();
 
-  /** Label text */
+  /** Texto do rótulo */
   readonly label = input<string>();
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string>('mb-4');
 
-  /** Placeholder text */
+  /** Texto placeholder */
   readonly placeholder = input('Crie uma senha segura');
 
-  /** Required asterisk on label */
+  /** Exibe asterisco de campo obrigatório no rótulo */
   readonly required = input(false);
 
-  /** Error message */
+  /** Mensagem de erro */
   readonly errorMessage = input('Senha é obrigatória.');
 
-  /** Minimum password length */
+  /** Comprimento mínimo da senha */
   readonly minLength = input(8);
 
-  /** Whether to show the requirement checklist */
+  /** Exibe o checklist de requisitos */
   readonly showChecklist = input(true);
 
-  /** data-test attribute */
+  /** Atributo data-test */
   readonly dataTest = input<string>();
 
-  /** Password visibility state */
+  /** Estado de visibilidade da senha */
   protected readonly visible = signal(false);
 
-  /** Computed strength result */
+  /** Resultado calculado da força da senha */
   protected readonly strength = signal<StrengthResult>(this.calculateStrength(''));
 
-  /** Number of bar segments */
+  /** Segmentos da barra de força */
   protected readonly segments = [0, 1, 2, 3];
 
-  /** Unique ID */
+  /** ID único do campo */
   protected readonly inputId = `pw-strength-${Math.random().toString(36).slice(2, 9)}`;
 
   private readonly destroyRef = inject(DestroyRef);
@@ -112,7 +111,7 @@ export class AfPasswordStrengthComponent implements OnInit {
     }
   }
 
-  /** Input CSS classes */
+  /** Classes CSS do campo */
   protected readonly inputClasses = computed(() => {
     const borderColor = this.showError()
       ? 'border-red-500 dark:border-red-400'
@@ -129,10 +128,10 @@ export class AfPasswordStrengthComponent implements OnInit {
     ].join(' ');
   });
 
-  /** Whether to show error */
+  /** Indica se o erro deve ser exibido */
   protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
 
-  /** Strength label text color */
+  /** Cor do texto do rótulo de força */
   protected readonly strengthLabelColor = computed(() => {
     const colors: Record<AfPasswordStrength, string> = {
       empty: '',
@@ -144,12 +143,12 @@ export class AfPasswordStrengthComponent implements OnInit {
     return colors[this.strength().level];
   });
 
-  /** Toggle password visibility */
+  /** Alterna a visibilidade da senha */
   protected toggleVisibility(): void {
     this.visible.update((v) => !v);
   }
 
-  /** Calculate password strength */
+  /** Calcula a força da senha */
   private calculateStrength(value: string): StrengthResult {
     if (!value) {
       return { level: 'empty', score: 0, label: '', color: '', checks: [] };

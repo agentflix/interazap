@@ -22,8 +22,8 @@ import { ContactService } from '@core/services/crm-contact.service';
 import type { ContactImportSummary } from '@core/models/contact.model';
 
 /**
- * Contact import component — 3-step wizard: upload → mapping → summary.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Componente de importação de contatos via wizard de 3 etapas:
+ * upload do arquivo → mapeamento de colunas → resumo da importação.
  */
 @Component({
   selector: 'app-contact-import',
@@ -43,31 +43,55 @@ export class ContactImportComponent {
   private readonly contactService = inject(ContactService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Emitted when import summary is available */
+  /**
+   * Evento emitido quando o resumo da importação está disponível.
+   */
   readonly imported = output<ContactImportSummary>();
-  /** Emitted when an error occurs during upload or import */
+  /**
+   * Evento emitido quando ocorre um erro durante o upload ou importação.
+   */
   readonly errorOccurred = output<string>();
 
-  /** Current step in the import wizard */
+  /**
+   * Etapa atual do wizard de importação.
+   */
   readonly step = signal<'upload' | 'mapping' | 'summary'>('upload');
-  /** The selected CSV file */
+  /**
+   * Arquivo CSV selecionado.
+   */
   readonly file = signal<File | null>(null);
-  /** Control for the file input */
+  /**
+   * Controle para o input de arquivo.
+   */
   readonly fileControl = new FormControl<FileList | null>(null);
-  /** CSV headers extracted from the file */
+  /**
+   * Cabeçalhos do CSV extraídos do arquivo.
+   */
   readonly headers = signal<string[]>([]);
-  /** Sample rows for preview */
+  /**
+   * Linhas de exemplo para pré-visualização.
+   */
   readonly sample = signal<string[][]>([]);
-  /** CSV delimiter used in the file */
+  /**
+   * Separador CSV usado no arquivo.
+   */
   readonly delimiter = signal<',' | ';'>(',');
-  /** Unique ID for the current import process */
+  /**
+   * ID único do processo de importação atual.
+   */
   readonly importId = signal<string>('');
-  /** Summary of the import results */
+  /**
+   * Resumo dos resultados da importação.
+   */
   readonly summary = signal<ContactImportSummary | null>(null);
-  /** Loading state for API calls */
+  /**
+   * Estado de carregamento para chamadas à API.
+   */
   readonly isLoading = signal(false);
 
-  /** Form controls for mapping CSV headers to contact fields */
+  /**
+   * Controles de formulário para mapear cabeçalhos do CSV para campos de contato.
+   */
   readonly mappingControls = {
     name: new FormControl('', { nonNullable: true }),
     number: new FormControl('', { nonNullable: true }),
@@ -75,12 +99,16 @@ export class ContactImportComponent {
     company: new FormControl('', { nonNullable: true }),
   };
 
-  /** Options for the mapping select inputs based on CSV headers */
+  /**
+   * Opções para os selects de mapeamento baseadas nos cabeçalhos do CSV.
+   */
   readonly headerOptions = computed<AfSelectOption[]>(() =>
     this.headers().map((header) => ({ label: header, value: header })),
   );
 
-  /** Current mapping configuration */
+  /**
+   * Configuração atual do mapeamento.
+   */
   readonly mapping = signal<{
     name: string;
     number: string;
@@ -88,7 +116,9 @@ export class ContactImportComponent {
     company?: string;
   }>({ name: '', number: '', email: '', company: '' });
 
-  /** Count of invalid phone numbers in the preview sample */
+  /**
+   * Contagem de números de telefone inválidos na amostra de pré-visualização.
+   */
   readonly invalidSampleCount = computed(() => this.countInvalidSampleNumbers());
 
   constructor() {
@@ -97,8 +127,7 @@ export class ContactImportComponent {
   }
 
   /**
-   * Handles file selection and uploads the file for initial processing.
-   * @param files - List of selected files.
+   * Sinal que indica a etapa atual do processo de importação.
    */
   onFileSelected(files: FileList | null): void {
     const file = files?.[0] ?? null;
@@ -127,7 +156,7 @@ export class ContactImportComponent {
   }
 
   /**
-   * Starts the actual contact import process using the current mapping.
+   * Evento emitido quando a importação é cancelada.
    */
   startImport(): void {
     const importId = this.importId();
@@ -169,7 +198,7 @@ export class ContactImportComponent {
   }
 
   /**
-   * Downloads a sample CSV template for users to follow.
+   * Baixa um arquivo CSV de exemplo como modelo para os usuários.
    */
   downloadTemplate(): void {
     const headers = ['name', 'number', 'email', 'company'];
@@ -187,7 +216,7 @@ export class ContactImportComponent {
   }
 
   /**
-   * Resets the component state to the initial upload step.
+   * Reseta o estado do componente para a etapa inicial de upload.
    */
   reset(): void {
     this.step.set('upload');

@@ -9,7 +9,9 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Plan catalog serialization (tenant-facing).
+ * Resource para serialização do catálogo de planos (visão tenant).
+ *
+ * Inclui limites, features e informações de excedente de cada plano disponível.
  */
 final class BillingPlanListResource extends BaseJsonResource
 {
@@ -38,6 +40,8 @@ final class BillingPlanListResource extends BaseJsonResource
             'message_limit_monthly' => $plan->message_limit_monthly,
             'overage_mode' => $plan->overage_mode instanceof \BackedEnum ? $plan->overage_mode->value : $plan->overage_mode,
             'overage_price_per_message' => $plan->overage_price_per_message,
+            'cycle_days' => (int) ($plan->cycle_days ?? 30),
+            'is_trial' => (bool) ($plan->is_trial ?? false),
             'features' => [
                 ['label' => sprintf('%d usuários', (int) $plan->limit_users), 'included' => true],
                 ['label' => sprintf('%d canal WhatsApp', (int) $plan->chat_channels_limit), 'included' => true],
@@ -49,6 +53,7 @@ final class BillingPlanListResource extends BaseJsonResource
         ];
     }
 
+    /** Formata bytes para unidade legível (B, KB, MB, GB, TB). */
     private function formatBytes(int $bytes): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];

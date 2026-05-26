@@ -8,14 +8,22 @@ use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Services\ChatBroadcastService;
 
 /**
- * Handler para edição de mensagens.
+ * Handler para eventos de edição de mensagens via webhook.
+ *
+ * Resolve referências de múltiplos candidatos de ID, aplica o novo conteúdo
+ * mantendo histórico de edições e emite evento WebSocket de edição.
+ * Ignora duplicatas (mesmo conteúdo).
  */
 final class ChatWebhookEditHandler implements ChatWebhookHandlerInterface
 {
     public function __construct(private readonly ChatBroadcastService $broadcastService) {}
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Suporta eventos 'message.edit' e 'messages.edit'.
+     *
+     * @param  string  $eventType  Tipo do evento recebido.
+     * @param  array<string, mixed>  $payload  Payload bruto do webhook.
+     * @return bool True para eventos de edição.
      */
     public function supports(string $eventType, array $payload): bool
     {
@@ -23,7 +31,12 @@ final class ChatWebhookEditHandler implements ChatWebhookHandlerInterface
     }
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Processa o evento de edição, atualizando o conteúdo da mensagem e emitindo broadcast.
+     *
+     * Opera silenciosamente se não encontrar referências de ID ou mensagem no banco.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  array<string, mixed>  $payload  Payload bruto do evento de edição.
      */
     public function handle(string $tenantId, array $payload): void
     {
@@ -88,6 +101,15 @@ final class ChatWebhookEditHandler implements ChatWebhookHandlerInterface
         logger()->debug('[ChatWebhookEditHandler] Message edited', ['message_id' => $message->id]);
     }
 
+    /**
+     * Aplica a edição à mensagem, preservando histórico.
+     *
+     * Retorna false se o conteúdo novo for igual ao atual (duplicata ignorada).
+     *
+     * @param  ChatMessage  $message  Mensagem a editar.
+     * @param  mixed  $newContent  Novo conteúdo recebido no payload.
+     * @return bool True se a edição foi aplicada, false se ignorada.
+     */
     private function applyEdit(ChatMessage $message, mixed $newContent): bool
     {
         $editedAt = now();
@@ -116,8 +138,13 @@ final class ChatWebhookEditHandler implements ChatWebhookHandlerInterface
     }
 
     /**
-     * @param  array<string, mixed>  $payload
-     * @return list<string>
+     * Resolve as referências de ID da mensagem a editar a partir do payload.
+     *
+     * Tenta primeiro os campos explícitos de edição (message.edited, raw.message.edited)
+     * e cai para fallbacks (message_id, raw.key.id, etc.) quando não encontrados.
+     *
+     * @param  array<string, mixed>  $payload  Payload bruto do evento.
+     * @return list<string> Lista de external_ids candidatos (deduplicados).
      */
     private function resolveMessageReferences(array $payload): array
     {
@@ -147,8 +174,10 @@ final class ChatWebhookEditHandler implements ChatWebhookHandlerInterface
     }
 
     /**
-     * @param  list<mixed>  $candidates
-     * @return list<string>
+     * Normaliza candidatos a referência, filtrando strings válidas e deduplicando.
+     *
+     * @param  list<mixed>  $candidates  Valores candidatos (podem ser null ou não-string).
+     * @return list<string> Referências normalizadas e deduplicadas.
      */
     private function normalizeReferences(array $candidates): array
     {

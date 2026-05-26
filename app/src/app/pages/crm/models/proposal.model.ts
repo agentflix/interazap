@@ -1,83 +1,83 @@
-/** Possible states of a proposal throughout its lifecycle. */
+/** Estados possíveis de uma proposta ao longo do seu ciclo de vida. */
 export type ProposalStatus = 'draft' | 'sent' | 'accepted' | 'rejected';
 
 /**
- * Individual line item within a proposal.
+ * Item de linha individual dentro de uma proposta.
  */
 export interface ProposalItem {
-  /** Unique identifier (optional for new items) */
+  /** Identificador único (opcional para novos itens). */
   id?: string | number;
-  /** Reference to the CRM product */
+  /** Referência ao produto do CRM. */
   crm_product_id?: string | number | null;
-  /** Product or service name */
+  /** Nome do produto ou serviço. */
   name: string;
-  /** Quantity being quoted */
+  /** Quantidade cotada. */
   quantity: number;
-  /** Price per unit before discount */
+  /** Preço unitário antes do desconto. */
   unit_price: number;
-  /** Optional discount percentage or amount */
+  /** Desconto opcional (percentual ou valor). */
   discount?: number;
-  /** Display order of the item */
+  /** Ordem de exibição do item. */
   position?: number;
-  /** Computed line total (quantity * unit_price - discount) */
+  /** Total calculado da linha (quantidade * preço unitário - desconto). */
   total?: number;
 }
 
 /**
- * A commercial proposal sent to a negotiation contact.
+ * Proposta comercial enviada ao contato de uma negociação.
  */
 export interface Proposal {
-  /** Unique identifier */
+  /** Identificador único. */
   id: string | number;
-  /** Parent negotiation this proposal belongs to */
+  /** Negociação pai à qual esta proposta pertence. */
   crm_negotiation_id: string | number;
-  /** Proposal title/name */
+  /** Título da proposta. */
   title: string;
-  /** Sequential proposal number */
+  /** Número sequencial da proposta. */
   number?: number | null;
-  /** Current lifecycle status */
+  /** Status atual no ciclo de vida. */
   status: ProposalStatus;
-  /** Expiration date for the proposal */
+  /** Data de validade da proposta. */
   valid_until?: string | null;
-  /** Computed total value */
+  /** Valor total calculado. */
   total?: number;
-  /** Internal notes (not visible to client) */
+  /** Notas internas (não visíveis ao cliente). */
   notes?: string | null;
-  /** Public access token for client view */
+  /** Token de acesso público para visualização pelo cliente. */
   public_token?: string | null;
-  /** URL to the generated PDF */
+  /** URL do PDF gerado. */
   pdf_url?: string | null;
-  /** Timestamp when proposal was sent to client */
+  /** Timestamp do envio ao cliente. */
   sent_at?: string | null;
-  /** Timestamp when client first viewed the proposal */
+  /** Timestamp da primeira visualização pelo cliente. */
   viewed_at?: string | null;
-  /** Timestamp when client accepted the proposal */
+  /** Timestamp de aceite pelo cliente. */
   accepted_at?: string | null;
-  /** Timestamp when client rejected the proposal */
+  /** Timestamp de rejeição pelo cliente. */
   rejected_at?: string | null;
-  /** Line items in the proposal */
+  /** Itens de linha da proposta. */
   items?: ProposalItem[];
-  /** Creation timestamp */
+  /** Timestamp de criação. */
   created_at?: string;
-  /** Last update timestamp */
+  /** Timestamp da última atualização. */
   updated_at?: string;
 }
 
 /**
- * Payload for creating or updating a proposal.
+ * Payload para criação ou atualização de uma proposta.
  */
 export interface ProposalPayload {
-  /** Proposal title/name */
+  /** Título da proposta. */
   title: string;
-  /** Sequential proposal number */
+  /** Número sequencial da proposta. */
   number?: number | null;
-  /** Lifecycle status */
+  /** Status no ciclo de vida. */
   status?: ProposalStatus;
-  /** Expiration date */
+  /** Data de validade. */
   valid_until?: string | null;
-  /** Internal notes */
+  /** Notas internas. */
   notes?: string | null;
-  /** Line items */
+  /** Itens de linha. */
   items?: ProposalItem[];
 }
 

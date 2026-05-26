@@ -14,10 +14,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
- * ChatSession model for webchat sessions.
+ * Modelo de Sessão de Webchat.
  *
- * Manages anonymous or authenticated webchat sessions, tracking visitor
- * activity and linking to a contact and ticket for the conversation.
+ * Gerencia sessões anônimas ou autenticadas do webchat, rastreando a atividade
+ * do visitante e vinculando-a a um contato e a um ticket de atendimento.
  *
  * @property string $id
  * @property string $tenant_id
@@ -62,7 +62,7 @@ class ChatSession extends Model
     ];
 
     /**
-     * Boot the model.
+     * Inicializa o modelo, gerando UUID e token automáticos na criação.
      */
     protected static function booted(): void
     {
@@ -77,7 +77,7 @@ class ChatSession extends Model
     }
 
     /**
-     * Relationship with the ChatTicket.
+     * Relacionamento com o ticket de atendimento vinculado à sessão.
      */
     public function ticket(): BelongsTo
     {
@@ -85,7 +85,7 @@ class ChatSession extends Model
     }
 
     /**
-     * Relationship with the CRMContact.
+     * Relacionamento com o contato CRM associado à sessão.
      */
     public function contact(): BelongsTo
     {

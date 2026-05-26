@@ -1,8 +1,8 @@
 /**
- * BullMQ resilience configuration.
+ * Configuração de resiliência do BullMQ.
  *
- * Centralized configuration for BullMQ queues with
- * retry policies, rate limiting, and DLQ settings.
+ * Configuração centralizada para filas BullMQ com políticas de retry,
+ * rate limiting e configurações de DLQ.
  */
 
 import { DefaultJobOptions, QueueOptions, WorkerOptions } from 'bullmq';

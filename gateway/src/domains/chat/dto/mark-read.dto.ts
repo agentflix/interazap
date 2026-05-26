@@ -1,7 +1,7 @@
 import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 /**
- * DTO to mark messages as read.
+ * DTO para marcar mensagens como lidas em uma conversa Uazapi.
  */
 export class MarkReadDto {
   @IsString()

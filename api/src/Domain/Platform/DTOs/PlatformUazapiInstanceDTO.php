@@ -7,7 +7,9 @@ namespace Domain\Platform\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for Uazapi instance creation.
+ * DTO para criação de instância Uazapi.
+ *
+ * Transporta nome, nome de sistema e configuração JSONB ao domínio.
  *
  * @readonly
  */
@@ -23,7 +25,10 @@ final readonly class PlatformUazapiInstanceDTO
     ) {}
 
     /**
-     * Create DTO from form request.
+     * Cria o DTO a partir de um FormRequest validado.
+     *
+     * @param  FormRequest  $request  Requisição validada.
+     * @return self DTO preenchido.
      */
     public static function fromRequest(FormRequest $request): self
     {
@@ -31,7 +36,10 @@ final readonly class PlatformUazapiInstanceDTO
     }
 
     /**
-     * @param  array<string, mixed>  $data
+     * Cria o DTO a partir de um array de dados.
+     *
+     * @param  array<string, mixed>  $data  Dados da instância.
+     * @return self DTO preenchido.
      */
     public static function fromArray(array $data): self
     {
@@ -43,7 +51,9 @@ final readonly class PlatformUazapiInstanceDTO
     }
 
     /**
-     * @return array<string, mixed>
+     * Converte o DTO em array para envio ao gateway.
+     *
+     * @return array<string, mixed> Representação em array da instância.
      */
     public function toArray(): array
     {

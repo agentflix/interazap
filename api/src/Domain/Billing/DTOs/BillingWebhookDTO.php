@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Domain\Billing\DTOs;
 
 /**
- * DTO for Asaas webhook input.
+ * DTO para entrada de webhook do Asaas.
+ *
+ * Encapsula os campos normalizados de um evento recebido do provider de pagamento,
+ * incluindo a chave de idempotência calculada para evitar reprocessamento.
  *
  * @readonly
  */
@@ -24,6 +27,8 @@ final readonly class BillingWebhookDTO
     ) {}
 
     /**
+     * Converte o DTO para array serializável.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -39,6 +44,8 @@ final readonly class BillingWebhookDTO
     }
 
     /**
+     * Cria o DTO normalizando os campos de um payload de webhook.
+     *
      * @param  array<string, mixed>  $payload
      */
     public static function fromArray(array $payload): self
@@ -62,6 +69,8 @@ final readonly class BillingWebhookDTO
     }
 
     /**
+     * Gera hash SHA-256 do payload ordenado por chave para garantir determinismo.
+     *
      * @param  array<string, mixed>  $payload
      */
     private static function hashPayload(array $payload): string
@@ -71,6 +80,7 @@ final readonly class BillingWebhookDTO
         return hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
     }
 
+    /** Calcula a chave de idempotência priorizando o ID do evento do provider. */
     private static function computeIdempotency(?string $providerEventId, string $eventType, string $payloadHash): string
     {
         if ($providerEventId) {

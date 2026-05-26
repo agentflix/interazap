@@ -19,6 +19,7 @@ use Illuminate\Validation\ValidationException;
  */
 final class CRMNegotiationProductActions
 {
+    /** Lista os itens de produto vinculados a uma negociação. */
     public function list(string $tenantId, string $negotiationId): Collection
     {
         $this->ensureNegotiation($tenantId, $negotiationId);
@@ -31,6 +32,14 @@ final class CRMNegotiationProductActions
             ->get();
     }
 
+    /**
+     * Adiciona um produto à negociação.
+     *
+     * Se o produto já estiver vinculado, soma a quantidade ao item existente.
+     * Controla estoque quando track_stock estiver habilitado no produto.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o estoque for insuficiente
+     */
     public function add(string $tenantId, CRMNegotiationProductDTO $dto): CRMNegotiationProduct
     {
         return DB::transaction(function () use ($tenantId, $dto): CRMNegotiationProduct {
@@ -116,6 +125,9 @@ final class CRMNegotiationProductActions
         });
     }
 
+    /**
+     * Remove um item de produto da negociação, devolvendo o estoque ao produto original.
+     */
     public function delete(string $tenantId, string $id): void
     {
         DB::transaction(function () use ($tenantId, $id): void {

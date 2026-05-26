@@ -7,13 +7,23 @@ namespace Domain\Ai\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Evento disparado quando uma mensagem de entrada solicita processamento pelo Autopilot.
+ *
+ * Emitido pelo domínio Chat (ex.: ChatWebhookRouter e WebChatMessageController)
+ * e interceptado pelo AiGateKeeperListener, que valida as condições antes de
+ * publicar o AutopilotTriggerFired para o pipeline de IA.
+ */
 final class AiRunRequested
 {
     use Dispatchable;
     use SerializesModels;
 
     /**
-     * @param  array<string, mixed>  $context
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $ticketId  UUID do ticket de origem.
+     * @param  string  $body  Corpo da mensagem recebida.
+     * @param  array<string, mixed>  $context  Contexto adicional (message_id, instance_id, etc.).
      */
     public function __construct(
         public readonly string $tenantId,

@@ -9,7 +9,7 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Playbook serialization.
+ * Resource para serialização de playbook do autopilot.
  */
 final class AiAutopilotPlaybookResource extends BaseJsonResource
 {

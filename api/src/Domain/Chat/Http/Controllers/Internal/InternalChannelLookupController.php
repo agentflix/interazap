@@ -25,10 +25,12 @@ final class InternalChannelLookupController extends BaseController
     ) {}
 
     /**
-     * Resolve waba_id → ChatInstance (tenant + instance).
+     * Resolver waba_id para a ChatInstance correspondente (tenant + instância).
+     *
      * GET /api/internal/chat/instances/by-waba/{wabaId}
      *
      * @param  string  $wabaId  WhatsApp Business Account ID da Meta.
+     * @return JsonResponse Dados da instância ou 404.
      */
     public function byWaba(string $wabaId): JsonResponse
     {

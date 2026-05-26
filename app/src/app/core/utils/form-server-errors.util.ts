@@ -1,9 +1,12 @@
 import type { FormGroup } from '@angular/forms';
 
 /**
- * Distributes Laravel 422 field-level errors to their corresponding FormControls.
- * Sets `{ server: '<message>' }` as the control error and marks the control as touched
- * so error components render immediately.
+ * Distribui erros de campo do Laravel 422 nos FormControls correspondentes.
+ * Define `{ server: '<mensagem>' }` como erro do controle e marca como tocado
+ * para que os componentes de erro renderizem imediatamente.
+ *
+ * @param form Formulário reativo que receberá os erros
+ * @param errors Mapa de campo para mensagem(ns) de erro retornado pela API
  */
 export function applyServerErrors(
   form: FormGroup,

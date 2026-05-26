@@ -27,7 +27,16 @@ final class BillingPurgeTenantAction
     ) {}
 
     /**
+     * Executa o purge completo do tenant: gera relatório, faz soft-delete dos dados e dispara eventos.
+     *
+     * Em modo dry-run retorna sem persistir nada. Safeguards bloqueiam o purge quando há
+     * pagamento nos últimos 30 dias ou usuário super-admin no tenant.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a ser excluído
+     * @param  bool  $dryRun  Se verdadeiro, apenas verifica elegibilidade sem excluir
      * @return array{tenant_id:string,purged:bool,dry_run:bool,report_id:string|null}
+     *
+     * @throws \RuntimeException Quando os safeguards bloqueiam o purge
      */
     public function handle(PlatformTenant $tenant, bool $dryRun = false): array
     {
@@ -105,6 +114,11 @@ final class BillingPurgeTenantAction
         ];
     }
 
+    /**
+     * Valida pré-condições de segurança antes do purge.
+     *
+     * @throws \RuntimeException Quando há pagamento recente ou super-admin no tenant
+     */
     private function assertSafetyChecks(PlatformTenant $tenant): void
     {
         $recentPayment = BillingPayment::query()
@@ -130,7 +144,9 @@ final class BillingPurgeTenantAction
     }
 
     /**
-     * @param  list<string>  $tables
+     * Faz soft-delete (ou hard-delete quando não há deleted_at) dos registros do tenant em cada tabela.
+     *
+     * @param  list<string>  $tables  Tabelas a serem limpadas
      */
     private function softDeleteTenantRows(string $tenantId, array $tables): void
     {
@@ -157,18 +173,21 @@ final class BillingPurgeTenantAction
         }
     }
 
+    /** Remove o diretório de storage do tenant do disco configurado. */
     private function cleanupTenantStorage(string $tenantId): void
     {
         Storage::disk(config('filesystems.default'))
             ->deleteDirectory("tenants/{$tenantId}");
     }
 
+    /** Invalida o cache de status de billing do tenant. */
     private function forgetTenantStatusCache(string $tenantId): void
     {
         $prefix = (string) config('billing.delinquency.cache.billing_status_prefix', 'billing:tenant_status:');
         Cache::forget($prefix.$tenantId);
     }
 
+    /** Verifica se o módulo de inadimplência está habilitado pela config. */
     private function isFeatureEnabled(): bool
     {
         return (bool) config('billing.delinquency.enabled', true);

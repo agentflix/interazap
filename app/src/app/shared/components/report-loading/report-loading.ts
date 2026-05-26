@@ -5,9 +5,9 @@ import { AfSkeletonComponent } from '../skeleton/skeleton';
 export type ReportLoadingLayout = 'kpi+chart' | 'table' | 'kpi+table' | 'chart';
 
 /**
- * AfReportLoadingComponent — Skeleton loading state for report pages.
+ * Estado de carregamento skeleton para páginas de relatório.
  *
- * Renders appropriate skeleton grids based on the layout type.
+ * Renderiza grids de skeleton apropriados ao tipo de layout.
  *
  * @example
  * ```html
@@ -22,19 +22,19 @@ export type ReportLoadingLayout = 'kpi+chart' | 'table' | 'kpi+table' | 'chart';
   templateUrl: './report-loading.html',
 })
 export class AfReportLoadingComponent {
-  /** Number of KPI skeleton cards to render */
+  /** Número de cards KPI skeleton a renderizar */
   readonly kpiCount = input(4);
 
-  /** Layout pattern determining which skeleton sections to show */
+  /** Padrão de layout que determina quais seções skeleton exibir */
   readonly layout = input<ReportLoadingLayout>('kpi+chart');
 
-  /** Number of table row skeletons to render */
+  /** Número de linhas skeleton de tabela a renderizar */
   readonly tableRows = input(5);
 
-  /** Array for KPI skeleton iteration */
+  /** Array para iteração dos skeletons de KPI */
   protected readonly kpiItems = computed(() => Array.from({ length: this.kpiCount() }));
 
-  /** Array for table row skeleton iteration */
+  /** Array para iteração das linhas skeleton da tabela */
   protected readonly tableRowItems = computed(() => Array.from({ length: this.tableRows() }));
 
   protected getKpiCols(count: number): string {

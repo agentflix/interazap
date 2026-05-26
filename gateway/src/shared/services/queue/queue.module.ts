@@ -6,10 +6,10 @@ import { QueueRateLimiterService } from './queue-rate-limiter.service';
 import { BullMQQueueFactory } from './bullmq-queue-factory.service';
 
 /**
- * Queue Resilience Module.
+ * Módulo global de resiliência de filas do gateway.
  *
- * Provides services for queue management, DLQ handling,
- * and monitoring of both Redis Streams and BullMQ queues.
+ * Disponibiliza serviços de gerenciamento de filas, tratamento de DLQ
+ * e monitoramento de filas Redis Streams e BullMQ.
  */
 @Global()
 @Module({

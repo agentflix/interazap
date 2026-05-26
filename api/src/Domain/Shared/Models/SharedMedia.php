@@ -9,7 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
- * Modelo placeholder para políticas de mídia compartilhada.
+ * Modelo para controle de uploads de mídia compartilhada por tenant.
+ *
+ * Serve como alvo das policies de SharedMediaPolicy para autorização de
+ * upload, visualização e exclusão de arquivos. UUID gerado automaticamente.
  *
  * @property string $id
  */
@@ -33,6 +36,9 @@ final class SharedMedia extends Model
         'tenant_id',
     ];
 
+    /**
+     * Inicializa o modelo registrando geração automática de UUID na criação.
+     */
     protected static function booted(): void
     {
         self::creating(function (self $media): void {

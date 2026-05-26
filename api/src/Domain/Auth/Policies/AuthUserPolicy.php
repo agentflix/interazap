@@ -22,6 +22,7 @@ final class AuthUserPolicy
         private readonly PlatformPlanEnforcementService $enforcementService,
     ) {}
 
+    /** Permite listar usuários para super-admins e quem tem permissão de visualização/gestão. */
     public function viewAny(AuthUser $user): bool
     {
         if ($user->isSuperAdmin()) {
@@ -32,11 +33,17 @@ final class AuthUserPolicy
             || $this->hasPermission($user, self::PERMISSION_MANAGE);
     }
 
+    /** Permite visualizar usuário para quem pode listar. */
     public function view(AuthUser $user, AuthUser $model): bool
     {
         return $this->viewAny($user);
     }
 
+    /**
+     * Permite criar usuário verificando o limite de usuários do plano do tenant.
+     *
+     * @throws PlanLimitExceededException Se o plano atingiu o limite de usuários.
+     */
     public function create(AuthUser $user): bool
     {
         $canManage = $this->canManageUsers($user);
@@ -57,6 +64,7 @@ final class AuthUserPolicy
         return true;
     }
 
+    /** Permite atualizar usuário, exceto se o alvo for super-admin e o solicitante nao for. */
     public function update(AuthUser $user, AuthUser $model): bool
     {
         if ($model->isSuperAdmin() && ! $user->isSuperAdmin()) {
@@ -66,6 +74,7 @@ final class AuthUserPolicy
         return $this->canManageUsers($user);
     }
 
+    /** Permite excluir usuário, exceto super-admins. */
     public function delete(AuthUser $user, AuthUser $model): bool
     {
         if ($model->isSuperAdmin()) {
@@ -75,6 +84,7 @@ final class AuthUserPolicy
         return $this->canManageUsers($user);
     }
 
+    /** Permite alternar status de usuário, exceto super-admins. */
     public function toggle(AuthUser $user, AuthUser $model): bool
     {
         if ($model->isSuperAdmin()) {
@@ -102,6 +112,7 @@ final class AuthUserPolicy
         return $user->isSuperAdmin();
     }
 
+    /** Verifica se o usuário pode gerenciar outros usuários (super-admin, inquilino ou permissão explícita). */
     private function canManageUsers(AuthUser $user): bool
     {
         return $user->isSuperAdmin()
@@ -109,6 +120,7 @@ final class AuthUserPolicy
             || $this->hasPermission($user, self::PERMISSION_MANAGE);
     }
 
+    /** Verifica permissão tratando PermissionDoesNotExist como false. */
     private function hasPermission(AuthUser $user, string $permission): bool
     {
         try {

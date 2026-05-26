@@ -8,12 +8,15 @@ use Domain\Ai\Events\AiRunCompleted;
 use Domain\Ai\Jobs\AiSummarizeConversationJob;
 
 /**
- * Listener for AI run completion events that dispatches conversation summarization.
+ * Listener que reage ao AiRunCompleted despachando o job de sumarização da conversa.
+ *
+ * Garante que cada run concluído resulte em um resumo atualizado do ticket
+ * via AiSummarizeConversationJob, processado de forma assíncrona na fila.
  */
 final class AiConversationSummaryListener
 {
     /**
-     * Handle the event.
+     * Despacha o job de sumarização ao receber o evento de run concluído.
      */
     public function handle(AiRunCompleted $event): void
     {

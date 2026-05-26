@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 
 /**
- * Global scope that automatically filters queries by tenant_id.
+ * Escopo global que filtra automaticamente as queries por tenant_id.
  *
- * This ensures tenant isolation at the query level, preventing
- * accidental cross-tenant data access (IDOR prevention).
+ * Garante isolamento multi-tenant no nível de query, prevenindo
+ * acesso cruzado de dados entre tenants (prevenção de IDOR).
  *
- * Usage in Model:
+ * Uso em model:
  * ```php
  * protected static function booted(): void
  * {
@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Scope;
  * }
  * ```
  *
- * To bypass (only for admin/system operations):
+ * Para contornar (somente em operações administrativas/sistema):
  * ```php
  * Model::withoutGlobalScope(TenantScope::class)->get();
  * ```
@@ -30,7 +30,13 @@ use Illuminate\Database\Eloquent\Scope;
 final class TenantScope implements Scope
 {
     /**
-     * Apply the scope to a given Eloquent query builder.
+     * Aplica o filtro de tenant_id ao query builder Eloquent.
+     *
+     * Não filtra quando estiver em contexto de super admin ou quando
+     * nenhum tenant_id estiver disponível no contexto ou na autenticação.
+     *
+     * @param  Builder<Model>  $builder  Query builder Eloquent.
+     * @param  Model  $model  Instância do modelo sendo consultado.
      */
     public function apply(Builder $builder, Model $model): void
     {

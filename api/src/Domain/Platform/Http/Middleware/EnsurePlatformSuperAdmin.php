@@ -9,10 +9,19 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Middleware que garante que apenas super admins da plataforma acessem a rota.
+ *
+ * Retorna HTTP 403 se o usuário autenticado não for super admin.
+ */
 final class EnsurePlatformSuperAdmin
 {
     /**
-     * @param  Closure(Request): Response  $next
+     * Verifica se o usuário é super admin e permite ou rejeita a requisição.
+     *
+     * @param  Request  $request  Requisição HTTP atual.
+     * @param  Closure(Request): Response  $next  Próximo middleware na pilha.
+     * @return Response Resposta da requisição ou JSON 403.
      */
     public function handle(Request $request, Closure $next): Response
     {

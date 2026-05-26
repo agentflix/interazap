@@ -13,10 +13,11 @@ interface SingleEnvelope<T> {
 }
 
 /**
- * Service for managing chat routing queues (global and per-channel).
+ * Serviço para gerenciar filas de roteamento automático (global e por canal).
  *
- * Consumes the backend API for FEAT-052 (Rodízio Automático de Atendimentos — Fase 1).
- * Uses signals for local state; each load triggers a fresh GET.
+ * Consome a API backend do FEAT-052 (Rodízio Automático de Atendimentos — Fase 1).
+ * Usa signals para estado local; cada carregamento dispara um novo GET.
+ * Signals expostos: `queue`, `agents`, `loading`, `error`.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatRoutingQueueService {
@@ -30,7 +31,7 @@ export class ChatRoutingQueueService {
   readonly loading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
 
-  /** Loads the global routing queue and updates local state. */
+  /** Carrega a fila de roteamento global e atualiza o estado local. */
   loadGlobal(): void {
     this._setLoading(true);
     this.http

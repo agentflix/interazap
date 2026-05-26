@@ -7,20 +7,22 @@ namespace Domain\Chat\Services;
 use Domain\Ai\Events\AiRunRequested;
 
 /**
- * Asynchronous responder for Autopilot replies.
+ * Responder assíncrono para respostas do Autopilot.
  *
- * Resolves the playbook automatically from the tenant's active playbooks.
- * No instance-level configuration is required.
+ * Resolve o playbook automaticamente a partir dos playbooks ativos do tenant.
+ * Não requer configuração no nível da instância.
+ *
+ * @category Services
  */
 final class ChatAutopilotResponder
 {
     /**
-     * Dispatches an async job to run Autopilot and respond.
+     * Despacha job assíncrono para executar o Autopilot e responder.
      *
-     * @param  string  $tenantId  Tenant identifier.
-     * @param  string  $ticketId  Ticket identifier.
-     * @param  string  $body  Incoming message content.
-     * @param  array<string, mixed>  $context  Context data (instance_id, message_id, etc.).
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $ticketId  Identificador do ticket.
+     * @param  string  $body  Conteúdo da mensagem recebida.
+     * @param  array<string, mixed>  $context  Dados de contexto (instance_id, message_id, etc.).
      */
     public function respond(string $tenantId, string $ticketId, string $body, array $context = []): void
     {

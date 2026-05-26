@@ -7,17 +7,11 @@ import type { PlatformBillingInvoice, PlatformBillingInvoiceCreatePayload, Platf
 export type { PlatformBillingInvoice, PlatformBillingInvoiceCreatePayload, PlatformBillingInvoiceFilters, PlatformBillingInvoicePaginatedResponse } from '@core/models/platform-billing-invoice.model';
 
 
-/** Fatura enriquecida com dados do tenant (visão admin) */
-
-/** Filtros da listagem admin */
-
-/** Payload para criação de fatura pela plataforma */
-
-/** Resposta paginada da API */
-
 /**
- * Service para gerenciamento de faturas na visão de plataforma (admin).
- * Endpoints: GET/POST/DELETE /platform/billing/invoices
+ * Serviço para gerenciamento de faturas na visão de plataforma (admin).
+ *
+ * Contexto: service HTTP com endpoints em /platform/billing/invoices para
+ * listagem paginada, criação, cancelamento, marcação como pago e download de faturas.
  */
 @Injectable({ providedIn: 'root' })
 export class PlatformBillingInvoiceService {
@@ -26,6 +20,9 @@ export class PlatformBillingInvoiceService {
 
   /**
    * Lista faturas de todos os tenants com paginação e filtros.
+   *
+   * @param filters - Filtros: search, tenant_id, status, payment_method, due_date_from, due_date_to, per_page, page
+   * @returns Observable com resposta paginada de faturas
    */
   list(
     filters: PlatformBillingInvoiceFilters = {},
@@ -46,6 +43,9 @@ export class PlatformBillingInvoiceService {
 
   /**
    * Cria uma nova fatura para um tenant específico.
+   *
+   * @param payload - Dados da fatura: tenant_id, amount, due_date, etc.
+   * @returns Observable com a fatura criada
    */
   create(
     payload: PlatformBillingInvoiceCreatePayload,
@@ -55,11 +55,20 @@ export class PlatformBillingInvoiceService {
 
   /**
    * Cancela (soft-delete) uma fatura.
+   *
+   * @param id - Identificador da fatura
+   * @returns Observable que completa após o cancelamento
    */
   cancel(id: string): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }
 
+  /**
+   * Marca uma fatura como paga.
+   *
+   * @param id - Identificador da fatura
+   * @returns Observable com a fatura atualizada
+   */
   markPaid(id: string): Observable<{ data: PlatformBillingInvoice }> {
     return this.http.patch<{ data: PlatformBillingInvoice }>(
       `${this.baseUrl}/${id}/mark-paid`,
@@ -67,6 +76,12 @@ export class PlatformBillingInvoiceService {
     );
   }
 
+  /**
+   * Baixa o PDF de uma fatura.
+   *
+   * @param id - Identificador da fatura
+   * @returns Observable com o blob do arquivo PDF
+   */
   download(id: string): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/${id}/download`, {
       responseType: 'blob',

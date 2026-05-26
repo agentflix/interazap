@@ -3,13 +3,13 @@ import { inject } from '@angular/core';
 import { AuthStoreService } from '../services/auth-store.service';
 
 /**
- * Guard that ensures the user is authenticated before allowing access to a route.
- * Checks for both a valid token and user data in the AuthStoreService.
- * If not authenticated, redirects to the login page.
+ * Protege rotas exigindo que o usuário esteja autenticado.
  *
- * @param route - The route being activated (unused in this guard)
- * @param state - The router state (unused in this guard)
- * @returns True if authenticated, otherwise a UrlTree redirecting to /login
+ * Verifica a presença de token válido e dados de usuário no `AuthStoreService`.
+ * Se o usuário precisar trocar a senha (`force_password_change`), redireciona para
+ * `/auth/force-change-password`. Caso não esteja autenticado, redireciona para `/login`.
+ *
+ * @returns `true` se autenticado, ou `UrlTree` redirecionando conforme o estado da sessão
  *
  * @example
  * ```typescript
@@ -35,12 +35,13 @@ export const authGuard: CanActivateFn = () => {
 };
 
 /**
- * Guard that applies authentication check to child routes.
- * Delegates to authGuard for the actual authentication logic.
+ * Aplica verificação de autenticação em rotas filhas.
  *
- * @param route - The child route being activated
- * @param state - The router state
- * @returns True if authenticated, otherwise a UrlTree redirecting to /login
+ * Delega a lógica de autenticação ao `authGuard`.
+ *
+ * @param route - Rota filha sendo ativada
+ * @param state - Estado do roteador
+ * @returns `true` se autenticado, ou `UrlTree` redirecionando para `/login`
  *
  * @example
  * ```typescript

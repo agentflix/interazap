@@ -1,7 +1,7 @@
 /**
- * Common Interfaces Index
+ * Índice de interfaces comuns do gateway.
  *
- * Re-exports all common interfaces for easy importing
+ * Re-exporta todas as interfaces comuns para facilitar a importação.
  */
 
 export * from './gateway-message.interface';

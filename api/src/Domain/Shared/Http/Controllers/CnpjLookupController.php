@@ -11,7 +11,10 @@ use Illuminate\Http\Request;
 use RuntimeException;
 
 /**
- * Consulta simplificada de CNPJ (stub).
+ * Controller de consulta de CNPJ via ReceitaWS.
+ *
+ * Recebe o CNPJ como parâmetro de rota e retorna os dados
+ * cadastrais normalizados (razão social, endereço, contato).
  */
 final class CnpjLookupController extends BaseController
 {

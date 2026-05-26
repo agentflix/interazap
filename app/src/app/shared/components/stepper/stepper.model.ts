@@ -1,8 +1,8 @@
 /**
- * Models and types for stepper component.
+ * Modelos e tipos do componente de etapas (stepper).
  */
 
-/** Step definition */
+/** Definição de uma etapa */
 export interface AfStepItem {
   label: string;
   description?: string;

@@ -1,8 +1,8 @@
 /**
- * Models and types for color-palette component.
+ * Modelos e tipos do componente de paleta de cores.
  */
 
-/** Color option */
+/** Opção de cor da paleta. */
 export interface AfColorOption {
   label: string;
   value: string;

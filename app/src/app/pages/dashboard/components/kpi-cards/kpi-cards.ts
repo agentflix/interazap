@@ -5,8 +5,7 @@ import { AfCardComponent } from '@shared/components';
 import { type DashboardSummary } from '../../models/dashboard.model';
 
 /**
- * KPI cards row — displays the four main dashboard metrics.
- * Each card has a semantic icon color and descriptive subtitle.
+ * Linha de cards KPI — exibe as quatro métricas principais do dashboard.
  */
 @Component({
   selector: 'app-kpi-cards',

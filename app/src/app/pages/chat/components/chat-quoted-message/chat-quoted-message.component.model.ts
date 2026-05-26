@@ -1,7 +1,6 @@
-/**
- * Models and types for chat-quoted-message.component component.
- */
+/** Modelos e tipos do componente de mensagem citada (reply) do chat. */
 
+/** Dados da mensagem original referenciada em uma resposta. */
 export interface QuotedMessage {
   id?: string | number | null;
   external_id?: string | null;

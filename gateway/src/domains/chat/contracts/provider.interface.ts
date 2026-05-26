@@ -1,8 +1,9 @@
 /**
- * WhatsApp Provider Interface
- * Defines the contract for all WhatsApp provider implementations (UazAPI, Z-API)
+ * Contrato base para todas as implementacoes de provedor WhatsApp (UazAPI, Z-API, Meta).
+ * Define as operacoes obrigatorias de envio, status e normalizacao de webhook.
  */
 
+/** Payload normalizado de mensagem WhatsApp extraido de qualquer provedor suportado. */
 export interface MessagePayload {
   id: string;
   from: string;
@@ -34,6 +35,7 @@ export interface MessagePayload {
   senderPhoto?: string;
 }
 
+/** Payload normalizado de status de entrega de mensagem. */
 export interface StatusPayload {
   messageId: string;
   status: 'sent' | 'delivered' | 'read' | 'failed';
@@ -41,12 +43,14 @@ export interface StatusPayload {
   error?: string;
 }
 
+/** Requisicao de envio de mensagem de texto para um provedor WhatsApp. */
 export interface SendTextRequest {
   to: string;
   text: string;
   quotedMessageId?: string;
 }
 
+/** Requisicao de envio de midia (imagem, video, audio, documento) para um provedor WhatsApp. */
 export interface SendMediaRequest {
   to: string;
   type: 'image' | 'video' | 'audio' | 'document';
@@ -56,12 +60,14 @@ export interface SendMediaRequest {
   mimeType?: string;
 }
 
+/** Resultado normalizado de uma operacao de envio de mensagem. */
 export interface SendMessageResult {
   success: boolean;
   messageId?: string;
   error?: string;
 }
 
+/** Status normalizado de conexao de uma instancia WhatsApp. */
 export interface InstanceStatus {
   connected: boolean;
   loggedIn: boolean;
@@ -71,13 +77,14 @@ export interface InstanceStatus {
 }
 
 export interface WhatsAppProvider {
-  /**
-   * Provider identifier
-   */
+  /** Identificador canonico do provedor. */
   readonly name: 'uazapi' | 'zapi' | 'meta' | 'telegram';
 
   /**
-   * Send a text message
+   * Envia mensagem de texto para o destinatario.
+   * @param instanceToken Token de autenticacao da instancia no provedor
+   * @param request Dados da mensagem de texto
+   * @returns Resultado normalizado do envio
    */
   sendText(
     instanceToken: string,
@@ -85,7 +92,10 @@ export interface WhatsAppProvider {
   ): Promise<SendMessageResult>;
 
   /**
-   * Send a media message (image, video, audio, document)
+   * Envia mensagem de midia (imagem, video, audio, documento).
+   * @param instanceToken Token de autenticacao da instancia no provedor
+   * @param request Dados da mensagem de midia
+   * @returns Resultado normalizado do envio
    */
   sendMedia(
     instanceToken: string,
@@ -93,22 +103,30 @@ export interface WhatsAppProvider {
   ): Promise<SendMessageResult>;
 
   /**
-   * Get instance connection status
+   * Consulta o status de conexao da instancia.
+   * @param instanceToken Token de autenticacao da instancia no provedor
+   * @returns Status de conexao normalizado
    */
   getStatus(instanceToken: string): Promise<InstanceStatus>;
 
   /**
-   * Disconnect instance
+   * Desconecta a instancia do provedor.
+   * @param instanceToken Token de autenticacao da instancia no provedor
    */
   disconnect(instanceToken: string): Promise<void>;
 
   /**
-   * Get QR Code for connection
+   * Recupera o QR code para pareamento da instancia.
+   * @param instanceToken Token de autenticacao da instancia no provedor
+   * @returns String do QR code ou null quando nao disponivel
    */
   getQrCode(instanceToken: string): Promise<string | null>;
 
   /**
-   * Normalize raw webhook payload to standard format
+   * Normaliza o payload bruto de webhook para o formato interno padronizado.
+   * @param token Token do webhook da instancia
+   * @param rawPayload Payload bruto recebido do provedor
+   * @returns Evento normalizado no contrato interno
    */
   normalizeWebhook(
     token: string,

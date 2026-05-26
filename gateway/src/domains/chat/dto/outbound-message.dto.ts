@@ -2,9 +2,9 @@ import { IsIn, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 /**
- * Canonical outbound message DTO consumed by the Chat Outbound API.
- * Supports both UAZAPI and ZAPI providers with text and media types.
- * Field names are normalized from snake_case aliases via Transform decorators.
+ * DTO canonico de mensagem outbound consumido pela Chat Outbound API.
+ * Suporta provedores UAZAPI e ZAPI com tipos texto e midia.
+ * Nomes de campo sao normalizados de aliases snake_case via decoradores Transform.
  */
 export class OutboundMessageDto {
   @IsString()

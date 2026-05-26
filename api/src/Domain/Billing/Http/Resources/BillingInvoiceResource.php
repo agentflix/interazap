@@ -9,7 +9,9 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Billing Invoice serialization.
+ * Resource para serialização de Faturas de Billing.
+ *
+ * Inclui label e cor de status localizados para uso no frontend.
  */
 final class BillingInvoiceResource extends BaseJsonResource
 {

@@ -8,7 +8,10 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Chat ticket serialization.
+ * Resource de serialização de Ticket de Chat.
+ *
+ * Transforma a entidade ChatTicket no formato da API, agregando contato,
+ * usuário responsável, última mensagem, avaliação CSAT e métricas de duração.
  */
 class ChatTicketResource extends BaseJsonResource
 {
@@ -32,7 +35,7 @@ class ChatTicketResource extends BaseJsonResource
     }
 
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */
@@ -102,11 +105,11 @@ class ChatTicketResource extends BaseJsonResource
     }
 
     /**
-     * Compute wait duration in seconds (created_at → started_at).
+     * Calcular o tempo de espera em segundos (created_at → started_at).
      *
-     * If the ticket has not started, uses current time as reference.
+     * Caso o ticket ainda não tenha sido iniciado, utiliza o momento atual como referência.
      *
-     * @return int|null Duration in seconds or null if created_at is missing.
+     * @return int|null Duração em segundos ou null se created_at estiver ausente.
      */
     private function computeWaitDuration(): ?int
     {
@@ -120,11 +123,11 @@ class ChatTicketResource extends BaseJsonResource
     }
 
     /**
-     * Compute service duration in seconds (started_at → closed_at).
+     * Calcular a duração do atendimento em segundos (started_at → closed_at).
      *
-     * If the ticket is still open, uses current time as end reference.
+     * Caso o ticket ainda esteja aberto, utiliza o momento atual como referência final.
      *
-     * @return int|null Duration in seconds or null if not started.
+     * @return int|null Duração em segundos ou null se o atendimento ainda não foi iniciado.
      */
     private function computeServiceDuration(): ?int
     {

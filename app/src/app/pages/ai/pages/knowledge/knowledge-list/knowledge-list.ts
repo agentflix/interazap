@@ -34,8 +34,12 @@ import { AiKnowledgeService } from '@ai/services/ai-knowledge.service';
 import { KnowledgeUploadComponent } from '../knowledge-upload/knowledge-upload';
 
 /**
- * List and manage AI knowledge base documents.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Lista e gerencia documentos da base de conhecimento da IA.
+ *
+ * Contexto: exibe tabela paginada com seleção múltipla, busca e modal de upload embutido.
+ * Atualiza o status via WebSocket (realtime). Quando WebSocket não está disponível, faz
+ * polling a cada 5 segundos enquanto há documentos em processamento. Suporta exclusão e
+ * reindexação individual ou em lote.
  */
 @Component({
   selector: 'app-ai-knowledge-list',
@@ -337,7 +341,8 @@ export class KnowledgeListComponent {
   }
 
   /**
-   * Reindex a document.
+   * Solicita a reindexação de um documento específico.
+   * @param doc Documento a ser reindexado
    */
   reindex(doc: AiKnowledge): void {
     this.knowledgeService
@@ -353,7 +358,9 @@ export class KnowledgeListComponent {
   }
 
   /**
-   * Get icon name for content type.
+   * Retorna o nome do ícone para o tipo de conteúdo.
+   * @param type Tipo de conteúdo do documento
+   * @returns Nome do ícone Lucide
    */
   getTypeIcon(type: AiKnowledge['content_type']): string {
     const icons: Record<AiKnowledge['content_type'], string> = {
@@ -366,7 +373,9 @@ export class KnowledgeListComponent {
   }
 
   /**
-   * Format status label.
+   * Formata o status do documento para exibição.
+   * @param status Status atual do documento
+   * @returns Rótulo em português
    */
   formatStatus(status: AiKnowledge['status']): string {
     const labels: Record<AiKnowledge['status'], string> = {
@@ -379,7 +388,9 @@ export class KnowledgeListComponent {
   }
 
   /**
-   * Map knowledge document status to AfStatusBadgeComponent status type.
+   * Converte o status do documento para a variante do AfStatusBadgeComponent.
+   * @param status Status atual do documento
+   * @returns Variante de badge correspondente
    */
   mapStatusToBadge(
     status: AiKnowledge['status'],
@@ -395,7 +406,9 @@ export class KnowledgeListComponent {
   }
 
   /**
-   * Format token count.
+   * Formata a contagem de tokens com sufixo K quando aplicável.
+   * @param count Número de tokens
+   * @returns String formatada (ex.: "1.2K")
    */
   formatTokens(count: number): string {
     if (count >= 1000) {

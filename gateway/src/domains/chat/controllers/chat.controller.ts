@@ -22,18 +22,18 @@ import { MarkReadDto } from '../dto/mark-read.dto';
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class ChatController {
   /**
-   * Initializes the chat controller with the Uazapi client.
+   * Inicializa o controller de chat com o cliente Uazapi.
    *
-   * @param client - Uazapi HTTP client for chat operations
+   * @param client Cliente HTTP Uazapi para operacoes de chat
    */
   constructor(private readonly client: UazapiClient) {}
 
   /**
-   * Marks messages as read.
+   * Marca mensagens como lidas na instancia Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Mark read payload
-   * @returns Mark as read result
+   * @param token Token da instancia
+   * @param body Payload de marcacao como lido
+   * @returns Resultado da operacao
    */
   @Post('read')
   markAsRead(@Headers('token') token: string, @Body() body: MarkReadDto) {

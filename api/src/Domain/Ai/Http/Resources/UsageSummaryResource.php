@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for Usage Summary serialization.
+ * Resource para serialização do resumo de consumo de IA.
  */
 final class UsageSummaryResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma o recurso em array.
      *
      * @return array<string, mixed>
      */

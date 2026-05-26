@@ -8,8 +8,10 @@ import {
 } from '@shared/models/tenant-settings.model';
 
 /**
- * Service for fetching and updating tenant-level settings.
- * Accessible only by admins/managers with `platform.tenants.manage` permission.
+ * Consulta e atualiza configurações de nível de tenant.
+ *
+ * Contexto: service HTTP acessível apenas por admins/managers com permissão
+ * `platform.tenants.manage`. Endpoints em /platform/tenants/{id}/settings.
  *
  * @example
  * ```ts
@@ -23,20 +25,22 @@ export class TenantSettingsService {
   private readonly http = inject(HttpClient);
 
   /**
-   * Fetch the settings for a specific tenant.
+   * Busca as configurações de um tenant específico.
    *
-   * @param tenantId - UUID of the tenant
+   * @param tenantId - UUID do tenant
+   * @returns Observable com as configurações do tenant
    */
   getSettings(tenantId: string): Observable<TenantSettingsResponse> {
     return this.http.get<TenantSettingsResponse>(`${this.baseUrl}/${tenantId}/settings`);
   }
 
   /**
-   * Partially update the settings for a specific tenant.
-   * The backend performs a deep merge so unchanged sections are preserved.
+   * Atualiza parcialmente as configurações de um tenant específico.
+   * O backend realiza deep merge preservando seções não alteradas.
    *
-   * @param tenantId - UUID of the tenant
-   * @param data - Partial settings object to merge with existing values
+   * @param tenantId - UUID do tenant
+   * @param data - Objeto parcial de configurações para mesclar com valores existentes
+   * @returns Observable com as configurações atualizadas
    */
   updateSettings(
     tenantId: string,

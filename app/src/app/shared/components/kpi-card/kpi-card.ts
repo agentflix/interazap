@@ -3,8 +3,7 @@ import { AfSkeletonComponent } from '../skeleton/skeleton';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfKpiCardComponent — Displays a single KPI metric with an optional
- * change indicator (positive/negative trend).
+ * Exibe uma única métrica KPI com indicador opcional de variação (tendência positiva/negativa).
  *
  * @example
  * ```html
@@ -25,33 +24,33 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './kpi-card.html',
 })
 export class AfKpiCardComponent {
-  /** Metric label */
+  /** Rótulo da métrica */
   readonly title = input.required<string>();
 
-  /** Formatted value to display */
+  /** Valor formatado a exibir */
   readonly value = input.required<string>();
 
-  /** Percentage change (+ or -). Pass null to hide. */
+  /** Variação percentual (+ ou -). Passar null para ocultar. */
   readonly change = input<number | null>(null);
 
-  /** Description for the change (e.g., "vs mês anterior") */
+  /** Descrição da variação (ex.: "vs mês anterior") */
   readonly changeLabel = input<string>();
 
-  /** Lucide icon name */
+  /** Nome do ícone Lucide */
   readonly icon = input<string>();
 
-  /** Whether the card is in loading state */
+  /** Indica se o card está em estado de carregamento */
   readonly loading = input(false);
 
-  /** Whether the change is positive */
+  /** Indica se a variação é positiva */
   protected readonly isPositive = computed(() => (this.change() ?? 0) >= 0);
 
-  /** Arrow icon based on trend direction */
+  /** Ícone de seta baseado na direção da tendência */
   protected readonly changeIcon = computed(() =>
     this.isPositive() ? 'trending-up' : 'trending-down',
   );
 
-  /** CSS classes for the change indicator */
+  /** Classes CSS do indicador de variação */
   protected readonly changeClasses = computed(() => {
     const base = 'inline-flex items-center gap-0.5 text-xs font-semibold';
     return this.isPositive()
@@ -59,7 +58,7 @@ export class AfKpiCardComponent {
       : `${base} text-red-600 dark:text-red-400`;
   });
 
-  /** Absolute formatted change value */
+  /** Valor absoluto formatado da variação */
   protected readonly formattedChange = computed(() => {
     const val = this.change() ?? 0;
     return Math.abs(val).toFixed(1);

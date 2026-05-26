@@ -25,8 +25,12 @@ import { ToastService } from '@core/services/toast.service';
 import { AiKnowledgeService } from '@ai/services/ai-knowledge.service';
 
 /**
- * Upload documents to AI knowledge base.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Upload de documentos para a base de conhecimento da IA.
+ *
+ * Contexto: suporta dois modos: upload de arquivo (drag-and-drop ou seleção) e ingestão
+ * por URL. Tipos permitidos: .txt, .csv, .md, .json, .pdf (máx. 10MB). PDFs protegidos
+ * por senha são rejeitados com mensagem amigável. Pode ser usado embutido em modal ou
+ * como página independente.
  */
 @Component({
   selector: 'app-ai-knowledge-upload',
@@ -69,6 +73,10 @@ export class KnowledgeUploadComponent {
   readonly allowedTypes = ['.txt', '.csv', '.md', '.json', '.pdf'];
   readonly maxFileSize = 10 * 1024 * 1024; // 10MB
 
+  /**
+   * Alterna entre modo de upload de arquivo e modo de ingestão por URL.
+   * @param mode 'file' para arquivo local, 'url' para URL pública
+   */
   setUploadMode(mode: 'file' | 'url'): void {
     this.uploadMode.set(mode);
 
@@ -88,6 +96,10 @@ export class KnowledgeUploadComponent {
     this.form.controls.url.updateValueAndValidity();
   }
 
+  /**
+   * Verifica se o botão de envio deve estar desabilitado.
+   * @returns true se o formulário é inválido ou o envio está em andamento
+   */
   isSubmitDisabled(): boolean {
     if (this.isUploading() || this.form.controls.title.invalid) {
       return true;
@@ -101,7 +113,8 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Handle file selection from input.
+   * Trata a seleção de arquivo via input.
+   * @param event Evento de seleção do input
    */
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -111,7 +124,8 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Handle drag over event.
+   * Trata o evento de drag-over na área de drop.
+   * @param event Evento de drag
    */
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -120,7 +134,8 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Handle drag leave event.
+   * Trata o evento de saída da área de drop.
+   * @param event Evento de drag
    */
   onDragLeave(event: DragEvent): void {
     event.preventDefault();
@@ -129,7 +144,8 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Handle file drop.
+   * Trata o drop de arquivo na área designada.
+   * @param event Evento de drop
    */
   onDrop(event: DragEvent): void {
     event.preventDefault();
@@ -142,7 +158,8 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Validate and set selected file.
+   * Valida e define o arquivo selecionado verificando tipo e tamanho.
+   * @param file Arquivo a ser validado
    */
   private validateAndSetFile(file: File): void {
     const extension = '.' + file.name.split('.').pop()?.toLowerCase();
@@ -165,7 +182,7 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Clear selected file.
+   * Limpa o arquivo selecionado e reseta o input.
    */
   clearFile(): void {
     this.selectedFile.set(null);
@@ -175,14 +192,16 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Open file browser.
+   * Abre o seletor de arquivos do sistema operacional.
    */
   openFileBrowser(): void {
     this.fileInput.nativeElement.click();
   }
 
   /**
-   * Format file size for display.
+   * Formata o tamanho do arquivo para exibição (B, KB, MB).
+   * @param bytes Tamanho em bytes
+   * @returns String formatada
    */
   formatFileSize(bytes: number): string {
     if (bytes < 1024) return bytes + ' B';
@@ -191,7 +210,9 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Format file extension for display.
+   * Retorna a extensão do arquivo em maiúsculas para exibição.
+   * @param file Arquivo selecionado
+   * @returns Extensão (ex.: ".PDF") ou "N/A"
    */
   getFileExtension(file: File): string {
     const extension = file.name.split('.').pop()?.toUpperCase();
@@ -199,7 +220,9 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Format file mime type for display.
+   * Retorna o tipo MIME ou extensão do arquivo para exibição.
+   * @param file Arquivo selecionado
+   * @returns Tipo MIME ou extensão como fallback
    */
   getFileTypeLabel(file: File): string {
     if (file.type.length > 0) {
@@ -211,14 +234,16 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Format file modified date.
+   * Formata a data de modificação do arquivo.
+   * @param timestamp Timestamp em milissegundos
+   * @returns String de data localizada em pt-BR
    */
   formatFileDate(timestamp: number): string {
     return new Date(timestamp).toLocaleString('pt-BR');
   }
 
   /**
-   * Submit upload.
+   * Envia o formulário para criar a entrada na base de conhecimento (arquivo ou URL).
    */
   submit(): void {
     if (this.isSubmitDisabled()) return;
@@ -280,7 +305,7 @@ export class KnowledgeUploadComponent {
   }
 
   /**
-   * Navigate back to list.
+   * Cancela a operação e navega de volta para a lista (ou emite evento quando embutido).
    */
   cancel(): void {
     if (this.embedded()) {

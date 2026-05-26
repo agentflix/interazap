@@ -62,6 +62,12 @@ final class AutopilotRunSnapshotResolver
         );
     }
 
+    /**
+     * Invalida todos os snapshots em cache associados a um ticket.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $ticketId  UUID do ticket.
+     */
     public static function forgetForTicket(string $tenantId, string $ticketId): void
     {
         if ($tenantId === '' || $ticketId === '') {
@@ -82,6 +88,12 @@ final class AutopilotRunSnapshotResolver
         Cache::forget($indexKey);
     }
 
+    /**
+     * Invalida todos os snapshots em cache associados a um agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     */
     public static function forgetForAgent(string $tenantId, string $agentId): void
     {
         if ($tenantId === '' || $agentId === '') {
@@ -102,6 +114,14 @@ final class AutopilotRunSnapshotResolver
         Cache::forget($indexKey);
     }
 
+    /**
+     * Constrói o snapshot completo (prompt + context + tools) para a run.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  AiAgent  $agent  Agente alvo da run.
+     * @param  string  $ticketId  UUID do ticket (pode ser vazio).
+     * @return array{prompt: ?string, context: ?array<string, mixed>, tools: ?array<int, array<string, mixed>>, hydrated_at: string}
+     */
     private function buildSnapshot(string $tenantId, AiAgent $agent, string $ticketId): array
     {
         return [
@@ -112,21 +132,32 @@ final class AutopilotRunSnapshotResolver
         ];
     }
 
+    /** Gera a chave de cache para um snapshot específico (tenant + agente + ticket). */
     private static function snapshotKey(string $tenantId, string $agentId, string $ticketId): string
     {
         return sprintf('autopilot:snapshot:%s:%s:%s', $tenantId, $agentId, $ticketId);
     }
 
+    /** Gera a chave do índice que rastreia snapshots de um ticket. */
     private static function ticketIndexKey(string $tenantId, string $ticketId): string
     {
         return sprintf('autopilot:snapshot:index:ticket:%s:%s', $tenantId, $ticketId);
     }
 
+    /** Gera a chave do índice que rastreia snapshots de um agente. */
     private static function agentIndexKey(string $tenantId, string $agentId): string
     {
         return sprintf('autopilot:snapshot:index:agent:%s:%s', $tenantId, $agentId);
     }
 
+    /**
+     * Registra a chave do snapshot nos índices de ticket e agente para invalidação futura.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  string  $ticketId  UUID do ticket.
+     * @param  string  $cacheKey  Chave do snapshot a rastrear.
+     */
     private function rememberSnapshotIndex(string $tenantId, string $agentId, string $ticketId, string $cacheKey): void
     {
         $ticketIndexKey = self::ticketIndexKey($tenantId, $ticketId);
@@ -150,6 +181,14 @@ final class AutopilotRunSnapshotResolver
         Cache::put($agentIndexKey, $agentKeys, self::SNAPSHOT_INDEX_TTL_SECONDS);
     }
 
+    /**
+     * Resolve o prompt completo para o tenant via AiPromptResolverService.
+     *
+     * Retorna null em caso de falha para não interromper o dispatch da run.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @return string|null Prompt concatenado ou null se o tenant não for encontrado.
+     */
     private function resolvePrompt(string $tenantId): ?string
     {
         try {
@@ -171,7 +210,10 @@ final class AutopilotRunSnapshotResolver
     }
 
     /**
-     * @return array<string, mixed>|null
+     * Resolve o contexto estruturado a partir do ticket (vendedor, negociação, agentes disponíveis).
+     *
+     * @param  string  $ticketId  UUID do ticket.
+     * @return array<string, mixed>|null Contexto estruturado ou null se o ticket não for encontrado.
      */
     private function resolveContext(string $ticketId): ?array
     {
@@ -215,7 +257,10 @@ final class AutopilotRunSnapshotResolver
     }
 
     /**
-     * @return array{id: string, name: string, email: ?string}|null
+     * Resolve o vendedor atribuído ao ticket.
+     *
+     * @param  ChatTicket  $ticket  Ticket da conversa.
+     * @return array{id: string, name: string, email: ?string}|null Dados do vendedor ou null.
      */
     private function resolveAssignedSeller(ChatTicket $ticket): ?array
     {
@@ -232,7 +277,10 @@ final class AutopilotRunSnapshotResolver
     }
 
     /**
-     * @return array{id: string, name: string, email: ?string}|null
+     * Resolve o vendedor padrão do tenant (favorecendo nome 'rosa', depois mais antigo).
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @return array{id: string, name: string, email: ?string}|null Dados do vendedor ou null.
      */
     private function resolveDefaultSeller(string $tenantId): ?array
     {
@@ -247,7 +295,11 @@ final class AutopilotRunSnapshotResolver
     }
 
     /**
-     * @return array{id: string, title: string, status: string}|null
+     * Resolve a negociação aberta mais recente vinculada ao contato.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string|null  $contactId  UUID do contato (null retorna null).
+     * @return array{id: string, title: string, status: string}|null Dados da negociação ou null.
      */
     private function resolveActiveNegotiation(string $tenantId, ?string $contactId): ?array
     {
@@ -276,6 +328,9 @@ final class AutopilotRunSnapshotResolver
     }
 
     /**
+     * Retorna a lista de agentes ativos do tenant para o snapshot.
+     *
+     * @param  string  $tenantId  UUID do tenant.
      * @return list<array{id: string, name: string, role: ?string}>
      */
     private function resolveAvailableAgents(string $tenantId): array
@@ -294,6 +349,9 @@ final class AutopilotRunSnapshotResolver
     }
 
     /**
+     * Formata os dados de um vendedor para o snapshot.
+     *
+     * @param  AuthUser  $seller  Vendedor a formatar.
      * @return array{id: string, name: string, email: ?string}
      */
     private function formatSeller(AuthUser $seller): array

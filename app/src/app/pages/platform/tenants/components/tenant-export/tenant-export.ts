@@ -13,8 +13,7 @@ import { AfButtonComponent } from '@shared/components';
 import { CompanyService } from '@core/services/company.service';
 
 /**
- * Tenant export component for the Platform module.
- * @selector app-tenant-export
+ * Botão de exportação de tenants — gera arquivo CSV com os tenants filtrados.
  */
 @Component({
   selector: 'app-tenant-export',

@@ -1,8 +1,9 @@
 /**
- * Redis Streams Service
+ * Serviço de abstração para operações com Redis Streams.
  *
- * Abstração para operações de Redis Streams (XREAD/XREADGROUP/XADD).
- * Fornece métodos tipados para publish/subscribe com suporte a consumer groups.
+ * Contexto: módulo infra/redis. Encapsula XREAD, XREADGROUP e XADD,
+ * fornecendo métodos tipados para publicação de GatewayMessage/GatewayResponse
+ * e consumo via consumer groups com ACK.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -19,37 +20,42 @@ import {
 } from '../../common/interfaces/gateway-response.interface';
 
 /**
- * Parsed stream message from Redis
+ * Mensagem parseada de uma entrada do Redis Stream.
+ * Combina o ID da entrada com o payload tipado da GatewayMessage.
  */
 export interface StreamMessage<T = unknown> {
+  /** ID da mensagem no stream (ex: "1234567890-0"). */
   id: string;
+  /** Payload deserializado como GatewayMessage. */
   message: GatewayMessage<T>;
 }
 
 /**
- * Handler function for stream messages
+ * Função handler assíncrona para processar uma mensagem do stream.
+ * Deve lançar erro em caso de falha para acionar o mecanismo de DLQ.
  */
 export type StreamMessageHandler<T = unknown> = (
   message: StreamMessage<T>,
 ) => Promise<void>;
 
+/**
+ * Serviço de streams Redis tipado para o gateway.
+ *
+ * Contexto: módulo infra/redis. Abstrai XADD (publish), XREADGROUP (readGroup),
+ * XACK (ack) e criação de consumer groups, convertendo os dados flat do Redis
+ * para GatewayMessage e GatewayResponse fortemente tipados.
+ */
 @Injectable()
 export class RedisStreamsService {
   private readonly logger = new Logger(RedisStreamsService.name);
 
-  /**
-   * Initializes the streams service with a shared RedisService instance.
-   *
-   * @param redisService - RedisService for low-level Redis command access
-   */
   constructor(private readonly redisService: RedisService) {}
 
   /**
-   * Publish a GatewayMessage to a stream
-   *
-   * @param stream - Stream name (e.g., 'ai.run.request')
-   * @param message - GatewayMessage to publish
-   * @returns Stream entry ID
+   * Publica uma GatewayMessage em um Redis Stream via XADD.
+   * @param stream Nome do stream (ex: `ai.run.request`)
+   * @param message Mensagem tipada a ser publicada
+   * @returns ID da entrada publicada no stream ou null em caso de falha
    */
   async publish<T>(
     stream: string,
@@ -74,10 +80,10 @@ export class RedisStreamsService {
   }
 
   /**
-   * Publish a GatewayResponse to a stream
-   *
-   * @param stream - Stream name (e.g., 'ai.run.response:{correlationId}')
-   * @param response - GatewayResponse to publish
+   * Publica uma GatewayResponse em um Redis Stream via XADD.
+   * @param stream Nome do stream (ex: `ai.run.response:{correlationId}`)
+   * @param response Resposta tipada a ser publicada
+   * @returns ID da entrada publicada no stream ou null em caso de falha
    */
   async publishResponse<T>(
     stream: string,
@@ -100,10 +106,10 @@ export class RedisStreamsService {
   }
 
   /**
-   * Ensure a consumer group exists for a stream
-   *
-   * @param stream - Stream name
-   * @param group - Consumer group name
+   * Garante que um consumer group existe para o stream informado.
+   * Usa XGROUP CREATE com MKSTREAM; ignora o erro BUSYGROUP se o grupo já existir.
+   * @param stream Nome do stream
+   * @param group Nome do consumer group
    */
   async ensureConsumerGroup(stream: string, group: string): Promise<void> {
     try {
@@ -124,14 +130,13 @@ export class RedisStreamsService {
   }
 
   /**
-   * Read messages from a stream using consumer group
-   *
-   * @param stream - Stream name
-   * @param group - Consumer group name
-   * @param consumer - Consumer name (unique per instance)
-   * @param count - Max messages to read
-   * @param blockMs - Block timeout in milliseconds
-   * @returns Array of parsed stream messages
+   * Lê mensagens de um stream via XREADGROUP com bloqueio.
+   * @param stream Nome do stream
+   * @param group Nome do consumer group
+   * @param consumer Nome do consumer (único por instância)
+   * @param count Número máximo de mensagens a retornar (padrão: 10)
+   * @param blockMs Timeout de bloqueio em milissegundos (padrão: 2000)
+   * @returns Array de mensagens tipadas parseadas do stream
    */
   async readGroup<T>(
     stream: string,
@@ -180,11 +185,10 @@ export class RedisStreamsService {
   }
 
   /**
-   * Acknowledge a message as processed
-   *
-   * @param stream - Stream name
-   * @param group - Consumer group name
-   * @param messageId - Message ID to acknowledge
+   * Confirma que uma mensagem foi processada com sucesso via XACK.
+   * @param stream Nome do stream
+   * @param group Nome do consumer group
+   * @param messageId ID da mensagem a ser confirmada
    */
   async ack(stream: string, group: string, messageId: string): Promise<void> {
     const client = this.redisService.getClient();
@@ -193,7 +197,10 @@ export class RedisStreamsService {
   }
 
   /**
-   * Parse raw Redis stream fields into GatewayMessage
+   * Converte o array flat de campos do Redis Stream em uma GatewayMessage tipada.
+   * Suporta payload como JSON stringificado ou como campos individuais.
+   * @param fields Array alternado de chaves e valores do Redis Stream
+   * @returns GatewayMessage com payload e metadata parseados
    */
   private parseMessage<T>(fields: string[]): GatewayMessage<T> {
     const fieldMap: Record<string, string> = {};
@@ -245,7 +252,11 @@ export class RedisStreamsService {
   }
 
   /**
-   * Helper to create success response
+   * Cria uma GatewayResponse de sucesso com os dados fornecidos.
+   * @param correlationId ID de correlação da requisição original
+   * @param data Dados do resultado
+   * @param processingTimeMs Tempo de processamento em milissegundos (opcional)
+   * @returns GatewayResponse tipada com success=true
    */
   createSuccessResponse<T>(
     correlationId: string,
@@ -256,7 +267,13 @@ export class RedisStreamsService {
   }
 
   /**
-   * Helper to create error response
+   * Cria uma GatewayResponse de erro com o código e mensagem informados.
+   * @param correlationId ID de correlação da requisição original
+   * @param code Código de erro tipado pelo GatewayError
+   * @param message Mensagem descritiva do erro
+   * @param processingTimeMs Tempo de processamento em milissegundos (opcional)
+   * @param details Detalhes adicionais do erro (opcional)
+   * @returns GatewayResponse tipada com success=false
    */
   createErrorResponse(
     correlationId: string,

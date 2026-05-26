@@ -16,7 +16,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Handles parent → child run delegation rules.
+ * Serviço de delegação de execuções entre agentes de IA (pai → filho).
+ *
+ * Contexto: valida regras de delegação, detecta ciclos, cria child runs e
+ * publica o evento `ai.run.request` no Redis Stream para processamento pelo gateway.
+ * Em caso de falha no stream, faz fallback via AiRunExecutionJob (PHP síncrono).
+ * Utiliza lock atômico para serializar delegações concorrentes do mesmo parent run.
  */
 final class AiAgentDelegationService
 {
@@ -26,7 +31,17 @@ final class AiAgentDelegationService
     ) {}
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Executa a delegação de uma run de um agente origem para um agente destino.
+     *
+     * Verifica pertencimento ao tenant, existência da regra de delegação, profundidade
+     * máxima, ausência de ciclos e idempotência antes de criar o child run.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $parentRunId  UUID da run pai.
+     * @param  string  $sourceAgentId  UUID do agente de origem.
+     * @param  string  $targetAgentId  UUID ou nome do agente de destino.
+     * @param  array<string, mixed>  $payload  Dados da delegação (input_text, return_after, etc.).
+     * @param  bool  $dispatchExecutionJob  Se false, não publica no stream (uso em testes).
      * @return array{success: bool, message: string, child_run_id?: string, return_after?: bool}
      */
     public function delegate(
@@ -225,10 +240,15 @@ final class AiAgentDelegationService
     }
 
     /**
-     * Detect circular delegation by walking the parent chain with tenant isolation.
+     * Detecta delegação circular percorrendo a cadeia de parent runs com isolamento de tenant.
      *
-     * Uses direct queries (not eager-loaded relation) to ensure fresh data
-     * inside the lock window, preventing TOCTOU race conditions.
+     * Usa queries diretas (não relações eager-loaded) para garantir dados frescos
+     * dentro da janela do lock, prevenindo condições de corrida TOCTOU.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  AiAutopilotRun  $parentRun  Run pai da delegação atual.
+     * @param  string  $targetAgentId  UUID do agente de destino a verificar.
+     * @return bool True se a delegação criaria um ciclo.
      */
     private function createsCircularDelegation(string $tenantId, AiAutopilotRun $parentRun, string $targetAgentId): bool
     {

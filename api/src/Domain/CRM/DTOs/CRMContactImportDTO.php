@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * DTO for CRM contact import.
+ * DTO para importação de contatos CRM.
  *
- * Carries mapping, file reference and import options.
+ * Transporta o mapeamento de colunas, referência ao arquivo CSV e opções de importação.
  *
  * @readonly
  */
@@ -30,9 +30,9 @@ final readonly class CRMContactImportDTO
     ) {}
 
     /**
-     * Build DTO from Request.
+     * Cria DTO a partir de uma Request HTTP.
      *
-     * The import_id is a storage-relative path; we resolve it to absolute.
+     * O import_id é um caminho relativo ao storage; é resolvido para caminho absoluto.
      */
     public static function fromRequest(Request $request): self
     {
@@ -52,7 +52,7 @@ final readonly class CRMContactImportDTO
     }
 
     /**
-     * Build DTO from array (job payload).
+     * Cria DTO a partir de um array (payload do job de fila).
      *
      * @param  array<string, mixed>  $payload
      */
@@ -87,10 +87,10 @@ final readonly class CRMContactImportDTO
     }
 
     /**
-     * Resolve a storage-relative path to absolute filesystem path.
+     * Converte um caminho relativo ao storage para caminho absoluto no filesystem.
      *
-     * Accepts both relative (imports/contacts/uuid.csv) and absolute paths
-     * for backward compatibility.
+     * Aceita caminhos relativos (imports/contacts/uuid.csv) e absolutos
+     * para compatibilidade retroativa.
      */
     private static function resolveFilePath(string $path): string
     {
@@ -102,7 +102,7 @@ final readonly class CRMContactImportDTO
     }
 
     /**
-     * Convert DTO to array (job payload).
+     * Converte DTO para array (payload do job de fila).
      *
      * @return array<string, mixed>
      */

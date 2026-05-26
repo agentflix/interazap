@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
 /**
- * Async execution job for autopilot runs.
+ * Job de execução assíncrona de runs do Autopilot.
  *
- * Sets up the initial messages and self-dispatches for multi-iteration runs.
- * Each tool call iteration self-dispatches via AiRunExecutionJob to avoid
- * PHP max_execution_time timeout when OpenAI takes minutes to respond.
+ * Configura as mensagens iniciais e auto-despacha para runs com múltiplas iterações.
+ * Cada iteração de tool call se auto-despacha para evitar o limite de
+ * max_execution_time do PHP quando o LLM demora minutos para responder.
  */
 final class AiRunExecutionJob implements ShouldQueue
 {
@@ -41,6 +41,9 @@ final class AiRunExecutionJob implements ShouldQueue
         public readonly string $tenantId,
     ) {}
 
+    /**
+     * Executa uma iteração do run e auto-despacha ou finaliza conforme resultado.
+     */
     public function handle(AiAutopilotRunActions $actions): void
     {
         // Prevent race condition: only one worker processes this run

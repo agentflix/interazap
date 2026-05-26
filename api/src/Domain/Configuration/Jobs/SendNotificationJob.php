@@ -33,19 +33,22 @@ final class SendNotificationJob implements ShouldQueue
     /** Número máximo de tentativas antes de falhar definitivamente. */
     public int $tries = 3;
 
-    /** Backoff progressivo entre tentativas (segundos). */
     /**
+     * Backoff progressivo entre tentativas em segundos (10s, 60s, 300s).
+     *
      * @var array<int, int>
      */
     public array $backoff = [10, 60, 300];
 
-    /** Máximo de exceções não-capturadas antes de marcar como falho. */
+    /** Máximo de exceções não capturadas antes de marcar como falho. */
     public int $maxExceptions = 2;
 
     /**
-     * @param  string  $notificationId  Identificador da notificação.
-     * @param  string  $channel  Canal alvo.
-     * @param  string  $tenantId  Identificador do tenant.
+     * Cria o job com os identificadores necessários para recuperar e enviar a notificação.
+     *
+     * @param  string  $notificationId  Identificador UUID da notificação a enviar.
+     * @param  string  $channel  Canal alvo (ui|email|push|whatsapp|webhook).
+     * @param  string  $tenantId  Identificador do tenant proprietário.
      */
     public function __construct(
         public readonly string $notificationId,
@@ -53,6 +56,12 @@ final class SendNotificationJob implements ShouldQueue
         public readonly string $tenantId,
     ) {}
 
+    /**
+     * Executa a entrega da notificação no canal configurado.
+     *
+     * @param  GatewayBroadcastService  $broadcastService  Serviço de broadcast WebSocket.
+     * @param  ChatGatewayService  $chatGatewayService  Serviço de envio WhatsApp.
+     */
     public function handle(
         GatewayBroadcastService $broadcastService,
         ChatGatewayService $chatGatewayService,
@@ -77,6 +86,7 @@ final class SendNotificationJob implements ShouldQueue
         }
     }
 
+    /** Entrega a notificação via WebSocket para o canal de interface do usuário. */
     private function sendViaUi(ConfigurationNotification $notification, GatewayBroadcastService $broadcastService): void
     {
         $payload = [
@@ -110,6 +120,7 @@ final class SendNotificationJob implements ShouldQueue
         $notification->markAsSent();
     }
 
+    /** Entrega a notificação por e-mail ao destinatário do registro. */
     private function sendViaEmail(ConfigurationNotification $notification): void
     {
         $recipient = AuthUser::query()
@@ -128,6 +139,7 @@ final class SendNotificationJob implements ShouldQueue
         $notification->markAsSent();
     }
 
+    /** Entrega a notificação push web via broadcast para as assinaturas ativas do usuário. */
     private function sendViaPush(ConfigurationNotification $notification, GatewayBroadcastService $broadcastService): void
     {
         $subscriptions = ConfigurationPushSubscription::query()
@@ -159,6 +171,7 @@ final class SendNotificationJob implements ShouldQueue
         $notification->markAsSent();
     }
 
+    /** Entrega a notificação via WhatsApp para o número do destinatário. */
     private function sendViaWhatsApp(ConfigurationNotification $notification, ChatGatewayService $chatGatewayService): void
     {
         $recipient = AuthUser::query()
@@ -203,6 +216,7 @@ final class SendNotificationJob implements ShouldQueue
         $notification->markAsSent();
     }
 
+    /** Entrega a notificação via HTTP POST para todos os webhooks ativos do tenant. */
     private function sendViaWebhook(ConfigurationNotification $notification): void
     {
         $webhooks = ConfigurationNotificationWebhook::query()
@@ -276,6 +290,12 @@ final class SendNotificationJob implements ShouldQueue
         $notification->markAsSent();
     }
 
+    /**
+     * Normaliza o número de telefone removendo caracteres não numéricos.
+     *
+     * @param  string|null  $phone  Número bruto.
+     * @return string|null Apenas dígitos ou null se inválido.
+     */
     private function normalizePhone(?string $phone): ?string
     {
         if ($phone === null || $phone === '') {

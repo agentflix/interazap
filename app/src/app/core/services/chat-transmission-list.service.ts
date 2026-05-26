@@ -6,7 +6,7 @@ import type { ChatTransmissionList, ChatTransmissionListListResponse, ChatTransm
 export type { ChatTransmissionList, ChatTransmissionListListResponse, ChatTransmissionListPayload, ChatTransmissionListPreview, ChatTransmissionListResponse } from '@core/models/chat-transmission-list.model';
 
 
-/** Primitive metadata shape returned by transmission list API. */
+/** Formato primitivo de metadados retornado pela API de lista de transmissão. */
 interface TransmissionListMeta {
   current_page?: number;
   last_page?: number;
@@ -37,13 +37,13 @@ interface ChatTransmissionListListNestedEnvelope {
 
 /** Preview API response payload. */
 
-/** Service responsible for Chat Transmission List CRUD and helper endpoints. */
+/** Gerencia operações CRUD e endpoints auxiliares de listas de transmissão de chat. */
 @Injectable({ providedIn: 'root' })
 export class ChatTransmissionListService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/chat/transmission-lists`;
 
-  /** Lists transmission lists with pagination and optional search. */
+  /** Lista listas de transmissão com paginação e busca opcional. */
   list(
     params: { per_page?: number; page?: number; search?: string } = {},
   ): Observable<ChatTransmissionListListResponse> {
@@ -82,45 +82,45 @@ export class ChatTransmissionListService {
       );
   }
 
-  /** Loads a transmission list by id. */
+  /** Carrega uma lista de transmissão pelo id. */
   show(id: string): Observable<ChatTransmissionListResponse> {
     return this.http
       .get<{ data: ChatTransmissionList }>(`${this.apiUrl}/${id}`)
       .pipe(map((response) => ({ success: true, data: response.data })));
   }
 
-  /** Creates a new transmission list. */
+  /** Cria uma nova lista de transmissão. */
   create(payload: ChatTransmissionListPayload): Observable<ChatTransmissionListResponse> {
     return this.http
       .post<{ data: ChatTransmissionList }>(this.apiUrl, payload)
       .pipe(map((response) => ({ success: true, data: response.data })));
   }
 
-  /** Updates an existing transmission list. */
+  /** Atualiza uma lista de transmissão existente. */
   update(id: string, payload: Partial<ChatTransmissionListPayload>): Observable<ChatTransmissionListResponse> {
     return this.http
       .put<{ data: ChatTransmissionList }>(`${this.apiUrl}/${id}`, payload)
       .pipe(map((response) => ({ success: true, data: response.data })));
   }
 
-  /** Deletes a transmission list. */
+  /** Exclui uma lista de transmissão. */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.apiUrl}/${id}`);
   }
 
-  /** Triggers transmission list sending. */
+  /** Dispara o envio de uma lista de transmissão. */
   send(id: string): Observable<null> {
     return this.http.post<null>(`${this.apiUrl}/${id}/send`, {});
   }
 
-  /** Generates message preview based on contact sample interpolation. */
+  /** Gera pré-visualização da mensagem com interpolação de amostra de contato. */
   preview(message: string): Observable<ChatTransmissionListPreview> {
     return this.http
       .post<{ data: ChatTransmissionListPreview }>(`${this.apiUrl}/preview`, { message })
       .pipe(map((response) => response.data));
   }
 
-  /** Calculates target audience estimate for current filter criteria. */
+  /** Calcula estimativa de audiência-alvo para os critérios de filtro atuais. */
   audience(criteria: {
     tags?: string[];
     status?: string;

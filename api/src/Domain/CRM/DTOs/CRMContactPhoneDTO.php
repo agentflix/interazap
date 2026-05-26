@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for CRM contact phone.
+ * DTO para telefone de contato CRM.
  *
  * @readonly
  */
@@ -20,9 +20,7 @@ final readonly class CRMContactPhoneDTO
         public bool $is_primary = true,
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria DTO a partir de um FormRequest já validado. */
     public static function fromRequest(FormRequest $request, string $contactId): self
     {
         return self::fromArray($request->validated(), $contactId);

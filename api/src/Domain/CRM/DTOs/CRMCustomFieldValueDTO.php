@@ -8,7 +8,7 @@ use Domain\CRM\Models\CRMCustomField;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for custom field value.
+ * DTO para valor de campo personalizado CRM.
  *
  * @readonly
  */
@@ -21,9 +21,7 @@ final readonly class CRMCustomFieldValueDTO
         public mixed $value,
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria DTO a partir de um FormRequest com tipo e ID da entidade. */
     public static function fromRequest(FormRequest $request, string $entityType, string $entityId): self
     {
         $data = $request->validated();
@@ -63,7 +61,9 @@ final readonly class CRMCustomFieldValueDTO
     }
 
     /**
-     * Validate field value against custom field definition.
+     * Valida o valor conforme a definição do campo personalizado.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o valor não é compatível com o tipo
      */
     public function validateValue(CRMCustomField $field): void
     {

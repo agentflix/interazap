@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Event participant (user or contact).
+ * Participante de evento de agenda (usuário interno ou contato CRM).
  *
- * Represents a person invited to a calendar event,
- * tracking their attendance status.
+ * Representa uma pessoa convidada para um evento de calendário,
+ * rastreando seu status de presença (pendente, aceito, recusado).
  *
  * @property string $id
  * @property string $tenant_id

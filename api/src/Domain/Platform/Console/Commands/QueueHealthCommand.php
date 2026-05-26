@@ -8,14 +8,14 @@ use Domain\Platform\Services\QueueHealthService;
 use Illuminate\Console\Command;
 
 /**
- * Command to check queue health status.
+ * Comando para verificar o status de saúde das filas.
  *
- * Useful for monitoring, alerting, and debugging queue issues.
+ * Útil para monitoramento, alertas e diagnóstico de problemas em filas.
  */
 final class QueueHealthCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Assinatura e opções do comando.
      *
      * @var string
      */
@@ -24,14 +24,17 @@ final class QueueHealthCommand extends Command
                             {--json : Output in JSON format}';
 
     /**
-     * The console command description.
+     * Descrição do comando exibida no artisan help.
      *
      * @var string
      */
-    protected $description = 'Check queue health status';
+    protected $description = 'Verifica o status de saúde das filas';
 
     /**
-     * Execute the console command.
+     * Executa o comando de verificação de saúde das filas.
+     *
+     * @param  QueueHealthService  $healthService  Serviço de monitoramento de filas.
+     * @return int Código de saída: 0 = saudável, 1 = problemas detectados.
      */
     public function handle(QueueHealthService $healthService): int
     {
@@ -56,9 +59,9 @@ final class QueueHealthCommand extends Command
     }
 
     /**
-     * Display the health status in a human-readable format.
+     * Exibe o status de saúde das filas em formato legível no console.
      *
-     * @param  array<string, mixed>  $status
+     * @param  array<string, mixed>  $status  Dados de saúde retornados pelo serviço.
      */
     protected function displayStatus(array $status): void
     {

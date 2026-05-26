@@ -21,7 +21,7 @@ import { resolveInputContainerClass } from '../input-container.util';
 import type { AfInputSize, AfCountryCode, Country } from './phone-input.model';
 export * from './phone-input.model';
 
-/** Default country codes */
+/** Códigos de país padrão (DDI) */
 const DEFAULT_COUNTRIES: AfCountryCode[] = [
   { name: 'Brasil', code: '+55', iso: 'BR', flag: '🇧🇷' },
   { name: 'Estados Unidos', code: '+1', iso: 'US', flag: '🇺🇸' },
@@ -204,13 +204,13 @@ export class AfPhoneInputComponent {
     });
   }
 
-  /** Toggle the country dropdown */
+  /** Abre/fecha o dropdown de país */
   protected toggleDropdown(event: Event): void {
     event.stopPropagation();
     this.dropdownOpen.update((v) => !v);
   }
 
-  /** Select a country code */
+  /** Seleciona um código de país */
   protected selectCountry(country: AfCountryCode): void {
     this.currentCountry.set(country);
     this.selectedCountryChange.emit(country);
@@ -221,7 +221,7 @@ export class AfPhoneInputComponent {
     this.dropdownOpen.set(false);
   }
 
-  /** Apply phone mask on input */
+  /** Aplica máscara ao digitar telefone */
   protected onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const masked = this.processPhone(input.value);
@@ -264,7 +264,7 @@ export class AfPhoneInputComponent {
     return raw.replace(/-$/, '');
   }
 
-  /** Close dropdown on outside click */
+  /** Fecha o dropdown ao clicar fora */
   protected onDocumentClick(event: MouseEvent): void {
     if (this.dropdownOpen()) {
       this.dropdownOpen.set(false);

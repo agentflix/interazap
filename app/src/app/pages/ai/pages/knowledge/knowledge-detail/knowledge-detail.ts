@@ -20,8 +20,10 @@ import { type AiKnowledge, type KnowledgeChunk } from '@ai/models/ai.model';
 import { AiKnowledgeService } from '@ai/services/ai-knowledge.service';
 
 /**
- * Knowledge document detail with chunk listing.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Detalhe de documento da base de conhecimento com listagem de chunks.
+ *
+ * Contexto: exibe metadados do documento e chunks paginados (20 por página).
+ * Suporta reindexação e exclusão do documento. Navega de volta para /ai/knowledge/base.
  */
 @Component({
   selector: 'app-knowledge-detail',
@@ -70,10 +72,12 @@ export class KnowledgeDetailComponent implements OnInit {
     this.loadChunks(id, 1);
   }
 
+  /** Navega de volta para a lista de documentos da base de conhecimento. */
   goBack(): void {
     void this.router.navigate(['/ai/knowledge/base']);
   }
 
+  /** Inicia a reindexação do documento atual. */
   reindex(): void {
     const doc = this.document();
     if (!doc) {
@@ -88,6 +92,7 @@ export class KnowledgeDetailComponent implements OnInit {
       });
   }
 
+  /** Exclui o documento atual e navega de volta para a lista. */
   removeDocument(): void {
     const doc = this.document();
     if (!doc) {
@@ -102,6 +107,10 @@ export class KnowledgeDetailComponent implements OnInit {
       });
   }
 
+  /**
+   * Expande ou recolhe a exibição de um chunk.
+   * @param chunkId ID do chunk a alternar
+   */
   toggleChunk(chunkId: string): void {
     this.expandedChunkId.set(this.expandedChunkId() === chunkId ? null : chunkId);
   }

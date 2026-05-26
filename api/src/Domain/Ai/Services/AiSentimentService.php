@@ -58,7 +58,13 @@ final class AiSentimentService
     ) {}
 
     /**
-     * Analisar sentimento por palavras-chave.
+     * Analisar sentimento por correspondência de palavras-chave.
+     *
+     * Aplica as listas NEGATIVE_KEYWORDS e POSITIVE_KEYWORDS ao texto normalizado.
+     * Se a confiança do resultado for >= 0.7, dispensa a chamada LLM.
+     *
+     * @param  string  $text  Texto da mensagem do cliente.
+     * @return SentimentResultDTO Resultado com score, nível e confiança.
      */
     public function analyzeKeywords(string $text): SentimentResultDTO
     {
@@ -91,7 +97,11 @@ final class AiSentimentService
     }
 
     /**
-     * Analisar sentimento via LLM quando keyword matching for inconclusivo.
+     * Analisar sentimento via LLM quando keyword matching for inconclusivo (confiança < 0.7).
+     *
+     * @param  string  $text  Texto da mensagem do cliente.
+     * @param  string  $tenantId  UUID do tenant para billing da chamada LLM.
+     * @return SentimentResultDTO Resultado com score 0–100, nível e confiança fixa 0.90.
      */
     public function analyzeLLM(string $text, string $tenantId): SentimentResultDTO
     {
@@ -126,7 +136,11 @@ PROMPT;
     }
 
     /**
-     * Executar análise em duas camadas.
+     * Executar análise em duas camadas: keywords primeiro, LLM como fallback.
+     *
+     * @param  string  $text  Texto da mensagem do cliente.
+     * @param  string  $tenantId  UUID do tenant.
+     * @return SentimentResultDTO Resultado da camada mais precisa disponível.
      */
     public function analyze(string $text, string $tenantId): SentimentResultDTO
     {
@@ -140,7 +154,11 @@ PROMPT;
     }
 
     /**
-     * Calcular confiança com base em densidade de sinais e tamanho do texto.
+     * Calcula a confiança com base na densidade de sinais e no tamanho do texto.
+     *
+     * @param  string  $text  Texto normalizado da mensagem.
+     * @param  int  $keywordMatches  Número de palavras-chave encontradas.
+     * @return float Confiança entre 0.20 e 0.95.
      */
     private function calculateConfidence(string $text, int $keywordMatches): float
     {
@@ -158,7 +176,10 @@ PROMPT;
     }
 
     /**
-     * Garantir score no range 0-100.
+     * Garante que o score esteja no intervalo 0–100.
+     *
+     * @param  int  $score  Score bruto calculado.
+     * @return int Score normalizado entre 0 e 100.
      */
     private function normalizeScore(int $score): int
     {

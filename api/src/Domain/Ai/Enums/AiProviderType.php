@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Domain\Ai\Enums;
 
 /**
- * Enum representing supported AI providers.
+ * Provedores de IA suportados pela plataforma.
+ *
+ * Cada caso representa um fornecedor de modelos de linguagem (LLM)
+ * com o qual o sistema pode integrar para executar completions.
  */
 enum AiProviderType: string
 {
@@ -17,7 +20,7 @@ enum AiProviderType: string
     case MINIMAX = 'minimax';
 
     /**
-     * Get the display name for the provider.
+     * Retorna o nome de exibição do provedor.
      */
     public function label(): string
     {
@@ -32,7 +35,7 @@ enum AiProviderType: string
     }
 
     /**
-     * Get the default model for the provider.
+     * Retorna o modelo padrão do provedor.
      */
     public function defaultModel(): string
     {

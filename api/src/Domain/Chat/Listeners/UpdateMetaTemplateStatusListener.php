@@ -27,6 +27,9 @@ final class UpdateMetaTemplateStatusListener implements ShouldQueue
 
     public int $timeout = 20;
 
+    /**
+     * Localiza o template Meta local e atualiza seu status e motivo de rejeição.
+     */
     public function handle(MetaTemplateStatusUpdated $event): void
     {
         $query = ChatMessageTemplate::query()

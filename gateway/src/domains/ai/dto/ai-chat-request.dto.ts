@@ -12,9 +12,10 @@ import {
 import { AIChatMessageDto } from './ai-chat-message.dto';
 
 /**
- * Request payload for AI chat completions.
+ * Payload de requisição para completions de chat com AI.
  *
- * Encapsulates the conversation history and provider parameters.
+ * Encapsula o histórico de conversa e os parâmetros do provider utilizados
+ * pelo endpoint interno `/ai/openai/chat`.
  */
 export class AIChatRequestDto {
   @IsArray()

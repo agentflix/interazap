@@ -21,9 +21,9 @@ class CRMTagRequest extends BaseCrudFormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Retorna as regras de validação aplicadas à requisição.
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> Regras de validação.
      */
     public function rules(): array
     {

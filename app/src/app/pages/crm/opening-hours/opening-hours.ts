@@ -30,13 +30,10 @@ import type { OpeningHour } from '@core/models/opening-hour.model';
 import { OpeningHoursFormComponent } from './components/opening-hours-form/opening-hours-form';
 
 /**
- * Opening Hours settings page — CRUD for company schedule entries.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
- *
- * Notes:
- * - The API returns all opening hours in one call (not paginated).
- * - Local search is applied on day-of-week label (same as original).
- * - Supports bulk-delete via checkbox selection (consistent with other CRUD pages).
+ * Página de configurações de horários de funcionamento com CRUD completo.
+ * A API retorna todos os registros em uma única chamada (sem paginação).
+ * A busca é aplicada localmente pelo rótulo do dia da semana.
+ * Suporta exclusão em lote via seleção por checkbox.
  */
 @Component({
   selector: 'app-opening-hours',

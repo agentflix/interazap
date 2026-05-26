@@ -17,7 +17,7 @@ export * from './dropdown-button.model';
 
 
 /**
- * AfDropdownButtonComponent — Button with dropdown menu of actions.
+ * Botão com menu dropdown de ações.
  *
  * @example
  * ```html
@@ -36,25 +36,25 @@ export * from './dropdown-button.model';
   templateUrl: './dropdown-button.html',
 })
 export class AfDropdownButtonComponent {
-  /** Button label */
+  /** Rótulo do botão */
   readonly label = input.required<string>();
 
-  /** Dropdown options */
+  /** Opções do dropdown */
   readonly options = input.required<AfDropdownOption[]>();
 
-  /** Visual variant */
+  /** Variante visual */
   readonly variant = input<'primary' | 'secondary' | 'ghost' | 'danger' | 'outline'>('secondary');
 
-  /** Button size */
+  /** Tamanho do botão */
   readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('md');
 
-  /** Placement of dropdown */
+  /** Posicionamento do dropdown */
   readonly placement = input<'bottom' | 'bottom-end' | 'top'>('bottom');
 
-  /** Disabled state */
+  /** Estado desabilitado */
   readonly disabled = input(false);
 
-  /** Emitted when an option is selected */
+  /** Emitido quando uma opção é selecionada */
   readonly optionSelected = output<string>();
 
   protected readonly isOpen = signal(false);

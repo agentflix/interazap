@@ -8,11 +8,12 @@ import {
 } from 'prom-client';
 
 /**
- * MetricsService
+ * Serviço centralizado de coleta de métricas Prometheus para o gateway.
  *
- * Centralized Prometheus metrics collection for the gateway.
- * Tracks HTTP requests, WebSocket connections, Redis streams,
- * chat events, webhook latency, and autopilot operations.
+ * Contexto: módulo metrics. Registra e expõe contadores, histogramas e gauges
+ * para requisições HTTP, conexões WebSocket, Redis streams, eventos de chat,
+ * latência de webhook e operações do autopilot. Utiliza um Registry isolado
+ * para evitar conflitos com o registry global do prom-client.
  */
 @Injectable()
 export class MetricsService implements OnModuleInit {
@@ -64,8 +65,8 @@ export class MetricsService implements OnModuleInit {
   public readonly autopilotRunTokensHistogram: Histogram<'agent_id' | 'model'>;
 
   /**
-   * Initializes all Prometheus counters, histograms, and gauges.
-   * Registers them with an isolated Registry instance.
+   * Inicializa todos os contadores, histogramas e gauges Prometheus,
+   * registrando-os no Registry isolado da instância.
    */
   constructor() {
     // HTTP metrics
@@ -227,26 +228,24 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Collects default Node.js/V8 metrics (heap, event loop, etc.)
-   * into the local registry on module initialization.
+   * Coleta as métricas padrão do Node.js/V8 (heap, event loop, etc.)
+   * no registry local ao inicializar o módulo.
    */
   onModuleInit() {
     collectDefaultMetrics({ register: this.registry });
   }
 
   /**
-   * Exposes the internal Prometheus registry for extension by domain-specific metrics.
-   *
-   * @returns The local Registry instance.
+   * Expõe o Registry Prometheus interno para extensão por métricas específicas de domínio.
+   * @returns Instância do Registry local
    */
   getRegistry(): Registry {
     return this.registry;
   }
 
   /**
-   * Serializes all registered metrics to the Prometheus text format.
-   *
-   * @returns Prometheus-compatible metrics string.
+   * Serializa todas as métricas registradas no formato texto do Prometheus.
+   * @returns String compatível com o protocolo de scraping do Prometheus
    */
   async getMetrics(): Promise<string> {
     return this.registry.metrics();
@@ -255,12 +254,11 @@ export class MetricsService implements OnModuleInit {
   // Helper methods
 
   /**
-   * Records an HTTP request count and duration.
-   *
-   * @param method  - HTTP verb (GET, POST, etc.)
-   * @param path    - Request URL path (UUIDs/numeric IDs normalized).
-   * @param status  - HTTP status code.
-   * @param durationMs - Request duration in milliseconds.
+   * Registra contagem e duração de uma requisição HTTP.
+   * @param method Verbo HTTP (GET, POST, etc.)
+   * @param path Caminho da URL (UUIDs e IDs numéricos normalizados para `{id}`)
+   * @param status Código HTTP da resposta
+   * @param durationMs Duração da requisição em milissegundos
    */
   recordHttpRequest(
     method: string,
@@ -281,50 +279,45 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Increments or decrements the active WebSocket connections gauge.
-   *
-   * @param delta - +1 for a new connection, -1 for a disconnection.
+   * Incrementa ou decrementa o gauge de conexões WebSocket ativas.
+   * @param delta +1 para nova conexão, -1 para desconexão
    */
   recordWsConnection(delta: 1 | -1): void {
     this.wsConnectionsActive.inc(delta);
   }
 
   /**
-   * Records a WebSocket message event.
-   *
-   * @param event     - Name/type of the message event.
-   * @param direction - Whether the message is inbound or outbound.
+   * Registra um evento de mensagem WebSocket.
+   * @param event Nome/tipo do evento de mensagem
+   * @param direction Direção da mensagem: entrada (`in`) ou saída (`out`)
    */
   recordWsMessage(event: string, direction: 'in' | 'out'): void {
     this.wsMessagesTotal.inc({ event, direction });
   }
 
   /**
-   * Records a Redis stream message read or write operation.
-   *
-   * @param stream - Name of the Redis stream.
-   * @param action - Whether the message was read from or written to the stream.
+   * Registra uma operação de leitura ou escrita em um Redis Stream.
+   * @param stream Nome do Redis Stream
+   * @param action Tipo de operação: `read` (leitura) ou `write` (escrita)
    */
   recordRedisStreamMessage(stream: string, action: 'read' | 'write'): void {
     this.redisStreamMessagesTotal.inc({ stream, action });
   }
 
   /**
-   * Records a chat event processed by the gateway.
-   *
-   * @param eventType - Type of chat event (e.g. message.created).
+   * Registra um evento de chat processado pelo gateway.
+   * @param eventType Tipo do evento de chat (ex: `message.created`)
    */
   recordChatEvent(eventType: string): void {
     this.chatEventsTotal.inc({ event_type: eventType });
   }
 
   /**
-   * Records a webhook acknowledgment: counts and latency by provider, tenant, and outcome.
-   *
-   * @param provider   - Webhook provider name.
-   * @param tenant     - Tenant identifier.
-   * @param outcome    - Result of the webhook handling (e.g. success, error).
-   * @param durationMs - Time taken to acknowledge, in milliseconds.
+   * Registra uma confirmação de webhook: contagem e latência por provider, tenant e outcome.
+   * @param provider Nome do provider do webhook
+   * @param tenant Identificador do tenant
+   * @param outcome Resultado do processamento (ex: `success`, `error`)
+   * @param durationMs Tempo de processamento em milissegundos
    */
   recordWebhookAck(
     provider: string,
@@ -345,12 +338,11 @@ export class MetricsService implements OnModuleInit {
   // Autopilot metric helpers
 
   /**
-   * Records the duration of an autopilot run.
-   *
-   * @param agentId        - Unique identifier of the agent.
-   * @param model          - LLM model used.
-   * @param status         - Run outcome (e.g. success, error, timeout).
-   * @param durationSeconds - Total duration in seconds.
+   * Registra a duração de uma execução do autopilot.
+   * @param agentId Identificador único do agente
+   * @param model Modelo LLM utilizado
+   * @param status Resultado da execução (ex: `success`, `error`, `timeout`)
+   * @param durationSeconds Duração total em segundos
    */
   recordAutopilotRun(
     agentId: string,
@@ -365,11 +357,10 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Records an autopilot tool call invocation.
-   *
-   * @param agentId  - Unique identifier of the agent.
-   * @param toolName - Name of the tool invoked.
-   * @param status   - Whether the call succeeded or errored.
+   * Registra uma invocação de ferramenta pelo autopilot.
+   * @param agentId Identificador único do agente
+   * @param toolName Nome da ferramenta invocada
+   * @param status Resultado da chamada: `success` ou `error`
    */
   recordAutopilotToolCall(
     agentId: string,
@@ -384,12 +375,11 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Records the number of tokens consumed by an autopilot run.
-   *
-   * @param agentId   - Unique identifier of the agent.
-   * @param model     - LLM model used.
-   * @param tokenType - Category of token (input, output, or cached).
-   * @param count     - Number of tokens.
+   * Registra o número de tokens consumidos pelo autopilot.
+   * @param agentId Identificador único do agente
+   * @param model Modelo LLM utilizado
+   * @param tokenType Categoria do token: `input`, `output` ou `cached`
+   * @param count Número de tokens consumidos
    */
   recordAutopilotTokens(
     agentId: string,
@@ -404,11 +394,10 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Records the dollar cost incurred by an autopilot run.
-   *
-   * @param agentId     - Unique identifier of the agent.
-   * @param model       - LLM model used.
-   * @param costDollars - Cost in USD.
+   * Registra o custo em dólares de uma execução do autopilot.
+   * @param agentId Identificador único do agente
+   * @param model Modelo LLM utilizado
+   * @param costDollars Custo em USD
    */
   recordAutopilotCost(
     agentId: string,
@@ -419,9 +408,8 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Records a classifier routing decision.
-   *
-   * @param decision - Classifier outcome (RESPOND, SKIP, DEBOUNCE, HUMAN_ONLY).
+   * Registra uma decisão de roteamento do classifier de autopilot.
+   * @param decision Resultado do classifier: `RESPOND`, `SKIP`, `DEBOUNCE` ou `HUMAN_ONLY`
    */
   recordClassifierDecision(
     decision: 'RESPOND' | 'SKIP' | 'DEBOUNCE' | 'HUMAN_ONLY',
@@ -430,20 +418,18 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Records a single streaming chunk sent to the client.
-   *
-   * @param agentId - Unique identifier of the agent.
+   * Registra um chunk de streaming enviado ao cliente.
+   * @param agentId Identificador único do agente
    */
   recordStreamChunk(agentId: string): void {
     this.autopilotStreamChunksTotal.inc({ agent_id: agentId });
   }
 
   /**
-   * Records an agent-to-agent delegation event.
-   *
-   * @param sourceAgentId - ID of the agent that delegated the task.
-   * @param targetAgentId - ID of the agent that received the delegation.
-   * @param status        - Whether the delegation succeeded or errored.
+   * Registra um evento de delegação entre agentes.
+   * @param sourceAgentId ID do agente que delegou a tarefa
+   * @param targetAgentId ID do agente que recebeu a delegação
+   * @param status Resultado da delegação: `success` ou `error`
    */
   recordDelegation(
     sourceAgentId: string,
@@ -458,10 +444,9 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Records a cache lookup result (hit or miss).
-   *
-   * @param cacheType - Type of cache queried (prompt, context, or summary).
-   * @param hit       - Whether the lookup returned a cached value.
+   * Registra o resultado de uma consulta ao cache do autopilot.
+   * @param cacheType Tipo de cache consultado: `prompt`, `context` ou `summary`
+   * @param hit `true` se encontrou valor em cache, `false` em caso de miss
    */
   recordCacheHit(
     cacheType: 'prompt' | 'context' | 'summary',
@@ -474,11 +459,10 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Records the source from which a snapshot slice was resolved.
-   * Used to validate the QW1 publisher-side hydration is working.
-   *
-   * @param slice  - Which slice was resolved (prompt, context or tools).
-   * @param source - Where the data came from: snapshot (best), redis (good) or api (fallback).
+   * Registra a origem a partir da qual um slice de snapshot foi resolvido.
+   * Usado para validar que a hidratação pelo publisher (QW1) está funcionando.
+   * @param slice Slice resolvido: `prompt`, `context` ou `tools`
+   * @param source Origem dos dados: `snapshot` (ideal), `redis` (cache) ou `api` (fallback HTTP)
    */
   recordSnapshotResolution(
     slice: 'prompt' | 'context' | 'tools',
@@ -488,40 +472,36 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Records the number of tool-call iterations executed in a single autopilot run.
-   *
-   * @param agentId - Unique identifier of the agent.
-   * @param count   - Number of iterations performed.
+   * Registra o número de iterações de chamada de ferramenta em uma execução do autopilot.
+   * @param agentId Identificador único do agente
+   * @param count Número de iterações realizadas
    */
   recordAutopilotIterations(agentId: string, count: number): void {
     this.autopilotIterationsPerRun.observe({ agent_id: agentId }, count);
   }
 
   /**
-   * Records an autopilot run that exited early.
-   *
-   * @param agentId - Unique identifier of the agent.
-   * @param reason  - Reason for the early exit.
+   * Registra uma execução do autopilot que encerrou antecipadamente.
+   * @param agentId Identificador único do agente
+   * @param reason Motivo do encerramento antecipado
    */
   recordAutopilotEarlyExit(agentId: string, reason: string): void {
     this.autopilotEarlyExitsTotal.inc({ agent_id: agentId, reason });
   }
 
   /**
-   * Records a response that was truncated due to max_tokens.
-   *
-   * @param agentId - Unique identifier of the agent.
+   * Registra uma resposta truncada pelo limite de `max_tokens` (finish_reason=length).
+   * @param agentId Identificador único do agente
    */
   recordAutopilotTruncatedResponse(agentId: string): void {
     this.autopilotTruncatedResponsesTotal.inc({ agent_id: agentId });
   }
 
   /**
-   * Records the total token count for an entire autopilot run (all iterations combined).
-   *
-   * @param agentId - Unique identifier of the agent.
-   * @param model   - LLM model used.
-   * @param tokens  - Total token count.
+   * Registra o total de tokens consumidos em toda uma execução do autopilot (todas as iterações).
+   * @param agentId Identificador único do agente
+   * @param model Modelo LLM utilizado
+   * @param tokens Total de tokens consumidos
    */
   recordAutopilotRunTokens(
     agentId: string,
@@ -535,7 +515,9 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Normalizes a URL path by replacing UUIDs and numeric IDs with {id}.
+   * Normaliza o caminho da URL substituindo UUIDs e IDs numéricos por `{id}`.
+   * @param path Caminho da URL original
+   * @returns Caminho normalizado para uso como label Prometheus
    */
   private normalizePath(path: string): string {
     // Replace UUIDs
@@ -549,7 +531,10 @@ export class MetricsService implements OnModuleInit {
   }
 
   /**
-   * Normalizes a label value to lowercase and trims whitespace; returns 'unknown' if empty.
+   * Normaliza um valor de label Prometheus para minúsculas sem espaços.
+   * Retorna `'unknown'` se o valor resultante for vazio.
+   * @param value Valor bruto do label
+   * @returns Valor normalizado para uso como label Prometheus
    */
   private normalizeMetricLabel(value: string): string {
     const normalized = value.trim().toLowerCase();

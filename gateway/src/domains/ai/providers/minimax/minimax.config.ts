@@ -1,7 +1,8 @@
 /**
- * MiniMax Configuration Service
+ * Serviço de configuração tipada para o provider MiniMax.
  *
- * Configuração tipada para MiniMax com validação em startup.
+ * Contexto: lê as variáveis `MINIMAX_API_KEY`, base URL, modelo padrão, timeout e retries
+ * da configuração NestJS e valida a presença da chave de API no `onModuleInit`.
  */
 
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -9,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { MiniMaxConfiguration } from '../../../../core/config/models/configuration.model';
 
 /**
- * Configuração do MiniMax com validação
+ * Interface tipada com os parâmetros de configuração do provider MiniMax.
  */
 export interface MiniMaxConfig {
   /**
@@ -66,7 +67,7 @@ export class MiniMaxConfigService implements OnModuleInit {
   }
 
   /**
-   * Valida que a configuração está presente (não lança erro, apenas loga warning)
+   * Valida que a chave de API está presente, logando aviso sem lançar exceção.
    */
   private validateConfiguration(): void {
     if (!this.config.apiKey) {
@@ -80,50 +81,39 @@ export class MiniMaxConfigService implements OnModuleInit {
     }
   }
 
-  /**
-   * Retorna a configuração completa
-   */
+  /** Retorna o objeto de configuração completo do MiniMax. */
   getConfig(): MiniMaxConfig {
     return this.config;
   }
 
-  /**
-   * Retorna a API key
-   */
+  /** Retorna a chave de API do MiniMax. */
   getApiKey(): string {
     return this.config.apiKey;
   }
 
-  /**
-   * Retorna a base URL da API
-   */
+  /** Retorna a URL base da API MiniMax. */
   getBaseUrl(): string {
     return this.config.baseUrl;
   }
 
-  /**
-   * Retorna o modelo padrão
-   */
+  /** Retorna o nome do modelo MiniMax padrão configurado. */
   getDefaultModel(): string {
     return this.config.defaultModel;
   }
 
-  /**
-   * Retorna o timeout em ms
-   */
+  /** Retorna o timeout configurado em milissegundos. */
   getTimeoutMs(): number {
     return this.config.timeoutMs;
   }
 
-  /**
-   * Retorna o número máximo de retries
-   */
+  /** Retorna o número máximo de tentativas configurado. */
   getMaxRetries(): number {
     return this.config.maxRetries;
   }
 
   /**
-   * Verifica se está configurado corretamente
+   * Verifica se o provider MiniMax está corretamente configurado.
+   * @returns `true` quando a chave de API está presente.
    */
   isConfigured(): boolean {
     return !!this.config.apiKey;

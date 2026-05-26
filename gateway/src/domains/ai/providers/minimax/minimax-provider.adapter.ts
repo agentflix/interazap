@@ -1,8 +1,8 @@
 /**
- * MiniMax Provider Adapter
+ * Adapter do provider MiniMax para o domínio de AI do gateway.
  *
- * Implementação do AIProvider para MiniMax usando API OpenAI-compatible.
- * Suporta circuit breaker compartilhado.
+ * Contexto: implementa a interface `AIProvider` usando a API HTTP compatível com OpenAI.
+ * Suporta circuit breaker compartilhado e mapeia erros HTTP para `MiniMaxProviderError`.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -22,7 +22,7 @@ import {
 import { getCircuitBreakerOptions } from '../../../../core/config/circuit-breaker.config';
 
 /**
- * Erro customizado do provider MiniMax com código padronizado
+ * Erro customizado do provider MiniMax com código de erro padronizado do gateway.
  */
 export class MiniMaxProviderError extends Error {
   constructor(
@@ -44,7 +44,7 @@ export class MiniMaxProviderAdapter implements AIProvider {
   private readonly logger = new Logger(MiniMaxProviderAdapter.name);
 
   /**
-   * Metadata do provider para discovery
+   * Metadados do provider MiniMax para discovery na factory.
    */
   static readonly metadata: AIProviderMetadata = {
     name: 'minimax',
@@ -103,7 +103,11 @@ export class MiniMaxProviderAdapter implements AIProvider {
   }
 
   /**
-   * Executa a chamada HTTP para a API MiniMax
+   * Executa a chamada HTTP para a API MiniMax e retorna resposta normalizada.
+   * @param request - Requisição de completion normalizada.
+   * @param model - Nome do modelo a utilizar.
+   * @returns Resposta normalizada após tradução pelo `MiniMaxTranslator`.
+   * @throws MiniMaxProviderError Quando a resposta HTTP indica erro ou ocorre timeout.
    */
   private async executeCompletion(
     request: AICompletionRequest,
@@ -154,7 +158,10 @@ export class MiniMaxProviderAdapter implements AIProvider {
   }
 
   /**
-   * Mapeia erros HTTP para MiniMaxProviderError
+   * Mapeia erros HTTP para instâncias de `MiniMaxProviderError` com código padronizado.
+   * @param status - Código de status HTTP recebido na resposta.
+   * @param body - Corpo da resposta de erro.
+   * @returns Instância de `MiniMaxProviderError` com código e flag de retentativa.
    */
   private mapHttpError(status: number, body: string): MiniMaxProviderError {
     if (status === 401 || status === 403) {
@@ -186,7 +193,9 @@ export class MiniMaxProviderAdapter implements AIProvider {
   }
 
   /**
-   * Mapeia erros genéricos para MiniMaxProviderError
+   * Mapeia erros genéricos (como `AbortError`) para instâncias de `MiniMaxProviderError`.
+   * @param error - Erro capturado durante a chamada HTTP ao MiniMax.
+   * @returns Instância de `MiniMaxProviderError` com código e flag de retentativa.
    */
   private mapError(error: unknown): MiniMaxProviderError {
     if (!(error instanceof Error)) {

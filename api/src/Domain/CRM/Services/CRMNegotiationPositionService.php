@@ -8,10 +8,19 @@ use Domain\CRM\Models\CRMNegotiation;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Centralizes negotiation position recalculation and bulk movement.
+ * Centraliza o recálculo de posição e movimentação em massa de negociações no kanban.
+ *
+ * Usa UPDATE com CASE para reposicionamento atômico, garantindo consistência
+ * de ordenação mesmo durante operações concorrentes de drag-and-drop.
  */
 final class CRMNegotiationPositionService
 {
+    /**
+     * Recalcula as posições de todas as negociações em uma etapa, normalizando para 1..N.
+     *
+     * @param  string  $tenantId  ID do tenant
+     * @param  string|null  $stepId  ID da etapa do funil
+     */
     public function recalculatePositions(string $tenantId, ?string $stepId): void
     {
         if ($stepId === null || $stepId === '') {
@@ -33,7 +42,9 @@ final class CRMNegotiationPositionService
     }
 
     /**
-     * @param  array<int, CRMNegotiation>  $ordered
+     * Reposiciona em massa uma lista ordenada de negociações em uma etapa.
+     *
+     * @param  array<int, CRMNegotiation>  $ordered  Negociações na ordem desejada
      */
     public function bulkReposition(string $tenantId, string $stepId, array $ordered): void
     {

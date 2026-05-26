@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Domain\Ai\Contracts;
 
 /**
- * Contract for agent tool permission operations.
+ * Contrato para operações de permissão de ferramentas de agentes.
  *
- * Defines the interface for reading and writing tool permissions
- * scoped to a specific agent within a tenant.
- *
- * @category Contracts
+ * Define a interface para leitura e escrita de permissões de tools
+ * com escopo por agente dentro de um tenant.
  */
 interface AiAgentToolPermissionServiceInterface
 {

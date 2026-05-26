@@ -11,7 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * Model representing per-cycle message usage for a tenant.
+ * Model que registra o uso de mensagens IA por tenant por ciclo de billing.
+ *
+ * Cada linha representa um ciclo (cycle_start / cycle_end) com contadores
+ * de mensagens dentro da cota e excedentes (overage). Utilizada pelo
+ * {@see \Domain\Billing\Services\UsageCounterService} para controle de uso em tempo real.
+ *
+ * @deprecated Propriedades usadas como flags de trial: alert_80_sent_at e alert_100_sent_at
+ *             devem ser migradas para colunas dedicadas em versão futura.
  *
  * @property string $id
  * @property string $tenant_id
@@ -45,6 +52,8 @@ final class TenantMessageUsage extends Model
         'overage_count',
         'alert_80_sent_at',
         'alert_100_sent_at',
+        'trial_expired_notified_at',
+        'trial_ending_soon_notified_at',
     ];
 
     /**
@@ -57,6 +66,8 @@ final class TenantMessageUsage extends Model
         'overage_count' => 'integer',
         'alert_80_sent_at' => 'datetime',
         'alert_100_sent_at' => 'datetime',
+        'trial_expired_notified_at' => 'datetime',
+        'trial_ending_soon_notified_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -77,7 +88,7 @@ final class TenantMessageUsage extends Model
     }
 
     /**
-     * Scope: usage row for a specific tenant in the active cycle window.
+     * Escopo para linha de uso de um tenant no ciclo a partir de uma data de início.
      *
      * @param  Builder<self>  $query
      */

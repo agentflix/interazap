@@ -1,8 +1,9 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * Small label/tag for status and categorization.
- * Uses rounded-full shape with semantic color variants.
+ * Rótulo/tag pequeno para status e categorização.
+ *
+ * Usa forma arredondada com variantes de cor semânticas.
  *
  * @example
  * ```html
@@ -18,10 +19,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './pill.html',
 })
 export class AfPillComponent {
-  /** Color variant */
+  /** Variante de cor */
   readonly variant = input<'default' | 'success' | 'warning' | 'danger' | 'info'>('default');
 
-  /** Show a dot indicator before the text */
+  /** Exibe um indicador circular antes do texto */
   readonly dot = input(false);
 
   protected readonly pillClasses = computed(() => {

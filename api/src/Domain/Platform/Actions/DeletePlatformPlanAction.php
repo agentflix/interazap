@@ -14,6 +14,13 @@ use Domain\Shared\Scopes\TenantScope;
  */
 final class DeletePlatformPlanAction
 {
+    /**
+     * Remove o plano via soft delete após garantir que não há faturas ativas vinculadas.
+     *
+     * @param  PlatformPlan  $plan  Plano a ser removido.
+     *
+     * @throws \DomainException Quando existem faturas pagas, pendentes ou vencidas para o plano.
+     */
     public function execute(PlatformPlan $plan): void
     {
         $hasActiveInvoices = BillingInvoice::query()

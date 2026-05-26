@@ -49,8 +49,11 @@ const TOOL_DESCRIPTIONS_PT: Record<string, string> = {
 };
 
 /**
- * Tools tab — interactive tool selection with toggle and save.
- * Agent tools are managed here (not in Overview).
+ * Aba de Ferramentas — seleção interativa de tools com toggle e salvamento global.
+ *
+ * Contexto: exibe catálogo de tools agrupado por categoria. Permite vincular/desvincular tools
+ * ao agente. Suporta aplicação de presets (conjuntos predefinidos de tools por papel).
+ * O salvamento é delegado ao workspace global.
  */
 @Component({
   selector: 'app-agent-tools-tab',
@@ -115,21 +118,26 @@ export class AgentToolsTabComponent {
   }
 
   /**
-   * Filter tools by category.
+   * Filtra tools por categoria.
+   * @param category Nome da categoria
+   * @returns Lista de tools da categoria
    */
   toolsByCategory(category: string): AiToolCatalogItem[] {
     return this.catalog().filter((t) => t.category === category);
   }
 
   /**
-   * Check if a tool is linked to the agent.
+   * Verifica se uma tool está vinculada ao agente.
+   * @param toolName Nome da tool
+   * @returns true se vinculada
    */
   isLinked(toolName: string): boolean {
     return this.linkedToolNames().includes(toolName);
   }
 
   /**
-   * Toggle a tool on/off.
+   * Vincula ou desvincula uma tool.
+   * @param toolName Nome da tool a alternar
    */
   toggleTool(toolName: string): void {
     const current = this.linkedToolNames();
@@ -142,8 +150,10 @@ export class AgentToolsTabComponent {
 
   /**
    * Aplica um preset de tools, carregando as tools padrão do preset selecionado.
-   * O preset é apenas um atalho de configuração — a permissão efetiva vem das
-   * tools vinculadas validadas pelo backend.
+   * Mescla com as tools já vinculadas para não remover configurações manuais.
+   * O preset é apenas um atalho de configuração — a permissão efetiva vem das tools
+   * vinculadas validadas pelo backend.
+   * @param forceRole Papel forçado (ignora o controle de seleção se fornecido)
    */
   applyPreset(forceRole?: string): void {
     const roleToLoad = forceRole || this.presetControl.value;
@@ -171,14 +181,18 @@ export class AgentToolsTabComponent {
   // saveTools() removed — tool saving is now handled by the global workspace save
 
   /**
-   * Get translated PT-BR description for a tool.
+   * Retorna a descrição da tool traduzida para PT-BR.
+   * @param tool Item do catálogo de tools
+   * @returns Descrição em português ou descrição original
    */
   getToolDescription(tool: AiToolCatalogItem): string {
     return TOOL_DESCRIPTIONS_PT[tool.name] ?? tool.description;
   }
 
   /**
-   * Format category label.
+   * Retorna o rótulo legível para a categoria da tool.
+   * @param category Identificador da categoria
+   * @returns Nome da categoria em português
    */
   formatCategory(category: string): string {
     const labels: Record<string, string> = {
@@ -194,7 +208,9 @@ export class AgentToolsTabComponent {
   }
 
   /**
-   * Get icon for a tool category.
+   * Retorna o nome do ícone Lucide para a categoria da tool.
+   * @param category Identificador da categoria
+   * @returns Nome do ícone
    */
   getCategoryIcon(category: string): string {
     const icons: Record<string, string> = {
@@ -210,7 +226,7 @@ export class AgentToolsTabComponent {
   }
 
   /**
-   * Load catalog and linked tools from the API.
+   * Carrega o catálogo de tools e as tools vinculadas ao agente da API.
    */
   loadData(): void {
     const id = this.agentId();

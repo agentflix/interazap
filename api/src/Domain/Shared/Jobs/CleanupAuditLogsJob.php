@@ -38,7 +38,7 @@ final class CleanupAuditLogsJob implements ShouldQueue
     ) {}
 
     /**
-     * Execute the job.
+     * Executa a limpeza de logs de auditoria no banco e em arquivos.
      */
     public function handle(): void
     {
@@ -47,7 +47,7 @@ final class CleanupAuditLogsJob implements ShouldQueue
     }
 
     /**
-     * Clean up database audit logs.
+     * Remove registros antigos da tabela audit_logs no banco de dados.
      */
     private function cleanupDatabaseLogs(): void
     {
@@ -67,7 +67,10 @@ final class CleanupAuditLogsJob implements ShouldQueue
     }
 
     /**
-     * Clean up old log files.
+     * Remove arquivos de log antigos no diretório storage/logs.
+     *
+     * Processa padrões auth-*, access-denied-*, security-* e audit-*,
+     * excluindo arquivos com data de nome anterior ao período de retenção.
      */
     private function cleanupFileLogs(): void
     {

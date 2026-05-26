@@ -37,8 +37,8 @@ import { type CRMCompany, CRMCompanyService } from '@core/services/crm-company.s
 import { CompanyFormComponent } from './components/company-form/crm-company-form';
 
 /**
- * CRM Companies page — CRUD for companies with detail side-panel.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Página de empresas do CRM com CRUD completo e painel de detalhes lateral.
+ * Suporta filtro por status, busca, ordenação, seleção em lote e exclusão múltipla.
  */
 @Component({
   selector: 'app-companies',

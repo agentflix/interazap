@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, output, computed } from '@an
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfFabComponent — Floating Action Button positioned fixed on screen.
+ * Botão de ação flutuante (FAB) posicionado de forma fixa na tela.
  *
  * @example
  * ```html
@@ -17,25 +17,25 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './fab.html',
 })
 export class AfFabComponent {
-  /** Lucide icon name */
+  /** Nome do ícone Lucide */
   readonly icon = input.required<string>();
 
-  /** Accessible label */
-  readonly ariaLabel = input('Action');
+  /** Rótulo acessível */
+  readonly ariaLabel = input('Ação');
 
-  /** Visual variant */
+  /** Variante visual */
   readonly variant = input<'primary' | 'secondary' | 'danger'>('primary');
 
-  /** Button size */
+  /** Tamanho do botão */
   readonly size = input<'sm' | 'md' | 'lg'>('sm');
 
-  /** Screen position */
+  /** Posição na tela */
   readonly position = input<'bottom-right' | 'bottom-left' | 'bottom-center'>('bottom-right');
 
-  /** Disabled state */
+  /** Estado desabilitado */
   readonly disabled = input(false);
 
-  /** Click event */
+  /** Emitido ao clicar */
   readonly clicked = output<void>();
 
   protected readonly iconSize = computed(() => {

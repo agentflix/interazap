@@ -10,10 +10,24 @@ use Domain\Chat\Models\ChatTicket;
 use Domain\CRM\Models\CRMNegotiation;
 use Illuminate\Support\Str;
 
+/**
+ * Serviço de resolução de entidades usadas pelas tools do Autopilot.
+ *
+ * Contexto: converte referências ambíguas (UUID, nome, e-mail) em modelos concretos
+ * do domínio, encapsulando a lógica de fallback de forma reutilizável entre tools.
+ */
 final class AiToolEntityResolver
 {
     /**
-     * @param  array<string, mixed>  $input
+     * Resolve o vendedor a partir do input da tool, com múltiplos fallbacks.
+     *
+     * Ordem de resolução: seller_id (UUID) → seller_email → seller_name →
+     * assigned_to do ticket → primeiro usuário ativo do tenant.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  array<string, mixed>  $input  Parâmetros de entrada da tool.
+     * @param  string|null  $ticketId  UUID do ticket (para fallback por assigned_to).
+     * @return AuthUser|null Vendedor encontrado ou null.
      */
     public function resolveSeller(string $tenantId, array $input, ?string $ticketId = null): ?AuthUser
     {
@@ -64,7 +78,15 @@ final class AiToolEntityResolver
     }
 
     /**
-     * @param  array<string, mixed>  $input
+     * Resolve a negociação a partir do input da tool, com múltiplos fallbacks.
+     *
+     * Ordem de resolução: negotiation_id (UUID) → contact_id do input ou ticket → mais recente aberta.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  array<string, mixed>  $input  Parâmetros de entrada da tool.
+     * @param  string|null  $ticketId  UUID do ticket (para extrair contact_id se ausente no input).
+     * @param  string|null  $contactId  UUID do contato passado diretamente (prioridade sobre ticket).
+     * @return CRMNegotiation|null Negociação encontrada ou null.
      */
     public function resolveNegotiation(
         string $tenantId,
@@ -108,6 +130,13 @@ final class AiToolEntityResolver
         return null;
     }
 
+    /**
+     * Resolve um agente de IA a partir do UUID ou nome normalizado.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $nameOrId  UUID ou nome do agente (comparação case-insensitive após normalização ASCII).
+     * @return AiAgent|null Agente ativo encontrado ou null.
+     */
     public function resolveAgent(string $tenantId, string $nameOrId): ?AiAgent
     {
         if (Str::isUuid($nameOrId)) {
@@ -131,6 +160,9 @@ final class AiToolEntityResolver
     }
 
     /**
+     * Retorna a query base de usuários ativos do tenant.
+     *
+     * @param  string  $tenantId  UUID do tenant.
      * @return \Illuminate\Database\Eloquent\Builder<AuthUser>
      */
     private function activeTenantUserQuery(string $tenantId): \Illuminate\Database\Eloquent\Builder
@@ -140,6 +172,13 @@ final class AiToolEntityResolver
             ->where('is_active', true);
     }
 
+    /**
+     * Busca usuário ativo pelo nome normalizado (ASCII lowercase).
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $name  Nome a normalizar e comparar.
+     * @return AuthUser|null Primeiro usuário encontrado ou null.
+     */
     private function findUserByNormalizedName(string $tenantId, string $name): ?AuthUser
     {
         $normalized = $this->normalize($name);
@@ -149,11 +188,13 @@ final class AiToolEntityResolver
             ->first(fn (AuthUser $user): bool => $this->normalize((string) $user->name) === $normalized);
     }
 
+    /** Normaliza uma string para comparação (ASCII lowercase sem espaços extras). */
     private function normalize(string $value): string
     {
         return Str::lower(Str::ascii(trim($value)));
     }
 
+    /** Retorna a string trimada ou null se o valor não for string não vazia. */
     private function stringValue(mixed $value): ?string
     {
         if (! is_string($value)) {

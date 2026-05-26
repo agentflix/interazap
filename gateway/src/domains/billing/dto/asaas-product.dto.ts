@@ -1,10 +1,10 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 /**
- * DTO for creating a product (pre-defined billing item) in Asaas.
+ * DTO para criação de produto (item de cobrança pré-definido) no Asaas.
  *
- * Products in Asaas represent one-time or recurring billing items
- * that can be referenced when creating payments or subscriptions.
+ * Produtos no Asaas representam itens de cobrança avulsos ou recorrentes
+ * que podem ser referenciados na criação de cobranças ou assinaturas.
  */
 export class CreateAsaasProductDto {
   @IsString()
@@ -24,10 +24,10 @@ export class CreateAsaasProductDto {
 }
 
 /**
- * DTO for updating an existing product in Asaas.
+ * DTO para atualização de produto existente no Asaas.
  *
- * All fields are required. The externalReference field is optional
- * to allow partial updates without changing the reference.
+ * Todos os campos principais são obrigatórios. O campo externalReference
+ * é opcional para permitir atualizações sem alterar a referência externa.
  */
 export class UpdateAsaasProductDto {
   @IsString()

@@ -13,7 +13,13 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Dispatches outbound chat messages through configured gateway providers.
+ * Despacha mensagens de chat outbound através dos provedores de gateway configurados.
+ *
+ * Suporta provedores Uazapi e Z-API. Resolve o número de destino, prepara
+ * o payload correto por tipo de mensagem (texto, mídia, áudio, template,
+ * localização) e atualiza o status da mensagem após o envio.
+ *
+ * @category Services
  */
 final class ChatMessageGatewayDispatcher
 {
@@ -22,6 +28,15 @@ final class ChatMessageGatewayDispatcher
         private readonly ChatMessageRealtimePublisher $realtimePublisher,
     ) {}
 
+    /**
+     * Despacha uma mensagem outbound para o gateway do provedor configurado na instância.
+     *
+     * Atualiza o status da mensagem para 'sent' em caso de sucesso ou 'failed' em falha.
+     * Emite evento de status via WebSocket após cada tentativa.
+     *
+     * @param  ChatMessage  $message  Mensagem a ser enviada.
+     * @param  ChatTicket  $ticket  Ticket ao qual a mensagem pertence.
+     */
     public function dispatch(ChatMessage $message, ChatTicket $ticket): void
     {
         $message->loadMissing('extended');
@@ -152,6 +167,12 @@ final class ChatMessageGatewayDispatcher
         }
     }
 
+    /**
+     * Constrói texto de mensagem de localização com link para Google Maps.
+     *
+     * @param  ChatMessage  $message  Mensagem com metadados de localização.
+     * @return string Texto formatado com label e URL do Google Maps.
+     */
     private function buildLocationMessage(ChatMessage $message): string
     {
         $lat = $message->metadata['location']['lat'] ?? $message->metadata['location']['latitude'] ?? null;
@@ -165,6 +186,12 @@ final class ChatMessageGatewayDispatcher
         return $message->content ?: 'Localização enviada';
     }
 
+    /**
+     * Retorna legenda de fallback para mensagens de mídia sem conteúdo de texto.
+     *
+     * @param  ChatMessage  $message  Mensagem de mídia.
+     * @return string|null Legenda descritiva ou null se não aplicável.
+     */
     private function fallbackCaption(ChatMessage $message): ?string
     {
         if ($message->content) {
@@ -180,6 +207,13 @@ final class ChatMessageGatewayDispatcher
         };
     }
 
+    /**
+     * Constrói o texto de saída, prefixando o nome do atendente quando configurado na instância.
+     *
+     * @param  ChatMessage  $message  Mensagem a ser enviada.
+     * @param  ChatInstance|null  $instance  Instância de chat do ticket.
+     * @return string Texto final a ser enviado.
+     */
     private function buildOutboundText(ChatMessage $message, ?ChatInstance $instance): string
     {
         $content = (string) ($message->content ?? '');
@@ -196,6 +230,15 @@ final class ChatMessageGatewayDispatcher
         return sprintf("%s:\n%s", $attendantName, $content);
     }
 
+    /**
+     * Verifica se o nome do atendente deve ser prefixado no texto da mensagem.
+     *
+     * Retorna true apenas para mensagens de texto outgoing de atendente/bot
+     * quando a instância tem `send_attendant_name` habilitado nas configurações.
+     *
+     * @param  ChatMessage  $message  Mensagem a verificar.
+     * @param  ChatInstance|null  $instance  Instância de chat do ticket.
+     */
     private function shouldPrefixAttendantName(ChatMessage $message, ?ChatInstance $instance): bool
     {
         $allowedSources = [ChatMessageDTO::SOURCE_AGENT, ChatMessageDTO::SOURCE_BOT, 'ai'];
@@ -213,6 +256,15 @@ final class ChatMessageGatewayDispatcher
         return (bool) ($settings['send_attendant_name'] ?? false);
     }
 
+    /**
+     * Resolve o nome do atendente ou agente de IA para prefixação na mensagem.
+     *
+     * Para fonte bot/ai, retorna o nome do agente nos metadados ou 'Assistente Virtual'.
+     * Para fonte agente humano, carrega o relacionamento e retorna o nome do usuário.
+     *
+     * @param  ChatMessage  $message  Mensagem outgoing.
+     * @return string|null Nome do atendente ou null se não aplicável.
+     */
     private function resolveAttendantName(ChatMessage $message): ?string
     {
         if (in_array($message->source, [ChatMessageDTO::SOURCE_BOT, 'ai'], true)) {
@@ -238,7 +290,13 @@ final class ChatMessageGatewayDispatcher
     }
 
     /**
-     * @return array{file?: string}
+     * Resolve o payload de arquivo para envio ao gateway.
+     *
+     * Arquivos locais são lidos do disco e convertidos para base64 data URI.
+     * Arquivos remotos são retornados com a URL original.
+     *
+     * @param  ChatMessage  $message  Mensagem de mídia.
+     * @return array{file?: string} Array com chave 'file' contendo URL ou data URI.
      */
     private function resolveFilePayload(ChatMessage $message): array
     {
@@ -270,6 +328,12 @@ final class ChatMessageGatewayDispatcher
         return ['file' => $fileUrl];
     }
 
+    /**
+     * Extrai o caminho relativo do arquivo a partir de uma URL de storage.
+     *
+     * @param  string  $url  URL completa ou relativa do arquivo.
+     * @return string|null Caminho relativo ao disco public ou null.
+     */
     private function extractStoragePath(string $url): ?string
     {
         if (str_contains($url, '/storage/')) {
@@ -281,6 +345,15 @@ final class ChatMessageGatewayDispatcher
         return null;
     }
 
+    /**
+     * Resolve o tipo de mídia normalizado para envio ao gateway.
+     *
+     * Infere a partir do campo type da mensagem ou do MIME type quando o tipo
+     * é genérico. Padrão: 'image' quando nenhum critério é satisfeito.
+     *
+     * @param  ChatMessage  $message  Mensagem de mídia.
+     * @return string Tipo de mídia (image, video, audio, document, sticker).
+     */
     private function resolveMediaType(ChatMessage $message): string
     {
         $type = $message->type;
@@ -313,6 +386,15 @@ final class ChatMessageGatewayDispatcher
         return 'image';
     }
 
+    /**
+     * Resolve o token de autenticação da instância para chamadas ao gateway.
+     *
+     * Para Z-API combina instance_id e token_id das configurações.
+     * Para demais provedores retorna webhook_token diretamente.
+     *
+     * @param  ChatInstance|null  $instance  Instância de chat do ticket.
+     * @return string|null Token resolvido ou null se não configurado.
+     */
     private function resolveInstanceToken(?ChatInstance $instance): ?string
     {
         if (! $instance instanceof ChatInstance) {

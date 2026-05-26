@@ -2,12 +2,12 @@ import { Component, ChangeDetectionStrategy, input, output, signal, computed } f
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfResizablePanelComponent — Horizontally resizable panel with drag handle.
+ * Painel horizontal redimensionável com alça de arrasto.
  *
  * @example
  * ```html
  * <af-resizable-panel [initialWidth]="300" [minWidth]="200" [maxWidth]="500">
- *   <p>Sidebar content</p>
+ *   <p>Conteúdo da sidebar</p>
  * </af-resizable-panel>
  * ```
  */
@@ -20,16 +20,16 @@ import { LucideAngularModule } from 'lucide-angular';
   host: { class: 'block h-full' },
 })
 export class AfResizablePanelComponent {
-  /** Initial width in pixels */
+  /** Largura inicial em pixels */
   readonly initialWidth = input(280);
 
-  /** Minimum width */
+  /** Largura mínima */
   readonly minWidth = input(160);
 
-  /** Maximum width */
+  /** Largura máxima */
   readonly maxWidth = input(600);
 
-  /** Width changed */
+  /** Emitido quando a largura é alterada */
   readonly widthChanged = output<number>();
 
   protected readonly currentWidth = signal(0);

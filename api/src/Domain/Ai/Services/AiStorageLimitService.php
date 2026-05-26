@@ -12,9 +12,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Service for managing storage limits for Knowledge Base.
+ * Serviço de gerenciamento de limites de armazenamento da Base de Conhecimento.
  *
- * Integrates with Platform Plans to enforce storage quotas.
+ * Contexto: integra-se com PlatformPlan para aplicar cotas de armazenamento por tenant.
+ * Limite 0 significa armazenamento ilimitado. Caso não haja plano ativo,
+ * aplica o limite padrão de 100 MB (DEFAULT_STORAGE_LIMIT).
  */
 final class AiStorageLimitService implements AiStorageLimitServiceInterface
 {
@@ -24,7 +26,11 @@ final class AiStorageLimitService implements AiStorageLimitServiceInterface
     private const int DEFAULT_STORAGE_LIMIT = 104857600;
 
     /**
-     * Check if tenant can upload a file of given size.
+     * Verifica se o tenant pode fazer upload de um arquivo com o tamanho informado.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a verificar.
+     * @param  int  $fileSize  Tamanho do arquivo em bytes.
+     * @return bool True se o upload está dentro do limite, false caso contrário.
      */
     public function canUpload(PlatformTenant $tenant, int $fileSize): bool
     {
@@ -40,7 +46,10 @@ final class AiStorageLimitService implements AiStorageLimitServiceInterface
     }
 
     /**
-     * Get current storage usage for tenant.
+     * Retorna o uso atual de armazenamento do tenant em bytes.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a consultar.
+     * @return int Total de bytes utilizados pelos documentos ativos.
      */
     public function getCurrentUsage(PlatformTenant $tenant): int
     {
@@ -51,7 +60,10 @@ final class AiStorageLimitService implements AiStorageLimitServiceInterface
     }
 
     /**
-     * Get storage limit for tenant's plan.
+     * Retorna o limite de armazenamento do plano do tenant em bytes.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a consultar.
+     * @return int Limite em bytes, ou 0 para armazenamento ilimitado.
      */
     public function getStorageLimit(PlatformTenant $tenant): int
     {
@@ -71,7 +83,10 @@ final class AiStorageLimitService implements AiStorageLimitServiceInterface
     }
 
     /**
-     * Get remaining storage for tenant.
+     * Retorna o armazenamento restante do tenant em bytes.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a consultar.
+     * @return int Bytes disponíveis, ou PHP_INT_MAX para armazenamento ilimitado.
      */
     public function getRemainingStorage(PlatformTenant $tenant): int
     {
@@ -88,7 +103,10 @@ final class AiStorageLimitService implements AiStorageLimitServiceInterface
     }
 
     /**
-     * Get storage usage percentage.
+     * Retorna o percentual de uso de armazenamento do tenant.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a consultar.
+     * @return float Percentual entre 0.0 e 100.0 (0.0 para ilimitado).
      */
     public function getUsagePercentage(PlatformTenant $tenant): float
     {
@@ -105,7 +123,13 @@ final class AiStorageLimitService implements AiStorageLimitServiceInterface
     }
 
     /**
-     * Get tenant's active plan.
+     * Obtém o plano ativo do tenant via billing_subscriptions.
+     *
+     * Verifica a existência da tabela antes de consultar para evitar
+     * que o PostgreSQL aborte a transação quando a tabela não existe.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a consultar.
+     * @return PlatformPlan|null Plano ativo ou null se não encontrado.
      */
     private function getTenantPlan(PlatformTenant $tenant): ?PlatformPlan
     {

@@ -115,14 +115,17 @@ interface CalendarFilterSnapshot {
     SelectInputComponent,
     TextInputComponent,
     AfStatusBadgeComponent,
-/**
- * Agenda page component for the Crm module.
- * @selector app-agenda
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './agenda.html',
 })
+/**
+ * Página de Agenda do CRM com suporte a visualização de calendário e lista.
+ *
+ * Contexto: permite criar, editar e excluir eventos com filtros avançados (tipo, status,
+ * responsável, período, participante, vínculo, dia inteiro, recorrência, lembretes, local).
+ * Integra FullCalendar com drag-and-drop e arrastar tipos de eventos externos.
+ */
 export class Agenda {
   private readonly eventService = inject(EventService);
   private readonly userService = inject(UserService);

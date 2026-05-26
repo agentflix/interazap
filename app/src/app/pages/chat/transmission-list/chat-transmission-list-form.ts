@@ -50,15 +50,11 @@ interface TransmissionListFormControls {
 }
 
 /**
- * Transmission list create/edit form page.
+ * Formulário de criação e edição de lista de transmissão em massa.
  *
  * @remarks
- * Suporta preview de mensagem, cálculo de público estimado e agendamento.
- *
- * @example
- * ```html
- * <app-chat-transmission-list-form />
- * ```
+ * Suporta preview de mensagem em tempo real, cálculo de público estimado via API
+ * e agendamento de envio. Variáveis de personalização são inseridas no corpo da mensagem.
  */
 @Component({
   selector: 'app-chat-transmission-list-form',
@@ -141,19 +137,27 @@ export class ChatTransmissionListFormComponent implements OnInit {
     this.loadInitialData();
   }
 
+  /**
+   * Insere uma variável de personalização no final da mensagem.
+   *
+   * @param variable - Token da variável (ex: `{{nome}}`).
+   */
   insertVariable(variable: string): void {
     const currentMessage = this.form.controls.message.value || '';
     this.form.controls.message.setValue(`${currentMessage} ${variable} `.trim());
   }
 
+  /** Navega de volta para a listagem de transmissões. */
   goBack(): void {
     void this.router.navigate(['/chat/transmission-list']);
   }
 
+  /** Tenta recarregar os dados iniciais após erro. */
   retry(): void {
     this.loadInitialData();
   }
 
+  /** Valida e persiste a lista de transmissão (criação ou edição). */
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

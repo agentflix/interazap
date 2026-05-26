@@ -13,10 +13,11 @@ import { SendMessageService } from '../outbound/send-message.service';
 import { OutboundMessageDto } from '../dto/outbound-message.dto';
 
 /**
- * ChatOutboundController
+ * Controller de envio de mensagens outbound via provedores de chat.
  *
- * Controla o envio de mensagens outbound via providers
- * (atualmente suporta ZAPI).
+ * Contexto: expoe endpoint interno POST /outbound/send protegido por
+ * InternalApiKeyGuard. Atualmente suporta apenas o provedor Z-API.
+ * Delega o envio efetivo ao SendMessageService com circuit breaker.
  */
 @Controller({ path: 'outbound', version: '1' })
 @UseGuards(InternalApiKeyGuard)
@@ -25,17 +26,18 @@ export class ChatOutboundController {
   private readonly logger = new Logger(ChatOutboundController.name);
 
   /**
-   * Initializes the outbound controller with the send message service.
+   * Inicializa o controller outbound com o servico de envio de mensagens.
    *
-   * @param sendMessageService - Service responsible for routing and sending outbound messages
+   * @param sendMessageService Servico responsavel por rotear e enviar mensagens outbound
    */
   constructor(private readonly sendMessageService: SendMessageService) {}
 
   /**
-   * Sends an outbound message via the configured provider.
+   * Envia uma mensagem outbound pelo provedor configurado.
    *
-   * @param body - Outbound message payload
-   * @returns Result with success status, messageId and error
+   * @param body Payload da mensagem outbound
+   * @returns Resultado com indicador de sucesso, messageId e erro quando aplicavel
+   * @throws BadRequestException Quando o provedor informado nao e suportado
    */
   @Post('send')
   async send(@Body() body: OutboundMessageDto) {

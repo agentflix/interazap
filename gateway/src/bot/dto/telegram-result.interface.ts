@@ -1,5 +1,8 @@
 /**
- * Telegram Bot API standard response envelope.
+ * Envelope padrão de resposta da Telegram Bot API.
+ *
+ * Contexto: módulo bot. Encapsula o resultado de qualquer chamada à API,
+ * incluindo campos de erro quando `ok` é `false`.
  * @see https://core.telegram.org/bots/api#making-requests
  */
 export interface TgResult<T> {

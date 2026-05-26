@@ -4,10 +4,10 @@ import type { TagChip } from '@chat/models/tag-chip.model';
 export type { ContactTag, TagChip } from '@chat/models/tag-chip.model';
 
 /**
- * Builds a color based on the tag name hash.
+ * Gera uma cor HSL com base no hash do nome da etiqueta.
  *
- * @param name - The tag name
- * @returns HSL color string
+ * @param name - Nome da etiqueta.
+ * @returns String de cor HSL.
  */
 export const buildTagColor = (name: string): string => {
   const hash = Array.from(name).reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -16,10 +16,10 @@ export const buildTagColor = (name: string): string => {
 };
 
 /**
- * Builds a TagChip from a Tag service model.
+ * Constrói um TagChip a partir do modelo Tag do serviço.
  *
- * @param tag - The Tag from the service
- * @returns A TagChip for UI display
+ * @param tag - Tag retornada pelo serviço.
+ * @returns TagChip para exibição na UI.
  */
 export const buildTagChip = (tag: Tag): TagChip => ({
   id: tag.id,

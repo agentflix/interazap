@@ -30,12 +30,12 @@ import {
 } from '@core/services/two-factor.service';
 import { AuthStoreService } from '@core/services/auth-store.service';
 
-/** Multi-step Two-Factor Authentication setup flow. */
+/** Fluxo multi-etapa de configuração da autenticação de dois fatores. */
 type Step = 'status' | 'setup' | 'verify' | 'recovery' | 'complete';
 
 /**
- * Two-Factor Authentication page.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Página de autenticação de dois fatores — configuração, verificação, desativação e
+ * regeneração de códigos de recuperação.
  */
 @Component({
   selector: 'app-two-factor',
@@ -105,6 +105,7 @@ export class TwoFactor implements OnInit {
 
   // ── Data loading ─────────────────────────────────────────────────────────────
 
+  /** Carrega o status atual do 2FA do usuário autenticado. */
   loadStatus(): void {
     this.isLoading.set(true);
     this.loadError.set(false);
@@ -125,6 +126,7 @@ export class TwoFactor implements OnInit {
 
   // ── Setup flow ────────────────────────────────────────────────────────────────
 
+  /** Inicia o fluxo de configuração do 2FA, obtendo o secret e o QR Code. */
   startSetup(): void {
     if (this.isProcessing()) return;
     this.isProcessing.set(true);
@@ -148,12 +150,14 @@ export class TwoFactor implements OnInit {
       });
   }
 
+  /** Avança para a etapa de verificação do código TOTP. */
   goToVerify(): void {
     this.errorMessage.set('');
     this.codeControl.reset('');
     this.step.set('verify');
   }
 
+  /** Valida o código TOTP digitado e ativa o 2FA em caso de sucesso. */
   validateCode(): void {
     if (this.verifyForm.invalid || this.isProcessing()) {
       this.verifyForm.markAllAsTouched();
@@ -186,22 +190,26 @@ export class TwoFactor implements OnInit {
       });
   }
 
+  /** Conclui o fluxo de configuração avançando para a etapa final. */
   completeSetup(): void {
     this.step.set('complete');
   }
 
   // ── Utility actions ───────────────────────────────────────────────────────────
 
+  /** Copia o secret TOTP para a área de transferência. */
   copySecret(): void {
     const secret = this.setupData()?.secret;
     if (secret) navigator.clipboard.writeText(secret).catch(() => null);
   }
 
+  /** Copia os códigos de recuperação para a área de transferência. */
   copyCodes(): void {
     const text = this.recoveryCodes().join('\n');
     navigator.clipboard.writeText(text).catch(() => null);
   }
 
+  /** Faz download dos códigos de recuperação como arquivo de texto. */
   downloadCodes(): void {
     const text = this.recoveryCodes().join('\n');
     const blob = new Blob([text], { type: 'text/plain' });
@@ -215,12 +223,14 @@ export class TwoFactor implements OnInit {
 
   // ── Disable 2FA ───────────────────────────────────────────────────────────────
 
+  /** Abre o modal de desativação do 2FA. */
   openDisableModal(): void {
     this.disablePasswordControl.reset('');
     this.disableError.set('');
     this.disableModalOpen.set(true);
   }
 
+  /** Envia a senha para confirmar e desativar o 2FA. */
   disableTwoFactor(): void {
     if (this.disablePasswordControl.invalid || this.isProcessing()) {
       this.disablePasswordControl.markAsTouched();
@@ -249,12 +259,14 @@ export class TwoFactor implements OnInit {
 
   // ── Regenerate codes ──────────────────────────────────────────────────────────
 
+  /** Abre o modal de regeneração dos códigos de recuperação. */
   openRegenerateModal(): void {
     this.regeneratePasswordControl.reset('');
     this.regenerateError.set('');
     this.regenerateModalOpen.set(true);
   }
 
+  /** Confirma com a senha e regenera os códigos de recuperação. */
   regenerateCodes(): void {
     if (this.regeneratePasswordControl.invalid || this.isProcessing()) {
       this.regeneratePasswordControl.markAsTouched();
@@ -285,6 +297,7 @@ export class TwoFactor implements OnInit {
 
   // ── Error getter ──────────────────────────────────────────────────────────────
 
+  /** Retorna a mensagem de erro do campo de código TOTP quando tocado e inválido. */
   codeError(): string {
     const c = this.codeControl;
     if (!c.touched || !c.errors) return '';
@@ -344,6 +357,7 @@ export class TwoFactor implements OnInit {
     }
   }
 
+  /** Limpa o QR Code quando ocorre erro no carregamento da imagem. */
   onQrImageError(): void {
     this.qrCodeDataUrl.set(null);
   }

@@ -11,10 +11,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 /**
- * Token Budget System (Autopilot Phase 4).
+ * Sistema de controle de orçamento de tokens por tenant.
  *
- * Manages per-run, per-day, and per-month budget tracking.
- * Alerts when > 80% consumed, auto-disables when > 100%.
+ * Gerencia tracking de orçamento por run, diário e mensal.
+ * Dispara alertas quando > 80% consumido e desabilita automaticamente
+ * quando > 100%. Usa Redis para incrementos atômicos.
  */
 final class TokenBudgetService
 {
@@ -29,10 +30,10 @@ final class TokenBudgetService
     private const THRESHOLD_CRITICAL = 1.0; // 100%
 
     /**
-     * Check if a run can execute within the tenant's budget.
+     * Verifica se uma run pode ser executada dentro do orçamento do tenant.
      *
-     * @param  string  $tenantId  Tenant UUID
-     * @param  float  $estimatedCostDollars  Estimated cost for the run
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  float  $estimatedCostDollars  Custo estimado da run em dólares.
      * @return array{allowed: bool, reason: string, usage_ratio: float}
      */
     public function canExecuteRun(string $tenantId, float $estimatedCostDollars): array
@@ -97,10 +98,10 @@ final class TokenBudgetService
     }
 
     /**
-     * Record actual usage after run completion.
+     * Registra o uso real de tokens após a conclusão da run.
      *
-     * @param  string  $tenantId  Tenant UUID
-     * @param  float  $actualCostDollars  Actual cost of the run
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  float  $actualCostDollars  Custo real da run em dólares.
      */
     public function recordUsage(string $tenantId, float $actualCostDollars): void
     {
@@ -132,9 +133,10 @@ final class TokenBudgetService
     }
 
     /**
-     * Get current daily usage in dollars.
+     * Retorna o uso diário atual em dólares.
      *
-     * @param  string  $tenantId  Tenant UUID
+     * @param  string  $tenantId  UUID do tenant.
+     * @return float Uso acumulado no dia.
      */
     public function getDailyUsageDollars(string $tenantId): float
     {
@@ -145,9 +147,10 @@ final class TokenBudgetService
     }
 
     /**
-     * Get current monthly usage in dollars.
+     * Retorna o uso mensal atual em dólares.
      *
-     * @param  string  $tenantId  Tenant UUID
+     * @param  string  $tenantId  UUID do tenant.
+     * @return float Uso acumulado no mês.
      */
     public function getMonthlyUsageDollars(string $tenantId): float
     {
@@ -158,9 +161,9 @@ final class TokenBudgetService
     }
 
     /**
-     * Get usage statistics for a tenant.
+     * Retorna estatísticas de uso de orçamento do tenant.
      *
-     * @param  string  $tenantId  Tenant UUID
+     * @param  string  $tenantId  UUID do tenant.
      * @return array{daily_usage: float, daily_limit: float|null, daily_ratio: float, monthly_usage: float, monthly_limit: float|null, monthly_ratio: float}
      */
     public function getUsageStats(string $tenantId): array
@@ -180,11 +183,11 @@ final class TokenBudgetService
     }
 
     /**
-     * Update budget configuration for a tenant.
+     * Atualiza a configuração de orçamento de um tenant.
      *
-     * @param  string  $tenantId  Tenant UUID
-     * @param  float|null  $dailyLimit  Daily budget limit in dollars
-     * @param  float|null  $monthlyLimit  Monthly budget limit in dollars
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  float|null  $dailyLimit  Limite diário em dólares.
+     * @param  float|null  $monthlyLimit  Limite mensal em dólares.
      */
     public function updateBudgetConfig(string $tenantId, ?float $dailyLimit, ?float $monthlyLimit): void
     {
@@ -205,9 +208,9 @@ final class TokenBudgetService
     }
 
     /**
-     * Get budget configuration for tenant management endpoints.
+     * Retorna a configuração de orçamento para endpoints de gestão.
      *
-     * @param  string  $tenantId  Tenant UUID
+     * @param  string  $tenantId  UUID do tenant.
      * @return array{daily_limit: float|null, monthly_limit: float|null, is_disabled: bool}
      */
     public function getBudgetConfig(string $tenantId): array
@@ -216,9 +219,8 @@ final class TokenBudgetService
     }
 
     /**
-     * Get tenant budget configuration.
+     * Retorna a configuração de orçamento do tenant (cache ou padrão).
      *
-     * @param  string  $tenantId  Tenant UUID
      * @return array{daily_limit: float|null, monthly_limit: float|null, is_disabled: bool}
      */
     private function getTenantBudgetConfig(string $tenantId): array
@@ -246,10 +248,10 @@ final class TokenBudgetService
     }
 
     /**
-     * Check thresholds and dispatch alerts if necessary.
+     * Verifica thresholds e dispara alertas quando necessário.
      *
-     * @param  string  $tenantId  Tenant UUID
-     * @param  float  $lastUsageCost  Last usage cost in dollars
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  float  $lastUsageCost  Último custo registrado em dólares.
      */
     private function checkThresholdsAndAlert(string $tenantId, float $lastUsageCost): void
     {
@@ -292,6 +294,7 @@ final class TokenBudgetService
         }
     }
 
+    /** Desabilita o budget do tenant após ultrapassar 100%. */
     private function disableBudget(string $tenantId): void
     {
         $configKey = self::CACHE_PREFIX.'config:'.$tenantId;
@@ -305,6 +308,7 @@ final class TokenBudgetService
         ], self::CACHE_TTL_MONTH);
     }
 
+    /** Retorna a instância do serviço de métricas. */
     private function metrics(): MetricsService
     {
         /** @var MetricsService $metrics */

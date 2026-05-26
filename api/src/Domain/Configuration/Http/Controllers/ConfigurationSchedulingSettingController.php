@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Auth;
  */
 final class ConfigurationSchedulingSettingController extends BaseController
 {
+    /** Injeta as actions de configurações de agendamento. */
     public function __construct(
         private readonly ConfigurationSchedulingSettingActions $actions,
     ) {}
@@ -32,7 +33,7 @@ final class ConfigurationSchedulingSettingController extends BaseController
      * Obter configurações de agendamento do tenant autenticado.
      *
      * @param  Request  $request  Solicitação HTTP.
-     * @return JsonResponse Configuracoes atuais.
+     * @return JsonResponse Configurações atuais.
      */
     public function index(Request $request): JsonResponse
     {
@@ -50,7 +51,7 @@ final class ConfigurationSchedulingSettingController extends BaseController
      * Atualizar configurações de agendamento do tenant.
      *
      * @param  UpdateSchedulingSettingRequest  $request  Dados validados.
-     * @return JsonResponse Configuracoes atualizadas.
+     * @return JsonResponse Configurações atualizadas.
      */
     public function update(UpdateSchedulingSettingRequest $request): JsonResponse
     {

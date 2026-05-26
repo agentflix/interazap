@@ -13,8 +13,8 @@ import { AgendaCalendarViewComponent } from '../agenda-calendar-view/agenda-cale
 import { AgendaSidebarComponent, type AgendaTypeOption } from '../agenda-sidebar/agenda-sidebar';
 
 /**
- * Agenda week view component for the Crm module.
- * @selector app-agenda-week-view
+ * Visualização semanal da agenda usando FullCalendar (timeGridWeek).
+ * Expõe a API do calendário via getApi() para navegação pelo componente pai.
  */
 @Component({
   selector: 'app-agenda-week-view',

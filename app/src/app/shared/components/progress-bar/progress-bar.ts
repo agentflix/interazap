@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfProgressBarComponent — Horizontal progress indicator.
+ * Indicador de progresso horizontal.
  *
  * @example
  * ```html
@@ -15,19 +15,19 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './progress-bar.html',
 })
 export class AfProgressBarComponent {
-  /** Progress value (0–100) */
+  /** Valor do progresso (0–100) */
   readonly value = input(0);
 
-  /** Optional label */
+  /** Rótulo opcional */
   readonly label = input('');
 
-  /** Show percentage label */
+  /** Exibe o rótulo de percentual */
   readonly showLabel = input(true);
 
-  /** Bar size */
+  /** Tamanho da barra */
   readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('md');
 
-  /** Color variant */
+  /** Variante de cor */
   readonly variant = input<'accent' | 'info' | 'danger' | 'warning'>('accent');
 
   protected readonly clampedValue = computed(() => Math.max(0, Math.min(100, this.value())));

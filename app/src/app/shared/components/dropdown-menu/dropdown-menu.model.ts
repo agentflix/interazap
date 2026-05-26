@@ -1,8 +1,8 @@
 /**
- * Models and types for dropdown-menu component.
+ * Modelos e tipos do componente de menu dropdown.
  */
 
-/** Dropdown menu item */
+/** Item do menu dropdown. */
 export interface AfDropdownMenuItem {
   label: string;
   value: string;

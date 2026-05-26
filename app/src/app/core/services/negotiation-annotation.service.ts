@@ -9,10 +9,10 @@ export type { NegotiationAnnotation, NegotiationAnnotationPayload, NegotiationAn
 
 
 /**
- * Service for managing negotiation annotations (notes).
+ * Gerencia anotações (notas) de negociações do CRM.
  *
  * @remarks
- * Handles CRUD operations for negotiation notes, including pin/unpin functionality.
+ * Fornece operações de CRUD para notas de negociação, incluindo fixar/desafixar.
  */
 @Injectable({ providedIn: 'root' })
 export class NegotiationAnnotationService {
@@ -20,10 +20,10 @@ export class NegotiationAnnotationService {
   private readonly baseUrl = `${environment.apiUrl}/crm/negotiations`;
 
   /**
-   * Lists all annotations for a negotiation.
+   * Lista todas as anotações de uma negociação.
    *
-   * @param negotiationId - The negotiation identifier
-   * @returns Observable with annotations array
+   * @param negotiationId - Identificador da negociação
+   * @returns Observable com o array de anotações
    */
   list(
     negotiationId: string | number,
@@ -61,11 +61,11 @@ export class NegotiationAnnotationService {
   }
 
   /**
-   * Creates a new annotation on a negotiation.
+   * Cria uma nova anotação em uma negociação.
    *
-   * @param negotiationId - The negotiation identifier
-   * @param payload - Annotation content and optional properties
-   * @returns Observable with created annotation
+   * @param negotiationId - Identificador da negociação
+   * @param payload - Conteúdo da anotação e propriedades opcionais
+   * @returns Observable com a anotação criada
    */
   create(
     negotiationId: string | number,
@@ -102,12 +102,12 @@ export class NegotiationAnnotationService {
   }
 
   /**
-   * Updates an existing annotation.
+   * Atualiza uma anotação existente.
    *
-   * @param negotiationId - The negotiation identifier
-   * @param annotationId - The annotation identifier
-   * @param payload - Updated annotation data
-   * @returns Observable with updated annotation
+   * @param negotiationId - Identificador da negociação
+   * @param annotationId - Identificador da anotação
+   * @param payload - Dados atualizados da anotação
+   * @returns Observable com a anotação atualizada
    */
   update(
     negotiationId: string | number,
@@ -121,22 +121,22 @@ export class NegotiationAnnotationService {
   }
 
   /**
-   * Deletes an annotation.
+   * Exclui uma anotação.
    *
-   * @param negotiationId - The negotiation identifier
-   * @param annotationId - The annotation identifier
-   * @returns Observable completing on deletion
+   * @param negotiationId - Identificador da negociação
+   * @param annotationId - Identificador da anotação
+   * @returns Observable que completa após a exclusão
    */
   delete(negotiationId: string | number, annotationId: string | number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${negotiationId}/annotations/${annotationId}`);
   }
 
   /**
-   * Pins an annotation to the top of the list.
+   * Fixa uma anotação no topo da lista.
    *
-   * @param negotiationId - The negotiation identifier
-   * @param annotationId - The annotation identifier
-   * @returns Observable with updated annotation
+   * @param negotiationId - Identificador da negociação
+   * @param annotationId - Identificador da anotação
+   * @returns Observable com a anotação atualizada
    */
   pin(
     negotiationId: string | number,
@@ -149,11 +149,11 @@ export class NegotiationAnnotationService {
   }
 
   /**
-   * Unpins a previously pinned annotation.
+   * Remove a fixação de uma anotação previamente fixada.
    *
-   * @param negotiationId - The negotiation identifier
-   * @param annotationId - The annotation identifier
-   * @returns Observable with updated annotation
+   * @param negotiationId - Identificador da negociação
+   * @param annotationId - Identificador da anotação
+   * @returns Observable com a anotação atualizada
    */
   unpin(
     negotiationId: string | number,

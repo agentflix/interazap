@@ -4,10 +4,8 @@ import { AuthStoreService } from '@core/services/auth-store.service';
 import type { ForceChangePassword } from '@pages/auth/force-change-password/force-change-password';
 
 /**
- * Guard that restricts access to /auth/force-change-password.
- *
- * Only users with `force_password_change === true` may enter.
- * Everyone else is redirected to `/dashboard`.
+ * Protege a rota `/auth/force-change-password`, permitindo acesso apenas a usuários
+ * com o flag `force_password_change === true`. Demais usuários são redirecionados para `/dashboard`.
  */
 export const forceChangePasswordGuard: CanActivateFn = () => {
   const authStore = inject(AuthStoreService);
@@ -23,10 +21,9 @@ export const forceChangePasswordGuard: CanActivateFn = () => {
 };
 
 /**
- * Guard that blocks navigation away from the force-change-password page
- * until the form has been successfully submitted.
- *
- * Shows a browser confirm dialog if the user tries to leave without submitting.
+ * Bloqueia a saída da página de troca forçada de senha enquanto o formulário
+ * não tiver sido enviado com sucesso. Exibe um diálogo de confirmação nativo
+ * do navegador caso o usuário tente sair sem concluir o processo.
  */
 export const forceChangePasswordCanDeactivate: CanDeactivateFn<ForceChangePassword> = (
   component,

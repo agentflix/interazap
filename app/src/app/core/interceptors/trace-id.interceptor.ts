@@ -1,7 +1,8 @@
 import type { HttpInterceptorFn } from '@angular/common/http';
 
 /**
- * Generates a UUID v4 for trace ID.
+ * Gera um UUID v4 aleatório para uso como trace ID.
+ * @returns String no formato xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
  */
 function generateTraceId(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -12,10 +13,12 @@ function generateTraceId(): string {
 }
 
 /**
- * Session-scoped trace ID for correlating requests within a browser session.
+ * Trace ID fixo por sessão do navegador, usado para correlacionar múltiplas
+ * requisições originadas da mesma sessão em ferramentas de observabilidade.
  */
 let sessionTraceId: string | null = null;
 
+/** Retorna (ou cria) o trace ID da sessão atual do navegador. */
 function getSessionTraceId(): string {
   if (!sessionTraceId) {
     sessionTraceId = generateTraceId();
@@ -24,10 +27,10 @@ function getSessionTraceId(): string {
 }
 
 /**
- * HTTP Interceptor that adds X-Trace-ID header to all outgoing requests.
+ * Adiciona os headers `X-Trace-ID` e `X-Session-ID` a todas as requisições HTTP.
  *
- * The trace ID is unique per request but includes a session prefix
- * for correlating multiple requests from the same browser session.
+ * `X-Trace-ID` é único por request; `X-Session-ID` é fixo por sessão do navegador.
+ * Ambos permitem correlacionar logs distribuídos em ferramentas de observabilidade.
  */
 export const traceIdInterceptor: HttpInterceptorFn = (req, next) => {
   const traceId = generateTraceId();

@@ -27,12 +27,11 @@ export class BullMQDlqService {
   private dlqQueues: Map<string, Queue> = new Map();
 
   /**
-   * Initialises the DLQ service. No injected dependencies are required;
-   * individual DLQ queues are registered via {@link registerDlqQueue} at module startup.
+   * Inicializa o serviço DLQ. Nenhuma dependência injetada é necessária;
+   * as filas DLQ individuais são registradas via {@link registerDlqQueue} na inicialização do módulo.
    */
   constructor() {}
 
-  /**
   /**
    * Registra uma instância de fila DLQ.
    * Chamado durante a inicialização do módulo de filas.

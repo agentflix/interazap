@@ -11,25 +11,29 @@ use Illuminate\Queue\Events\WorkerStopping;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Listener for handling graceful shutdown in queue workers.
+ * Listener para encerramento gracioso de workers de fila.
  *
- * This listener monitors queue events and ensures workers
- * can shut down gracefully when receiving termination signals.
+ * Monitora eventos de fila e garante que os workers possam
+ * finalizar o job atual antes de se encerrar ao receber sinais de terminação.
  */
 final class WorkerGracefulShutdownListener
 {
     /**
-     * Whether a shutdown has been requested.
+     * Indica se um encerramento foi solicitado.
      */
     protected static bool $shutdownRequested = false;
 
     /**
-     * Whether a job is currently being processed.
+     * Indica se um job está sendo processado no momento.
      */
     protected static bool $isProcessing = false;
 
     /**
-     * Handle the Looping event (before worker checks for new job).
+     * Trata o evento Looping (antes do worker verificar novo job).
+     *
+     * Interrompe o loop se encerramento foi solicitado e nenhum job está em processamento.
+     *
+     * @param  Looping  $event  Evento de loop do worker.
      */
     public function handleLooping(Looping $event): void
     {
@@ -46,7 +50,9 @@ final class WorkerGracefulShutdownListener
     }
 
     /**
-     * Handle the JobProcessing event (before job starts).
+     * Trata o evento JobProcessing (antes do job iniciar).
+     *
+     * @param  JobProcessing  $event  Evento de início de processamento do job.
      */
     public function handleJobProcessing(JobProcessing $event): void
     {
@@ -59,7 +65,11 @@ final class WorkerGracefulShutdownListener
     }
 
     /**
-     * Handle the JobProcessed event (after job completes).
+     * Trata o evento JobProcessed (após conclusão do job).
+     *
+     * Se encerramento foi solicitado durante o processamento, interrompe o worker agora.
+     *
+     * @param  JobProcessed  $event  Evento de conclusão de processamento do job.
      */
     public function handleJobProcessed(JobProcessed $event): void
     {
@@ -81,7 +91,9 @@ final class WorkerGracefulShutdownListener
     }
 
     /**
-     * Handle the WorkerStopping event.
+     * Trata o evento WorkerStopping (worker encerrando).
+     *
+     * @param  WorkerStopping  $event  Evento de encerramento do worker.
      */
     public function handleWorkerStopping(WorkerStopping $event): void
     {
@@ -92,7 +104,7 @@ final class WorkerGracefulShutdownListener
     }
 
     /**
-     * Request a graceful shutdown.
+     * Solicita o encerramento gracioso do worker.
      */
     public static function requestShutdown(): void
     {
@@ -104,7 +116,9 @@ final class WorkerGracefulShutdownListener
     }
 
     /**
-     * Check if a shutdown has been requested.
+     * Verifica se o encerramento gracioso foi solicitado.
+     *
+     * @return bool Verdadeiro se o encerramento foi solicitado.
      */
     public static function isShutdownRequested(): bool
     {
@@ -112,7 +126,9 @@ final class WorkerGracefulShutdownListener
     }
 
     /**
-     * Check if a job is currently being processed.
+     * Verifica se um job está sendo processado no momento.
+     *
+     * @return bool Verdadeiro se um job está em execução.
      */
     public static function isProcessing(): bool
     {
@@ -120,7 +136,7 @@ final class WorkerGracefulShutdownListener
     }
 
     /**
-     * Reset state (for testing).
+     * Redefine o estado estático do listener (utilizado em testes).
      */
     public static function reset(): void
     {

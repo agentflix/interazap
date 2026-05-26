@@ -21,6 +21,14 @@ use Domain\CRM\Models\CRMNegotiationTask;
 use Domain\CRM\Models\CRMNote;
 use Illuminate\Support\Str;
 
+/**
+ * Ferramenta de IA para registrar interesse comercial e acionar o time de vendas.
+ *
+ * Input esperado: message_to_customer (obrigatório); ticket_id, plan, team_size, urgency, intent, seller_id e negotiation_id opcionais.
+ * Output produzido: ticket_id, message_id, notification_id, seller_id, negotiation_id e avisos recuperáveis.
+ * Quando usar: cliente demonstrar interesse em adquirir um plano ou solicitar contato comercial.
+ * Resolve vendedor e negociação automaticamente; cria artefatos de acompanhamento e envia mensagem ao cliente.
+ */
 final class RegisterSalesInterestTool implements AiToolInterface
 {
     public function __construct(
@@ -28,6 +36,7 @@ final class RegisterSalesInterestTool implements AiToolInterface
         private readonly SendChatMessageAction $sendMessageAction,
     ) {}
 
+    /** Executa o registro de interesse comercial e cria todos os artefatos de acompanhamento. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $tenantId = (string) ($input->context['tenant_id'] ?? '');
@@ -147,16 +156,23 @@ final class RegisterSalesInterestTool implements AiToolInterface
         ]);
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::REGISTER_SALES_INTEREST;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Registers a sales interest, resolves the seller/negotiation when possible, creates follow-up artifacts, and always sends a customer-facing message.';
     }
 
+    /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
+     * @return array<string, array<string, mixed>>
+     */
     public function getParameters(): array
     {
         return [
@@ -173,6 +189,8 @@ final class RegisterSalesInterestTool implements AiToolInterface
     }
 
     /**
+     * Monta a mensagem interna de notificação para o vendedor.
+     *
      * @param  array<string, mixed>  $parameters
      */
     private function buildSellerMessage(array $parameters, ChatTicket $ticket): string
@@ -192,6 +210,8 @@ final class RegisterSalesInterestTool implements AiToolInterface
     }
 
     /**
+     * Cria automaticamente uma negociação a partir do ticket quando nenhuma existir.
+     *
      * @param  array<string, mixed>  $parameters
      */
     private function createNegotiationFromTicket(

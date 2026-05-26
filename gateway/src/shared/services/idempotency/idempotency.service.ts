@@ -5,14 +5,14 @@ import { IdempotencyOptions } from '../../models/idempotency.model';
 export type { IdempotencyOptions };
 
 /**
- * Result of idempotency check.
+ * Representa o resultado de uma verificação de idempotência.
  */
 export interface IdempotencyResult<T = unknown> {
-  /** Whether this is a duplicate request */
+  /** Se a requisição é uma duplicata */
   isDuplicate: boolean;
-  /** Cached result if duplicate */
+  /** Resultado cacheado, se for duplicata */
   cachedResult?: T;
-  /** Key used for this request */
+  /** Chave utilizada para esta requisição */
   key: string;
 }
 
@@ -29,9 +29,9 @@ export class IdempotencyService {
   private readonly defaultPrefix = 'idempotent';
 
   /**
-   * Initialises the idempotency service with a Redis connection for cache storage.
+   * Inicializa o serviço de idempotência com uma conexão Redis para armazenamento em cache.
    *
-   * @param redis - RedisService used for SET/GET/DEL operations on idempotency keys
+   * @param redis - RedisService utilizado para operações SET/GET/DEL nas chaves de idempotência
    */
   constructor(private readonly redis: RedisService) {}
 

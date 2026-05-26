@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * Job that sends usage threshold alert emails to the tenant.
+ * Job que envia alertas de limiar de uso de mensagens IA ao tenant (email + WhatsApp).
+ *
+ * Disparado pelo CheckUsageThresholdsJob quando uso atinge 80% ou 100% da cota do ciclo.
  */
 final class SendUsageAlertJob implements ShouldQueue
 {
@@ -36,6 +38,9 @@ final class SendUsageAlertJob implements ShouldQueue
         public readonly ?string $overagePrice,
     ) {}
 
+    /**
+     * Envia os alertas de uso por email e WhatsApp para o tenant.
+     */
     public function handle(BillingGatewayService $gatewayService): void
     {
         $tenant = PlatformTenant::query()->find($this->tenantId);
@@ -55,6 +60,7 @@ final class SendUsageAlertJob implements ShouldQueue
         $this->sendWhatsApp($tenant, $gatewayService);
     }
 
+    /** Envia o email de alerta ao email primário do tenant. */
     private function sendEmail(PlatformTenant $tenant): void
     {
         $email = $tenant->primary_email;
@@ -91,6 +97,7 @@ final class SendUsageAlertJob implements ShouldQueue
         }
     }
 
+    /** Envia o alerta de uso via WhatsApp pelo gateway, se o tenant tiver telefone cadastrado. */
     private function sendWhatsApp(PlatformTenant $tenant, BillingGatewayService $gatewayService): void
     {
         $phone = $tenant->phone;

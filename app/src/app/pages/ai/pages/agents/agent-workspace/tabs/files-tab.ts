@@ -15,8 +15,11 @@ import { type AiAgentFile } from '@ai/models/ai.model';
 import { AiAgentService } from '@ai/services/ai-agent.service';
 
 /**
- * Files tab — split layout with file list on left and editor on right.
- * Follows the OpenClaw reference layout for agent core files management.
+ * Aba de Arquivos — layout dividido com lista de arquivos à esquerda e editor à direita.
+ *
+ * Contexto: gerencia os arquivos de configuração principais do agente (ex.: AGENTS.md).
+ * Suporta edição direta, importação de arquivos locais (.md/.txt) e visualização de
+ * conteúdo com tempo relativo de atualização.
  */
 @Component({
   selector: 'app-agent-files-tab',
@@ -46,7 +49,7 @@ export class AgentFilesTabComponent {
   }
 
   /**
-   * Load files for the agent.
+   * Carrega os arquivos de configuração do agente.
    */
   loadFiles(): void {
     const id = this.agentId();
@@ -76,7 +79,8 @@ export class AgentFilesTabComponent {
   }
 
   /**
-   * Select a file and load its content.
+   * Seleciona um arquivo e carrega seu conteúdo no editor.
+   * @param file Arquivo a ser selecionado
    */
   selectFile(file: AiAgentFile): void {
     this.agentService
@@ -94,7 +98,7 @@ export class AgentFilesTabComponent {
   }
 
   /**
-   * Reset editor content to the original file value.
+   * Restaura o conteúdo do editor para o valor original do arquivo selecionado.
    */
   resetContent(): void {
     const file = this.selectedFile();
@@ -104,7 +108,7 @@ export class AgentFilesTabComponent {
   }
 
   /**
-   * Save the current file being edited.
+   * Salva o conteúdo atual do arquivo em edição.
    */
   saveFile(): void {
     const file = this.selectedFile();
@@ -130,7 +134,9 @@ export class AgentFilesTabComponent {
   }
 
   /**
-   * Format a date string to relative time.
+   * Formata uma data para tempo relativo (ex.: "2h atrás").
+   * @param dateStr String de data ISO
+   * @returns Texto de tempo relativo
    */
   formatRelativeTime(dateStr: string): string {
     const date = new Date(dateStr);
@@ -147,7 +153,8 @@ export class AgentFilesTabComponent {
   }
 
   /**
-   * Import one or more local files (.md/.txt) and upload as agent files.
+   * Importa um ou mais arquivos locais (.md/.txt) e faz upload como arquivos do agente.
+   * @param event Evento de seleção do input de arquivo
    */
   onFilesSelected(event: Event): void {
     const target = event.target as HTMLInputElement;

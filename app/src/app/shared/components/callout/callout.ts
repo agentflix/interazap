@@ -2,12 +2,15 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfCalloutComponent — Highlighted callout block for important notes.
+ * Bloco de destaque para notas e avisos importantes.
+ *
+ * Contexto: utilizado em documentação inline, telas de configuração e
+ * qualquer área que exija chamar atenção para informações críticas.
  *
  * @example
  * ```html
  * <af-callout variant="info" title="Nota">
- *   <p>Este recurso está em beta.</p>
+ *   <p>Este recurso está em fase beta.</p>
  * </af-callout>
  * ```
  */
@@ -19,10 +22,10 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './callout.html',
 })
 export class AfCalloutComponent {
-  /** Variant */
+  /** Variante visual do callout */
   readonly variant = input<'info' | 'success' | 'warning' | 'danger'>('info');
 
-  /** Title */
+  /** Título exibido no cabeçalho do callout */
   readonly title = input('');
 
   protected readonly iconName = computed(() => {

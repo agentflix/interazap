@@ -1,128 +1,128 @@
 /**
- * Top-level summary metrics for the dashboard.
+ * Métricas resumidas de alto nível para o dashboard.
  */
 export interface DashboardSummary {
-  /** Total revenue from won negotiations */
+  /** Receita total de negociações ganhas. */
   total_revenue_won: number;
-  /** Sum of open negotiation values in the pipeline */
+  /** Soma dos valores de negociações em aberto no pipeline. */
   pipeline_open_value: number;
-  /** Number of currently open support tickets */
+  /** Quantidade de tickets de suporte atualmente abertos. */
   active_tickets_count: number;
-  /** Average CSAT rating (0-5 scale) */
+  /** Nota média de CSAT (escala 0-5). */
   csat_average: number;
 }
 
 /**
- * Single step in the sales funnel visualization.
+ * Etapa individual do funil de vendas.
  */
 export interface FunnelStep {
-  /** Name of the funnel stage */
+  /** Nome da etapa do funil. */
   step_name: string;
-  /** Hex color code for the step visualization */
+  /** Código hexadecimal de cor para a visualização da etapa. */
   step_color: string;
-  /** Number of negotiations in this step */
+  /** Quantidade de negociações nesta etapa. */
   count: number;
-  /** Total value of negotiations in this step */
+  /** Valor total das negociações nesta etapa. */
   total_amount: number;
 }
 
 /**
- * Monthly revenue breakdown by status.
+ * Receita mensal detalhada por status.
  */
 export interface RevenueMonth {
-  /** Month number (1-12) */
+  /** Número do mês (1-12). */
   month: number;
-  /** Year */
+  /** Ano. */
   year: number;
-  /** Total amount from won negotiations */
+  /** Valor total de negociações ganhas. */
   won_amount: number;
-  /** Total value of open negotiations */
+  /** Valor total de negociações em aberto. */
   open_amount: number;
 }
 
 /**
- * Negotiation statistics broken down by status and loss reasons.
+ * Estatísticas de negociações por status e motivos de perda.
  */
 export interface NegotiationStats {
-  /** Count of negotiations by their current status */
+  /** Contagem de negociações pelo status atual. */
   by_status: {
     open: number;
     won: number;
     lost: number;
   };
-  /** Top reasons for lost negotiations */
+  /** Principais motivos de perda de negociações. */
   top_loss_reasons: { name: string; count: number }[];
 }
 
 /**
- * Support ticket volume and SLA metrics.
+ * Métricas de volume e SLA de tickets de suporte.
  */
 export interface TicketStats {
-  /** Daily ticket volume over the period */
+  /** Volume diário de tickets no período. */
   daily_volume: { date: string; count: number }[];
-  /** Ticket counts grouped by priority level */
+  /** Contagem de tickets agrupada por nível de prioridade. */
   by_priority: {
     low: number;
     normal: number;
     high: number;
     urgent: number;
   };
-  /** Percentage of tickets meeting SLA first-response target */
+  /** Percentual de tickets que atingiram a meta de primeiro atendimento do SLA. */
   sla_compliance_rate: number;
-  /** Average minutes until first response */
+  /** Média de minutos até o primeiro atendimento. */
   avg_first_response_minutes: number;
 }
 
 /**
- * Customer satisfaction score distribution and summary.
+ * Distribuição e resumo da nota de satisfação do cliente (CSAT).
  */
 export interface CsatStats {
-  /** Average rating across all evaluations (1-5) */
+  /** Nota média de todas as avaliações (1-5). */
   average_rating: number;
-  /** Total number of evaluations received */
+  /** Total de avaliações recebidas. */
   total_evaluations: number;
-  /** Distribution of ratings (1-5 stars) */
+  /** Distribuição de notas (1-5 estrelas). */
   distribution: Record<1 | 2 | 3 | 4 | 5, number>;
 }
 
 /**
- * Recent activity entry for the activity feed.
+ * Entrada de atividade recente para o feed de atividades.
  */
 export interface RecentActivity {
-  /** Type of activity (e.g., 'negotiation_created', 'ticket_resolved') */
+  /** Tipo de atividade (ex.: 'negotiation_created', 'ticket_resolved'). */
   type: string;
-  /** Short title of the activity */
+  /** Título curto da atividade. */
   title: string;
-  /** Detailed description of what happened */
+  /** Descrição detalhada do que ocorreu. */
   description: string;
-  /** ISO 8601 timestamp when the activity occurred */
+  /** Timestamp ISO 8601 de quando a atividade ocorreu. */
   created_at: string;
-  /** Icon identifier for the activity type */
+  /** Identificador do ícone para o tipo de atividade. */
   icon: string;
 }
 
 /**
- * Complete dashboard data envelope returned by the API.
+ * Envelope completo de dados do dashboard retornado pela API.
  */
 export interface DashboardData {
-  /** Key summary metrics */
+  /** Métricas resumidas principais. */
   summary: DashboardSummary;
-  /** Sales funnel stage breakdown */
+  /** Detalhamento das etapas do funil de vendas. */
   funnel: FunnelStep[];
-  /** Monthly revenue history */
+  /** Histórico mensal de receita. */
   revenue: RevenueMonth[];
-  /** Negotiation statistics */
+  /** Estatísticas de negociações. */
   negotiations: NegotiationStats;
-  /** Support ticket metrics */
+  /** Métricas de tickets de suporte. */
   tickets: TicketStats;
-  /** Customer satisfaction data */
+  /** Dados de satisfação do cliente. */
   csat: CsatStats;
-  /** Recent activity feed entries */
+  /** Entradas do feed de atividades recentes. */
   activities: RecentActivity[];
 }
 
 /**
- * Predefined date range filter options.
+ * Opções predefinidas de filtro de período.
  */
 export type DashboardFilterOption =
   | 'today'
@@ -133,15 +133,15 @@ export type DashboardFilterOption =
   | 'custom';
 
 /**
- * Represents a custom date range selection.
+ * Representa uma seleção de intervalo de datas personalizado.
  */
 export interface DateRange {
-  /** Start date in ISO 8601 format (YYYY-MM-DD) */
+  /** Data de início no formato ISO 8601 (AAAA-MM-DD). */
   from: string;
-  /** End date in ISO 8601 format (YYYY-MM-DD) */
+  /** Data de fim no formato ISO 8601 (AAAA-MM-DD). */
   to: string;
-  /** The filter option that defined this range */
+  /** Opção de filtro que definiu este intervalo. */
   option: DashboardFilterOption;
-  /** Human-readable label for the range */
+  /** Rótulo legível para o intervalo. */
   label: string;
 }

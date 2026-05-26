@@ -7,14 +7,15 @@ namespace Domain\Reports\Contracts;
 use Domain\Reports\DTOs\ReportsFilterDTO;
 
 /**
- * Contract for report actions resolved by the report registry.
+ * Contrato para todas as actions de relatório resolvidas pelo ReportActionRegistry.
  */
 interface ReportActionInterface
 {
     /**
-     * Execute a report action.
+     * Executa o relatório e retorna os dados estruturados.
      *
-     * @return array<string, mixed>
+     * @param  ReportsFilterDTO  $dto  Filtros do relatório (tenant, datas, dimensões)
+     * @return array<string, mixed> Dados do relatório organizados por seção
      */
     public function execute(ReportsFilterDTO $dto): array;
 }

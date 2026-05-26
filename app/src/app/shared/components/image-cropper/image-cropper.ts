@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, output, signal } from '@angu
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfImageCropperComponent — Simple image preview with crop area selection.
+ * Pré-visualização de imagem simples com seleção de área de recorte.
  *
  * @example
  * ```html
@@ -17,13 +17,13 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './image-cropper.html',
 })
 export class AfImageCropperComponent {
-  /** Image source URL */
+  /** URL da imagem de origem */
   readonly src = input('');
 
-  /** Aspect ratio (width/height) */
+  /** Proporção da área de recorte (largura/altura) */
   readonly aspectRatio = input(1);
 
-  /** Emitted when crop is applied */
+  /** Emitido quando o recorte é aplicado */
   readonly cropped = output<{ src: string; zoom: number }>();
 
   protected readonly zoom = signal(1);

@@ -2,11 +2,11 @@ import { type Funnel, type FunnelStep } from 'src/app/core/services/funnel.servi
 import { type Negotiation } from 'src/app/core/services/negotiation.service';
 
 /**
- * CRM Negotiation type extending the base Negotiation with additional fields.
+ * Tipo de negociação CRM estendendo a base com campos específicos do painel lateral.
  *
  * @remarks
- * Adds amount, expected close date, step and funnel references
- * specific to the CRM section of the chat sidebar.
+ * Acrescenta valor monetário, data de fechamento prevista, etapa e funil
+ * utilizados pela seção CRM do chat.
  */
 export type CRMNegotiation = Negotiation & {
   amount?: number;

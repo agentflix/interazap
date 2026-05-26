@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
- * Reason for losing a Negotiation.
+ * Motivo de perda de negociação CRM.
  *
- * Stores predefined and custom reasons why a deal was lost,
- * enabling analytics and follow-up improvements.
+ * Armazena motivos pré-definidos e customizados pelo tenant para indicar
+ * por que uma negociação foi perdida, habilitando análise e melhorias.
  *
  * @property string $id
  * @property string $tenant_id

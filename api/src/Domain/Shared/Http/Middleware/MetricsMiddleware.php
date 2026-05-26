@@ -12,7 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 /**
- * Middleware for collecting HTTP request metrics.
+ * Middleware para coleta de métricas de requisições HTTP.
+ *
+ * Registra contadores de total de requisições e histogramas de duração
+ * no Prometheus, normalizando o path para evitar alta cardinalidade.
  */
 final class MetricsMiddleware
 {
@@ -23,7 +26,11 @@ final class MetricsMiddleware
     ) {}
 
     /**
-     * Handle an incoming request.
+     * Processa a requisição e registra métricas de duração e total de chamadas.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @param  Closure  $next  Próximo middleware na cadeia.
+     * @return Response Resposta original sem modificação.
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -52,7 +59,10 @@ final class MetricsMiddleware
     }
 
     /**
-     * Normalize path to avoid high cardinality metrics.
+     * Normaliza o path da requisição substituindo UUIDs e IDs numéricos por {id}.
+     *
+     * @param  string  $path  Path original da requisição.
+     * @return string Path normalizado para uso como label Prometheus.
      */
     private function normalizePath(string $path): string
     {

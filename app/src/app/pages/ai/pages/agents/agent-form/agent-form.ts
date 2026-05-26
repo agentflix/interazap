@@ -25,8 +25,11 @@ import { AiAgentService } from '@ai/services/ai-agent.service';
 import { AI_MODEL_OPTIONS } from '@ai/constants/ai-model-options';
 
 /**
- * Create or edit an AI agent.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Formulário para criação e edição de Agentes de IA.
+ *
+ * Contexto: gerencia o formulário reativo com nome, tipo, modelo, prompt do sistema e parâmetros
+ * de geração. Em modo de edição, carrega os dados do agente via rota (/id). Navega de volta
+ * para /ai/agents após salvar ou cancelar.
  */
 @Component({
   selector: 'app-ai-agent-form',
@@ -88,7 +91,8 @@ export class AgentFormComponent implements OnInit {
   }
 
   /**
-   * Load agent data for editing.
+   * Carrega os dados do agente para edição.
+   * @param id ID do agente a ser carregado
    */
   private loadAgent(id: string): void {
     this.isLoading.set(true);
@@ -115,7 +119,7 @@ export class AgentFormComponent implements OnInit {
   }
 
   /**
-   * Submit form to create or update agent.
+   * Envia o formulário para criar ou atualizar o agente.
    */
   submit(): void {
     if (this.form.invalid || this.isSaving()) return;
@@ -141,7 +145,7 @@ export class AgentFormComponent implements OnInit {
   }
 
   /**
-   * Navigate back to list.
+   * Navega de volta para a lista de agentes.
    */
   goBack(): void {
     void this.router.navigate(['/ai/agents']);

@@ -29,8 +29,7 @@ import { SalesFunnelChartComponent } from './components/sales-funnel-chart/sales
 import { RecentActivitiesComponent } from './components/recent-activities/recent-activities';
 
 /**
- * Dashboard page — main entry point showing KPI metrics, charts, and recent activities.
- * Business logic preserved verbatim from source.
+ * Página do dashboard — ponto de entrada principal com métricas KPI, gráficos e atividades recentes.
  */
 @Component({
   selector: 'app-dashboard',

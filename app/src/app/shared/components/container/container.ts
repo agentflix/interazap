@@ -1,12 +1,12 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfContainerComponent — Responsive centered container.
+ * Contêiner centralizado e responsivo para limitar a largura do conteúdo.
  *
  * @example
  * ```html
  * <af-container size="lg">
- *   <h1>Page content</h1>
+ *   <h1>Conteúdo da página</h1>
  * </af-container>
  * ```
  */
@@ -17,10 +17,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './container.html',
 })
 export class AfContainerComponent {
-  /** Max width size */
+  /** Tamanho da largura máxima */
   readonly size = input<'sm' | 'md' | 'lg' | 'xl' | 'full'>('lg');
 
-  /** Horizontal padding */
+  /** Aplica padding horizontal */
   readonly padded = input(true);
 
   protected readonly containerClasses = computed(() => {

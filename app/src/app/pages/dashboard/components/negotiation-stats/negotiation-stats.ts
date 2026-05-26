@@ -3,8 +3,7 @@ import { AfApexchartComponent, AfCardComponent, AfEmptyStateComponent } from '@s
 import { type NegotiationStats } from '../../models/dashboard.model';
 
 /**
- * Negotiation stats — donut chart with status breakdown and loss reasons.
- * Business logic preserved verbatim from source.
+ * Estatísticas de negociações — gráfico de rosca com distribuição por status e motivos de perda.
  */
 @Component({
   selector: 'app-negotiation-stats',

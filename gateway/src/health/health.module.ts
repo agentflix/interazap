@@ -7,10 +7,11 @@ import { QueueModule } from '../shared/services/queue';
 import { InternalApiKeyGuard } from '../domains/realtime/guards/internal-api-key.guard';
 
 /**
- * Health module for the gateway.
+ * Módulo de health check do gateway.
  *
- * Exposes health check endpoints for Kubernetes probes (liveness, readiness)
- * and internal monitoring (deep check, circuit breakers, queue dashboard).
+ * Contexto: módulo health. Expõe endpoints para probes do Kubernetes
+ * (liveness, readiness) e monitoramento interno (deep check,
+ * circuit breakers e dashboard de filas).
  */
 @Module({
   imports: [QueueModule],

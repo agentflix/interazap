@@ -2,8 +2,9 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * Streaming message bubble — renders progressively assembled text with a typing indicator.
- * Used in chat and simulator to show AI responses as they stream in.
+ * Bolha de mensagem com streaming — renderiza texto montado progressivamente com indicador de digitação.
+ *
+ * Contexto: utilizado no chat e no simulador para exibir respostas da IA conforme chegam via stream.
  */
 @Component({
   selector: 'app-streaming-message-bubble',
@@ -13,19 +14,19 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './streaming-message-bubble.html',
 })
 export class StreamingMessageBubbleComponent {
-  /** Full or accumulated text to display. */
+  /** Texto completo ou acumulado a ser exibido. */
   readonly text = input<string>('');
 
-  /** Whether this message is from the user (vs. AI). */
+  /** Indica se a mensagem é do usuário (vs. IA). */
   readonly isUser = input(false);
 
-  /** Whether text is still streaming in. */
+  /** Indica se o texto ainda está sendo transmitido via stream. */
   readonly isStreaming = input(false);
 
-  /** Whether the stream is final (last chunk received). */
+  /** Indica se o stream foi finalizado (último chunk recebido). */
   readonly isFinal = input(false);
 
-  /** Optional audio URL for voice responses. */
+  /** URL de áudio opcional para respostas por voz. */
   readonly audioUrl = input<string | null>(null);
 
   readonly displayText = computed(() => this.text() || '');

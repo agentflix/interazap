@@ -16,16 +16,14 @@ use Illuminate\Validation\Rule;
  */
 final class UpdateUserPreferencesRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Permite apenas usuários autenticados. */
     public function authorize(): bool
     {
         return $this->user() !== null;
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para atualização parcial de preferências.
      *
      * @return array<string, mixed>
      */
@@ -65,7 +63,7 @@ final class UpdateUserPreferencesRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
+     * Converte strings 'true'/'false' de formulários HTML para booleanos nativos.
      */
     protected function prepareForValidation(): void
     {

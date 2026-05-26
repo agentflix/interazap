@@ -29,6 +29,8 @@ final class NewMessageNotification extends Notification implements ShouldQueue
     ) {}
 
     /**
+     * Determina os canais de envio ativos para o usuário (APNs e/ou FCM).
+     *
      * @return array<int, string>
      */
     public function via(object $notifiable): array
@@ -50,6 +52,7 @@ final class NewMessageNotification extends Notification implements ShouldQueue
         return $channels;
     }
 
+    /** Constrói o payload de notificação para APNs (iOS). */
     public function toApn(object $notifiable): ApnMessage
     {
         return ApnMessage::create()
@@ -58,6 +61,7 @@ final class NewMessageNotification extends Notification implements ShouldQueue
             ->body($this->messagePreview());
     }
 
+    /** Constrói o payload de notificação para FCM (Android/web). */
     public function toFcm(object $notifiable): FcmMessage
     {
         return (new FcmMessage(notification: new FcmNotification(
@@ -71,6 +75,9 @@ final class NewMessageNotification extends Notification implements ShouldQueue
             ]);
     }
 
+    /**
+     * Retorna uma prévia truncada do corpo da mensagem para exibição na notificação.
+     */
     private function messagePreview(): string
     {
         $body = trim($this->body);
@@ -83,6 +90,8 @@ final class NewMessageNotification extends Notification implements ShouldQueue
     }
 
     /**
+     * Verifica se há tokens de roteamento configurados para o canal.
+     *
      * @param  string|array<int, string>  $tokens
      */
     private function hasRouteTokens(string|array $tokens): bool

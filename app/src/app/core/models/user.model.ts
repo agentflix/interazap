@@ -1,12 +1,16 @@
 import { type Company } from '@core/models/company.model';
 
 /**
- * Represents a user in the system.
+ * Representa um usuário do sistema.
+ *
+ * Contexto: modelo genérico usado em selects e listagens onde não se precisa
+ * dos detalhes completos de `SettingsUser` ou `PlatformUser`.
  */
 export interface User {
   id: string;
   name: string;
   email: string;
+  /** Perfil de acesso principal (legado). */
   role?: string;
   avatar_url?: string;
   tenant_id?: string;
@@ -14,11 +18,12 @@ export interface User {
   company_id?: string | number;
   company?: Company;
   is_active: boolean;
+  /** Indica se é o usuário principal (owner) do tenant. */
   is_primary_tenant_user?: boolean;
 }
 
 /**
- * Payload for creating or updating a user.
+ * Payload para criação ou atualização de um usuário.
  */
 export interface UserUpsertPayload extends Partial<User> {
   password?: string;
@@ -26,7 +31,7 @@ export interface UserUpsertPayload extends Partial<User> {
 }
 
 /**
- * Response structure for paginated user list.
+ * Resposta paginada da API para listagem de usuários.
  */
 export interface UserListResponse {
   data: User[];
@@ -39,7 +44,7 @@ export interface UserListResponse {
 }
 
 /**
- * Filters for listing users.
+ * Filtros para listagem de usuários.
  */
 export interface UserFilters {
   search?: string | undefined;

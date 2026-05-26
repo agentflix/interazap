@@ -1,8 +1,8 @@
 /**
- * Models and types for report-export component.
+ * Modelos e tipos do componente de exportação de relatório.
  */
 
-/** Export format payload */
+/** Payload de formato de exportação. */
 export interface AfReportExportPayload {
   format: 'csv' | 'xlsx';
 }

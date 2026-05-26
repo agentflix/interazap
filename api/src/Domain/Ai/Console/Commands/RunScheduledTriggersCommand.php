@@ -10,7 +10,11 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 
 /**
- * Command to evaluate due AI agent cron triggers and publish run request events.
+ * Comando para avaliar gatilhos cron de agentes de IA e publicar eventos de run.
+ *
+ * Verifica todos os triggers ativos do tipo 'cron', avalia a expressão cron e,
+ * quando o trigger é elegível, publica um evento ai.run.request no Redis Stream.
+ * Utiliza cache Redis para deduplicação por minuto (granularidade de 1 min).
  */
 final class RunScheduledTriggersCommand extends Command
 {
@@ -19,7 +23,7 @@ final class RunScheduledTriggersCommand extends Command
     protected $description = 'Evaluate due agent cron triggers and publish ai.run.request stream events.';
 
     /**
-     * Execute the console command.
+     * Avalia e dispara os gatilhos cron elegíveis para o minuto atual.
      */
     public function handle(): int
     {

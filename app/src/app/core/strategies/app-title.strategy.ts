@@ -3,8 +3,8 @@ import { Title } from '@angular/platform-browser';
 import { type RouterStateSnapshot, TitleStrategy } from '@angular/router';
 
 /**
- * Custom title strategy that appends " - InteraZap" suffix to route titles.
- * Reads `data.title` from the deepest activated route snapshot.
+ * Estratégia de título personalizada que acrescenta o sufixo " - InteraZap" aos títulos de rota.
+ * Lê `data.title` do snapshot de rota mais profundo ativado.
  */
 @Injectable()
 export class AppTitleStrategy extends TitleStrategy {
@@ -18,8 +18,8 @@ export class AppTitleStrategy extends TitleStrategy {
   }
 
   /**
-   * Walks the route tree to find the deepest route's `data.title`.
-   * Supports the existing `data: { title: '...' }` pattern across all routes.
+   * Percorre a árvore de rotas para encontrar o `data.title` da rota mais profunda.
+   * Suporta o padrão `data: { title: '...' }` utilizado em todas as rotas da aplicação.
    */
   private resolveTitle(snapshot: RouterStateSnapshot): string | undefined {
     let route = snapshot.root;

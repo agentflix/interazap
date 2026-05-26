@@ -14,17 +14,25 @@ import { StructuredLoggerService } from '../logger/structured-logger.service';
 export const TRACE_ID_HEADER = 'X-Trace-ID';
 
 /**
- * Interceptor for trace ID propagation via AsyncLocalStorage.
+ * Interceptor para propagação de trace ID via AsyncLocalStorage.
  *
- * - Generates UUID if X-Trace-ID not present in request
- * - Wraps the handler execution inside StructuredLoggerService.runWithTrace
- *   so all downstream logs automatically include traceId and spanId
- * - Propagates trace ID in response headers
+ * Contexto: aplicado globalmente no gateway para rastreamento distribuído de requisições.
+ * - Gera UUID se o header X-Trace-ID não estiver presente na requisição
+ * - Envolve a execução do handler dentro de StructuredLoggerService.runWithTrace
+ *   para que todos os logs downstream incluam automaticamente traceId e spanId
+ * - Propaga o trace ID nos headers da resposta
  */
 @Injectable()
 export class TraceIdInterceptor implements NestInterceptor {
   private readonly logger = new Logger(TraceIdInterceptor.name);
 
+  /**
+   * Intercepta a requisição, injeta/propaga o trace ID e envolve o handler em um contexto AsyncLocalStorage.
+   *
+   * @param context - Contexto de execução do NestJS
+   * @param next - Próximo handler na cadeia de interceptação
+   * @returns Observable que executa o handler dentro do contexto de rastreamento
+   */
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest<Request>();
@@ -85,7 +93,10 @@ export class TraceIdInterceptor implements NestInterceptor {
 }
 
 /**
- * Helper to get trace ID from request.
+ * Utilitário para obter o trace ID de uma requisição Express.
+ *
+ * @param request - Objeto de requisição Express
+ * @returns Trace ID armazenado na requisição ou undefined se não encontrado
  */
 export function getTraceId(request: Request): string | undefined {
   return request['traceId'] as string | undefined;

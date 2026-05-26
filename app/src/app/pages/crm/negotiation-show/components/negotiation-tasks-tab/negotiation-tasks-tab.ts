@@ -37,7 +37,7 @@ import { formatTimeInput } from '../../negotiation-show.utils';
 import { formatDate } from '@shared/utils/string.utils';
 
 /**
- * Tab content responsible for negotiation tasks CRUD.
+ * Conteúdo da aba de tarefas — gerencia o CRUD de tarefas da negociação.
  */
 @Component({
   selector: 'app-negotiation-tasks-tab',

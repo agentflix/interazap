@@ -8,7 +8,9 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for current subscription summary.
+ * Resource para serialização do resumo da assinatura atual do tenant.
+ *
+ * Encapsula o array com plano, uso de recursos e próxima fatura retornado pelo controller.
  */
 final class BillingSubscriptionResource extends BaseJsonResource
 {

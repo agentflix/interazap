@@ -27,6 +27,12 @@ const DEFAULT_OPTIONS: CircuitBreakerOptions = {
   jitterPercent: 0.2,
 };
 
+/**
+ * Implementa o padrão Circuit Breaker para proteger chamadas à Telegram Bot API.
+ *
+ * Contexto: módulo bot. Gerencia os estados CLOSED, OPEN e HALF_OPEN com
+ * backoff exponencial com jitter e suporte ao header retry_after do Telegram (HTTP 429).
+ */
 @Injectable()
 export class CircuitBreakerService {
   private readonly logger = new Logger(CircuitBreakerService.name);
@@ -50,10 +56,13 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Execute a function through the circuit breaker.
-   * OPEN → throw CircuitBreakerOpenException (fast-fail).
-   * HALF_OPEN → allow up to halfOpenTestRequests.
-   * CLOSED → pass through, count failures on error.
+   * Executa uma função protegida pelo circuit breaker.
+   * OPEN → lança CircuitBreakerOpenException (fast-fail).
+   * HALF_OPEN → permite até halfOpenTestRequests tentativas de teste.
+   * CLOSED → passa direto, contabiliza falhas em caso de erro.
+   * @param fn Função assíncrona a ser protegida
+   * @returns Resultado da função
+   * @throws CircuitBreakerOpenException se o circuito estiver aberto
    */
   async execute<T>(fn: () => Promise<T>): Promise<T> {
     if (this.state === CircuitState.OPEN) {
@@ -87,8 +96,9 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Record a failure from the Telegram API.
-   * Optionally includes retry_after from 429 responses (in seconds).
+   * Registra uma falha da chamada à API do Telegram.
+   * Aceita opcionalmente o valor retry_after de respostas HTTP 429 (em segundos).
+   * @param retryAfter Tempo de espera sugerido pelo Telegram em segundos (opcional)
    */
   recordFailure(retryAfter?: number): void {
     const now = Date.now();
@@ -117,7 +127,8 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Record a success.
+   * Registra um sucesso na execução. No estado HALF_OPEN, acumula sucessos
+   * até atingir o threshold para retornar ao estado CLOSED.
    */
   recordSuccess(): void {
     if (this.state === CircuitState.HALF_OPEN) {
@@ -140,7 +151,8 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Get current state for monitoring.
+   * Retorna o estado atual do circuit breaker para monitoramento.
+   * @returns Estado atual, contagem de falhas na janela e timestamp de abertura
    */
   getState(): {
     state: CircuitState;
@@ -156,7 +168,7 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Force reset to CLOSED state (for admin/testing).
+   * Força o reset para o estado CLOSED (para uso administrativo ou em testes).
    */
   reset(): void {
     this.logger.log(`Circuit breaker force-reset from ${this.state} → CLOSED`);
@@ -172,7 +184,8 @@ export class CircuitBreakerService {
   // ─── Private Methods ──────────────────────────────────────
 
   /**
-   * Check if failure count within window exceeds threshold.
+   * Verifica se o número de falhas na janela deslizante excede o threshold configurado.
+   * @returns true se o circuito deve ser aberto
    */
   private shouldTrip(): boolean {
     this.pruneOldFailures();
@@ -180,8 +193,9 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Transition to OPEN state with optional retry_after from Telegram 429.
-   * On re-entry from HALF_OPEN, doubles the backoff (exponential).
+   * Transiciona para o estado OPEN com retry_after opcional do Telegram HTTP 429.
+   * Na re-entrada a partir de HALF_OPEN, dobra o backoff (exponencial).
+   * @param retryAfter Tempo sugerido pelo Telegram em segundos (opcional)
    */
   private transitionToOpen(retryAfter?: number): void {
     const previousState = this.state;
@@ -210,7 +224,7 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Transition to HALF_OPEN — allow limited test requests.
+   * Transiciona para o estado HALF_OPEN, permitindo um número limitado de requisições de teste.
    */
   private transitionToHalfOpen(): void {
     this.state = CircuitState.HALF_OPEN;
@@ -223,7 +237,7 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Transition back to CLOSED — all test requests passed.
+   * Retorna ao estado CLOSED após todas as requisições de teste passarem com sucesso.
    */
   private transitionToClosed(): void {
     this.logger.log(
@@ -240,14 +254,16 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Check if the OPEN wait period has expired.
+   * Verifica se o período de espera do estado OPEN expirou.
+   * @returns true se o tempo de espera foi superado
    */
   private isOpenExpired(): boolean {
     return Date.now() - this.openedAt >= this.retryAfterMs;
   }
 
   /**
-   * Calculate backoff with jitter: backoff * (1 + random(-jitter, +jitter)).
+   * Calcula o backoff com jitter: backoff * (1 + random(-jitter, +jitter)).
+   * @returns Duração do backoff em milissegundos
    */
   private calculateBackoff(): number {
     const jitter = 1 + (Math.random() * 2 - 1) * this.opts.jitterPercent;
@@ -255,7 +271,7 @@ export class CircuitBreakerService {
   }
 
   /**
-   * Remove failure timestamps outside the sliding window.
+   * Remove timestamps de falhas fora da janela deslizante configurada.
    */
   private pruneOldFailures(): void {
     const cutoff = Date.now() - this.opts.failureWindowMs;

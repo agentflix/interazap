@@ -11,13 +11,15 @@ use Domain\CRM\Models\CRMContact;
 use Illuminate\Support\Str;
 
 /**
- * Tool to create a CRM contact.
+ * Ferramenta de IA para criar um contato no CRM.
+ *
+ * Input esperado: name e phone (obrigatórios); email, whatsapp, position opcionais.
+ * Output produzido: contact_id e nome do contato criado.
+ * Quando usar: novo lead identificado que ainda não possui cadastro no CRM.
  */
 class CreateContactTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a criação do contato no CRM. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $name = trim((string) ($input->parameters['name'] ?? ''));
@@ -48,24 +50,20 @@ class CreateContactTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CREATE_CONTACT;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Creates a new contact in the CRM.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

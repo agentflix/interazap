@@ -14,6 +14,18 @@ import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
 import { ChatStartService } from 'src/app/core/services/chat-start.service';
 import { mergeAndSortMessagesAsc } from 'src/app/core/utils/message-comparator.util';
 
+/**
+ * Store local da thread de mensagens de um atendimento.
+ *
+ * @remarks
+ * Gerencia carregamento inicial, paginação reversa, integração com cache de mensagens,
+ * eventos realtime (msg.received, msg.sent, typing) e abertura de nova conversa.
+ *
+ * Provido via `providers` no `UserChatThreadComponent` — escopo por componente.
+ *
+ * Sinais expostos: `calledId`, `messages`, `hasMessages`, `isLoading`,
+ * `isLoadingMore`, `loadError`, `contactTyping`.
+ */
 @Injectable()
 export class UserChatThreadStore {
   private readonly destroyRef = inject(DestroyRef);

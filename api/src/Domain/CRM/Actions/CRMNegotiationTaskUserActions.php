@@ -13,6 +13,10 @@ use Illuminate\Database\Eloquent\Collection;
 final class CRMNegotiationTaskUserActions
 {
     /**
+     * Lista todas as tarefas de negociações atribuídas a um usuário específico.
+     *
+     * @param  string  $tenantId  ID do tenant
+     * @param  string  $userId  ID do usuário
      * @return Collection<int, CRMNegotiationTask>
      */
     public function listForUser(string $tenantId, string $userId): Collection

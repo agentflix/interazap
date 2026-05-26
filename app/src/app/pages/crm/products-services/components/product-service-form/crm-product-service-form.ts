@@ -26,8 +26,8 @@ import { ProductServiceService } from '@core/services/crm-product-service.servic
 import type { ProductService } from '@core/models/product-service.model';
 
 /**
- * Product/Service form component — create/edit.
- * Conditional stock fields for products. Business logic from source preserved.
+ * Formulário de criação e edição de produtos e serviços do CRM.
+ * Exibe campos de estoque condicionalmente para itens do tipo produto.
  */
 @Component({
   selector: 'app-product-service-form',

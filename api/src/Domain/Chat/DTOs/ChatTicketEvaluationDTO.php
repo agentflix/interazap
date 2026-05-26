@@ -7,16 +7,16 @@ namespace Domain\Chat\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Ticket Evaluation (CSAT).
+ * DTO de Avaliação de Ticket (CSAT).
  *
  * @readonly
  */
 final readonly class ChatTicketEvaluationDTO
 {
     /**
-     * @param  string  $ticketId  Evaluated ticket UUID.
-     * @param  int  $rating  Rating value (e.g. 1 to 5).
-     * @param  string|null  $comment  Optional customer comment.
+     * @param  string  $ticketId  UUID do ticket avaliado.
+     * @param  int  $rating  Nota da avaliação (ex.: 1 a 5).
+     * @param  string|null  $comment  Comentário opcional do cliente.
      */
     public function __construct(
         public string $ticketId,
@@ -25,7 +25,7 @@ final readonly class ChatTicketEvaluationDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um Request HTTP.
      */
     public static function fromRequest(Request $request, string $ticketId): self
     {

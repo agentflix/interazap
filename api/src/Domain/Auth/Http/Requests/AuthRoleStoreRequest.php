@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
 final class AuthRoleStoreRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Autoriza apenas usuários com permissão de criação de roles via policy.
      */
     public function authorize(): bool
     {
@@ -30,6 +30,8 @@ final class AuthRoleStoreRequest extends FormRequest
     }
 
     /**
+     * Regras de validação para criação de perfil de acesso.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array

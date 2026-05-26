@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Domain\Shared\Support;
 
 /**
- * Simple context manager that stores the current tenant identifier.
+ * Gerenciador de contexto de tenant para o ciclo de vida de uma requisição.
+ *
+ * Mantém uma pilha de identificadores de tenant para suportar contextos
+ * aninhados (ex: jobs internos) e um flag de super admin que desativa o
+ * isolamento multi-tenant nas queries globais.
  */
 final class TenantContext
 {
@@ -17,7 +21,9 @@ final class TenantContext
     private static bool $superAdminContext = false;
 
     /**
-     * Replace the current context stack with a single tenant id.
+     * Define o tenant corrente, substituindo toda a pilha de contexto.
+     *
+     * @param  string|null  $tenantId  Identificador do tenant ou null para limpar.
      */
     public static function set(?string $tenantId): void
     {
@@ -25,7 +31,9 @@ final class TenantContext
     }
 
     /**
-     * Push a tenant id keeping previous values in the stack.
+     * Empilha um novo tenant sem descartar o contexto anterior.
+     *
+     * @param  string|null  $tenantId  Identificador do tenant a empilhar.
      */
     public static function push(?string $tenantId): void
     {
@@ -33,7 +41,7 @@ final class TenantContext
     }
 
     /**
-     * Restore the previous tenant id from the stack.
+     * Remove o tenant mais recente da pilha, restaurando o contexto anterior.
      */
     public static function pop(): void
     {
@@ -41,7 +49,9 @@ final class TenantContext
     }
 
     /**
-     * Clear all tenant context information.
+     * Limpa completamente a pilha de tenant e o flag de super admin.
+     *
+     * Deve ser chamado no bloco finally do middleware de contexto.
      */
     public static function clear(): void
     {
@@ -50,7 +60,9 @@ final class TenantContext
     }
 
     /**
-     * Get the tenant currently in scope.
+     * Retorna o identificador do tenant atualmente no topo da pilha.
+     *
+     * @return string|null Tenant corrente ou null se a pilha estiver vazia.
      */
     public static function get(): ?string
     {
@@ -66,12 +78,13 @@ final class TenantContext
     }
 
     /**
-     * Execute the callback with the provided tenant context.
+     * Executa o callback no contexto do tenant informado, restaurando o anterior ao final.
      *
      * @template TReturn
      *
-     * @param  callable():TReturn  $callback
-     * @return TReturn
+     * @param  string|null  $tenantId  Tenant a ativar durante a execução.
+     * @param  callable():TReturn  $callback  Código a executar dentro do contexto.
+     * @return TReturn Retorno do callback.
      */
     public static function run(?string $tenantId, callable $callback)
     {
@@ -85,7 +98,7 @@ final class TenantContext
     }
 
     /**
-     * Enable explicit super admin context.
+     * Habilita explicitamente o contexto de super admin, desativando isolamento de tenant.
      */
     public static function enableSuperAdminContext(): void
     {
@@ -93,7 +106,7 @@ final class TenantContext
     }
 
     /**
-     * Disable explicit super admin context.
+     * Desabilita o contexto de super admin, restaurando o isolamento de tenant.
      */
     public static function disableSuperAdminContext(): void
     {
@@ -101,7 +114,9 @@ final class TenantContext
     }
 
     /**
-     * Indicates if current scope was explicitly marked as super admin.
+     * Indica se o escopo atual foi explicitamente marcado como super admin.
+     *
+     * @return bool Verdadeiro quando o contexto de super admin está ativo.
      */
     public static function isSuperAdminContext(): bool
     {
@@ -109,12 +124,14 @@ final class TenantContext
     }
 
     /**
-     * Execute callback bypassing tenant scope explicitly.
+     * Executa o callback desativando o isolamento de tenant (contexto de super admin).
+     *
+     * Garante restauração do estado anterior via bloco finally.
      *
      * @template TReturn
      *
-     * @param  callable():TReturn  $callback
-     * @return TReturn
+     * @param  callable():TReturn  $callback  Código a executar sem restrição de tenant.
+     * @return TReturn Retorno do callback.
      */
     public static function runAsSuperAdmin(callable $callback)
     {

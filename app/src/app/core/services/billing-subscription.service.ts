@@ -14,11 +14,10 @@ interface ApiResponse<T> {
 }
 
 /**
- * Service for tenant-facing subscription management (My Plan screen).
+ * Gerencia assinatura do tenant na tela "Meu Plano".
  *
- * @remarks
- * Handles retrieving current subscription, available plans, plan change previews,
- * and plan change execution with password confirmation.
+ * Cobre consulta da assinatura ativa, listagem de planos disponíveis,
+ * preview de troca de plano e execução da mudança com confirmação por senha.
  */
 @Injectable({ providedIn: 'root' })
 export class BillingSubscriptionService {

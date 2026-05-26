@@ -3,8 +3,7 @@ import { AfApexchartComponent, AfCardComponent, AfEmptyStateComponent } from '@s
 import { type RevenueMonth } from '../../models/dashboard.model';
 
 /**
- * Revenue chart — stacked bar chart showing won vs open revenue by month.
- * Business logic preserved verbatim from source.
+ * Gráfico de receita — barras empilhadas com receita ganha vs. em aberto por mês.
  */
 @Component({
   selector: 'app-revenue-chart',

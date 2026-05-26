@@ -21,7 +21,7 @@ import {
 import { AiKnowledgeService } from '@ai/services/ai-knowledge.service';
 import { type AiKnowledge, type KnowledgeStats } from '@ai/models/ai.model';
 
-/** Status-to-badge mapping for knowledge documents. */
+/** Mapeamento de status de documento para variante de badge. */
 const STATUS_BADGE_MAP: Record<
   AiKnowledge['status'],
   { badge: 'online' | 'warning' | 'idle' | 'error'; label: string }
@@ -32,7 +32,7 @@ const STATUS_BADGE_MAP: Record<
   failed: { badge: 'error', label: 'Falha' },
 };
 
-/** Content-type to lucide icon name mapping. */
+/** Mapeamento de tipo de conteúdo para nome de ícone Lucide. */
 const TYPE_ICON_MAP: Record<AiKnowledge['content_type'], string> = {
   text: 'file-text',
   pdf: 'file',
@@ -41,8 +41,10 @@ const TYPE_ICON_MAP: Record<AiKnowledge['content_type'], string> = {
 };
 
 /**
- * Knowledge base usage dashboard with storage and document stats.
- * Displays stat cards, status distribution bar, recent documents and quick actions.
+ * Dashboard da Base de Conhecimento com estatísticas de armazenamento e documentos.
+ *
+ * Contexto: exibe cartões de estatísticas, barra de distribuição por status, documentos
+ * recentes e ações rápidas (upload, busca). Carrega dados em paralelo via forkJoin.
  */
 @Component({
   selector: 'app-ai-knowledge-dashboard',
@@ -69,14 +71,14 @@ export class KnowledgeDashboardComponent implements OnInit {
   readonly recentDocs = signal<AiKnowledge[]>([]);
   readonly recentDocsError = signal(false);
 
-  /** Average chunks per document (0 when no documents). */
+  /** Média de chunks por documento (0 quando não há documentos). */
   readonly avgChunksPerDoc = computed(() => {
     const s = this.stats();
     if (!s || s.document_count === 0) return 0;
     return Math.round(s.total_chunks / s.document_count);
   });
 
-  /** Status distribution with label, count, percentage and color. */
+  /** Distribuição de status com rótulo, contagem, percentual e cor. */
   readonly statusDistribution = computed(() => {
     const s = this.stats();
     if (!s || s.document_count === 0) return [];
@@ -109,7 +111,7 @@ export class KnowledgeDashboardComponent implements OnInit {
     ];
   });
 
-  /** Dynamic color class for the storage progress bar. */
+  /** Classe de cor dinâmica para a barra de progresso de armazenamento. */
   readonly storageBarColor = computed(() => {
     const pct = this.stats()?.storage_used_percent ?? 0;
     if (pct >= 90) return 'bg-danger';
@@ -121,12 +123,12 @@ export class KnowledgeDashboardComponent implements OnInit {
     this.loadData();
   }
 
-  /** Reload all dashboard data. */
+  /** Recarrega todos os dados do dashboard. */
   reload(): void {
     this.loadData();
   }
 
-  /** Retry loading only recent documents. */
+  /** Tenta recarregar apenas os documentos recentes. */
   retryRecentDocs(): void {
     this.recentDocsError.set(false);
     this.knowledgeService
@@ -138,27 +140,27 @@ export class KnowledgeDashboardComponent implements OnInit {
       });
   }
 
-  /** Navigate to the knowledge upload page. */
+  /** Navega para a página de upload da base de conhecimento. */
   goToUpload(): void {
     void this.router.navigate(['/ai/knowledge/upload']);
   }
 
-  /** Navigate to the knowledge search page. */
+  /** Navega para a página de busca da base de conhecimento. */
   goToSearch(): void {
     void this.router.navigate(['/ai/knowledge/search']);
   }
 
-  /** Get the lucide icon name for a content type. */
+  /** Retorna o nome do ícone Lucide para o tipo de conteúdo. */
   getTypeIcon(contentType: AiKnowledge['content_type']): string {
     return TYPE_ICON_MAP[contentType] ?? 'file-text';
   }
 
-  /** Get the status badge variant for a document status. */
+  /** Retorna a variante do badge para o status do documento. */
   getStatusBadge(status: AiKnowledge['status']): 'online' | 'warning' | 'idle' | 'error' {
     return STATUS_BADGE_MAP[status]?.badge ?? 'warning';
   }
 
-  /** Get the display label for a document status. */
+  /** Retorna o rótulo de exibição para o status do documento. */
   getStatusLabel(status: AiKnowledge['status']): string {
     return STATUS_BADGE_MAP[status]?.label ?? status;
   }

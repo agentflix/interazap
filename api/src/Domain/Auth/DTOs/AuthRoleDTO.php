@@ -7,7 +7,7 @@ namespace Domain\Auth\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for role creation and update.
+ * DTO para criação e atualização de perfil de acesso (role).
  *
  * @readonly
  */
@@ -22,7 +22,7 @@ final readonly class AuthRoleDTO
     ) {}
 
     /**
-     * Create DTO from form request.
+     * Cria DTO a partir do form request validado.
      */
     public static function fromRequest(FormRequest $request): self
     {
@@ -30,6 +30,8 @@ final readonly class AuthRoleDTO
     }
 
     /**
+     * Cria DTO a partir de array com nome e permissões.
+     *
      * @param  array<string, mixed>  $payload
      */
     public static function fromArray(array $payload): self

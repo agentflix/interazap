@@ -265,10 +265,10 @@ export class NewConversationModalComponent {
           this.sendMode.set('freeText');
         } else {
           this.sendMode.set('template');
-          // Also set the channel ID for template loading
+          // TemplateSelector carregará os templates via input próprio
           const channelId = this.selectedChannelId();
           if (channelId) {
-            // TemplateSelector will load templates via its own input
+            // sem ação adicional necessária
           }
         }
       });
@@ -313,10 +313,10 @@ export class NewConversationModalComponent {
     this.startError.set(null);
     this.isStarting.set(true);
 
-    // Helper to send message based on mode
+    // Auxiliar para enviar mensagem conforme o modo selecionado
     const sendMessage = (calledId: string) => {
       if (mode === 'template' && template) {
-        // Send template via Laravel API (tenant-isolated, auth enforced)
+        // Envia template via API Laravel (isolado por tenant, autenticação obrigatória)
         return this.http
           .post(`${environment.apiUrl}/chat/tickets/${calledId}/messages/template`, {
             template_name: template.templateName,
@@ -324,7 +324,7 @@ export class NewConversationModalComponent {
           })
           .pipe(map(() => ({ calledId, reused: false })));
       } else {
-        // Send free text via message service
+        // Envia texto livre via serviço de mensagens
         return this.messageService.send(calledId, message).pipe(
           map(() => ({ calledId, reused: false })),
         );
@@ -348,7 +348,7 @@ export class NewConversationModalComponent {
         switchMap((existing) => {
           if (existing !== null) {
             if (mode === 'template' && template) {
-              // ticket existe mas template deve ser enviado mesmo assim
+              // Ticket já existe, mas o template deve ser enviado mesmo assim
               return sendMessage(existing.calledId);
             }
             return of(existing);
@@ -457,7 +457,7 @@ export class NewConversationModalComponent {
   private selectInstance(value: string): void {
     this.selectedInstanceId.set(value);
 
-    // Find the selected instance to get its integration_id (channel id for Meta)
+    // Obtém o integration_id para templates Meta
     const instance = this.instances().find((inst) => String(inst.id) === value);
     if (instance?.integration_id) {
       this.selectedChannelId.set(String(instance.integration_id));
@@ -466,13 +466,13 @@ export class NewConversationModalComponent {
     try {
       localStorage.setItem(INSTANCE_SELECTION_STORAGE, value);
     } catch {
-      // ignore storage errors
+      // ignora erros de storage
     }
     if (this.instanceControl.value !== value) {
       this.instanceControl.setValue(value, { emitEvent: false });
     }
 
-    // If Meta provider and contact is already selected, recheck window status
+    // Se provider Meta e contato já selecionado, reverifica status da janela
     if (this.isMetaProvider() && this.selectedContactId()) {
       this.checkWindowStatus(this.selectedContactId());
     }

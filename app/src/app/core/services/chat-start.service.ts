@@ -1,11 +1,11 @@
 import { Injectable, signal } from '@angular/core';
 
 /**
- * Service for signaling intent to open a new chat start dialog.
+ * Sinaliza a intenção de abrir o diálogo de início de novo chat.
  *
  * @remarks
- * Used as a lightweight signal to coordinate opening the chat start
- * modal/dialog from different parts of the application.
+ * Usado como signal leve para coordenar a abertura do modal de início de chat
+ * a partir de diferentes partes da aplicação.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatStartService {
@@ -14,14 +14,14 @@ export class ChatStartService {
   readonly requestOpen = this.openRequest.asReadonly();
 
   /**
-   * Signals that a chat start dialog should open.
+   * Sinaliza que o diálogo de início de chat deve ser aberto.
    */
   open(): void {
     this.openRequest.set(true);
   }
 
   /**
-   * Clears the open request signal (e.g., after dialog closes).
+   * Limpa o signal de abertura (ex.: após o diálogo ser fechado).
    */
   clear(): void {
     this.openRequest.set(false);

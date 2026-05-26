@@ -3,13 +3,14 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import * as lucideIcons from '@ng-icons/lucide';
 
 /**
- * Icon-only button with accessible label.
- * Renders the icon automatically from the `icon` input (lucide icon name).
- * Falls back to projected content if no icon input is provided.
+ * Botão somente ícone com rótulo acessível.
+ *
+ * Renderiza o ícone automaticamente a partir do input `icon` (nome do ícone Lucide).
+ * Usa conteúdo projetado como fallback quando `icon` não é informado.
  *
  * @example
  * ```html
- * <af-icon-button icon="lucideSend" variant="ghost" size="sm" label="Send" />
+ * <af-icon-button icon="lucideSend" variant="ghost" size="sm" label="Enviar" />
  * ```
  */
 @Component({
@@ -21,30 +22,30 @@ import * as lucideIcons from '@ng-icons/lucide';
   templateUrl: './icon-button.html',
 })
 export class AfIconButtonComponent {
-  /** Accessible label for screen readers */
+  /** Rótulo acessível para leitores de tela */
   readonly label = input('');
 
-  /** Legacy aria-label alias. */
+  /** Alias legado para aria-label */
   readonly ariaLabel = input<string>();
 
-  /** Icon name (lucide icon name, e.g. 'lucideSend'). */
+  /** Nome do ícone Lucide (ex.: 'lucideSend') */
   readonly icon = input<string>();
 
-  /** Visual style variant */
+  /** Variante de estilo visual */
   readonly variant = input<'default' | 'ghost' | 'outline' | 'danger' | 'success' | 'primary'>(
     'default',
   );
 
-  /** Button size */
+  /** Tamanho do botão */
   readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('sm');
 
-  /** Border radius variant */
+  /** Variante do raio da borda */
   readonly rounded = input<'md' | 'full'>('md');
 
-  /** Whether button is disabled */
+  /** Estado desabilitado */
   readonly disabled = input(false);
 
-  /** Legacy output alias for click. */
+  /** Alias legado de saída para o clique */
   readonly clicked = output<MouseEvent>();
 
   protected readonly resolvedLabel = computed(() => {
@@ -53,7 +54,7 @@ export class AfIconButtonComponent {
     return this.label();
   });
 
-  /** Icon size based on button size */
+  /** Tamanho do ícone baseado no tamanho do botão */
   protected readonly iconSize = computed(() => {
     const map: Record<string, string> = { xs: '14', sm: '16', md: '18', lg: '20' };
     return map[this.size()];

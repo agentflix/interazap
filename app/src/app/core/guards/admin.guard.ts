@@ -3,7 +3,12 @@ import { inject } from '@angular/core';
 import { AuthStoreService } from '../services/auth-store.service';
 
 /**
- * Guard for super admin platform pages.
+ * Protege rotas de administração da plataforma.
+ *
+ * Permite acesso quando o usuário possui a permissão configurada em
+ * `route.data.adminPermission` (default: `users.role.manage`),
+ * ou quando o usuário é supervisor ou é um usuário de plataforma (sem tenant_id).
+ * Caso contrário, redireciona para `/`.
  */
 export const adminGuard: CanActivateFn = (route) => {
   const authStore = inject(AuthStoreService);

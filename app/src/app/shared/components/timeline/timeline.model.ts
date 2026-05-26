@@ -1,8 +1,8 @@
 /**
- * Models and types for timeline component.
+ * Modelos e tipos do componente de linha do tempo.
  */
 
-/** Timeline entry definition */
+/** Definição de entrada da linha do tempo */
 export interface AfTimelineEntry {
   title: string;
   description?: string;

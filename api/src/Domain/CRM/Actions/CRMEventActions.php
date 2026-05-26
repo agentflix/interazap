@@ -22,7 +22,10 @@ use Illuminate\Support\Str;
 final class CRMEventActions
 {
     /**
-     * @param  array<string, mixed>  $filters
+     * Lista eventos da agenda do tenant com filtros avançados, com paginação.
+     *
+     * @param  array<string, mixed>  $filters  Filtros disponíveis: search, start_date, end_date, user_id, status, type, participant_id
+     * @param  int  $perPage  Itens por página (padrão 15)
      */
     public function list(string $tenantId, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -115,6 +118,11 @@ final class CRMEventActions
             ->paginate($perPage);
     }
 
+    /**
+     * Retorna eventos da agenda em um intervalo de datas, excluindo cancelados.
+     *
+     * @param  string|null  $userId  Quando informado, filtra eventos do usuário (como organizador ou participante)
+     */
     public function calendar(string $tenantId, CarbonImmutable $start, CarbonImmutable $end, ?string $userId = null): Collection
     {
         $query = CRMEvent::query()
@@ -136,6 +144,7 @@ final class CRMEventActions
         return $query->get();
     }
 
+    /** Retorna um evento pelo ID, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMEvent
     {
         return CRMEvent::query()
@@ -144,6 +153,7 @@ final class CRMEventActions
             ->findOrFail($id);
     }
 
+    /** Cria um evento sincronizando links, participantes e lembretes em transação. */
     public function create(CRMEventDTO $dto): CRMEvent
     {
         return DB::transaction(function () use ($dto): CRMEvent {
@@ -160,6 +170,7 @@ final class CRMEventActions
         });
     }
 
+    /** Atualiza um evento e re-sincroniza links, participantes e lembretes em transação. */
     public function update(string $tenantId, string $id, CRMEventDTO $dto): CRMEvent
     {
         return DB::transaction(function () use ($tenantId, $id, $dto): CRMEvent {
@@ -178,12 +189,14 @@ final class CRMEventActions
         });
     }
 
+    /** Remove um evento com soft delete. */
     public function delete(string $tenantId, string $id): void
     {
         $event = $this->find($tenantId, $id);
         $event->delete();
     }
 
+    /** Atualiza apenas o status de um evento (ex: confirmado, cancelado). */
     public function updateStatus(string $tenantId, string $id, string $status): CRMEvent
     {
         $event = $this->find($tenantId, $id);
@@ -193,6 +206,11 @@ final class CRMEventActions
         return $event;
     }
 
+    /**
+     * Retorna os próximos eventos agendados do usuário (como organizador ou participante).
+     *
+     * @param  int  $limit  Máximo de eventos retornados
+     */
     public function upcoming(string $tenantId, string $userId, int $limit = 10): Collection
     {
         /** @var Collection<int, CRMEvent> */
@@ -210,6 +228,11 @@ final class CRMEventActions
             ->get();
     }
 
+    /**
+     * Retorna eventos vinculados a uma entidade específica (contato, empresa, negociação ou ticket).
+     *
+     * @param  string  $linkableAlias  Alias do tipo: contact, company, deal, ticket
+     */
     public function linked(string $tenantId, string $linkableAlias, string $linkableId): Collection
     {
         $morphType = CRMEventLink::resolveLinkableType($linkableAlias);
@@ -229,6 +252,11 @@ final class CRMEventActions
             ->get();
     }
 
+    /**
+     * Retorna estatísticas de eventos: total, agrupamento por status, por tipo e contagem futura.
+     *
+     * @return array{total: int, by_status: array<string, int>, by_type: array<string, int>, upcoming: int}
+     */
     public function statistics(string $tenantId, ?CarbonImmutable $startDate = null, ?CarbonImmutable $endDate = null): array
     {
         $base = CRMEvent::query()->where('tenant_id', $tenantId);

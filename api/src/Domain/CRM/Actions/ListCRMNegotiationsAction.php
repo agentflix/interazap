@@ -12,7 +12,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
- * List and read use-cases for CRM negotiations.
+ * Casos de uso de listagem e leitura de negociações CRM.
+ *
+ * Cobre listagem paginada, busca individual e visualização kanban com cursor pagination.
  */
 final class ListCRMNegotiationsAction
 {
@@ -22,7 +24,9 @@ final class ListCRMNegotiationsAction
     ) {}
 
     /**
-     * @param  array<string, mixed>  $filters
+     * Lista negociações paginadas com filtros opcionais.
+     *
+     * @param  array<string, mixed>  $filters  Filtros disponíveis: search, status, funnel_id, step_id, contact_id, user_id, per_page
      */
     public function list(string $tenantId, array $filters = []): LengthAwarePaginator
     {
@@ -69,6 +73,10 @@ final class ListCRMNegotiationsAction
     }
 
     /**
+     * Retorna dados do kanban para um funil: etapas, totais agregados e negociações paginadas por cursor.
+     *
+     * Usa uma única query GROUP BY para obter contagem e soma por etapa, sem carregar todos os registros.
+     *
      * @param  array<string, mixed>  $filters
      * @return array<string, mixed>
      */

@@ -19,6 +19,14 @@ use Illuminate\Support\Facades\Log;
  */
 final readonly class DeleteChatMessageTemplateAction
 {
+    /**
+     * Remove o template local e, se Meta, tenta deletar também no Gateway.
+     *
+     * Em falha na chamada ao Gateway, marca o template como 'disabled' antes
+     * do soft delete para evitar que o registro fique ativo indevidamente.
+     *
+     * @param  ChatMessageTemplate  $template  Template a remover.
+     */
     public function execute(ChatMessageTemplate $template): void
     {
         if ($template->provider !== 'meta') {
@@ -63,6 +71,12 @@ final readonly class DeleteChatMessageTemplateAction
         $template->delete();
     }
 
+    /**
+     * Lê configuração como string, retornando vazio se não for string.
+     *
+     * @param  string  $key  Chave de configuração.
+     * @return string Valor da configuração ou string vazia.
+     */
     private function stringConfig(string $key): string
     {
         $value = config($key);

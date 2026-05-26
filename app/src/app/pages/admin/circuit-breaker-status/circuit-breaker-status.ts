@@ -33,6 +33,11 @@ const STATE_LABELS: Record<CircuitState, string> = {
   OPEN: 'Aberto',
 };
 
+/**
+ * Página de status dos circuit breakers no módulo Admin.
+ * Exibe estado atual (CLOSED/HALF_OPEN/OPEN) de cada circuito e
+ * permite reset ou abertura manual via ações administrativas.
+ */
 @Component({
   selector: 'app-circuit-breaker-status',
   standalone: true,
@@ -46,10 +51,6 @@ const STATE_LABELS: Record<CircuitState, string> = {
     AfBadgeComponent,
     AfButtonComponent,
     AfEmptyStateComponent,
-/**
- * Circuit breaker status page component for the Admin module.
- * @selector app-circuit-breaker-status
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './circuit-breaker-status.html',
@@ -70,26 +71,46 @@ export class CircuitBreakerStatusComponent implements OnInit {
     this.subscribeToUpdates();
   }
 
+  /** Recarrega os dados dos circuit breakers da API. */
   refresh(): void {
     this.loadCircuits();
   }
 
+  /**
+   * Retorna o rótulo em português para o estado do circuit breaker.
+   * @param state Estado do circuito
+   * @returns Rótulo traduzido
+   */
   getStateLabel(state: CircuitState): string {
     return STATE_LABELS[state];
   }
 
+  /**
+   * Retorna a variante de badge para o estado do circuito.
+   * @param state Estado do circuito
+   * @returns Variante de cor para AfBadgeComponent
+   */
   stateVariant(state: CircuitState): 'success' | 'warning' | 'danger' {
     if (state === 'CLOSED') return 'success';
     if (state === 'HALF_OPEN') return 'warning';
     return 'danger';
   }
 
+  /**
+   * Retorna a classe CSS do wrapper do ícone conforme o estado do circuito.
+   * @param state Estado do circuito
+   * @returns Classe de cor de fundo Tailwind
+   */
   stateIconWrapper(state: CircuitState): string {
     if (state === 'CLOSED') return 'bg-success/15';
     if (state === 'HALF_OPEN') return 'bg-warning/15';
     return 'bg-danger/15';
   }
 
+  /**
+   * Envia comando de reset para fechar o circuit breaker especificado.
+   * @param name Nome do circuito a resetar
+   */
   resetCircuit(name: string): void {
     this.actionLoading.set(name);
     this.queueService
@@ -104,6 +125,10 @@ export class CircuitBreakerStatusComponent implements OnInit {
       });
   }
 
+  /**
+   * Envia comando para abrir (forçar estado OPEN) o circuit breaker especificado.
+   * @param name Nome do circuito a abrir
+   */
   openCircuit(name: string): void {
     this.actionLoading.set(name);
     this.queueService
@@ -118,6 +143,10 @@ export class CircuitBreakerStatusComponent implements OnInit {
       });
   }
 
+  /**
+   * Alterna a exibição do histórico de transições para o circuito especificado.
+   * @param name Nome do circuito cujo histórico será expandido ou recolhido
+   */
   toggleHistory(name: string): void {
     this.expandedCircuits.update((set) => {
       const newSet = new Set(set);

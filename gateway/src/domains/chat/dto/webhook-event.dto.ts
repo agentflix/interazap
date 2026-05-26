@@ -41,7 +41,7 @@ function MaxJsonSize(maxBytes: number, validationOptions?: ValidationOptions) {
 }
 
 /**
- * Normalized message sub-object from incoming webhooks.
+ * Sub-objeto de mensagem normalizado presente nos webhooks recebidos.
  */
 class WebhookMessageDto {
   @IsOptional()
@@ -69,7 +69,7 @@ class WebhookMessageDto {
 }
 
 /**
- * Normalized instance sub-object from incoming webhooks.
+ * Sub-objeto de instancia normalizado presente nos webhooks recebidos.
  */
 class WebhookInstanceDto {
   @IsOptional()
@@ -94,7 +94,7 @@ class WebhookInstanceDto {
 }
 
 /**
- * Normalized connection status sub-object from incoming webhooks.
+ * Sub-objeto de status de conexao normalizado presente nos webhooks recebidos.
  */
 class WebhookStatusDto {
   @IsOptional()
@@ -109,10 +109,10 @@ class WebhookStatusDto {
 }
 
 /**
- * Canonical webhook event DTO consumed by the Chat Webhook Controller.
- * Handles both Z-API (camelCase) and UAZAPI (PascalCase) payload shapes
- * via @Transform decorators and normalizes them into a consistent structure.
- * The original raw payload is preserved in the `raw` field for processing.
+ * DTO canonico de evento de webhook consumido pelo ChatWebhookController.
+ * Trata formatos Z-API (camelCase) e Uazapi (PascalCase) via decoradores Transform,
+ * normalizando-os em estrutura consistente. O payload bruto original e preservado
+ * no campo `raw` para processamento posterior.
  */
 export class WebhookEventDto {
   @IsOptional()
@@ -177,7 +177,7 @@ export class WebhookEventDto {
   @Expose()
   @Transform(({ obj }) => {
     if (obj && typeof obj === 'object') {
-      // Preserve the full original payload as raw
+      // Preserva o payload original completo como raw
       return { ...obj } as Record<string, unknown>;
     }
     return undefined;

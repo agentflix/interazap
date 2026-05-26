@@ -1,14 +1,17 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
 /**
- * AfCardComponent — Versatile container card with optional header, body, and footer slots.
+ * Contêiner card versátil com slots opcionais de cabeçalho, corpo e rodapé.
+ *
+ * Contexto: bloco de layout fundamental em painéis, listas e formulários
+ * em todo o sistema InteraZap.
  *
  * @example
  * ```html
  * <af-card>
- *   <div header><h3>Title</h3></div>
- *   <p>Card content goes here.</p>
- *   <div footer><af-button>Action</af-button></div>
+ *   <div header><h3>Título</h3></div>
+ *   <p>Conteúdo do card.</p>
+ *   <div footer><af-button>Ação</af-button></div>
  * </af-card>
  * ```
  */
@@ -20,9 +23,9 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
   templateUrl: './card.html',
 })
 export class AfCardComponent {
-  /** Apply default padding to card body */
+  /** Aplica padding padrão ao corpo do card */
   readonly padded = input(true);
 
-  /** Stretch to parent height (for grid alignment) */
+  /** Estica o card para ocupar toda a altura do pai (alinhamento em grid) */
   readonly fullHeight = input(false);
 }

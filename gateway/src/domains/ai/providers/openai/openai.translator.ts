@@ -1,8 +1,8 @@
 /**
- * OpenAI Translator (Anti-Corruption Layer)
+ * Tradutor responsável por converter respostas do SDK OpenAI para o DTO normalizado.
  *
- * Traduz respostas do OpenAI SDK para o DTO normalizado.
- * Isola o domínio das especificidades da API do OpenAI.
+ * Contexto: camada anti-corrupção que isola o domínio de AI das especificidades da API
+ * do OpenAI, normalizando conteúdo, tokens, finish reason e chunks de streaming.
  */
 
 import { Injectable } from '@nestjs/common';
@@ -13,9 +13,7 @@ import {
   createAICompletionResponse,
 } from '../../interfaces/ai-completion-response.dto';
 
-/**
- * Finish reasons válidos do OpenAI
- */
+/** Finish reasons válidos reconhecidos pelo translator OpenAI. */
 const VALID_FINISH_REASONS = new Set([
   'stop',
   'length',
@@ -27,10 +25,10 @@ const VALID_FINISH_REASONS = new Set([
 @Injectable()
 export class OpenAITranslator {
   /**
-   * Traduz ChatCompletion do OpenAI para AICompletionResponseDto normalizado
+   * Traduz `ChatCompletion` do SDK OpenAI para `AICompletionResponseDto` normalizado.
    *
-   * @param response - Resposta do OpenAI SDK
-   * @returns DTO normalizado
+   * @param response - Resposta retornada pelo SDK OpenAI
+   * @returns DTO normalizado com conteúdo, tokens e finish reason
    */
   translate(response: ChatCompletion): AICompletionResponseDto {
     const choice = response.choices?.[0];
@@ -47,7 +45,9 @@ export class OpenAITranslator {
   }
 
   /**
-   * Extrai o conteúdo da resposta
+   * Extrai o conteúdo textual da choice OpenAI, com fallback para tool_calls e function_call.
+   * @param choice - Primeira choice retornada pela API OpenAI
+   * @returns Texto extraído ou string vazia quando não disponível
    */
   private extractContent(
     choice: ChatCompletion['choices'][0] | undefined,
@@ -75,15 +75,18 @@ export class OpenAITranslator {
   }
 
   /**
-   * Normaliza finish_reason do OpenAI para nosso tipo
+   * Normaliza o `finish_reason` do OpenAI para o tipo interno do domínio.
    *
    * Mapeamento:
-   * - "stop" → "stop"
-   * - "length" → "length"
-   * - "content_filter" → "content_filter"
-   * - "tool_calls" → "tool_calls"
-   * - "function_call" → "tool_calls" (mapeado para novo padrão)
-   * - null/undefined/outro → null
+   * - `stop` → `stop`
+   * - `length` → `length`
+   * - `content_filter` → `content_filter`
+   * - `tool_calls` → `tool_calls`
+   * - `function_call` → `tool_calls` (mapeado para o padrão atual)
+   * - `null`/`undefined`/outro → `null`
+   *
+   * @param reason - Finish reason retornado pela API OpenAI
+   * @returns Finish reason normalizado ou `null`
    */
   private normalizeFinishReason(
     reason: string | null | undefined,
@@ -107,7 +110,9 @@ export class OpenAITranslator {
   }
 
   /**
-   * Traduz resposta de streaming (para uso futuro)
+   * Extrai o conteúdo textual de um chunk de streaming retornado pelo SDK OpenAI.
+   * @param chunk - Chunk bruto retornado pela iteração de streaming
+   * @returns Texto do chunk ou string vazia quando não disponível
    */
   translateStreamChunk(chunk: unknown): string {
     // Null/undefined check

@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for agent file payloads.
+ * DTO que representa um arquivo de configuração ou instrução anexado a um agente de IA.
+ *
+ * Utilizado para carregar arquivos de texto (JSON, TXT, YAML) que contêm
+ * instruções adicionais, dados de contexto ou configurações específicas
+ * que o agente deve considerar durante o processamento.
  *
  * @readonly
  */

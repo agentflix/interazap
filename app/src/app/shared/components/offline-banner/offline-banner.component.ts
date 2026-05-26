@@ -12,8 +12,10 @@ import { AfBannerComponent } from '../banner/banner';
 import { NetworkStatusService } from '../../../core/services/network-status.service';
 
 /**
- * Offline banner shared component for the Shared module.
- * @selector app-offline-banner
+ * Banner exibido quando o navegador perde conexão com a internet.
+ *
+ * Monitora o status da rede via NetworkStatusService e exibe um aviso
+ * com botão de recarregar a página quando a conexão é restaurada.
  */
 @Component({
   selector: 'app-offline-banner',
@@ -26,6 +28,7 @@ export class OfflineBannerComponent implements OnInit, OnDestroy {
   private readonly networkStatus = inject(NetworkStatusService);
   private readonly destroyRef = inject(DestroyRef);
 
+  /** Indica se o dispositivo está conectado à internet */
   isOnline = signal(true);
 
   ngOnInit(): void {
@@ -41,6 +44,7 @@ export class OfflineBannerComponent implements OnInit, OnDestroy {
     this.networkStatus.stopMonitoring();
   }
 
+  /** Recarrega a página para tentar reconectar */
   retry(): void {
     window.location.reload();
   }

@@ -8,12 +8,12 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for AI agent serialization.
+ * Resource para serialização de agente de IA.
  */
 final class AiAgentResource extends BaseJsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma o recurso em array.
      *
      * @return array<string, mixed>
      */

@@ -44,10 +44,16 @@ export class UpgradeModalComponent {
 
   readonly passwordControl = this.fb.control('');
 
+  /** Emite o evento de confirmação com a senha atual digitada. */
   protected submit(): void {
     this.confirmed.emit(this.passwordControl.value.trim());
   }
 
+  /**
+   * Formata um valor numérico como moeda BRL (R$).
+   * @param value Valor a formatar (string, número ou nulo)
+   * @returns String formatada em reais
+   */
   protected formatCurrencyBRL(value: string | number | null | undefined): string {
     const normalized = Number(value ?? 0);
 

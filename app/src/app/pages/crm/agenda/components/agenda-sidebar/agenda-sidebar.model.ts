@@ -1,10 +1,10 @@
 /**
- * Models and types for agenda-sidebar component.
+ * Modelos e tipos para o componente de sidebar da agenda.
  */
 
 import { type EventType } from 'src/app/core/services/event.service';
 
-/** Type option for drag-and-drop events */
+/** Opção de tipo de evento para chips de drag-and-drop. */
 export interface AgendaTypeOption {
   id: EventType;
   label: string;

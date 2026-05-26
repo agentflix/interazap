@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 /**
- * Redirect legacy upload route to knowledge list with upload modal opened.
+ * Redireciona a rota legada de upload para a lista de conhecimento com o modal de upload aberto.
  */
 @Component({
   selector: 'app-ai-knowledge-upload-redirect',

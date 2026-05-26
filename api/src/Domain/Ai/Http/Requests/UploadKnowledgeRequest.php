@@ -8,21 +8,17 @@ use Domain\Ai\Enums\AiDocumentType;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Request validation for knowledge document upload.
+ * Validação para upload de documento na base de conhecimento de IA.
  */
 class UploadKnowledgeRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Verifica se o usuário possui permissão para gerenciar a base de conhecimento. */
     public function authorize(): bool
     {
         return $this->user()->can('ai.knowledge.manage');
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -45,7 +41,7 @@ class UploadKnowledgeRequest extends FormRequest
     }
 
     /**
-     * Get custom messages for validator errors.
+     * Retorna mensagens de erro personalizadas para o validador.
      *
      * @return array<string, string>
      */

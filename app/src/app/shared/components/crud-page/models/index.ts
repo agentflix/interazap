@@ -1,15 +1,23 @@
 import { type TemplateRef } from '@angular/core';
 import { type Observable } from 'rxjs';
 
-/** Sort direction accepted by list endpoints */
+/**
+ * Tipos e interfaces compartilhados para componentes CRUD.
+ *
+ * Usados pelo AfCrudPageComponent e componentes relacionados para
+ * padronizar listagens, paginação e operações de dados.
+ */
+
+/** Direção de ordenação aceita pelos endpoints de listagem. */
 export type SortDirection = 'asc' | 'desc';
 
-/** Current sort state for a listing table */
+/** Estado de ordenação atual de uma tabela de listagem. */
 export interface SortState {
   field: string;
   dir: SortDirection;
 }
 
+/** Parâmetros de requisição para listagens paginadas. */
 export interface CrudListParams {
   page: number;
   per_page: number;
@@ -17,6 +25,7 @@ export interface CrudListParams {
   sort_dir?: SortDirection;
 }
 
+/** Metadados de paginação retornados pela API. */
 export interface CrudPaginatedMeta {
   current_page: number;
   last_page: number;
@@ -24,15 +33,18 @@ export interface CrudPaginatedMeta {
   total: number;
 }
 
+/** Resposta paginada da API com dados e metadados. */
 export interface CrudPaginatedResponse<T> {
   data: T[];
   meta: CrudPaginatedMeta;
 }
 
+/** Resposta da API para um único item. */
 export interface CrudItemResponse<T> {
   data: T;
 }
 
+/** Contrato de serviço CRUD com operações opcionais de criação, atualização e exclusão. */
 export interface CrudService<T> {
   list: (params: CrudListParams) => Observable<CrudPaginatedResponse<T>>;
   find?: (id: string | number) => Observable<CrudItemResponse<T>>;
@@ -41,6 +53,7 @@ export interface CrudService<T> {
   delete?: (id: string | number) => Observable<void>;
 }
 
+/** Definição de coluna para tabelas CRUD. */
 export interface CrudColumnDef {
   field: string;
   label: string;
@@ -48,6 +61,7 @@ export interface CrudColumnDef {
   template?: TemplateRef<{ $implicit: unknown }>;
 }
 
+/** Definição de ação disponível em linhas da tabela CRUD. */
 export interface CrudActionDef {
   type: string;
   icon?: string;
@@ -55,6 +69,7 @@ export interface CrudActionDef {
   variant?: string;
 }
 
+/** Configuração geral do componente CRUD. */
 export interface CrudConfig {
   labels?: {
     singular?: string;

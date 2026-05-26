@@ -32,7 +32,10 @@ final class PlatformLeadAdminActions
     ) {}
 
     /**
-     * @param  array<string, mixed>  $filters
+     * Lista leads com filtros, ordenação e paginação.
+     *
+     * @param  array<string, mixed>  $filters  Filtros de busca e paginação.
+     * @return LengthAwarePaginator Lista paginada de leads.
      */
     public function list(array $filters): LengthAwarePaginator
     {
@@ -47,8 +50,10 @@ final class PlatformLeadAdminActions
     }
 
     /**
-     * @param  array<string, mixed>  $filters
-     * @return Builder<PlatformLead>
+     * Retorna query de leads ordenada para exportação (sem paginação).
+     *
+     * @param  array<string, mixed>  $filters  Filtros de busca e ordenação.
+     * @return Builder<PlatformLead> Query pronta para iteração via cursor.
      */
     public function queryForExport(array $filters): Builder
     {
@@ -60,7 +65,11 @@ final class PlatformLeadAdminActions
     }
 
     /**
-     * @param  array{name:string,email:string,phone:string,document?:string|null,plan_id?:string|null}  $payload
+     * Converte um lead em tenant, cria usuário Gerente, executa bootstrap e cria contato CRM.
+     *
+     * @param  PlatformLead  $lead  Lead a ser convertido.
+     * @param  array{name:string,email:string,phone:string,document?:string|null,plan_id?:string|null}  $payload  Dados de conversão.
+     * @return PlatformLead Lead original atualizado.
      */
     public function convert(PlatformLead $lead, array $payload): PlatformLead
     {
@@ -105,8 +114,10 @@ final class PlatformLeadAdminActions
     }
 
     /**
-     * @param  array<string, mixed>  $filters
-     * @return Builder<PlatformLead>
+     * Constrói a query de leads com filtros de busca aplicados.
+     *
+     * @param  array<string, mixed>  $filters  Filtros de busca.
+     * @return Builder<PlatformLead> Query filtrada.
      */
     private function buildFilteredQuery(array $filters): Builder
     {
@@ -126,6 +137,14 @@ final class PlatformLeadAdminActions
         return $query;
     }
 
+    /**
+     * Busca um lead pelo ID ou lança exceção se não encontrado.
+     *
+     * @param  string  $id  UUID do lead.
+     * @return PlatformLead Lead encontrado.
+     *
+     * @throws \DomainException Quando o lead não é encontrado.
+     */
     public function find(string $id): PlatformLead
     {
         $lead = PlatformLead::find($id);
@@ -137,6 +156,12 @@ final class PlatformLeadAdminActions
         return $lead;
     }
 
+    /**
+     * Sanitiza o campo de ordenação, retornando o padrão se inválido.
+     *
+     * @param  string  $sortBy  Nome da coluna solicitada.
+     * @return string Coluna válida para ordenação.
+     */
     private function sanitizeSortBy(string $sortBy): string
     {
         if (! in_array($sortBy, self::SORTABLE_COLUMNS, true)) {

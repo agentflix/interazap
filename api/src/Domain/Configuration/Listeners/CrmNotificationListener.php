@@ -13,12 +13,15 @@ use Domain\Configuration\Services\NotificationDispatcherService;
  */
 final class CrmNotificationListener
 {
+    /** Injeta o serviço de despacho de notificações. */
     public function __construct(
         private readonly NotificationDispatcherService $dispatcher,
     ) {}
 
     /**
-     * Handle the event.
+     * Processa eventos de negociação e despacha notificação ao tenant.
+     *
+     * @param  NegotiationWonEvent|NegotiationLostEvent  $event  Evento disparado.
      */
     public function handle(NegotiationWonEvent|NegotiationLostEvent $event): void
     {

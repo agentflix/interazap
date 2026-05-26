@@ -14,12 +14,15 @@ use Domain\Configuration\Services\NotificationDispatcherService;
  */
 final class AiNotificationListener
 {
+    /** Injeta o serviço de despacho de notificações. */
     public function __construct(
         private readonly NotificationDispatcherService $dispatcher,
     ) {}
 
     /**
-     * Handle the event.
+     * Processa eventos de IA e despacha notificação interna ao tenant.
+     *
+     * @param  AiHotLeadDetectedEvent|AiEscalationRequiredEvent|StorageLimitWarningEvent  $event  Evento disparado.
      */
     public function handle(AiHotLeadDetectedEvent|AiEscalationRequiredEvent|StorageLimitWarningEvent $event): void
     {

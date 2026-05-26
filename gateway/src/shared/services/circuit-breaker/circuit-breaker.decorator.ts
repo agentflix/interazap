@@ -6,21 +6,20 @@ import {
 } from './circuit-breaker.service';
 
 /**
- * Symbol for storing circuit breaker service instance.
+ * Symbol para armazenar a instância do CircuitBreakerService no contexto de injeção.
  */
 export const CIRCUIT_BREAKER_SERVICE = Symbol('CIRCUIT_BREAKER_SERVICE');
 
 /**
- * Decorator options for @CircuitBreaker
+ * Representa as opções do decorator @CircuitBreaker, estendendo CircuitOptions com fallback.
  */
 export interface CircuitBreakerDecoratorOptions extends CircuitOptions {
-  /** Fallback method name to call when circuit is open */
+  /** Nome do método de fallback a chamar quando o circuito estiver aberto */
   fallbackMethod?: string;
 }
 
 /**
- * Property decorator to inject CircuitBreakerService.
- * Use this on a class property to get the service instance.
+ * Decorator de propriedade para injetar o CircuitBreakerService em uma classe.
  *
  * @example
  * ```typescript
@@ -36,10 +35,10 @@ export function InjectCircuitBreaker(): PropertyDecorator {
 }
 
 /**
- * Method decorator that wraps method calls with circuit breaker protection.
+ * Decorator de método que envolve chamadas com proteção de circuit breaker.
  *
- * @param serviceName - Unique identifier for this circuit
- * @param options - Circuit breaker configuration
+ * @param serviceName - Identificador único do circuito
+ * @param options - Configuração do circuit breaker
  *
  * @example
  * ```typescript
@@ -49,12 +48,12 @@ export function InjectCircuitBreaker(): PropertyDecorator {
  *
  *   @CircuitBreaker('whatsapp', { failureThreshold: 5, resetTimeout: 30000 })
  *   async sendMessage(phone: string, message: string): Promise<void> {
- *     // External API call
+ *     // Chamada à API externa
  *   }
  *
- *   // Optional fallback method
+ *   // Método de fallback opcional
  *   async sendMessageFallback(phone: string, message: string): Promise<void> {
- *     // Queue for later retry
+ *     // Enfileirar para retry posterior
  *   }
  * }
  * ```
@@ -112,16 +111,12 @@ export function CircuitBreaker(
 }
 
 /**
- * Create circuit breaker options for WhatsApp API.
- * Uses conservative thresholds due to rate limiting.
- */
-/**
- * Circuit breaker options factory for the WhatsApp Business API.
+ * Fábrica de opções de circuit breaker para a API do WhatsApp Business.
  *
- * Uses conservative thresholds to account for WhatsApp's per-minute rate limits.
- * Opens after 5 consecutive failures and waits 30 seconds before testing recovery.
+ * Usa thresholds conservadores para respeitar os rate limits por minuto do WhatsApp.
+ * Abre após 5 falhas consecutivas e aguarda 30 segundos antes de testar a recuperação.
  *
- * @returns Circuit options tuned for WhatsApp API resilience
+ * @returns Opções de circuito ajustadas para resiliência da API WhatsApp
  */
 export function whatsAppCircuitOptions(): CircuitOptions {
   return {
@@ -133,17 +128,13 @@ export function whatsAppCircuitOptions(): CircuitOptions {
 }
 
 /**
- * Create circuit breaker options for OpenAI API.
- * Uses lower thresholds and longer reset due to API costs.
- */
-/**
- * Circuit breaker options factory for the OpenAI API.
+ * Fábrica de opções de circuit breaker para a API da OpenAI.
  *
- * Uses lower thresholds and a longer reset timeout because API costs accumulate
- * quickly during prolonged outages. Opens after 3 failures and requires only
- * 1 successful call to close the circuit.
+ * Usa thresholds menores e timeout de reset mais longo porque os custos da API
+ * se acumulam rapidamente durante indisponibilidades prolongadas.
+ * Abre após 3 falhas e requer apenas 1 chamada bem-sucedida para fechar o circuito.
  *
- * @returns Circuit options tuned for OpenAI API cost and availability constraints
+ * @returns Opções de circuito ajustadas para restrições de custo e disponibilidade da OpenAI
  */
 export function openAICircuitOptions(): CircuitOptions {
   return {
@@ -155,17 +146,13 @@ export function openAICircuitOptions(): CircuitOptions {
 }
 
 /**
- * Create circuit breaker options for payment providers.
- * Uses strict thresholds for financial operations.
- */
-/**
- * Circuit breaker options factory for payment gateway providers.
+ * Fábrica de opções de circuit breaker para provedores de pagamento.
  *
- * Uses strict thresholds appropriate for financial transactions. Opens after
- * 3 consecutive failures and requires 2 successes in half-open state before
- * fully closing. The 60-second reset window prevents rapid reconnection attempts.
+ * Usa thresholds rígidos adequados para transações financeiras. Abre após
+ * 3 falhas consecutivas e requer 2 sucessos no estado half-open antes de
+ * fechar completamente. A janela de 60 segundos previne tentativas de reconexão precipitadas.
  *
- * @returns Circuit options tuned for payment API reliability requirements
+ * @returns Opções de circuito ajustadas para requisitos de confiabilidade de APIs de pagamento
  */
 export function paymentCircuitOptions(): CircuitOptions {
   return {

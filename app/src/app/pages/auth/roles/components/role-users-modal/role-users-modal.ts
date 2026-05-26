@@ -106,6 +106,8 @@ export class RoleUsersModalComponent implements OnChanges {
   }
 
   // ── Data loading ─────────────────────────────────────────────────────────────
+
+  /** Carrega a lista paginada de usuários vinculados à role atual. */
   loadUsers(): void {
     const roleId = this.role()?.id;
     if (!roleId) return;
@@ -128,37 +130,60 @@ export class RoleUsersModalComponent implements OnChanges {
       });
   }
 
+  /**
+   * Filtra a lista de usuários pelo termo de busca.
+   * @param term Texto de busca
+   */
   onSearch(term: string): void {
     this.searchTerm = term;
     this.currentPage = 1;
     this.loadUsers();
   }
 
+  /**
+   * Navega para uma página específica da listagem.
+   * @param page Número da página
+   */
   loadPage(page: number): void {
     this.currentPage = page;
     this.loadUsers();
   }
 
+  /** Recarrega a lista após erro. */
   retry(): void {
     this.loadUsers();
   }
 
   // ── Actions ──────────────────────────────────────────────────────────────────
+
+  /**
+   * Emite o evento de edição do usuário e fecha o modal.
+   * @param user Usuário a editar
+   */
   handleEdit(user: RoleUser): void {
     this.editUser.emit(user);
     this.handleClosed();
   }
 
+  /**
+   * Abre o modal de confirmação para desvincular a role do usuário.
+   * @param user Usuário a ter a role removida
+   */
   openRemoveRole(user: RoleUser): void {
     this.userToRemoveRole.set(user);
     this.showRemoveModal.set(true);
   }
 
+  /**
+   * Abre o modal de confirmação para ativar ou inativar o usuário.
+   * @param user Usuário a ter o status alternado
+   */
   openToggleStatus(user: RoleUser): void {
     this.userToToggle.set(user);
     this.showToggleModal.set(true);
   }
 
+  /** Confirma a remoção da role do usuário selecionado. */
   handleRemoveConfirmed(): void {
     const user = this.userToRemoveRole();
     const roleName = this.role()?.name;
@@ -185,6 +210,7 @@ export class RoleUsersModalComponent implements OnChanges {
       });
   }
 
+  /** Confirma a alternância de status (ativar/inativar) do usuário selecionado. */
   handleToggleConfirmed(): void {
     const user = this.userToToggle();
     if (!user || this.isToggling()) return;
@@ -212,11 +238,18 @@ export class RoleUsersModalComponent implements OnChanges {
   }
 
   // ── Close ────────────────────────────────────────────────────────────────────
+
+  /** Emite o evento de fechamento do modal. */
   handleClosed(): void {
     this.closed.emit();
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  /**
+   * Retorna as iniciais do nome (até 2 palavras).
+   * @param name Nome completo
+   */
   getInitials(name: string): string {
     return name
       .split(' ')
@@ -225,6 +258,10 @@ export class RoleUsersModalComponent implements OnChanges {
       .join('');
   }
 
+  /**
+   * Retorna uma classe CSS de cor de fundo determinística com base no nome.
+   * @param name Nome do usuário
+   */
   formatAvatarColor(name: string): string {
     const colors = [
       'bg-blue-500',

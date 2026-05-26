@@ -1,8 +1,8 @@
 /**
- * Models and types for description-list component.
+ * Modelos e tipos do componente de lista de descrição.
  */
 
-/** Description list item */
+/** Item de lista de descrição (par termo–detalhe). */
 export interface AfDescriptionItem {
   term: string;
   detail: string;

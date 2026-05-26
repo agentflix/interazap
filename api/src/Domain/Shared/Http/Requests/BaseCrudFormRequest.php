@@ -8,15 +8,29 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Base de autorização para FormRequests de CRUD via policies.
+ * FormRequest base com autorização CRUD via policies.
+ *
+ * Resolve automaticamente a policy correta dependendo do método HTTP
+ * (POST = create, outros = update), delegando a verificação ao modelo
+ * identificado por modelClass().
  */
 abstract class BaseCrudFormRequest extends FormRequest
 {
+    /**
+     * Autoriza a requisição via policy do modelo.
+     *
+     * @return bool Verdadeiro se o usuário tem permissão para a operação.
+     */
     public function authorize(): bool
     {
         return $this->authorizeCrudByPolicy();
     }
 
+    /**
+     * Realiza a autorização delegando à policy do modelo.
+     *
+     * @return bool Verdadeiro se autorizado.
+     */
     protected function authorizeCrudByPolicy(): bool
     {
         $user = $this->user('sanctum') ?? $this->user();
@@ -39,23 +53,30 @@ abstract class BaseCrudFormRequest extends FormRequest
     }
 
     /**
-     * @return class-string<Model>
+     * Retorna a classe do modelo Eloquent a ser usada na autorização via policy.
+     *
+     * @return class-string<Model> FQCN do modelo.
      */
     abstract protected function modelClass(): string;
 
+    /**
+     * Retorna o nome do parâmetro de rota usado para localizar o modelo.
+     *
+     * @return string Nome do parâmetro (padrão: 'id').
+     */
     protected function routeModelKey(): string
     {
         return 'id';
     }
 
     /**
-     * Resolves the model from route parameter.
+     * Resolve o modelo a partir do parâmetro de rota.
      *
-     * @param  class-string<Model>  $modelClass
+     * Depende do TenantScope registrado globalmente via BelongsToTenant,
+     * garantindo isolamento de tenant sem filtragem explícita aqui.
      *
-     * @note Relies on TenantScope being registered as a global scope in models
-     *       that use BelongsToTenant trait. This ensures tenant isolation without
-     *       explicit tenant filtering in this method.
+     * @param  class-string<Model>  $modelClass  Classe do modelo a localizar.
+     * @return Model|null Instância do modelo ou null se não encontrado.
      */
     protected function resolveRouteModel(string $modelClass): ?Model
     {

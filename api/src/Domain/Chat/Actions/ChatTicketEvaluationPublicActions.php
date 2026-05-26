@@ -13,6 +13,19 @@ use Illuminate\Support\Facades\DB;
  */
 final class ChatTicketEvaluationPublicActions
 {
+    /**
+     * Registra a avaliação do cliente para um ticket via token público.
+     *
+     * Localiza a avaliação pelo token, preenche nota e comentário, e dispara
+     * evento de baixa pontuação se a nota for menor ou igual ao corte configurado.
+     *
+     * @param  string  $token  Token público único da avaliação.
+     * @param  int  $rating  Nota de 1 a 5 fornecida pelo cliente.
+     * @param  string|null  $comment  Comentário opcional do cliente.
+     * @return ChatTicketEvaluation Avaliação atualizada.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se o token for inválido ou já submetido.
+     */
     public function submit(string $token, int $rating, ?string $comment): ChatTicketEvaluation
     {
         return DB::transaction(function () use ($token, $rating, $comment): ChatTicketEvaluation {

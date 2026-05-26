@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for CRM note.
+ * DTO para nota CRM associada a uma entidade (contato, empresa ou negociação).
  *
  * @readonly
  */
@@ -19,9 +19,7 @@ final readonly class CRMNoteDTO
         public string $content,
     ) {}
 
-    /**
-     * Create DTO from form request.
-     */
+    /** Cria DTO a partir de um FormRequest já validado com tipo e ID da entidade. */
     public static function fromRequest(FormRequest $request, string $entityType, string $entityId): self
     {
         return self::fromArray($request->validated(), $entityType, $entityId);

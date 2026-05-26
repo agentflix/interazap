@@ -2,11 +2,11 @@ import { Injectable, computed, signal } from '@angular/core';
 import { isChatMuted, setChatMuted } from 'src/app/shared/utils/notifications/chat-audio';
 
 /**
- * Service for managing chat notification sound mute state.
+ * Gerencia o estado de mudo das notificações sonoras do chat.
  *
  * @remarks
- * Persists the muted state to localStorage via utility functions
- * and exposes it as a reactive signal.
+ * Persiste o estado de mudo no localStorage via funções utilitárias
+ * e o expõe como um signal reativo.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatSoundService {
@@ -15,16 +15,16 @@ export class ChatSoundService {
   readonly mutedState = computed(() => this.muted());
 
   /**
-   * Toggles the sound mute state.
+   * Alterna o estado de mudo do som.
    */
   toggle(): void {
     this.setMuted(!this.muted());
   }
 
   /**
-   * Sets the sound mute state.
+   * Define o estado de mudo do som.
    *
-   * @param value - True to mute, false to unmute
+   * @param value - `true` para mutar, `false` para desmutar
    */
   setMuted(value: boolean): void {
     this.muted.set(value);

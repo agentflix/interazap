@@ -3,9 +3,9 @@ import { AfCardComponent } from '../card/card';
 import { AfSkeletonComponent } from '../skeleton/skeleton';
 
 /**
- * AfReportSkeletonGridComponent — Skeleton grid for KPI sections in reports.
+ * Grid de skeletons para seções KPI de relatórios.
  *
- * Renders a responsive grid of skeleton cards matching KPI card dimensions.
+ * Renderiza uma grade responsiva de cards skeleton com dimensões equivalentes ao KPI card.
  *
  * @example
  * ```html
@@ -21,16 +21,16 @@ import { AfSkeletonComponent } from '../skeleton/skeleton';
   templateUrl: './report-skeleton-grid.html',
 })
 export class AfReportSkeletonGridComponent {
-  /** Number of skeleton cards to render */
+  /** Número de cards skeleton a renderizar */
   readonly count = input(4);
 
-  /** Grid columns at sm breakpoint (default: auto-detect from count) */
+  /** Colunas do grid no breakpoint sm (padrão: detecção automática pelo count) */
   readonly smCols = input<number | null>(null);
 
-  /** Grid columns at lg breakpoint (default: auto-detect from count) */
+  /** Colunas do grid no breakpoint lg (padrão: detecção automática pelo count) */
   readonly lgCols = input<number | null>(null);
 
-  /** Array for skeleton card iteration */
+  /** Array para iteração dos cards skeleton */
   protected readonly items = computed(() => Array.from({ length: this.count() }));
 
   protected readonly gridClasses = computed(() => {

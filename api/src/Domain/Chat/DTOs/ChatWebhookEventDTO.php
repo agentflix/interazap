@@ -7,24 +7,24 @@ namespace Domain\Chat\DTOs;
 use Illuminate\Support\Arr;
 
 /**
- * DTO for Chat Webhook Event.
+ * DTO de Evento de Webhook de Chat.
  *
  * @readonly
  */
 final readonly class ChatWebhookEventDTO
 {
     /**
-     * @param  string  $provider  Provider name (e.g. uazapi).
-     * @param  string|null  $eventType  Event type (messages, connection, etc).
-     * @param  string  $instanceWebhookToken  Instance webhook token.
-     * @param  string|null  $tenantId  Resolved tenant identifier.
-     * @param  string|null  $instanceId  Resolved instance identifier.
-     * @param  string|null  $direction  Event direction (incoming/outgoing).
-     * @param  array<string, mixed>|null  $message  Normalized message payload.
-     * @param  array<string, mixed>|null  $chat  Normalized chat payload.
-     * @param  array<string, mixed>  $raw  Raw received payload.
-     * @param  string|null  $owner  Owner identifier on gateway.
-     * @param  string|null  $baseUrl  Base URL reported by gateway.
+     * @param  string  $provider  Nome do provedor (ex.: uazapi).
+     * @param  string|null  $eventType  Tipo do evento (messages, connection, etc.).
+     * @param  string  $instanceWebhookToken  Token de webhook da instância.
+     * @param  string|null  $tenantId  Identificador do tenant resolvido.
+     * @param  string|null  $instanceId  Identificador da instância resolvida.
+     * @param  string|null  $direction  Direção do evento (incoming/outgoing).
+     * @param  array<string, mixed>|null  $message  Payload da mensagem normalizada.
+     * @param  array<string, mixed>|null  $chat  Payload do chat normalizado.
+     * @param  array<string, mixed>  $raw  Payload bruto recebido.
+     * @param  string|null  $owner  Identificador do proprietário no gateway.
+     * @param  string|null  $baseUrl  URL base informada pelo gateway.
      */
     public function __construct(
         public string $provider,
@@ -41,7 +41,7 @@ final readonly class ChatWebhookEventDTO
     ) {}
 
     /**
-     * Build DTO from normalized payload.
+     * Constrói o DTO a partir de um payload normalizado.
      *
      * @param  array<string, mixed>  $payload
      */

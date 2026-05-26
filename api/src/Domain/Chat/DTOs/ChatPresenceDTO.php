@@ -7,16 +7,16 @@ namespace Domain\Chat\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Chat Presence.
+ * DTO de Presença do Chat.
  *
  * @readonly
  */
 final readonly class ChatPresenceDTO
 {
     /**
-     * @param  string  $ticketId  Ticket UUID.
-     * @param  string  $presence  Presence type ('composing' for typing, 'recording' for recording).
-     * @param  int|null  $delay  Simulated delay in milliseconds.
+     * @param  string  $ticketId  UUID do ticket.
+     * @param  string  $presence  Tipo de presença ('composing' para digitando, 'recording' para gravando).
+     * @param  int|null  $delay  Atraso simulado em milissegundos.
      */
     public function __construct(
         public string $ticketId,
@@ -25,7 +25,7 @@ final readonly class ChatPresenceDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um Request HTTP.
      */
     public static function fromRequest(Request $request, string $ticketId): self
     {
@@ -37,7 +37,7 @@ final readonly class ChatPresenceDTO
     }
 
     /**
-     * Create DTO from array.
+     * Cria o DTO a partir de um array.
      *
      * @param  array<string, mixed>  $data
      */

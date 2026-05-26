@@ -13,9 +13,12 @@ use Domain\CRM\Models\CRMNote;
 use Illuminate\Support\Str;
 
 /**
- * Tool to create notes on CRM entities.
+ * Ferramenta de IA para criar notas em entidades do CRM.
  *
- * Security: Validates tenant_id to prevent cross-tenant access.
+ * Input esperado: entity_type (contact|negotiation), entity_id e content.
+ * Output produzido: note_id, entity_type e entity_id vinculados.
+ * Quando usar: registrar observações, resumos de conversa ou itens de ação em contatos ou negociações.
+ * Segurança: valida tenant_id para evitar acesso entre tenants.
  */
 class CreateNoteTool implements AiToolInterface
 {
@@ -27,6 +30,7 @@ class CreateNoteTool implements AiToolInterface
         'negotiation' => CRMNegotiation::class,
     ];
 
+    /** Executa a criação da nota na entidade informada. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $entityType = $input->parameters['entity_type'] ?? null;
@@ -76,17 +80,21 @@ class CreateNoteTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CREATE_NOTE;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Creates a note attached to a CRM entity (contact or negotiation). Use to record important observations, conversation summaries, or action items.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

@@ -20,6 +20,12 @@ final class BillingUnlockTenantAction
         private readonly AuditLogger $auditLogger,
     ) {}
 
+    /**
+     * Desbloqueia o tenant e restaura o status ACTIVE, zerando todos os campos de inadimplência.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a ser desbloqueado
+     * @return PlatformTenant Tenant atualizado com status ACTIVE
+     */
     public function handle(PlatformTenant $tenant): PlatformTenant
     {
         return DB::transaction(function () use ($tenant): PlatformTenant {
@@ -45,6 +51,7 @@ final class BillingUnlockTenantAction
         });
     }
 
+    /** Invalida o cache de status de billing do tenant. */
     private function forgetTenantStatusCache(string $tenantId): void
     {
         $prefix = (string) config('billing.delinquency.cache.billing_status_prefix', 'billing:tenant_status:');

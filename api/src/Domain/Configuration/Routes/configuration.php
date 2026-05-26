@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Rotas do domínio Configuration.
+ *
+ * Define endpoints para notificações, preferências, horários de funcionamento,
+ * transcrição de mídia e configurações de agendamento, todos protegidos por autenticação Sanctum.
+ */
+
 declare(strict_types=1);
 
 use Domain\Configuration\Http\Controllers\ConfigurationMediaTranscriptionController;

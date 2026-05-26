@@ -12,9 +12,7 @@ use Illuminate\Validation\Rule;
  */
 final class AiAgentUpdateRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Verifica se o usuário possui permissão para gerenciar autopilots. */
     public function authorize(): bool
     {
         return $this->user()->can('ai.autopilots.manage');

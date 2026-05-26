@@ -22,7 +22,9 @@ use Illuminate\Support\Str;
 final class CRMContactActions
 {
     /**
-     * @param  array<string, mixed>  $filters
+     * Lista contatos do tenant com filtros de busca, status e empresa, com paginação.
+     *
+     * @param  array<string, mixed>  $filters  Filtros disponíveis: search, is_active, crm_company_id, sort_by, sort_dir, per_page
      */
     public function list(string $tenantId, array $filters = []): LengthAwarePaginator
     {
@@ -79,6 +81,9 @@ final class CRMContactActions
             ->paginate($perPage);
     }
 
+    /**
+     * Cria um contato, registra o telefone principal e dispara o trigger de autopilot.
+     */
     public function create(string $tenantId, CRMContactDTO $dto): CRMContact
     {
         return DB::transaction(function () use ($tenantId, $dto): CRMContact {
@@ -113,6 +118,7 @@ final class CRMContactActions
         });
     }
 
+    /** Atualiza todos os campos de um contato existente. */
     public function update(string $tenantId, string $id, CRMContactDTO $dto): CRMContact
     {
         $contact = $this->find($tenantId, $id);
@@ -136,12 +142,14 @@ final class CRMContactActions
         return $contact->load(['company', 'phones', 'customFieldValues.field', 'tags']);
     }
 
+    /** Remove um contato com soft delete. */
     public function delete(string $tenantId, string $id): void
     {
         $contact = $this->find($tenantId, $id);
         $contact->delete();
     }
 
+    /** Restaura um contato que havia sido removido via soft delete. */
     public function restore(string $tenantId, string $id): CRMContact
     {
         $contact = CRMContact::query()
@@ -154,6 +162,16 @@ final class CRMContactActions
         return $contact->load(['company', 'phones', 'customFieldValues.field', 'tags']);
     }
 
+    /**
+     * Adiciona um número de telefone ao contato.
+     *
+     * Se o número já estiver ativo no tenant, lança ValidationException,
+     * salvo se $forceReassign for verdadeiro, caso em que invalida o registro anterior.
+     *
+     * @param  bool  $forceReassign  Quando verdadeiro, reatribui o número invalidando o vínculo anterior
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o telefone já está em uso e forceReassign é falso
+     */
     public function createPhone(string $tenantId, CRMContactPhoneDTO $dto, bool $forceReassign = false): CRMContactPhone
     {
         return DB::transaction(function () use ($tenantId, $dto, $forceReassign): CRMContactPhone {
@@ -184,6 +202,7 @@ final class CRMContactActions
         });
     }
 
+    /** Retorna um contato pelo ID, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMContact
     {
         return CRMContact::query()

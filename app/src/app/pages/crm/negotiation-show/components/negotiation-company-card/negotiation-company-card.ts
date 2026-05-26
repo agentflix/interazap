@@ -6,7 +6,7 @@ import { type NegotiationCompanySummary } from 'src/app/core/services/negotiatio
 import { ButtonComponent } from '@shared/components/buttons';
 
 /**
- * Sidebar card for negotiation company information.
+ * Cartão na sidebar com informações da empresa vinculada à negociação.
  */
 @Component({
   selector: 'app-negotiation-company-card',

@@ -9,12 +9,12 @@ const TOKEN_KEY = 'token';
 const IMPERSONATION_ORIGINAL_TOKEN_KEY = 'impersonation_original_token';
 
 /**
- * Service for managing authentication state as signals.
+ * Gerencia o estado de autenticação como signals reativos.
  *
- * @remarks
- * Persists auth token and user data in localStorage. Provides computed
- * signals for user, token, and authentication status. Supports permission
- * checking and partial user updates.
+ * Persiste token e dados do usuário no localStorage e expõe computed signals
+ * para usuário, token e status de autenticação. Suporta verificação de
+ * permissões e atualização parcial do usuário. Gerencia o fluxo de
+ * impersonação preservando o token original do super admin.
  *
  * @example
  * ```typescript
@@ -29,17 +29,17 @@ export class AuthStoreService {
   private tokenSignal = signal<string | null>(null);
   private hydratedSignal = signal(false);
 
-  /** Current authenticated user (null if not authenticated) */
+  /** Usuário autenticado atual (null se não autenticado). */
   user = computed(() => this.userSignal());
-  /** Current auth token (null if not authenticated) */
+  /** Token de autenticação atual (null se não autenticado). */
   token = computed(() => this.tokenSignal());
-  /** Whether the user is currently authenticated */
+  /** Indica se há uma sessão autenticada ativa. */
   isAuthenticated = computed(() => Boolean(this.tokenSignal()));
-  /** Whether the service has restored state from localStorage */
+  /** Indica se o estado foi restaurado do localStorage. */
   hasHydrated = computed(() => this.hydratedSignal());
-  /** Whether the current session is an impersonation */
+  /** Indica se a sessão atual é uma impersonação de tenant ou usuário. */
   isImpersonating = computed(() => Boolean(this.userSignal()?.is_impersonating));
-  /** Name of the impersonated tenant */
+  /** Nome do tenant sendo impersonado (null fora de impersonação). */
   impersonatedTenantName = computed(() => {
     const user = this.userSignal();
     if (!user || !user.impersonated_tenant) return null;
@@ -54,9 +54,7 @@ export class AuthStoreService {
     this.init();
   }
 
-  /**
-   * Initializes the store by restoring state from localStorage.
-   */
+  /** Inicializa o store restaurando estado persistido no localStorage. */
   init(): void {
     const stored = this.readStorage();
     const token = stored.token ?? this.readToken();
@@ -66,10 +64,10 @@ export class AuthStoreService {
   }
 
   /**
-   * Sets authentication data and persists to localStorage.
+   * Define os dados de autenticação e persiste no localStorage.
    *
-   * @param user - Authenticated user object
-   * @param token - JWT token string
+   * @param user Objeto do usuário autenticado
+   * @param token String do token de acesso
    */
   setAuth(user: AuthUser, token: string): void {
     this.userSignal.set(user);
@@ -78,9 +76,7 @@ export class AuthStoreService {
     this.loadUserPreferences();
   }
 
-  /**
-   * Start impersonation by saving the original token and setting the impersonated session.
-   */
+  /** Inicia impersonação salvando o token original e ativando a sessão impersonada. */
   startImpersonation(user: AuthUser, token: string): void {
     const currentToken = this.tokenSignal();
     if (currentToken) {
@@ -91,9 +87,7 @@ export class AuthStoreService {
     this.persist({ user, token });
   }
 
-  /**
-   * Stop impersonation and restore the original super admin session.
-   */
+  /** Encerra impersonação e restaura a sessão original do super admin. */
   stopImpersonation(user: AuthUser, token: string): void {
     this.clearOriginalToken();
     this.userSignal.set(user);
@@ -101,16 +95,14 @@ export class AuthStoreService {
     this.persist({ user, token });
   }
 
-  /**
-   * Check if an original token exists (indicates we were impersonating before a page reload).
-   */
+  /** Verifica se existe token original salvo (indica impersonação ativa antes de recarga). */
   hasOriginalToken(): boolean {
     return this.readOriginalToken() !== null;
   }
 
   /**
-   * Load user preferences after login and apply the saved theme.
-   * Fails silently — does not block authentication.
+   * Carrega preferências do usuário após login e aplica o tema salvo.
+   * Falha silenciosamente — não bloqueia a autenticação.
    */
   private loadUserPreferences(): void {
     if (!this.preferencesService || !this.themeService) return;
@@ -123,14 +115,12 @@ export class AuthStoreService {
         }
       },
       error: () => {
-        // Fallback gracefully — preferences failure does not affect auth state.
+        // Falha silenciosa — erro de preferências não afeta o estado de autenticação.
       },
     });
   }
 
-  /**
-   * Clears authentication data from memory and localStorage.
-   */
+  /** Limpa dados de autenticação da memória e do localStorage. */
   logout(): void {
     this.userSignal.set(null);
     this.tokenSignal.set(null);
@@ -138,9 +128,9 @@ export class AuthStoreService {
   }
 
   /**
-   * Merges partial user data into the current user and persists.
+   * Mescla dados parciais no usuário atual e persiste no localStorage.
    *
-   * @param userUpdate - Partial user object with fields to update
+   * @param userUpdate Objeto parcial com campos a atualizar
    */
   updateUser(userUpdate: Partial<AuthUser>): void {
     const current = this.userSignal();
@@ -153,10 +143,10 @@ export class AuthStoreService {
   }
 
   /**
-   * Checks if the current user has a specific permission.
+   * Verifica se o usuário atual possui uma permissão específica.
    *
-   * @param permission - Permission string to check
-   * @returns True if the permission exists in the user's permission list
+   * @param permission String da permissão a verificar
+   * @returns true se a permissão estiver na lista do usuário
    */
   hasPermission(permission: string): boolean {
     const current = this.userSignal();

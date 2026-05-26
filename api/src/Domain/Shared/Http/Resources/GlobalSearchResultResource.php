@@ -8,7 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for global grouped search result payload.
+ * Resource para o payload de resultados da busca global agrupados por tipo.
+ *
+ * Serializa os resultados retornados pela GlobalSearchAction em um envelope
+ * com data (agrupado por tipo) e meta (total, duração, parâmetros da query).
  */
 final class GlobalSearchResultResource extends JsonResource
 {

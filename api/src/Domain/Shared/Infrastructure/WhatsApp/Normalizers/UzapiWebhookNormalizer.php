@@ -12,13 +12,28 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
+/**
+ * Normalizador de payloads de webhook do provedor UzAPI.
+ *
+ * Converte os diferentes formatos de evento do UzAPI (message, message_status,
+ * connection, presence) em WebhookEventDTO padronizado para o domínio Chat.
+ */
 final class UzapiWebhookNormalizer implements WebhookNormalizerPort
 {
+    /** Retorna o nome do provedor: 'uazapi'. */
     public function getProviderName(): string
     {
         return 'uazapi';
     }
 
+    /**
+     * Normaliza o payload bruto do webhook UzAPI em WebhookEventDTO padronizado.
+     *
+     * @param  array<string, mixed>  $rawPayload  Payload bruto recebido do webhook.
+     * @return WebhookEventDTO DTO normalizado com tipo de evento e dados extraídos.
+     *
+     * @throws \InvalidArgumentException Se o payload não for suportado por este normalizer.
+     */
     public function normalize(array $rawPayload): WebhookEventDTO
     {
         if (! $this->supports($rawPayload)) {
@@ -36,6 +51,12 @@ final class UzapiWebhookNormalizer implements WebhookNormalizerPort
         };
     }
 
+    /**
+     * Verifica se este normalizer suporta o payload recebido.
+     *
+     * @param  array<string, mixed>  $rawPayload  Payload bruto do webhook.
+     * @return bool Verdadeiro se o payload contém estrutura reconhecível do UzAPI.
+     */
     public function supports(array $rawPayload): bool
     {
         $eventType = $this->resolveEventTypeRaw($rawPayload);

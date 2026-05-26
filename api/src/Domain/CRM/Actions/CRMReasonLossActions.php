@@ -31,6 +31,11 @@ final class CRMReasonLossActions
             ->get();
     }
 
+    /**
+     * Lista motivos de perda com paginação, filtrando por status quando informado.
+     *
+     * @param  bool|null  $active  Quando informado, filtra apenas ativos (true) ou inativos (false)
+     */
     public function list(string $tenantId, ?bool $active = null): LengthAwarePaginator
     {
         $query = CRMReasonLoss::query()
@@ -43,6 +48,11 @@ final class CRMReasonLossActions
         return $query->orderBy('position')->orderBy('name')->paginate();
     }
 
+    /**
+     * Cria um motivo de perda garantindo unicidade de nome (case-insensitive) no tenant.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o nome já existe
+     */
     public function create(string $tenantId, CRMReasonLossDTO $dto): CRMReasonLoss
     {
         $this->guardUniqueName($tenantId, $dto->name);
@@ -54,6 +64,7 @@ final class CRMReasonLossActions
         ]);
     }
 
+    /** Atualiza um motivo de perda, verificando unicidade de nome se alterado. */
     public function update(string $tenantId, string $id, CRMReasonLossDTO $dto): CRMReasonLoss
     {
         $reason = $this->find($tenantId, $id);
@@ -67,12 +78,14 @@ final class CRMReasonLossActions
         return $reason;
     }
 
+    /** Remove um motivo de perda pelo ID. */
     public function delete(string $tenantId, string $id): void
     {
         $reason = $this->find($tenantId, $id);
         $reason->delete();
     }
 
+    /** Retorna um motivo de perda pelo ID, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMReasonLoss
     {
         return CRMReasonLoss::query()

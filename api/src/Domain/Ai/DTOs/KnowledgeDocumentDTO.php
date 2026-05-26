@@ -10,27 +10,27 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 
 /**
- * DTO for Knowledge Document data.
+ * DTO para dados de documento da base de conhecimento.
  *
  * @readonly
  */
 final readonly class KnowledgeDocumentDTO
 {
     /**
-     * @param  string|null  $id  Document ID
-     * @param  string  $tenantId  Tenant ID
-     * @param  string  $name  Display name
-     * @param  string  $originalFilename  Original file name
-     * @param  string  $filePath  Storage path
-     * @param  int  $fileSizeBytes  File size in bytes
-     * @param  AiDocumentType  $fileType  File type enum
-     * @param  int  $version  Version number
-     * @param  string|null  $replacedBy  ID of replacing document
-     * @param  int  $chunkCount  Number of chunks
-     * @param  AiEmbeddingStatus  $embeddingStatus  Processing status
-     * @param  string|null  $errorMessage  Error message if failed
-     * @param  array<string, mixed>|null  $metadata  Additional metadata
-     * @param  bool  $isActive  Active flag
+     * @param  string|null  $id  UUID do documento.
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $name  Nome exibido do documento.
+     * @param  string  $originalFilename  Nome original do arquivo enviado.
+     * @param  string  $filePath  Caminho no Storage.
+     * @param  int  $fileSizeBytes  Tamanho do arquivo em bytes.
+     * @param  AiDocumentType  $fileType  Tipo do documento (enum).
+     * @param  int  $version  Número de versão do documento.
+     * @param  string|null  $replacedBy  UUID do documento substituto (versionamento).
+     * @param  int  $chunkCount  Quantidade de chunks gerados.
+     * @param  AiEmbeddingStatus  $embeddingStatus  Status de processamento.
+     * @param  string|null  $errorMessage  Mensagem de erro em caso de falha.
+     * @param  array<string, mixed>|null  $metadata  Metadados adicionais.
+     * @param  bool  $isActive  Indica se o documento está ativo.
      */
     public function __construct(
         public ?string $id,
@@ -50,7 +50,7 @@ final readonly class KnowledgeDocumentDTO
     ) {}
 
     /**
-     * Create from request with uploaded file.
+     * Cria o DTO a partir de um request HTTP com arquivo enviado.
      */
     public static function fromUpload(
         Request $request,

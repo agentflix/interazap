@@ -7,8 +7,8 @@ import { LucideAngularModule } from 'lucide-angular';
 import { SearchSpotlightService } from '../../../core/services/search-spotlight.service';
 
 /**
- * Top navigation bar with search, actions, and user profile.
- * Sticky at the top of the page content area.
+ * Barra de navegação superior com busca, ações e perfil do usuário.
+ * Fixada no topo da área de conteúdo da página.
  *
  * @example
  * ```html
@@ -31,6 +31,7 @@ export class TopbarComponent {
   protected readonly theme = inject(ThemeService);
   protected readonly spotlight = inject(SearchSpotlightService);
 
+  /** Abre o painel de busca global (search spotlight). */
   protected openSearch(): void {
     this.spotlight.open();
   }

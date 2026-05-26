@@ -8,12 +8,23 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Comando de manutenção de partições mensais da tabela chat_messages.
+ *
+ * Cria partições futuras com base em `--months-ahead` e remove partições
+ * antigas somente quando todos os planos ativos já ultrapassaram sua retenção máxima.
+ */
 final class ChatMessagesPartitionMaintenanceCommand extends Command
 {
     protected $signature = 'chat:partitions:maintain {--dry-run} {--months-ahead=3}';
 
     protected $description = 'Cria partições mensais futuras de chat_messages e descarta antigas via DROP PARTITION';
 
+    /**
+     * Executa o comando de manutenção de partições.
+     *
+     * @return int Código de saída do comando.
+     */
     public function handle(): int
     {
         $dryRun = (bool) $this->option('dry-run');
@@ -29,6 +40,12 @@ final class ChatMessagesPartitionMaintenanceCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * Garante a existência das partições mensais futuras da tabela chat_messages.
+     *
+     * @param  int  $monthsAhead  Quantidade de meses à frente para criar partições.
+     * @param  bool  $dryRun  Se verdadeiro, apenas exibe sem executar.
+     */
     private function ensureFuturePartitions(int $monthsAhead, bool $dryRun): void
     {
         $start = Carbon::now()->startOfMonth();
@@ -60,6 +77,11 @@ final class ChatMessagesPartitionMaintenanceCommand extends Command
         }
     }
 
+    /**
+     * Remove partições antigas que ultrapassaram a retenção máxima de todos os planos.
+     *
+     * @param  bool  $dryRun  Se verdadeiro, apenas exibe sem executar.
+     */
     private function dropOldPartitions(bool $dryRun): void
     {
         // Global cutoff = largest retention among all plans (most conservative)

@@ -11,16 +11,20 @@ use Illuminate\Support\Facades\Redis;
 /**
  * Publica eventos `ai.run.request` no Redis Stream consumido pelo gateway.
  *
- * Centraliza a lógica de XADD + serialização para que tanto o caminho de
- * dispatch inicial (DispatchAutopilotRunJob) quanto o de delegação
- * (AiAgentDelegationService) usem o mesmo pipeline rápido e instrumentado.
+ * Centraliza a lógica de XADD e serialização para que tanto o caminho de
+ * dispatch inicial quanto o de delegação usem o mesmo pipeline rápido.
+ * Suporta conexões Predis e PhpRedis nativo.
  */
 final class AutopilotRunStreamPublisher
 {
     private const STREAM_NAME = 'ai.run.request';
 
     /**
-     * @param  array<string, mixed>  $streamPayload
+     * Publica um evento no Redis Stream `ai.run.request` via XADD.
+     *
+     * Suporta tanto conexões Predis (executeRaw) quanto PhpRedis nativo (xadd).
+     *
+     * @param  array<string, mixed>  $streamPayload  Campos do evento a publicar.
      */
     public function publish(array $streamPayload): void
     {
@@ -45,8 +49,12 @@ final class AutopilotRunStreamPublisher
     }
 
     /**
-     * @param  array<string, mixed>  $fields
-     * @return array<string, string>
+     * Normaliza os campos do payload para o formato string exigido pelo Redis Stream.
+     *
+     * Converte bool → '1'/'0', int/float → string, arrays → JSON, null → ''.
+     *
+     * @param  array<string, mixed>  $fields  Campos originais do payload.
+     * @return array<string, string> Campos com valores convertidos para string.
      */
     private function normalizeStreamFields(array $fields): array
     {

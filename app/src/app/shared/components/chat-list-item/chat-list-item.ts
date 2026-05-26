@@ -3,8 +3,8 @@ import { AfAvatarComponent } from '../avatar/avatar';
 import { AfBadgeComponent } from '../badge/badge';
 
 /**
- * AfChatListItemComponent — A single conversation item in the chat inbox list.
- * Displays avatar, name, last message preview, timestamp, and unread count.
+ * Item individual de conversa na lista de conversas do chat.
+ * Exibe avatar, nome, prévia da última mensagem, horário e contador de não lidas.
  *
  * @example
  * ```html
@@ -26,31 +26,31 @@ import { AfBadgeComponent } from '../badge/badge';
   templateUrl: './chat-list-item.html',
 })
 export class AfChatListItemComponent {
-  /** Contact/conversation name */
+  /** Nome do contato ou da conversa */
   readonly name = input.required<string>();
 
-  /** Avatar image URL */
+  /** URL da imagem do avatar */
   readonly avatarUrl = input<string | null>(null);
 
-  /** Preview of the last message */
+  /** Prévia da última mensagem */
   readonly lastMessage = input('');
 
-  /** Timestamp string */
+  /** String formatada com o horário */
   readonly timestamp = input('');
 
-  /** Number of unread messages */
+  /** Número de mensagens não lidas */
   readonly unreadCount = input(0);
 
-  /** Whether the contact is online */
+  /** Indica se o contato está online */
   readonly online = input(false);
 
-  /** Whether this item is the active/selected conversation */
+  /** Indica se este item é a conversa ativa/selecionada */
   readonly active = input(false);
 
-  /** Emitted when the item is clicked */
+  /** Emitido quando o item é clicado */
   readonly selected = output<void>();
 
-  /** Generate initials from name */
+  /** Gera iniciais a partir do nome */
   protected readonly initials = computed(() => {
     const parts = this.name().trim().split(' ');
     if (parts.length >= 2) {
@@ -59,7 +59,7 @@ export class AfChatListItemComponent {
     return this.name().slice(0, 2).toUpperCase();
   });
 
-  /** Dynamic classes based on active state */
+  /** Classes dinâmicas baseadas no estado ativo */
   protected readonly itemClasses = computed(() => {
     const base =
       'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors cursor-pointer border-b border-neutral-100 dark:border-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500/50';

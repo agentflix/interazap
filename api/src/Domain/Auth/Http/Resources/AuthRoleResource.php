@@ -8,11 +8,13 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Role serialization.
+ * Resource para serialização de perfil de acesso (role).
  */
 final class AuthRoleResource extends BaseJsonResource
 {
     /**
+     * Transforma o resource em array de resposta.
+     *
      * @return array<string, mixed>
      */
     protected function data(Request $request): array

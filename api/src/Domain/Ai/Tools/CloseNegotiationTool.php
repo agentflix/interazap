@@ -11,13 +11,15 @@ use Domain\CRM\Models\CRMNegotiation;
 use Domain\CRM\Models\CRMReasonLoss;
 
 /**
- * Tool to close an open CRM negotiation.
+ * Ferramenta de IA para encerrar uma negociação aberta no CRM.
+ *
+ * Input esperado: negotiation_id, outcome (won|lost) e opcionalmente reason_loss_id.
+ * Output produzido: ID da negociação e desfecho registrado.
+ * Quando usar: cliente aceitar ou recusar a proposta de forma definitiva.
  */
 class CloseNegotiationTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa o encerramento da negociação. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $negotiationId = (string) ($input->parameters['negotiation_id'] ?? '');
@@ -74,24 +76,20 @@ class CloseNegotiationTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CLOSE_NEGOTIATION;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Closes a negotiation as won or lost.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

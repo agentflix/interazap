@@ -13,16 +13,14 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 final class ConfigurationMediaTranscriptionRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Verifica se o usuário está autorizado a realizar esta requisição. */
     public function authorize(): bool
     {
         return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Retorna as regras de validação aplicadas à requisição.
      *
      * @return array<string, array<int, string>>
      */

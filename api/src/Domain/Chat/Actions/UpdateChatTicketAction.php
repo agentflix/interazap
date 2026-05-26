@@ -19,7 +19,15 @@ use Domain\Platform\Services\PlatformPlanEnforcementService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
-/** Atualizar status, leitura e abertura de tickets. */
+/**
+ * Atualiza status, leitura e abertura de tickets de chat.
+ *
+ * Responsável por encerramento condicional (com/sem avaliação CSAT), marcação de
+ * leitura com sincronização ao gateway, abertura de ticket com ativação de takeover
+ * humano, e emissão de eventos WebSocket via ChatActivityBroadcastService.
+ *
+ * @category Actions
+ */
 final class UpdateChatTicketAction
 {
     public function __construct(
@@ -32,9 +40,18 @@ final class UpdateChatTicketAction
     ) {}
 
     /**
-     * Atualizar status do ticket com encerramento condicional.
+     * Atualiza o status do ticket com lógica de encerramento condicional.
      *
-     * @param  string  $mode  'normal' ou 'forced'
+     * Em fechamento normal, dispara avaliação CSAT, mensagem de fim de atendimento,
+     * análise de sentimento e evento WebSocket. Fechamento 'forced' pula esses passos.
+     * Invalida o cache de contagens do tenant após cada atualização.
+     *
+     * @param  ChatTicket  $ticket  Ticket a atualizar.
+     * @param  string  $status  Novo status (pending, open, in_progress, closed).
+     * @param  string|null  $reason  Motivo do fechamento.
+     * @param  string  $mode  Modo: 'normal', 'forced' ou 'auto_inactivity'.
+     * @param  string|null  $closedByUserId  ID do usuário que encerrou.
+     * @return ChatTicket Ticket atualizado.
      */
     public function updateStatus(
         ChatTicket $ticket,
@@ -124,7 +141,14 @@ final class UpdateChatTicketAction
     }
 
     /**
-     * Marcar ticket como lido localmente e sincronizar com gateway.
+     * Marca todas as mensagens inbound do ticket como lidas e sincroniza com o gateway.
+     *
+     * Despacha SyncReadReceiptJob com o token e número de destino resolvidos.
+     * Opera silenciosamente se token ou número não estiverem disponíveis.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $id  Identificador do ticket.
+     * @param  ChatTicket|null  $ticket  Ticket pré-carregado (evita query extra).
      */
     public function markAsRead(string $tenantId, string $id, ?ChatTicket $ticket = null): void
     {
@@ -150,10 +174,17 @@ final class UpdateChatTicketAction
     }
 
     /**
-     * Abrir ticket assumindo o atendimento.
+     * Abre o ticket e assume o atendimento com o usuário informado.
      *
+     * Ativa takeover humano, muda status para 'in_progress' e emite evento WebSocket.
+     * Lança DomainException se o ticket já estiver em atendimento ou encerrado.
      *
-     * @throws \DomainException
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $id  Identificador do ticket.
+     * @param  string  $userId  ID do usuário que assume o atendimento.
+     * @return ChatTicket Ticket atualizado.
+     *
+     * @throws \DomainException Se o ticket já estiver em atendimento ou encerrado.
      */
     public function open(string $tenantId, string $id, string $userId): ChatTicket
     {
@@ -204,7 +235,13 @@ final class UpdateChatTicketAction
     }
 
     /**
-     * Localizar ticket pelo ID com eager loading completo.
+     * Localiza o ticket pelo ID com eager loading completo para exibição.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $id  Identificador do ticket.
+     * @return ChatTicket Ticket com relações carregadas.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se o ticket não existir.
      */
     public function find(string $tenantId, string $id): ChatTicket
     {
@@ -227,7 +264,13 @@ final class UpdateChatTicketAction
     }
 
     /**
-     * Localizar ticket mínimo para operações de leitura.
+     * Localiza o ticket com seleção mínima para operações de leitura.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $id  Identificador do ticket.
+     * @return ChatTicket Ticket com campos mínimos carregados.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se o ticket não existir.
      */
     public function findForRead(string $tenantId, string $id): ChatTicket
     {
@@ -238,6 +281,14 @@ final class UpdateChatTicketAction
             ->findOrFail($id);
     }
 
+    /**
+     * Despacha job de análise de sentimento final ao encerrar o ticket.
+     *
+     * Opera apenas quando IA está habilitada no plano. Usa o último texto inbound.
+     * Descarta silenciosamente se não houver mensagem de texto inbound disponível.
+     *
+     * @param  ChatTicket  $ticket  Ticket encerrado.
+     */
     private function dispatchFinalSentimentAnalysis(ChatTicket $ticket): void
     {
         if (! $this->planEnforcement->isAiEnabled((string) $ticket->tenant_id)) {
@@ -263,6 +314,14 @@ final class UpdateChatTicketAction
         )->onQueue('sentiment');
     }
 
+    /**
+     * Resolve o número de telefone do contato do ticket.
+     *
+     * Remove sufixo de JID (@s.whatsapp.net) quando presente.
+     *
+     * @param  ChatTicket  $ticket  Ticket com dados de contato.
+     * @return string|null Número de telefone ou null se não disponível.
+     */
     private function resolveContactPhone(ChatTicket $ticket): ?string
     {
         $number = $ticket->phone_e164 ?? $ticket->phone ?? $ticket->remote_jid;
@@ -276,7 +335,12 @@ final class UpdateChatTicketAction
         return str_contains($number, '@') ? Str::before($number, '@') : $number;
     }
 
-    /** @param  \Domain\Chat\Models\ChatInstance  $instance */
+    /**
+     * Resolve o token de autenticação do gateway para a instância.
+     *
+     * @param  \Domain\Chat\Models\ChatInstance  $instance  Instância de chat.
+     * @return string|null Token ou null se não configurado.
+     */
     private function resolveGatewayToken($instance): ?string
     {
         $settingsToken = is_array($instance->settings_json) ? $instance->settings_json['token'] ?? null : null;

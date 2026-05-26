@@ -19,10 +19,9 @@ import {
 import { TagService } from '@core/services/tag.service';
 import type { Tag } from '@core/models/tag.model';
 
-/**
- * Tag form component for creating and editing CRM tags.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
- */
+  /**
+   * Evento emitido quando o formulário é cancelado.
+   */
 @Component({
   selector: 'app-tag-form',
   standalone: true,
@@ -42,19 +41,29 @@ export class TagFormComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly lastLoadedId = signal<string | null>(null);
 
-  /** Tag to edit — null for create mode */
+  /**
+   * Tag para edição — null para modo de criação.
+   */
   readonly tag = input<Tag | null>(null);
 
-  /** Emitted after a successful save */
+  /**
+   * Evento emitido após salvar com sucesso.
+   */
   readonly saved = output<Tag>();
 
-  /** Emitted when user cancels */
+  /**
+   * Evento emitido quando o usuário cancela.
+   */
   readonly cancelled = output<void>();
 
-  /** Save loading state — accessed by parent via viewChild */
+  /**
+   * Estado de carregamento do salvamento — acessado pelo pai via viewChild.
+   */
   readonly isSaving = signal(false);
 
-  /** Inline error message */
+  /**
+   * Mensagem de erro inline.
+   */
   readonly errorMessage = signal<string | null>(null);
 
   readonly form = this.fb.group({
@@ -83,7 +92,9 @@ export class TagFormComponent {
     });
   }
 
-  /** Submit the form — validates, builds payload, calls API */
+  /**
+   * Submete o formulário — valida, constrói payload e chama a API.
+   */
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -119,7 +130,9 @@ export class TagFormComponent {
     });
   }
 
-  /** Cancel — emit cancelled event */
+  /**
+   * Cancela — emite evento de cancelamento.
+   */
   cancel(): void {
     this.cancelled.emit();
   }

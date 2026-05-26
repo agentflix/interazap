@@ -168,6 +168,7 @@ export class AutoReply implements OnInit {
 
   readonly hasRules = computed(() => this.rules().length > 0);
 
+  /** @ignore */
   ngOnInit(): void {
     this.loadRules();
     this.loadDepartments();
@@ -179,6 +180,7 @@ export class AutoReply implements OnInit {
       });
   }
 
+  /** Carrega todas as regras de auto reply da API. */
   loadRules(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -199,6 +201,7 @@ export class AutoReply implements OnInit {
       });
   }
 
+  /** Carrega departamentos ativos para uso no formulário de ação de transferência. */
   loadDepartments(): void {
     this.departmentService
       .list({ per_page: 100, is_active: true })
@@ -400,6 +403,7 @@ export class AutoReply implements OnInit {
     }, 400);
   }
 
+  /** Valida e persiste a regra em edição ou criação. */
   saveEdit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -490,6 +494,7 @@ export class AutoReply implements OnInit {
     this.deletingRule.set(null);
   }
 
+  /** Executa a exclusão da regra após confirmação. */
   confirmDelete(): void {
     const rule = this.deletingRule();
     if (!rule) return;

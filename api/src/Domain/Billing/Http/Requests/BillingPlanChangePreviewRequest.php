@@ -12,7 +12,9 @@ use Illuminate\Foundation\Http\FormRequest;
 final class BillingPlanChangePreviewRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Verifica se o usuário está autorizado a solicitar preview de troca de plano.
+     *
+     * Requer super-admin ou inquilino com permissões billing.view e billing.plan.manage.
      */
     public function authorize(): bool
     {

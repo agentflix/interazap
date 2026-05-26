@@ -4,6 +4,13 @@ import { Router } from '@angular/router';
 import { EMPTY, catchError, throwError } from 'rxjs';
 import { AuthStoreService } from '../services/auth-store.service';
 
+/**
+ * Interceptor de autenticação central.
+ *
+ * Contexto: HttpInterceptorFn que injeta header `Authorization: Bearer <token>`
+ * e trata erros HTTP: 401 (logout + redirect /login), 402 (redirect /financial/invoices),
+ * 403 (redirect /access-denied).
+ */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStoreService);
   const router = inject(Router);

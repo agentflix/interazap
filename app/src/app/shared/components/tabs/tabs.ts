@@ -7,7 +7,7 @@ export * from './tabs.model';
 
 
 /**
- * AfTabsComponent — Horizontal tab navigation with underline indicator.
+ * Navegação por abas horizontais com indicador de sublinhado.
  *
  * @example
  * ```html
@@ -22,16 +22,16 @@ export * from './tabs.model';
   templateUrl: './tabs.html',
 })
 export class AfTabsComponent {
-  /** Tab definitions */
+  /** Definições das abas */
   readonly tabs = input<AfTabItem[]>([]);
 
-  /** Currently active tab id */
+  /** ID da aba atualmente ativa */
   readonly activeTab = input('');
 
-  /** Stretch tabs to fill available width with equal distribution. */
+  /** Estica as abas para preencher a largura disponível de forma igual. */
   readonly fullWidth = input(false);
 
-  /** Emitted when a tab is clicked */
+  /** Emitido ao clicar em uma aba */
   readonly tabChange = output<string>();
 
   protected selectTab(tab: AfTabItem): void {

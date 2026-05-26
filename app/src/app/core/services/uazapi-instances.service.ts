@@ -8,11 +8,10 @@ export type { ApiResponse, ConnectInstancePayload, ConnectInstanceResponse, Crea
 
 
 /**
- * Service for managing UAZAPI WhatsApp instances.
+ * Gerencia instâncias UAZAPI do WhatsApp (ciclo de vida, conexão, status, perfil).
  *
- * @remarks
- * Provides CRUD operations for WhatsApp instance lifecycle including
- * connect, disconnect, status monitoring, and profile management.
+ * Contexto: service HTTP para CRUD de instâncias WhatsApp com operações de
+ * connect, disconnect, status monitoring e profile management.
  *
  * @example
  * ```typescript
@@ -26,10 +25,10 @@ export class UazapiInstancesService {
   private readonly http = inject(HttpClient);
 
   /**
-   * Lists instances with optional filters and pagination.
+   * Lista instâncias com filtros opcionais e paginação.
    *
-   * @param filters - Optional filters (search, status, pagination)
-   * @returns Observable with paginated and normalized instance list
+   * @param filters - Filtros opcionais: search, status, paginação
+   * @returns Observable com lista paginada e normalizada de instâncias
    */
   list(filters: UazapiInstanceFilters = {}): Observable<Paginated<UazapiInstance>> {
     let params = new HttpParams();
@@ -52,10 +51,10 @@ export class UazapiInstancesService {
   }
 
   /**
-   * Creates a new UAZAPI instance.
+   * Cria uma nova instância UAZAPI.
    *
-   * @param payload - Instance creation data (name, system_name, config)
-   * @returns Observable with created instance
+   * @param payload - Dados de criação: name, system_name, config
+   * @returns Observable com a instância criada
    */
   create(payload: CreateUazapiInstancePayload): Observable<UazapiInstance> {
     return this.http
@@ -64,11 +63,11 @@ export class UazapiInstancesService {
   }
 
   /**
-   * Updates admin-level configuration fields for an instance.
+   * Atualiza campos de configuração de nível admin de uma instância.
    *
-   * @param id - Instance identifier
-   * @param payload - Admin fields to update
-   * @returns Observable with updated instance
+   * @param id - Identificador da instância
+   * @param payload - Campos admin para atualizar
+   * @returns Observable com a instância atualizada
    */
   updateAdminFields(id: string, payload: UpdateAdminFieldsPayload): Observable<UazapiInstance> {
     return this.http
@@ -77,11 +76,11 @@ export class UazapiInstancesService {
   }
 
   /**
-   * Updates the display name of an instance.
+   * Atualiza o nome de exibição de uma instância.
    *
-   * @param id - Instance identifier
-   * @param name - New display name
-   * @returns Observable with updated instance
+   * @param id - Identificador da instância
+   * @param name - Novo nome de exibição
+   * @returns Observable com a instância atualizada
    */
   updateName(id: string, name: string): Observable<UazapiInstance> {
     return this.http
@@ -90,11 +89,11 @@ export class UazapiInstancesService {
   }
 
   /**
-   * Initiates connection to the WhatsApp instance (QR code or pairing).
+   * Inicia conexão com a instância WhatsApp (QR code ou pairing).
    *
-   * @param id - Instance identifier
-   * @param payload - Connection mode and optional phone number
-   * @returns Observable with connection response and instance data
+   * @param id - Identificador da instância
+   * @param payload - Modo de conexão e número de telefone opcional
+   * @returns Observable com resposta de conexão e dados da instância
    */
   connect(id: string, payload: ConnectInstancePayload): Observable<ConnectInstanceResponse> {
     return this.http
@@ -103,10 +102,10 @@ export class UazapiInstancesService {
   }
 
   /**
-   * Disconnects the WhatsApp instance session.
+   * Desconecta a sessão da instância WhatsApp.
    *
-   * @param id - Instance identifier
-   * @returns Observable with disconnection response
+   * @param id - Identificador da instância
+   * @returns Observable com resposta de desconexão
    */
   disconnect(id: string): Observable<DisconnectInstanceResponse> {
     return this.http
@@ -115,10 +114,10 @@ export class UazapiInstancesService {
   }
 
   /**
-   * Retrieves current runtime status of the instance.
+   * Retorna o status de runtime atual da instância.
    *
-   * @param id - Instance identifier
-   * @returns Observable with status response
+   * @param id - Identificador da instância
+   * @returns Observable com resposta de status
    */
   status(id: string): Observable<StatusInstanceResponse> {
     return this.http
@@ -127,21 +126,21 @@ export class UazapiInstancesService {
   }
 
   /**
-   * Deletes an instance.
+   * Exclui uma instância.
    *
-   * @param id - Instance identifier
-   * @returns Observable completing on deletion
+   * @param id - Identificador da instância
+   * @returns Observable que completa após a exclusão
    */
   delete(id: string): Observable<null> {
     return this.http.delete<ApiResponse<null>>(`${this.baseUrl}/${id}`).pipe(map(() => null));
   }
 
   /**
-   * Updates the WhatsApp profile image for an instance.
+   * Atualiza a imagem de perfil do WhatsApp de uma instância.
    *
-   * @param id - Instance identifier
-   * @param image - Base64 encoded image data
-   * @returns Observable with updated instance
+   * @param id - Identificador da instância
+   * @param image - Dados da imagem em Base64
+   * @returns Observable com a instância atualizada
    */
   updateProfileImage(id: string, image: string): Observable<UazapiInstance> {
     return this.http
@@ -150,11 +149,11 @@ export class UazapiInstancesService {
   }
 
   /**
-   * Sets the presence status (available/unavailable) for an instance.
+   * Define o status de presença (disponível/indisponível) de uma instância.
    *
-   * @param id - Instance identifier
-   * @param presence - Presence value ('available' or 'unavailable')
-   * @returns Observable with updated instance
+   * @param id - Identificador da instância
+   * @param presence - Valor de presença ('available' ou 'unavailable')
+   * @returns Observable com a instância atualizada
    */
   updatePresence(id: string, presence: 'available' | 'unavailable'): Observable<UazapiInstance> {
     return this.http

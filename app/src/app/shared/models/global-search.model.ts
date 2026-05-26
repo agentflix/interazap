@@ -1,10 +1,10 @@
 /**
- * Supported response item types from global search API.
+ * Tipos de itens retornados pela API de busca global.
  */
 export type GlobalSearchType = 'contact' | 'company' | 'negotiation' | 'ticket' | 'user';
 
 /**
- * Search result item rendered in spotlight list.
+ * Item de resultado de busca renderizado na lista do spotlight.
  */
 export interface GlobalSearchItem {
   id: string;
@@ -17,7 +17,7 @@ export interface GlobalSearchItem {
 }
 
 /**
- * Grouped result payload for one entity type.
+ * Payload de resultado agrupado para um tipo de entidade.
  */
 export interface GlobalSearchGroup {
   total: number;
@@ -25,7 +25,7 @@ export interface GlobalSearchGroup {
 }
 
 /**
- * Metadata payload from global search API.
+ * Payload de metadados da API de busca global.
  */
 export interface GlobalSearchMeta {
   query: string;
@@ -35,7 +35,7 @@ export interface GlobalSearchMeta {
 }
 
 /**
- * Complete global search response grouped by backend keys.
+ * Resposta completa da busca global agrupada por chaves do backend.
  */
 export interface GlobalSearchResponse {
   data: Partial<
@@ -45,7 +45,7 @@ export interface GlobalSearchResponse {
 }
 
 /**
- * Recent search entry persisted in localStorage.
+ * Entrada de busca recente persistida no localStorage.
  */
 export interface RecentSearch {
   label: string;

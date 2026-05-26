@@ -10,13 +10,15 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\CRM\Models\CRMNegotiationFunnel;
 
 /**
- * Tool to list negotiation funnels and steps.
+ * Ferramenta de IA para listar funis de negociação e suas etapas.
+ *
+ * Input esperado: funnel_id opcional para filtrar por funil específico.
+ * Output produzido: lista de funis com seus respectivos steps ordenados.
+ * Quando usar: antes de criar uma negociação ou mover um lead de etapa, para obter os IDs disponíveis.
  */
 class ListFunnelStepsTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a listagem de funis e etapas. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $tenantId = (string) ($input->context['tenant_id'] ?? '');
@@ -45,24 +47,20 @@ class ListFunnelStepsTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::LIST_FUNNEL_STEPS;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Lists available negotiation funnels and their steps.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

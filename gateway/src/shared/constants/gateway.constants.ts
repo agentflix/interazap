@@ -1,55 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-/** Redis PubSub channel for WebSocket event fan-out. */
+/**
+ * Configurações centralizadas do gateway: canais Redis PubSub, prefixos de sala WebSocket
+ * e nomes de eventos de domínio (AI, Chat).
+ *
+ * Contexto: injetado em serviços que precisam de nomes de canais/streams/eventos
+ * configuráveis via variáveis de ambiente.
+ */
 @Injectable()
 export class GatewayConfig {
   /**
-   * Initializes the config service for reading gateway environment variables.
+   * Inicializa o serviço de configuração para leitura de variáveis de ambiente do gateway.
    *
-   * @param configService - NestJS config service
+   * @param configService - Serviço de configuração do NestJS
    */
   constructor(private readonly configService: ConfigService) {}
 
   /**
-   * Redis PubSub channel used to publish all WebSocket events for fan-out.
-   *
-   * @remarks
-   * Defaults to 'ws.events' if the WS_EVENTS_CHANNEL env var is not set.
+   * Canal Redis PubSub usado para publicar todos os eventos WebSocket para fan-out entre instâncias.
+   * Padrão: 'ws.events' quando WS_EVENTS_CHANNEL não estiver configurado.
    */
   get WS_EVENTS_CHANNEL(): string {
     return this.configService.get<string>('WS_EVENTS_CHANNEL') ?? 'ws.events';
   }
 
   /**
-   * Static prefixes used to namespace WebSocket rooms.
-   *
-   * @remarks
-   * Room names are built as `${prefix}:${id}` (e.g. `tenant:uuid`).
+   * Prefixos para nomear salas WebSocket no formato `${prefixo}:${id}` (ex.: `tenant:uuid`).
    */
-  /** Room prefix enum for WebSocket rooms. */
   readonly RoomPrefix = {
     TENANT: 'tenant',
     TICKET: 'ticket',
     RUN: 'run',
   } as const;
 
-  /** Build tenant room name. */
+  /** Constrói o nome da sala WebSocket para um tenant. */
   tenantRoom(tenantId: string): string {
     return `${this.RoomPrefix.TENANT}:${tenantId}`;
   }
 
-  /** Build ticket room name. */
+  /** Constrói o nome da sala WebSocket para um ticket. */
   ticketRoom(ticketId: string): string {
     return `${this.RoomPrefix.TICKET}:${ticketId}`;
   }
 
-  /** Build AI run room name. */
+  /** Constrói o nome da sala WebSocket para uma execução de IA. */
   runRoom(runId: string): string {
     return `${this.RoomPrefix.RUN}:${runId}`;
   }
 
-  /** Redis Stream names used across the gateway. */
+  /** Nomes dos Redis Streams utilizados em todo o gateway. */
   get STREAM_NAMES() {
     return {
       CHAT_INBOUND_MESSAGE:
@@ -70,13 +70,13 @@ export class GatewayConfig {
     } as const;
   }
 
-  /** AI domain event names. */
+  /** Nomes de eventos do domínio de IA emitidos via WebSocket. */
   readonly AI_EVENTS = {
     RUN_STREAMING: 'ai.run.streaming',
     RUN_COMPLETED: 'ai.run.completed',
   } as const;
 
-  /** Chat domain event names. */
+  /** Nomes de eventos do domínio de chat emitidos via WebSocket. */
   readonly CHAT_EVENTS = {
     ACTIVITY: 'chat.activity',
     MESSAGE_NEW: 'chat.message.new',
@@ -89,7 +89,7 @@ export class GatewayConfig {
   } as const;
 }
 
-// Backward-compatible static exports for non-injected contexts
+// Exportações estáticas compatíveis para contextos sem injeção de dependência
 export const RoomPrefix = {
   TENANT: 'tenant',
   TICKET: 'ticket',

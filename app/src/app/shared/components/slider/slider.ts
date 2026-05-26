@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 
 /**
- * AfSliderComponent — Range slider input.
+ * Controle deslizante de intervalo (slider).
  *
  * @example
  * ```html
@@ -15,28 +15,28 @@ import { Component, ChangeDetectionStrategy, input, output, computed } from '@an
   templateUrl: './slider.html',
 })
 export class AfSliderComponent {
-  /** Current value */
+  /** Valor atual */
   readonly value = input(50);
 
-  /** Minimum */
+  /** Valor mínimo */
   readonly min = input(0);
 
-  /** Maximum */
+  /** Valor máximo */
   readonly max = input(100);
 
-  /** Step */
+  /** Passo */
   readonly step = input(1);
 
-  /** Label */
+  /** Rótulo */
   readonly label = input('');
 
-  /** Show current value */
+  /** Exibe o valor atual */
   readonly showValue = input(true);
 
-  /** Disabled */
+  /** Desabilitado */
   readonly disabled = input(false);
 
-  /** Emitted on value change */
+  /** Emitido ao alterar o valor */
   readonly valueChange = output<number>();
 
   protected onInput(event: Event): void {

@@ -1,19 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-/** Redis PubSub channel for WebSocket event fan-out. */
+/**
+ * Serviço de configuração do gateway.
+ *
+ * Contexto: abstrai a leitura de variáveis de ambiente relacionadas a canais Redis PubSub,
+ * nomes de streams e configurações de ambiente para uso em serviços do gateway.
+ */
 @Injectable()
 export class GatewayConfigService {
   /**
-   * Initializes the config service with NestJS ConfigService for environment variable access.
+   * Inicializa o serviço de configuração com o ConfigService do NestJS para acesso às variáveis de ambiente.
    *
-   * @param configService - NestJS ConfigService instance (injected)
+   * @param configService - Instância do ConfigService do NestJS (injetada)
    */
   constructor(private readonly configService: ConfigService) {}
 
   /**
-   * Checks if the application is running in a test environment.
-   * Uses NODE_ENV from ConfigService and JEST_WORKER_ID which is set by Jest runtime.
+   * Verifica se a aplicação está sendo executada em ambiente de teste.
+   * Utiliza NODE_ENV via ConfigService e JEST_WORKER_ID definido pelo runtime do Jest.
+   *
+   * @returns true se NODE_ENV for 'test' ou se estiver sendo executado via Jest
    */
   isTestEnvironment(): boolean {
     const nodeEnv = this.configService.get<string>('NODE_ENV');
@@ -21,18 +28,18 @@ export class GatewayConfigService {
   }
 
   /**
-   * Redis PubSub channel used to fan-out WebSocket events to all gateway instances.
+   * Canal Redis PubSub utilizado para distribuir eventos WebSocket a todas as instâncias do gateway.
    *
-   * @returns Channel name, defaults to `ws.events`
+   * @returns Nome do canal; padrão: `ws.events`
    */
   get wsEventsChannel(): string {
     return this.configService.get<string>('WS_EVENTS_CHANNEL') ?? 'ws.events';
   }
 
   /**
-   * Redis Streams stream name for inbound chat messages received by the gateway.
+   * Nome do stream Redis para mensagens de chat recebidas pelo gateway.
    *
-   * @returns Stream name, defaults to `chat.inbound_message_received`
+   * @returns Nome do stream; padrão: `chat.inbound_message_received`
    */
   get chatInboundStream(): string {
     return (
@@ -42,9 +49,9 @@ export class GatewayConfigService {
   }
 
   /**
-   * Redis Streams stream name for outbound chat messages sent by the gateway.
+   * Nome do stream Redis para mensagens de chat enviadas pelo gateway.
    *
-   * @returns Stream name, defaults to `chat.outbound_message`
+   * @returns Nome do stream; padrão: `chat.outbound_message`
    */
   get chatOutboundStream(): string {
     return (
@@ -54,9 +61,9 @@ export class GatewayConfigService {
   }
 
   /**
-   * Redis Streams stream name for outbound chat message status updates (delivered, read, failed).
+   * Nome do stream Redis para atualizações de status de mensagens enviadas (entregue, lido, falhou).
    *
-   * @returns Stream name, defaults to `chat.outbound_message_status`
+   * @returns Nome do stream; padrão: `chat.outbound_message_status`
    */
   get chatOutboundStatusStream(): string {
     return (
@@ -66,9 +73,9 @@ export class GatewayConfigService {
   }
 
   /**
-   * Redis Streams stream name for billing payment events received by the gateway.
+   * Nome do stream Redis para eventos de pagamento de billing recebidos pelo gateway.
    *
-   * @returns Stream name, defaults to `billing.payment_received`
+   * @returns Nome do stream; padrão: `billing.payment_received`
    */
   get billingStreamName(): string {
     return (
@@ -78,9 +85,9 @@ export class GatewayConfigService {
   }
 
   /**
-   * Redis Streams stream name for AI tool invocation requests dispatched by the gateway.
+   * Nome do stream Redis para requisições de invocação de ferramentas de IA despachadas pelo gateway.
    *
-   * @returns Stream name, defaults to `ai.tool.request`
+   * @returns Nome do stream; padrão: `ai.tool.request`
    */
   get aiToolRequestStream(): string {
     return (
@@ -90,7 +97,9 @@ export class GatewayConfigService {
   }
 
   /**
-   * Redis PubSub channel used by API to request cancellation of active AI runs.
+   * Canal Redis PubSub utilizado pela API para solicitar cancelamento de execuções de IA ativas.
+   *
+   * @returns Nome do canal; padrão: `ai.run.cancel_requested`
    */
   get aiRunCancelChannel(): string {
     return (

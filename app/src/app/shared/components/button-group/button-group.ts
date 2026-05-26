@@ -1,14 +1,16 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfButtonGroupComponent — Layout wrapper that groups buttons
- * with consistent spacing and direction.
+ * Contêiner de layout que agrupa botões com espaçamento e direção consistentes.
+ *
+ * Contexto: utilizado em rodapés de formulários, barras de ações e
+ * qualquer área que exiba múltiplos botões relacionados.
  *
  * @example
  * ```html
  * <af-button-group spacing="sm" direction="horizontal">
- *   <af-button variant="primary">Save</af-button>
- *   <af-button variant="ghost">Cancel</af-button>
+ *   <af-button variant="primary">Salvar</af-button>
+ *   <af-button variant="ghost">Cancelar</af-button>
  * </af-button-group>
  * ```
  */
@@ -19,10 +21,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './button-group.html',
 })
 export class AfButtonGroupComponent {
-  /** Gap between buttons */
+  /** Espaçamento entre botões */
   readonly spacing = input<'xs' | 'sm' | 'md' | 'lg'>('md');
 
-  /** Layout direction */
+  /** Direção do layout */
   readonly direction = input<'horizontal' | 'vertical'>('horizontal');
 
   protected readonly containerClasses = computed(() => {

@@ -17,6 +17,8 @@ use Illuminate\Support\Str;
 final class CRMNegotiationFileActions
 {
     /**
+     * Lista os arquivos anexados a uma negociação, ordenados por data de criação (mais recente primeiro).
+     *
      * @return Collection<int, CRMNegotiationFile>
      */
     public function list(string $tenantId, string $negotiationId): Collection
@@ -30,6 +32,11 @@ final class CRMNegotiationFileActions
             ->get();
     }
 
+    /**
+     * Faz upload de um arquivo e cria o registro vinculado à negociação.
+     *
+     * @param  string|null  $userId  ID do usuário que está fazendo o upload (opcional)
+     */
     public function create(string $tenantId, ?string $userId, string $negotiationId, UploadedFile $uploadedFile): CRMNegotiationFile
     {
         $this->ensureNegotiation($tenantId, $negotiationId);
@@ -49,6 +56,7 @@ final class CRMNegotiationFileActions
         ]);
     }
 
+    /** Remove o arquivo do disco e exclui o registro do banco de dados. */
     public function delete(string $tenantId, string $negotiationId, string $fileId): void
     {
         $this->ensureNegotiation($tenantId, $negotiationId);

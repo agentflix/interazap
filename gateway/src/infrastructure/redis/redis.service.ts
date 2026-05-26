@@ -19,10 +19,9 @@ export class RedisService implements OnModuleDestroy {
   private blockingClient: RedisClient;
 
   /**
-   * Establishes three dedicated Redis connections (command, pub/sub, and blocking)
-   * from the REDIS_URL environment variable.
-   *
-   * @param configService - NestJS ConfigService for environment variable access
+   * Inicializa três conexões Redis dedicadas (comandos, pub/sub e bloqueante)
+   * a partir da variável de ambiente `REDIS_URL`.
+   * @param configService Serviço de configuração do NestJS
    */
   constructor(private readonly configService: ConfigService) {
     const url =
@@ -73,9 +72,7 @@ export class RedisService implements OnModuleDestroy {
     );
   }
 
-  /**
-   * Gracefully closes all three Redis clients on module destruction.
-   */
+  /** Encerra graciosamente os três clients Redis ao destruir o módulo. */
   async onModuleDestroy() {
     await Promise.all([
       this.commandClient.quit(),
@@ -272,11 +269,10 @@ export class RedisService implements OnModuleDestroy {
   }
 
   /**
-   * Converts a flat Redis stream field array (alternating key/value) into a
-   * structured key/value record.
-   *
-   * @param fields - Alternating [key, value, key, value, ...] array from XREADGROUP
-   * @returns Map of field names to their string values
+   * Converte o array flat de campos do Redis Stream (alternando chave/valor)
+   * em um registro estruturado de chave-valor.
+   * @param fields Array alternado [chave, valor, chave, valor, ...] do XREADGROUP
+   * @returns Mapa de nomes de campos para seus valores string
    */
   private parseFields(fields: string[]): Record<string, string> {
     const result: Record<string, string> = {};

@@ -1,24 +1,24 @@
 /**
- * Sidebar menu configuration for InteraZap.
- * Defines all navigation items, grouped by section.
+ * Configuração do menu lateral (sidebar) do InteraZap.
+ * Define todos os itens de navegação agrupados por seção.
  *
- * To add a new menu item:
- * 1. Add the item to the appropriate section below
- * 2. Use `type: 'item'` for direct links, `type: 'accordion'` for groups
- * 3. Use `type: 'title'` for section headers
- * 4. `iconName` is a Lucide icon name (kebab-case)
+ * Para adicionar um novo item:
+ * 1. Insira o item na seção apropriada abaixo
+ * 2. Use `type: 'item'` para links diretos e `type: 'accordion'` para grupos
+ * 3. Use `type: 'title'` para cabeçalhos de seção
+ * 4. `iconName` é um nome de ícone Lucide em kebab-case
  */
 
 /**
- * Represents a single item in the sidebar menu hierarchy.
- * Can be a section title, a direct navigation link, or an accordion (expandable group).
+ * Representa um item individual na hierarquia do menu lateral.
+ * Pode ser um cabeçalho de seção, um link de navegação direto ou um accordion (grupo expansível).
  *
  * @example
  * ```typescript
- * // Direct link item
+ * // Item com link direto
  * { type: 'item', label: 'Dashboard', link: '/dashboard', iconName: 'layout-dashboard' }
  *
- * // Expandable accordion
+ * // Accordion expansível
  * {
  *   type: 'accordion',
  *   label: 'CRM',
@@ -35,17 +35,21 @@ export interface SidebarMenuItem {
   link?: string;
   iconName?: string;
   children?: SidebarMenuItem[];
+  /** Exibe o item somente quando IA está habilitada no plano do tenant. */
   requiresAiEnabled?: boolean;
+  /** Exibe o item somente quando IA está desabilitada no plano do tenant. */
   requiresAiDisabled?: boolean;
+  /** Feature de IA obrigatória para exibição do item. */
   requiredAiFeature?: AiFeatureFlag;
+  /** Exige que ao menos uma das features de IA listadas esteja ativa. */
   requiredAnyAiFeatures?: AiFeatureFlag[];
-  /** Permission string required to display this item. Guard is still enforced on the route. */
+  /** Permissão necessária para exibir o item. O guard de rota ainda é aplicado independentemente. */
   requiredPermission?: string;
 }
 
 /**
- * Available AI feature flags that can be required by menu items.
- * Used with `requiredAiFeature` and `requiredAnyAiFeatures` on SidebarMenuItem.
+ * Flags de feature de IA disponíveis para controle de visibilidade de itens do menu.
+ * Usadas com `requiredAiFeature` e `requiredAnyAiFeatures` em SidebarMenuItem.
  *
  * @example
  * ```typescript
@@ -59,13 +63,13 @@ export type AiFeatureFlag =
   | 'ai_usage_tracking';
 
 /**
- * Complete sidebar menu structure for InteraZap.
- * Organized by sections: Overview, Operations (Chat, CRM, Billing), AI, Administration, and Settings.
- * Some items have conditional visibility based on AI features and tenant plan.
+ * Estrutura completa do menu lateral do InteraZap.
+ * Organizado por seções: Visão Geral, Operação (Chat, CRM, Faturas), IA, Administração e Configurações.
+ * Itens com visibilidade condicional baseada em features de IA e plano do tenant.
  *
  * @example
  * ```typescript
- * // Use in a component to render the menu
+ * // Usar em um componente para renderizar o menu
  * const menu = SIDEBAR_MENU;
  * ```
  */

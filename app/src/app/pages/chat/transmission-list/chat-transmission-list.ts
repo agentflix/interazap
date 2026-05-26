@@ -22,15 +22,11 @@ import { type ChatTransmissionList, ChatTransmissionListService } from '@core/se
 import { ToastService } from '@core/services/toast.service';
 
 /**
- * Transmission list page.
+ * Página de listagem de listas de transmissão em massa.
  *
  * @remarks
  * Exibe listagem paginada de listas de transmissão com busca, status e ações.
- *
- * @example
- * ```html
- * <app-chat-transmission-list />
- * ```
+ * Permite criar, editar e excluir listas. Navega para o formulário em `/chat/transmission-list/new`.
  */
 @Component({
   selector: 'app-chat-transmission-list',

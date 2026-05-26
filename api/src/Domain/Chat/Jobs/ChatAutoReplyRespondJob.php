@@ -13,7 +13,11 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Executes Auto Reply response asynchronously.
+ * Executa a resposta de auto-reply de forma assíncrona.
+ *
+ * Despacha o `ChatAutoReplyResponder` na fila `auto-reply` para não bloquear
+ * o ciclo de ingestão do webhook. Avalia regras configuradas pelo tenant e
+ * envia as respostas automáticas cabíveis para o ticket.
  */
 final class ChatAutoReplyRespondJob implements ShouldQueue
 {
@@ -24,10 +28,10 @@ final class ChatAutoReplyRespondJob implements ShouldQueue
     use SerializesModels;
 
     /**
-     * @param  string  $tenantId  Tenant identifier.
-     * @param  string  $ticketId  Ticket identifier.
-     * @param  string  $body  Incoming message body.
-     * @param  bool  $isFirstInteraction  Whether this is the first ticket interaction.
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $ticketId  Identificador do ticket.
+     * @param  string  $body  Conteúdo da mensagem recebida.
+     * @param  bool  $isFirstInteraction  Indica se é a primeira interação do ticket.
      */
     public function __construct(
         private readonly string $tenantId,
@@ -39,7 +43,7 @@ final class ChatAutoReplyRespondJob implements ShouldQueue
     }
 
     /**
-     * Handle auto reply response generation.
+     * Processa a geração e envio das respostas automáticas para o ticket.
      */
     public function handle(ChatAutoReplyResponder $responder): void
     {

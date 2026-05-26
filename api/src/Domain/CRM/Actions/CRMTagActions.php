@@ -23,6 +23,8 @@ final class CRMTagActions
     use GuardsUniqueName;
 
     /**
+     * Retorna todas as tags ativas do tenant sem paginação.
+     *
      * @return \Illuminate\Database\Eloquent\Collection<int, CRMTag>
      */
     public function all(string $tenantId): \Illuminate\Database\Eloquent\Collection
@@ -36,7 +38,9 @@ final class CRMTagActions
     }
 
     /**
-     * @param  array<string, mixed>  $filters
+     * Lista tags do tenant com filtros de busca, status e categoria, com paginação.
+     *
+     * @param  array<string, mixed>  $filters  Filtros disponíveis: search, is_active, sort_by, sort_dir, per_page
      */
     public function list(string $tenantId, array $filters = []): LengthAwarePaginator
     {
@@ -69,6 +73,11 @@ final class CRMTagActions
             ->paginate($perPage);
     }
 
+    /**
+     * Cria uma tag garantindo unicidade de nome no tenant.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o nome já existe no tenant
+     */
     public function create(string $tenantId, CRMTagDTO $dto): CRMTag
     {
         $this->guardUniqueName(CRMTag::class, $tenantId, $dto->name, 'Tag já cadastrada para este tenant.');
@@ -80,6 +89,7 @@ final class CRMTagActions
         ]);
     }
 
+    /** Retorna uma tag pelo ID, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMTag
     {
         return CRMTag::query()
@@ -88,12 +98,14 @@ final class CRMTagActions
             ->firstOrFail();
     }
 
+    /** Remove uma tag pelo ID. */
     public function delete(string $tenantId, string $id): void
     {
         $tag = $this->find($tenantId, $id);
         $tag->delete();
     }
 
+    /** Atualiza dados de uma tag, verificando unicidade de nome se alterado. */
     public function update(string $tenantId, string $id, CRMTagDTO $dto): CRMTag
     {
         $tag = $this->find($tenantId, $id);
@@ -113,6 +125,7 @@ final class CRMTagActions
         return $tag;
     }
 
+    /** Vincula uma tag a um contato (sem remover tags já existentes). */
     public function attachToContact(string $tenantId, string $contactId, string $tagId): void
     {
         $contact = CRMContact::query()
@@ -124,6 +137,7 @@ final class CRMTagActions
         ]);
     }
 
+    /** Desvincula uma tag de um contato. */
     public function detachFromContact(string $tenantId, string $contactId, string $tagId): void
     {
         $contact = CRMContact::query()
@@ -133,6 +147,7 @@ final class CRMTagActions
         $contact->tags()->detach($tagId);
     }
 
+    /** Vincula uma tag a uma empresa (sem remover tags já existentes). */
     public function attachToCompany(string $tenantId, string $companyId, string $tagId): void
     {
         $company = CRMCompany::query()
@@ -144,6 +159,7 @@ final class CRMTagActions
         ]);
     }
 
+    /** Desvincula uma tag de uma empresa. */
     public function detachFromCompany(string $tenantId, string $companyId, string $tagId): void
     {
         $company = CRMCompany::query()
@@ -153,6 +169,7 @@ final class CRMTagActions
         $company->tags()->detach($tagId);
     }
 
+    /** Vincula uma tag a uma negociação (sem remover tags já existentes). */
     public function attachToNegotiation(string $tenantId, string $negotiationId, string $tagId): void
     {
         $negotiation = CRMNegotiation::query()
@@ -164,6 +181,7 @@ final class CRMTagActions
         ]);
     }
 
+    /** Desvincula uma tag de uma negociação. */
     public function detachFromNegotiation(string $tenantId, string $negotiationId, string $tagId): void
     {
         $negotiation = CRMNegotiation::query()

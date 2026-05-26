@@ -208,4 +208,30 @@ class BillingUpgradeFromTrialTest extends TestCase
 
         $this->assertGreaterThan($usageCountBefore, $usageCountAfter);
     }
+
+    public function test_upgrade_rejeita_charge_pending(): void
+    {
+        $this->gateway->shouldReceive('ensureCustomer')->andReturn('cust-test-001');
+        $this->gateway->shouldReceive('createPaymentWithToken')->andReturn([
+            'paymentId' => 'pay-pending',
+            'status' => 'PENDING',
+            'brand' => 'VISA',
+            'last4' => '4242',
+        ]);
+        $this->gateway->shouldReceive('getLastError')->andReturn(null)->byDefault();
+
+        Sanctum::actingAs($this->admin, abilities: ['*']);
+
+        $response = $this->postJson('/api/billing/upgrade-from-trial', [
+            'plan_id' => $this->paidPlan->id,
+            'card_token' => 'tok_pending',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('errors.payment.0', 'Pagamento em análise pelo banco. Aguarde alguns minutos e tente novamente.');
+
+        $this->tenant->refresh();
+        $this->assertSame($this->trialPlan->id, $this->tenant->plan_id);
+        $this->assertFalse($this->tenant->has_used_trial);
+    }
 }

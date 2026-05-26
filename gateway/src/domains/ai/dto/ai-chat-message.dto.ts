@@ -1,11 +1,10 @@
 import { IsIn, IsNotEmpty, IsString } from 'class-validator';
 
 /**
- * Represents a single message in an AI chat conversation.
+ * Representa uma única mensagem em uma conversa de chat com AI.
  *
- * @remarks
- * Messages are typed by role to allow the AI provider to distinguish between
- * system instructions, user input, and assistant responses.
+ * As mensagens são tipadas por papel para que o provider de AI diferencie
+ * instruções de sistema, entradas do usuário e respostas do assistente.
  */
 export class AIChatMessageDto {
   @IsString()

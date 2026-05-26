@@ -3,12 +3,13 @@ import { type CanActivateFn, Router } from '@angular/router';
 import { AuthStoreService } from '../services/auth-store.service';
 
 /**
- * Guard that restricts access to auto-reply routes based on tenant plan AI features.
- * Allows access when AI is disabled OR when none of the AI features (agents, prompts governance,
- * knowledge base, usage tracking) are enabled on the plan.
- * This guard protects routes that should only be accessible when the legacy auto-reply is available.
+ * Protege rotas de resposta automática legada verificando se as funcionalidades de IA do plano estão inativas.
  *
- * @returns True if auto-reply is available (AI features disabled or unavailable), otherwise a UrlTree redirecting to /
+ * Permite acesso quando a IA está desabilitada ou quando nenhuma das flags de IA
+ * (agents_v2, prompts_governance, knowledge_base, usage_tracking) está ativa no plano.
+ * Redireciona para `/` quando o tenant já possui IA habilitada com funcionalidades ativas.
+ *
+ * @returns `true` se resposta automática legada estiver disponível, ou `UrlTree` redirecionando para `/`
  *
  * @example
  * ```typescript

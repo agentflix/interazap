@@ -35,6 +35,9 @@ import {
   CRMProposalService,
 } from '../../services/crm-proposal.service';
 
+/**
+ * Formulário de criação e edição de propostas comerciais do CRM.
+ */
 @Component({
   selector: 'app-proposal-form',
   standalone: true,
@@ -48,10 +51,6 @@ import {
     ButtonComponent,
     IconButtonComponent,
     LoadingButtonComponent,
-/**
- * Proposal form page component for the Crm module.
- * @selector app-proposal-form
- */
   ],
   templateUrl: './proposal-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

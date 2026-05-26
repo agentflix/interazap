@@ -20,6 +20,15 @@ final class BillingLockTenantAction
         private readonly AuditLogger $auditLogger,
     ) {}
 
+    /**
+     * Bloqueia o tenant por inadimplência, registrando motivo e auditoria.
+     *
+     * Operação idempotente: retorna o tenant sem alteração se já estiver bloqueado.
+     *
+     * @param  PlatformTenant  $tenant  Tenant a ser bloqueado
+     * @param  string  $reason  Motivo do bloqueio (ex: 'overdue_invoice')
+     * @return PlatformTenant Tenant atualizado
+     */
     public function handle(PlatformTenant $tenant, string $reason): PlatformTenant
     {
         return DB::transaction(function () use ($tenant, $reason): PlatformTenant {
@@ -46,6 +55,7 @@ final class BillingLockTenantAction
         });
     }
 
+    /** Invalida o cache de status de billing do tenant. */
     private function forgetTenantStatusCache(string $tenantId): void
     {
         $prefix = (string) config('billing.delinquency.cache.billing_status_prefix', 'billing:tenant_status:');

@@ -8,12 +8,15 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Message Template serialization.
+ * Resource de serialização de Template de Mensagem.
+ *
+ * Transforma a entidade ChatMessageTemplate no formato da API,
+ * expondo campos como status de aprovação Meta, idioma e componentes estruturados.
  */
 final class ChatMessageTemplateResource extends BaseJsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */

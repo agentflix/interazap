@@ -14,6 +14,7 @@ use Illuminate\Validation\ValidationException;
  */
 final class CRMCustomFieldActions
 {
+    /** Lista todos os campos personalizados do tenant com paginação. */
     public function list(string $tenantId): LengthAwarePaginator
     {
         return CRMCustomField::query()
@@ -22,6 +23,11 @@ final class CRMCustomFieldActions
             ->paginate();
     }
 
+    /**
+     * Cria um campo personalizado garantindo unicidade de nome por entidade no tenant.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando campo com mesmo nome/entidade já existe
+     */
     public function create(string $tenantId, CRMCustomFieldDTO $dto): CRMCustomField
     {
         $this->guardUnique($tenantId, $dto->name, $dto->entity);
@@ -32,6 +38,7 @@ final class CRMCustomFieldActions
         ]);
     }
 
+    /** Atualiza um campo personalizado, verificando unicidade se nome ou entidade forem alterados. */
     public function update(string $tenantId, string $id, CRMCustomFieldDTO $dto): CRMCustomField
     {
         $field = $this->find($tenantId, $id);
@@ -45,12 +52,14 @@ final class CRMCustomFieldActions
         return $field;
     }
 
+    /** Remove um campo personalizado pelo ID. */
     public function delete(string $tenantId, string $id): void
     {
         $field = $this->find($tenantId, $id);
         $field->delete();
     }
 
+    /** Retorna um campo personalizado pelo ID, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMCustomField
     {
         return CRMCustomField::query()

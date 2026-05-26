@@ -8,12 +8,12 @@ use Domain\Ai\Contracts\Chunkers\ChunkerStrategyInterface;
 use Domain\Ai\DTOs\ChunkDTO;
 
 /**
- * Markdown-aware chunking strategy.
+ * Estratégia de chunking otimizada para arquivos Markdown.
  *
- * - Splits preferentially by ## and ### headings
- * - Does NOT split inside code blocks (```...```)
- * - Keeps parent heading at start of child chunk if chunk is split
- * - Groups sections until ~500 tokens, maintains 50 token overlap
+ * Divide preferencialmente por headings ## e ###, preservando blocos
+ * de código intactos. Mantém o heading pai no início do chunk filho
+ * quando a seção é dividida. Agrupa seções até ~500 tokens com
+ * sobreposição de 50 tokens.
  */
 final class MarkdownChunker implements ChunkerStrategyInterface
 {
@@ -40,9 +40,7 @@ final class MarkdownChunker implements ChunkerStrategyInterface
     }
 
     /**
-     * Split markdown text by headings, preserving code blocks intact.
-     *
-     * Returns array of sections, each with heading prefix and body.
+     * Divide o texto Markdown por headings, preservando blocos de código.
      *
      * @return list<array{heading: string, body: string}>
      */
@@ -115,7 +113,7 @@ final class MarkdownChunker implements ChunkerStrategyInterface
     }
 
     /**
-     * Group sections into chunks, keeping heading prefix.
+     * Agrupa seções em chunks, mantendo o prefixo do heading.
      *
      * @param  list<array{heading: string, body: string}>  $sections
      * @return list<ChunkDTO>
@@ -215,6 +213,8 @@ final class MarkdownChunker implements ChunkerStrategyInterface
     }
 
     /**
+     * Cria um ChunkDTO a partir de partes de texto.
+     *
      * @param  list<string>  $parts
      */
     private function createChunk(array $parts, int $index): ChunkDTO
@@ -229,6 +229,8 @@ final class MarkdownChunker implements ChunkerStrategyInterface
     }
 
     /**
+     * Divide o texto em sentenças por pontuação terminal.
+     *
      * @return list<string>
      */
     private function splitBySentences(string $text): array
@@ -245,7 +247,7 @@ final class MarkdownChunker implements ChunkerStrategyInterface
     }
 
     /**
-     * Get sentences for overlap from the end of a chunk.
+     * Retorna sentenças finais do chunk para sobreposição do próximo.
      *
      * @param  list<string>  $sentences
      * @return list<string>
@@ -274,9 +276,7 @@ final class MarkdownChunker implements ChunkerStrategyInterface
         return $overlap;
     }
 
-    /**
-     * Estimate token count for a text.
-     */
+    /** Estima a quantidade de tokens de um texto via divisão por caracteres. */
     private function estimateTokens(string $text): int
     {
         $charsPerToken = (float) config('ai.chunking.chars_per_token', self::DEFAULT_CHARS_PER_TOKEN);

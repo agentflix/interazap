@@ -12,17 +12,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * File content attached to an AI Agent.
+ * Arquivo de contexto vinculado a um Agente de IA.
  *
- * Stores configurable file content (knowledge base) that the agent
- * can access during conversations.
+ * Armazena conteúdo configurável (IDENTITY.md, SOUL.md, PLAYBOOK.md, etc.)
+ * que o agente recebe como parte do payload de execução ao gateway.
+ * Cada arquivo é identificado pelo slug e injetado no prompt do agente.
  *
  * @property string $id
  * @property string $tenant_id
  * @property string $agent_id
- * @property string $slug
- * @property string $content
- * @property string|null $updated_by
+ * @property string $slug Identificador do arquivo (ex.: IDENTITY, SOUL).
+ * @property string $content Conteúdo em texto/markdown do arquivo.
+ * @property string|null $updated_by UUID do usuário que fez a última atualização.
  */
 class AiAgentFile extends Model
 {
@@ -53,11 +54,17 @@ class AiAgentFile extends Model
         });
     }
 
+    /**
+     * Agente ao qual este arquivo pertence.
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(AiAgent::class, 'agent_id');
     }
 
+    /**
+     * Usuário que realizou a última atualização do conteúdo.
+     */
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(AuthUser::class, 'updated_by');

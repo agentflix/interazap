@@ -1,9 +1,9 @@
 /**
- * Resolves container classes for form inputs with backward compatibility.
+ * Resolve as classes do contêiner para campos de formulário com compatibilidade retroativa.
  *
- * - When `classContainer` is `null`/`undefined`: spacing is controlled by `spacing`.
- * - When `classContainer` is an empty string: no margin is applied (legacy override).
- * - When `classContainer` contains explicit `mb-*`: explicit margin wins.
+ * - Quando `classContainer` é `null`/`undefined`: o espaçamento é controlado por `spacing`.
+ * - Quando `classContainer` é uma string vazia: nenhuma margem é aplicada (override legado).
+ * - Quando `classContainer` contém `mb-*` explícito: a margem explícita prevalece.
  */
 export function resolveInputContainerClass(
   classContainer: string | null | undefined,

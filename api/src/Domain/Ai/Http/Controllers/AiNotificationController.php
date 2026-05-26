@@ -13,16 +13,19 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 /**
- * Controller for AI Seller Notification endpoints.
+ * Controller para notificações de vendedores do módulo de IA.
  *
- * Manages notifications sent to sellers from AI agents.
+ * Gerencia as notificações enviadas aos vendedores pelos agentes de IA.
  */
 final class AiNotificationController extends BaseController
 {
     public function __construct(private readonly AiNotificationActions $actions) {}
 
     /**
-     * List notifications for current user.
+     * Lista as notificações do usuário autenticado.
+     *
+     * @param  Request  $request  Requisição HTTP com filtro unread_only opcional.
+     * @return AnonymousResourceCollection Coleção de notificações.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -43,7 +46,11 @@ final class AiNotificationController extends BaseController
     }
 
     /**
-     * Get a specific notification.
+     * Exibe uma notificação específica.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID da notificação.
+     * @return AiNotificationResource|JsonResponse Dados da notificação ou erro 404.
      */
     public function show(Request $request, string $id): AiNotificationResource|JsonResponse
     {
@@ -64,7 +71,10 @@ final class AiNotificationController extends BaseController
     }
 
     /**
-     * Mark notification(s) as read.
+     * Marca uma ou mais notificações como lidas.
+     *
+     * @param  AiNotificationMarkAsReadRequest  $request  Lista de IDs validados.
+     * @return JsonResponse Total de notificações marcadas como lidas.
      */
     public function markAsRead(AiNotificationMarkAsReadRequest $request): JsonResponse
     {
@@ -85,7 +95,10 @@ final class AiNotificationController extends BaseController
     }
 
     /**
-     * Get unread notification count.
+     * Retorna o total de notificações não lidas do usuário.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @return JsonResponse Contagem de notificações não lidas.
      */
     public function unreadCount(Request $request): JsonResponse
     {

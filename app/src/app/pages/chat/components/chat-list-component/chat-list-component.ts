@@ -7,7 +7,12 @@ import { AfTabsComponent, type AfTabItem } from 'src/app/shared/components/tabs/
 import { ChatTicketItemComponent } from '../../components/chat-ticket-item/chat-ticket-item';
 
 /**
- * Left panel list extracted from chat container to reduce page coupling.
+ * Painel esquerdo de listagem de atendimentos extraído do container de chat.
+ *
+ * @remarks
+ * Reduz o acoplamento da página principal delegando a renderização da lista,
+ * abas de filtro, busca, menu de emergência e seleção de ticket para este componente.
+ * Toda lógica de estado permanece no container pai via inputs/outputs.
  */
 @Component({
   selector: 'app-chat-page-list',

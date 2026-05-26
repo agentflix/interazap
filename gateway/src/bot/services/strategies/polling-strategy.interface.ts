@@ -1,24 +1,24 @@
 /**
- * Contract for Telegram update reception strategies.
+ * Contrato para estratégias de recepção de atualizações do Telegram.
  *
- * Two implementations:
- * - LongPollingStrategy: dev/fallback — polls getUpdates
- * - WebhookStrategy: production — registers HTTPS webhook
+ * Contexto: módulo bot. Duas implementações:
+ * - LongPollingStrategy: dev/fallback — faz polling via getUpdates
+ * - WebhookStrategy: produção — registra webhook HTTPS
  */
 export interface PollingStrategy {
-  /** Strategy identifier for logging and config matching. */
+  /** Identificador da estratégia para logs e correspondência de configuração. */
   readonly name: string;
 
   /**
-   * Activate this strategy for a given bot.
-   * @param botToken  Telegram Bot API token (e.g. "123456:ABC-DEF...")
-   * @param webhookToken  Unique per-bot token used in the webhook URL path
+   * Ativa esta estratégia para um bot específico.
+   * @param botToken Token da Telegram Bot API (ex: "123456:ABC-DEF...")
+   * @param webhookToken Token único do bot utilizado no caminho da URL do webhook
    */
   start(botToken: string, webhookToken: string): Promise<void>;
 
-  /** Gracefully shut down this strategy. */
+  /** Encerra a estratégia graciosamente. */
   stop(): Promise<void>;
 
-  /** Whether the strategy is currently active and processing updates. */
+  /** Indica se a estratégia está ativa e processando atualizações. */
   isActive(): boolean;
 }

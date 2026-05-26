@@ -10,12 +10,17 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\Chat\Models\ChatTicket;
 
 /**
- * Tool to transfer a ticket to a human agent.
+ * Ferramenta de IA para transferir um ticket para atendimento humano.
  *
- * Security: Validates tenant_id to prevent cross-tenant access.
+ * Input esperado: ticket_id e reason (obrigatórios); priority opcional.
+ * Output produzido: ticket_id, flag was_already_transferred e prioridade aplicada.
+ * Quando usar: a IA não conseguir atender a solicitação ou o cliente pedir atendimento humano.
+ * Operação idempotente — retorna sucesso mesmo se já transferido.
+ * Segurança: valida tenant_id para evitar acesso entre tenants.
  */
 class TransferToHumanTool implements AiToolInterface
 {
+    /** Executa a transferência do ticket para atendimento humano. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $ticketId = $input->parameters['ticket_id'] ?? null;
@@ -67,17 +72,21 @@ class TransferToHumanTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::TRANSFER_TO_HUMAN;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Transfers the conversation to a human agent when the AI cannot handle the request or the customer requests human support.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

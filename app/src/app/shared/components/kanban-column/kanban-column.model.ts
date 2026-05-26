@@ -1,8 +1,8 @@
 /**
- * Models and types for kanban-column component.
+ * Modelos e tipos do componente de coluna kanban.
  */
 
-/** Kanban card */
+/** Card do quadro kanban. */
 export interface AfKanbanCard {
   id: string;
   title: string;

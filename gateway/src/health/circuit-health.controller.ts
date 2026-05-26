@@ -15,62 +15,59 @@ import {
 import { InternalApiKeyGuard } from '../domains/realtime/guards/internal-api-key.guard';
 
 /**
- * Represents the current status of a single circuit breaker.
+ * Representa o status atual de um circuit breaker individual.
  */
 interface CircuitStatus {
-  /** Unique name identifying the circuit */
+  /** Nome único que identifica o circuito. */
   name: string;
-  /** Current state of the circuit (CLOSED, OPEN, or HALF_OPEN) */
+  /** Estado atual do circuito (CLOSED, OPEN ou HALF_OPEN). */
   state: CircuitState;
-  /** Number of consecutive failures recorded */
+  /** Número de falhas consecutivas registradas. */
   failures: number;
-  /** Unix timestamp of the last failure, or null if never failed */
+  /** Timestamp Unix da última falha, ou null se nunca falhou. */
   lastFailure: number | null;
-  /** Whether the circuit is healthy (state is CLOSED) */
+  /** Indica se o circuito está saudável (estado CLOSED). */
   isHealthy: boolean;
 }
 
 /**
- * Response payload for circuit breaker health queries.
+ * Payload de resposta para consultas de saúde dos circuit breakers.
  */
 interface CircuitHealthResponse {
-  /** Overall health indicator — true when all circuits are CLOSED */
+  /** Indicador geral de saúde — true quando todos os circuitos estão CLOSED. */
   healthy: boolean;
-  /** List of individual circuit statuses */
+  /** Lista de status individuais de cada circuito. */
   circuits: CircuitStatus[];
-  /** Aggregated counts by state */
+  /** Contagens agregadas por estado. */
   summary: {
-    /** Total number of registered circuits */
+    /** Número total de circuitos registrados. */
     total: number;
-    /** Number of circuits in CLOSED state */
+    /** Número de circuitos em estado CLOSED. */
     closed: number;
-    /** Number of circuits in OPEN state */
+    /** Número de circuitos em estado OPEN. */
     open: number;
-    /** Number of circuits in HALF_OPEN state */
+    /** Número de circuitos em estado HALF_OPEN. */
     halfOpen: number;
   };
 }
 
 /**
- * Health check controller for circuit breakers.
+ * Controller de health check para circuit breakers.
  *
- * Provides endpoints to monitor and manage circuit breaker states.
+ * Contexto: módulo health. Expõe endpoints para monitoramento e administração
+ * dos estados dos circuit breakers registrados no gateway.
+ * Protegido pelo guard de API key interna.
  */
 @Controller({ version: '1', path: 'health/circuits' })
 @UseGuards(InternalApiKeyGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class CircuitHealthController {
-  /**
-   * Initializes the controller with the circuit breaker service.
-   *
-   * @param circuitBreaker - Service managing circuit breaker states
-   */
   constructor(private readonly circuitBreaker: CircuitBreakerService) {}
 
   /**
-   * Get status of all circuit breakers.
-   *
-   * @returns List of all circuits with their current state
+   * GET /health/circuits
+   * Retorna o status de todos os circuit breakers registrados.
+   * @returns Lista completa de circuitos com estado atual e resumo agregado
    */
   @Get()
   getAll(): CircuitHealthResponse {
@@ -113,9 +110,10 @@ export class CircuitHealthController {
   }
 
   /**
-   * Get status of a specific circuit.
-   *
-   * @param name - Circuit name
+   * GET /health/circuits/:name
+   * Retorna o status de um circuit breaker específico pelo nome.
+   * @param name Nome do circuito
+   * @returns Status do circuito ou `{ exists: false }` se não encontrado
    */
   @Get(':name')
   getOne(@Param('name') name: string) {
@@ -138,9 +136,10 @@ export class CircuitHealthController {
   }
 
   /**
-   * Reset a circuit to CLOSED state.
-   *
-   * @param name - Circuit name to reset
+   * POST /health/circuits/:name/reset
+   * Força o reset de um circuit breaker para o estado CLOSED.
+   * @param name Nome do circuito a ser resetado
+   * @returns `{ success: true }` se o circuito foi encontrado e resetado
    */
   @Post(':name/reset')
   @HttpCode(200)
@@ -157,9 +156,10 @@ export class CircuitHealthController {
   }
 
   /**
-   * Force a circuit to OPEN state (for testing/maintenance).
-   *
-   * @param name - Circuit name to open
+   * POST /health/circuits/:name/open
+   * Força um circuit breaker para o estado OPEN (para testes ou manutenção).
+   * @param name Nome do circuito a ser aberto
+   * @returns `{ success: true }` se o circuito foi encontrado e aberto
    */
   @Post(':name/open')
   @HttpCode(200)

@@ -36,8 +36,7 @@ const SYSTEM_ROLE_IDS = new Set([
 ]);
 
 /**
- * Roles page — CRUD for access profiles.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Página de perfis de acesso — CRUD completo para gerenciar roles e suas permissões.
  */
 @Component({
   selector: 'app-roles',
@@ -109,17 +108,26 @@ export class Roles implements OnInit {
   readonly showUsersModal = signal(false);
   readonly selectedRoleForUsers = signal<Role | null>(null);
 
+  /**
+   * Abre o modal de usuários vinculados à role.
+   * @param role Role selecionada
+   */
   openUsersModal(role: Role): void {
     this.selectedRoleForUsers.set(role);
     this.showUsersModal.set(true);
   }
 
+  /** Fecha o modal de usuários e recarrega a lista de roles. */
   closeUsersModal(): void {
     this.showUsersModal.set(false);
     this.selectedRoleForUsers.set(null);
     this.loadRoles();
   }
 
+  /**
+   * Fecha o modal e navega para a edição do usuário na página de usuários.
+   * @param user Usuário a editar
+   */
   onEditUserFromModal(user: RoleUser): void {
     this.closeUsersModal();
     void this.router.navigate(['/settings/users'], {
@@ -133,6 +141,7 @@ export class Roles implements OnInit {
 
   // ── Data loading ─────────────────────────────────────────────────────────────
 
+  /** Carrega a lista paginada de perfis de acesso. */
   loadRoles(): void {
     this.isLoading.set(true);
     this.hasError.set(false);
@@ -152,28 +161,42 @@ export class Roles implements OnInit {
       });
   }
 
+  /**
+   * Filtra a listagem pelo termo de busca.
+   * @param term Texto de busca
+   */
   onSearch(term: string): void {
     this.searchTerm = term;
     this.currentPage = 1;
     this.loadRoles();
   }
 
+  /**
+   * Navega para a página especificada da listagem.
+   * @param page Número da página
+   */
   loadPage(page: number): void {
     this.currentPage = page;
     this.loadRoles();
   }
 
+  /** Recarrega a listagem após erro. */
   retry(): void {
     this.loadRoles();
   }
 
   // ── CRUD actions ─────────────────────────────────────────────────────────────
 
+  /** Abre o modal no modo de criação de novo perfil. */
   openCreate(): void {
     this.selectedRole.set(null);
     this.showFormModal.set(true);
   }
 
+  /**
+   * Abre o modal no modo de edição, carregando permissões detalhadas da role.
+   * @param role Role a editar
+   */
   openEdit(role: Role): void {
     this.showFormModal.set(true);
     this.selectedRole.set(role);
@@ -190,11 +213,19 @@ export class Roles implements OnInit {
       });
   }
 
+  /**
+   * Abre o modal de confirmação de exclusão.
+   * @param role Role a excluir
+   */
   openDelete(role: Role): void {
     this.roleToDelete.set(role);
     this.showDeleteModal.set(true);
   }
 
+  /**
+   * Fecha o modal e recarrega a lista após salvar um perfil.
+   * @param role Perfil salvo
+   */
   handleFormSaved(role: Role): void {
     this.showFormModal.set(false);
     this.toast.success('Perfil salvo com sucesso.');
@@ -202,10 +233,12 @@ export class Roles implements OnInit {
     void role;
   }
 
+  /** Fecha o modal de formulário sem salvar. */
   handleFormCancelled(): void {
     this.showFormModal.set(false);
   }
 
+  /** Confirma e executa a exclusão do perfil selecionado. */
   handleDeleteConfirmed(): void {
     const role = this.roleToDelete();
     if (!role || this.isDeleting()) return;
@@ -227,6 +260,11 @@ export class Roles implements OnInit {
       });
   }
 
+  /**
+   * Formata uma data ISO para o padrão brasileiro (dd/mm/aaaa).
+   * @param dateValue String de data ISO
+   * @returns Data formatada ou `—` se ausente/inválida
+   */
   formatDate(dateValue?: string): string {
     if (!dateValue) return '—';
     const date = new Date(dateValue);

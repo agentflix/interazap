@@ -7,7 +7,12 @@ namespace Domain\Ai\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO para dados de agente de IA.
+ * DTO para dados de criação e atualização de um agente de IA.
+ *
+ * Encapsula todos os atributos configuráveis do agente, incluindo
+ * parâmetros de modelo, orçamento de tokens e configurações de voz (STT/TTS).
+ *
+ * @readonly
  */
 final readonly class AiAgentDTO
 {
@@ -37,6 +42,11 @@ final readonly class AiAgentDTO
         public float $ttsSpeed = 1.0,
     ) {}
 
+    /**
+     * Cria o DTO a partir de um request HTTP validado.
+     *
+     * @param  Request  $request  Requisição HTTP com dados do agente.
+     */
     public static function fromRequest(Request $request): self
     {
         $voiceResponseMode = self::normalizeVoiceResponseMode($request->input('voice_response_mode'));
@@ -66,6 +76,8 @@ final readonly class AiAgentDTO
     }
 
     /**
+     * Cria o DTO a partir de um array de dados.
+     *
      * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
@@ -97,6 +109,8 @@ final readonly class AiAgentDTO
     }
 
     /**
+     * Converte o DTO para array compatível com o model Eloquent.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -125,6 +139,11 @@ final readonly class AiAgentDTO
         ];
     }
 
+    /**
+     * Normaliza o modo de resposta de voz aceitando aliases legados.
+     *
+     * Converte text_only -> text, audio_only -> audio, both -> mixed.
+     */
     private static function normalizeVoiceResponseMode(mixed $value): string
     {
         $mode = trim((string) $value);

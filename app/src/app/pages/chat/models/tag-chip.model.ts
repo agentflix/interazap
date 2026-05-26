@@ -1,16 +1,13 @@
-/**
- * Represents a tag attached to a contact.
- */
+/** Etiqueta vinculada a um contato. */
 export interface ContactTag {
   id: string;
   name: string;
 }
 
-/**
- * Represents a tag chip for UI display with color.
- */
+/** Chip de etiqueta para exibição na UI, com cor calculada. */
 export interface TagChip {
   id?: string;
   name: string;
+  /** Cor HSL calculada com base no hash do nome da etiqueta. */
   color: string;
 }

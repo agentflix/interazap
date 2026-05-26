@@ -7,13 +7,11 @@ namespace Domain\Ai\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Request validation for agent skill create/update.
+ * Validação para criação e atualização de habilidade de agente de IA.
  */
 final class AiAgentSkillStoreRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Autorização delegada para o controller via policy. */
     public function authorize(): bool
     {
         return true;

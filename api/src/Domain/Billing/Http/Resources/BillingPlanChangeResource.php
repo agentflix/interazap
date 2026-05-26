@@ -8,7 +8,9 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Plan Change preview/execution response.
+ * Resource para serialização da resposta de preview e execução de troca de plano.
+ *
+ * Encapsula diretamente o array retornado pela action (upgrade/downgrade + efeitos financeiros).
  */
 final class BillingPlanChangeResource extends BaseJsonResource
 {

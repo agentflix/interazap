@@ -7,7 +7,7 @@ import { AuthStoreService } from '@core/services/auth-store.service';
 import { BillingStatusService } from '@core/services/billing-status.service';
 
 /**
- * Lockout page shown when backend blocks tenant access for delinquency.
+ * Página de bloqueio exibida quando o backend bloqueia o acesso do tenant por inadimplência.
  */
 @Component({
   selector: 'app-billing-lockout',
@@ -38,6 +38,7 @@ export class LockoutPage {
     return `${days} dia(s)`;
   });
 
+  /** Navega para a página de pagamento da primeira fatura em atraso. */
   payNow(): void {
     const invoice = this.firstInvoice();
     if (invoice) {
@@ -45,20 +46,32 @@ export class LockoutPage {
     }
   }
 
+  /** Redireciona para a página Meu Plano. */
   goToMyPlan(): void {
     void this.router.navigate(['/settings/my-plan']);
   }
 
+  /** Realiza logout e redireciona para a página de login. */
   logout(): void {
     this.billingStatusService.clearLockout();
     this.authStoreService.logout();
     void this.router.navigate(['/login']);
   }
 
+  /**
+   * Formata um valor numérico como moeda BRL (R$).
+   * @param value Valor a formatar
+   * @returns String formatada em reais
+   */
   formatCurrency(value: number): string {
     return formatCurrency(value);
   }
 
+  /**
+   * Formata uma data ISO no padrão pt-BR (dd/mm/aaaa).
+   * @param value Data em formato ISO 8601
+   * @returns Data formatada ou o valor original se inválido
+   */
   formatDate(value: string): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {

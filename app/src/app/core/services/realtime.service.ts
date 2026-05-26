@@ -5,11 +5,11 @@ import { environment } from '@env/environment';
 import { AuthStoreService } from './auth-store.service';
 
 /**
- * Service for WebSocket-based real-time communication.
+ * Gerencia comunicação em tempo real via WebSocket (Socket.IO).
  *
  * @remarks
- * Manages Socket.IO connections for real-time events, room joining/leaving,
- * and slow network detection. Automatically disconnects on service destruction.
+ * Controla conexões Socket.IO para eventos em tempo real, entrada/saída de salas
+ * e detecção de rede lenta. Desconecta automaticamente ao ser destruído.
  *
  * @example
  * ```typescript
@@ -42,11 +42,11 @@ export class RealtimeService {
   private readonly SLOW_NETWORK_THRESHOLD_MS = 60_000;
 
   /**
-   * Establishes a WebSocket connection using the auth token.
+   * Estabelece conexão WebSocket usando o token de autenticação.
    *
    * @remarks
-   * Idempotent - will not reconnect if already connected.
-   * Reads token and tenant_id from AuthStoreService.
+   * Idempotente — não reconecta se já estiver conectado.
+   * Lê token e `tenant_id` do `AuthStoreService`.
    */
   connect(): void {
     const token = this.authStore.token();
@@ -91,7 +91,7 @@ export class RealtimeService {
   }
 
   /**
-   * Internal: re-registers Socket.IO listeners for all subscribed events.
+   * Interno: re-registra listeners Socket.IO para todos os eventos inscritos.
    */
   private setupEventListeners(): void {
     if (!this.socket) return;
@@ -106,11 +106,11 @@ export class RealtimeService {
   }
 
   /**
-   * Subscribes to a WebSocket event and returns an observable.
+   * Inscreve-se em um evento WebSocket e retorna um Observable.
    *
-   * @param eventName - Name of the event to listen for
-   * @returns Observable emitting event data. Shares the underlying subject
-   *          so multiple subscribers receive the same events.
+   * @param eventName - Nome do evento para ouvir
+   * @returns Observable que emite os dados do evento. Compartilha o subject subjacente
+   *          para que múltiplos inscritos recebam os mesmos eventos.
    */
   on<T = unknown>(eventName: string): Observable<T> {
     let subject = this.eventSubjects.get(eventName);
@@ -132,8 +132,8 @@ export class RealtimeService {
   }
 
   /**
-   * Join one or more WebSocket rooms.
-   * The server validates tenant ownership before allowing the join.
+   * Entra em uma ou mais salas WebSocket.
+   * O servidor valida a propriedade do tenant antes de permitir a entrada.
    */
   joinRooms(rooms: string[]): void {
     if (!this.socket?.connected || rooms.length === 0) return;
@@ -141,7 +141,7 @@ export class RealtimeService {
   }
 
   /**
-   * Leave one or more WebSocket rooms.
+   * Sai de uma ou mais salas WebSocket.
    */
   leaveRooms(rooms: string[]): void {
     if (!this.socket?.connected || rooms.length === 0) return;
@@ -149,9 +149,9 @@ export class RealtimeService {
   }
 
   /**
-   * Check if slow network feedback should be shown.
-   * Returns true if no events have been received in SLOW_NETWORK_THRESHOLD_MS
-   * while the connection appears active.
+   * Verifica se o feedback de rede lenta deve ser exibido.
+   * Retorna `true` se nenhum evento foi recebido dentro de `SLOW_NETWORK_THRESHOLD_MS`
+   * enquanto a conexão parece ativa.
    */
   isSlowNetwork(): boolean {
     if (!this._connected()) return false;

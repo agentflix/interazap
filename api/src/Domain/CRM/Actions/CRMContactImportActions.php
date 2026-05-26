@@ -15,7 +15,10 @@ use Illuminate\Support\Str;
 use RuntimeException;
 
 /**
- * Use cases for CRM contact import.
+ * Casos de uso para importação de contatos CRM a partir de arquivo CSV.
+ *
+ * Realiza deduplicação por telefone, sincronização opcional com Uazapi
+ * e persistência em lotes para melhor performance.
  */
 final class CRMContactImportActions
 {
@@ -24,9 +27,9 @@ final class CRMContactImportActions
     ) {}
 
     /**
-     * Process a CSV import with deduplication and uazapi sync.
+     * Processa importação CSV com deduplicação por telefone e sincronização Uazapi.
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> Resumo com contadores: processed, imported, skipped, failed, errors
      */
     public function process(CRMContactImportDTO $dto): array
     {

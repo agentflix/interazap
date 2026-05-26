@@ -3,10 +3,11 @@ import { RedisService } from './redis.service';
 import { RedisStreamsService } from './redis-streams.service';
 
 /**
- * Global NestJS module that manages Redis connections for the gateway.
+ * Módulo global que gerencia as conexões Redis do gateway.
  *
- * Provides three dedicated Redis clients (command, pub/sub, and blocking) via
- * RedisService, and the RedisStreamsService for stream operations.
+ * Contexto: módulo infra/redis. Fornece o RedisService (três clients dedicados:
+ * comandos, pub/sub e bloqueante) e o RedisStreamsService para operações de stream.
+ * `@Global()` elimina a necessidade de importar em cada módulo de domínio.
  */
 @Global()
 @Module({

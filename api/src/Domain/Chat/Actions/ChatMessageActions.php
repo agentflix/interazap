@@ -12,7 +12,10 @@ use Domain\Chat\Services\WebChatRedisPublisher;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
- * Fachada de compatibilidade para acoes de mensagens de chat.
+ * Fachada de compatibilidade para ações de mensagens de chat.
+ *
+ * Mantida para não quebrar chamadores existentes. Novas implementações devem
+ * usar diretamente as actions especializadas.
  *
  * @deprecated Utilize diretamente ListChatMessagesAction, SendChatMessageAction
  *             ou ProcessChatMessageAction conforme a responsabilidade.
@@ -42,6 +45,8 @@ final readonly class ChatMessageActions
     }
 
     /**
+     * Lista mensagens de um ticket com paginação.
+     *
      * @deprecated Use ListChatMessagesAction::listByTicket()
      *
      * @param  array<string, mixed>  $filters
@@ -52,6 +57,8 @@ final readonly class ChatMessageActions
     }
 
     /**
+     * Lista mensagens de um ticket com cursor de paginação.
+     *
      * @deprecated Use ListChatMessagesAction::listByTicketCursor()
      *
      * @param  array<string, mixed>  $filters
@@ -70,6 +77,8 @@ final readonly class ChatMessageActions
     }
 
     /**
+     * Pré-carrega mensagens citadas para um conjunto de mensagens.
+     *
      * @deprecated Use ListChatMessagesAction::prefetchQuotedMessages()
      *
      * @param  \Illuminate\Support\Collection<int, ChatMessage>  $messages
@@ -81,6 +90,8 @@ final readonly class ChatMessageActions
     }
 
     /**
+     * Cria e envia uma nova mensagem de chat.
+     *
      * @deprecated Use SendChatMessageAction::create()
      */
     public function create(string $tenantId, ChatMessageDTO $dto): ChatMessage
@@ -89,6 +100,8 @@ final readonly class ChatMessageActions
     }
 
     /**
+     * Envia uma mensagem de contato via vCard.
+     *
      * @deprecated Use SendChatMessageAction::sendContact()
      */
     public function sendContact(string $tenantId, ChatMessageDTO $dto): ChatMessage
@@ -97,6 +110,8 @@ final readonly class ChatMessageActions
     }
 
     /**
+     * Envia uma mensagem de localização geográfica.
+     *
      * @deprecated Use SendChatMessageAction::sendLocation()
      */
     public function sendLocation(string $tenantId, ChatMessageDTO $dto): ChatMessage

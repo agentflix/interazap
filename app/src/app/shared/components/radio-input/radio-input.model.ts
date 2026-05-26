@@ -1,13 +1,13 @@
 /**
- * Models and types for radio-input component.
+ * Modelos e tipos do componente de botão de rádio.
  */
 
-/** Configuration for a single radio option */
+/** Configuração de uma opção de rádio individual. */
 export interface AfRadioOption {
-  /** Value emitted when selected */
+  /** Valor emitido quando selecionado */
   value: string;
-  /** Display label */
+  /** Rótulo de exibição */
   label: string;
-  /** Whether this option is disabled */
+  /** Indica se esta opção está desabilitada */
   disabled?: boolean;
 }

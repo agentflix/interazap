@@ -32,9 +32,10 @@ import { RoutingAgentListComponent } from '../../../configuration/components/rou
 import { RoutingAgentFormComponent } from '../../../configuration/components/routing-agent-form/routing-agent-form';
 
 /**
- * Modal component for overriding the global routing queue configuration per channel.
+ * Modal para sobrescrever a configuração global da fila de roteamento por canal.
  *
- * Standalone component using signals and shared UI primitives.
+ * Componente standalone que usa signals e primitivas da UI compartilhada.
+ * Permite ativar override, alterar estratégia, adicionar/remover/reordenar agentes.
  */
 @Component({
   selector: 'app-channel-routing',
@@ -60,40 +61,40 @@ export class ChannelRoutingComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Channel identifier */
+  /** Identificador do canal. */
   readonly channelId = input.required<string>();
 
-  /** Optional channel name for the modal title */
+  /** Nome do canal exibido no título do modal (opcional). */
   readonly channelName = input<string>('');
 
-  /** Emitted when the modal requests to close without persisting */
+  /** Emitido quando o modal solicita fechar sem persistir. */
   readonly closed = output<void>();
 
-  /** Whether the channel has its own routing queue (override) */
+  /** Indica se o canal possui fila de roteamento própria (override ativo). */
   readonly overrideEnabled = signal(false);
 
-  /** Toggle visibility of the add-agent form */
+  /** Controla a visibilidade do formulário de adição de agente. */
   readonly showAddForm = signal(false);
 
-  /** Active users available to add as agents */
+  /** Usuários ativos disponíveis para adicionar como agentes. */
   readonly users = signal<User[]>([]);
 
-  /** Whether a save operation is in progress */
+  /** Indica se uma operação de salvamento está em andamento. */
   readonly isSaving = signal(false);
 
-  /** Local mirror of the queue enabled state (does not persist until save) */
+  /** Estado local do toggle "fila habilitada" (não persiste até salvar). */
   readonly isEnabledLocal = signal(false);
 
-  /** Queue data from the service */
+  /** Dados da fila de roteamento do serviço. */
   readonly queue = this.service.queue;
 
-  /** Agents from the service */
+  /** Agentes da fila do serviço. */
   readonly agents = this.service.agents;
 
-  /** Loading state from the service */
+  /** Estado de carregamento do serviço. */
   readonly loading = this.service.loading;
 
-  /** Error state from the service */
+  /** Estado de erro do serviço. */
   readonly error = this.service.error;
 
   readonly strategyControl = new FormControl<'round_robin' | 'least_busy' | 'skill_based'>('round_robin', {
@@ -151,7 +152,7 @@ export class ChannelRoutingComponent implements OnInit {
       });
   }
 
-  /** Toggle the override state locally */
+  /** Alterna o estado de override localmente. */
   toggleOverride(): void {
     this.overrideEnabled.update((v) => !v);
     if (!this.overrideEnabled()) {
@@ -159,12 +160,12 @@ export class ChannelRoutingComponent implements OnInit {
     }
   }
 
-  /** Toggle the local enabled state (persisted on save) */
+  /** Alterna o estado local de habilitação da fila (persiste ao salvar). */
   toggleEnabled(): void {
     this.isEnabledLocal.update((v) => !v);
   }
 
-  /** Persist the current channel routing configuration */
+  /** Persiste a configuração atual de roteamento do canal. */
   onSave(): void {
     const id = this.channelId();
     const enabled = this.overrideEnabled();
@@ -195,18 +196,18 @@ export class ChannelRoutingComponent implements OnInit {
     }, 300);
   }
 
-  /** Add an agent to the channel queue */
+  /** Adiciona um agente à fila do canal. */
   onAddAgent(userId: string, position?: number): void {
     this.service.addAgent('channel', userId, position, this.channelId());
     this.showAddForm.set(false);
   }
 
-  /** Remove an agent from the channel queue */
+  /** Remove um agente da fila do canal. */
   onRemoveAgent(userId: string): void {
     this.service.removeAgent('channel', userId, this.channelId());
   }
 
-  /** Reorder agents in the channel queue */
+  /** Reordena os agentes na fila do canal. */
   onReorder(agents: ChatRoutingQueueAgent[]): void {
     const payload = agents.map((a, index) => ({
       user_id: a.user_id,
@@ -215,7 +216,7 @@ export class ChannelRoutingComponent implements OnInit {
     this.service.reorder('channel', payload, this.channelId());
   }
 
-  /** Toggle agent active state in the channel queue */
+  /** Alterna o estado ativo de um agente na fila do canal. */
   onToggleActive(userId: string, isActive: boolean): void {
     const currentAgents = this.agents();
     const updatedAgents = currentAgents.map((a: ChatRoutingQueueAgent) =>
@@ -224,22 +225,22 @@ export class ChannelRoutingComponent implements OnInit {
     this.service.save('channel', { agents: updatedAgents }, this.channelId());
   }
 
-  /** Add a skill to an agent in the channel queue */
+  /** Adiciona uma habilidade a um agente da fila do canal. */
   onAddSkill(userId: string, skill: string): void {
     this.service.addAgentSkill('channel', userId, skill, this.channelId());
   }
 
-  /** Remove a skill from an agent in the channel queue */
+  /** Remove uma habilidade de um agente da fila do canal. */
   onRemoveSkill(userId: string, skill: string): void {
     this.service.removeAgentSkill('channel', userId, skill, this.channelId());
   }
 
-  /** Close the modal without side effects */
+  /** Fecha o modal sem efeitos colaterais. */
   onClose(): void {
     this.closed.emit();
   }
 
-  /** Retry loading the queue */
+  /** Tenta recarregar a fila de roteamento após erro. */
   retryLoad(): void {
     this.service.loadForChannel(this.channelId());
   }

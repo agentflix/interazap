@@ -5,11 +5,20 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+/**
+ * Representa uma entrada em cache de um segredo com seu valor e timestamp de expiração.
+ */
 interface CacheEntry {
   value: string;
   expiresAt: number;
 }
 
+/**
+ * Serviço de gerenciamento de segredos do gateway.
+ *
+ * Contexto: resolve segredos em cascata — AWS Secrets Manager → Vault → variáveis de ambiente.
+ * Todos os valores resolvidos são cacheados em memória por 5 minutos para reduzir latência.
+ */
 @Injectable()
 export class SecretsService {
   private readonly cache = new Map<string, CacheEntry>();
@@ -19,8 +28,12 @@ export class SecretsService {
   constructor(private readonly configService: ConfigService) {}
 
   /**
-   * Get a secret by key. Tries AWS SM → Vault → ENV in order.
-   * Results are cached for 5 minutes.
+   * Obtém um segredo pela chave. Tenta AWS SM → Vault → ENV nessa ordem.
+   * Resultados são cacheados por 5 minutos.
+   *
+   * @param key - Chave do segredo (ex.: 'telegram/bot-token/instanceId')
+   * @returns Valor do segredo resolvido
+   * @throws ServiceUnavailableException quando o segredo não é encontrado em nenhuma fonte
    */
   async getSecret(key: string): Promise<string> {
     const cached = this.getCached(key);
@@ -56,22 +69,27 @@ export class SecretsService {
   }
 
   /**
-   * Get a Telegram bot token for a given instance.
-   * Key pattern: `telegram/bot-token/{instanceId}`
+   * Obtém o token de bot Telegram para uma instância específica.
+   * Padrão de chave: `telegram/bot-token/{instanceId}`
+   *
+   * @param instanceId - ID da instância Telegram
+   * @returns Token do bot Telegram
    */
   async getBotToken(instanceId: string): Promise<string> {
     return this.getSecret(`telegram/bot-token/${instanceId}`);
   }
 
   /**
-   * Invalidate cache for a specific key.
+   * Invalida o cache de um segredo específico.
+   *
+   * @param key - Chave do segredo a ser invalidada
    */
   invalidateCache(key: string): void {
     this.cache.delete(key);
   }
 
   /**
-   * Invalidate all cached secrets.
+   * Invalida todos os segredos cacheados em memória.
    */
   invalidateAll(): void {
     this.cache.clear();

@@ -33,6 +33,7 @@ final class BillingGenerateMonthlyInvoicesCommand extends Command
         parent::__construct();
     }
 
+    /** Executa a geração de faturas mensais para todos os tenants ativos com plano. */
     public function handle(): int
     {
         $dryRun = (bool) $this->option('dry-run');
@@ -121,6 +122,7 @@ final class BillingGenerateMonthlyInvoicesCommand extends Command
         return self::SUCCESS;
     }
 
+    /** Retorna o mês de referência do argumento ou, se ausente, o mês anterior ao atual. */
     private function resolveReferenceMonth(): string
     {
         $argument = $this->argument('reference_month');

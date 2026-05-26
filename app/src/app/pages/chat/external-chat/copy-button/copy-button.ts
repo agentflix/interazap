@@ -2,12 +2,14 @@ import { Component, ChangeDetectionStrategy, signal, input, output } from '@angu
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * Reusable copy-to-clipboard button.
- * Emits `copied` event when the text has been copied successfully.
+ * Botão reutilizável de cópia para área de transferência.
+ *
+ * Emite o evento `copied` ao copiar o texto com sucesso.
+ * Utiliza fallback via `execCommand` em navegadores sem suporte à Clipboard API.
  *
  * @example
  * ```html
- * <app-copy-button [text]="myCode" (copied)="onCopied()" />
+ * <app-copy-button [text]="meuCodigo" (copied)="onCopiado()" />
  * ```
  */
 @Component({
@@ -36,10 +38,10 @@ import { LucideAngularModule } from 'lucide-angular';
   `,
 })
 export class CopyButtonComponent {
-  /** Text to copy to clipboard */
+  /** Texto a ser copiado para a área de transferência. */
   text = input<string>('');
 
-  /** Emit when text has been copied */
+  /** Emitido quando o texto foi copiado com sucesso. */
   copied = output<void>();
 
   readonly isCopying = signal(false);

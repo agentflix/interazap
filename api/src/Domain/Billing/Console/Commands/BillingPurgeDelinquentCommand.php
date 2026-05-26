@@ -25,7 +25,7 @@ final class BillingPurgeDelinquentCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * Executa o comando de purge de tenants inadimplentes elegíveis.
      */
     public function handle(): int
     {

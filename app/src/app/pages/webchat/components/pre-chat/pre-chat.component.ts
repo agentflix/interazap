@@ -17,8 +17,8 @@ import { WebChatService } from '../../services/webchat.service';
 import { type PreChatFormState } from '../../webchat.model';
 
 /**
- * PreChatComponent — collects visitor name and WhatsApp before starting a chat session.
- * Displays a branded welcome screen matching the FEAT-040 wireframe.
+ * Componente de pré-chat que coleta nome e WhatsApp do visitante antes de iniciar
+ * uma sessão de atendimento. Exibe tela de boas-vindas com identidade visual do tenant.
  */
 @Component({
   selector: 'app-pre-chat',
@@ -31,13 +31,13 @@ export class PreChatComponent implements OnInit {
   private readonly webchatService = inject(WebChatService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Tenant ID resolved from route (/chat/external/:tenantId or /embed/:tenantId) */
+  /** ID do tenant resolvido pela rota (/chat/external/:tenantId ou /embed/:tenantId). */
   readonly tenantId = input<string | null>(null);
 
-  /** Tenant name resolved from route query param or API validation */
+  /** Nome do tenant resolvido via parâmetro de rota ou validação na API. */
   readonly tenantName = input<string | null>(null);
 
-  /** Emits when session is created and ready to show chat */
+  /** Emitido quando a sessão é criada e o chat está pronto para exibição. */
   readonly sessionReady = output<{
     token: string;
     sessionId: string;
@@ -112,7 +112,7 @@ export class PreChatComponent implements OnInit {
     return 'Nome inválido';
   }
 
-  /** Called when the form is submitted */
+  /** Acionado ao submeter o formulário; valida campos e inicia a sessão de chat. */
   onSubmit(): void {
     // Mark all fields as touched to show validation errors
     this.nameControl.markAsTouched();
@@ -193,7 +193,11 @@ export class PreChatComponent implements OnInit {
     });
   }
 
-  /** Track by index for @for loops */
+  /**
+   * Função de rastreamento por índice para laços @for.
+   * @param index Índice do elemento no array
+   * @returns O próprio índice
+   */
   trackByIndex(index: number): number {
     return index;
   }

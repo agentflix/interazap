@@ -15,7 +15,7 @@ use Illuminate\Validation\Rule;
 final class AuthRoleUpdateRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Autoriza apenas usuários com permissão de atualização da role alvo via policy.
      */
     public function authorize(): bool
     {
@@ -43,6 +43,8 @@ final class AuthRoleUpdateRequest extends FormRequest
     }
 
     /**
+     * Regras de validação para atualização de perfil de acesso.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array

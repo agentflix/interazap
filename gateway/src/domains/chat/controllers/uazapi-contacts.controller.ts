@@ -27,17 +27,17 @@ import {
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class UazapiContactsController {
   /**
-   * Initializes the contacts controller with the Uazapi client.
+   * Inicializa o controller de contatos com o cliente Uazapi.
    *
-   * @param client - Uazapi HTTP client for contact operations
+   * @param client Cliente HTTP Uazapi para operacoes de contatos
    */
   constructor(private readonly client: UazapiClient) {}
 
   /**
-   * Lists all contacts for an instance.
+   * Lista todos os contatos da instancia.
    *
-   * @param token - Instance token
-   * @returns List of contacts
+   * @param token Token da instancia
+   * @returns Lista de contatos
    */
   @Get()
   list(@Param('token') token: string) {
@@ -45,11 +45,11 @@ export class UazapiContactsController {
   }
 
   /**
-   * Lists contacts with pagination.
+   * Lista contatos com paginacao.
    *
-   * @param token - Instance token
-   * @param body - Pagination parameters
-   * @returns Paginated list of contacts
+   * @param token Token da instancia
+   * @param body Parametros de paginacao
+   * @returns Lista paginada de contatos
    */
   @Post('list')
   listPaginated(@Param('token') token: string, @Body() body: ListContactsDto) {
@@ -60,11 +60,11 @@ export class UazapiContactsController {
   }
 
   /**
-   * Adds a contact to an instance.
+   * Adiciona um contato a instancia Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Contact data
-   * @returns Add result
+   * @param token Token da instancia
+   * @param body Dados do contato a adicionar
+   * @returns Resultado da adicao
    */
   @Post()
   add(@Param('token') token: string, @Body() body: ContactAddDto) {
@@ -75,11 +75,11 @@ export class UazapiContactsController {
   }
 
   /**
-   * Removes a contact from an instance.
+   * Remove um contato da instancia Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Contact removal data
-   * @returns Remove result
+   * @param token Token da instancia
+   * @param body Dados de identificacao do contato a remover
+   * @returns Resultado da remocao
    */
   @Post('remove')
   remove(@Param('token') token: string, @Body() body: ContactRemoveDto) {

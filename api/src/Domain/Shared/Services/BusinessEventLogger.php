@@ -7,10 +7,10 @@ namespace Domain\Shared\Services;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Structured logging for business events.
+ * Logger estruturado para eventos de negócio.
  *
- * All business events are logged in JSON format for analysis and auditing.
- * Sensitive data is automatically filtered.
+ * Registra todos os eventos de negócio em formato JSON para análise e auditoria.
+ * Dados sensíveis (senhas, tokens, CPF, CNPJ etc.) são filtrados automaticamente.
  */
 final class BusinessEventLogger
 {
@@ -25,9 +25,11 @@ final class BusinessEventLogger
     ];
 
     /**
-     * Log a ticket event.
+     * Registra o evento de criação de ticket.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $ticketId  Identificador do ticket criado.
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  array<string, mixed>  $context  Contexto adicional do evento.
      */
     public function ticketCreated(string $ticketId, string $tenantId, array $context = []): void
     {
@@ -39,9 +41,12 @@ final class BusinessEventLogger
     }
 
     /**
-     * Log a ticket closed event.
+     * Registra o evento de fechamento de ticket.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $ticketId  Identificador do ticket.
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $status  Status final do ticket.
+     * @param  array<string, mixed>  $context  Contexto adicional do evento.
      */
     public function ticketClosed(string $ticketId, string $tenantId, string $status, array $context = []): void
     {
@@ -54,9 +59,12 @@ final class BusinessEventLogger
     }
 
     /**
-     * Log a message sent event.
+     * Registra o evento de mensagem enviada.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $messageId  Identificador da mensagem.
+     * @param  string  $ticketId  Identificador do ticket relacionado.
+     * @param  string  $direction  Direção da mensagem ('incoming' ou 'outgoing').
+     * @param  array<string, mixed>  $context  Contexto adicional do evento.
      */
     public function messageSent(string $messageId, string $ticketId, string $direction, array $context = []): void
     {
@@ -69,9 +77,12 @@ final class BusinessEventLogger
     }
 
     /**
-     * Log a message received event.
+     * Registra o evento de mensagem recebida.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $messageId  Identificador da mensagem.
+     * @param  string  $ticketId  Identificador do ticket relacionado.
+     * @param  string  $channel  Canal de origem da mensagem.
+     * @param  array<string, mixed>  $context  Contexto adicional do evento.
      */
     public function messageReceived(string $messageId, string $ticketId, string $channel, array $context = []): void
     {
@@ -84,9 +95,13 @@ final class BusinessEventLogger
     }
 
     /**
-     * Log a negotiation event.
+     * Registra o evento de atualização de negociação.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $negotiationId  Identificador da negociação.
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $status  Novo status da negociação.
+     * @param  float  $value  Valor monetário da negociação.
+     * @param  array<string, mixed>  $context  Contexto adicional do evento.
      */
     public function negotiationUpdated(string $negotiationId, string $tenantId, string $status, float $value, array $context = []): void
     {
@@ -100,9 +115,12 @@ final class BusinessEventLogger
     }
 
     /**
-     * Log a negotiation won event.
+     * Registra o evento de negociação ganha.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $negotiationId  Identificador da negociação.
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  float  $value  Valor monetário da negociação.
+     * @param  array<string, mixed>  $context  Contexto adicional do evento.
      */
     public function negotiationWon(string $negotiationId, string $tenantId, float $value, array $context = []): void
     {
@@ -115,9 +133,12 @@ final class BusinessEventLogger
     }
 
     /**
-     * Log a negotiation lost event.
+     * Registra o evento de negociação perdida.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $negotiationId  Identificador da negociação.
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $reason  Motivo da perda da negociação.
+     * @param  array<string, mixed>  $context  Contexto adicional do evento.
      */
     public function negotiationLost(string $negotiationId, string $tenantId, string $reason, array $context = []): void
     {
@@ -130,9 +151,13 @@ final class BusinessEventLogger
     }
 
     /**
-     * Log a payment received event.
+     * Registra o evento de pagamento recebido.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $paymentId  Identificador do pagamento.
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  float  $amount  Valor do pagamento.
+     * @param  string  $method  Método de pagamento utilizado.
+     * @param  array<string, mixed>  $context  Contexto adicional do evento.
      */
     public function paymentReceived(string $paymentId, string $tenantId, float $amount, string $method, array $context = []): void
     {
@@ -146,9 +171,11 @@ final class BusinessEventLogger
     }
 
     /**
-     * Log a security event.
+     * Registra um evento de segurança no canal dedicado.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $event  Nome do evento de segurança.
+     * @param  string  $userId  Identificador do usuário envolvido.
+     * @param  array<string, mixed>  $context  Contexto adicional do evento.
      */
     public function securityEvent(string $event, string $userId, array $context = []): void
     {
@@ -161,9 +188,10 @@ final class BusinessEventLogger
     }
 
     /**
-     * Log a generic business event.
+     * Registra um evento genérico de negócio no canal JSON.
      *
-     * @param  array<string, mixed>  $context
+     * @param  string  $event  Nome do evento.
+     * @param  array<string, mixed>  $context  Contexto sanitizado do evento.
      */
     private function logBusinessEvent(string $event, array $context): void
     {
@@ -175,10 +203,10 @@ final class BusinessEventLogger
     }
 
     /**
-     * Remove sensitive data from context.
+     * Remove dados sensíveis do contexto substituindo-os por '[REDACTED]'.
      *
-     * @param  array<string, mixed>  $context
-     * @return array<string, mixed>
+     * @param  array<string, mixed>  $context  Contexto original do evento.
+     * @return array<string, mixed> Contexto com campos sensíveis mascarados.
      */
     private function sanitize(array $context): array
     {

@@ -22,9 +22,10 @@ final class PlatformUserService
     ) {}
 
     /**
-     * Lista usuários de todos os tenants.
+     * Lista usuários de todos os tenants com filtros e paginação.
      *
-     * @return LengthAwarePaginator<int, AuthUser>
+     * @param  AuthUserFiltersDTO  $filters  Filtros de busca e ordenação.
+     * @return LengthAwarePaginator<int, AuthUser> Lista paginada de usuários.
      */
     public function listAllTenants(AuthUserFiltersDTO $filters): LengthAwarePaginator
     {
@@ -62,21 +63,45 @@ final class PlatformUserService
             ->paginate($filters->sanitizedPerPage());
     }
 
+    /**
+     * Cria um usuário em qualquer tenant, sem restrições de TenantScope.
+     *
+     * @param  AuthUserDTO  $dto  Dados do usuário.
+     * @return AuthUser Usuário criado.
+     */
     public function createForAnyTenant(AuthUserDTO $dto): AuthUser
     {
         return $this->actions->create($dto);
     }
 
+    /**
+     * Atualiza um usuário em qualquer tenant.
+     *
+     * @param  string  $id  UUID do usuário.
+     * @param  AuthUserDTO  $dto  Novos dados do usuário.
+     * @return AuthUser Usuário atualizado.
+     */
     public function updateForAnyTenant(string $id, AuthUserDTO $dto): AuthUser
     {
         return $this->actions->update($id, $dto);
     }
 
+    /**
+     * Exclui um usuário de qualquer tenant.
+     *
+     * @param  string  $id  UUID do usuário.
+     */
     public function deleteForAnyTenant(string $id): void
     {
         $this->actions->delete($id);
     }
 
+    /**
+     * Alterna o status ativo/inativo de um usuário de qualquer tenant.
+     *
+     * @param  string  $id  UUID do usuário.
+     * @return AuthUser Usuário com status atualizado.
+     */
     public function toggleActiveForAnyTenant(string $id): AuthUser
     {
         return $this->actions->toggleActive($id);

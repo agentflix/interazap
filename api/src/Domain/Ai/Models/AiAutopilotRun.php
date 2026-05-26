@@ -90,6 +90,9 @@ class AiAutopilotRun extends Model
         return AiAutopilotRunFactory::new();
     }
 
+    /**
+     * Retorna o run pai em caso de execução aninhada por delegação.
+     */
     public function parentRun(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_run_id');

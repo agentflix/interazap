@@ -6,7 +6,7 @@ import { ModalComponent } from '@shared/components/modal/modal';
 import { type ReasonLoss } from 'src/app/core/services/reason-loss.service';
 
 /**
- * Modal for choosing negotiation loss reason and optional comment.
+ * Modal para seleção do motivo de perda da negociação com comentário opcional.
  */
 @Component({
   selector: 'app-negotiation-loss-modal',

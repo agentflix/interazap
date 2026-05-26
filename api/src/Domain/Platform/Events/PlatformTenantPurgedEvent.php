@@ -15,6 +15,10 @@ final class PlatformTenantPurgedEvent
     use Dispatchable;
     use SerializesModels;
 
+    /**
+     * @param  string  $tenantId  UUID do tenant purgado.
+     * @param  string  $purgedAt  Timestamp ISO 8601 do momento do purge.
+     */
     public function __construct(
         public readonly string $tenantId,
         public readonly string $purgedAt,

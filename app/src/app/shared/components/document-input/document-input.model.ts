@@ -1,6 +1,6 @@
 /**
- * Models and types for document-input component.
+ * Modelos e tipos do componente de campo de documento (CPF/CNPJ).
  */
 
-/** Available sizes for the input */
+/** Tamanhos disponíveis para o campo */
 export type AfInputSize = 'sm' | 'md';

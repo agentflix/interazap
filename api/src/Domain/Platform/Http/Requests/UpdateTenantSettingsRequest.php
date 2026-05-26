@@ -17,7 +17,7 @@ use Illuminate\Validation\Rule;
 final class UpdateTenantSettingsRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -33,7 +33,7 @@ final class UpdateTenantSettingsRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para atualização de configurações do tenant.
      *
      * @return array<string, mixed>
      */
@@ -87,7 +87,7 @@ final class UpdateTenantSettingsRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
+     * Prepara os dados antes da validação, convertendo strings 'true'/'false' em booleanos.
      */
     protected function prepareForValidation(): void
     {

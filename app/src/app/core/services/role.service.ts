@@ -21,10 +21,10 @@ export class RoleService {
   private readonly baseUrl = `${environment.apiUrl}/auth/roles`;
 
   /**
-   * Lists roles with optional search and pagination.
+   * Lista roles com busca e paginação opcionais.
    *
-   * @param filters - Optional filters (search, page, per_page)
-   * @returns Observable with paginated roles list
+   * @param filters - Filtros opcionais: search, page, per_page
+   * @returns Observable com lista paginada de roles
    */
   list(filters: RoleFilters = {}): Observable<PaginatedRoles> {
     let params = new HttpParams();
@@ -35,31 +35,31 @@ export class RoleService {
   }
 
   /**
-   * Retrieves a single role by ID.
+   * Retorna uma role pelo ID.
    *
-   * @param id - Role identifier
-   * @returns Observable with role data
+   * @param id - Identificador da role
+   * @returns Observable com dados da role
    */
   find(id: string): Observable<ApiResponse<Role>> {
     return this.http.get<ApiResponse<Role>>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * Creates a new role with the given name and permissions.
+   * Cria uma nova role com nome e permissões.
    *
-   * @param payload - Role creation data
-   * @returns Observable with created role
+   * @param payload - Dados de criação da role
+   * @returns Observable com a role criada
    */
   create(payload: { name: string; permissions: string[] }): Observable<ApiResponse<Role>> {
     return this.http.post<ApiResponse<Role>>(this.baseUrl, payload);
   }
 
   /**
-   * Updates an existing role's name and permissions.
+   * Atualiza nome e permissões de uma role existente.
    *
-   * @param id - Role identifier
-   * @param payload - Partial role data to update
-   * @returns Observable with updated role
+   * @param id - Identificador da role
+   * @param payload - Dados parciais para atualização
+   * @returns Observable com a role atualizada
    */
   update(
     id: string,
@@ -69,10 +69,10 @@ export class RoleService {
   }
 
   /**
-   * Deletes a role.
+   * Exclui uma role.
    *
-   * @param id - Role identifier
-   * @returns Observable completing on deletion
+   * @param id - Identificador da role
+   * @returns Observable que completa após a exclusão
    */
   delete(id: string): Observable<ApiResponse<null>> {
     return this.http.delete<ApiResponse<null>>(`${this.baseUrl}/${id}`);

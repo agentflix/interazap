@@ -31,8 +31,8 @@ import { type CnpjData, type AddressData, UtilsService } from '@core/services/ut
 import { normalizeUf } from '@pages/platform/tenants/components/tenant-form/tenant-form.utils';
 
 /**
- * Company form component — create/edit CRM companies.
- * CNPJ lookup + CEP auto-fill preserved from source.
+ * Formulário de criação e edição de empresas do CRM.
+ * Inclui consulta automática de CNPJ e preenchimento de endereço via CEP.
  */
 @Component({
   selector: 'app-company-form',

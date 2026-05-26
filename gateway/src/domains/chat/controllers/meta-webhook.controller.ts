@@ -69,23 +69,23 @@ export class MetaWebhookController {
   ): Promise<{ success: boolean }> {
     const appSecret = this.configService.get<string>('meta.appSecret') ?? '';
 
-    // 1. Validate HMAC signature
+    // 1. Valida assinatura HMAC
     if (!signature) {
       this.logger.warn('Missing X-Hub-Signature-256 header');
       throw new ForbiddenException('Missing signature');
     }
 
-    // 2. Get raw body for HMAC calculation
+    // 2. Obtem body bruto para calculo do HMAC
     const rawBody =
       typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
 
-    // 3. Calculate expected signature
+    // 3. Calcula a assinatura esperada
     const expectedSig = `sha256=${crypto
       .createHmac('sha256', appSecret)
       .update(rawBody, 'utf-8')
       .digest('hex')}`;
 
-    // 4. Compare signatures using timing-safe comparison
+    // 4. Compara assinaturas usando comparacao de tempo constante (timing-safe)
     const signatureBuffer = Buffer.from(signature);
     const expectedBuffer = Buffer.from(expectedSig);
 
@@ -99,7 +99,7 @@ export class MetaWebhookController {
 
     this.logger.debug('Webhook HMAC signature verified');
 
-    // 5. Extract phone_number_id from payload for routing
+    // 5. Extrai phone_number_id do payload para roteamento
     const phoneNumberId =
       payload.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
 
@@ -110,17 +110,17 @@ export class MetaWebhookController {
       );
     }
 
-    // 6. Build webhook event
+    // 6. Constroi o evento de webhook
     const event: WebhookEventDto = {
       event_type: 'messages',
       raw: payload as unknown as Record<string, unknown>,
     };
 
-    // 7. Forward to ChatWebhookService for processing
-    // Note: phoneNumberId is used as webhookToken for Meta since they don't use tokens in URL
+    // 7. Encaminha para o ChatWebhookService para processamento
+    // Nota: phoneNumberId e usado como webhookToken para a Meta pois ela nao usa tokens na URL
     await this.chatWebhookService.handle(
       'meta',
-      phoneNumberId, // Using phone_number_id as token for lookup
+      phoneNumberId, // phone_number_id usado como token para lookup
       event,
       null,
     );

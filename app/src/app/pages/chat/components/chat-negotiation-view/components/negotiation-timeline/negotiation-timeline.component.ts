@@ -28,6 +28,14 @@ interface CreateFieldChangeEvent {
   value: string;
 }
 
+/**
+ * Timeline de negociações do contato no painel lateral do chat.
+ *
+ * @remarks
+ * Componente presentacional puro. Lista as negociações existentes do contato,
+ * permite selecionar uma negociação e exibe formulário de criação inline.
+ * Emite eventos de seleção e criação para o container gerenciar estado.
+ */
 @Component({
   selector: 'app-negotiation-timeline',
   standalone: true,
@@ -59,10 +67,12 @@ export class NegotiationTimelineComponent {
   readonly createFieldChange = output<CreateFieldChangeEvent>();
   readonly createNegotiation = output<void>();
 
+  /** Verifica se a negociação com o ID informado está selecionada. */
   isSelectedNegotiation(id: string | number): boolean {
     return String(this.selectedNegotiationId()) === String(id);
   }
 
+  /** Formata uma data ISO para o padrão brasileiro (dd/mm/aaaa). */
   formatDate(value?: string | null): string {
     if (!value) return '-';
     const date = new Date(value);
@@ -70,6 +80,7 @@ export class NegotiationTimelineComponent {
     return date.toLocaleDateString('pt-BR');
   }
 
+  /** Retorna as classes CSS de cor para o status da negociação. */
   statusTone(status?: string | null): string {
     switch (status) {
       case 'won':
@@ -81,6 +92,7 @@ export class NegotiationTimelineComponent {
     }
   }
 
+  /** Emite o evento de seleção de negociação com o ID fornecido. */
   emitSelectNegotiation(id: string | number): void {
     this.selectNegotiation.emit(id);
   }
@@ -106,6 +118,7 @@ export class NegotiationTimelineComponent {
     });
   }
 
+  /** Emite o evento de criação de nova negociação. */
   emitCreateNegotiation(): void {
     this.createNegotiation.emit();
   }

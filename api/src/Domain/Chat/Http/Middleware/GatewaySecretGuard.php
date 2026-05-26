@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class GatewaySecretGuard
 {
     /**
-     * Handle an incoming request.
+     * Processar a requisição recebida, validando o GATEWAY_SECRET no header Authorization.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */

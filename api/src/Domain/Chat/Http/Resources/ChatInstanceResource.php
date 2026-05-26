@@ -8,14 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for Chat Instance serialization.
+ * Resource de serialização de Instância de Chat.
+ *
+ * Transforma a entidade ChatInstance no formato da API, sanitizando
+ * dados sensíveis das configurações (tokens, senhas) antes de expô-los.
  *
  * @mixin \Domain\Chat\Models\ChatInstance
  */
 final class ChatInstanceResource extends JsonResource
 {
     /**
-     * Connection statuses that indicate the instance is connected.
+     * Status de conexão que indicam que a instância está conectada ao provedor.
      *
      * @var array<int, string>
      */
@@ -31,7 +34,7 @@ final class ChatInstanceResource extends JsonResource
     ];
 
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */
@@ -66,7 +69,7 @@ final class ChatInstanceResource extends JsonResource
     }
 
     /**
-     * Determine if the instance is connected based on status and settings.
+     * Determinar se a instância está conectada com base no status e nas configurações.
      *
      * @param  array<string, mixed>  $settings
      */
@@ -87,7 +90,7 @@ final class ChatInstanceResource extends JsonResource
     }
 
     /**
-     * Remove sensitive data from settings array.
+     * Remover dados sensíveis do array de configurações antes de expô-los na API.
      *
      * @param  array<string, mixed>  $settings
      * @return array<string, mixed>
@@ -109,6 +112,9 @@ final class ChatInstanceResource extends JsonResource
         return $settings;
     }
 
+    /**
+     * Normalizar o valor da mensagem de fallback de canal, retornando null se vazio.
+     */
     private function normalizeChannelFallbackMessage(mixed $value): ?string
     {
         if (! is_string($value)) {

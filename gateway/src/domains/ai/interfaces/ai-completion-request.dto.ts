@@ -1,8 +1,8 @@
 /**
  * DTO de requisição de completion para AI.
  *
- * DTO para requisições de completion vindas do Laravel via Redis Streams.
- * Estrutura normalizada independente do provider (OpenAI, Gemini, etc.).
+ * Estrutura normalizada para requisições de completion vindas do Laravel via Redis Streams,
+ * independente do provider utilizado (OpenAI, Gemini, etc.).
  */
 
 import {
@@ -25,41 +25,31 @@ export type {
 } from '../models/ai-completion.model';
 
 /**
- * Uma mensagem individual no histórico do chat
+ * Representa uma mensagem individual no histórico do chat enviado ao provider.
  */
 export class ChatMessageDto {
-  /**
-   * Role da mensagem no contexto do chat
-   */
+  /** Papel da mensagem no contexto do chat (`system`, `user` ou `assistant`). */
   @IsString()
   @IsIn(['system', 'user', 'assistant'])
   role!: ChatMessageRole;
 
-  /**
-   * Conteúdo textual da mensagem
-   */
+  /** Conteúdo textual da mensagem. */
   @IsString()
   content!: string;
 
-  /**
-   * Nome opcional do participante (útil para multi-user chats)
-   */
+  /** Nome opcional do participante (útil para conversas com múltiplos usuários). */
   @IsOptional()
   @IsString()
   name?: string;
 }
 
 /**
- * DTO para request de AI completion
+ * DTO para requisição de AI completion recebida pelo gateway.
  *
- * Este DTO representa o payload dentro de um GatewayMessage com:
- * - domain: 'ai'
- * - action: 'completion'
+ * Representa o payload dentro de um `GatewayMessage` com `domain: 'ai'` e `action: 'completion'`.
  */
 export class AICompletionRequestDto {
-  /**
-   * Histórico de mensagens do chat (sistema + conversa)
-   */
+  /** Histórico de mensagens do chat incluindo mensagens de sistema e conversa. */
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ChatMessageDto)

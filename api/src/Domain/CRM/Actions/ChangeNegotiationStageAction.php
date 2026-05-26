@@ -17,7 +17,11 @@ use Domain\CRM\Services\CRMNegotiationStatusService;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Handles stage/status transitions for negotiations.
+ * Gerencia transições de etapa e status de negociações no funil de vendas.
+ *
+ * Centraliza as operações de mover para outra etapa, marcar como ganha,
+ * marcar como perdida e reabrir, garantindo consistência de posição e
+ * disparo de eventos de automação.
  */
 final class ChangeNegotiationStageAction
 {
@@ -84,7 +88,9 @@ final class ChangeNegotiationStageAction
     }
 
     /**
-     * @param  array<int, array{id: string, position: int}>  $items
+     * Reordenar posições de negociações a partir de uma lista de ids e posições.
+     *
+     * @param  array<int, array{id: string, position: int}>  $items  Lista com id e posição desejada
      */
     public function reorder(string $tenantId, array $items): void
     {

@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * Content loading placeholder skeleton shapes.
+ * Placeholder animado de carregamento de conteúdo.
  *
  * @example
  * ```html
@@ -17,13 +17,13 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './skeleton.html',
 })
 export class AfSkeletonComponent {
-  /** Skeleton shape variant */
+  /** Variante de forma do skeleton */
   readonly variant = input<'text' | 'circular' | 'rectangular'>('text');
 
-  /** CSS width value */
+  /** Largura CSS */
   readonly width = input('100%');
 
-  /** CSS height value (auto-detected for text) */
+  /** Altura CSS (detectada automaticamente para texto) */
   readonly height = input<string | null>(null);
 
   protected readonly computedHeight = computed(() => {

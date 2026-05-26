@@ -14,24 +14,29 @@ use Illuminate\Redis\Connections\PredisConnection;
 use Illuminate\Support\Facades\Redis;
 
 /**
- * Service for Redis-based gateway communication.
+ * Implementação do GatewayClientInterface que usa Redis Streams para comunicação com o gateway NestJS.
  *
- * @category Services
+ * Publica mensagens via XADD no stream do domínio e aguarda a resposta em um stream
+ * de resposta dedicado por correlationId. Suporta Predis e PhpRedis.
  */
 final class RedisGatewayClient implements GatewayClientInterface
 {
     /**
-     * Send a message and wait for response (blocking).
+     * Envia uma mensagem ao stream do domínio e aguarda a resposta (bloqueante).
      *
-     * Responsibility:
-     * 1. Publish message to the domain stream (XADD)
-     * 2. Wait for response on the response stream (XREAD blocking)
-     * 3. Parse response and return DTO
-     * 4. Clean up response stream after reading
-     * 5. Throw appropriate exceptions
+     * Fluxo:
+     * 1. Publica a mensagem no stream do domínio via XADD
+     * 2. Aguarda resposta no stream dedicado ao correlationId via XREAD bloqueante
+     * 3. Parseia a resposta e retorna o DTO
+     * 4. Remove o stream de resposta após a leitura
+     * 5. Lança exceções adequadas em caso de timeout ou erro do provider
      *
-     * @throws GatewayTimeoutException If timeout expires
-     * @throws ProviderException If provider returns an error
+     * @param  GatewayMessage  $message  Mensagem a enviar
+     * @param  int  $timeoutSeconds  Tempo máximo de espera em segundos
+     * @return GatewayResponse Resposta recebida do gateway
+     *
+     * @throws GatewayTimeoutException Quando o tempo limite expira
+     * @throws ProviderException Quando o provider retorna um erro
      */
     public function send(GatewayMessage $message, int $timeoutSeconds = 180): GatewayResponse
     {
@@ -76,7 +81,10 @@ final class RedisGatewayClient implements GatewayClientInterface
     }
 
     /**
-     * Send a message without waiting for response (fire-and-forget).
+     * Publica uma mensagem no stream do domínio sem aguardar resposta (fire-and-forget).
+     *
+     * @param  GatewayMessage  $message  Mensagem a despachar
+     * @return string O correlationId gerado para rastreamento posterior
      */
     public function dispatch(GatewayMessage $message): string
     {
@@ -91,12 +99,13 @@ final class RedisGatewayClient implements GatewayClientInterface
     }
 
     /**
-     * Parse the stream response from executeRaw XREAD result.
+     * Parseia a resposta bruta do XREAD no formato Redis RESP.
      *
-     * executeRaw returns the native Redis RESP format:
-     * [[streamName, [[messageId, [field, value, field, value, ...]]]]]
+     * O formato nativo é: [[streamName, [[messageId, [field, value, field, value, ...]]]]]
+     * O resultado é convertido em array associativo com campos JSON decodificados.
      *
-     * @param  array<int, mixed>  $result
+     * @param  array<int, mixed>  $result  Resultado bruto do XREAD
+     * @param  string  $streamName  Nome do stream para validação
      * @return array<string, mixed>
      */
     private function parseStreamResponse(array $result, string $streamName): array
@@ -147,9 +156,11 @@ final class RedisGatewayClient implements GatewayClientInterface
     }
 
     /**
-     * Normalize Redis stream fields to scalar strings accepted by XADD.
+     * Normaliza os campos do stream para strings escalares aceitas pelo XADD.
      *
-     * @param  array<string, mixed>  $fields
+     * Arrays e objetos são serializados como JSON; booleanos convertidos para "1"/"0".
+     *
+     * @param  array<string, mixed>  $fields  Campos a normalizar
      * @return array<string, string>
      */
     private function normalizeStreamFields(array $fields): array
@@ -188,9 +199,11 @@ final class RedisGatewayClient implements GatewayClientInterface
     }
 
     /**
-     * Publish fields to a Redis stream with compatibility for Predis and PhpRedis.
+     * Publica campos em um Redis Stream com compatibilidade para Predis e PhpRedis.
      *
-     * @param  array<string, string>  $fields
+     * @param  Connection  $redis  Conexão Redis ativa
+     * @param  string  $streamName  Nome do stream de destino
+     * @param  array<string, string>  $fields  Campos a publicar
      */
     private function xadd(Connection $redis, string $streamName, array $fields): void
     {
@@ -211,7 +224,11 @@ final class RedisGatewayClient implements GatewayClientInterface
     }
 
     /**
-     * Read from a Redis stream in a Predis/PhpRedis compatible way.
+     * Lê mensagens de um Redis Stream de forma bloqueante, compatível com Predis e PhpRedis.
+     *
+     * @param  Connection  $redis  Conexão Redis ativa
+     * @param  string  $responseStream  Nome do stream de resposta
+     * @param  int  $blockMs  Tempo máximo de bloqueio em milissegundos
      */
     private function xread(Connection $redis, string $responseStream, int $blockMs): mixed
     {

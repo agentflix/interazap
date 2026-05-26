@@ -9,9 +9,10 @@ use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 
 /**
- * Controller for queue health monitoring endpoints.
+ * Controlador de endpoints para monitoramento de saúde das filas.
  *
- * Health-check endpoints intentionally unauthenticated for monitoring probes.
+ * Os endpoints de health-check são autenticados via sanctum para proteger
+ * informações operacionais sensíveis contra enumeração anônima.
  */
 final class QueueHealthController extends BaseController
 {
@@ -23,9 +24,9 @@ final class QueueHealthController extends BaseController
     ) {}
 
     /**
-     * Get queue health status.
+     * Retorna o status de saúde de todas as filas monitoradas.
      *
-     * @return JsonResponse Status de saúde das filas.
+     * @return JsonResponse Status de saúde com código HTTP 200 (saudável) ou 503 (problema).
      */
     public function index(): JsonResponse
     {
@@ -37,7 +38,7 @@ final class QueueHealthController extends BaseController
     }
 
     /**
-     * Get queue configuration.
+     * Retorna a configuração das filas registrada no sistema.
      *
      * @return JsonResponse Configuração das filas.
      */
@@ -49,10 +50,10 @@ final class QueueHealthController extends BaseController
     }
 
     /**
-     * Get detailed stats for a specific queue.
+     * Retorna estatísticas detalhadas de uma fila específica.
      *
      * @param  string  $queue  Nome da fila.
-     * @return JsonResponse Estatísticas da fila.
+     * @return JsonResponse Estatísticas da fila (tamanho e jobs atrasados).
      */
     public function show(string $queue): JsonResponse
     {

@@ -13,6 +13,13 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Job de limpeza de runs "zumbi" do Autopilot.
+ *
+ * Identifica runs com status 'running' que ultrapassaram o limiar de tempo
+ * configurado (ai.stale_run_threshold_minutes) sem atualização de estado,
+ * marca-os como 'failed' e dispara o evento AiRunFailed para telemetria.
+ */
 final class AutopilotZombieRunCleanupJob implements ShouldQueue
 {
     use Dispatchable;
@@ -20,6 +27,9 @@ final class AutopilotZombieRunCleanupJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    /**
+     * Varre runs travados e os encerra como falhos com código watchdog_zombie_cleanup.
+     */
     public function handle(): void
     {
         $thresholdMinutes = max(1, (int) config('ai.stale_run_threshold_minutes', 6));

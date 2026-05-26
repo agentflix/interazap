@@ -10,14 +10,21 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Aggregates negotiation stats for the dashboard.
+ * Agrega estatísticas de negociações CRM para o dashboard.
+ *
+ * Retorna contagens por status (abertas, ganhas, perdidas) e top 5 motivos de perda.
  */
 final class GetNegotiationStatsAction
 {
     private const TOP_LIMIT = 5;
 
     /**
-     * @return array<string, mixed>
+     * Executa a agregação de negociações para o período informado.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  Carbon  $from  Data de início do período
+     * @param  Carbon  $to  Data de fim do período
+     * @return array<string, mixed> Com chaves by_status e top_loss_reasons
      */
     public function execute(string $tenantId, Carbon $from, Carbon $to): array
     {

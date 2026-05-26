@@ -12,14 +12,26 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controlador para arquivos de negociações.
+ * Controller para arquivos anexados a negociações do CRM.
+ *
+ * Gerencia upload, listagem e remoção de arquivos em negociações. Requer autenticação Sanctum.
  */
 final class CRMNegotiationFileController extends BaseController
 {
+    /**
+     * @param  CRMNegotiationFileActions  $actions  Ação de gestão de arquivos de negociação.
+     */
     public function __construct(
         private readonly CRMNegotiationFileActions $actions
     ) {}
 
+    /**
+     * Lista arquivos de uma negociação.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $negotiationId  ID da negociação.
+     * @return JsonResponse Lista de arquivos.
+     */
     public function index(Request $request, string $negotiationId): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -33,6 +45,13 @@ final class CRMNegotiationFileController extends BaseController
         return $this->success($files, 'Arquivos listados');
     }
 
+    /**
+     * Envia arquivo para uma negociação.
+     *
+     * @param  CRMNegotiationFileRequest  $request  Dados da requisição com o arquivo.
+     * @param  string  $negotiationId  ID da negociação.
+     * @return JsonResponse Arquivo enviado.
+     */
     public function store(CRMNegotiationFileRequest $request, string $negotiationId): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -49,6 +68,14 @@ final class CRMNegotiationFileController extends BaseController
         return $this->created($file, 'Arquivo enviado');
     }
 
+    /**
+     * Remove arquivo de uma negociação.
+     *
+     * @param  Request  $request  Dados da requisição.
+     * @param  string  $negotiationId  ID da negociação.
+     * @param  string  $fileId  ID do arquivo.
+     * @return JsonResponse Resposta sem conteúdo.
+     */
     public function destroy(Request $request, string $negotiationId, string $fileId): JsonResponse
     {
         $tenantId = $this->tenantId();

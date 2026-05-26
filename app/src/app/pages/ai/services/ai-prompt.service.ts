@@ -18,12 +18,10 @@ interface TenantPromptApiResponse {
 }
 
 /**
- * Service para gestão de Templates de Prompt.
+ * Serviço para gestão de Templates de Prompt.
  *
  * Responsável por CRUD de prompts configuráveis por agente,
  * com suporte a variáveis de interpolação.
- *
- * @class AiPromptService
  */
 @Injectable({ providedIn: 'root' })
 export class AiPromptService {
@@ -147,10 +145,9 @@ export class AiPromptService {
   }
 
   /**
-   * Maps a tenant prompt API response to the application AiPrompt model.
-   *
-   * @param data - Raw tenant prompt from API
-   * @returns Normalized AiPrompt or null if data is empty
+   * Converte a resposta da API de prompt do tenant para o modelo AiPrompt da aplicação.
+   * @param data Prompt bruto do tenant recebido da API
+   * @returns AiPrompt normalizado ou null se os dados estiverem vazios
    */
   private mapTenantPromptToAiPrompt(data: TenantPromptApiResponse['data']): AiPrompt | null {
     if (!data) {
@@ -171,12 +168,11 @@ export class AiPromptService {
   }
 
   /**
-   * Validates that a prompt exists and optionally matches the expected ID.
-   *
-   * @param data - Raw tenant prompt from API
-   * @param expectedId - Optional ID to validate against
-   * @returns Normalized AiPrompt
-   * @throws Error if prompt is null or ID mismatch
+   * Valida que um prompt existe e opcionalmente confere o ID esperado.
+   * @param data Prompt bruto do tenant recebido da API
+   * @param expectedId ID esperado para validação (opcional)
+   * @returns AiPrompt normalizado
+   * @throws Error se o prompt for nulo ou o ID não coincidir
    */
   private requirePrompt(data: TenantPromptApiResponse['data'], expectedId?: string): AiPrompt {
     const prompt = this.mapTenantPromptToAiPrompt(data);

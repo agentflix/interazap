@@ -4,8 +4,8 @@ import { LucideAngularModule } from 'lucide-angular';
 import { ElectronService } from '../../../core/services/electron.service';
 
 /**
- * Title bar shared component for the Shared module.
- * @selector app-title-bar
+ * Barra de título com controles de janela (minimizar, maximizar, fechar).
+ * Usada em ambientes Electron para controle da janela da aplicação.
  */
 @Component({
   selector: 'app-title-bar',

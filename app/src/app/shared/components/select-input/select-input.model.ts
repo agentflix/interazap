@@ -1,12 +1,12 @@
 /**
- * Models and types for select-input component.
+ * Modelos e tipos do componente de seleção (select).
  */
 
-/** Option for the select input */
+/** Opção do componente select */
 export interface AfSelectOption {
-  /** Option value */
+  /** Valor da opção */
   value: string | number;
-  /** Display label */
+  /** Rótulo de exibição */
   label: string;
 }
 

@@ -365,7 +365,9 @@ export class ToolCallLoopService {
   }
 
   /**
-   * Parseia argumentos de tool call quando vierem como objeto ou JSON serializado.
+   * Parseia os argumentos de uma tool call quando vierem como objeto ou JSON serializado.
+   * @param value - Valor bruto dos argumentos (objeto ou string JSON)
+   * @returns Argumentos desserializados ou objeto vazio em caso de falha
    */
   private parseToolArguments(value: unknown): unknown {
     if (typeof value !== 'string') {

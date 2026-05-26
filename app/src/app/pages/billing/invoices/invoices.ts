@@ -34,6 +34,10 @@ import { type BillingInvoice, BillingInvoiceService } from '@core/services/billi
 import { ToastService } from '@core/services/toast.service';
 import { InvoicePaymentModalComponent } from './components/invoice-payment-modal/invoice-payment-modal';
 
+/**
+ * Página de faturas do módulo de cobrança.
+ * Exibe lista paginada de faturas com filtros por status, método de pagamento e data.
+ */
 @Component({
   selector: 'app-billing-invoices',
   standalone: true,
@@ -55,10 +59,6 @@ import { InvoicePaymentModalComponent } from './components/invoice-payment-modal
     AfSearchInputComponent,
     AfSkeletonTableRowComponent,
     InvoicePaymentModalComponent,
-/**
- * Billing invoices page component for the Billing module.
- * @selector app-billing-invoices
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './invoices.html',
@@ -128,14 +128,17 @@ export class BillingInvoices implements OnInit {
     this.fetchInvoices(1);
   }
 
+  /** Abre o painel lateral de filtros avançados. */
   openFilters(): void {
     this.isFilterOpen.set(true);
   }
 
+  /** Fecha o painel lateral de filtros. */
   closeFilters(): void {
     this.isFilterOpen.set(false);
   }
 
+  /** Limpa todos os filtros e reinicia a busca. */
   clearFilters(): void {
     this.dueDateFromControl.setValue('');
     this.dueDateToControl.setValue('');
@@ -144,54 +147,85 @@ export class BillingInvoices implements OnInit {
     this.searchControl.setValue('');
   }
 
+  /** Aplica os filtros selecionados e recarrega a primeira página. */
   applyFilters(): void {
     this.currentSearch = this.searchControl.value.trim();
     this.fetchInvoices(1);
     this.closeFilters();
   }
 
+  /**
+   * Executa busca por termo na lista de faturas.
+   * @param term Texto digitado na barra de pesquisa
+   */
   onSearch(term: string): void {
     this.currentSearch = term.trim();
     this.fetchInvoices(1);
   }
 
+  /**
+   * Navega para uma página específica da listagem.
+   * @param page Número da página desejada
+   */
   loadPage(page: number): void {
     this.fetchInvoices(page);
   }
 
+  /** Recarrega a página atual mantendo dados visíveis durante o carregamento. */
   refresh(): void {
     this.fetchInvoices(this.currentPage, true);
   }
 
+  /** Tenta recarregar após um erro, limpando o estado de erro. */
   retry(): void {
     this.fetchInvoices(this.currentPage, true);
   }
 
+  /**
+   * Verifica se uma fatura pode ser paga pelo tenant.
+   * @param invoice Fatura a verificar
+   * @returns true para status "draft", "pending" ou "overdue"
+   */
   canPay(invoice: BillingInvoice): boolean {
     return ['draft', 'pending', 'overdue'].includes(invoice.status);
   }
 
+  /**
+   * Abre o modal de pagamento para a fatura selecionada.
+   * @param invoice Fatura a pagar
+   */
   openPay(invoice: BillingInvoice): void {
     this.selectedInvoice.set(invoice);
     this.isPayModalOpen.set(true);
   }
 
+  /** Fecha o modal de pagamento e limpa a fatura selecionada. */
   closePay(): void {
     this.isPayModalOpen.set(false);
     this.selectedInvoice.set(null);
   }
 
+  /** Reage ao pagamento bem-sucedido: exibe toast e recarrega lista. */
   onPaymentSuccess(): void {
     this.toast.success('Cobrança gerada com sucesso!');
     this.fetchInvoices(this.currentPage, true);
     this.closePay();
   }
 
+  /**
+   * Abre a URL de pagamento externo da fatura em nova aba.
+   * @param invoice Fatura com URL de pagamento
+   */
   openPaymentUrl(invoice: BillingInvoice): void {
     if (!invoice.payment_url) return;
     window.open(invoice.payment_url, '_blank');
   }
 
+  /**
+   * Converte a cor semântica do status para a variante do componente AfBadge.
+   * @param color Cor do status retornada pela API
+   * @returns Variante compatível com AfBadgeComponent
+   */
   statusVariant(color?: string): 'default' | 'success' | 'warning' | 'danger' | 'info' {
     const palette: Record<string, 'default' | 'success' | 'warning' | 'danger' | 'info'> = {
       success: 'success',
@@ -204,6 +238,11 @@ export class BillingInvoices implements OnInit {
     return palette[color ?? 'default'] ?? 'default';
   }
 
+  /**
+   * Formata um valor numérico como moeda BRL (R$).
+   * @param value Valor a formatar
+   * @returns String formatada em reais
+   */
   formatCurrency(value: number): string {
     return formatCurrency(value);
   }

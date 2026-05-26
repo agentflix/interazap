@@ -19,8 +19,9 @@ import type { AfInputSize } from './document-input.model';
 export * from './document-input.model';
 
 /**
- * AfDocumentInputComponent — Auto-masking CPF/CNPJ input.
- * Detects document type by length and applies appropriate mask.
+ * Campo CPF/CNPJ com aplicação automática de máscara.
+ *
+ * Detecta o tipo de documento pelo comprimento e aplica a máscara adequada.
  *
  * @example
  * ```html
@@ -38,31 +39,31 @@ export class AfDocumentInputComponent {
   private readonly destroyRef = inject(DestroyRef);
   private syncedControl: FormControl<string | null> | null = null;
 
-  /** FormControl for the raw (unmasked) value */
+  /** FormControl para o valor bruto (sem máscara) */
   readonly control = input.required<FormControl<string | null>>();
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the field */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
-  /** Field label */
+  /** Rótulo do campo */
   readonly label = input('CPF/CNPJ');
 
-  /** Placeholder */
+  /** Placeholder do campo */
   readonly placeholder = input('000.000.000-00');
 
-  /** Whether field is required */
+  /** Indica se o campo é obrigatório */
   readonly required = input(false);
 
-  /** Error message */
+  /** Mensagem de erro */
   readonly errorMessage = input('Documento inválido.');
 
-  /** Input size: sm for compact fields, md for the default comfortable field */
+  /** Tamanho do campo: sm para compacto, md para o padrão */
   readonly size = input<AfInputSize>('md');
 
   protected readonly rawValue = signal('');
@@ -79,7 +80,7 @@ export class AfDocumentInputComponent {
     return this.maskCnpj(raw);
   });
 
-  /** Dynamic CSS classes for input based on size */
+  /** Classes CSS dinâmicas do campo baseadas no tamanho */
   protected readonly inputClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'h-8 px-2.5 text-xs' : 'h-10 px-3 text-sm';
     return [

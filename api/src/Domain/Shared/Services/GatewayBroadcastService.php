@@ -74,7 +74,7 @@ class GatewayBroadcastService
     }
 
     /**
-     * Emitir envelope de status de mensagem.
+     * Transmite o status de uma mensagem para os clientes via Gateway.
      *
      * @param  array{
      *   message_id: string,
@@ -85,7 +85,7 @@ class GatewayBroadcastService
      *   sent_at?: string|null,
      *   delivered_at?: string|null,
      *   read_at?: string|null
-     * } $payload
+     * } $payload Payload de status da mensagem.
      */
     public function broadcastMessageStatus(array $payload): void
     {
@@ -93,13 +93,13 @@ class GatewayBroadcastService
     }
 
     /**
-     * Notificar clientes sobre nova mensagem recebida.
+     * Notifica os clientes conectados sobre uma nova mensagem recebida.
      *
      * @param  array{
      *   ticket_id: string,
      *   tenant_id: string,
      *   message: array<string, mixed>
-     * } $payload
+     * } $payload Payload com os dados da nova mensagem.
      */
     public function broadcastNewMessage(array $payload): void
     {

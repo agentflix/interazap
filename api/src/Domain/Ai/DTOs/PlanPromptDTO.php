@@ -7,7 +7,11 @@ namespace Domain\Ai\DTOs;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for Plan Prompt creation and update.
+ * DTO que representa um prompt vinculado a um plano de assinatura.
+ *
+ * Utilizado para definir instruções específicas que variam conforme o
+ * plano do tenant (free, pro, enterprise), permitindo diferentes níveis
+ * de capacidade e comportamento da IA por tier.
  *
  * @readonly
  */
@@ -19,7 +23,9 @@ final readonly class PlanPromptDTO
     ) {}
 
     /**
-     * Create DTO from form request.
+     * Cria o DTO a partir de um form request validado.
+     *
+     * @param  FormRequest  $request  Requisição validada.
      */
     public static function fromRequest(FormRequest $request): self
     {
@@ -30,6 +36,10 @@ final readonly class PlanPromptDTO
     }
 
     /**
+     * Converte para array compatível com o model Eloquent.
+     *
+     * Exclui is_active quando null (campo opcional na atualização).
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

@@ -1,8 +1,6 @@
-/**
- * Models and types for avatar-group component.
- */
+/** Modelos e tipos do componente de grupo de avatares. */
 
-/** Avatar config for group */
+/** Configuração de um avatar dentro do grupo. */
 export interface AfAvatarGroupItem {
   name: string;
   src?: string;

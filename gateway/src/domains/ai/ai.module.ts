@@ -1,8 +1,9 @@
 /**
- * AI Module
+ * Módulo principal que orquestra todo o domínio de AI do gateway.
  *
- * Módulo principal que orquestra todo o domínio AI.
- * Importa providers e registra consumers.
+ * Contexto: importa os módulos de providers (OpenAI, Gemini, MiniMax), registra
+ * consumers de Redis Streams, configura o registro de estratégias de tools e
+ * exporta a factory de providers para uso em outros módulos do gateway.
  */
 
 import { Module } from '@nestjs/common';

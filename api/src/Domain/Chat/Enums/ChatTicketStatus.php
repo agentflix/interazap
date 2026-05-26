@@ -21,8 +21,9 @@ enum ChatTicketStatus: string
     /** Atendimento encerrado. */
     case CLOSED = 'closed';
 
-    /** Retorna os status considerados "ativos" (não-fechados). */
     /**
+     * Retorna os status considerados "ativos" (não-fechados).
+     *
      * @return array<int, self>
      */
     public static function active(): array

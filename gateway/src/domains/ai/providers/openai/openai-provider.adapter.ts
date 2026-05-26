@@ -1,8 +1,8 @@
 /**
- * OpenAI Adapter v2
+ * Adapter do provider OpenAI para o domínio de AI do gateway.
  *
- * Implementação do AIProvider para OpenAI usando SDK oficial.
- * Suporta fallback de API key e circuit breaker compartilhado.
+ * Contexto: implementa a interface `AIProvider` usando o SDK oficial `openai`.
+ * Suporta chave de API de fallback, circuit breaker compartilhado, streaming e embeddings.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -24,7 +24,7 @@ import {
 import { getCircuitBreakerOptions } from '../../../../core/config/circuit-breaker.config';
 
 /**
- * Erro customizado do provider com código padronizado
+ * Erro customizado do provider OpenAI com código de erro padronizado do gateway.
  */
 export class OpenAIProviderError extends Error {
   constructor(
@@ -48,7 +48,7 @@ export class OpenAIProviderAdapter implements AIProvider {
   private fallbackClient: OpenAI | null = null;
 
   /**
-   * Metadata do provider para discovery
+   * Metadados do provider OpenAI para discovery na factory.
    */
   static readonly metadata: AIProviderMetadata = {
     name: 'openai',
@@ -88,7 +88,10 @@ export class OpenAIProviderAdapter implements AIProvider {
   }
 
   /**
-   * Executa completion e retorna resposta normalizada
+   * Executa uma completion no OpenAI e retorna resposta normalizada.
+   * @param request - Requisição de completion normalizada.
+   * @returns Resposta normalizada do provider OpenAI.
+   * @throws OpenAIProviderError Quando a chave de API não está configurada ou ocorre erro na chamada.
    */
   async complete(
     request: AICompletionRequest,
@@ -123,6 +126,11 @@ export class OpenAIProviderAdapter implements AIProvider {
     }
   }
 
+  /**
+   * Transmite a resposta de completion em chunks via AsyncGenerator.
+   * @param request - Requisição de completion normalizada.
+   * @yields Chunks de texto retornados pelo modelo em streaming.
+   */
   async *stream(
     request: AICompletionRequest,
   ): AsyncGenerator<string, void, unknown> {
@@ -151,6 +159,12 @@ export class OpenAIProviderAdapter implements AIProvider {
     }
   }
 
+  /**
+   * Gera vetores de embedding para os textos informados via API OpenAI.
+   * @param params - Parâmetros da requisição com `input`, `model` e `dimensions` opcionais.
+   * @returns Objeto com os vetores gerados, modelo utilizado e uso de tokens.
+   * @throws OpenAIProviderError Quando a chave de API não está configurada ou o circuit breaker está aberto.
+   */
   async createEmbeddings(params: {
     input: string[];
     model?: string;
@@ -205,7 +219,9 @@ export class OpenAIProviderAdapter implements AIProvider {
   }
 
   /**
-   * Execute completion with fallback support
+   * Executa completion com suporte a fallback para a chave de API secundária.
+   * @param request - Requisição de completion normalizada.
+   * @returns Resposta normalizada do cliente primário ou do fallback.
    */
   private async executeWithFallback(
     request: AICompletionRequest,
@@ -225,6 +241,13 @@ export class OpenAIProviderAdapter implements AIProvider {
     }
   }
 
+  /**
+   * Executa geração de embeddings com suporte a fallback para a chave de API secundária.
+   * @param input - Lista de textos para geração dos vetores.
+   * @param model - Modelo de embeddings a utilizar.
+   * @param dimensions - Dimensionalidade opcional dos vetores gerados.
+   * @returns Vetores gerados pelo cliente primário ou pelo fallback.
+   */
   private async executeEmbeddingsWithFallback(
     input: string[],
     model: string,
@@ -267,6 +290,14 @@ export class OpenAIProviderAdapter implements AIProvider {
     }
   }
 
+  /**
+   * Executa a chamada de embeddings no cliente OpenAI informado.
+   * @param client - Instância do cliente OpenAI a utilizar.
+   * @param input - Lista de textos para geração dos vetores.
+   * @param model - Modelo de embeddings a utilizar.
+   * @param dimensions - Dimensionalidade opcional dos vetores gerados.
+   * @returns Vetores gerados com metadados de uso de tokens.
+   */
   private async executeEmbeddings(
     client: OpenAI,
     input: string[],
@@ -310,7 +341,10 @@ export class OpenAIProviderAdapter implements AIProvider {
   }
 
   /**
-   * Executa a chamada ao OpenAI
+   * Executa a chamada ao SDK OpenAI e retorna resposta normalizada.
+   * @param client  - Instância do cliente OpenAI a utilizar
+   * @param request - Requisição de completion normalizada
+   * @returns Resposta normalizada após tradução pelo `OpenAITranslator`
    */
   private async executeCompletion(
     client: OpenAI,
@@ -348,7 +382,9 @@ export class OpenAIProviderAdapter implements AIProvider {
   }
 
   /**
-   * Verifica se deve tentar fallback
+   * Verifica se o erro justifica a tentativa de usar a chave de API de fallback.
+   * @param error - Erro capturado durante a chamada ao provider primário
+   * @returns `true` quando o fallback deve ser tentado
    */
   private shouldUseFallback(error: unknown): boolean {
     if (!this.fallbackClient) return false;
@@ -364,7 +400,9 @@ export class OpenAIProviderAdapter implements AIProvider {
   }
 
   /**
-   * Mapeia erros do OpenAI para nossos códigos padronizados
+   * Mapeia erros do SDK OpenAI para instâncias de `OpenAIProviderError` com código padronizado.
+   * @param error - Erro capturado durante a chamada ao OpenAI
+   * @returns Instância de `OpenAIProviderError` com código e flag de retentativa
    */
   private mapError(error: unknown): OpenAIProviderError {
     // Timeout
@@ -440,7 +478,8 @@ export class OpenAIProviderAdapter implements AIProvider {
   }
 
   /**
-   * Verifica se o provider está saudável
+   * Verifica se o provider OpenAI está saudável consultando o estado do circuit breaker.
+   * @returns `true` quando o circuit breaker não está aberto e a chave de API está configurada
    */
   async isHealthy(): Promise<boolean> {
     // Check shared circuit breaker state

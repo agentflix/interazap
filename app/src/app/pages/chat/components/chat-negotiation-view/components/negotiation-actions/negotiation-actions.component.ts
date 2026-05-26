@@ -26,6 +26,14 @@ export type TaskFieldChangeEvent =
       value: string;
     };
 
+/**
+ * Painel de ações da negociação: edição de detalhes e criação de tarefas.
+ *
+ * @remarks
+ * Componente presentacional puro — recebe todos os dados via inputs e emite
+ * eventos para o container gerenciar estado. Exibe formulário de detalhes
+ * (funil, etapa, data prevista) e lista de tarefas com criação inline.
+ */
 @Component({
   selector: 'app-negotiation-actions',
   standalone: true,
@@ -55,6 +63,7 @@ export class NegotiationActionsComponent {
   readonly createTask = output<void>();
   readonly toggleTask = output<NegotiationTask>();
 
+  /** Formata uma data ISO para o padrão brasileiro (dd/mm/aaaa). */
   formatDate(value?: string | null): string {
     if (!value) return '-';
     const date = new Date(value);
@@ -62,6 +71,7 @@ export class NegotiationActionsComponent {
     return date.toLocaleDateString('pt-BR');
   }
 
+  /** Retorna as classes CSS de cor para o status da negociação (won/lost/padrão). */
   statusTone(status?: string | null): string {
     switch (status) {
       case 'won':
@@ -87,6 +97,7 @@ export class NegotiationActionsComponent {
     });
   }
 
+  /** Emite o evento de salvar detalhes da negociação. */
   emitSaveDetails(): void {
     this.saveDetails.emit();
   }
@@ -113,10 +124,12 @@ export class NegotiationActionsComponent {
     });
   }
 
+  /** Emite o evento de criar tarefa. */
   emitCreateTask(): void {
     this.createTask.emit();
   }
 
+  /** Emite o evento de alternar o estado de conclusão de uma tarefa. */
   emitToggleTask(task: NegotiationTask): void {
     this.toggleTask.emit(task);
   }

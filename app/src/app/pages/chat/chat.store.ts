@@ -26,11 +26,11 @@ export type { ChatState, ComposerMode } from '@chat/models/chat-state.model';
  */
 
 /**
- * Global chat store for managing selected ticket state and actions.
+ * Store global para gerenciar o ticket selecionado e suas ações no chat.
  *
  * @remarks
- * Manages the currently selected called/ticket, loading states, and message sending state.
- * Provides computed selectors for common derived state like contact and sentiment.
+ * Controla o ticket/atendimento selecionado, estados de carregamento e envio de mensagens.
+ * Fornece seletores computados para estado derivado como contato e sentimento.
  *
  * @example
  * ```typescript

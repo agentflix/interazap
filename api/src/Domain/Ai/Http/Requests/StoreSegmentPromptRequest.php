@@ -8,13 +8,11 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Request para criação de Segment Prompts.
+ * Validação para criação de segment prompts.
  */
 class StoreSegmentPromptRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Verifica se o usuário possui permissão para gerenciar prompts. */
     public function authorize(): bool
     {
         return $this->user()->can('ai.prompts.manage');

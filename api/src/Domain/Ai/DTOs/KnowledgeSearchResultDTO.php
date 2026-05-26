@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO representing a search result from the RAG system.
+ * DTO representando um resultado de busca do sistema RAG.
  *
  * @readonly
  */
 final readonly class KnowledgeSearchResultDTO
 {
     /**
-     * @param  string  $chunkId  Chunk ID
-     * @param  string  $documentId  Parent document ID
-     * @param  string  $documentName  Document name for display
-     * @param  string  $content  Chunk content
-     * @param  int  $chunkIndex  Chunk index within document
-     * @param  float|null  $score  Similarity score (0-1, higher is more similar)
-     * @param  bool  $isNeighbor  Whether this chunk is a neighbor expansion
-     * @param  string|null  $neighborOfChunkId  Original chunk ID that triggered this neighbor
+     * @param  string  $chunkId  UUID do chunk retornado.
+     * @param  string  $documentId  UUID do documento pai.
+     * @param  string  $documentName  Nome do documento para exibição.
+     * @param  string  $content  Conteúdo textual do chunk.
+     * @param  int  $chunkIndex  Índice do chunk dentro do documento.
+     * @param  float|null  $score  Score de similaridade (0-1, maior = mais similar).
+     * @param  bool  $isNeighbor  Indica se o chunk é expansão de vizinhança.
+     * @param  string|null  $neighborOfChunkId  UUID do chunk original que gerou esta expansão.
      */
     public function __construct(
         public string $chunkId,
@@ -33,6 +33,8 @@ final readonly class KnowledgeSearchResultDTO
     ) {}
 
     /**
+     * Converte para array para serialização na resposta HTTP.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

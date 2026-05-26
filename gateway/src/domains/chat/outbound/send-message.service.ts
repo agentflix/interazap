@@ -21,22 +21,19 @@ import {
 export type { OutboundMessage, PendingMessage, SendResult };
 
 /**
- * Send Message Service with Circuit Breaker protection.
- *
- * Circuit Breaker Configuration:
- * - Threshold: 5 failures (WhatsApp APIs have rate limits)
- * - Reset Timeout: 30 seconds (quick recovery expected)
- * - Fallback: Queue message for later retry
- */
-/**
  * Orquestra envio de mensagens outbound com circuit breaker e fila local de retry.
+ *
+ * Configuracao do circuit breaker:
+ * - Limiar: 5 falhas (APIs WhatsApp tem rate limits)
+ * - Timeout de reset: 30 segundos (recuperacao rapida esperada)
+ * - Fallback: enfileira mensagem para retry posterior
  */
 @Injectable()
 export class SendMessageService {
   private readonly logger = new Logger(SendMessageService.name);
   private readonly maxRetries = 3;
 
-  /** In-memory queue for failed messages when circuit is open */
+  /** Fila em memoria para mensagens com falha quando o circuito esta aberto. */
   private readonly retryQueue: PendingMessage[] = [];
   private isRetryQueueProcessing = false;
   private readonly maxQueueSize: number;
@@ -101,7 +98,7 @@ export class SendMessageService {
         () => this.queueForRetry(message, startTime, retryCount),
       );
     } catch (error) {
-      // If doSend throws and there's no fallback, catch here
+      // Se doSend lancar excecao e nao houver fallback, captura aqui
       const processingTimeMs = Date.now() - startTime;
       return {
         success: false,
@@ -169,7 +166,7 @@ export class SendMessageService {
       `Failed to send message after ${result.attempts} attempts: ${errorMessage}`,
     );
 
-    // Throw to trigger circuit breaker
+    // Lanca excecao para acionar o circuit breaker
     throw new Error(errorMessage);
   }
 
@@ -258,7 +255,7 @@ export class SendMessageService {
           });
         }
       } catch {
-        // If circuit opens again, remaining messages stay in queue
+        // Se o circuito abrir novamente, mensagens restantes permanecem na fila
         if (pending.retryCount < this.maxRetries) {
           pending.retryCount++;
           this.retryQueue.push(pending);

@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
 /**
- * AfStatCardComponent — Compact stat/number card for overview sections.
+ * Card compacto de estatística/número para seções de visão geral.
  *
  * @example
  * ```html
@@ -15,15 +15,15 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
   templateUrl: './stat-card.html',
 })
 export class AfStatCardComponent {
-  /** Stat label */
+  /** Rótulo da estatística */
   readonly label = input('');
 
-  /** Display value */
+  /** Valor de exibição */
   readonly value = input('');
 
-  /** Optional change indicator text */
+  /** Texto opcional de variação */
   readonly change = input('');
 
-  /** Change sentiment */
+  /** Sentimento da variação */
   readonly changeType = input<'positive' | 'negative' | 'neutral'>('neutral');
 }

@@ -15,7 +15,10 @@ use Symfony\Component\HttpFoundation\Response;
 final class AuthorizeBroadcastChannelMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Processa a requisição verificando isolamento de tenant para canais privados.
+     *
+     * Aborta com 403 se o canal private-tenant.{id} não corresponder ao tenant
+     * do usuário autenticado, ou se o canal private-ticket.{id} não pertencer ao mesmo tenant.
      */
     public function handle(Request $request, Closure $next): Response
     {

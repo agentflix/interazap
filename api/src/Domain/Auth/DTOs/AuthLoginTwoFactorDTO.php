@@ -7,7 +7,7 @@ namespace Domain\Auth\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for two-factor authentication challenge.
+ * DTO para o desafio de autenticação em dois fatores.
  *
  * @readonly
  */
@@ -19,7 +19,7 @@ final readonly class AuthLoginTwoFactorDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria DTO a partir da requisição HTTP.
      */
     public static function fromRequest(Request $request): self
     {
@@ -27,6 +27,8 @@ final readonly class AuthLoginTwoFactorDTO
     }
 
     /**
+     * Cria DTO a partir de array com email e código.
+     *
      * @param  array<string, mixed>  $payload
      */
     public static function fromArray(array $payload): self
@@ -38,6 +40,8 @@ final readonly class AuthLoginTwoFactorDTO
     }
 
     /**
+     * Serializa o DTO para array.
+     *
      * @return array{email:string,code:string}
      */
     public function toArray(): array

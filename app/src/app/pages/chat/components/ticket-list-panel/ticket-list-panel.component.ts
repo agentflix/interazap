@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
- * Ticket list panel component for the Chat module.
- * @selector app-ticket-list-panel
+ * Painel de listagem de atendimentos do módulo de Chat.
+ *
+ * Stub reservado para implementação futura do painel
+ * de listagem de tickets na interface principal.
  */
 @Component({
   selector: 'app-ticket-list-panel',

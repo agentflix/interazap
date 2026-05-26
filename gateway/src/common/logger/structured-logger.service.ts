@@ -4,7 +4,9 @@ import { StructuredLogEntry } from '../models/logger.model';
 
 export type { StructuredLogEntry };
 
-/** Shape of the trace store propagated via AsyncLocalStorage. */
+/**
+ * Representa o contexto de rastreamento propagado via AsyncLocalStorage por requisição.
+ */
 interface TraceStore {
   traceId: string;
   spanId: string;
@@ -24,7 +26,7 @@ export class StructuredLoggerService implements NestLoggerService {
 
   private context?: string;
 
-  /** Regex patterns for sensitive data masking. */
+  /** Padrões regex para mascaramento de dados sensíveis em mensagens de log. */
   private static readonly SENSITIVE_PATTERNS: ReadonlyArray<{
     pattern: RegExp;
     replacement: string;
@@ -42,52 +44,64 @@ export class StructuredLoggerService implements NestLoggerService {
     },
   ];
 
-  // ─── Static helpers for AsyncLocalStorage ───────────────────────────
+  // ─── Helpers estáticos para AsyncLocalStorage ────────────────────────
 
   /**
-   * Execute `fn` within a new trace context.
-   * Call from interceptor/middleware at request start.
+   * Executa `fn` dentro de um novo contexto de rastreamento.
+   * Deve ser chamado pelo interceptor/middleware no início de cada requisição.
+   *
+   * @param traceId - ID de rastreamento distribuído
+   * @param spanId - ID do span dentro do trace
+   * @param fn - Função a ser executada no contexto de rastreamento
+   * @returns Resultado da execução de `fn`
    */
   static runWithTrace<T>(traceId: string, spanId: string, fn: () => T): T {
     return this.asyncStore.run({ traceId, spanId }, fn);
   }
 
-  /** Retrieve the current traceId from the async context (if any). */
+  /** Obtém o traceId do contexto assíncrono atual, se disponível. */
   static getTraceId(): string | undefined {
     return this.asyncStore.getStore()?.traceId;
   }
 
-  /** Retrieve the current spanId from the async context (if any). */
+  /** Obtém o spanId do contexto assíncrono atual, se disponível. */
   static getSpanId(): string | undefined {
     return this.asyncStore.getStore()?.spanId;
   }
 
-  // ─── Instance API (NestLoggerService) ───────────────────────────────
+  // ─── API de instância (NestLoggerService) ────────────────────────────
 
+  /** Define o contexto (módulo/classe) que será incluído em todas as entradas de log desta instância. */
   setContext(context: string): void {
     this.context = context;
   }
 
+  /** Registra uma mensagem no nível INFO. */
   log(message: unknown, ...optionalParams: unknown[]): void {
     this.writeLog('info', message, optionalParams);
   }
 
+  /** Registra uma mensagem no nível ERROR. */
   error(message: unknown, ...optionalParams: unknown[]): void {
     this.writeLog('error', message, optionalParams);
   }
 
+  /** Registra uma mensagem no nível WARN. */
   warn(message: unknown, ...optionalParams: unknown[]): void {
     this.writeLog('warn', message, optionalParams);
   }
 
+  /** Registra uma mensagem no nível DEBUG. */
   debug(message: unknown, ...optionalParams: unknown[]): void {
     this.writeLog('debug', message, optionalParams);
   }
 
+  /** Registra uma mensagem no nível VERBOSE. */
   verbose(message: unknown, ...optionalParams: unknown[]): void {
     this.writeLog('verbose', message, optionalParams);
   }
 
+  /** Registra uma mensagem no nível FATAL. */
   fatal(message: unknown, ...optionalParams: unknown[]): void {
     this.writeLog('fatal', message, optionalParams);
   }
@@ -96,6 +110,13 @@ export class StructuredLoggerService implements NestLoggerService {
 
   private _writing = false;
 
+  /**
+   * Serializa e emite uma entrada de log JSON para stdout, protegendo contra re-entrada recursiva.
+   *
+   * @param level - Nível do log (info, warn, error, debug, verbose, fatal)
+   * @param message - Mensagem ou objeto a registrar
+   * @param optionalParams - Parâmetros opcionais (contexto, campos extras ou stack trace)
+   */
   private writeLog(
     level: string,
     message: unknown,
@@ -113,6 +134,14 @@ export class StructuredLoggerService implements NestLoggerService {
     }
   }
 
+  /**
+   * Constrói o objeto StructuredLogEntry enriquecido com traceId, spanId e contexto.
+   *
+   * @param level - Nível do log
+   * @param message - Mensagem ou objeto a registrar
+   * @param optionalParams - Parâmetros opcionais (contexto string ou objeto com campos extras)
+   * @returns Entrada de log estruturada pronta para serialização JSON
+   */
   private buildLogEntry(
     level: string,
     message: unknown,
@@ -160,6 +189,13 @@ export class StructuredLoggerService implements NestLoggerService {
     return entry;
   }
 
+  /**
+   * Converte um valor desconhecido em string para uso como mensagem de log.
+   * Erros são representados pela propriedade `message`; demais objetos são serializados em JSON.
+   *
+   * @param message - Valor a ser formatado
+   * @returns Representação string do valor
+   */
   private formatMessage(message: unknown): string {
     if (typeof message === 'string') {
       return message;
@@ -177,7 +213,10 @@ export class StructuredLoggerService implements NestLoggerService {
   }
 
   /**
-   * Mask sensitive data in log messages (tokens, API keys, secrets).
+   * Mascara dados sensíveis em mensagens de log (tokens, API keys, secrets).
+   *
+   * @param text - Texto da mensagem de log a ser mascarado
+   * @returns Texto com dados sensíveis substituídos por '***'
    */
   static maskSensitiveData(text: string): string {
     let masked = text;

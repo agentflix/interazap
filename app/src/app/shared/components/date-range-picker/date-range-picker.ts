@@ -4,7 +4,7 @@ import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
 
 /**
- * AfDateRangePickerComponent — Paired date inputs for selecting a range.
+ * Par de campos de data para seleção de um intervalo (início e fim).
  *
  * @example
  * ```html
@@ -23,15 +23,15 @@ import { AfFormErrorComponent } from '../form-error/form-error';
   templateUrl: './date-range-picker.html',
 })
 export class AfDateRangePickerComponent {
-  /** Start date FormControl */
+  /** FormControl da data de início */
   readonly startControl = input.required<FormControl<string>>();
 
-  /** End date FormControl */
+  /** FormControl da data de fim */
   readonly endControl = input.required<FormControl<string>>();
 
-  /** Field label */
+  /** Rótulo do campo */
   readonly label = input('');
 
-  /** Required */
+  /** Indica se o campo é obrigatório */
   readonly required = input(false);
 }

@@ -11,13 +11,15 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\CRM\Models\CRMEvent;
 
 /**
- * Tool to check calendar availability on a date range.
+ * Ferramenta de IA para verificar disponibilidade de agenda em um intervalo de datas.
+ *
+ * Input esperado: date_from e date_to em formato ISO.
+ * Output produzido: flag is_available e lista de conflitos encontrados.
+ * Quando usar: antes de sugerir ou confirmar horários de eventos para o cliente.
  */
 class CheckAvailabilityTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a verificação de conflitos no calendário. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $dateFrom = (string) ($input->parameters['date_from'] ?? '');
@@ -69,24 +71,20 @@ class CheckAvailabilityTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CHECK_AVAILABILITY;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Checks event conflicts and availability within a datetime range.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

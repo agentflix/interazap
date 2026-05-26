@@ -3,10 +3,9 @@ import { A11yModule } from '@angular/cdk/a11y';
 import { AfScrollAreaComponent } from '@shared/components/scroll-area/scroll-area';
 
 /**
- * Modal dialog component for InteraZap UI Kit.
+ * Modal de diálogo completo com backdrop, slots de cabeçalho, corpo e rodapé.
  *
- * @description Full-featured modal with backdrop, header, body, and footer slots.
- * Supports multiple sizes and closes on Escape key and backdrop click.
+ * Suporta múltiplos tamanhos e fecha ao pressionar Escape ou clicar no backdrop.
  *
  * @example
  * ```html
@@ -32,37 +31,37 @@ import { AfScrollAreaComponent } from '@shared/components/scroll-area/scroll-are
   styleUrl: './modal.scss',
 })
 export class AfModalComponent {
-  /** Whether the modal is open */
+  /** Indica se o modal está aberto */
   readonly open = input(false);
 
-  /** Legacy alias for open state */
+  /** Alias legado para o estado aberto */
   readonly isOpen = input<boolean | undefined>(undefined);
 
-  /** Modal title displayed in the header */
+  /** Título exibido no cabeçalho do modal */
   readonly title = input<string>();
 
-  /** Modal size */
+  /** Tamanho do modal */
   readonly size = input<'sm' | 'md' | 'lg' | 'xl'>('md');
 
-  /** Legacy alias for size */
+  /** Alias legado para o tamanho */
   readonly maxWidth = input<'sm' | 'md' | 'lg' | 'xl' | undefined>(undefined);
 
-  /** Whether to show the close (X) button */
+  /** Exibe o botão de fechar (X) */
   readonly showClose = input(true);
 
-  /** Whether clicking the backdrop closes the modal */
+  /** Clicar no backdrop fecha o modal */
   readonly closeOnBackdrop = input(true);
 
-  /** Whether the modal body should scroll when content overflows (default: true).
-   *  Set to false for modals with select dropdowns that need to overflow */
+  /** Habilita rolagem do corpo quando o conteúdo excede a altura (padrão: true).
+   *  Definir como false para modais com select dropdowns que precisam transbordar. */
   readonly scrollBody = input(true);
 
-  /** Emitted when the modal requests to close */
+  /** Emitido quando o modal solicita fechamento */
   readonly closed = output<void>();
 
   protected readonly resolvedOpen = computed(() => this.isOpen() ?? this.open());
 
-  /** Panel width classes based on size */
+  /** Classes de largura do painel baseadas no tamanho */
   protected readonly panelClasses = computed(() => {
     const base = [
       'relative z-10 w-full',
@@ -82,19 +81,19 @@ export class AfModalComponent {
     return [...base, sizes[this.maxWidth() ?? this.size()]].join(' ');
   });
 
-  /** Close the modal */
+  /** Fecha o modal */
   protected close(): void {
     this.closed.emit();
   }
 
-  /** Handle backdrop click */
+  /** Trata clique no backdrop */
   protected onBackdropClick(): void {
     if (this.closeOnBackdrop()) {
       this.close();
     }
   }
 
-  /** Handle Escape key */
+  /** Trata tecla Escape */
   protected onEscape(): void {
     if (this.resolvedOpen()) {
       this.close();

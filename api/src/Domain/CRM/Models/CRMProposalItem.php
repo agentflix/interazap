@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Item within a Commercial Proposal.
+ * Item de linha de uma proposta comercial CRM.
  *
- * Represents a single line item in a proposal, typically
- * linked to a product with quantity and pricing.
+ * Representa um produto ou serviço adicionado à proposta com
+ * quantidade, preço unitário, desconto e total calculado.
  *
  * @property string $id
  * @property string $tenant_id

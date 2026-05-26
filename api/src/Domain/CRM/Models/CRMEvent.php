@@ -14,10 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Calendar Event in CRM (multi-tenant).
+ * Evento de agenda no CRM (multi-tenant).
  *
- * Represents events such as meetings, calls, tasks, and deadlines
- * with support for participants, reminders, and recurrence.
+ * Representa compromissos como reuniões, ligações, tarefas e prazos,
+ * com suporte a participantes, lembretes automáticos e recorrência.
  *
  * @property string $id
  * @property string $tenant_id

@@ -1,3 +1,9 @@
+/**
+ * Ponto de entrada público do módulo bot.
+ *
+ * Contexto: módulo bot. Re-exporta os símbolos públicos do bounded context
+ * de integração com a Telegram Bot API para uso pelos demais módulos do gateway.
+ */
 export { BotModule } from './bot.module';
 export {
   CircuitBreakerService,

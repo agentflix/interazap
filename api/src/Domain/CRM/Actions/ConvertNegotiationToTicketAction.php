@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\CRM\Actions;
 
 /**
- * Converts a negotiation into a ticket payload.
+ * Converte uma negociação em payload de ticket para integração com o módulo de Chat.
  */
 final class ConvertNegotiationToTicketAction
 {
@@ -14,7 +14,11 @@ final class ConvertNegotiationToTicketAction
     ) {}
 
     /**
-     * @return array<string, mixed>
+     * Converte a negociação em array de dados para criação de ticket.
+     *
+     * @param  string  $tenantId  ID do tenant
+     * @param  string  $negotiationId  ID da negociação
+     * @return array<string, mixed> Payload pronto para criação de ticket
      */
     public function convert(string $tenantId, string $negotiationId): array
     {

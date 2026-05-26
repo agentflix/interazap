@@ -25,10 +25,10 @@ export class BillingCollectionController {
   ) {}
 
   /**
-   * Sends a billing collection notification via WhatsApp.
+   * Envia uma notificação de cobrança via WhatsApp.
    *
-   * @param payload - Collection send payload
-   * @returns Result with success status, messageId and error
+   * @param payload - Dados para envio da cobrança (tenantId, telefone, templateId, variáveis)
+   * @returns Resultado com status de sucesso, messageId e erro
    */
   @Post('send')
   async send(@Body() payload: BillingCollectionSendDto) {

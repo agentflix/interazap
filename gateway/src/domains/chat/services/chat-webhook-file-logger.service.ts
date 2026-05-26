@@ -195,7 +195,7 @@ export class ChatWebhookFileLoggerService
     try {
       await appendFile(fallbackFile, line, { encoding: 'utf-8' });
     } catch {
-      // Ignore fallback failures to avoid blocking webhook flow
+      // Ignora falhas no fallback para nao bloquear o fluxo de webhook
     }
   }
 

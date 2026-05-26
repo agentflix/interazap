@@ -30,8 +30,11 @@ interface PromptVersion {
 }
 
 /**
- * Editor for AI prompts with versioning support.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Editor de prompts de IA com suporte a versionamento.
+ *
+ * Contexto: lista prompts na sidebar esquerda e exibe editor de template à direita.
+ * Detecta variáveis no formato {{variavel}} e exibe-as como chips. Suporta rollback
+ * para versão anterior. Exibe indicador de alterações não salvas.
  */
 @Component({
   selector: 'app-ai-prompt-editor',
@@ -91,7 +94,7 @@ export class PromptEditorComponent implements OnInit {
   }
 
   /**
-   * Load all prompts for selection.
+   * Carrega todos os prompts disponíveis para seleção na sidebar.
    */
   private loadPrompts(): void {
     this.isLoading.set(true);
@@ -113,7 +116,8 @@ export class PromptEditorComponent implements OnInit {
   }
 
   /**
-   * Select a prompt to edit.
+   * Seleciona um prompt para edição e carrega seu template no editor.
+   * @param prompt Prompt a ser editado
    */
   selectPrompt(prompt: AiPrompt): void {
     this.selectedPrompt.set(prompt);
@@ -122,7 +126,7 @@ export class PromptEditorComponent implements OnInit {
   }
 
   /**
-   * Save prompt changes.
+   * Salva as alterações do template do prompt selecionado.
    */
   save(): void {
     const prompt = this.selectedPrompt();
@@ -145,7 +149,8 @@ export class PromptEditorComponent implements OnInit {
   }
 
   /**
-   * Rollback to a previous version.
+   * Restaura o template para uma versão anterior (sem salvar automaticamente).
+   * @param version Versão anterior a restaurar
    */
   rollback(version: PromptVersion): void {
     this.form.patchValue({ template: version.template });
@@ -179,21 +184,21 @@ export class PromptEditorComponent implements OnInit {
   }
 
   /**
-   * Toggle version history panel.
+   * Alterna a visibilidade do painel de histórico de versões.
    */
   toggleVersions(): void {
     this.showVersions.update((v) => !v);
   }
 
   /**
-   * Navigate back.
+   * Navega de volta para a lista de agentes.
    */
   goBack(): void {
     void this.router.navigate(['/ai/agents']);
   }
 
   /**
-   * Retry loading.
+   * Tenta recarregar a lista de prompts após erro.
    */
   retry(): void {
     this.loadPrompts();

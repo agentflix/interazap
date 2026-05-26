@@ -7,7 +7,11 @@ namespace Domain\Ai\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Autopilot tool.
+ * DTO que representa uma ferramenta (tool) disponível para o Autopilot.
+ *
+ * Utilizado para registrar ferramentas que o agente de IA pode invocar
+ * durante a execução de playbooks, como consulta de dados, envio de
+ * mensagens ou integração com sistemas externos via handler class.
  *
  * @readonly
  */
@@ -27,7 +31,9 @@ final readonly class AiAutopilotToolDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um request HTTP.
+     *
+     * @param  Request  $request  Requisição HTTP validada.
      */
     public static function fromRequest(Request $request): self
     {

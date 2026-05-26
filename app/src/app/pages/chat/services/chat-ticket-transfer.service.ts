@@ -12,10 +12,10 @@ import { type Called, CalledService } from 'src/app/core/services/called.service
 import { ChatTicketListService } from './chat-ticket-list.service';
 
 /**
- * Encapsulates the ticket-transfer flow: modal state, loading,
- * error message and the confirm pipeline (transferToUser → get → patch list).
+ * Encapsula o fluxo de transferência de ticket: estado do modal, carregamento,
+ * mensagem de erro e o pipeline de confirmação (transferToUser → get → atualiza lista).
  *
- * Extracted from `Chat` host (FEAT-049) to keep the host thin.
+ * Extraído do host `Chat` (FEAT-049) para manter o host enxuto.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatTicketTransferService {
@@ -30,7 +30,7 @@ export class ChatTicketTransferService {
   readonly isLoading: Signal<boolean> = this._isLoading.asReadonly();
   readonly error: Signal<string | null> = this._error.asReadonly();
 
-  /** Opens transfer modal if ticket is transferable. */
+  /** Abre o modal de transferência se o ticket for transferível. */
   openModal(ticket: Called | null): void {
     if (!ticket || ticket.status === 'closed' || this._isLoading()) {
       return;

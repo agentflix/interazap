@@ -5,14 +5,19 @@ declare(strict_types=1);
 namespace Domain\Gateway\DTOs;
 
 /**
- * DTO for gateway response.
+ * DTO imutável que representa a resposta recebida do gateway NestJS via Redis Stream.
  *
- * @readonly
+ * Carrega o correlationId para correlação, o status de sucesso, dados opcionais
+ * e o erro estruturado em caso de falha.
  */
 final readonly class GatewayResponse
 {
     /**
-     * @param  array<string, mixed>|null  $data
+     * @param  string  $correlationId  ID que correlaciona com a mensagem enviada
+     * @param  string  $timestamp  Data/hora ISO-8601 da resposta
+     * @param  bool  $success  Indica se a operação foi bem-sucedida
+     * @param  array<string, mixed>|null  $data  Dados retornados pelo provider
+     * @param  GatewayError|null  $error  Erro estruturado em caso de falha
      */
     public function __construct(
         public string $correlationId,
@@ -23,9 +28,9 @@ final readonly class GatewayResponse
     ) {}
 
     /**
-     * Create a GatewayResponse from an array (typically from Redis stream).
+     * Cria uma instância a partir de um array, tipicamente lido do Redis Stream.
      *
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $data  Dados brutos do stream
      */
     public static function fromArray(array $data): self
     {
@@ -38,9 +43,7 @@ final readonly class GatewayResponse
         );
     }
 
-    /**
-     * Check if the response represents a failed operation.
-     */
+    /** Verifica se a resposta representa uma operação com falha. */
     public function failed(): bool
     {
         return ! $this->success;

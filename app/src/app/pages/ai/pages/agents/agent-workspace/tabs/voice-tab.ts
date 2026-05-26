@@ -19,7 +19,10 @@ import { type AiAgentVoiceConfig, type AiVoiceResponseMode } from '@ai/models/ai
 import { AiAgentService } from '@ai/services/ai-agent.service';
 
 /**
- * Voice tab — configure STT/TTS and voice response mode.
+ * Aba de Voz — configura STT, TTS e modo de resposta por voz do agente.
+ *
+ * Contexto: carrega configuração atual via API. O salvamento é delegado ao workspace global.
+ * Suporta modos: somente texto, somente áudio e texto+áudio (mixed).
  */
 @Component({
   selector: 'app-agent-voice-tab',

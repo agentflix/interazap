@@ -140,10 +140,10 @@ final class ChatWebhookController extends BaseController
     }
 
     /**
-     * Masks the token for logs.
+     * Mascarar o token para exibição segura em logs.
      *
-     * @param  string  $token  Original token.
-     * @return string Masked token.
+     * @param  string  $token  Token original da instância.
+     * @return string Token mascarado (apenas os últimos 8 caracteres visíveis).
      */
     private function maskToken(string $token): string
     {

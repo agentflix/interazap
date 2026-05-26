@@ -19,7 +19,7 @@ import type { RedisBlockingListClient } from '../models/tool-executor.model';
 
 export type { ToolExecutionContext } from '../interfaces/tool-execution-context.interface';
 
-/** Hard cap on delegation depth to prevent runaway chains regardless of caller args. */
+/** Limite máximo de profundidade de delegação para impedir cadeias infinitas independente dos argumentos. */
 const MAX_DELEGATION_DEPTH = 3;
 
 /**

@@ -4,15 +4,17 @@ import { ToolExecutorService } from '../tool-executor.service';
 import { BillingUsageClient } from '../../../billing/services/billing-usage-client.service';
 
 /**
- * Handles post-completion side-effects such as guardrail evaluation,
- * implicit send_message injection, and final content sanitization.
+ * Serviço responsável por tratar os efeitos colaterais pós-completion de uma run.
+ *
+ * Contexto: avalia guardrails sobre a saída final, injeta implicitamente a tool
+ * `send_message` quando necessário e sanitiza o conteúdo antes de retornar ao orquestrador.
  */
 export class RunCompletionService {
   /**
-   * @param guardrail           - GuardrailEvaluatorService for content safety checks
-   * @param toolExecutor         - ToolExecutorService for implicit tool calls
-   * @param logger               - NestJS Logger for instrumentation
-   * @param billingUsageClient   - BillingUsageClient for quota checks
+   * @param guardrail           - GuardrailEvaluatorService para verificações de segurança de conteúdo
+   * @param toolExecutor         - ToolExecutorService para chamadas implícitas de tools
+   * @param logger               - NestJS Logger para instrumentação
+   * @param billingUsageClient   - BillingUsageClient para verificações de cota de uso
    */
   constructor(
     private readonly guardrail: GuardrailEvaluatorService,
@@ -22,15 +24,15 @@ export class RunCompletionService {
   ) {}
 
   /**
-   * Evaluates the final output, applies guardrail filtering, and injects
-   * an implicit send_message call when the run produced content without one.
+   * Avalia a saída final, aplica filtragem de guardrail e injeta implicitamente
+   * a tool `send_message` quando a run produziu conteúdo sem chamá-la.
    *
-   * @param completionContent       - Raw content returned by the AI
-   * @param request                  - Original run request metadata
-   * @param toolCalls                - Tool calls recorded during the run (mutated)
-   * @param completionFinishReason   - Finish reason from the provider
-   * @param earlyExitReason          - Reason the run exited early (e.g. delegation)
-   * @returns Final content, guard status, and enriched tool calls
+   * @param completionContent       - Conteúdo bruto retornado pela AI
+   * @param request                  - Metadados originais da requisição da run
+   * @param toolCalls                - Tool calls registradas durante a run (mutável)
+   * @param completionFinishReason   - Motivo de término retornado pelo provider
+   * @param earlyExitReason          - Motivo de saída antecipada da run (ex.: delegação)
+   * @returns Conteúdo final, status do guardrail e tool calls enriquecidas
    */
   async finalize(
     completionContent: string,
@@ -173,7 +175,9 @@ export class RunCompletionService {
   }
 
   /**
-   * Extrai texto humano de um payload JSON que represente uma tool call send_message.
+   * Extrai o texto legível de um payload JSON que represente uma tool call `send_message`.
+   * @param content - Conteúdo da completion possivelmente serializado como JSON
+   * @returns Texto extraído ou `null` quando não for um payload `send_message`
    */
   private extractContentFromSendMessagePayload(content: string): string | null {
     try {
@@ -207,6 +211,12 @@ export class RunCompletionService {
     }
   }
 
+  /**
+   * Verifica se alguma tool da lista foi executada com sucesso.
+   * @param toolCalls - Tool calls registradas na run
+   * @param names     - Nomes a verificar
+   * @returns `true` quando ao menos uma tool da lista retornou `success: true`
+   */
   private hasSuccessfulToolCall(
     toolCalls: Array<Record<string, unknown>>,
     names: string[],
@@ -221,6 +231,11 @@ export class RunCompletionService {
     });
   }
 
+  /**
+   * Verifica se uma delegação sem retorno (`return_after: false`) foi concluída com sucesso.
+   * @param toolCalls - Tool calls registradas na run
+   * @returns `true` quando uma delegação de handoff foi concluída
+   */
   private hasCompletedHandoff(
     toolCalls: Array<Record<string, unknown>>,
   ): boolean {
@@ -245,6 +260,11 @@ export class RunCompletionService {
     });
   }
 
+  /**
+   * Verifica se o conteúdo é um payload JSON serializado de uma tool call.
+   * @param content - Conteúdo a ser verificado
+   * @returns `true` quando o conteúdo representar um payload de tool call
+   */
   private isSerializedToolCallPayload(content: string): boolean {
     try {
       const parsed = JSON.parse(content) as unknown;
@@ -267,12 +287,15 @@ export class RunCompletionService {
     }
   }
 
+  /** Retorna a mensagem de fallback padrão quando o conteúdo é um payload serializado de tool call. */
   private defaultToolCallFallbackMessage(): string {
     return 'Perfeito, registrei seu interesse e vou acionar nosso time comercial para continuar com você.';
   }
 
   /**
-   * Extrai o campo textual principal dos argumentos da send_message.
+   * Extrai o campo textual principal dos argumentos da tool `send_message`.
+   * @param argumentsValue - Valor bruto dos argumentos (objeto ou JSON string)
+   * @returns Texto extraído ou `null` quando nenhum campo textual for encontrado
    */
   private extractTextFromArguments(argumentsValue: unknown): string | null {
     const args = this.toRecord(argumentsValue);
@@ -290,6 +313,11 @@ export class RunCompletionService {
     return trimmed !== '' ? trimmed : null;
   }
 
+  /**
+   * Converte um valor desconhecido em objeto plain para serialização e leitura.
+   * @param value - Valor de entrada potencialmente desconhecido
+   * @returns Objeto derivado do valor, ou objeto vazio quando inválido
+   */
   private toRecord(value: unknown): Record<string, unknown> {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       return value as Record<string, unknown>;
@@ -309,6 +337,11 @@ export class RunCompletionService {
     return {};
   }
 
+  /**
+   * Converte um valor desconhecido em string opcional para leitura segura de campos.
+   * @param value - Valor de entrada de tipo desconhecido
+   * @returns String quando o valor for uma string válida, `undefined` caso contrário
+   */
   private readOptionalString(value: unknown): string | undefined {
     if (typeof value === 'string') {
       return value;

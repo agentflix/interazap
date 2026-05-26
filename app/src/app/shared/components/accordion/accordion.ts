@@ -2,12 +2,15 @@ import { Component, ChangeDetectionStrategy, input, output, signal } from '@angu
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfAccordionItemComponent — Collapsible panel with header and content.
+ * Painel retrátil com cabeçalho clicável e conteúdo expansível.
+ *
+ * Contexto: utilizado em seções de FAQ, configurações avançadas e
+ * qualquer área que exija colapso/expansão de conteúdo.
  *
  * @example
  * ```html
  * <af-accordion-item title="FAQ #1" [open]="true">
- *   <p>Answer content here.</p>
+ *   <p>Conteúdo da resposta aqui.</p>
  * </af-accordion-item>
  * ```
  */
@@ -19,10 +22,10 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './accordion.html',
 })
 export class AfAccordionItemComponent {
-  /** Panel title */
+  /** Título exibido no cabeçalho do painel */
   readonly title = input.required<string>();
 
-  /** Initial open state */
+  /** Estado inicial — aberto (`true`) ou fechado (`false`) */
   readonly open = input(false);
 
   protected readonly isOpen = signal(false);

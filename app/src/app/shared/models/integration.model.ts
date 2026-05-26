@@ -1,9 +1,9 @@
 /**
- * Integration / ChatInstance model.
- * Mirrors the backend channel integration entity returned by `/channels`.
+ * Modelo de integração/ChatInstance.
+ * Espelha a entidade de integração de canal retornada pelo backend em `/channels`.
  */
 
-/** Integration settings sub-object containing channel-specific configuration. */
+/** Sub-objeto de configurações da integração com configurações específicas do canal. */
 export interface IntegrationSettings {
   channel_provider_id: number;
   cellphone: string;
@@ -32,7 +32,7 @@ export interface IntegrationSettings {
   auto_close_message?: string | null;
 }
 
-/** Integration entity representing a connected chat channel (WhatsApp, Telegram, etc.). */
+/** Entidade de integração representando um canal de chat conectado (WhatsApp, Telegram, etc.). */
 export interface Integration {
   id: string;
   name: string;

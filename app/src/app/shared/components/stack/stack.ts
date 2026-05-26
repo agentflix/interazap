@@ -1,13 +1,13 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfStackComponent — Flexbox stack layout (vertical or horizontal).
+ * Layout flexbox em pilha (vertical ou horizontal).
  *
  * @example
  * ```html
  * <af-stack direction="row" gap="md" align="center">
- *   <af-button>One</af-button>
- *   <af-button>Two</af-button>
+ *   <af-button>Um</af-button>
+ *   <af-button>Dois</af-button>
  * </af-stack>
  * ```
  */
@@ -18,19 +18,19 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './stack.html',
 })
 export class AfStackComponent {
-  /** Flex direction */
+  /** Direção flex */
   readonly direction = input<'row' | 'column'>('column');
 
-  /** Gap size */
+  /** Tamanho do espaçamento */
   readonly gap = input<'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'>('md');
 
-  /** Align items */
+  /** Alinhamento dos itens */
   readonly align = input<'start' | 'center' | 'end' | 'stretch'>('stretch');
 
-  /** Justify content */
+  /** Justificação do conteúdo */
   readonly justify = input<'start' | 'center' | 'end' | 'between' | 'around'>('start');
 
-  /** Wrap */
+  /** Quebra de linha */
   readonly wrap = input(false);
 
   protected readonly stackClasses = computed(() => {

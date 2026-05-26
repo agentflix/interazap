@@ -23,7 +23,7 @@ final class BillingCheckOverdueCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * Executa o comando de verificação de inadimplência.
      */
     public function handle(): int
     {

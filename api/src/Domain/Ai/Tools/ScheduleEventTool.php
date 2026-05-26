@@ -17,13 +17,16 @@ use Domain\CRM\Models\CRMEventParticipant;
 use Illuminate\Support\Str;
 
 /**
- * Tool to schedule CRM events.
+ * Ferramenta de IA para agendar eventos no CRM.
+ *
+ * Input esperado: title e starts_at (obrigatórios); type, ends_at, contact_id e description opcionais.
+ * Output produzido: event_id, starts_at, ends_at e confirmation_id (quando habilitado).
+ * Quando usar: cliente confirmar um horário para reunião, ligação ou outro tipo de evento.
+ * Cria automaticamente solicitação de confirmação e job de lembrete quando configurado.
  */
 class ScheduleEventTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa o agendamento do evento e cria os registros de confirmação quando aplicável. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $title = trim((string) ($input->parameters['title'] ?? ''));
@@ -122,24 +125,20 @@ class ScheduleEventTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::SCHEDULE_EVENT;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Schedules a CRM event and optionally links a contact participant.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

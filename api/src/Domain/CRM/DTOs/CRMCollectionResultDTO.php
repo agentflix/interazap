@@ -7,7 +7,7 @@ namespace Domain\CRM\DTOs;
 use Illuminate\Support\Collection;
 
 /**
- * DTO for CRM collection result.
+ * DTO para resultado de coleção CRM.
  *
  * @readonly
  */

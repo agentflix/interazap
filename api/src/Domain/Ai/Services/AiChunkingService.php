@@ -13,21 +13,22 @@ use Domain\Ai\Services\Chunkers\DefaultChunker;
 use Domain\Ai\Services\Chunkers\MarkdownChunker;
 
 /**
- * Service for chunking text into smaller pieces for RAG.
+ * Serviço de divisão de texto em chunks para indexação RAG.
  *
- * Delegates to type-specific strategies:
- * - MarkdownChunker for markdown files
- * - CsvChunker for CSV files
- * - DefaultChunker for everything else
+ * Delega para estratégias específicas por tipo de documento:
+ * MarkdownChunker para arquivos markdown, CsvChunker para CSV
+ * e DefaultChunker para todos os demais tipos.
  */
 final class AiChunkingService implements AiChunkingServiceInterface
 {
     private const float DEFAULT_CHARS_PER_TOKEN = 3.5;
 
     /**
-     * Chunk text into smaller pieces with overlap.
+     * Divide o texto em chunks com sobreposição de acordo com o tipo do documento.
      *
-     * @return list<ChunkDTO>
+     * @param  string  $text  Texto a dividir.
+     * @param  AiDocumentType|null  $type  Tipo do documento para seleção da estratégia.
+     * @return list<ChunkDTO> Lista de chunks gerados.
      */
     public function chunk(string $text, ?AiDocumentType $type = null): array
     {
@@ -37,7 +38,10 @@ final class AiChunkingService implements AiChunkingServiceInterface
     }
 
     /**
-     * Estimate token count for a text.
+     * Estima a quantidade de tokens de um texto usando divisão por caracteres.
+     *
+     * @param  string  $text  Texto a estimar.
+     * @return int Estimativa de tokens.
      */
     public function estimateTokens(string $text): int
     {
@@ -47,7 +51,10 @@ final class AiChunkingService implements AiChunkingServiceInterface
     }
 
     /**
-     * Resolve chunking strategy based on document type.
+     * Seleciona a estratégia de chunking com base no tipo do documento.
+     *
+     * @param  AiDocumentType|null  $type  Tipo do documento.
+     * @return ChunkerStrategyInterface Estratégia adequada ao tipo.
      */
     private function resolveStrategy(?AiDocumentType $type): ChunkerStrategyInterface
     {

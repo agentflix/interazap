@@ -17,10 +17,10 @@ import {
 import { ChatTicketListService } from './chat-ticket-list.service';
 
 /**
- * Encapsulates the close-ticket flow: confirm modal state, optimistic
- * update of tickets/counts, rollback on error and post-close navigation.
+ * Encapsula o fluxo de encerramento de ticket: estado do modal de confirmação,
+ * atualização otimista de tickets e contagens, rollback em erro e navegação pós-encerramento.
  *
- * Extracted from `Chat` host (FEAT-049) to keep the host thin.
+ * Extraído do host `Chat` (FEAT-049) para manter o host enxuto.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatTicketCloseService {
@@ -34,13 +34,13 @@ export class ChatTicketCloseService {
   readonly isClosing: Signal<boolean> = this._isClosing.asReadonly();
   readonly isConfirmOpen: Signal<boolean> = this._isConfirmOpen.asReadonly();
 
-  /** Opens the close-confirm modal if ticket is open. */
+  /** Abre o modal de confirmação de encerramento se o ticket estiver aberto. */
   openConfirm(ticket: Called | null): void {
     if (!ticket || ticket.status === 'closed' || this._isClosing()) return;
     this._isConfirmOpen.set(true);
   }
 
-  /** Dismisses the close-confirm modal. */
+  /** Fecha o modal de confirmação de encerramento sem executar ação. */
   closeConfirm(): void {
     this._isConfirmOpen.set(false);
   }

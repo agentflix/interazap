@@ -33,8 +33,9 @@ final class GetTenantSettingsAction
     ];
 
     /**
-     * Executar a ação de obter configurações do tenant.
+     * Obtém as configurações do tenant mesclando valores padrão com os persistidos.
      *
+     * @param  PlatformTenant  $tenant  Tenant cujas configurações serão buscadas.
      * @return TenantSettingDTO Configurações completas do tenant.
      */
     public function execute(PlatformTenant $tenant): TenantSettingDTO
@@ -55,9 +56,11 @@ final class GetTenantSettingsAction
     }
 
     /**
-     * @param  array<string, mixed>  $defaults
-     * @param  array<string, mixed>  $stored
-     * @return array<string, mixed>
+     * Mescla profundamente valores padrão com os armazenados.
+     *
+     * @param  array<string, mixed>  $defaults  Valores padrão.
+     * @param  array<string, mixed>  $stored  Valores persistidos do tenant.
+     * @return array<string, mixed> Array mesclado.
      */
     private function deepMerge(array $defaults, array $stored): array
     {

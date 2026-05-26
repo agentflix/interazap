@@ -1,7 +1,9 @@
 import { Injectable, signal } from '@angular/core';
 
 /**
- * Global trigger service to open/close spotlight from layout components.
+ * Serviço para abrir/fechar o spotlight de busca global a partir de componentes de layout.
+ *
+ * Contexto: signal-based trigger compartilhado entre layout e componente spotlight.
  */
 @Injectable({ providedIn: 'root' })
 export class SearchSpotlightService {

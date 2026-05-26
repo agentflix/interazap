@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Auth\DTOs;
 
 /**
- * DTO for user listing filters.
+ * DTO para filtros de listagem de usuários.
  *
  * @readonly
  */
@@ -23,6 +23,8 @@ final readonly class AuthUserFiltersDTO
     ) {}
 
     /**
+     * Cria DTO a partir de array de parâmetros de filtro.
+     *
      * @param  array<string, mixed>  $payload
      */
     public static function fromArray(array $payload): self
@@ -39,16 +41,19 @@ final readonly class AuthUserFiltersDTO
         );
     }
 
+    /** Retorna coluna de ordenação validada (name|email|created_at). */
     public function sanitizedSortBy(): string
     {
         return in_array($this->sortBy, ['name', 'email', 'created_at'], true) ? $this->sortBy : 'name';
     }
 
+    /** Retorna direção de ordenação validada (asc|desc). */
     public function sanitizedSortDirection(): string
     {
         return strtolower($this->sortDirection) === 'desc' ? 'desc' : 'asc';
     }
 
+    /** Retorna quantidade de itens por página limitada ao intervalo [1, 100]. */
     public function sanitizedPerPage(): int
     {
         return min(max($this->perPage, 1), 100);

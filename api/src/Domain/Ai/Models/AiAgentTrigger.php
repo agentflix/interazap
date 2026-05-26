@@ -11,18 +11,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * Trigger configuration for an AI Agent.
+ * Configuração de gatilho para ativação de um Agente de IA.
  *
- * Defines conditions that activate an agent during a conversation,
- * such as keywords, intent classification, or event-based triggers.
+ * Define as condições que disparam a execução de um agente em uma conversa,
+ * como mensagem recebida, alteração de etapa, criação de ticket ou cron.
+ * O campo config armazena parâmetros específicos do tipo (ex.: expressão cron).
  *
  * @property string $id
  * @property string $tenant_id
  * @property string $agent_id
- * @property string $type
- * @property array|null $config
- * @property string $status
- * @property \Illuminate\Support\Carbon|null $last_run_at
+ * @property string $type Tipo do gatilho (AutopilotTriggerType value).
+ * @property array|null $config Configuração específica do tipo de gatilho.
+ * @property string $status Status do gatilho ('active' ou 'inactive').
+ * @property \Illuminate\Support\Carbon|null $last_run_at Última execução do gatilho.
  */
 class AiAgentTrigger extends Model
 {
@@ -62,6 +63,9 @@ class AiAgentTrigger extends Model
         });
     }
 
+    /**
+     * Agente associado a este gatilho.
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(AiAgent::class, 'agent_id');

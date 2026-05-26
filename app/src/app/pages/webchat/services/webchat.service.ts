@@ -21,8 +21,8 @@ import { environment } from '@env/environment';
 const WEBCHAT_PATH = '/ws';
 
 /**
- * WebChatService — manages session creation, WebSocket communication,
- * and message state for the public webchat widget.
+ * Serviço de webchat responsável por gerenciar criação de sessão, comunicação
+ * via WebSocket e estado das mensagens para o widget de chat público.
  */
 @Injectable({ providedIn: 'root' })
 export class WebChatService implements OnDestroy {
@@ -81,7 +81,7 @@ export class WebChatService implements OnDestroy {
   // ─── Public API ───────────────────────────────────────────────────────────
 
   /**
-   * Creates a new webchat session for a tenant.
+   * Cria uma nova sessão de webchat para um tenant.
    * POST /api/webchat/sessions
    */
   createSession(
@@ -110,7 +110,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Sends a text message through the REST API (WebSocket is used for streaming responses).
+   * Envia uma mensagem de texto via REST API (WebSocket é usado para respostas em streaming).
    * POST /api/webchat/messages
    */
   sendMessage(
@@ -151,7 +151,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Uploads a media file to the webchat storage.
+   * Faz upload de um arquivo de mídia para o armazenamento do webchat.
    * POST /api/webchat/media
    */
   uploadMedia(file: File): Observable<WebChatMediaUploadResponse> {
@@ -172,7 +172,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Sends a media message after a successful upload.
+   * Envia uma mensagem de mídia após upload bem-sucedido.
    * POST /api/webchat/messages  { token, file_url, mime_type, type }
    */
   sendFileMessage(
@@ -223,7 +223,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Closes the current webchat ticket using the public endpoint.
+   * Encerra o ticket de webchat ativo via endpoint público.
    * POST /api/webchat/close
    */
   closeTicket(): Observable<WebChatCloseResponse> {
@@ -253,8 +253,8 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Connects to the WebSocket gateway and joins the session room.
-   * Uses the token from createSession(), or pass sessionId explicitly when restoring a session.
+   * Conecta ao gateway WebSocket e entra na sala da sessão.
+   * Utiliza o token de createSession(), ou recebe sessionId explicitamente ao restaurar sessão.
    */
   connectWebSocket(token: string, sessionId?: string): void {
     if (this.socket?.connected) {
@@ -291,7 +291,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Disconnects from the WebSocket and clears session data.
+   * Desconecta do WebSocket e limpa todos os dados da sessão em memória.
    */
   disconnect(): void {
     this.socket?.disconnect();
@@ -383,7 +383,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Adds a message to the local messages list and persists to sessionStorage.
+   * Adiciona uma mensagem à lista local e persiste no sessionStorage.
    */
   addMessage(message: WebChatMessage): void {
     this._messages.update((msgs) => {
@@ -398,8 +398,8 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Persists the current messages list into the existing sessionStorage session entry.
-   * Silently ignores if no session is stored yet.
+   * Persiste a lista atual de mensagens na entrada de sessão do sessionStorage.
+   * Ignorado silenciosamente se nenhuma sessão estiver armazenada.
    */
   private persistMessages(messages: WebChatMessage[]): void {
     try {
@@ -413,16 +413,16 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Updates a message status by its ID.
+   * Atualiza o status de uma mensagem pelo seu ID.
    */
   updateMessageStatus(messageId: string, status: WebChatMessage['status']): void {
     this._messages.update((msgs) => msgs.map((m) => (m.id === messageId ? { ...m, status } : m)));
   }
 
   /**
-   * Loads a restored session from sessionStorage.
-   * When `expectedSessionId` is provided (e.g. from URL query param ?s=),
-   * the stored session is only returned if the sessionId matches.
+   * Recupera a sessão persistida do sessionStorage.
+   * Quando `expectedSessionId` é fornecido (ex.: parâmetro de URL ?s=),
+   * retorna a sessão somente se o sessionId coincidir.
    */
   restoreSession(expectedSessionId?: string): {
     token: string;
@@ -483,8 +483,8 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Persists the session to sessionStorage with a 4-hour expiry.
-   * Any previously persisted messages are discarded on a new session.
+   * Persiste a sessão no sessionStorage com expiração de 4 horas.
+   * Mensagens anteriores são descartadas ao iniciar uma nova sessão.
    */
   saveSession(
     token: string,
@@ -499,7 +499,7 @@ export class WebChatService implements OnDestroy {
   }
 
   /**
-   * Clears the persisted session from sessionStorage.
+   * Remove a sessão persistida do sessionStorage.
    */
   clearSession(): void {
     sessionStorage.removeItem('webchat_session');
@@ -626,8 +626,7 @@ export class WebChatService implements OnDestroy {
 
 /**
  * Compara duas WebChatMessages para ordenação estável ASC (cronológica).
- *
- * Regra canônica: `createdAt` ASC → `id` ASC (desempate determinístico).
+ * Regra: `createdAt` ASC com desempate determinístico por `id` ASC.
  */
 function compareWebChatMessagesAsc(a: WebChatMessage, b: WebChatMessage): number {
   const tsA = Date.parse(a.createdAt ?? '');

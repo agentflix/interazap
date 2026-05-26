@@ -20,7 +20,7 @@ import { ButtonComponent, IconButtonComponent } from '@shared/components/buttons
 import { ConfirmModalComponent } from '@shared/components/confirm-modal/confirm-modal';
 
 /**
- * Tab content responsible for negotiation files CRUD.
+ * Conteúdo da aba de arquivos — gerencia o CRUD de arquivos da negociação.
  */
 @Component({
   selector: 'app-negotiation-files-tab',

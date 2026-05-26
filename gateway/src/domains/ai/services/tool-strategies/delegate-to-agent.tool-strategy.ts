@@ -3,21 +3,22 @@ import { ToolStrategyRuntime } from './tool-strategy.types';
 import { ToolExecutionContext } from '../../interfaces/tool-execution-context.interface';
 
 /**
- * Delegates execution to another agent by forwarding the call to the runtime.
+ * Estratégia responsável por delegar a execução para outro agente via runtime.
  *
- * @remarks
- * The actual delegation logic (depth tracking, stack management) lives in
- * ToolStrategyRuntime.executeDelegateToAgent.
+ * A lógica real de delegação (rastreamento de profundidade e gerenciamento de pilha)
+ * reside em `ToolStrategyRuntime.executeDelegateToAgent`.
  */
 export class DelegateToAgentToolStrategy implements ToolStrategy {
   readonly name = 'delegate_to_agent';
 
   /**
-   * @param _name     - Unused; present to satisfy ToolStrategy contract
-   * @param args      - Delegation arguments (target agent, prompt, etc.)
-   * @param context   - Execution context
-   * @param runtime   - Runtime with delegation support
-   * @returns Delegation result from the runtime
+   * Delega a execução ao runtime e retorna o resultado da delegação.
+   *
+   * @param _name   - Não utilizado; presente para satisfazer o contrato `ToolStrategy`
+   * @param args    - Argumentos de delegação (agente alvo, prompt, etc.)
+   * @param context - Contexto operacional da run atual
+   * @param runtime - Runtime com suporte a delegação entre agentes
+   * @returns Resultado da delegação retornado pelo runtime
    */
   async execute(
     _name: string,

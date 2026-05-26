@@ -15,6 +15,14 @@ use Illuminate\Support\Str;
  */
 final class CRMCustomFieldValueActions
 {
+    /**
+     * Cria ou atualiza o valor de um campo personalizado para uma entidade.
+     *
+     * Valida o valor conforme o tipo do campo (number, date, select, multiselect, boolean)
+     * antes de persistir. Usa upsert baseado em tenant + campo + entidade.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o valor não é compatível com o tipo do campo
+     */
     public function upsert(string $tenantId, CRMCustomFieldValueDTO $dto): CRMCustomFieldValue
     {
         $field = CRMCustomField::query()

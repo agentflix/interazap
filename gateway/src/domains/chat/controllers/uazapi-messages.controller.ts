@@ -26,18 +26,18 @@ import { DownloadMediaDto } from '../dto/download-media.dto';
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class UazapiMessagesController {
   /**
-   * Initializes the messages controller with the Uazapi client.
+   * Inicializa o controller de mensagens com o cliente Uazapi.
    *
-   * @param client - Uazapi HTTP client for message sending operations
+   * @param client Cliente HTTP Uazapi para operacoes de envio de mensagens
    */
   constructor(private readonly client: UazapiClient) {}
 
   /**
-   * Sends a text message via Uazapi.
+   * Envia mensagem de texto via Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Text message payload
-   * @returns Send result
+   * @param token Token da instancia
+   * @param body Payload da mensagem de texto
+   * @returns Resultado do envio
    */
   @Post('text')
   sendText(@Headers('token') token: string, @Body() body: SendTextDto) {
@@ -48,11 +48,11 @@ export class UazapiMessagesController {
   }
 
   /**
-   * Sends a media message via Uazapi.
+   * Envia mensagem de midia via Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Media message payload
-   * @returns Send result
+   * @param token Token da instancia
+   * @param body Payload da mensagem de midia
+   * @returns Resultado do envio
    */
   @Post('media')
   sendMedia(@Headers('token') token: string, @Body() body: SendFileDto) {
@@ -60,11 +60,11 @@ export class UazapiMessagesController {
   }
 
   /**
-   * Sends a file message via Uazapi.
+   * Envia mensagem de arquivo via Uazapi.
    *
-   * @param token - Instance token
-   * @param body - File message payload
-   * @returns Send result
+   * @param token Token da instancia
+   * @param body Payload do arquivo a enviar
+   * @returns Resultado do envio
    */
   @Post('file')
   sendFile(@Headers('token') token: string, @Body() body: SendFileDto) {
@@ -72,16 +72,17 @@ export class UazapiMessagesController {
   }
 
   /**
-   * Forwards file payload to Uazapi with normalized field names.
-   * Remaps API field names (url, caption, fileName) to Uazapi expectations
-   * (file, text, docName) and enforces the file requirement.
+   * Encaminha payload de arquivo para a Uazapi com nomes de campo normalizados.
+   * Remapeia campos da API (url, caption, fileName) para o esperado pela Uazapi
+   * (file, text, docName) e valida a obrigatoriedade do campo de arquivo.
    *
-   * @param token - Instance token
-   * @param body - File payload
-   * @returns Normalized send result
+   * @param token Token da instancia
+   * @param body Payload do arquivo
+   * @returns Resultado normalizado do envio
+   * @throws BadRequestException Quando url e file estao ausentes no payload
    */
   private forwardSendFile(token: string, body: SendFileDto) {
-    // Uazapi expects 'file' field (URL or base64)
+    // Uazapi espera o campo 'file' (URL ou base64)
     const file = body.file ?? body.url;
 
     if (!file) {
@@ -93,16 +94,16 @@ export class UazapiMessagesController {
       file,
     };
 
-    // Remove 'url' alias — Uazapi uses 'file'
+    // Remove o alias 'url' — Uazapi usa 'file'
     delete payload.url;
 
-    // Uazapi uses 'text' for caption, not 'caption'
+    // Uazapi usa 'text' para legenda, nao 'caption'
     if (payload.caption && !payload.text) {
       payload.text = payload.caption;
     }
     delete payload.caption;
 
-    // Normalize document filename: API sends 'fileName', Uazapi expects 'docName'
+    // Normaliza nome do arquivo de documento: API envia 'fileName', Uazapi espera 'docName'
     if (payload.fileName && !payload.docName) {
       payload.docName = payload.fileName;
     }
@@ -114,12 +115,12 @@ export class UazapiMessagesController {
   }
 
   /**
-   * Normalizes unsupported image MIME types to document type.
-   * WebP, SVG, HEIC, HEIF, and AVIF images are sent as documents
-   * because Uazapi does not support them natively.
+   * Normaliza MIME types de imagem nao suportados para o tipo documento.
+   * WebP, SVG, HEIC, HEIF e AVIF sao enviados como documento pois
+   * a Uazapi nao os suporta nativamente como imagem.
    *
-   * @param payload - Normalized payload to adjust
-   * @param file - File URL or base64 string
+   * @param payload Payload normalizado a ser ajustado
+   * @param file URL do arquivo ou string base64
    */
   private normalizeUnsupportedImagePayload(
     payload: Record<string, unknown>,
@@ -152,12 +153,12 @@ export class UazapiMessagesController {
   }
 
   /**
-   * Resolves the MIME type from the payload mimetype field,
-   * from a data URI prefix, or by inferring from the file URL extension.
+   * Resolve o MIME type a partir do campo mimetype do payload,
+   * do prefixo de data URI ou pela extensao da URL do arquivo.
    *
-   * @param payload - Payload with optional mimetype field
-   * @param file - File URL or base64 string
-   * @returns Resolved MIME type or null if not determinable
+   * @param payload Payload com campo mimetype opcional
+   * @param file URL do arquivo ou string base64
+   * @returns MIME type resolvido ou null quando nao determinavel
    */
   private resolveMimeType(
     payload: Record<string, unknown>,
@@ -181,11 +182,11 @@ export class UazapiMessagesController {
   }
 
   /**
-   * Infers the MIME type from the file URL extension.
-   * Only operates on HTTP/HTTPS URLs; returns null for other schemes.
+   * Infere o MIME type pela extensao da URL do arquivo.
+   * Opera apenas em URLs HTTP/HTTPS; retorna null para outros esquemas.
    *
-   * @param file - File URL
-   * @returns Inferred MIME type or null if extension is not recognized
+   * @param file URL do arquivo
+   * @returns MIME type inferido ou null quando a extensao nao e reconhecida
    */
   private inferMimeTypeFromUrl(file: string): string | null {
     if (file.startsWith('http://') || file.startsWith('https://')) {
@@ -241,11 +242,11 @@ export class UazapiPresenceController {
   constructor(private readonly client: UazapiClient) {}
 
   /**
-   * Sends presence update via Uazapi.
+   * Envia atualizacao de presenca (digitando/gravando) via Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Presence update payload
-   * @returns Send result
+   * @param token Token da instancia
+   * @param body Payload de atualizacao de presenca
+   * @returns Resultado do envio
    */
   @Post('presence')
   sendPresence(@Headers('token') token: string, @Body() body: SendPresenceDto) {
@@ -256,11 +257,11 @@ export class UazapiPresenceController {
   }
 
   /**
-   * Downloads media from Uazapi.
+   * Faz download de midia recebida via Uazapi.
    *
-   * @param token - Instance token
-   * @param body - Download media payload
-   * @returns Download result
+   * @param token Token da instancia
+   * @param body Payload com identificacao da midia a baixar
+   * @returns Resultado do download
    */
   @Post('download')
   downloadMedia(

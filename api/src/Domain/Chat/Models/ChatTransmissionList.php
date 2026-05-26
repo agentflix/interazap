@@ -68,6 +68,9 @@ class ChatTransmissionList extends Model
         });
     }
 
+    /**
+     * Relacionamento com os contatos vinculados a esta lista de transmissão.
+     */
     public function contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ChatTransmissionListContact::class, 'transmission_list_id');

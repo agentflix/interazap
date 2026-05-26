@@ -22,7 +22,9 @@ final class CRMProductActions
     use GuardsUniqueName;
 
     /**
-     * @param  array<string, mixed>  $filters
+     * Lista produtos/serviços do tenant com filtros de busca, status e tipo, com paginação.
+     *
+     * @param  array<string, mixed>  $filters  Filtros disponíveis: search, is_active, type, sort_by, sort_dir, per_page
      */
     public function list(string $tenantId, array $filters = []): LengthAwarePaginator
     {
@@ -129,6 +131,11 @@ final class CRMProductActions
         return $query->orderBy('name')->get();
     }
 
+    /**
+     * Cria um produto garantindo unicidade de nome no tenant.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o nome já existe no tenant
+     */
     public function create(string $tenantId, CRMProductDTO $dto): CRMProduct
     {
         $this->guardUniqueName(CRMProduct::class, $tenantId, $dto->name, 'Produto já cadastrado para este tenant.');
@@ -142,6 +149,7 @@ final class CRMProductActions
         });
     }
 
+    /** Atualiza dados de um produto, verificando unicidade de nome se alterado. */
     public function update(string $tenantId, string $id, CRMProductDTO $dto): CRMProduct
     {
         $product = $this->find($tenantId, $id);
@@ -155,12 +163,14 @@ final class CRMProductActions
         return $product;
     }
 
+    /** Remove um produto pelo ID. */
     public function delete(string $tenantId, string $id): void
     {
         $product = $this->find($tenantId, $id);
         $product->delete();
     }
 
+    /** Retorna um produto pelo ID, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMProduct
     {
         return CRMProduct::query()

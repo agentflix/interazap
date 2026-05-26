@@ -4,7 +4,7 @@ import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
 
 /**
- * AfRangeSliderComponent — Dual-handle range slider for min/max selection.
+ * Slider de intervalo com dois controles para seleção de mínimo e máximo.
  *
  * @example
  * ```html
@@ -19,21 +19,21 @@ import { AfFormErrorComponent } from '../form-error/form-error';
   templateUrl: './range-slider.html',
 })
 export class AfRangeSliderComponent {
-  /** Min value control */
+  /** FormControl do valor mínimo */
   readonly minControl = input.required<FormControl<number>>();
 
-  /** Max value control */
+  /** FormControl do valor máximo */
   readonly maxControl = input.required<FormControl<number>>();
 
-  /** Minimum */
+  /** Valor mínimo absoluto */
   readonly min = input(0);
 
-  /** Maximum */
+  /** Valor máximo absoluto */
   readonly max = input(100);
 
-  /** Step */
+  /** Incremento por passo */
   readonly step = input(1);
 
-  /** Label */
+  /** Rótulo */
   readonly label = input('');
 }

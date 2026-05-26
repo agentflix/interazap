@@ -9,13 +9,14 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Platform Billing Invoice (admin view).
- * Includes associated tenant data.
+ * Resource de fatura de cobrança na visão de plataforma (admin).
+ *
+ * Inclui dados do tenant e plano associados quando carregados.
  */
 final class PlatformBillingInvoiceResource extends BaseJsonResource
 {
     /**
-     * Transform the invoice into an array for JSON response.
+     * Transforma a fatura em array para resposta JSON.
      *
      * @return array<string, mixed>
      */

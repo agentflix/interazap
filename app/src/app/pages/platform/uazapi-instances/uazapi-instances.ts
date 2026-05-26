@@ -37,6 +37,9 @@ import {
 import { ToastService } from '@core/services/toast.service';
 import { UazapiInstanceFormComponent } from './components/uazapi-instance-form/uazapi-instance-form';
 
+/**
+ * Página de instâncias uazapi — CRUD, gerenciamento de conexão, imagem de perfil e presença.
+ */
 @Component({
   selector: 'app-uazapi-instances',
   standalone: true,
@@ -58,10 +61,6 @@ import { UazapiInstanceFormComponent } from './components/uazapi-instance-form/u
     AfTextareaInputComponent,
     AfAlertComponent,
     UazapiInstanceFormComponent,
-/**
- * Uazapi instances page component for the Platform module.
- * @selector app-uazapi-instances
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './uazapi-instances.html',

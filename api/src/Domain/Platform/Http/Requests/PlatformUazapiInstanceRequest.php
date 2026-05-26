@@ -12,7 +12,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class PlatformUazapiInstanceRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -26,7 +26,7 @@ final class PlatformUazapiInstanceRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para criação de instância Uazapi.
      *
      * @return array<string, mixed>
      */

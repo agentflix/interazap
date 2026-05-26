@@ -11,14 +11,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controller for tenant token budget management.
+ * Controller para gerenciamento do orçamento de tokens do tenant do módulo de IA.
  */
 final class AiBudgetController extends BaseController
 {
     public function __construct(private readonly TokenBudgetService $tokenBudgetService) {}
 
     /**
-     * Show budget config and current usage for authenticated tenant.
+     * Exibe a configuração de orçamento e o consumo atual do tenant autenticado.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @return JsonResponse Configuração e consumo atual de tokens.
      */
     public function show(Request $request): JsonResponse
     {
@@ -36,7 +39,10 @@ final class AiBudgetController extends BaseController
     }
 
     /**
-     * Update budget config for authenticated tenant.
+     * Atualiza a configuração de orçamento do tenant autenticado.
+     *
+     * @param  AiBudgetUpdateRequest  $request  Dados validados de limites diário e mensal.
+     * @return JsonResponse Configuração e consumo atualizados.
      */
     public function update(AiBudgetUpdateRequest $request): JsonResponse
     {

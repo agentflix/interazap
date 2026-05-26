@@ -10,12 +10,16 @@ use Domain\Ai\DTOs\ToolResultDTO;
 use Domain\Chat\Models\ChatTicket;
 
 /**
- * Tool to read ticket information and messages.
+ * Ferramenta de IA para ler informações de um ticket e seu histórico de mensagens.
  *
- * Security: Validates tenant_id to prevent cross-tenant access.
+ * Input esperado: ticket_id (obrigatório); include_messages e message_limit opcionais.
+ * Output produzido: dados do ticket, informações do contato e opcionalmente histórico de mensagens.
+ * Quando usar: contextualizar o agente sobre o atendimento em andamento antes de responder.
+ * Segurança: valida tenant_id para evitar acesso entre tenants.
  */
 class ReadTicketTool implements AiToolInterface
 {
+    /** Executa a leitura do ticket e seu histórico. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $ticketId = $input->parameters['ticket_id'] ?? null;
@@ -82,17 +86,21 @@ class ReadTicketTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::READ_TICKET;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Retrieves information about a support ticket including status, contact info, and optionally the conversation history.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

@@ -3,8 +3,8 @@ import { type FullCalendarComponent, FullCalendarModule } from '@fullcalendar/an
 import { type CalendarOptions } from '@fullcalendar/core';
 
 /**
- * Wraps FullCalendar in a styled card container.
- * Exposes the calendar API via getApi() for parent navigation.
+ * Encapsula o FullCalendar em um container estilizado.
+ * Expõe a API do calendário via getApi() para navegação pelo componente pai.
  */
 @Component({
   selector: 'app-agenda-calendar-view',
@@ -15,12 +15,12 @@ import { type CalendarOptions } from '@fullcalendar/core';
   styleUrl: './agenda-calendar-view.scss',
 })
 export class AgendaCalendarViewComponent {
-  /** FullCalendar configuration options */
+  /** Opções de configuração do FullCalendar. */
   readonly options = input.required<CalendarOptions>();
 
   private readonly calendarRef = viewChild<FullCalendarComponent>('calendar');
 
-  /** Get the FullCalendar API instance for programmatic control */
+  /** Retorna a instância da API do FullCalendar para controle programático. */
   getApi(): ReturnType<FullCalendarComponent['getApi']> | undefined {
     return this.calendarRef()?.getApi();
   }

@@ -34,7 +34,7 @@ import {
 import { formatCurrency } from '@shared/utils/currency';
 
 /**
- * Tab content responsible for negotiation products and services CRUD.
+ * Conteúdo da aba de produtos — gerencia o CRUD de produtos e serviços da negociação.
  */
 @Component({
   selector: 'app-negotiation-products-tab',

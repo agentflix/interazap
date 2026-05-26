@@ -17,8 +17,8 @@ import { AfEmptyStateComponent } from '../empty-state/empty-state';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfUnifiedListComponent — Full-featured list container with search, filters,
- * create/delete actions, loading overlay, empty state and pagination.
+ * Container de lista completo com busca, filtros, ações de criar/excluir,
+ * overlay de carregamento, estado vazio e paginação.
  *
  * @example
  * ```html
@@ -52,58 +52,58 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './unified-list.html',
 })
 export class AfUnifiedListComponent {
-  /** Loading state */
+  /** Estado de carregamento */
   readonly isLoading = input(false);
 
-  /** Total items */
+  /** Total de itens */
   readonly total = input(0);
 
-  /** Items per page */
+  /** Itens por página */
   readonly perPage = input(10);
 
-  /** Current page number */
+  /** Número da página atual */
   readonly currentPage = input(1);
 
-  /** Last page number */
+  /** Número da última página */
   readonly lastPage = input(1);
 
-  /** Whether selection mode is active */
+  /** Indica se o modo de seleção está ativo */
   readonly hasSelection = input(false);
 
-  /** Number of selected items */
+  /** Número de itens selecionados */
   readonly selectedCount = input(0);
 
-  /** Search placeholder */
+  /** Placeholder da busca */
   readonly searchPlaceholder = input('Buscar por...');
 
-  /** Create button label */
+  /** Rótulo do botão de criar */
   readonly createLabel = input('Novo');
 
-  /** Empty state title */
+  /** Título do estado vazio */
   readonly emptyTitle = input('Nenhum item encontrado');
 
-  /** Empty state description */
+  /** Descrição do estado vazio */
   readonly emptyDescription = input('Tente ajustar os filtros ou criar um novo item.');
 
-  /** Emitted when search text changes */
+  /** Emitido ao alterar o texto de busca */
   readonly searchChange = output<string>();
 
-  /** Emitted on page change */
+  /** Emitido ao alterar a página */
   readonly pageChange = output<number>();
 
-  /** Emitted on filter button click */
+  /** Emitido ao clicar no botão de filtro */
   readonly filterClick = output<void>();
 
-  /** Emitted on create button click */
+  /** Emitido ao clicar no botão de criar */
   readonly createClick = output<void>();
 
-  /** Emitted on delete selected click */
+  /** Emitido ao clicar em excluir selecionados */
   readonly deleteSelectedClick = output<void>();
 
-  /** Content-projected table header template */
+  /** Template de cabeçalho da tabela projetado via content */
   readonly headerTpl = contentChild.required<TemplateRef<unknown>>('tableHeader');
 
-  /** Content-projected table body template */
+  /** Template de corpo da tabela projetado via content */
   readonly bodyTpl = contentChild.required<TemplateRef<unknown>>('tableBody');
 
   protected readonly searchControl = new FormControl('', { nonNullable: true });

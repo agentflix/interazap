@@ -7,13 +7,11 @@ namespace Domain\Ai\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * FormRequest for AI agent channel storage.
+ * Validação para criação e atualização de canal de agente de IA.
  */
 final class AiAgentChannelStoreRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Verifica se o usuário possui permissão para gerenciar autopilots. */
     public function authorize(): bool
     {
         return $this->user()->can('ai.autopilots.manage');

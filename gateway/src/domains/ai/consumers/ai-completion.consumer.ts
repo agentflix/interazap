@@ -36,13 +36,14 @@ import {
 const REQUEST_STREAM = 'ai.run.request';
 const RESPONSE_STREAM_PREFIX = 'ai.run.response';
 
-/** Backoff delay in ms when the consumer loop encounters an unrecoverable error. */
+/** Delay de backoff em ms usado quando o loop de consumo encontra um erro irrecuperável. */
 const CONSUMER_RETRY_DELAY_MS = 5000;
 
 /**
- * Redis Streams consumer that processes AI completion requests from the `ai.run.request`
- * stream. Routes messages to either the Orchestrator or a direct AI provider based on
- * message shape. Implements the consumer-group pattern for horizontal scaling.
+ * Consumer de Redis Streams que processa requisições de completion de AI da stream `ai.run.request`.
+ *
+ * Contexto: roteia mensagens para o orquestrador ou para um provider direto com base no formato
+ * da mensagem recebida. Implementa o padrão consumer-group para escalonamento horizontal.
  */
 @Injectable()
 export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
@@ -60,13 +61,13 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   private readonly readBatchSize: number;
 
   /**
-   * Initializes consumer configuration from environment variables.
+   * Inicializa a configuração do consumer a partir das variáveis de ambiente.
    *
-   * @param configService        - NestJS ConfigService for env vars
-   * @param gatewayConfigService - GatewayConfigService for test-env detection
-   * @param redisStreams         - RedisStreamsService for stream read/write
-   * @param providerFactory      - AIProviderFactory for direct provider calls
-   * @param orchestrator          - AiRunOrchestratorService for orchestration mode
+   * @param configService        - ConfigService do NestJS para leitura de variáveis de ambiente
+   * @param gatewayConfigService - GatewayConfigService para detecção do ambiente de teste
+   * @param redisStreams         - RedisStreamsService para leitura e escrita na stream
+   * @param providerFactory      - AIProviderFactory para chamadas diretas ao provider
+   * @param orchestrator          - AiRunOrchestratorService para o modo de orquestração
    */
   constructor(
     private readonly configService: ConfigService,
@@ -110,8 +111,8 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Initializes the consumer group on module start and kicks off the consume loop.
-   * Skipped entirely when running in the test environment.
+   * Inicializa o consumer group na subida do módulo e dispara o loop de consumo.
+   * Ignorado completamente quando executado no ambiente de testes.
    */
   async onModuleInit(): Promise<void> {
     if (this.isTestEnvironment) {
@@ -139,7 +140,7 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Signals the consume loop to stop on module destruction.
+   * Sinaliza ao loop de consumo que deve parar quando o módulo é destruído.
    */
   onModuleDestroy(): void {
     this.isShuttingDown = true;
@@ -147,8 +148,8 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Continuously reads messages from the consumer group and processes them.
-   * Exits when isRunning becomes false or isShuttingDown is set.
+   * Lê continuamente mensagens do consumer group e as processa.
+   * Encerra quando `isRunning` for false ou `isShuttingDown` for definido.
    */
   private async consumeLoop(): Promise<void> {
     while (this.isRunning && !this.isShuttingDown) {
@@ -178,10 +179,11 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Processes a batch of messages with bounded concurrency. Messages within the
-   * batch are handled in parallel up to `this.concurrency`, dramatically reducing
-   * end-to-end latency under sustained load (each AI completion is I/O bound and
-   * can be safely overlapped).
+   * Processa um lote de mensagens com concorrência limitada.
+   *
+   * As mensagens do lote são processadas em paralelo até `this.concurrency`, reduzindo
+   * significativamente a latência de ponta a ponta sob carga sustentada (cada completion
+   * de AI é vinculada a I/O e pode ser sobreposta com segurança).
    */
   private async processBatchInParallel(
     messages: ReadonlyArray<StreamMessage<AICompletionRequest>>,
@@ -230,8 +232,8 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Processes a single stream message: routes to orchestrator or direct provider,
-   * publishes the response, and acknowledges the message.
+   * Processa uma única mensagem da stream: roteia para o orquestrador ou provider direto,
+   * publica a resposta e confirma o recebimento da mensagem (ACK).
    */
   private async processMessage(
     streamMessage: StreamMessage<AICompletionRequest>,
@@ -378,7 +380,7 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Publishes a structured GatewayResponse to the response stream for the given correlationId.
+   * Publica um `GatewayResponse` estruturado na stream de resposta correspondente ao correlationId.
    */
   private async publishResponse<T>(
     correlationId: string,
@@ -389,7 +391,7 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Maps an unknown error to a GatewayErrorCode and human-readable message.
+   * Mapeia um erro desconhecido para um `GatewayErrorCode` e uma mensagem legível.
    */
   private mapError(error: unknown): {
     code: GatewayErrorCode;
@@ -416,8 +418,7 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Determines whether the message should be handled by the orchestrator
-   * rather than a direct AI provider.
+   * Determina se a mensagem deve ser tratada pelo orquestrador em vez de um provider direto.
    */
   private shouldHandleAsOrchestrator(
     message: StreamMessage<AICompletionRequest>['message'],
@@ -435,17 +436,17 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
     );
   }
 
-  /** Delegates to payload-reader utility for string fields. */
+  /** Delega à utilidade payload-reader para leitura de campos string. */
   private getStringField(payload: unknown, key: string): string | undefined {
     return getStringField(payload, key);
   }
 
-  /** Delegates to payload-reader utility for numeric fields. */
+  /** Delega à utilidade payload-reader para leitura de campos numéricos. */
   private getNumberField(payload: unknown, key: string): number | undefined {
     return getNumberField(payload, key);
   }
 
-  /** Delegates to payload-reader utility for string-array fields. */
+  /** Delega à utilidade payload-reader para leitura de campos string-array. */
   private getStringArrayField(
     payload: unknown,
     key: string,
@@ -453,12 +454,12 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
     return getStringArrayField(payload, key);
   }
 
-  /** Delegates to payload-reader utility for boolean fields. */
+  /** Delega à utilidade payload-reader para leitura de campos booleanos. */
   private getBooleanField(payload: unknown, key: string): boolean | undefined {
     return getBooleanField(payload, key);
   }
 
-  /** Delegates to payload-reader utility for the messages array. */
+  /** Delega à utilidade payload-reader para leitura do array de mensagens. */
   private getMessages(
     payload: unknown,
   ):
@@ -467,17 +468,17 @@ export class AiRunRequestConsumer implements OnModuleInit, OnModuleDestroy {
     return getMessagesField(payload);
   }
 
-  /** Delegates to payload-reader utility for object coercion. */
+  /** Delega à utilidade payload-reader para conversão de valores em objeto. */
   private toRecord(payload: unknown): Record<string, unknown> {
     return toRecord(payload);
   }
 
-  /** Delegates to payload-reader utility for JSON array parsing. */
+  /** Delega à utilidade payload-reader para parsing de arrays JSON. */
   private parseJsonArray(value: unknown): unknown {
     return parseJsonArray(value);
   }
 
-  /** Delegates to payload-reader utility for JSON object parsing. */
+  /** Delega à utilidade payload-reader para parsing de objetos JSON. */
   private parseJsonObject(value: unknown): Record<string, unknown> | undefined {
     return parseJsonObject(value);
   }

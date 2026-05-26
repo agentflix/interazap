@@ -13,6 +13,13 @@ use Illuminate\Support\Str;
  */
 final class BillingWebhookEventRepository
 {
+    /**
+     * Persiste o evento de webhook caso ainda não exista (idempotência via insertOrIgnore).
+     *
+     * @param  PlatformTenant  $tenant  Tenant dono do evento
+     * @param  BillingWebhookDTO  $dto  Dados normalizados do webhook
+     * @return bool Verdadeiro se o evento foi inserido; falso se já existia (duplicado)
+     */
     public function storeIfNotExists(PlatformTenant $tenant, BillingWebhookDTO $dto): bool
     {
         $payloadJson = json_encode($dto->payload, JSON_THROW_ON_ERROR);

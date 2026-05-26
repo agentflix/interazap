@@ -20,7 +20,7 @@ final class ConfigurationSchedulingSettingActions
      * Buscar configurações de um tenant.
      *
      * @param  string  $tenantId  Identificador do tenant.
-     * @return ConfigurationSchedulingSetting Configuracao encontrada ou criada com valores padrao.
+     * @return ConfigurationSchedulingSetting Configuração encontrada ou criada com valores padrão.
      */
     public function get(string $tenantId): ConfigurationSchedulingSetting
     {
@@ -32,7 +32,7 @@ final class ConfigurationSchedulingSettingActions
      *
      * @param  string  $tenantId  Identificador do tenant.
      * @param  array<string, mixed>  $data  Atributos para atualizar.
-     * @return ConfigurationSchedulingSetting Configuracao atualizada.
+     * @return ConfigurationSchedulingSetting Configuração atualizada.
      */
     public function update(string $tenantId, array $data): ConfigurationSchedulingSetting
     {

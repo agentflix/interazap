@@ -7,7 +7,7 @@ export * from './timeline.model';
 
 
 /**
- * AfTimelineComponent — Vertical timeline for activity logs and history.
+ * Linha do tempo vertical para registros de atividade e histórico.
  *
  * @example
  * ```html
@@ -22,6 +22,6 @@ export * from './timeline.model';
   templateUrl: './timeline.html',
 })
 export class AfTimelineComponent {
-  /** Timeline entries */
+  /** Entradas da linha do tempo */
   readonly entries = input<AfTimelineEntry[]>([]);
 }

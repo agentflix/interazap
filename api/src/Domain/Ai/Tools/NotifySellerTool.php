@@ -14,7 +14,11 @@ use Domain\Ai\Services\AiToolEntityResolver;
 use Illuminate\Support\Str;
 
 /**
- * Ferramenta para notificar vendedores.
+ * Ferramenta de IA para enviar notificações a vendedores.
+ *
+ * Input esperado: message e reason (obrigatórios); seller_id, seller, ticket_id, channel e priority opcionais.
+ * Output produzido: notification_id, seller_id, canal e status "pending".
+ * Quando usar: evento importante exige atenção do vendedor — lead quente, escalação ou lembrete de follow-up.
  */
 class NotifySellerTool implements AiToolInterface
 {
@@ -22,6 +26,7 @@ class NotifySellerTool implements AiToolInterface
         private readonly AiToolEntityResolver $entityResolver,
     ) {}
 
+    /** Executa o envio da notificação ao vendedor. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $sellerId = $input->parameters['seller_id'] ?? null;
@@ -85,17 +90,21 @@ class NotifySellerTool implements AiToolInterface
         );
     }
 
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::NOTIFY_SELLER;
     }
 
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Sends a notification to a seller about an important event. Supports email and WhatsApp channels with automatic fallback.';
     }
 
     /**
+     * Retorna os parâmetros esperados pela ferramenta.
+     *
      * @return array<string, array{type: string, required: bool, description: string}>
      */
     public function getParameters(): array

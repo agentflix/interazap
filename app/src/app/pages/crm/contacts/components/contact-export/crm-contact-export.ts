@@ -14,8 +14,8 @@ import { ContactService } from '@core/services/crm-contact.service';
 import type { ContactFilters } from '@core/models/contact.model';
 
 /**
- * Contact export component — triggers CSV download.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Componente de exportação de contatos — dispara o download do arquivo CSV
+ * com base nos filtros ativos na listagem.
  */
 @Component({
   selector: 'app-contact-export',
@@ -28,24 +28,35 @@ export class ContactExportComponent {
   private readonly contactService = inject(ContactService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Current search term to filter export */
+  /**
+   * Termo de busca atual para filtrar a exportação.
+   */
   readonly searchTerm = input<string>('');
-  /** Current status filter to filter export */
+  /**
+   * Filtro de status atual para filtrar a exportação.
+   */
   readonly statusFilter = input<string>('all');
-  /** When true, renders only the icon with no label text */
+  /**
+   * Quando true, renderiza apenas o ícone sem texto.
+   */
   readonly iconOnly = input(false);
 
-  /** Emitted after a successful export */
+  /**
+   * Evento emitido após uma exportação bem-sucedida.
+   */
   readonly exported = output<void>();
-  /** Emitted when export fails */
+  /**
+   * Evento emitido quando a exportação falha.
+   */
   readonly errorOccurred = output<string>();
 
-  /** Whether the export process is in progress */
+  /**
+   * Indica se o processo de exportação está em andamento.
+   */
   readonly isExporting = signal(false);
 
   /**
-   * Triggers the contact export process.
-   * Downloads a CSV file with filtered contact data.
+   * Cancela a exportação em andamento.
    */
   exportContacts(): void {
     const status = this.statusFilter();

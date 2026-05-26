@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Task linked to a Negotiation.
+ * Tarefa vinculada a uma negociação CRM.
  *
- * Represents a to-do item or action item associated with
- * a CRM negotiation deal.
+ * Representa uma ação ou item de acompanhamento associado a uma negociação,
+ * com prazo, status, canais de notificação e vínculo opcional com a agenda.
  *
  * @property string $id
  * @property string $tenant_id

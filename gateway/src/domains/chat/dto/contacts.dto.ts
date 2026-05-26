@@ -1,7 +1,7 @@
 import { IsInt, IsOptional, IsString, Matches, Min } from 'class-validator';
 
 /**
- * Pagination parameters for listing contacts of a Uazapi instance.
+ * Parametros de paginacao para listagem de contatos de uma instancia Uazapi.
  */
 export class ListContactsDto {
   @IsOptional()
@@ -21,7 +21,7 @@ export class ListContactsDto {
 }
 
 /**
- * Payload for adding a new contact to a Uazapi instance.
+ * Payload para adicionar um novo contato a uma instancia Uazapi.
  */
 export class ContactAddDto {
   @IsString()
@@ -33,7 +33,7 @@ export class ContactAddDto {
 }
 
 /**
- * Payload for removing a contact from a Uazapi instance.
+ * Payload para remover um contato de uma instancia Uazapi.
  */
 export class ContactRemoveDto {
   @IsString()

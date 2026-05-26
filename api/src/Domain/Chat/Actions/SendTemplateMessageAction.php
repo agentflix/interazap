@@ -34,7 +34,20 @@ final readonly class SendTemplateMessageAction
     ) {}
 
     /**
-     * @param  array<int|string, string>  $variables  Posicional (1,2,...) ou indexed.
+     * Envia template Meta aprovado para o contato do ticket.
+     *
+     * Valida template (Meta + aprovado), ticket (instância Meta) e resolve o número
+     * de destino. Cria ChatMessage outgoing, chama o Gateway via HTTP e emite
+     * evento WebSocket de nova mensagem.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $ticketId  Identificador do ticket de destino.
+     * @param  string  $templateId  Identificador do template.
+     * @param  array<int|string, string>  $variables  Variáveis posicionais (1,2,...) ou indexadas.
+     * @param  string|null  $userId  ID do usuário que disparou o envio.
+     * @return ChatMessage Mensagem criada com status 'sent' ou 'failed'.
+     *
+     * @throws \Illuminate\Validation\ValidationException Se template, ticket ou instância forem inválidos.
      */
     public function execute(
         string $tenantId,
@@ -177,6 +190,12 @@ final readonly class SendTemplateMessageAction
         return $message;
     }
 
+    /**
+     * Resolve o número de destino do ticket em formato numérico puro.
+     *
+     * @param  ChatTicket  $ticket  Ticket com dados de contato.
+     * @return string|null Número limpo ou null se não resolvível.
+     */
     private function resolveDestinationNumber(ChatTicket $ticket): ?string
     {
         $number = $ticket->phone_e164 ?? $ticket->phone ?? $ticket->remote_jid;
@@ -329,6 +348,12 @@ final readonly class SendTemplateMessageAction
         ) ?? $text;
     }
 
+    /**
+     * Lê configuração como string, retornando vazio se não for string.
+     *
+     * @param  string  $key  Chave de configuração.
+     * @return string Valor da configuração ou string vazia.
+     */
     private function stringConfig(string $key): string
     {
         $value = config($key);

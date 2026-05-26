@@ -1,5 +1,5 @@
 /**
- * Enum representing the available notification types from the API.
+ * Enum com os tipos de notificação disponíveis na API.
  */
 export enum NotificationTypeEnum {
   NewTicket = 'new_ticket',
@@ -10,7 +10,7 @@ export enum NotificationTypeEnum {
 }
 
 /**
- * Notification entity returned by the API.
+ * Entidade de notificação retornada pela API.
  */
 export interface Notification {
   id: string;
@@ -28,7 +28,7 @@ export interface Notification {
 }
 
 /**
- * API response for fetching the notification list.
+ * Resposta da API para busca da lista de notificações.
  */
 export interface NotificationListResponse {
   data: Notification[];

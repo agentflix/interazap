@@ -18,6 +18,12 @@ final class CreatePlatformPlanAction
         private readonly BillingGatewayService $gatewayService,
     ) {}
 
+    /**
+     * Cria um novo plano, gera o slug automaticamente se ausente e registra o produto no gateway de cobrança.
+     *
+     * @param  PlatformPlanDTO  $dto  Dados do plano a ser criado.
+     * @return PlatformPlan Plano criado e persistido.
+     */
     public function execute(PlatformPlanDTO $dto): PlatformPlan
     {
         $payload = $dto->toArray();

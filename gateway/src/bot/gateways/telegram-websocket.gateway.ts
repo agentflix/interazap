@@ -90,6 +90,7 @@ export class TelegramWebSocketGateway
 
   constructor(private readonly configService: ConfigService) {}
 
+  /** Inicializa o gateway e configura o heartbeat de 30 segundos. */
   afterInit(server: Server): void {
     this.logger.log('Telegram WebSocket Gateway initialized');
     this.heartbeatInterval = setInterval(() => {
@@ -97,6 +98,11 @@ export class TelegramWebSocketGateway
     }, 30_000);
   }
 
+  /**
+   * Autentica o cliente via JWT no handshake e registra as informações do tenant.
+   * Conexões sem token ou com token inválido são desconectadas imediatamente.
+   * @param client Socket do cliente conectado
+   */
   async handleConnection(client: Socket): Promise<void> {
     try {
       const token = this.extractToken(client);
@@ -126,13 +132,17 @@ export class TelegramWebSocketGateway
     }
   }
 
+  /**
+   * Remove o cliente dos mapas de conexão e rate limiter ao desconectar.
+   * @param client Socket do cliente desconectado
+   */
   handleDisconnect(client: Socket): void {
     this.connectedClients.delete(client.id);
     this.rateLimiter.delete(client.id);
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-  /** Cleanup interval on module destroy to prevent memory leaks. */
+  /** Limpa o intervalo de heartbeat e os mapas internos ao destruir o módulo, evitando vazamentos de memória. */
   onModuleDestroy(): void {
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
@@ -143,37 +153,50 @@ export class TelegramWebSocketGateway
   }
 
   // ──────────────────────────────────────────────
-  // Server → Client events (tenant-isolated)
+  // Eventos Server → Client (isolados por tenant)
   // ──────────────────────────────────────────────
 
+  /** Emite o evento de mensagem recebida para todos os clientes do tenant. */
   emitMessageReceived(tenantId: string, data: Record<string, unknown>): void {
     this.emitToTenant(tenantId, 'telegram.message.received', data);
   }
 
+  /** Emite o evento de mensagem enviada para todos os clientes do tenant. */
   emitMessageSent(tenantId: string, data: Record<string, unknown>): void {
     this.emitToTenant(tenantId, 'telegram.message.sent', data);
   }
 
+  /** Emite o evento de mensagem editada para todos os clientes do tenant. */
   emitMessageEdited(tenantId: string, data: Record<string, unknown>): void {
     this.emitToTenant(tenantId, 'telegram.message.edited', data);
   }
 
+  /** Emite o evento de ticket criado para todos os clientes do tenant. */
   emitTicketCreated(tenantId: string, data: Record<string, unknown>): void {
     this.emitToTenant(tenantId, 'telegram.ticket.created', data);
   }
 
+  /** Emite o evento de início de digitação para todos os clientes do tenant. */
   emitTypingStart(tenantId: string, data: Record<string, unknown>): void {
     this.emitToTenant(tenantId, 'telegram.typing.start', data);
   }
 
+  /** Emite o evento de fim de digitação para todos os clientes do tenant. */
   emitTypingStop(tenantId: string, data: Record<string, unknown>): void {
     this.emitToTenant(tenantId, 'telegram.typing.stop', data);
   }
 
   // ──────────────────────────────────────────────
-  // Client → Server events
+  // Eventos Client → Server
   // ──────────────────────────────────────────────
 
+  /**
+   * Processa o envio de uma mensagem pelo cliente via WebSocket.
+   * Aplica rate limiting e repropaga o evento para o tenant isolado.
+   * @param client Socket do cliente remetente
+   * @param payload Dados da mensagem (chatId, text, replyToMessageId opcional)
+   * @returns ACK com status 'queued' ou void se bloqueado pelo rate limiter
+   */
   @SubscribeMessage('telegram.send.message')
   handleSendMessage(
     client: Socket,
@@ -205,6 +228,11 @@ export class TelegramWebSocketGateway
     };
   }
 
+  /**
+   * Processa o início de digitação enviado pelo cliente via WebSocket.
+   * @param client Socket do cliente
+   * @param payload Dados do chat onde está digitando
+   */
   @SubscribeMessage('telegram.typing.start')
   handleTypingStart(client: Socket, payload: TelegramTypingPayload): void {
     if (!this.enforceRateLimit(client)) return;
@@ -226,6 +254,12 @@ export class TelegramWebSocketGateway
   // Private helpers
   // ──────────────────────────────────────────────
 
+  /**
+   * Emite um evento para todos os clientes conectados de um tenant específico.
+   * @param tenantId Identificador do tenant
+   * @param event Nome do evento Socket.IO
+   * @param data Payload do evento
+   */
   private emitToTenant(
     tenantId: string,
     event: string,
@@ -238,6 +272,11 @@ export class TelegramWebSocketGateway
     }
   }
 
+  /**
+   * Extrai o token JWT do handshake do socket (auth, query ou header Authorization).
+   * @param client Socket do cliente
+   * @returns Token JWT como string ou null se não encontrado
+   */
   private extractToken(client: Socket): string | null {
     const auth = client.handshake.auth as Record<string, unknown> | undefined;
     const authToken = auth?.['token'];
@@ -254,6 +293,12 @@ export class TelegramWebSocketGateway
     return null;
   }
 
+  /**
+   * Verifica e decodifica o token JWT usando o segredo configurado.
+   * @param token Token JWT a ser verificado
+   * @returns Payload decodificado com sub, tenant_id e email opcional
+   * @throws WsException se o token for inválido ou os claims obrigatórios estiverem ausentes
+   */
   private verifyToken(token: string): JwtPayload {
     const secret = this.configService.get<string>('jwt.secret');
     if (!secret) {
@@ -292,6 +337,11 @@ export class TelegramWebSocketGateway
     };
   }
 
+  /**
+   * Verifica o rate limit do cliente e emite erro se excedido.
+   * @param client Socket do cliente
+   * @returns true se a mensagem deve ser processada, false se bloqueada
+   */
   private enforceRateLimit(client: Socket): boolean {
     if (!this.checkRateLimit(client.id)) {
       client.emit('error', { message: 'Rate limit exceeded' });
@@ -300,6 +350,11 @@ export class TelegramWebSocketGateway
     return true;
   }
 
+  /**
+   * Implementa a janela deslizante de rate limit (100 eventos/min por conexão).
+   * @param clientId Identificador do socket do cliente
+   * @returns true se o evento está dentro do limite, false se excedido
+   */
   private checkRateLimit(clientId: string): boolean {
     const now = Date.now();
     const limit = this.rateLimiter.get(clientId);

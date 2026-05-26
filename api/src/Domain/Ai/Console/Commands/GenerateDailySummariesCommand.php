@@ -9,7 +9,10 @@ use Domain\Chat\Models\ChatTicket;
 use Illuminate\Console\Command;
 
 /**
- * Command to generate daily AI conversation summaries for active tickets.
+ * Comando para gerar resumos diários de conversas de IA.
+ *
+ * Enfileira AiSummarizeConversationJob para todos os tickets atualizados
+ * no dia corrente. Executado diariamente às 02:00 via scheduler.
  */
 final class GenerateDailySummariesCommand extends Command
 {
@@ -18,7 +21,7 @@ final class GenerateDailySummariesCommand extends Command
     protected $description = 'Generate daily AI conversation summaries for active tickets.';
 
     /**
-     * Execute the console command.
+     * Despacha jobs de sumarização para todos os tickets atualizados hoje.
      */
     public function handle(): int
     {

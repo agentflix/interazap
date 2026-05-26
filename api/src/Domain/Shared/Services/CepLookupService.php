@@ -9,12 +9,24 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
+/**
+ * Serviço de consulta de CEP via ViaCEP.
+ *
+ * Sanitiza o input, realiza a chamada HTTP e retorna os dados de endereço
+ * normalizados (logradouro, bairro, cidade, UF, IBGE).
+ */
 final class CepLookupService
 {
     use NormalizesLookupData;
 
     /**
-     * @return array<string, string>
+     * Consulta os dados de endereço para um CEP informado.
+     *
+     * @param  string  $cep  CEP a consultar (com ou sem formatação).
+     * @return array<string, string> Dados normalizados do endereço.
+     *
+     * @throws \RuntimeException Se o CEP for inválido, não encontrado ou o serviço indisponível.
+     * @throws \Illuminate\Http\Client\ConnectionException Se o timeout for atingido.
      */
     public function lookup(string $cep): array
     {

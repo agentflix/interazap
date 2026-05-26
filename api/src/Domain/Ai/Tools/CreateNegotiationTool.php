@@ -13,13 +13,15 @@ use Domain\CRM\Models\CRMNegotiationFunnelStep;
 use Illuminate\Support\Str;
 
 /**
- * Tool to create a CRM negotiation.
+ * Ferramenta de IA para criar uma negociação no CRM.
+ *
+ * Input esperado: title, step_id (obrigatórios); contact_id e amount opcionais.
+ * Output produzido: negotiation_id, step_id e nome do step vinculado.
+ * Quando usar: lead qualificado e pronto para entrar no funil de vendas.
  */
 class CreateNegotiationTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a criação da negociação no CRM. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $title = trim((string) ($input->parameters['title'] ?? ''));
@@ -77,24 +79,20 @@ class CreateNegotiationTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CREATE_NEGOTIATION;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Creates a new negotiation/deal in a specific funnel step.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array{type: string, required: bool, description: string}>
      */

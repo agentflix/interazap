@@ -11,7 +11,13 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Builds ticket list and count queries for chat inbox views.
+ * Constrói queries de listagem e contagem de tickets para a caixa de entrada do chat.
+ *
+ * Aplica filtros, agrupa por contato via window function ROW_NUMBER (quando habilitado),
+ * ordena por última mensagem e retorna paginação padrão Laravel.
+ * Contagens são cacheadas por 15 segundos para reduzir carga no banco.
+ *
+ * @category Services
  */
 final class ChatTicketQueryService
 {
@@ -19,7 +25,13 @@ final class ChatTicketQueryService
     private const int COUNTS_CACHE_TTL_SECONDS = 15;
 
     /**
-     * @param  array<string, mixed>  $filters
+     * Lista tickets do tenant com paginação, eager loading e filtros opcionais.
+     *
+     * Quando group_by_contact=true (padrão), retorna apenas o ticket mais recente
+     * por contato/remote_jid via window function PostgreSQL.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  array<string, mixed>  $filters  Filtros opcionais (status, contact_id, instance_id, user_id, search, etc.).
      * @return LengthAwarePaginator<int, ChatTicket>
      */
     public function list(string $tenantId, array $filters = []): LengthAwarePaginator
@@ -86,7 +98,10 @@ final class ChatTicketQueryService
     }
 
     /**
-     * @return array<string, int>
+     * Retorna contagens de tickets por status para o tenant, com cache de 15s.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @return array<string, int> Mapa de status → quantidade (all, pending, open, in_progress, closed).
      */
     public function counts(string $tenantId): array
     {
@@ -111,8 +126,13 @@ final class ChatTicketQueryService
     }
 
     /**
-     * @param  Builder<ChatTicket>  $query
-     * @param  array<string, mixed>  $filters
+     * Aplica filtros de busca ao query builder de tickets.
+     *
+     * Filtros suportados: status, contact_id, instance_id, user_id, agent_id,
+     * from (data inicial), to (data final), search (texto livre), sentiment.
+     *
+     * @param  Builder<ChatTicket>  $query  Query builder a modificar.
+     * @param  array<string, mixed>  $filters  Mapa de filtros.
      */
     private function applyFilters(Builder $query, array $filters): void
     {

@@ -11,16 +11,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * Skill/Function enabled for an AI Agent.
+ * Habilidade (skill/função) habilitada para um Agente de IA.
  *
- * Represents a specific capability or function that an agent
- * can use during conversation execution.
+ * Representa uma capacidade específica que o agente pode exercer
+ * durante a execução de uma conversa, complementando as ferramentas
+ * configuradas via AiAutopilotTool.
  *
  * @property string $id
  * @property string $tenant_id
  * @property string $agent_id
- * @property string $name
- * @property string|null $description
+ * @property string $name Nome da habilidade.
+ * @property string|null $description Descrição do que a habilidade faz.
  * @property bool $is_active
  * @property array|null $metadata
  */
@@ -62,6 +63,9 @@ class AiAgentSkill extends Model
         });
     }
 
+    /**
+     * Agente ao qual esta habilidade pertence.
+     */
     public function agent(): BelongsTo
     {
         return $this->belongsTo(AiAgent::class, 'agent_id');

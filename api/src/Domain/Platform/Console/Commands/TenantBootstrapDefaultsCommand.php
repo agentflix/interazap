@@ -20,7 +20,10 @@ final class TenantBootstrapDefaultsCommand extends Command
     protected $description = 'Rebootstrap de defaults de AI e CRM para um tenant';
 
     /**
-     * Execute the console command.
+     * Executa o rebootstrap de defaults para o tenant informado.
+     *
+     * @param  PlatformTenantBootstrapAction  $bootstrapAction  Ação de bootstrap do tenant.
+     * @return int Código de saída: 0 = sucesso, 1 = falha.
      */
     public function handle(PlatformTenantBootstrapAction $bootstrapAction): int
     {

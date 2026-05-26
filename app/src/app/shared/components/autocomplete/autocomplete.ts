@@ -21,15 +21,18 @@ export * from './autocomplete.model';
 
 
 /**
- * AfAutocompleteComponent — Text input with filtered suggestion dropdown.
+ * Campo de texto com menu suspenso de sugestões filtradas dinamicamente.
+ *
+ * Contexto: utilizado em formulários de busca e seleção onde o conjunto
+ * de opções é extenso, como cidades, usuários e categorias.
  *
  * @example
  * ```html
  * <af-autocomplete
- *   [control]="cityCtrl"
- *   [options]="cities"
+ *   [control]="cidadeCtrl"
+ *   [options]="cidades"
  *   label="Cidade"
- *   (optionSelected)="onCity($event)"
+ *   (optionSelected)="onCidade($event)"
  * />
  * ```
  */
@@ -41,31 +44,31 @@ export * from './autocomplete.model';
   templateUrl: './autocomplete.html',
 })
 export class AfAutocompleteComponent {
-  /** FormControl binding */
+  /** FormControl do campo de texto */
   readonly control = input.required<FormControl<string>>();
 
-  /** Available options */
+  /** Lista de opções disponíveis */
   readonly options = input<AfAutocompleteOption[]>([]);
 
-  /** Field label */
+  /** Rótulo do campo */
   readonly label = input('');
 
-  /** Placeholder */
+  /** Texto de placeholder */
   readonly placeholder = input('Buscar...');
 
-  /** Required */
+  /** Exibe asterisco de campo obrigatório */
   readonly required = input(false);
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the field */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
-  /** Emitted when an option is selected */
+  /** Emitido quando o usuário seleciona uma opção */
   readonly optionSelected = output<string>();
 
   protected readonly showDropdown = signal(false);

@@ -1,8 +1,8 @@
 /**
- * Represents the 24-hour message window status for a contact.
+ * Representa o status da janela de 24 horas de mensagens de um contato.
  *
- * Used to determine whether a contact can receive free-text messages
- * or requires template-based messages via Meta WhatsApp Business API.
+ * Usado para determinar se o contato pode receber mensagens de texto livre
+ * ou se requer mensagens via template pela API do WhatsApp Business da Meta.
  *
  * @example
  * ```typescript
@@ -13,14 +13,14 @@
  * ```
  */
 export interface WindowStatus {
-  /** Whether the contact can receive free-form text messages (within 24h window). */
+  /** Indica se o contato pode receber mensagens de texto livre (dentro da janela de 24h). */
   canSendFreeText: boolean;
-  /** Timestamp of the last message received from the contact, or null if no messages exist. */
+  /** Timestamp da última mensagem recebida do contato, ou null se não houver mensagens. */
   lastMessageAt: Date | null;
 }
 
 /**
- * Response wrapper for window status API endpoint.
+ * Envelope de resposta da API para o status de janela de mensagens.
  */
 export interface WindowStatusResponse {
   data: WindowStatus;

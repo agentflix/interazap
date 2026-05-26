@@ -8,12 +8,15 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Ticket Evaluation (CSAT) serialization.
+ * Resource de serialização de Avaliação de Ticket (CSAT).
+ *
+ * Transforma a entidade ChatTicketEvaluation no formato da API,
+ * expondo nota, comentário e data de criação.
  */
 final class ChatTicketEvaluationResource extends BaseJsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */

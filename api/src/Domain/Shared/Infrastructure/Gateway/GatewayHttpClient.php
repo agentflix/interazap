@@ -8,6 +8,13 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 
+/**
+ * Cliente HTTP para comunicação interna com o Gateway NestJS.
+ *
+ * Encapsula configuração de timeout, retry com backoff e autenticação via
+ * api_key lida do config services.gateway. Todas as respostas são retornadas
+ * como arrays PHP desserializados do JSON.
+ */
 class GatewayHttpClient
 {
     private readonly string $baseUrl;
@@ -25,13 +32,15 @@ class GatewayHttpClient
     /**
      * Configura o client HTTP para comunicação com o Gateway.
      *
-     * @note Resolved from config:
-     *   - services.gateway.url        → base URL do gateway
-     *   - services.gateway.timeout    → timeout em segundos (default: 30)
-     *   - services.gateway.retry_attempts → tentativas de retry (default: 3)
-     *   - services.gateway.retry_delay_ms → delay entre retries em ms (default: 100)
-     *   - services.gateway.api_key    → chave de autenticação
-     *   - services.uazapi.base_url    → override opcional da base URL
+     * Lê as seguintes chaves de configuração:
+     * - services.gateway.url           → base URL do gateway
+     * - services.gateway.timeout       → timeout em segundos (padrão: 30)
+     * - services.gateway.retry_attempts → tentativas de retry (padrão: 3)
+     * - services.gateway.retry_delay_ms → delay entre retries em ms (padrão: 100)
+     * - services.gateway.api_key       → chave de autenticação
+     * - services.uazapi.base_url       → override opcional da base URL
+     *
+     * @throws \InvalidArgumentException Se services.gateway.url não estiver configurada.
      */
     public function __construct()
     {
@@ -54,9 +63,12 @@ class GatewayHttpClient
     }
 
     /**
-     * @param  array<string, mixed>  $data
-     * @param  array<string, string>  $headers
-     * @return array<mixed>
+     * Executa uma requisição POST no Gateway.
+     *
+     * @param  string  $endpoint  Endpoint relativo (ex: '/internal/broadcast').
+     * @param  array<string, mixed>  $data  Payload JSON a enviar.
+     * @param  array<string, string>  $headers  Headers HTTP adicionais.
+     * @return array<mixed> Resposta deserializada do JSON.
      */
     public function post(string $endpoint, array $data = [], array $headers = []): array
     {
@@ -64,9 +76,12 @@ class GatewayHttpClient
     }
 
     /**
-     * @param  array<string, mixed>  $query
-     * @param  array<string, string>  $headers
-     * @return array<mixed>
+     * Executa uma requisição GET no Gateway.
+     *
+     * @param  string  $endpoint  Endpoint relativo.
+     * @param  array<string, mixed>  $query  Parâmetros de query string.
+     * @param  array<string, string>  $headers  Headers HTTP adicionais.
+     * @return array<mixed> Resposta deserializada do JSON.
      */
     public function get(string $endpoint, array $query = [], array $headers = []): array
     {
@@ -78,8 +93,11 @@ class GatewayHttpClient
     }
 
     /**
-     * @param  array<string, string>  $headers
-     * @return array<mixed>
+     * Executa uma requisição DELETE no Gateway.
+     *
+     * @param  string  $endpoint  Endpoint relativo.
+     * @param  array<string, string>  $headers  Headers HTTP adicionais.
+     * @return array<mixed> Resposta deserializada do JSON.
      */
     public function delete(string $endpoint, array $headers = []): array
     {
@@ -91,9 +109,13 @@ class GatewayHttpClient
     }
 
     /**
-     * @param  array<string, mixed>  $payload
-     * @param  array<string, string>  $headers
-     * @return array<mixed>
+     * Executa uma requisição HTTP genérica no Gateway.
+     *
+     * @param  string  $endpoint  Endpoint relativo.
+     * @param  string  $method  Método HTTP ('post', 'put', etc.).
+     * @param  array<string, mixed>  $payload  Payload JSON a enviar.
+     * @param  array<string, string>  $headers  Headers adicionais.
+     * @return array<mixed> Resposta deserializada.
      */
     private function request(string $endpoint, string $method, array $payload, array $headers): array
     {
@@ -104,7 +126,10 @@ class GatewayHttpClient
     }
 
     /**
-     * @param  array<string, string>  $headers
+     * Cria um PendingRequest configurado com autenticação, timeout e retry.
+     *
+     * @param  array<string, string>  $headers  Headers adicionais a incluir.
+     * @return PendingRequest Cliente HTTP configurado.
      */
     private function newRequest(array $headers = []): PendingRequest
     {
@@ -125,6 +150,12 @@ class GatewayHttpClient
         return $request;
     }
 
+    /**
+     * Normaliza o endpoint garantindo que começa com '/'.
+     *
+     * @param  string  $endpoint  Endpoint relativo.
+     * @return string Endpoint com barra inicial.
+     */
     private function normalizeEndpoint(string $endpoint): string
     {
         return '/'.ltrim($endpoint, '/');

@@ -7,12 +7,16 @@ namespace Domain\Ai\Contracts\Chunkers;
 use Domain\Ai\DTOs\ChunkDTO;
 
 /**
- * Interface for chunking strategies.
+ * Contrato para estratégias de chunking de texto.
+ *
+ * Define a interface que cada estratégia de fragmentação deve implementar,
+ * permitindo que AiChunkingService utilize diferentes algoritmos de chunking
+ * por tipo de documento.
  */
 interface ChunkerStrategyInterface
 {
     /**
-     * Chunk text into smaller pieces.
+     * Fragmenta o texto em pedaços menores.
      *
      * @return list<ChunkDTO>
      */

@@ -12,7 +12,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class PlatformUazapiConnectRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -22,7 +22,7 @@ final class PlatformUazapiConnectRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para iniciar conexão da instância.
      *
      * @return array<string, mixed>
      */

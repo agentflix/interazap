@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
 final class PlatformBillingInvoiceIndexRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {

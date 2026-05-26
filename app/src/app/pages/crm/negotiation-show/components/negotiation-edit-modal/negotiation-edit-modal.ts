@@ -26,7 +26,7 @@ import {
 import { isSameId, normalizeId } from '../../negotiation-show.utils';
 
 /**
- * Modal for full negotiation details edition.
+ * Modal de edição completa dos detalhes da negociação.
  */
 @Component({
   selector: 'app-negotiation-edit-modal',

@@ -9,7 +9,7 @@ use Domain\Platform\Models\PlatformTenant;
 use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 
 /**
- * Policy para gestao de tenants da plataforma.
+ * Policy para gestão de tenants da plataforma.
  */
 final class PlatformTenantPolicy
 {
@@ -17,26 +17,31 @@ final class PlatformTenantPolicy
 
     private const GUARD = 'sanctum';
 
+    /** Determina se o usuário pode listar tenants. */
     public function viewAny(AuthUser $user): bool
     {
         return $this->create($user);
     }
 
+    /** Determina se o usuário pode visualizar um tenant específico. */
     public function view(AuthUser $user, PlatformTenant $tenant): bool
     {
         return $this->create($user);
     }
 
+    /** Determina se o usuário pode criar tenants. */
     public function create(AuthUser $user): bool
     {
         return $this->isGlobalAdmin($user) || $this->hasManagePermission($user);
     }
 
+    /** Determina se o usuário pode atualizar um tenant. */
     public function update(AuthUser $user, PlatformTenant $tenant): bool
     {
         return $this->create($user);
     }
 
+    /** Determina se o usuário pode excluir um tenant. */
     public function delete(AuthUser $user, PlatformTenant $tenant): bool
     {
         return $this->create($user);
@@ -66,11 +71,13 @@ final class PlatformTenantPolicy
         return $user->tenant_id === $tenant->id && $this->hasManagePermission($user);
     }
 
+    /** Verifica se o usuário é super admin. */
     private function isGlobalAdmin(AuthUser $user): bool
     {
         return $user->isSuperAdmin();
     }
 
+    /** Verifica se o usuário possui a permissão de gerenciamento de tenants. */
     private function hasManagePermission(AuthUser $user): bool
     {
         try {

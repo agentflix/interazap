@@ -409,6 +409,7 @@ export class ChannelFormComponent {
     countryCodeControl.updateValueAndValidity({ emitEvent: false });
   }
 
+  /** Valida e persiste o canal (criação ou edição). Emite `saved` com a integração criada/atualizada. */
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -489,6 +490,7 @@ export class ChannelFormComponent {
     });
   }
 
+  /** Cancela o formulário e emite o evento `cancelled`. */
   cancel(): void {
     this.cancelled.emit();
   }

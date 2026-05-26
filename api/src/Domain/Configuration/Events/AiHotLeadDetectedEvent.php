@@ -16,7 +16,10 @@ final class AiHotLeadDetectedEvent
     use SerializesModels;
 
     /**
-     * @param  array<string, mixed>  $data
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $title  Título da notificação de lead quente.
+     * @param  string  $message  Mensagem descritiva do lead detectado.
+     * @param  array<string, mixed>  $data  Dados adicionais do contexto.
      */
     public function __construct(
         public readonly string $tenantId,

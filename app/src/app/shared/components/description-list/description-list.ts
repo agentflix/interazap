@@ -6,7 +6,7 @@ export * from './description-list.model';
 
 
 /**
- * AfDescriptionListComponent — Key-value pair display for detail views.
+ * Exibição de pares chave-valor para telas de detalhe.
  *
  * @example
  * ```html
@@ -20,9 +20,9 @@ export * from './description-list.model';
   templateUrl: './description-list.html',
 })
 export class AfDescriptionListComponent {
-  /** Data items */
+  /** Itens de dados (pares termo-detalhe) */
   readonly items = input<AfDescriptionItem[]>([]);
 
-  /** Layout direction */
+  /** Direção do layout */
   readonly layout = input<'vertical' | 'horizontal'>('vertical');
 }

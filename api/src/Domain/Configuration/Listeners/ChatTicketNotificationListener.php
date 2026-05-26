@@ -15,12 +15,15 @@ use Domain\Configuration\Services\NotificationDispatcherService;
  */
 final class ChatTicketNotificationListener
 {
+    /** Injeta o serviço de despacho de notificações. */
     public function __construct(
         private readonly NotificationDispatcherService $dispatcher,
     ) {}
 
     /**
-     * Handle the event.
+     * Processa eventos de ticket e despacha notificação ao(s) destinatário(s) correto(s).
+     *
+     * @param  TicketCreatedEvent|TicketAssignedEvent|TicketClosedEvent  $event  Evento disparado.
      */
     public function handle(TicketCreatedEvent|TicketAssignedEvent|TicketClosedEvent $event): void
     {
@@ -39,6 +42,7 @@ final class ChatTicketNotificationListener
         $this->handleClosed($event);
     }
 
+    /** Envia notificação de novo ticket para todos os usuários do tenant. */
     private function handleCreated(TicketCreatedEvent $event): void
     {
         $ticket = ChatTicket::query()
@@ -68,6 +72,7 @@ final class ChatTicketNotificationListener
         );
     }
 
+    /** Envia notificação de atribuição apenas para o agente designado. */
     private function handleAssigned(TicketAssignedEvent $event): void
     {
         $ticket = ChatTicket::query()
@@ -93,6 +98,7 @@ final class ChatTicketNotificationListener
         );
     }
 
+    /** Envia notificação de fechamento ao agente responsável, ignorando fechamentos automáticos por inatividade. */
     private function handleClosed(TicketClosedEvent $event): void
     {
         // Não notificar fechamentos automáticos por inatividade (evita spam)

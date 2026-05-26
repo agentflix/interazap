@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Commercial Proposal linked to a Negotiation.
+ * Proposta comercial vinculada a uma negociação CRM.
  *
- * Represents a formal quote or proposal sent to a prospect
- * with items, pricing, and validity period.
+ * Representa um orçamento formal enviado a um prospect com itens,
+ * valores, prazo de validade e token público para visualização externa.
  *
  * @property string $id
  * @property string $tenant_id

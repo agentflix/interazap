@@ -1,12 +1,12 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfMarqueeComponent — Horizontally scrolling text/content.
+ * Conteúdo ou texto com rolagem horizontal animada.
  *
  * @example
  * ```html
  * <af-marquee speed="slow">
- *   <span>Breaking news: InteraZap v2.0 launched!</span>
+ *   <span>Novidade: InteraZap v2.0 lançado!</span>
  * </af-marquee>
  * ```
  */
@@ -18,10 +18,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   styleUrl: './marquee.scss',
 })
 export class AfMarqueeComponent {
-  /** Speed preset */
+  /** Predefinição de velocidade */
   readonly speed = input<'slow' | 'normal' | 'fast'>('normal');
 
-  /** Pause on hover */
+  /** Pausa ao passar o cursor */
   readonly pauseOnHover = input(true);
 
   protected readonly containerClasses = computed(() => {

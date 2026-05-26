@@ -8,12 +8,23 @@ use Domain\Chat\Models\ChatInstance;
 use Domain\Platform\Models\PlatformUazapiInstance;
 
 /**
- * Updates chat instance connection state from webhook payloads.
+ * Atualiza o estado de conexão da instância de chat a partir de payloads de webhook.
+ *
+ * Localiza a instância pelo token, normaliza o status de conexão recebido e persiste
+ * tanto em ChatInstance quanto em PlatformUazapiInstance quando aplicável.
+ *
+ * @category Services
  */
 final class ChatWebhookConnectionStatusService
 {
     /**
-     * @param  array<string, mixed>  $payload
+     * Processa evento de conexão/desconexão da instância.
+     *
+     * Extrai o token do payload, localiza a instância e persiste o novo status.
+     * Registra warning no log se o token ou a instância não forem encontrados.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  array<string, mixed>  $payload  Payload bruto do webhook de conexão.
      */
     public function update(string $tenantId, array $payload): void
     {
@@ -69,7 +80,12 @@ final class ChatWebhookConnectionStatusService
     }
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Extrai o token da instância a partir do payload de webhook de conexão.
+     *
+     * Tenta múltiplos caminhos: instance_webhook_token, token, raw.token, raw.instance.token.
+     *
+     * @param  array<string, mixed>  $payload  Payload bruto do webhook.
+     * @return string|null Token da instância ou null se não encontrado.
      */
     private function extractInstanceToken(array $payload): ?string
     {
@@ -80,7 +96,12 @@ final class ChatWebhookConnectionStatusService
     }
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Normaliza o status de conexão a partir do payload bruto.
+     *
+     * Tenta múltiplos caminhos: raw.instance.status, raw.status, status.
+     *
+     * @param  array<string, mixed>  $payload  Payload bruto do webhook.
+     * @return string Status normalizado (ex.: 'connected', 'disconnected').
      */
     private function normalizeConnectionStatus(array $payload): string
     {
@@ -91,6 +112,15 @@ final class ChatWebhookConnectionStatusService
         return $this->resolveStatusValue($statusPayload);
     }
 
+    /**
+     * Resolve o valor de status para string normalizada.
+     *
+     * Converte bool (true='connected'), string direta ou array com chaves
+     * status/connected/loggedIn. Padrão: 'disconnected'.
+     *
+     * @param  mixed  $value  Valor bruto do campo de status.
+     * @return string Status resolvido.
+     */
     private function resolveStatusValue(mixed $value): string
     {
         if (is_string($value)) {
@@ -118,6 +148,15 @@ final class ChatWebhookConnectionStatusService
         return 'disconnected';
     }
 
+    /**
+     * Atualiza o status da PlatformUazapiInstance correspondente ao token.
+     *
+     * Opera silenciosamente — registra apenas debug se a instância não for encontrada.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $token  Token da instância.
+     * @param  string  $status  Novo status normalizado.
+     */
     private function updatePlatformInstanceStatus(string $tenantId, string $token, string $status): void
     {
         $platformInstance = PlatformUazapiInstance::query()

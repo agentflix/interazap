@@ -15,13 +15,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Tool to create a CRM proposal with line items.
+ * Ferramenta de IA para criar uma proposta comercial com itens de linha no CRM.
+ *
+ * Input esperado: negotiation_id, title e items (array com name, quantity, unit_price); valid_until opcional.
+ * Output produzido: proposal_id, número da proposta, quantidade de itens e total calculado.
+ * Quando usar: cliente solicitar proposta formal ou após qualificação de lead com produtos definidos.
  */
 class CreateProposalTool implements AiToolInterface
 {
-    /**
-     * Execute tool handler.
-     */
+    /** Executa a criação da proposta e seus itens em transação. */
     public function handle(ToolInputDTO $input): ToolResultDTO
     {
         $tenantId = (string) ($input->context['tenant_id'] ?? '');
@@ -123,24 +125,20 @@ class CreateProposalTool implements AiToolInterface
         );
     }
 
-    /**
-     * Return tool unique name.
-     */
+    /** Retorna o nome único da ferramenta. */
     public function getName(): string
     {
         return \Domain\Ai\Enums\AiToolEnum::CREATE_PROPOSAL;
     }
 
-    /**
-     * Return tool description.
-     */
+    /** Retorna a descrição da ferramenta para o LLM. */
     public function getDescription(): string
     {
         return 'Creates a commercial proposal and its line items for a negotiation.';
     }
 
     /**
-     * Return expected tool parameters.
+     * Retorna os parâmetros esperados pela ferramenta.
      *
      * @return array<string, array<string, mixed>>
      */

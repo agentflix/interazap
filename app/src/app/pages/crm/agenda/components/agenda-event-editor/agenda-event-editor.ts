@@ -5,8 +5,7 @@ import { type Event as CRMEvent } from 'src/app/core/services/event.service';
 import { AgendaFormComponent } from '../agenda-form/agenda-form';
 
 /**
- * Agenda event editor component for the Crm module.
- * @selector app-agenda-event-editor
+ * Editor de eventos da agenda em modal — cria e edita eventos do CRM.
  */
 @Component({
   selector: 'app-agenda-event-editor',

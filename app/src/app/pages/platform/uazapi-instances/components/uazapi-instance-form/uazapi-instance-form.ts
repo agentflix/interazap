@@ -20,8 +20,7 @@ import {
 } from '@core/services/uazapi-instances.service';
 
 /**
- * Uazapi instance form component for the Platform module.
- * @selector app-uazapi-instance-form
+ * Formulário de criação e edição de instâncias uazapi — gerencia nome, system_name e campos de configuração.
  */
 @Component({
   selector: 'app-uazapi-instance-form',

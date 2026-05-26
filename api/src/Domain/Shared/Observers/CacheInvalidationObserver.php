@@ -12,9 +12,10 @@ use Domain\Shared\Services\CriticalDataCacheService;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Observer for cache invalidation on model changes.
+ * Observer para invalidação de cache em mudanças de modelos críticos.
  *
- * Automatically invalidates cached data when models are updated or deleted.
+ * Invalida automaticamente os dados em cache quando PlatformTenant, PlatformPlan,
+ * CRMNegotiationFunnel ou ChatQuickAnswer são salvos ou excluídos.
  */
 final class CacheInvalidationObserver
 {
@@ -23,7 +24,9 @@ final class CacheInvalidationObserver
     ) {}
 
     /**
-     * Handle PlatformTenant events.
+     * Invalida cache de configuração e assinatura quando tenant ou plano é atualizado.
+     *
+     * @param  Model  $model  Instância do modelo atualizado.
      */
     public function updated(Model $model): void
     {
@@ -36,7 +39,9 @@ final class CacheInvalidationObserver
     }
 
     /**
-     * Handle model saved events (create and update).
+     * Invalida cache de funil ou respostas rápidas quando o modelo é salvo.
+     *
+     * @param  Model  $model  Instância do modelo criado ou atualizado.
      */
     public function saved(Model $model): void
     {
@@ -48,7 +53,9 @@ final class CacheInvalidationObserver
     }
 
     /**
-     * Handle model deletion.
+     * Invalida cache de funil ou respostas rápidas quando o modelo é excluído.
+     *
+     * @param  Model  $model  Instância do modelo excluído.
      */
     public function deleted(Model $model): void
     {

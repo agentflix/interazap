@@ -10,15 +10,18 @@ import type {
 } from '@core/models/reason-loss.model';
 
 /**
- * Service for managing CRM reason losses.
- * Preserved verbatim from source — no business logic changes.
+ * Gerencia motivos de perda do CRM com operações de CRUD e reordenação.
  */
 @Injectable({ providedIn: 'root' })
 export class ReasonLossService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/crm/reason-losses`;
 
-  /** List reason losses with filters and pagination. */
+  /**
+   * Lista motivos de perda com filtros e paginação.
+   * @param filters Filtros: search, is_active, paginação, ordenação
+   * @returns Observable com lista paginada de motivos de perda
+   */
   list(filters: ReasonLossFilters = {}): Observable<ReasonLossListResponse> {
     let params = new HttpParams();
     params = this.appendTrimmedString(params, 'search', filters.search);
@@ -30,27 +33,48 @@ export class ReasonLossService {
     return this.http.get<ReasonLossListResponse>(this.baseUrl, { params });
   }
 
-  /** Show a single reason loss. */
+  /**
+   * Retorna um motivo de perda pelo ID.
+   * @param id Identificador do motivo de perda
+   * @returns Observable com dados do motivo de perda
+   */
   show(id: string): Observable<ReasonLossResponse> {
     return this.http.get<ReasonLossResponse>(`${this.baseUrl}/${id}`);
   }
 
-  /** Create a new reason loss. */
+  /**
+   * Cria um novo motivo de perda no CRM.
+   * @param data Dados do motivo de perda (nome, descrição, ordem)
+   * @returns Observable com o motivo de perda criado
+   */
   create(data: Partial<ReasonLoss>): Observable<ReasonLossResponse> {
     return this.http.post<ReasonLossResponse>(this.baseUrl, data);
   }
 
-  /** Update an existing reason loss. */
+  /**
+   * Atualiza um motivo de perda existente.
+   * @param id Identificador do motivo de perda
+   * @param data Dados atualizados do motivo de perda
+   * @returns Observable com o motivo de perda atualizado
+   */
   update(id: string, data: Partial<ReasonLoss>): Observable<ReasonLossResponse> {
     return this.http.put<ReasonLossResponse>(`${this.baseUrl}/${id}`, data);
   }
 
-  /** Delete a reason loss. */
+  /**
+   * Exclui um motivo de perda do CRM.
+   * @param id Identificador do motivo de perda
+   * @returns Observable que completa após a exclusão
+   */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }
 
-  /** Reorder reason losses. */
+  /**
+   * Reordena os motivos de perda fornecendo a lista de IDs na ordem desejada.
+   * @param order Array de IDs na nova ordem de exibição
+   * @returns Observable que completa após a reordenação
+   */
   reorder(order: string[]): Observable<null> {
     return this.http.post<null>(`${this.baseUrl}/reorder`, { order });
   }

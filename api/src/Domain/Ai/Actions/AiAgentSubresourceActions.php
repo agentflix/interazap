@@ -17,12 +17,20 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
- * Handles Ai agent subresources without changing controller contracts.
+ * Gerencia sub-recursos de agentes de IA sem alterar contratos de controllers.
+ *
+ * Contexto: centraliza operações sobre arquivos, tools, triggers, canais,
+ * skills e delegações de um agente, garantindo isolamento multi-tenant e
+ * validação de existência do agente pai em cada operação.
  */
 final class AiAgentSubresourceActions
 {
     /**
-     * __construct.
+     * Injeta dependências de acesso a agentes, dispatch de tools e controle de permissões.
+     *
+     * @param  AiAgentActions  $agentActions  Serviço de acesso ao agente pai.
+     * @param  ToolDispatcherService  $toolDispatcher  Serviço de execução de tools.
+     * @param  AiAgentToolPermissionService  $toolPermissions  Serviço de permissões de tools por agente.
      */
     public function __construct(
         private readonly AiAgentActions $agentActions,
@@ -31,7 +39,13 @@ final class AiAgentSubresourceActions
     ) {}
 
     /**
+     * Lista arquivos do agente ordenados por slug.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
      * @return Collection<int, AiAgentFile>
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se o agente não existir.
      */
     public function listFiles(string $tenantId, string $agentId): Collection
     {
@@ -45,7 +59,14 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * Localizar file.
+     * Localiza um arquivo do agente pelo slug dentro do tenant.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  string  $slug  Identificador textual do arquivo.
+     * @return AiAgentFile Arquivo encontrado.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se o arquivo não existir.
      */
     public function findFile(string $tenantId, string $agentId, string $slug): AiAgentFile
     {
@@ -59,7 +80,14 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * Upsert file.
+     * Cria ou atualiza um arquivo do agente identificado por slug.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  string  $slug  Identificador textual do arquivo.
+     * @param  string|null  $content  Conteúdo do arquivo.
+     * @param  string|null  $userId  UUID do usuário que realizou a alteração.
+     * @return AiAgentFile Arquivo criado ou atualizado.
      */
     public function upsertFile(string $tenantId, string $agentId, string $slug, ?string $content, ?string $userId): AiAgentFile
     {
@@ -139,6 +167,10 @@ final class AiAgentSubresourceActions
     }
 
     /**
+     * Lista triggers do agente em ordem decrescente de criação.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
      * @return Collection<int, AiAgentTrigger>
      */
     public function listTriggers(string $tenantId, string $agentId): Collection
@@ -153,7 +185,12 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * Cria um novo trigger para o agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  array<string, mixed>  $attributes  Atributos do trigger.
+     * @return AiAgentTrigger Trigger criado.
      */
     public function createTrigger(string $tenantId, string $agentId, array $attributes): AiAgentTrigger
     {
@@ -168,7 +205,13 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * Atualiza atributos de um trigger existente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  string  $triggerId  UUID do trigger.
+     * @param  array<string, mixed>  $attributes  Novos atributos.
+     * @return AiAgentTrigger Trigger atualizado.
      */
     public function updateTrigger(string $tenantId, string $agentId, string $triggerId, array $attributes): AiAgentTrigger
     {
@@ -180,7 +223,13 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * Excluir trigger.
+     * Remove um trigger do agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  string  $triggerId  UUID do trigger.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se o trigger não existir.
      */
     public function deleteTrigger(string $tenantId, string $agentId, string $triggerId): void
     {
@@ -188,6 +237,10 @@ final class AiAgentSubresourceActions
     }
 
     /**
+     * Lista canais do agente ordenados por canal e referência externa.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
      * @return Collection<int, AiAgentChannel>
      */
     public function listChannels(string $tenantId, string $agentId): Collection
@@ -203,7 +256,12 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * Cria um novo canal para o agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  array<string, mixed>  $attributes  Atributos do canal.
+     * @return AiAgentChannel Canal criado.
      */
     public function createChannel(string $tenantId, string $agentId, array $attributes): AiAgentChannel
     {
@@ -218,7 +276,13 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * Atualiza atributos de um canal existente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  string  $channelId  UUID do canal.
+     * @param  array<string, mixed>  $attributes  Novos atributos.
+     * @return AiAgentChannel Canal atualizado.
      */
     public function updateChannel(string $tenantId, string $agentId, string $channelId, array $attributes): AiAgentChannel
     {
@@ -230,7 +294,13 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * Excluir channel.
+     * Remove um canal do agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  string  $channelId  UUID do canal.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se o canal não existir.
      */
     public function deleteChannel(string $tenantId, string $agentId, string $channelId): void
     {
@@ -238,6 +308,10 @@ final class AiAgentSubresourceActions
     }
 
     /**
+     * Lista skills do agente ordenadas por nome.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
      * @return Collection<int, AiAgentSkill>
      */
     public function listSkills(string $tenantId, string $agentId): Collection
@@ -252,7 +326,12 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * Cria uma nova skill para o agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  array<string, mixed>  $attributes  Atributos da skill.
+     * @return AiAgentSkill Skill criada.
      */
     public function createSkill(string $tenantId, string $agentId, array $attributes): AiAgentSkill
     {
@@ -267,7 +346,13 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * Atualiza atributos de uma skill existente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  string  $skillId  UUID da skill.
+     * @param  array<string, mixed>  $attributes  Novos atributos.
+     * @return AiAgentSkill Skill atualizada.
      */
     public function updateSkill(string $tenantId, string $agentId, string $skillId, array $attributes): AiAgentSkill
     {
@@ -279,7 +364,13 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * Excluir skill.
+     * Remove uma skill do agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  string  $skillId  UUID da skill.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se a skill não existir.
      */
     public function deleteSkill(string $tenantId, string $agentId, string $skillId): void
     {
@@ -287,6 +378,10 @@ final class AiAgentSubresourceActions
     }
 
     /**
+     * Lista as delegações onde este agente é o agente de origem.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente de origem.
      * @return Collection<int, AiAgentDelegation>
      */
     public function listDelegations(string $tenantId, string $agentId): Collection
@@ -302,7 +397,16 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * Cria ou atualiza uma regra de delegação entre dois agentes.
+     *
+     * Valida que ambos (origem e destino) pertencem ao tenant antes de persistir.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente de origem.
+     * @param  array<string, mixed>  $attributes  Atributos da delegação (target_agent_id, max_depth, etc.).
+     * @return AiAgentDelegation Delegação criada ou atualizada com agente-destino carregado.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se algum agente não existir.
      */
     public function upsertDelegation(string $tenantId, string $agentId, array $attributes): AiAgentDelegation
     {
@@ -327,7 +431,13 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * Excluir delegation.
+     * Remove uma delegação do agente de origem.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente de origem.
+     * @param  string  $delegationId  UUID da delegação.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se a delegação não existir.
      */
     public function deleteDelegation(string $tenantId, string $agentId, string $delegationId): void
     {
@@ -339,7 +449,11 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * @return array<string, mixed>
+     * Retorna as configurações de voz do agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @return array<string, mixed> Configurações de STT e TTS do agente.
      */
     public function voiceConfig(string $tenantId, string $agentId): array
     {
@@ -356,7 +470,12 @@ final class AiAgentSubresourceActions
     }
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * Atualiza as configurações de voz do agente.
+     *
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $agentId  UUID do agente.
+     * @param  array<string, mixed>  $attributes  Novos atributos de voz.
+     * @return AiAgent Agente com configurações atualizadas.
      */
     public function updateVoice(string $tenantId, string $agentId, array $attributes): AiAgent
     {

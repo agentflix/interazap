@@ -7,23 +7,23 @@ namespace Domain\Chat\DTOs;
 use Illuminate\Http\Request;
 
 /**
- * DTO for Chat Ticket.
+ * DTO de Ticket de Chat.
  *
  * @readonly
  */
 final readonly class ChatTicketDTO
 {
     /**
-     * @param  string  $channel  Channel (e.g. whatsapp).
-     * @param  string|null  $contactId  Contact UUID.
-     * @param  string|null  $instanceId  Connection instance UUID.
-     * @param  string|null  $remoteJid  Remote unique identifier on channel.
-     * @param  string|null  $subject  Ticket subject/title.
-     * @param  string|null  $priority  Priority (low, normal, high).
-     * @param  string|null  $pushName  Display name from channel.
-     * @param  string|null  $profilePictureUrl  Contact profile picture URL.
-     * @param  string|null  $phone  Formatted phone number.
-     * @param  string|null  $phoneE164  E.164 international format phone number.
+     * @param  string  $channel  Canal de atendimento (ex.: whatsapp).
+     * @param  string|null  $contactId  UUID do contato.
+     * @param  string|null  $instanceId  UUID da instância de conexão.
+     * @param  string|null  $remoteJid  Identificador remoto único no canal.
+     * @param  string|null  $subject  Assunto ou título do ticket.
+     * @param  string|null  $priority  Prioridade (low, normal, high).
+     * @param  string|null  $pushName  Nome de exibição fornecido pelo canal.
+     * @param  string|null  $profilePictureUrl  URL da foto de perfil do contato.
+     * @param  string|null  $phone  Número de telefone formatado.
+     * @param  string|null  $phoneE164  Número de telefone no formato E.164.
      */
     public function __construct(
         public string $channel,
@@ -39,7 +39,7 @@ final readonly class ChatTicketDTO
     ) {}
 
     /**
-     * Create DTO from request.
+     * Cria o DTO a partir de um Request HTTP.
      */
     public static function fromRequest(Request $request): self
     {
@@ -58,7 +58,7 @@ final readonly class ChatTicketDTO
     }
 
     /**
-     * Create DTO from array.
+     * Cria o DTO a partir de um array.
      *
      * @param  array<string, mixed>  $data
      */

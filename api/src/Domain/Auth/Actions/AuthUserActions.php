@@ -28,6 +28,9 @@ final class AuthUserActions
     ) {}
 
     /**
+     * Lista usuários paginados conforme os filtros informados.
+     *
+     * @param  AuthUserFiltersDTO  $filters  Filtros de busca, ordenação e paginação.
      * @return LengthAwarePaginator<int, AuthUser>
      */
     public function list(AuthUserFiltersDTO $filters): LengthAwarePaginator
@@ -234,6 +237,9 @@ final class AuthUserActions
     }
 
     /**
+     * Atualiza o avatar do usuário pelo ID.
+     *
+     * @param  string  $id  UUID do usuário.
      * @return array{avatar_url:string}
      */
     public function updateAvatar(string $id, UploadedFile $image): array
@@ -244,6 +250,9 @@ final class AuthUserActions
     }
 
     /**
+     * Remove o avatar do usuário pelo ID.
+     *
+     * @param  string  $id  UUID do usuário.
      * @return array{avatar_url:null}
      */
     public function deleteAvatar(string $id): array

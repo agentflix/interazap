@@ -40,7 +40,11 @@ const VALID_SKILL_TYPES: readonly AiSkillType[] = [
 ];
 
 /**
- * Skills tab — CRUD for agent skills.
+ * Aba de Skills — CRUD de habilidades do agente.
+ *
+ * Contexto: gerencia skills com tipo (classificação, extração, roteamento, validação,
+ * sumarização, personalizada), prioridade e prompt adicional. Modal de criação/edição
+ * com formulário reativo. Normaliza metadados legados do backend.
  */
 @Component({
   selector: 'app-agent-skills-tab',
@@ -98,7 +102,9 @@ export class AgentSkillsTabComponent implements OnInit {
   }
 
   /**
-   * Format skill type label.
+   * Retorna o rótulo legível para o tipo de skill.
+   * @param type Tipo de skill
+   * @returns Rótulo em português
    */
   formatSkillType(type: AiSkillType | undefined): string {
     const safeType = this.normalizeSkillType(type);
@@ -114,7 +120,9 @@ export class AgentSkillsTabComponent implements OnInit {
   }
 
   /**
-   * Get class for skill type icon.
+   * Retorna a classe CSS para o ícone do tipo de skill.
+   * @param type Tipo de skill
+   * @returns Classe CSS com cor e fundo correspondentes
    */
   skillIconClass(type: AiSkillType | undefined): string {
     const safeType = this.normalizeSkillType(type);
@@ -132,7 +140,7 @@ export class AgentSkillsTabComponent implements OnInit {
   }
 
   /**
-   * Opens modal for creating new skill.
+   * Abre o modal para criação de nova skill.
    */
   openCreateModal(): void {
     this.editingSkill.set(null);
@@ -148,7 +156,8 @@ export class AgentSkillsTabComponent implements OnInit {
   }
 
   /**
-   * Opens modal for editing existing skill.
+   * Abre o modal para edição de skill existente.
+   * @param skill Skill a ser editada
    */
   openEditModal(skill: AiAgentSkill): void {
     const metadata = this.normalizeSkillMetadata(skill);
@@ -166,7 +175,7 @@ export class AgentSkillsTabComponent implements OnInit {
   }
 
   /**
-   * Close the modal.
+   * Fecha o modal de criação/edição.
    */
   closeModal(): void {
     this.showModal.set(false);
@@ -174,7 +183,7 @@ export class AgentSkillsTabComponent implements OnInit {
   }
 
   /**
-   * Save (create or update) a skill.
+   * Salva (cria ou atualiza) uma skill.
    */
   saveSkill(): void {
     if (this.skillForm.invalid) return;
@@ -213,7 +222,8 @@ export class AgentSkillsTabComponent implements OnInit {
   }
 
   /**
-   * Delete a skill.
+   * Exclui uma skill após confirmação do usuário.
+   * @param skill Skill a ser excluída
    */
   deleteSkill(skill: AiAgentSkill): void {
     if (!confirm(`Excluir skill "${skill.name}"?`)) return;

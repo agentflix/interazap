@@ -1,8 +1,8 @@
 /**
- * Models and types for locale-switch component.
+ * Modelos e tipos do componente de seleção de idioma.
  */
 
-/** Locale option */
+/** Opção de localidade. */
 export interface AfLocaleOption {
   code: string;
   label: string;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Auth\DTOs;
 
 /**
- * DTO for role listing filters.
+ * DTO para filtros de listagem de perfis de acesso (roles).
  *
  * @readonly
  */
@@ -19,6 +19,8 @@ final readonly class AuthRoleFiltersDTO
     ) {}
 
     /**
+     * Cria DTO a partir de array de parâmetros de filtro.
+     *
      * @param  array<string, mixed>  $payload
      */
     public static function fromArray(array $payload): self
@@ -31,16 +33,19 @@ final readonly class AuthRoleFiltersDTO
         );
     }
 
+    /** Retorna coluna de ordenação validada (name|created_at). */
     public function sanitizedSortBy(): string
     {
         return in_array($this->sortBy, ['name', 'created_at'], true) ? $this->sortBy : 'name';
     }
 
+    /** Retorna direção de ordenação validada (asc|desc). */
     public function sanitizedSortDirection(): string
     {
         return in_array(strtolower($this->sortDirection), ['asc', 'desc'], true) ? strtolower($this->sortDirection) : 'asc';
     }
 
+    /** Retorna quantidade de itens por página limitada ao intervalo [1, 100]. */
     public function sanitizedPerPage(): int
     {
         return max(1, min($this->perPage, 100));

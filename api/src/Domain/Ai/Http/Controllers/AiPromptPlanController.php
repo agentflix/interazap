@@ -24,6 +24,8 @@ final class AiPromptPlanController extends BaseController
 
     /**
      * Lista todos os plan prompts.
+     *
+     * @return AnonymousResourceCollection Lista de plan prompts.
      */
     public function index(): AnonymousResourceCollection
     {
@@ -35,7 +37,10 @@ final class AiPromptPlanController extends BaseController
     }
 
     /**
-     * Retorna um plan prompt específico.
+     * Exibe o plan prompt de um plano específico.
+     *
+     * @param  PlatformPlan  $plan  Instância do plano.
+     * @return JsonResponse Dados do plan prompt ou null se não configurado.
      */
     public function show(PlatformPlan $plan): JsonResponse
     {
@@ -51,7 +56,12 @@ final class AiPromptPlanController extends BaseController
     }
 
     /**
-     * Atualiza (ou cria) o prompt de um plano.
+     * Atualiza ou cria o prompt de um plano.
+     *
+     * @param  UpdatePlanPromptRequest  $request  Dados validados do prompt.
+     * @param  PlatformPlan  $plan  Instância do plano.
+     * @param  UpdatePlanPromptAction  $action  Ação de atualização.
+     * @return JsonResponse Plan prompt atualizado.
      */
     public function update(
         UpdatePlanPromptRequest $request,

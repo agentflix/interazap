@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for agent skill payloads.
+ * DTO que representa uma habilidade (skill) configurada em um agente de IA.
+ *
+ * Utilizado para definir capacidades especializadas que o agente pode invocar,
+ * como busca em base de conhecimento, execução de ações externas ou
+ * processamento de dados específicos do tenant.
  *
  * @readonly
  */

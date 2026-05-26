@@ -17,9 +17,8 @@ use Illuminate\Support\Facades\Process;
  *
  * Orquestra transcrição de áudio via OpenAI Whisper, descrição de
  * imagem via OpenAI Vision (GPT-4o) e transcrição de vídeo via
- * combinação de FFmpeg + Whisper + Vision.
- *
- * @category Services
+ * combinação de FFmpeg + Whisper + Vision. Registra custos e
+ * métricas de uso no AiUsageLog.
  */
 final class AiMediaTranscriptionService
 {

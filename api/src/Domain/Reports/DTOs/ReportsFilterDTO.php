@@ -8,9 +8,10 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
 
 /**
- * DTO for report filters.
+ * DTO imutável que carrega todos os filtros disponíveis para relatórios.
  *
- * @readonly
+ * Inclui tenant, intervalo de datas, granularidade temporal e dimensões opcionais
+ * como usuário, funil, etapa, canal, instância, motivo de perda e produto.
  */
 final readonly class ReportsFilterDTO
 {
@@ -30,7 +31,10 @@ final readonly class ReportsFilterDTO
     ) {}
 
     /**
-     * Create DTO from validated form request.
+     * Cria o DTO a partir de um FormRequest já validado.
+     *
+     * @param  FormRequest  $request  Requisição com dados validados
+     * @param  string  $tenantId  UUID do tenant autenticado
      */
     public static function fromRequest(FormRequest $request, string $tenantId): self
     {
@@ -53,9 +57,9 @@ final readonly class ReportsFilterDTO
     }
 
     /**
-     * Cria DTO a partir de um array.
+     * Cria o DTO a partir de um array de dados, útil para jobs assíncronos serializados.
      *
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $data  Dados do DTO serializado
      */
     public static function fromArray(array $data): self
     {

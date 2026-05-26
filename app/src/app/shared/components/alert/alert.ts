@@ -2,7 +2,10 @@ import { Component, ChangeDetectionStrategy, input, output, computed } from '@an
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfAlertComponent — Contextual alert/notification banner.
+ * Banner de alerta contextual para notificações inline.
+ *
+ * Contexto: utilizado dentro de páginas e painéis para exibir mensagens
+ * de informação, sucesso, aviso ou erro de forma não-bloqueante.
  *
  * @example
  * ```html
@@ -17,19 +20,19 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './alert.html',
 })
 export class AfAlertComponent {
-  /** Alert variant */
+  /** Variante visual do alerta */
   readonly variant = input<'info' | 'success' | 'warning' | 'danger'>('info');
 
-  /** Title text */
+  /** Título do alerta */
   readonly title = input('');
 
-  /** Message text */
+  /** Mensagem descritiva */
   readonly message = input('');
 
-  /** Show dismiss button */
+  /** Exibe botão de fechar */
   readonly dismissible = input(false);
 
-  /** Emitted on dismiss */
+  /** Emitido ao fechar o alerta */
   readonly dismissed = output<void>();
 
   protected readonly iconName = computed(() => {

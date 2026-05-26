@@ -38,8 +38,7 @@ import type { ProductService } from '@core/models/product-service.model';
 import { ProductServiceFormComponent } from './components/product-service-form/crm-product-service-form';
 
 /**
- * Products & Services CRM page — CRUD with type filter and detail panel.
- * Business logic preserved verbatim from source.
+ * Página de produtos e serviços do CRM com CRUD completo, filtro por tipo e painel de detalhes.
  */
 @Component({
   selector: 'app-products-services',

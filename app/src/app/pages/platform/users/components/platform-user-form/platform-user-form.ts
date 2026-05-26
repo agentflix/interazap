@@ -26,6 +26,9 @@ import {
   type AfCheckboxOption,
 } from '@shared/components';
 
+/**
+ * Formulário de criação e edição de usuários da plataforma com gerenciamento de roles e senha.
+ */
 @Component({
   selector: 'app-platform-user-form',
   standalone: true,
@@ -38,10 +41,6 @@ import {
     AfCheckboxGroupComponent,
     AfSwitchInputComponent,
     AfCheckboxInputComponent,
-/**
- * Platform user form component for the Platform module.
- * @selector app-platform-user-form
- */
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './platform-user-form.html',

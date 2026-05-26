@@ -3,8 +3,10 @@ import { type CalledMessage } from 'src/app/core/services/called-message.service
 import { UserChatMessageBubbleComponent } from './user-chat-message-bubble.component';
 
 /**
- * User chat thread view component for the Chat module.
- * @selector app-user-chat-thread-view
+ * Componente de visualização da thread de mensagens.
+ *
+ * Renderiza a lista de bolhas de mensagem para o atendimento ativo,
+ * delegando cada item ao `UserChatMessageBubbleComponent`.
  */
 @Component({
   selector: 'app-user-chat-thread-view',

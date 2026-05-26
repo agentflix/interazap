@@ -12,8 +12,10 @@ import { type KnowledgeSearchMode, type KnowledgeSearchResult } from '@ai/models
 import { AiKnowledgeService } from '@ai/services/ai-knowledge.service';
 
 /**
- * Semantic search of the AI knowledge base.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Busca semântica na base de conhecimento da IA.
+ *
+ * Contexto: realiza buscas via RAG com suporte a modo vetorial e híbrido.
+ * Limita a 10 resultados com score mínimo de 0.3. Exibe estado vazio para busca sem resultados.
  */
 @Component({
   selector: 'app-ai-knowledge-search',
@@ -39,6 +41,7 @@ export class KnowledgeSearchComponent {
   readonly semanticSearched = signal(false);
   readonly searchMode = signal<KnowledgeSearchMode>('vector');
 
+  /** Executa a busca semântica com o termo atual do formulário. */
   runSemanticSearch(): void {
     const query = this.semanticQuery.value.trim();
 

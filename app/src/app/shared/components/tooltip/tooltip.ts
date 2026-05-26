@@ -1,12 +1,12 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * Simple tooltip displayed as a CSS-only solution using `group` and `hover`.
+ * Tooltip simples exibido via CSS usando `group` e `hover`.
  *
  * @example
  * ```html
- * <af-tooltip text="Edit this item" position="top">
- *   <button>Edit</button>
+ * <af-tooltip text="Editar este item" position="top">
+ *   <button>Editar</button>
  * </af-tooltip>
  * ```
  */
@@ -18,10 +18,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './tooltip.html',
 })
 export class AfTooltipComponent {
-  /** Tooltip text content */
+  /** Texto do tooltip */
   readonly text = input.required<string>();
 
-  /** Position relative to the trigger */
+  /** Posição relativa ao elemento acionador */
   readonly position = input<'top' | 'bottom' | 'left' | 'right'>('top');
 
   protected readonly tooltipClasses = computed(() => {

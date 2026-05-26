@@ -45,8 +45,9 @@ import type {
 } from '@shared/models/tenant-settings.model';
 
 /**
- * User preferences page — appearance, behavior, CRM defaults, accessibility, and security.
- * Uses manual save strategy: changes mark the store as dirty; a single Save button persists all.
+ * Página de preferências do usuário — aparência, comportamento, padrões CRM,
+ * acessibilidade e segurança. Usa estratégia de salvamento manual: alterações marcam
+ * o store como sujo e um único botão Salvar persiste tudo.
  */
 @Component({
   selector: 'app-preferences',
@@ -81,7 +82,7 @@ export class PreferencesComponent implements OnInit {
   // Track whether we have populated the form once from loaded preferences
   private formSeeded = signal(false);
 
-  /** Notification preferences loaded from the backend. */
+  /** Preferências de notificação carregadas do backend. */
   private readonly notifPrefs = signal<NotificationPreference[] | null>(null);
 
   // ── Tenant state ─────────────────────────────────────────────────────────
@@ -375,6 +376,10 @@ export class PreferencesComponent implements OnInit {
 
   // ── Actions ─────────────────────────────────────────────────────────────────
 
+  /**
+   * Persiste todas as seções de preferências: usuário, notificações e configurações do workspace.
+   * Operações independentes são executadas em paralelo.
+   */
   save(): void {
     if (this.store.isSaving()) {
       return;
@@ -411,6 +416,7 @@ export class PreferencesComponent implements OnInit {
     }
   }
 
+  /** Restaura todos os formulários para os valores padrão e recarrega dados do backend. */
   reset(): void {
     this.appearanceForm.reset();
     this.behaviorForm.reset();
@@ -426,6 +432,7 @@ export class PreferencesComponent implements OnInit {
 
   // ── Tenant settings ─────────────────────────────────────────────────────
 
+  /** Carrega as configurações do workspace do tenant autenticado. */
   loadTenantSettings(): void {
     const tenantId = this.authStore.user()?.tenant_id;
     if (!tenantId) return;
@@ -549,14 +556,26 @@ export class PreferencesComponent implements OnInit {
 
   // ── Appearance side-effects ─────────────────────────────────────────────────
 
+  /**
+   * Aplica o tema imediatamente para pré-visualização ao vivo.
+   * @param theme Tema selecionado: claro, escuro ou sistema
+   */
   applyTheme(theme: 'light' | 'dark' | 'system'): void {
     this.themeService.applyTheme(theme);
   }
 
+  /**
+   * Aplica a densidade de interface imediatamente para pré-visualização ao vivo.
+   * @param density Densidade: compacta, normal ou expandida
+   */
   applyDensity(density: 'compact' | 'normal' | 'expanded'): void {
     this.themeService.applyDensity(density);
   }
 
+  /**
+   * Aplica o tamanho de fonte imediatamente para pré-visualização ao vivo.
+   * @param size Tamanho: pequeno, médio ou grande
+   */
   applyFontSize(size: 'small' | 'medium' | 'large'): void {
     this.themeService.applyFontSize(size);
   }

@@ -8,24 +8,24 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
 
 /**
- * Service for monitoring queue health.
+ * Serviço de monitoramento de saúde das filas.
  *
- * Provides methods to check queue sizes, worker status,
- * and stuck jobs for alerting purposes.
+ * Provê métodos para verificar tamanhos de filas, status de workers
+ * e jobs travados para fins de alertas e diagnóstico.
  */
 class QueueHealthService
 {
     /**
-     * Default queues to monitor.
+     * Filas padrão a monitorar.
      *
      * @var array<string>
      */
     protected array $queues = ['critical', 'high', 'default', 'low', 'ai', 'media'];
 
     /**
-     * Get health status for all queues.
+     * Retorna o status de saúde de todas as filas monitoradas.
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> Status agregado com indicadores de saúde, filas, workers e jobs travados.
      */
     public function getHealthStatus(): array
     {
@@ -85,7 +85,7 @@ class QueueHealthService
     }
 
     /**
-     * Get statistics for each queue.
+     * Retorna estatísticas individuais de tamanho e jobs atrasados para cada fila.
      *
      * @return array<int, array{name: string, size: int, delayed: int}>
      */
@@ -105,7 +105,9 @@ class QueueHealthService
     }
 
     /**
-     * Get the number of jobs in a queue.
+     * Retorna a quantidade de jobs aguardando processamento em uma fila.
+     *
+     * @param  string  $queue  Nome da fila.
      */
     public function getQueueSize(string $queue): int
     {
@@ -126,7 +128,9 @@ class QueueHealthService
     }
 
     /**
-     * Get the number of delayed jobs in a queue.
+     * Retorna a quantidade de jobs atrasados (scheduled/delayed) em uma fila.
+     *
+     * @param  string  $queue  Nome da fila.
      */
     public function getDelayedCount(string $queue): int
     {
@@ -147,9 +151,9 @@ class QueueHealthService
     }
 
     /**
-     * Get the number of active workers.
+     * Retorna o número de workers ativos via Horizon ou -1 quando não é possível determinar.
      *
-     * @return int Number of workers or -1 when the runtime cannot determine it.
+     * @return int Número de workers ativos ou -1 se indeterminado.
      */
     public function getWorkerCount(): int
     {
@@ -173,8 +177,9 @@ class QueueHealthService
     }
 
     /**
-     * Get the number of stuck jobs.
-     * A job is considered stuck if it's been reserved for too long.
+     * Retorna o número total de jobs travados em todas as filas.
+     *
+     * Um job é considerado travado quando está reservado há mais tempo que o threshold configurado.
      */
     public function getStuckJobsCount(): int
     {
@@ -193,7 +198,10 @@ class QueueHealthService
     }
 
     /**
-     * Get stuck jobs in a specific queue.
+     * Retorna a quantidade de jobs travados em uma fila específica.
+     *
+     * @param  string  $queue  Nome da fila.
+     * @param  int  $threshold  Tempo em segundos para considerar um job travado.
      */
     protected function getStuckJobsInQueue(string $queue, int $threshold): int
     {
@@ -217,9 +225,9 @@ class QueueHealthService
     }
 
     /**
-     * Get queue configuration.
+     * Retorna a configuração das filas definida no arquivo de configuração.
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array<string, mixed>> Configuração das filas.
      */
     public function getQueueConfig(): array
     {
@@ -227,9 +235,10 @@ class QueueHealthService
     }
 
     /**
-     * Set the queues to monitor.
+     * Define as filas a serem monitoradas.
      *
-     * @param  array<string>  $queues
+     * @param  array<string>  $queues  Lista de nomes de filas.
+     * @return static Instância atual para encadeamento.
      */
     public function setQueues(array $queues): self
     {

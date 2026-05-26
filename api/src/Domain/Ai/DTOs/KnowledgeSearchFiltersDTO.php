@@ -8,7 +8,11 @@ use Domain\Ai\Enums\AiDocumentType;
 use Illuminate\Support\Carbon;
 
 /**
- * DTO for faceted search filters in RAG queries.
+ * DTO que representa os filtros aplicados em uma busca na base de conhecimento.
+ *
+ * Utilizado nas consultas RAG para restringir resultados por documentos,
+ * tipos de arquivo e intervalo de datas, permitindo buscas facetadas
+ * e refinadas pelo usuário ou pelo agente de IA.
  *
  * @readonly
  */

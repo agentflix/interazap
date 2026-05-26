@@ -15,6 +15,13 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Job que expira aprovações pendentes do Autopilot que ultrapassaram o prazo.
+ *
+ * Processa em lotes (100 por vez) as aprovações com status 'pending' cujo
+ * expires_at já passou, marcando-as como 'expired' e o run associado como 'failed'.
+ * Registra o tempo de espera em métricas para monitoramento.
+ */
 final class AutopilotApprovalExpiryJob implements ShouldQueue
 {
     use Dispatchable;
@@ -22,6 +29,9 @@ final class AutopilotApprovalExpiryJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    /**
+     * Processa as aprovações expiradas em lote e marca os runs associados como falhos.
+     */
     public function handle(): void
     {
         $processedApprovals = 0;

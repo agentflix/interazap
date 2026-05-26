@@ -18,7 +18,7 @@ class AiPromptSegmentCannotDeleteGeneralException extends Exception
     }
 
     /**
-     * Render the exception as an HTTP response.
+     * Renderiza a exceção como resposta HTTP 403.
      */
     public function render(): JsonResponse
     {

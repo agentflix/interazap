@@ -25,6 +25,10 @@ import {
 } from '../../services/crm-proposal.service';
 import { ProposalFormComponent } from '../proposal-form/proposal-form';
 
+/**
+ * Listagem de propostas comerciais vinculadas a uma negociação do CRM.
+ * Suporta criação, edição, exclusão e visualização de itens da proposta.
+ */
 @Component({
   selector: 'app-proposal-list',
   standalone: true,
@@ -37,10 +41,6 @@ import { ProposalFormComponent } from '../proposal-form/proposal-form';
     ProposalFormComponent,
     ButtonComponent,
     IconButtonComponent,
-/**
- * Proposal list page component for the Crm module.
- * @selector app-proposal-list
- */
   ],
   templateUrl: './proposal-list.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

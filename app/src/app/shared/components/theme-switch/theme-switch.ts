@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, output, signal } from '@angu
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfThemeSwitchComponent — Dark/light/system theme toggle.
+ * Seletor de tema (claro/escuro/sistema).
  *
  * @example
  * ```html
@@ -17,10 +17,10 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './theme-switch.html',
 })
 export class AfThemeSwitchComponent {
-  /** Current theme mode */
+  /** Modo de tema atual */
   readonly mode = input<'light' | 'dark' | 'system'>('system');
 
-  /** Theme changed */
+  /** Tema alterado */
   readonly modeChange = output<'light' | 'dark' | 'system'>();
 
   protected readonly options = [

@@ -1,13 +1,16 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * Small label or tag for categorization and status display.
+ * Rótulo pequeno para categorização e exibição de status.
+ *
+ * Contexto: utilizado em tabelas, cards e listas para indicar
+ * estado, tipo ou prioridade de um item.
  *
  * @example
  * ```html
- * <af-badge variant="success">Active</af-badge>
- * <af-badge variant="warning" size="sm">Pending</af-badge>
- * <af-badge variant="info" dot>New</af-badge>
+ * <af-badge variant="success">Ativo</af-badge>
+ * <af-badge variant="warning" size="sm">Pendente</af-badge>
+ * <af-badge variant="info" dot>Novo</af-badge>
  * ```
  */
 @Component({
@@ -17,13 +20,13 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './badge.html',
 })
 export class AfBadgeComponent {
-  /** Color variant */
+  /** Variante de cor */
   readonly variant = input<'default' | 'success' | 'warning' | 'danger' | 'info'>('default');
 
-  /** Badge size */
+  /** Tamanho do badge */
   readonly size = input<'sm' | 'md'>('md');
 
-  /** Show a dot indicator before the text */
+  /** Exibe indicador circular antes do texto */
   readonly dot = input(false);
 
   protected readonly badgeClasses = computed(() => {

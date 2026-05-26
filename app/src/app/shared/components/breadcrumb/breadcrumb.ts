@@ -7,11 +7,14 @@ export * from './breadcrumb.model';
 
 
 /**
- * AfBreadcrumbComponent — Navigation breadcrumb trail.
+ * Trilha de navegação (breadcrumb) indicando a hierarquia de páginas.
+ *
+ * Contexto: utilizado no topo das páginas internas para orientar o usuário
+ * sobre sua localização na estrutura do sistema.
  *
  * @example
  * ```html
- * <af-breadcrumb [items]="[{label:'Home',href:'/'},{label:'CRM',href:'/crm'},{label:'Contatos'}]" />
+ * <af-breadcrumb [items]="[{label:'Início',href:'/'},{label:'CRM',href:'/crm'},{label:'Contatos'}]" />
  * ```
  */
 @Component({
@@ -22,6 +25,6 @@ export * from './breadcrumb.model';
   templateUrl: './breadcrumb.html',
 })
 export class AfBreadcrumbComponent {
-  /** Breadcrumb trail items */
+  /** Itens da trilha de navegação */
   readonly items = input<AfBreadcrumbItem[]>([]);
 }

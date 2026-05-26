@@ -26,6 +26,14 @@ export class BillingTenantResolverService {
     private readonly cacheService: GatewayCacheService,
   ) {}
 
+  /**
+   * Resolve o tenant a partir do token de webhook de billing.
+   * Utiliza cache L1+L2 com estratégia HOT para evitar chamadas repetidas à api/.
+   *
+   * @param token - Token de autenticação do webhook do tenant
+   * @returns Dados do tenant resolvido com tenant_id
+   * @throws UnauthorizedException se o token for inválido ou não encontrado
+   */
   async resolveByWebhookToken(token: string): Promise<ResolvedTenant> {
     const cacheKey = `billing:tenant:${token}`;
 

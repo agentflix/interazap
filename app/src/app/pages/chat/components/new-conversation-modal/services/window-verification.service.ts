@@ -13,12 +13,12 @@ interface CacheEntry {
 const CACHE_STALE_TIME_MS = 30_000; // 30 seconds
 
 /**
- * Service for verifying the 24-hour message window status of contacts.
+ * Serviço de verificação do status da janela de 24 horas de mensagens para contatos.
  *
- * Determines whether a contact can receive free-form text messages or
- * requires template-based messages when using Meta WhatsApp Business API.
- *
- * @class WindowVerificationService
+ * @remarks
+ * Determina se um contato pode receber mensagens de texto livre ou se
+ * exige mensagens baseadas em template ao usar a API WhatsApp Business da Meta.
+ * Utiliza cache com 30 segundos de expiração para evitar chamadas redundantes à API.
  */
 @Injectable({ providedIn: 'root' })
 export class WindowVerificationService {
@@ -27,14 +27,14 @@ export class WindowVerificationService {
   private readonly cache = new Map<string, CacheEntry>();
 
   /**
-   * Checks the 24-hour window status for a contact.
+   * Verifica o status da janela de 24 horas para um contato.
    *
-   * @param contactId - The ID of the contact to check.
-   * @returns {Observable<WindowStatus>} Stream with the window status.
+   * @param contactId - ID do contato a verificar.
+   * @returns Observable com o status da janela.
    *
    * @remarks
-   * Uses a cache with 30-second stale time to avoid redundant API calls
-   * when checking the same contact multiple times in quick succession.
+   * Retorna valor em cache (30s) se disponível, caso contrário consulta a API.
+   * Em caso de erro, retorna status padrão que força o modo template.
    */
   checkStatus(contactId: string): Observable<WindowStatus> {
     const cached = this.getCached(contactId);
@@ -59,18 +59,16 @@ export class WindowVerificationService {
   }
 
   /**
-   * Invalidates the cached status for a specific contact.
-   * Call this when a new message is sent or received.
+   * Invalida o cache de status para um contato específico.
+   * Chamar ao enviar ou receber uma nova mensagem.
    *
-   * @param contactId - The ID of the contact whose cache should be invalidated.
+   * @param contactId - ID do contato cujo cache deve ser invalidado.
    */
   invalidateCache(contactId: string): void {
     this.cache.delete(contactId);
   }
 
-  /**
-   * Clears all cached window statuses.
-   */
+  /** Limpa todos os status de janela em cache. */
   clearCache(): void {
     this.cache.clear();
   }

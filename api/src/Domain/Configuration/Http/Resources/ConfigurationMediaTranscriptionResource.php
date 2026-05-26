@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Resource for Media Transcription configuration.
+ * Resource de serialização das configurações de transcrição de mídia.
  */
 final class ConfigurationMediaTranscriptionResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma o recurso em um array para serialização JSON.
      *
      * @return array<string, mixed>
      */

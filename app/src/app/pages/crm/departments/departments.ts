@@ -35,8 +35,7 @@ import type { Department } from '@core/models/department.model';
 import { DepartmentFormComponent } from './components/department-form/department-form';
 
 /**
- * Departments settings page — CRUD for CRM departments.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Página de configurações de departamentos do CRM com CRUD completo.
  */
 @Component({
   selector: 'app-departments',

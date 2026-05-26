@@ -11,7 +11,11 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
 /**
- * Command to detect and mark stale AI autopilot runs as failed.
+ * Comando para detectar e marcar runs travados do Autopilot como falhos.
+ *
+ * Varre runs com status 'queued' ou 'running' que ultrapassaram o limiar
+ * de tempo configurado (AI_STALE_RUN_THRESHOLD_MINUTES), marca-os como
+ * 'failed' e emite eventos de ciclo de vida para o frontend.
  */
 final class DetectStaleRunsCommand extends Command
 {
@@ -27,7 +31,7 @@ final class DetectStaleRunsCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * Executa a detecção e encerramento forçado de runs travados.
      */
     public function handle(): int
     {

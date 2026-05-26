@@ -11,9 +11,9 @@ interface RoomAccessResponse {
 /**
  * WsRoomAccessService
  *
- * Validates WebSocket room join requests against tenant permissions.
- * Checks ownership via api/ HTTP endpoint (replaces direct DB access).
- * Cache L1+L2 with REALTIME strategy (L1 10s, L2 60s).
+ * Valida as requisições de ingresso em rooms WebSocket contra as permissões do tenant.
+ * Verifica ownership via endpoint HTTP da api/ (substitui acesso direto ao banco).
+ * Cache L1+L2 com estratégia REALTIME (L1 10s, L2 60s).
  */
 @Injectable()
 export class WsRoomAccessService {
@@ -25,12 +25,16 @@ export class WsRoomAccessService {
   ) {}
 
   /**
-   * Checks whether a user may join a given WebSocket room.
+   * Verifica se o usuário pode ingressar na room WebSocket solicitada.
    *
-   * Supports three room prefixes:
-   * - `tenant:{id}` — direct tenant match (no HTTP call)
-   * - `ticket:{id}` — validates via api/ with cache
-   * - `run:{id}`    — validates via api/ with cache
+   * Suporta três prefixos de room:
+   * - `tenant:{id}` — verificação direta por tenant_id (sem chamada HTTP)
+   * - `ticket:{id}` — valida via api/ com cache
+   * - `run:{id}`    — valida via api/ com cache
+   *
+   * @param room - Nome da room a ser verificada
+   * @param userTenantId - ID do tenant do usuário autenticado
+   * @returns `true` se o acesso for permitido
    */
   async canJoinRoom(room: string, userTenantId: string): Promise<boolean> {
     if (room.startsWith(`${RoomPrefix.TENANT}:`)) {
@@ -53,6 +57,14 @@ export class WsRoomAccessService {
     return false;
   }
 
+  /**
+   * Consulta a api/ para verificar se o tenant tem acesso à room solicitada.
+   * Resultado cacheado com estratégia REALTIME.
+   *
+   * @param room - Nome da room (ticket:{id} ou run:{id})
+   * @param tenantId - ID do tenant a ser validado
+   * @returns `true` se o acesso for permitido pela api/
+   */
   private async checkRoomAccess(
     room: string,
     tenantId: string,

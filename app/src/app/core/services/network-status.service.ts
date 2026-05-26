@@ -6,11 +6,11 @@ import { map } from 'rxjs/operators';
 import { PlatformService } from './platform/platform.service';
 
 /**
- * Service for monitoring network connectivity status.
+ * Monitora o status de conectividade de rede.
  *
  * @remarks
- * Uses browser online/offline events combined with heartbeat polling
- * to determine network status. Runs outside Angular zone for performance.
+ * Combina eventos online/offline do navegador com polling heartbeat
+ * para determinar o status da rede. Executa fora da zona Angular para desempenho.
  *
  * @example
  * ```typescript
@@ -36,18 +36,18 @@ export class NetworkStatusService {
   readonly statusChanges$ = this.statusChangesSubject.asObservable();
 
   /**
-   * Synchronously returns current online status.
+   * Retorna sincronamente o status de conexão atual.
    */
   get online(): boolean {
     return this.isOnline();
   }
 
   /**
-   * Starts monitoring network status via browser events and periodic heartbeat.
+   * Inicia o monitoramento do status de rede via eventos do navegador e heartbeat periódico.
    *
    * @remarks
-   * Registers online/offline event listeners and pings /api/health every 30 seconds.
-   * Runs callbacks outside Angular zone to avoid unnecessary change detection.
+   * Registra listeners de online/offline e faz ping em `/api/health` a cada 30 segundos.
+   * Executa callbacks fora da zona Angular para evitar change detection desnecessário.
    */
   startMonitoring(): void {
     if (this.monitoringStarted) {
@@ -76,7 +76,7 @@ export class NetworkStatusService {
   }
 
   /**
-   * Stops periodic network health checks and clears the interval.
+   * Para as verificações periódicas de saúde da rede e limpa o intervalo.
    */
   stopMonitoring(): void {
     this.monitoringStarted = false;
@@ -96,7 +96,7 @@ export class NetworkStatusService {
   }
 
   /**
-   * Internal: performs a HEAD request to /api/health to verify connectivity.
+   * Interno: realiza requisição HEAD em `/api/health` para verificar conectividade.
    */
   private async checkConnection(): Promise<void> {
     try {
@@ -112,9 +112,9 @@ export class NetworkStatusService {
   }
 
   /**
-   * Returns current online status as a Promise.
+   * Retorna o status de conexão atual como uma Promise.
    *
-   * @returns Promise resolving to current online state
+   * @returns Promise resolvendo com o estado de conexão atual
    */
   isOnlineAsync(): Promise<boolean> {
     return new Promise((resolve) => {

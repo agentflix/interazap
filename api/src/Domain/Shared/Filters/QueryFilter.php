@@ -7,12 +7,19 @@ namespace Domain\Shared\Filters;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Base query filter helper for list endpoints.
+ * Classe base para filtros de query em endpoints de listagem.
+ *
+ * Itera sobre os filtros recebidos e delega a aplicação para métodos
+ * concretos definidos nas subclasses, ignorando valores nulos ou vazios.
  */
 abstract class QueryFilter
 {
     /**
-     * @param  array<string, mixed>  $filters
+     * Aplica os filtros informados à query Eloquent.
+     *
+     * @param  Builder  $query  Instância do query builder a filtrar.
+     * @param  array<string, mixed>  $filters  Mapa de nome do filtro para valor.
+     * @return Builder Query com todos os filtros aplicados.
      */
     public function apply(Builder $query, array $filters): Builder
     {

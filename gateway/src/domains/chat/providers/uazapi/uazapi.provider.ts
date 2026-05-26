@@ -21,8 +21,8 @@ export class UazapiProvider {
    * Converte o payload recebido da Uazapi em evento normalizado.
    */
   normalize(token: string, payload: UazapiWebhookDto): NormalizedUazapiEvent {
-    // Prefer the raw original message over the DTO message, because
-    // ValidationPipe(whitelist:true) strips unknown fields from the DTO.
+    // Prefere a mensagem original bruta em vez do DTO porque
+    // ValidationPipe(whitelist:true) remove campos desconhecidos do DTO.
     const rawPayload = (payload as Record<string, unknown>).raw as
       | Record<string, unknown>
       | undefined;

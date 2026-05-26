@@ -1,13 +1,13 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * Colored status indicator badge with dot.
+ * Indicador de status colorido com ponto.
  *
  * @example
  * ```html
  * <af-status-badge status="online">Online</af-status-badge>
  * <af-status-badge status="offline">Offline</af-status-badge>
- * <af-status-badge status="error">Error</af-status-badge>
+ * <af-status-badge status="error">Erro</af-status-badge>
  * ```
  */
 @Component({
@@ -17,10 +17,10 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './status-badge.html',
 })
 export class AfStatusBadgeComponent {
-  /** Status type determines color */
+  /** Tipo de status que determina a cor */
   readonly status = input<'online' | 'offline' | 'warning' | 'error' | 'idle'>('online');
 
-  /** Show a pulse animation on the dot */
+  /** Exibe animação de pulso no ponto */
   readonly pulse = input(false);
 
   protected readonly badgeClasses = computed(() => {

@@ -17,8 +17,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Job that closes expired billing cycles with overage usage by creating
- * overage invoices. Runs idempotently to prevent duplicate invoice creation.
+ * Job que fecha ciclos de billing expirados com uso excedente, gerando faturas de overage.
+ *
+ * Executa de forma idempotente para evitar criação duplicada de faturas.
+ * Cada ciclo expirado com overage_count > 0 gera uma fatura do tipo 'overage'
+ * com vencimento 5 dias após o fim do ciclo.
  */
 final class CloseExpiredCyclesJob implements ShouldQueue
 {
@@ -42,6 +45,11 @@ final class CloseExpiredCyclesJob implements ShouldQueue
             });
     }
 
+    /**
+     * Processa um ciclo expirado: calcula o valor do excedente e cria a fatura correspondente.
+     *
+     * @param  TenantMessageUsage  $usage  Linha de uso com ciclo expirado e overage_count > 0
+     */
     private function processExpiredCycle(TenantMessageUsage $usage): void
     {
         $tenant = $usage->tenant;

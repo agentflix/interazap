@@ -1,5 +1,17 @@
 /**
- * Executes an async operation with retry and linear backoff.
+ * Utilitário de retry do gateway.
+ * Fornece execução de operações assíncronas com retry e backoff linear.
+ */
+
+/**
+ * Executa uma operação assíncrona com retry e backoff linear.
+ * A operação é tentada até `attempts` vezes; a cada falha aguarda `delayMs * tentativa` ms antes de tentar novamente.
+ *
+ * @param operation - Função assíncrona a executar, recebe o número da tentativa atual (base 1)
+ * @param attempts - Número máximo de tentativas (padrão: 3)
+ * @param delayMs - Delay base em milissegundos para backoff linear (padrão: 250)
+ * @returns Resultado da operação bem-sucedida
+ * @throws Último erro lançado pela operação ao esgotar as tentativas
  */
 export async function retryAsync<T>(
   operation: (attempt: number) => Promise<T>,
@@ -27,10 +39,10 @@ export async function retryAsync<T>(
 }
 
 /**
- * Pauses execution for the specified number of milliseconds.
+ * Pausa a execução pelo número de milissegundos especificado.
  *
- * @param ms - Duration to sleep in milliseconds
- * @returns Promise that resolves after the delay
+ * @param ms - Duração da pausa em milissegundos
+ * @returns Promise que resolve após o delay
  */
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => {

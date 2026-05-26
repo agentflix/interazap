@@ -18,10 +18,12 @@ use Shared\Jobs\Middleware\RateLimitedJob;
 use Shared\Jobs\Traits\RetryableWithBackoff;
 
 /**
- * Job for processing AI responses with extended timeout and transient error retry.
+ * Job para processamento de respostas de IA com timeout estendido e retry de erros transitórios.
  *
- * This job handles asynchronous AI completion requests with appropriate
- * retry patterns for transient LLM API errors (rate limits, timeouts, etc.).
+ * Executa completions assíncronas via AiProviderInterface com padrões de retry
+ * conservadores para erros transitórios da API do LLM (rate limits, timeouts, etc.).
+ * Erros permanentes (chave inválida, política de conteúdo, modelo inválido)
+ * falham imediatamente sem retry.
  */
 final class ProcessAIResponseJob implements ShouldQueue
 {
@@ -32,13 +34,13 @@ final class ProcessAIResponseJob implements ShouldQueue
     use SerializesModels;
 
     /**
-     * The tenant identifier.
+     * Identificador do tenant.
      */
     private readonly string $tenantId;
 
     /**
-     * Get AI-specific backoff delays.
-     * More conservative delays for AI API rate limits.
+     * Retorna os intervalos de backoff progressivos para retry.
+     * Mais conservadores que o padrão para respeitar rate limits da API de IA.
      *
      * @return array<int, int>
      */
@@ -48,14 +50,14 @@ final class ProcessAIResponseJob implements ShouldQueue
     }
 
     /**
-     * Create a new job instance.
+     * Cria nova instância do job.
      *
-     * @param  string  $runId  The AI run ID.
-     * @param  string  $tenantId  The tenant identifier.
-     * @param  string  $prompt  The prompt to process.
-     * @param  AiProviderType  $provider  The AI provider to use.
-     * @param  array<string, mixed>  $options  Additional options (model, temperature, etc.).
-     * @param  array<string, mixed>  $context  Context data for the response.
+     * @param  string  $runId  UUID do run de IA.
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string  $prompt  Prompt a ser processado.
+     * @param  AiProviderType  $provider  Provedor de IA a ser utilizado.
+     * @param  array<string, mixed>  $options  Opções adicionais (model, temperature, etc.).
+     * @param  array<string, mixed>  $context  Dados de contexto para a resposta.
      */
     public function __construct(
         private readonly string $runId,
@@ -72,7 +74,7 @@ final class ProcessAIResponseJob implements ShouldQueue
     }
 
     /**
-     * Get the middleware the job should pass through.
+     * Middlewares do job (rate limiting específico para IA).
      *
      * @return array<int, object>
      */
@@ -84,7 +86,7 @@ final class ProcessAIResponseJob implements ShouldQueue
     }
 
     /**
-     * Get the unique ID for the job.
+     * Retorna o ID único do job para prevenir duplicação.
      */
     public function uniqueId(): string
     {
@@ -92,7 +94,7 @@ final class ProcessAIResponseJob implements ShouldQueue
     }
 
     /**
-     * Get the tags that should be assigned to the job.
+     * Retorna as tags do job para monitoramento no Horizon.
      *
      * @return array<int, string>
      */
@@ -176,7 +178,7 @@ final class ProcessAIResponseJob implements ShouldQueue
     }
 
     /**
-     * Determine if the exception is transient and should be retried.
+     * Verifica se a exceção é permanente e deve falhar imediatamente (sem retry).
      */
     protected function shouldFailImmediately(\Throwable $exception): bool
     {
@@ -211,7 +213,7 @@ final class ProcessAIResponseJob implements ShouldQueue
     }
 
     /**
-     * Check if the error is transient (rate limit, timeout, server error).
+     * Verifica se o erro é transitório (rate limit, timeout, erro de servidor).
      */
     private function isTransientError(\Throwable $exception): bool
     {
@@ -245,7 +247,7 @@ final class ProcessAIResponseJob implements ShouldQueue
     }
 
     /**
-     * Handle transient errors.
+     * Lida com erros transitórios, atualizando o status do run e logando o aviso.
      */
     private function handleTransientError(\Throwable $exception): void
     {
@@ -265,9 +267,9 @@ final class ProcessAIResponseJob implements ShouldQueue
     }
 
     /**
-     * Update the AI run status in the database.
+     * Atualiza o status do run de IA no banco de dados.
      *
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $data  Dados adicionais a mesclar (output, tokens, erro, etc.).
      */
     private function updateRunStatus(string $status, array $data = []): void
     {

@@ -14,6 +14,16 @@ use Illuminate\Support\Carbon;
  */
 final class RegisterDeviceTokenAction
 {
+    /**
+     * Registra ou reativa o token de dispositivo para push notifications.
+     *
+     * Se o token já existir (mesmo tenant + platform + token), reutiliza o registro
+     * limpando revoked_at e atualizando last_active_at.
+     *
+     * @param  AuthUser  $user  Usuário dono do dispositivo.
+     * @param  RegisterDeviceTokenDTO  $dto  Dados do token a registrar.
+     * @return AuthDeviceToken Token registrado ou reativado.
+     */
     public function execute(AuthUser $user, RegisterDeviceTokenDTO $dto): AuthDeviceToken
     {
         $now = Carbon::now();

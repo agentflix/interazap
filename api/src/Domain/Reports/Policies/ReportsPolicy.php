@@ -89,6 +89,12 @@ final class ReportsPolicy
                 || $this->planEnforcement->canViewReport($user->tenant_id, 'reports.export'));
     }
 
+    /**
+     * Verifica se o usuário possui a permissão direta informada.
+     *
+     * @param  AuthUser  $user  Usuário autenticado
+     * @param  string  $permission  Nome da permissão (ex: reports.crm.view)
+     */
     private function hasPermission(AuthUser $user, string $permission): bool
     {
         return $user->getAllPermissions()->contains('name', $permission);

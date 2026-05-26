@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Trait to be used by Models that belong to a tenant.
+ * Trait para modelos que pertencem a um tenant.
  *
- * Automatically applies TenantScope to filter queries by tenant_id,
- * ensuring tenant isolation and preventing IDOR vulnerabilities.
+ * Aplica automaticamente o TenantScope às queries por tenant_id,
+ * garantindo isolamento multi-tenant e prevenindo vulnerabilidades IDOR.
  *
- * Usage:
+ * Uso:
  * ```php
  * class MyModel extends Model
  * {
@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Model;
 trait BelongsToTenant
 {
     /**
-     * Boot the trait.
+     * Inicializa o trait registrando o TenantScope global no modelo.
      */
     protected static function bootBelongsToTenant(): void
     {
@@ -35,7 +35,7 @@ trait BelongsToTenant
     }
 
     /**
-     * Get the tenant relationship.
+     * Retorna o relacionamento com o tenant dono do modelo.
      */
     public function tenant(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -43,11 +43,12 @@ trait BelongsToTenant
     }
 
     /**
-     * Scope a query to a specific tenant (bypasses global scope).
+     * Escopo para filtrar explicitamente por tenant, contornando o escopo global.
      *
      * @template TModel of Model
      *
      * @param  Builder<TModel>  $query
+     * @param  string  $tenantId  Identificador do tenant a filtrar.
      * @return Builder<TModel>
      */
     public function scopeForTenant(Builder $query, string $tenantId): Builder

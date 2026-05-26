@@ -1,5 +1,5 @@
 /**
- * Presets disponíveis para configuração de AI Agent via API.
+ * Presets disponíveis para configuração de Agente de IA via API.
  *
  * ⚠️ IMPORTANTE: Este tipo representa APENAS os valores de preset
  * suportados pela API para carregar conjuntos padrão de tools.
@@ -22,17 +22,17 @@ export type AiAgentPreset =
 export type AiAgentRole = AiAgentPreset;
 
 /**
- * Channels where an agent can operate.
+ * Canais nos quais um agente pode operar.
  */
 export type AiAgentChannel = 'whatsapp' | 'webchat' | 'email' | 'internal';
 
 /**
- * Voice response mode for an agent.
+ * Modo de resposta por voz do agente.
  */
 export type AiVoiceResponseMode = 'text' | 'audio' | 'mixed';
 
 /**
- * AI Agent model for configuring bot behaviors (V2).
+ * Modelo de Agente de IA para configuração de comportamentos de bot (V2).
  */
 export interface AiAgent {
   id: string;
@@ -64,7 +64,7 @@ export interface AiAgent {
 }
 
 /**
- * Payload for creating/updating an AI agent (V2).
+ * Payload para criação ou atualização de um Agente de IA (V2).
  *
  * ⚠️ Este payload NÃO contém campo `role` de autorização runtime.
  * A autorização do agent é determinada pelas tools vinculadas (tools[])
@@ -96,12 +96,12 @@ export interface AiAgentPayload {
 }
 
 /**
- * AI Agent Type (legacy compat + new roles).
+ * Tipo do Agente de IA (compatibilidade legado + novos papéis).
  */
 export type AiAgentType = 'sales' | 'support' | 'qualifier' | 'general';
 
 /**
- * Agent file (core configuration file).
+ * Arquivo principal de configuração do agente.
  */
 export interface AiAgentFile {
   slug: string;
@@ -113,7 +113,7 @@ export interface AiAgentFile {
 }
 
 /**
- * Tool catalog item.
+ * Item do catálogo de ferramentas disponíveis para agentes.
  *
  * ⚠️ O campo `presets` indica em quais presets esta tool está incluída
  * por padrão. NÃO controla autorização — a permissão efetiva vem das
@@ -134,7 +134,7 @@ export interface AiToolCatalogItem {
 }
 
 /**
- * Tool category enum.
+ * Categoria de ferramenta do agente.
  */
 export type AiToolCategory =
   | 'crm'
@@ -146,7 +146,7 @@ export type AiToolCategory =
   | 'meta';
 
 /**
- * Link between agent and tool (pivot).
+ * Vínculo entre agente e ferramenta (tabela pivot).
  */
 export interface AiAgentToolLink {
   tool_id: string;
@@ -154,7 +154,7 @@ export interface AiAgentToolLink {
 }
 
 /**
- * Agent skill definition.
+ * Definição de habilidade (skill) do agente.
  */
 export interface AiAgentSkill {
   id: string;
@@ -171,7 +171,7 @@ export interface AiAgentSkill {
 }
 
 /**
- * Skill metadata persisted by backend.
+ * Metadados de skill persistidos pelo backend.
  */
 export interface AiAgentSkillMetadata {
   type?: AiSkillType;
@@ -179,7 +179,7 @@ export interface AiAgentSkillMetadata {
 }
 
 /**
- * Payload for creating/updating an agent skill.
+ * Payload para criação ou atualização de skill do agente.
  */
 export interface AiAgentSkillPayload {
   name: string;
@@ -194,7 +194,7 @@ export interface AiAgentSkillPayload {
 }
 
 /**
- * Skill type enum.
+ * Tipos de skill disponíveis para o agente.
  */
 export type AiSkillType =
   | 'classification'
@@ -205,7 +205,7 @@ export type AiSkillType =
   | 'custom';
 
 /**
- * Agent trigger configuration.
+ * Configuração de trigger do agente.
  */
 export interface AiAgentTrigger {
   id: string;
@@ -220,7 +220,7 @@ export interface AiAgentTrigger {
 }
 
 /**
- * Trigger configuration persisted in backend as JSON.
+ * Configuração de trigger persistida no backend como JSON.
  */
 export interface AiAgentTriggerConfig {
   name?: string;
@@ -231,7 +231,7 @@ export interface AiAgentTriggerConfig {
 }
 
 /**
- * Payload for creating/updating an agent trigger.
+ * Payload para criação ou atualização de trigger do agente.
  */
 export interface AiAgentTriggerPayload {
   type: AiTriggerType;
@@ -240,12 +240,12 @@ export interface AiAgentTriggerPayload {
 }
 
 /**
- * Trigger type enum.
+ * Tipos de trigger disponíveis para o agente.
  */
 export type AiTriggerType = 'cron' | 'webhook' | 'event';
 
 /**
- * Voice configuration for an agent.
+ * Configuração de voz do agente (STT/TTS e modo de resposta).
  */
 export interface AiAgentVoiceConfig {
   voice_response_mode: AiVoiceResponseMode;
@@ -257,7 +257,7 @@ export interface AiAgentVoiceConfig {
 }
 
 /**
- * Streaming event for progressive text rendering.
+ * Evento de streaming para renderização progressiva de texto.
  */
 export interface AiStreamingEvent {
   run_id: string;
@@ -268,7 +268,7 @@ export interface AiStreamingEvent {
 }
 
 /**
- * Agent channel configuration.
+ * Configuração de canal do agente.
  */
 export interface AiAgentChannelConfig {
   id: string;
@@ -281,7 +281,7 @@ export interface AiAgentChannelConfig {
 }
 
 /**
- * Autopilot Playbook
+ * Roteiro de execução do Autopilot (sequência de passos automatizados).
  */
 export interface AutopilotPlaybook {
   id: string;
@@ -295,6 +295,7 @@ export interface AutopilotPlaybook {
   updated_at?: string;
 }
 
+/** Payload para criação ou atualização de um roteiro do Autopilot. */
 export interface AutopilotPlaybookPayload {
   name: string;
   description?: string | null;
@@ -305,7 +306,7 @@ export interface AutopilotPlaybookPayload {
 }
 
 /**
- * Autopilot Run (Execution)
+ * Execução de um roteiro do Autopilot com seu status e resultado.
  */
 export interface AutopilotRun {
   id: string;
@@ -319,12 +320,13 @@ export interface AutopilotRun {
   created_at?: string;
 }
 
+/** Payload para iniciar uma execução do Autopilot. */
 export interface AutopilotRunPayload {
   context?: Record<string, unknown>;
 }
 
 /**
- * Base event payload for AI run realtime updates.
+ * Payload base para eventos realtime de execução de IA.
  */
 export interface AiRunEvent {
   run_id: string;
@@ -334,7 +336,7 @@ export interface AiRunEvent {
 }
 
 /**
- * Realtime event payload for tool call step.
+ * Payload de evento realtime para etapa de chamada de ferramenta.
  */
 export interface AiRunToolCallEvent extends AiRunEvent {
   tool_name: string;
@@ -343,7 +345,7 @@ export interface AiRunToolCallEvent extends AiRunEvent {
 }
 
 /**
- * Realtime event payload for tool result step.
+ * Payload de evento realtime para etapa de resultado de ferramenta.
  */
 export interface AiRunToolResultEvent extends AiRunEvent {
   tool_name: string;
@@ -353,7 +355,7 @@ export interface AiRunToolResultEvent extends AiRunEvent {
 }
 
 /**
- * Realtime event payload emitted when run completes.
+ * Payload de evento realtime emitido quando a execução é concluída.
  */
 export interface AiRunCompletedEvent extends AiRunEvent {
   output: {
@@ -371,7 +373,7 @@ export interface AiRunCompletedEvent extends AiRunEvent {
 }
 
 /**
- * AI Knowledge Base Entry
+ * Entrada da Base de Conhecimento da IA.
  */
 export interface AiKnowledge {
   id: string;
@@ -401,6 +403,7 @@ export interface AiKnowledge {
   updated_at?: string;
 }
 
+/** Payload para criação de uma nova entrada na base de conhecimento. */
 export interface AiKnowledgePayload {
   title: string;
   content_type: 'text' | 'pdf' | 'url' | 'csv';
@@ -410,7 +413,7 @@ export interface AiKnowledgePayload {
 }
 
 /**
- * Knowledge base statistics payload.
+ * Estatísticas da base de conhecimento (armazenamento, documentos por status).
  */
 export interface KnowledgeStats {
   document_count: number;
@@ -427,7 +430,7 @@ export interface KnowledgeStats {
 }
 
 /**
- * Semantic search result item.
+ * Item de resultado de busca semântica na base de conhecimento.
  */
 export interface KnowledgeSearchResult {
   chunk_id: string;
@@ -440,12 +443,12 @@ export interface KnowledgeSearchResult {
 }
 
 /**
- * Available search modes for RAG retrieval.
+ * Modos de busca disponíveis para recuperação RAG.
  */
 export type KnowledgeSearchMode = 'vector' | 'hybrid';
 
 /**
- * Chunk item from a knowledge document detail.
+ * Fragmento (chunk) de um documento da base de conhecimento.
  */
 export interface KnowledgeChunk {
   id: string;
@@ -457,7 +460,7 @@ export interface KnowledgeChunk {
 }
 
 /**
- * AI Prompt Template
+ * Template de Prompt de IA configurável por agente.
  */
 export interface AiPrompt {
   id: string;
@@ -471,6 +474,7 @@ export interface AiPrompt {
   updated_at?: string;
 }
 
+/** Payload para criação ou atualização de um template de prompt. */
 export interface AiPromptPayload {
   agent_id: string;
   name: string;
@@ -481,7 +485,7 @@ export interface AiPromptPayload {
 }
 
 /**
- * AI Usage Summary
+ * Resumo de uso da IA no período atual (tokens, custos, tendências).
  */
 export interface UsageSummary {
   period_start: string;
@@ -498,7 +502,7 @@ export interface UsageSummary {
 }
 
 /**
- * Daily Usage Breakdown
+ * Breakdown de uso diário da IA (tokens e custos por dia).
  */
 export interface UsageDaily {
   date: string;
@@ -511,7 +515,7 @@ export interface UsageDaily {
 }
 
 /**
- * Agent Usage Stats
+ * Estatísticas de uso por agente (requisições, tokens e custos).
  */
 export interface UsageAgent {
   agent_name: string;
@@ -523,7 +527,7 @@ export interface UsageAgent {
 }
 
 /**
- * Monthly Usage History
+ * Histórico mensal de uso da IA.
  */
 export interface UsageMonthly {
   month: string;
@@ -534,7 +538,7 @@ export interface UsageMonthly {
 }
 
 /**
- * Budget status for token budgets.
+ * Status do orçamento de tokens (diário e por execução).
  */
 export interface UsageBudgetStatus {
   daily_budget: number | null;
@@ -546,7 +550,7 @@ export interface UsageBudgetStatus {
 }
 
 /**
- * Voice usage metrics.
+ * Métricas de uso de voz (STT e TTS) com custos agregados.
  */
 export interface UsageVoice {
   stt_requests: number;
@@ -562,7 +566,7 @@ export interface UsageVoice {
 }
 
 /**
- * AI Notification for sellers
+ * Notificação de IA para vendedores (alertas e recomendações).
  */
 export interface AiNotification {
   id: string;
@@ -578,7 +582,7 @@ export interface AiNotification {
 }
 
 /**
- * AI Model Pricing
+ * Precificação de modelo de IA (custo por 1k tokens de entrada e saída).
  */
 export interface AiModelPricing {
   id: string;
@@ -592,7 +596,7 @@ export interface AiModelPricing {
 }
 
 /**
- * Master prompt configuration for global AI governance.
+ * Configuração do prompt mestre para governança global da IA.
  */
 export interface MasterPrompt {
   id: string;
@@ -605,7 +609,7 @@ export interface MasterPrompt {
 }
 
 /**
- * Payload used to create or update a master prompt.
+ * Payload para criação ou atualização de um prompt mestre.
  */
 export interface MasterPromptPayload {
   name: string;
@@ -614,7 +618,7 @@ export interface MasterPromptPayload {
 }
 
 /**
- * Segment prompt configuration by business vertical.
+ * Configuração de prompt por segmento de negócio (vertical).
  */
 export interface SegmentPrompt {
   id: string;
@@ -632,7 +636,7 @@ export interface SegmentPrompt {
 }
 
 /**
- * Payload used to create or update a segment prompt.
+ * Payload para criação ou atualização de um prompt de segmento.
  */
 export interface SegmentPromptPayload {
   master_id: string;
@@ -644,7 +648,7 @@ export interface SegmentPromptPayload {
 }
 
 /**
- * Plan prompt configuration for tenant plan behavior.
+ * Configuração de prompt por plano do tenant.
  */
 export interface PlanPrompt {
   id: string;
@@ -661,7 +665,7 @@ export interface PlanPrompt {
 }
 
 /**
- * Payload used to update plan prompt configuration.
+ * Payload para atualização da configuração de prompt do plano.
  */
 export interface PlanPromptPayload {
   content: string;
@@ -669,7 +673,7 @@ export interface PlanPromptPayload {
 }
 
 /**
- * Tenant prompt under quarantine for manual review.
+ * Prompt do tenant em quarentena aguardando revisão manual.
  */
 export interface QuarantinedPrompt {
   id: string;
@@ -689,7 +693,7 @@ export interface QuarantinedPrompt {
 }
 
 /**
- * Payload used to reject a quarantined prompt.
+ * Payload para rejeitar um prompt em quarentena.
  */
 export interface RejectQuarantinePayload {
   reason: string;

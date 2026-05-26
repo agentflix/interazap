@@ -1,5 +1,5 @@
 /**
- * Platform Models Barrel Export
+ * Exportações de modelos do módulo de plataforma.
  */
 export type {
   PlatformPlan,

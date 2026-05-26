@@ -5,8 +5,8 @@ import { AfCardComponent } from '@shared/components';
 import { type Event as CRMEvent } from 'src/app/core/services/event.service';
 
 /**
- * Displays 4 KPI stat cards for the agenda overview:
- * Today, This Week, This Month, and Overdue events.
+ * Exibe 4 cartões de KPI para a visão geral da agenda:
+ * Hoje, Esta semana, Este mês e Atrasados.
  */
 @Component({
   selector: 'app-agenda-kpi-cards',

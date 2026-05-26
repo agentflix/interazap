@@ -3,20 +3,24 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { maskSecrets } from '../utils/secret-masker';
 
 /**
- * Shared abstraction for outbound HTTP clients.
+ * Abstração base para clientes HTTP de saída do gateway.
+ *
+ * Contexto: herdada por clientes HTTP concretos (ex.: UazapiHttpClient, OpenAIHttpClient)
+ * para padronizar logging com mascaramento de secrets, tratamento de erros Axios
+ * e normalização de exceções para HttpException do NestJS.
  */
 export abstract class AbstractHttpClient {
   protected abstract readonly logger: Logger;
 
   /**
-   * Creates and configures an Axios instance with request/response interceptors.
+   * Cria e configura uma instância Axios com interceptors de requisição e resposta.
    *
-   * Request interceptor logs outbound calls with masked headers.
-   * Response interceptor normalises errors to plain Error objects so
-   * callers never deal with raw Axios types.
+   * O interceptor de requisição registra chamadas de saída com headers mascarados.
+   * O interceptor de resposta normaliza erros para objetos Error simples para que
+   * os chamadores nunca precisem lidar com tipos brutos do Axios.
    *
-   * @param config - Axios configuration passed to `axios.create()`
-   * @returns Configured AxiosInstance with logging and error normalisation
+   * @param config - Configuração Axios passada para `axios.create()`
+   * @returns Instância AxiosInstance configurada com logging e normalização de erros
    */
   protected createAxiosInstance(config: AxiosRequestConfig): AxiosInstance {
     const instance = axios.create(config);
@@ -49,16 +53,16 @@ export abstract class AbstractHttpClient {
   }
 
   /**
-   * Normalises an unknown error into an HttpException and logs it.
+   * Normaliza um erro desconhecido em HttpException e registra no log.
    *
-   * Extracts status code and message from Axios errors; for unknown errors
-   * returns a 500 with the supplied fallback message. Secrets in error
-   * payloads are masked before logging.
+   * Extrai código de status e mensagem de erros Axios; para erros desconhecidos
+   * retorna 500 com a mensagem de fallback fornecida. Secrets nos payloads de erro
+   * são mascarados antes do logging.
    *
-   * @param method - Human-readable name of the calling method (used in log context)
-   * @param error - The caught error (Axios error or unknown)
-   * @param fallbackMessage - Message to return when no structured error data is available
-   * @throws HttpException with the extracted (or fallback) status and message
+   * @param method - Nome legível do método chamador (usado no contexto do log)
+   * @param error - Erro capturado (erro Axios ou desconhecido)
+   * @param fallbackMessage - Mensagem a retornar quando não há dados de erro estruturados
+   * @throws HttpException com o status e a mensagem extraídos (ou de fallback)
    */
   protected throwHttpError(
     method: string,
@@ -89,13 +93,13 @@ export abstract class AbstractHttpClient {
   }
 
   /**
-   * Extracts a human-readable message from an Axios error response body.
+   * Extrai uma mensagem legível do corpo da resposta de um erro Axios.
    *
-   * Checks `data` as a raw string, then looks for `message` or `error` fields
-   * inside a parsed object. Falls back to the Axios error's own message.
+   * Verifica `data` como string bruta, depois procura pelos campos `message` ou `error`
+   * dentro de um objeto parseado. Usa como fallback a própria mensagem do erro Axios.
    *
-   * @param error - Axios error containing the response
-   * @returns The extracted message string, or null when nothing useful is found
+   * @param error - Erro Axios contendo a resposta
+   * @returns String com a mensagem extraída, ou null quando nada útil é encontrado
    */
   private extractErrorMessage(error: AxiosError<unknown>): string | null {
     const payload = error.response?.data;

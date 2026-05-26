@@ -16,6 +16,13 @@ use Domain\Platform\Models\PlatformTenant;
 final class BillingDowngradeEnforcementAction
 {
     /**
+     * Desativa usuários e instâncias que excedam os limites do novo plano.
+     *
+     * Usuários administradores e o dono do tenant são protegidos da desativação.
+     * Instâncias são desativadas pela mais antiga primeiro.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  PlatformPlan  $newPlan  Plano de destino com os novos limites
      * @return array{users_deactivated:int,instances_deactivated:int,storage_blocked:bool,negotiations_affected:bool}
      */
     public function execute(string $tenantId, PlatformPlan $newPlan): array
@@ -33,6 +40,7 @@ final class BillingDowngradeEnforcementAction
         ];
     }
 
+    /** Desativa os usuários excedentes ao novo limite, preservando admins e dono do tenant. */
     private function deactivateUsersOverLimit(PlatformTenant $tenant, int $newLimit): int
     {
         $tenantId = (string) $tenant->id;
@@ -78,6 +86,7 @@ final class BillingDowngradeEnforcementAction
         return $users->count();
     }
 
+    /** Desativa as instâncias de chat excedentes ao novo limite, da mais antiga para a mais recente. */
     private function deactivateInstancesOverLimit(string $tenantId, int $newLimit): int
     {
         $activeInstancesCount = ChatInstance::query()

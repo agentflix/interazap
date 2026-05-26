@@ -8,12 +8,15 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for User Rotation serialization.
+ * Resource de serialização de Rotação de Atendentes.
+ *
+ * Transforma a entidade ChatUserRotation no formato da API,
+ * expondo o peso de distribuição e o status de ativação do agente na fila.
  */
 final class ChatUserRotationResource extends BaseJsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transforma a entidade no array de resposta da API.
      *
      * @return array<string, mixed>
      */

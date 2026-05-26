@@ -7,20 +7,20 @@ import type { PollingStrategy } from './polling-strategy.interface';
 type PollingMode = 'long_polling' | 'webhook';
 
 /**
- * Factory that resolves the active Telegram update-reception strategy
- * based on the `TELEGRAM_POLLING_MODE` env variable.
+ * Factory que resolve a estratégia ativa de recepção de atualizações do Telegram
+ * com base na variável de ambiente `TELEGRAM_POLLING_MODE`.
  *
- * Defaults:
+ * Contexto: módulo bot. Padrões:
  * - production  → `webhook`
  * - development → `long_polling`
  *
- * Supports hot-swapping at runtime via `switchStrategy()`.
+ * Suporta troca em tempo de execução via `switchStrategy()`.
  */
 @Injectable()
 export class PollingStrategyFactory {
   private readonly logger = new Logger(PollingStrategyFactory.name);
 
-  /** Override set at runtime by `switchStrategy()`. Takes precedence over env. */
+  /** Override definido em runtime por `switchStrategy()`. Tem precedência sobre a variável de ambiente. */
   private runtimeMode: PollingMode | null = null;
 
   constructor(
@@ -32,12 +32,13 @@ export class PollingStrategyFactory {
   // ─── Public API ────────────────────────────────────────────
 
   /**
-   * Returns the strategy instance that matches the current mode.
+   * Retorna a instância da estratégia correspondente ao modo atual.
    *
-   * Resolution order:
-   * 1. Runtime override (set by `switchStrategy`)
-   * 2. `TELEGRAM_POLLING_MODE` env variable
-   * 3. Environment-based default (production → webhook, else → long_polling)
+   * Ordem de resolução:
+   * 1. Override de runtime (definido por `switchStrategy`)
+   * 2. Variável de ambiente `TELEGRAM_POLLING_MODE`
+   * 3. Padrão baseado no ambiente (production → webhook, demais → long_polling)
+   * @returns Instância da estratégia ativa
    */
   getStrategy(): PollingStrategy {
     const mode = this.resolveMode();
@@ -52,11 +53,14 @@ export class PollingStrategyFactory {
   }
 
   /**
-   * Hot-swap the active strategy at runtime.
+   * Troca a estratégia ativa em tempo de execução (hot-swap).
    *
-   * 1. Stops whichever strategy is currently active
-   * 2. Persists the new mode for subsequent `getStrategy()` calls
-   * 3. Starts the new strategy
+   * 1. Para a estratégia atualmente ativa
+   * 2. Persiste o novo modo para chamadas subsequentes a `getStrategy()`
+   * 3. Inicia a nova estratégia
+   * @param botToken Token da Telegram Bot API
+   * @param webhookToken Token único do bot no URL de webhook
+   * @param newMode Novo modo: 'long_polling' ou 'webhook'
    */
   async switchStrategy(
     botToken: string,
@@ -102,8 +106,9 @@ export class PollingStrategyFactory {
   }
 
   /**
-   * Returns whichever strategy is currently active (running),
-   * or `null` if neither is active.
+   * Retorna a estratégia atualmente ativa (em execução),
+   * ou `null` se nenhuma estiver ativa.
+   * @returns Estratégia ativa ou null
    */
   private getActiveStrategy(): PollingStrategy | null {
     if (this.longPolling.isActive()) {

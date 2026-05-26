@@ -1,3 +1,7 @@
+/**
+ * Type guards e helpers de leitura segura de JsonRecord do gateway.
+ * Centraliza a verificação de tipos e extração de campos com conversão automática.
+ */
 import type { JsonRecord } from '../models/json.model';
 export type { JsonRecord };
 

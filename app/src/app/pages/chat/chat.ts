@@ -100,6 +100,16 @@ import { MessageSendService } from './services/message-send.service';
 import { WindowVerificationService } from './components/new-conversation-modal/services/window-verification.service';
 import { type TemplateSelectedEvent } from '@shared/components/template-selector/template-selector';
 
+/**
+ * Componente principal do módulo de Chat (host/shell).
+ *
+ * @remarks
+ * Orquestra a lista de tickets, conversa selecionada, painel lateral e modais de
+ * encerramento/transferência. Delega sub-responsabilidades a serviços especializados:
+ * `ChatTicketListService`, `ChatTicketCloseService`, `ChatTicketTransferService`,
+ * `ChatRecordingDispatcher`, `MessageSendService` e `ChatRealtimeListenerService`.
+ * Gerencia upload de mídia, drag-and-drop, gravação de áudio e modo do composer.
+ */
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -193,7 +203,7 @@ export class Chat implements OnInit, OnDestroy {
   readonly counts = this.ticketList.counts;
   readonly loadingTickets = this.ticketList.loadingTickets;
   readonly isRefreshing = signal(false);
-  /** Alias for ChatStore.selectedCalledId - source of truth for selected ticket ID. */
+  /** Alias para ChatStore.selectedCalledId — fonte de verdade para o ID do ticket selecionado. */
   readonly selectedTicketId = this.chatStore.selectedCalledId;
   readonly isStartingTicket = signal(false);
   /** Template selecionado para envio (modo mixed/template-only). */
@@ -242,7 +252,7 @@ export class Chat implements OnInit, OnDestroy {
   @ViewChild(ChatConversationComponent)
   private readonly conversationRef?: ChatConversationComponent;
 
-  /** Whether the attachment dropdown is open. */
+  /** Indica se o menu de anexos está aberto. */
   readonly isAttachmentMenuOpen = signal(false);
   readonly isMobile = this.platform.isMobile;
   readonly attachmentErrorMessage = signal<string | null>(null);
@@ -251,32 +261,32 @@ export class Chat implements OnInit, OnDestroy {
   );
   readonly isQueueFlushing = this.messageSend.isFlushing;
 
-  /** Whether the drag-over visual state is active. */
+  /** Indica se o estado visual de arrastar arquivo está ativo. */
   readonly isDragOver = signal(false);
 
-  /** Whether the media preview modal is open. */
+  /** Indica se o modal de preview de mídia está aberto. */
   readonly isMediaPreviewOpen = signal(false);
 
-  /** Items staged for upload in the media preview modal. */
+  /** Itens preparados para upload no modal de preview de mídia. */
   readonly mediaPreviewItems = signal<MediaPreviewItem[]>([]);
 
-  /** Currently selected item ID in the preview. */
+  /** ID do item atualmente selecionado no preview. */
   readonly mediaPreviewSelectedId = signal<string | null>(null);
 
-  /** Global upload progress (0-1). */
+  /** Progresso global do upload de mídia (0-1). */
   readonly mediaUploadProgress = signal(0);
 
-  /** Whether a batch upload is running right now. */
+  /** Indica se um upload em lote está em andamento. */
   readonly isMediaSending = signal(false);
 
-  /** Accepted MIME types per attachment type. */
+  /** Tipos MIME aceitos por tipo de anexo. */
   private readonly mimeTypesByType: Record<string, string> = {
     document: '.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.ppt,.pptx,.odt,.ods,.odp,.zip,.rar',
     image: 'image/*',
     video: 'video/*',
   };
 
-  /** Currently targeted MIME filter for the file input. */
+  /** Filtro MIME ativo para o input de arquivo. */
   private fileAccept = '';
 
   constructor() {
@@ -436,16 +446,19 @@ export class Chat implements OnInit, OnDestroy {
     this.appShell.showFooter();
   }
 
+  /** Define a aba ativa no painel lateral (chat, contato ou negociação). */
   setTab(tab: 'chat' | 'contact' | 'negotiation'): void {
     this.activeTab.set(tab);
   }
 
+  /** Define o filtro de status da lista de tickets. */
   setTicketFilter(filter: string): void {
     if (filter === 'pending' || filter === 'open' || filter === 'all') {
       this.ticketFilter.set(filter);
     }
   }
 
+  /** Define o filtro de sentimento de emergência da lista. */
   setEmergencyFilter(filter: CalledSentiment | null): void {
     this.emergencyFilter.set(filter);
     this.isEmergencyMenuOpen.set(false);
@@ -664,14 +677,14 @@ export class Chat implements OnInit, OnDestroy {
       });
   }
 
-  /** Auto-resize textarea to fit content (WhatsApp-style). */
+  /** Redimensiona automaticamente o textarea para ajustar ao conteúdo (estilo WhatsApp). */
   autoResizeTextarea(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;
     textarea.style.height = 'auto';
     textarea.style.height = `${textarea.scrollHeight}px`;
   }
 
-  /** Handle keydown on message textarea: Enter sends, Shift+Enter adds newline. */
+  /** Trata keydown no textarea: Enter envia, Shift+Enter adiciona quebra de linha. */
   onMessageKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -681,34 +694,34 @@ export class Chat implements OnInit, OnDestroy {
 
   // ── Audio recording methods ────────────────────────────────────────────────
 
-  /** Format seconds into mm:ss display string. */
+  /** Formata segundos como string no formato mm:ss para exibição. */
   formatRecordingTime(seconds: number): string {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
 
-  /** Start recording audio from the microphone. */
+  /** Inicia a gravação de áudio pelo microfone. */
   startRecording(): void {
     void this.chatRecorder.start();
   }
 
-  /** Pause the current recording. */
+  /** Pausa a gravação em andamento. */
   pauseRecording(): void {
     this.chatRecorder.pause();
   }
 
-  /** Resume recording after pause. */
+  /** Retoma a gravação após pausa. */
   resumeRecording(): void {
     this.chatRecorder.resume();
   }
 
-  /** Cancel recording and discard audio. */
+  /** Cancela a gravação e descarta o áudio. */
   cancelRecording(): void {
     this.chatRecorder.cancel();
   }
 
-  /** Stop recording and send the audio message. */
+  /** Para a gravação e envia a mensagem de áudio. */
   sendRecording(): void {
     const ticket = this.selectedTicket();
     if (!ticket || this.recordingState() === 'text') {
@@ -717,7 +730,7 @@ export class Chat implements OnInit, OnDestroy {
     this.chatRecorder.stop();
   }
 
-  /** Reset textarea height after sending a message. */
+  /** Redefine a altura do textarea após envio de mensagem. */
   private resetTextareaHeight(): void {
     const el = this.messageTextareaRef()?.nativeElement;
     if (el) {
@@ -751,7 +764,7 @@ export class Chat implements OnInit, OnDestroy {
     return ticket?.profile_picture_url ?? ticket?.contact?.profile_picture_url ?? null;
   }
 
-  /** Hides img element on load error so initials fallback shows through. */
+  /** Oculta o elemento de imagem em caso de erro para exibir o fallback de iniciais. */
   handleProfilePictureError(event: Event): void {
     (event.target as HTMLImageElement).style.display = 'none';
   }
@@ -868,6 +881,7 @@ export class Chat implements OnInit, OnDestroy {
     this.openFileSelector(this.mimeTypesByType[type] ?? '');
   }
 
+  /** Limpa a mensagem de erro de anexo. */
   clearAttachmentError(): void {
     this.attachmentErrorMessage.set(null);
   }

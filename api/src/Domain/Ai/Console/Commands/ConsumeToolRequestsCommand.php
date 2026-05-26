@@ -10,7 +10,11 @@ use Illuminate\Redis\Connections\PredisConnection;
 use Illuminate\Support\Facades\Redis;
 
 /**
- * Command to consume AI tool request stream messages from Redis.
+ * Comando para consumir e executar requisições de ferramentas via Redis Stream.
+ *
+ * Lê o stream ai.tool.request, executa a tool via ToolDispatcherService e
+ * publica o resultado na chave Redis RPC (reply_key) aguardada pelo gateway.
+ * Mensagens com falha são encaminhadas para o stream DLQ ai.tool.dlq.
  */
 final class ConsumeToolRequestsCommand extends Command
 {
@@ -34,7 +38,7 @@ final class ConsumeToolRequestsCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * Executa o consumo contínuo do stream Redis de requisições de tools.
      */
     public function handle(): int
     {

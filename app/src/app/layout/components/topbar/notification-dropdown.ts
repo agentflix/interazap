@@ -15,8 +15,8 @@ import { RealtimeService } from '../../../core/services/realtime.service';
 import { type Notification, NotificationTypeEnum } from '../../../shared/models/notification.model';
 
 /**
- * Notification bell dropdown that fetches real notifications from the API.
- * Displays unread count, loading/empty/error states, and supports marking as read.
+ * Dropdown do sino de notificações — busca notificações reais da API.
+ * Exibe contagem de não lidas, estados de carregamento/vazio/erro e suporta marcar como lida.
  *
  * @example
  * ```html
@@ -54,13 +54,12 @@ export class NotificationDropdownComponent {
   }
 
   /**
-   * Subscribe to real-time notification events via WebSocket.
+   * Inscreve-se em eventos de notificação em tempo real via WebSocket.
    *
-   * @note Do NOT guard with `if (!this.realtime.connected())` here.
-   * RealtimeService.on() buffers events internally and registers the socket
-   * listener as soon as the connection is established. Guarding would prevent
-   * the Observable subscription from being created when the component
-   * initializes before the socket is connected.
+   * @note NÃO proteja com `if (!this.realtime.connected())` aqui.
+   * `RealtimeService.on()` armazena eventos internamente e registra o listener
+   * assim que a conexão é estabelecida. Proteger impediria a criação da inscrição
+   * quando o componente inicializa antes do socket estar conectado.
    */
   private subscribeToNotificationEvents(): void {
     this.realtime
@@ -84,9 +83,7 @@ export class NotificationDropdownComponent {
       });
   }
 
-  /**
-   * Toggle dropdown open/close state and load notifications if opening.
-   */
+  /** Alterna o estado aberto/fechado do dropdown e carrega notificações ao abrir. */
   toggle(): void {
     const next = !this.open();
     this.open.set(next);
@@ -95,9 +92,7 @@ export class NotificationDropdownComponent {
     }
   }
 
-  /**
-   * Fetch notifications from the API.
-   */
+  /** Busca as notificações não lidas da API. */
   loadNotifications(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -118,9 +113,8 @@ export class NotificationDropdownComponent {
   }
 
   /**
-   * Handle notification click: mark as read and optionally navigate.
-   *
-   * @param notification - The clicked notification
+   * Trata o clique em uma notificação: marca como lida e fecha o dropdown.
+   * @param notification Notificação clicada
    */
   handleNotificationClick(notification: Notification): void {
     if (!notification.read_at) {
@@ -143,10 +137,9 @@ export class NotificationDropdownComponent {
   }
 
   /**
-   * Map notification type string to a Lucide icon name.
-   *
-   * @param type - Notification type string
-   * @returns Lucide icon name
+   * Mapeia o tipo de notificação para um nome de ícone Lucide.
+   * @param type String do tipo de notificação
+   * @returns Nome do ícone Lucide correspondente
    */
   protected getIconForType(type: string): string {
     switch (type) {
@@ -166,10 +159,9 @@ export class NotificationDropdownComponent {
   }
 
   /**
-   * Format a date string to a relative time label.
-   *
-   * @param dateString - ISO date string
-   * @returns Human-readable relative time
+   * Formata uma data ISO para um rótulo de tempo relativo legível.
+   * @param dateString String de data ISO 8601
+   * @returns Tempo relativo legível (ex: "5m atrás", "2h atrás")
    */
   protected formatTime(dateString: string): string {
     const date = new Date(dateString);
@@ -186,7 +178,7 @@ export class NotificationDropdownComponent {
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
   }
 
-  /** Close dropdown when clicking outside. */
+  /** Fecha o dropdown quando o usuário clica fora do componente. */
   protected onDocumentClick(event: Event): void {
     const el = event.target as HTMLElement;
     if (!el.closest('af-notification-dropdown')) {

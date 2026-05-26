@@ -114,7 +114,7 @@ final class ChatTicketPolicy
     /**
      * Determina se o usuário pode forçar o encerramento de um ticket.
      *
-     * Restricted to managers and admins with explicit permission.
+     * Restrito a gestores e administradores com permissão explícita.
      *
      * @param  AuthUser  $user  Usuário autenticado.
      * @param  ChatTicket  $ticket  Modelo do ticket.

@@ -9,7 +9,9 @@ use Domain\Platform\Enums\PlatformStorageMode;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * DTO for platform plan creation and update.
+ * DTO para criação e atualização de planos da plataforma.
+ *
+ * Transporta os dados validados de um plano entre as camadas HTTP e de domínio.
  *
  * @readonly
  */
@@ -33,7 +35,10 @@ final readonly class PlatformPlanDTO
     ) {}
 
     /**
-     * Create DTO from form request.
+     * Cria o DTO a partir de um FormRequest validado.
+     *
+     * @param  FormRequest  $request  Requisição validada.
+     * @return self DTO preenchido.
      */
     public static function fromRequest(FormRequest $request): self
     {
@@ -41,7 +46,10 @@ final readonly class PlatformPlanDTO
     }
 
     /**
-     * @param  array<string, mixed>  $data
+     * Cria o DTO a partir de um array de dados.
+     *
+     * @param  array<string, mixed>  $data  Dados do plano.
+     * @return self DTO preenchido.
      */
     public static function fromArray(array $data): self
     {
@@ -66,7 +74,9 @@ final readonly class PlatformPlanDTO
     }
 
     /**
-     * @return array<string, mixed>
+     * Converte o DTO em array para persistência no banco.
+     *
+     * @return array<string, mixed> Representação em array do plano.
      */
     public function toArray(): array
     {

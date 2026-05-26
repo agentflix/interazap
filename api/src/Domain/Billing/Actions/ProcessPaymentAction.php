@@ -24,14 +24,10 @@ use Illuminate\Support\Str;
  */
 final class ProcessPaymentAction
 {
-    /**
-     * Cache TTL in seconds (24 hours).
-     */
+    /** TTL da chave de idempotência no cache (24 horas em segundos). */
     private const IDEMPOTENCY_TTL = 86400;
 
-    /**
-     * Cache prefix for idempotency keys.
-     */
+    /** Prefixo das chaves de idempotência no cache. */
     private const CACHE_PREFIX = 'payment_idempotent';
 
     /**

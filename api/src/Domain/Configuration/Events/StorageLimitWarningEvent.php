@@ -16,7 +16,10 @@ final class StorageLimitWarningEvent
     use SerializesModels;
 
     /**
-     * @param  array<string, mixed>  $data
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  string  $title  Título do alerta de armazenamento.
+     * @param  string  $message  Mensagem descritiva do alerta.
+     * @param  array<string, mixed>  $data  Dados adicionais do contexto.
      */
     public function __construct(
         public readonly string $tenantId,

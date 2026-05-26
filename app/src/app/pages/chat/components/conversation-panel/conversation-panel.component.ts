@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
- * Conversation panel component for the Chat module.
- * @selector app-conversation-panel
+ * Painel de conversa do módulo de Chat.
+ *
+ * Stub reservado para implementação futura do painel
+ * central de conversa de um atendimento selecionado.
  */
 @Component({
   selector: 'app-conversation-panel',

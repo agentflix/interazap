@@ -9,18 +9,18 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Middleware for adding security headers to all responses.
+ * Middleware para adição de headers de segurança em todas as respostas.
  *
- * Adds protection against common web vulnerabilities:
- * - XSS attacks (X-XSS-Protection, X-Content-Type-Options)
+ * Protege contra vulnerabilidades web comuns:
+ * - XSS (X-XSS-Protection, X-Content-Type-Options)
  * - Clickjacking (X-Frame-Options)
- * - Information leakage (Referrer-Policy)
- * - Protocol downgrade attacks (Strict-Transport-Security)
+ * - Vazamento de informações (Referrer-Policy)
+ * - Downgrade de protocolo (Strict-Transport-Security, somente em produção)
  */
 final class SecurityHeadersMiddleware
 {
     /**
-     * Security headers to add to all responses.
+     * Headers de segurança adicionados a todas as respostas.
      *
      * @var array<string, string>
      */
@@ -32,7 +32,11 @@ final class SecurityHeadersMiddleware
     ];
 
     /**
-     * Handle an incoming request.
+     * Adiciona os headers de segurança à resposta HTTP.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @param  Closure  $next  Próximo middleware na cadeia.
+     * @return Response Resposta com headers de segurança aplicados.
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -56,10 +60,12 @@ final class SecurityHeadersMiddleware
     }
 
     /**
-     * Determine if HSTS header should be added.
+     * Verifica se o header HSTS deve ser adicionado.
      *
-     * Only add HSTS in production environment to avoid issues
-     * with local development over HTTP.
+     * O HSTS é adicionado somente em produção para evitar problemas
+     * com desenvolvimento local via HTTP.
+     *
+     * @return bool Verdadeiro somente no ambiente de produção.
      */
     private function shouldAddHsts(): bool
     {

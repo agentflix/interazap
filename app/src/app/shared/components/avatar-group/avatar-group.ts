@@ -6,11 +6,14 @@ export * from './avatar-group.model';
 
 
 /**
- * AfAvatarGroupComponent — Stacked avatar group (shows +N overflow).
+ * Grupo de avatares empilhados com indicador de excedente (+N).
+ *
+ * Contexto: utilizado em listas de participantes, atribuições de tarefas
+ * e qualquer interface que exiba múltiplos usuários de forma compacta.
  *
  * @example
  * ```html
- * <af-avatar-group [items]="users" [max]="4" size="sm" />
+ * <af-avatar-group [items]="usuarios" [max]="4" size="sm" />
  * ```
  */
 @Component({
@@ -20,13 +23,13 @@ export * from './avatar-group.model';
   templateUrl: './avatar-group.html',
 })
 export class AfAvatarGroupComponent {
-  /** Avatar items */
+  /** Lista de avatares a exibir */
   readonly items = input<AfAvatarGroupItem[]>([]);
 
-  /** Max visible avatars */
+  /** Máximo de avatares visíveis antes do indicador +N */
   readonly max = input(5);
 
-  /** Size */
+  /** Tamanho dos avatares */
   readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('md');
 
   protected readonly visibleItems = computed(() => this.items().slice(0, this.max()));

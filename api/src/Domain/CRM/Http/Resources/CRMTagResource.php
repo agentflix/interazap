@@ -8,12 +8,14 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for CRM Tag serialization.
+ * Resource para serialização de tag do CRM.
  */
 final class CRMTagResource extends BaseJsonResource
 {
     /**
-     * @return array<string, mixed>
+     * Transforma o recurso em array para resposta JSON.
+     *
+     * @return array<string, mixed> Dados serializados da tag.
      */
     protected function data(Request $request): array
     {

@@ -1,7 +1,8 @@
 /**
- * OpenAI Module
- *
  * Módulo NestJS que configura e exporta o provider OpenAI.
+ *
+ * Contexto: registra `OpenAIConfigService`, `OpenAITranslator`, `OpenAIProviderAdapter`
+ * e `CircuitBreakerService` como providers, exportando o config e o adapter para uso no `AIModule`.
  */
 
 import { Module } from '@nestjs/common';

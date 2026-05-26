@@ -25,6 +25,13 @@ final class BillingCheckOverdueAction
     ) {}
 
     /**
+     * Percorre todos os tenants com faturas vencidas e aplica as transições de status
+     * de inadimplência (ACTIVE → GRACE → LOCKED → PENDING_PURGE).
+     *
+     * A progressão depende dos dias de atraso em relação à data de vencimento mais antiga.
+     * Em modo dry-run nenhuma alteração é persistida e nenhum evento é disparado.
+     *
+     * @param  bool  $dryRun  Se verdadeiro, apenas calcula sem persistir
      * @return array{processed:int,grace:int,locked:int,pending_purge:int}
      */
     public function handle(bool $dryRun = false): array
@@ -142,12 +149,14 @@ final class BillingCheckOverdueAction
         return $result;
     }
 
+    /** Invalida o cache de status de billing do tenant. */
     private function forgetTenantStatusCache(string $tenantId): void
     {
         $prefix = (string) config('billing.delinquency.cache.billing_status_prefix', 'billing:tenant_status:');
         Cache::forget($prefix.$tenantId);
     }
 
+    /** Verifica se o módulo de inadimplência está habilitado pela config. */
     private function isFeatureEnabled(): bool
     {
         return (bool) config('billing.delinquency.enabled', true);

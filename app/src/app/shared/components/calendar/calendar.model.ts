@@ -1,11 +1,11 @@
-/**
- * Models and types for calendar component.
- */
+/** Modelos e tipos do componente de calendário. */
 
-/** Calendar event */
+/** Evento exibido em uma célula do calendário. */
 export interface AfCalendarEvent {
   id: string;
   title: string;
-  date: string; // YYYY-MM-DD
+  /** Data no formato YYYY-MM-DD */
+  date: string;
+  /** Cor de destaque do evento (CSS) */
   color?: string;
 }

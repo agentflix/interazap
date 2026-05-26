@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for tool execution result.
+ * DTO para resultado de execução de uma tool do Autopilot.
  *
  * @readonly
  */
@@ -23,12 +23,8 @@ final readonly class ToolResultDTO
     /**
      * Cria um resultado de sucesso.
      *
-     * @param  array<string, mixed>  $data
-     */
-    /**
-     * Create success result.
-     *
-     * @param  array<string, mixed>  $data
+     * @param  string  $message  Mensagem descritiva do resultado.
+     * @param  array<string, mixed>  $data  Dados adicionais retornados pela tool.
      */
     public static function success(string $message, array $data = []): self
     {
@@ -42,12 +38,8 @@ final readonly class ToolResultDTO
     /**
      * Cria um resultado de falha.
      *
-     * @param  array<string, mixed>  $data
-     */
-    /**
-     * Create failure result.
-     *
-     * @param  array<string, mixed>  $data
+     * @param  string  $message  Mensagem descritiva do erro.
+     * @param  array<string, mixed>  $data  Dados adicionais do erro.
      */
     public static function failure(string $message, array $data = []): self
     {

@@ -12,13 +12,11 @@ use Domain\Ai\Models\AiAutopilotTool;
 use Illuminate\Support\Str;
 
 /**
- * Service responsible for exposing and dispatching Autopilot tools.
+ * Serviço responsável por expor e despachar tools do Autopilot.
  *
- * Uses database-backed permissions (ai_agent_tools) for authorization
- * instead of hardcoded role-based matrix. AiPermissionMatrixService is
- * retained only for legacy preset fallbacks.
- *
- * @category Services
+ * Usa permissões baseadas em banco de dados (ai_agent_tools) para
+ * autorização em vez de matriz hardcoded por role. AiPermissionMatrixService
+ * é mantido apenas para fallback legacy de presets.
  */
 final class ToolDispatcherService
 {
@@ -31,15 +29,15 @@ final class ToolDispatcherService
     ) {}
 
     /**
-     * Build tenant tool definitions for LLM function calling.
+     * Constrói as definições de tools para function calling do LLM.
      *
-     * When agentId is informed, uses AiAgentToolPermissionService to obtain
-     * tool names from the database. Falls back to role-based matrix for
-     * legacy callers when agentId is not provided.
+     * Quando agentId é informado, usa AiAgentToolPermissionService para
+     * obter os tools do banco. Faz fallback para matriz baseada em role
+     * para chamadores legacy quando agentId não é fornecido.
      *
-     * @param  string  $tenantId  UUID do tenant
-     * @param  string|null  $agentId  UUID do agente (optional for backward compatibility)
-     * @param  list<string>|null  $selectedTools  Explicit tool filter
+     * @param  string  $tenantId  UUID do tenant.
+     * @param  string|null  $agentId  UUID do agente (opcional para compatibilidade).
+     * @param  list<string>|null  $selectedTools  Filtro explícito de tools.
      * @return array<int, array{type: string, function: array{name: string, description: string, parameters: array<string, mixed>}}>
      */
     public function getToolDefinitions(string $tenantId, ?string $agentId = null, ?array $selectedTools = null): array
@@ -104,13 +102,14 @@ final class ToolDispatcherService
     }
 
     /**
-     * Dispatch an individual tool call.
+     * Despacha uma chamada individual de tool.
      *
-     * Validates tenant_id, agent_id and tool_name against ai_agent_tools.
+     * Valida tenant_id, agent_id e tool_name contra ai_agent_tools.
      *
-     * @param  string  $toolName  Nome da tool a executar
-     * @param  array<string, mixed>  $parameters  Parâmetros da tool
-     * @param  array<string, mixed>  $context  Contexto de execução (deve conter tenant_id e agent_id)
+     * @param  string  $toolName  Nome da tool a executar.
+     * @param  array<string, mixed>  $parameters  Parâmetros da tool.
+     * @param  array<string, mixed>  $context  Contexto de execução (deve conter tenant_id e agent_id).
+     * @return ToolResultDTO Resultado da execução.
      */
     public function dispatch(string $toolName, array $parameters, array $context): ToolResultDTO
     {
@@ -161,10 +160,10 @@ final class ToolDispatcherService
     /**
      * Retorna catálogo completo de tools ativas do tenant.
      *
-     * Returns all active tools from ai_autopilot_tools that have an
-     * existing handler class, without role-based filtering.
+     * Retorna todas as tools ativas de ai_autopilot_tools que possuem
+     * handler class existente, sem filtragem por role.
      *
-     * @param  string  $tenantId  UUID do tenant
+     * @param  string  $tenantId  UUID do tenant.
      * @return list<array{name: string, display_name: string, description: string, handler_class: string, is_active: bool}>
      */
     public function getCatalog(string $tenantId): array
@@ -204,11 +203,9 @@ final class ToolDispatcherService
     }
 
     /**
-     * Resolve tool names based on agentId or falls back to legacy behavior.
+     * Resolve os nomes das tools com base no agentId ou faz fallback legacy.
      *
-     * @param  string  $tenantId  UUID do tenant
-     * @param  string|null  $agentId  UUID do agente
-     * @param  list<string>|null  $selectedTools  Explicit tool filter
+     * @param  list<string>|null  $selectedTools
      * @return list<string>
      */
     private function resolveToolNames(string $tenantId, ?string $agentId, ?array $selectedTools): array
@@ -231,7 +228,7 @@ final class ToolDispatcherService
     }
 
     /**
-     * Get all active tool names from the database for a tenant.
+     * Retorna os nomes de todas as tools ativas do tenant no banco.
      *
      * @return list<string>
      */
@@ -246,6 +243,7 @@ final class ToolDispatcherService
         return $names;
     }
 
+    /** Resolve o nome da classe handler a partir do nome da tool. */
     private function resolveClassNameFromToolName(string $toolName): string
     {
         $classBasename = Str::studly($toolName).'Tool';
@@ -253,13 +251,14 @@ final class ToolDispatcherService
         return "Domain\\Ai\\Tools\\{$classBasename}";
     }
 
+    /** Converte o nome da tool para formato legível (headline case). */
     private function humanizeToolName(string $toolName): string
     {
         return Str::headline($toolName);
     }
 
     /**
-     * Convert tool parameters to OpenAI function calling schema format.
+     * Converte parâmetros de tool para o schema de function calling da OpenAI.
      *
      * @param  array<string, array<string, mixed>>  $params
      * @return array<string, array<string, mixed>>

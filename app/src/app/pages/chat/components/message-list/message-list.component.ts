@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
- * Message list component for the Chat module.
- * @selector app-message-list
+ * Componente de lista de mensagens do módulo de Chat.
+ *
+ * Stub reservado para implementação futura da listagem
+ * de mensagens de um atendimento.
  */
 @Component({
   selector: 'app-message-list',

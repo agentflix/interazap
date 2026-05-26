@@ -2,7 +2,10 @@ import { Component, ChangeDetectionStrategy, input, output, computed } from '@an
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
- * AfBannerComponent — Full-width banner notification (top of page).
+ * Banner de notificação em largura total exibido no topo da página.
+ *
+ * Contexto: utilizado para comunicados globais, alertas de manutenção,
+ * promoções e avisos que devem chamar atenção do usuário imediatamente.
  *
  * @example
  * ```html
@@ -17,22 +20,22 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './banner.html',
 })
 export class AfBannerComponent {
-  /** Variant */
+  /** Variante visual do banner */
   readonly variant = input<'info' | 'success' | 'warning' | 'danger'>('info');
 
-  /** Banner message */
+  /** Mensagem exibida no banner */
   readonly message = input('');
 
-  /** Optional action button label */
+  /** Rótulo do botão de ação opcional */
   readonly actionLabel = input('');
 
-  /** Dismissible */
+  /** Permite fechar o banner */
   readonly dismissible = input(false);
 
-  /** Action button clicked */
+  /** Emitido ao clicar no botão de ação */
   readonly actionClicked = output<void>();
 
-  /** Dismiss clicked */
+  /** Emitido ao fechar o banner */
   readonly dismissed = output<void>();
 
   protected readonly iconName = computed(() => {

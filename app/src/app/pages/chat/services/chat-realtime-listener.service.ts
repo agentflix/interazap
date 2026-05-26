@@ -39,10 +39,10 @@ interface ChatNewTicketPayload {
 }
 
 /**
- * Subscribes to realtime chat events (message.received, chat.activity,
- * chat.ticket.new) and triggers ticket-list refresh / notification sounds.
+ * Escuta eventos realtime do chat (message.received, chat.activity, chat.ticket.new)
+ * e dispara atualização da lista de tickets e sons de notificação.
  *
- * Extracted from `Chat` host (FEAT-049) to keep the host thin.
+ * Extraído do host `Chat` (FEAT-049) para manter o host enxuto.
  */
 @Injectable({ providedIn: 'root' })
 export class ChatRealtimeListenerService {
@@ -56,12 +56,13 @@ export class ChatRealtimeListenerService {
   private lastTicketListRefreshAt = 0;
 
   /**
-   * Connects to realtime and starts listening to chat events.
-   * Subscriptions are bound to the caller's DestroyRef, allowing the
-   * service (singleton) to be re-subscribed cleanly after the host
-   * component is destroyed and remounted.
+   * Conecta ao realtime e inicia a escuta dos eventos de chat.
+   * As assinaturas ficam vinculadas ao DestroyRef do chamador, permitindo
+   * re-assinatura limpa quando o componente host é destruído e remontado.
    *
-   * `realtime.connect()` is idempotent at the Socket.IO client level.
+   * `realtime.connect()` é idempotente no nível do cliente Socket.IO.
+   *
+   * @param destroyRef - Referência de destruição do componente chamador.
    */
   start(destroyRef: DestroyRef): void {
     this.realtime.connect();

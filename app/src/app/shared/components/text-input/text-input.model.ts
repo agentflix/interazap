@@ -1,8 +1,8 @@
 /**
- * Models and types for text-input component.
+ * Modelos e tipos do componente de campo de texto.
  */
 
-/** Supported HTML input types for af-text-input */
+/** Tipos de input HTML suportados pelo af-text-input */
 export type AfTextInputType =
   | 'text'
   | 'email'
@@ -13,5 +13,5 @@ export type AfTextInputType =
   | 'time'
   | 'datetime-local';
 
-/** Available sizes for the text input */
+/** Tamanhos disponíveis para o campo de texto */
 export type AfInputSize = 'sm' | 'md';

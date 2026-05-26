@@ -10,21 +10,16 @@ use Illuminate\Foundation\Http\FormRequest;
 /**
  * Validação para atualizar uma preferência de notificação.
  */
-/**
- * FormRequest for notification preference updates.
- */
 final class ConfigurationNotificationPreferenceRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Verifica se o usuário está autorizado a realizar esta requisição. */
     public function authorize(): bool
     {
         return $this->user() !== null && (string) $this->user()->tenant_id !== '';
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Retorna as regras de validação aplicadas à requisição.
      *
      * @return array<string, mixed>
      */

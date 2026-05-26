@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /**
- * Message bubble component for the Chat module.
- * @selector app-message-bubble
+ * Componente de bolha de mensagem do módulo de Chat.
+ *
+ * Renderiza uma mensagem individual com direção configurável
+ * (`incoming` ou `outgoing`) e suporte a mensagens internas.
  */
 @Component({
   selector: 'app-message-bubble',

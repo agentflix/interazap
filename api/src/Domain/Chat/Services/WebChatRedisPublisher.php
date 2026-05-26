@@ -8,7 +8,7 @@ use Domain\Shared\Services\GatewayBroadcastService;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Redis publisher for WebChat real-time events.
+ * Publisher Redis para eventos em tempo real do WebChat.
  *
  * Publica eventos de resposta da IA no canal ws.events do Redis,
  * permitindo que o Gateway NestJS distribua aos clientes webchat

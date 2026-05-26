@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 
 /**
- * Command to request AI embeddings
+ * Comando para solicitar a geração de embeddings ao domínio de AI.
  */
 export class AiEmbeddingCommandDto {
   @IsString()
@@ -26,7 +26,7 @@ export class AiEmbeddingCommandDto {
 }
 
 /**
- * Single embedding result
+ * Resultado de um único vetor de embedding gerado pelo provider.
  */
 export class EmbeddingResultDto {
   @IsNumber()
@@ -38,7 +38,7 @@ export class EmbeddingResultDto {
 }
 
 /**
- * Result of AI embedding request
+ * Resultado completo de uma requisição de embeddings de AI.
  */
 export class AiEmbeddingResultDto {
   @IsString()

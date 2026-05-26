@@ -12,14 +12,25 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Lista produtos/serviços sem paginação para selects.
+ * Controller para listagem completa de produtos/serviços do CRM sem paginação.
+ *
+ * Retorna todos os produtos ativos para uso em selects e componentes de seleção. Requer autenticação Sanctum.
  */
 final class CRMProductListAllController extends BaseController
 {
+    /**
+     * @param  CRMProductActions  $actions  Ação de gestão de produtos.
+     */
     public function __construct(
         private readonly CRMProductActions $actions
     ) {}
 
+    /**
+     * Lista todos os produtos/serviços sem paginação, com filtro opcional por tipo.
+     *
+     * @param  Request  $request  Dados da requisição com filtro opcional de tipo (product|service).
+     * @return JsonResponse Lista de produtos/serviços.
+     */
     public function __invoke(Request $request): JsonResponse
     {
         $this->authorize('viewAny', CRMProduct::class);

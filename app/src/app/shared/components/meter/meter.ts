@@ -1,11 +1,11 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 
 /**
- * AfMeterComponent — Visual meter/gauge for displaying values within a range.
+ * Medidor/gauge visual para exibir valores dentro de um intervalo.
  *
  * @example
  * ```html
- * <af-meter [value]="72" [max]="100" label="CPU Usage" variant="warning" />
+ * <af-meter [value]="72" [max]="100" label="Uso de CPU" variant="warning" />
  * ```
  */
 @Component({
@@ -15,16 +15,16 @@ import { Component, ChangeDetectionStrategy, input, computed } from '@angular/co
   templateUrl: './meter.html',
 })
 export class AfMeterComponent {
-  /** Current value */
+  /** Valor atual */
   readonly value = input(0);
 
-  /** Maximum value */
+  /** Valor máximo */
   readonly max = input(100);
 
-  /** Optional label */
+  /** Rótulo opcional */
   readonly label = input('');
 
-  /** Color variant */
+  /** Variante de cor */
   readonly variant = input<'accent' | 'info' | 'warning' | 'danger'>('accent');
 
   protected readonly percentage = computed(() => {

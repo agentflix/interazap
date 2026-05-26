@@ -34,6 +34,10 @@ import { type User } from '@core/models/user.model';
 import { AuthStoreService } from 'src/app/core/services/auth-store.service';
 import { ContactService } from 'src/app/core/services/contact.service';
 
+/**
+ * Formulário de criação e edição de negociações do CRM.
+ * Carrega funis, etapas e contatos dinamicamente conforme seleção do usuário.
+ */
 @Component({
   selector: 'app-negotiation-form',
   standalone: true,
@@ -46,10 +50,6 @@ import { ContactService } from 'src/app/core/services/contact.service';
     ButtonComponent,
     LoadingButtonComponent,
     ModalComponent,
-/**
- * Negotiation form component for the Crm module.
- * @selector app-negotiation-form
- */
   ],
   templateUrl: './negotiation-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

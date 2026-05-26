@@ -36,14 +36,17 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Controller for AI Knowledge Base (RAG) endpoints.
+ * Controller para endpoints da base de conhecimento (RAG) do módulo de IA.
  */
 final class AiKnowledgeController extends BaseController
 {
     private const CACHE_TTL_MINUTES = 5;
 
     /**
-     * List tenant's knowledge documents.
+     * Lista os documentos da base de conhecimento do tenant.
+     *
+     * @param  Request  $request  Requisição HTTP com filtros de paginação e busca.
+     * @return AnonymousResourceCollection Lista paginada de documentos.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -78,7 +81,11 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Upload a new knowledge document.
+     * Faz o upload de um novo documento para a base de conhecimento.
+     *
+     * @param  UploadKnowledgeRequest  $request  Arquivo e nome validados.
+     * @param  UploadDocumentAction  $action  Ação de processamento do documento.
+     * @return JsonResponse Documento enviado e aguardando processamento.
      */
     public function store(
         UploadKnowledgeRequest $request,
@@ -114,7 +121,11 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Get a specific document.
+     * Exibe um documento específico da base de conhecimento.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do documento.
+     * @return KnowledgeDocumentResource|JsonResponse Dados do documento ou erro 404.
      */
     public function show(Request $request, string $id): KnowledgeDocumentResource|JsonResponse
     {
@@ -144,7 +155,12 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Delete a knowledge document.
+     * Remove um documento da base de conhecimento.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do documento.
+     * @param  DeleteDocumentAction  $action  Ação de remoção.
+     * @return JsonResponse Confirmação de exclusão ou erro 404.
      */
     public function destroy(
         Request $request,
@@ -177,7 +193,12 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Reindex a document.
+     * Reindexação um documento existente na base de conhecimento.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @param  string  $id  UUID do documento.
+     * @param  ReindexDocumentAction  $action  Ação de reindexação.
+     * @return JsonResponse Documento enfileirado para reindexação ou erro.
      */
     public function reindex(
         Request $request,
@@ -217,7 +238,11 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Get knowledge base statistics.
+     * Retorna estatísticas da base de conhecimento do tenant.
+     *
+     * @param  Request  $request  Requisição HTTP.
+     * @param  GetKnowledgeStatsAction  $action  Ação de consulta de estatísticas.
+     * @return JsonResponse Totais de documentos, armazenamento e chunks.
      */
     public function stats(Request $request, GetKnowledgeStatsAction $action): JsonResponse
     {
@@ -234,7 +259,11 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Search knowledge base.
+     * Pesquisa na base de conhecimento via RAG (vetorial ou híbrido).
+     *
+     * @param  SearchKnowledgeRequest  $request  Query, limite e modo validados.
+     * @param  AiRagServiceInterface  $ragService  Serviço de busca RAG.
+     * @return JsonResponse Resultados da busca semântica.
      */
     public function search(
         SearchKnowledgeRequest $request,
@@ -259,7 +288,10 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Build search filters DTO from request.
+     * Constrói o DTO de filtros de busca a partir da requisição.
+     *
+     * @param  SearchKnowledgeRequest  $request  Requisição com filtros opcionais.
+     * @return KnowledgeSearchFiltersDTO|null DTO de filtros ou null se nenhum filtro informado.
      */
     private function buildSearchFilters(SearchKnowledgeRequest $request): ?KnowledgeSearchFiltersDTO
     {
@@ -289,7 +321,11 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Get RAG query statistics.
+     * Retorna estatísticas de consultas RAG do tenant.
+     *
+     * @param  Request  $request  Requisição HTTP com parâmetro 'days' opcional.
+     * @param  GetRagStatsAction  $action  Ação de consulta de métricas RAG.
+     * @return JsonResponse Latências, taxa de zero resultados e distribuição de modos.
      */
     public function ragStats(
         Request $request,
@@ -309,7 +345,11 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Ingest a public URL into knowledge base.
+     * Ingere uma URL pública na base de conhecimento.
+     *
+     * @param  AiKnowledgeUrlIngestRequest  $request  URL e título validados.
+     * @param  IngestUrlAction  $action  Ação de ingestão de URL.
+     * @return JsonResponse Documento enfileirado para processamento.
      */
     public function ingestUrl(
         AiKnowledgeUrlIngestRequest $request,
@@ -338,7 +378,11 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Bulk delete knowledge documents.
+     * Remove múltiplos documentos da base de conhecimento em lote.
+     *
+     * @param  AiKnowledgeBulkDeleteRequest  $request  Lista de IDs validados.
+     * @param  DeleteDocumentAction  $action  Ação de remoção.
+     * @return JsonResponse Total de documentos removidos.
      */
     public function bulkDelete(
         AiKnowledgeBulkDeleteRequest $request,
@@ -368,7 +412,11 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * Bulk reindex knowledge documents.
+     * Reindexação múltiplos documentos da base de conhecimento em lote.
+     *
+     * @param  AiKnowledgeBulkReindexRequest  $request  Lista de IDs validados.
+     * @param  ReindexDocumentAction  $action  Ação de reindexação.
+     * @return JsonResponse Total de documentos enfileirados.
      */
     public function bulkReindex(
         AiKnowledgeBulkReindexRequest $request,
@@ -404,7 +452,11 @@ final class AiKnowledgeController extends BaseController
     }
 
     /**
-     * List chunks for a specific document.
+     * Lista os chunks de um documento específico.
+     *
+     * @param  Request  $request  Requisição HTTP com paginação opcional.
+     * @param  string  $id  UUID do documento.
+     * @return AnonymousResourceCollection|JsonResponse Lista de chunks ou erro 404.
      */
     public function chunks(Request $request, string $id): AnonymousResourceCollection|JsonResponse
     {

@@ -15,8 +15,11 @@ import { type AiAgent, type AiAgentChannel } from '@ai/models/ai.model';
 import { AiAgentService } from '@ai/services/ai-agent.service';
 
 /**
- * Channels tab — select which channels the agent handles.
- * Uses the agent update endpoint (no separate channels API).
+ * Aba de Canais — seleciona em quais canais o agente opera.
+ *
+ * Contexto: utiliza o endpoint de atualização do agente (sem API separada para canais).
+ * O salvamento é delegado ao workspace global. WhatsApp é pré-selecionado quando não há
+ * canais configurados.
  */
 @Component({
   selector: 'app-agent-channels-tab',
@@ -95,14 +98,17 @@ export class AgentChannelsTabComponent {
   }
 
   /**
-   * Check if a channel is currently enabled.
+   * Verifica se um canal está habilitado.
+   * @param channel Canal a verificar
+   * @returns true se habilitado
    */
   isEnabled(channel: AiAgentChannel): boolean {
     return this.enabledChannels().includes(channel);
   }
 
   /**
-   * Toggle a channel on/off.
+   * Ativa ou desativa um canal.
+   * @param channel Canal a alternar
    */
   toggleChannel(channel: AiAgentChannel): void {
     const current = this.enabledChannels();

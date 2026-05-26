@@ -13,10 +13,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controller for AI message usage billing endpoints.
+ * Controller para endpoints de bilhetagem de uso de mensagens IA.
  *
- * Provides check-and-increment (gated AI usage) and fail-open logging
- * for cases where usage tracking fails but the AI response proceeds.
+ * Fornece check-and-increment (controle de cota de IA) e registro de falha-aberta
+ * para casos em que o rastreamento falha mas a resposta IA prossegue (fail-open).
  */
 final class BillingUsageController extends BaseController
 {
@@ -25,10 +25,13 @@ final class BillingUsageController extends BaseController
     ) {}
 
     /**
-     * Check if a message is allowed and increment the usage counter.
+     * Verifica se a mensagem é permitida e incrementa o contador de uso do ciclo.
      *
-     * Returns the usage result: allowed status, current count, limit, mode, overage flag.
-     * Dispatches threshold check job asynchronously.
+     * Retorna o resultado de uso: permitido, contador atual, limite, modo e flag de excedente.
+     * Despacha o job de verificação de limiares de forma assíncrona.
+     *
+     * @param  BillingUsageCheckRequest  $request  Payload com tenant_id, channel e ai_turn_id
+     * @return JsonResponse Resultado de uso serializado pelo CheckAndIncrementResult
      */
     public function check(BillingUsageCheckRequest $request): JsonResponse
     {
@@ -44,11 +47,13 @@ final class BillingUsageController extends BaseController
     }
 
     /**
-     * Log a failed-open usage attempt for later reconciliation.
+     * Registra uma tentativa de uso falha-aberta para reconciliação posterior.
      *
-     * Called when the AI gateway cannot reach this endpoint but still
-     * proceeds with the response (fail-open). The failed log is later
-     * reconciled by ReconcileFailedUsageJob.
+     * Chamado quando o gateway IA não consegue contatar este endpoint mas
+     * prossegue com a resposta (fail-open). O log é reconciliado pelo ReconcileFailedUsageJob.
+     *
+     * @param  Request  $request  Payload com tenant_id, ai_turn_id, channel, attempted_at e reason
+     * @return JsonResponse Dados do registro criado (idempotente por ai_turn_id)
      */
     public function logFailure(Request $request): JsonResponse
     {

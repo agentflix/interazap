@@ -31,8 +31,7 @@ import { RoleService } from '@core/services/role.service';
 import { type Role } from '@core/models/role.model';
 
 /**
- * Settings user form — create/edit a tenant user inside a modal.
- * Business logic preserved verbatim from source. Visual layer migrated to UI Kit.
+ * Formulário de usuário — criação e edição de usuários do tenant dentro de um modal.
  */
 @Component({
   selector: 'app-settings-user-form',
@@ -57,7 +56,7 @@ export class SettingsUserFormComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly lastLoadedId = signal<string | null>(null);
 
-  /** @input User to edit; null for create mode */
+  /** Usuário a editar; null indica modo de criação. */
   readonly user = input<SettingsUser | null>(null);
   readonly saved = output<SettingsUser>();
   readonly cancelled = output<void>();
@@ -111,6 +110,7 @@ export class SettingsUserFormComponent {
     });
   }
 
+  /** Valida e envia o formulário para criação ou atualização do usuário. */
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -196,12 +196,14 @@ export class SettingsUserFormComponent {
       });
   }
 
+  /** Emite o evento de cancelamento do formulário. */
   cancel(): void {
     this.cancelled.emit();
   }
 
   // ── Error getters ─────────────────────────────────────────────────────────────
 
+  /** Retorna a mensagem de erro do campo nome quando tocado e inválido. */
   nameError(): string {
     const c = this.form.controls.name;
     if (!c.touched || !c.errors) return '';
@@ -209,6 +211,7 @@ export class SettingsUserFormComponent {
     return '';
   }
 
+  /** Retorna a mensagem de erro do campo e-mail quando tocado e inválido. */
   emailError(): string {
     const c = this.form.controls.email;
     if (!c.touched || !c.errors) return '';
@@ -217,6 +220,7 @@ export class SettingsUserFormComponent {
     return '';
   }
 
+  /** Retorna a mensagem de erro do campo senha quando tocado e inválido. */
   passwordError(): string {
     const c = this.form.controls.password;
     if (!c.touched || !c.errors) return '';

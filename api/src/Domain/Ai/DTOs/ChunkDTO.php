@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO representing a text chunk with its metadata.
+ * DTO representando um trecho de texto (chunk) com seus metadados.
  *
  * @readonly
  */
 final readonly class ChunkDTO
 {
     /**
-     * @param  int  $index  Chunk index within the document
-     * @param  string  $content  The text content of the chunk
-     * @param  int  $tokenCount  Estimated token count for the chunk
+     * @param  int  $index  Índice do chunk dentro do documento.
+     * @param  string  $content  Conteúdo textual do chunk.
+     * @param  int  $tokenCount  Estimativa de tokens do chunk.
      */
     public function __construct(
         public int $index,

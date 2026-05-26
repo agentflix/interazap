@@ -7,37 +7,39 @@ namespace Domain\Shared\Concerns;
 use Carbon\Carbon;
 
 /**
- * Trait providing standardized job configuration defaults.
+ * Trait que fornece configurações padrão para jobs em fila.
  *
- * Provides consistent retry behavior, timeouts, and backoff strategies
- * for all queue jobs in the application.
+ * Centraliza o comportamento de retentativa, timeout e estratégia de backoff
+ * para todos os jobs da aplicação, garantindo consistência entre domínios.
  */
 trait HasJobDefaults
 {
     /**
-     * The number of times the job may be attempted.
+     * Número de tentativas permitidas para o job.
      */
     public int $tries = 3;
 
     /**
-     * The number of seconds to wait before retrying the job.
+     * Intervalo de espera em segundos entre tentativas (backoff exponencial).
      *
      * @var array<int, int>
      */
     public array $backoff = [10, 60, 300];
 
     /**
-     * The number of seconds the job can run before timing out.
+     * Tempo máximo em segundos que o job pode executar antes de expirar.
      */
     public int $timeout = 120;
 
     /**
-     * The maximum number of unhandled exceptions to allow before failing.
+     * Número máximo de exceções não tratadas antes de marcar o job como falho.
      */
     public int $maxExceptions = 2;
 
     /**
-     * Determine the time at which the job should timeout.
+     * Define o limite de tempo absoluto até o qual o job pode ser retentado.
+     *
+     * @return Carbon Data/hora limite para novas tentativas.
      */
     public function retryUntil(): Carbon
     {

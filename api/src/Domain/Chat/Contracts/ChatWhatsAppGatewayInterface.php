@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace Domain\Chat\Contracts;
 
 /**
- * Interface for WhatsApp gateway services.
+ * Contrato para serviços de gateway WhatsApp.
  *
- * Defines the contract for sending messages via WhatsApp API providers.
+ * Define a interface de envio de mensagens via provedores da API WhatsApp.
  */
 interface ChatWhatsAppGatewayInterface
 {
     /**
-     * Send a message via WhatsApp.
+     * Envia uma mensagem via WhatsApp.
      *
-     * @param  string  $instanceId  The WhatsApp instance identifier.
-     * @param  string  $to  The recipient phone number.
-     * @param  string  $content  The message content.
-     * @param  string  $type  The message type (text, image, document, etc.).
-     * @param  array<string, mixed>  $metadata  Additional metadata.
-     * @return array<string, mixed> The response from the provider.
+     * @param  string  $instanceId  Identificador da instância WhatsApp.
+     * @param  string  $to  Número de telefone do destinatário.
+     * @param  string  $content  Conteúdo da mensagem.
+     * @param  string  $type  Tipo da mensagem (text, image, document, etc.).
+     * @param  array<string, mixed>  $metadata  Metadados adicionais.
+     * @return array<string, mixed> Resposta retornada pelo provedor.
      *
-     * @throws \RuntimeException If the message cannot be sent.
+     * @throws \RuntimeException Se a mensagem não puder ser enviada.
      */
     public function sendMessage(
         string $instanceId,
@@ -32,18 +32,18 @@ interface ChatWhatsAppGatewayInterface
     ): array;
 
     /**
-     * Get the status of a sent message.
+     * Obtém o status de uma mensagem enviada.
      *
-     * @param  string  $instanceId  The WhatsApp instance identifier.
-     * @param  string  $messageId  The provider message ID.
-     * @return array<string, mixed> The message status.
+     * @param  string  $instanceId  Identificador da instância WhatsApp.
+     * @param  string  $messageId  ID da mensagem no provedor.
+     * @return array<string, mixed> Status da mensagem.
      */
     public function getMessageStatus(string $instanceId, string $messageId): array;
 
     /**
-     * Check if the instance is connected and ready.
+     * Verifica se a instância está conectada e pronta para uso.
      *
-     * @param  string  $instanceId  The WhatsApp instance identifier.
+     * @param  string  $instanceId  Identificador da instância WhatsApp.
      */
     public function isConnected(string $instanceId): bool;
 }

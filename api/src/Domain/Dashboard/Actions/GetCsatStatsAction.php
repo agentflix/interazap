@@ -9,17 +9,19 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Aggregates CSAT stats for the dashboard.
+ * Agrega estatísticas de CSAT para o dashboard.
+ *
+ * Calcula média de avaliação, total de avaliações e distribuição por nota (1–5).
  */
 final class GetCsatStatsAction
 {
     /**
-     * Aggregates CSAT stats including average rating, total evaluations and distribution.
+     * Executa a agregação de CSAT para o período informado.
      *
-     * @param  string  $tenantId  Tenant UUID
-     * @param  Carbon  $from  Start date
-     * @param  Carbon  $to  End date
-     * @return array<string, mixed>
+     * @param  string  $tenantId  UUID do tenant
+     * @param  Carbon  $from  Data de início do período
+     * @param  Carbon  $to  Data de fim do período
+     * @return array<string, mixed> Com chaves average_rating, total_evaluations e distribution
      */
     public function execute(string $tenantId, Carbon $from, Carbon $to): array
     {

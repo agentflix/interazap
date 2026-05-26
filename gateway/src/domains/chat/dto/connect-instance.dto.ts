@@ -1,8 +1,8 @@
 import { IsEnum, IsOptional, IsString, Matches } from 'class-validator';
 
 /**
- * Payload for connecting an existing Uazapi instance.
- * Used when reconnecting a WhatsApp device with an existing token.
+ * Payload para conectar uma instancia Uazapi existente.
+ * Utilizado ao reconectar um dispositivo WhatsApp com um token ja existente.
  */
 export class ConnectInstanceDto {
   @IsOptional()

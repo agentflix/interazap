@@ -5,12 +5,20 @@ declare(strict_types=1);
 namespace Domain\Chat\Services;
 
 /**
- * Normalizes webhook payloads into data used by the ingestor workflow.
+ * Normaliza payloads de webhook para o formato utilizado pelo fluxo de ingestão.
+ *
+ * Abstrai as diferenças de estrutura entre provedores (Uazapi, Telegram, Meta)
+ * e expõe métodos normalizados de extração de dados de mensagem, status,
+ * contato e localização.
+ *
+ * @category Services
  */
 final class ChatWebhookPayloadExtractor
 {
     /**
-     * @param  array<string, mixed>  $payload
+     * Extrai dados de atualização de status de mensagem do payload.
+     *
+     * @param  array<string, mixed>  $payload  Payload bruto do webhook.
      * @return array{external_id: string|null, status_message: array<string, mixed>|null}
      */
     public function extractStatusMessage(array $payload): array
@@ -37,8 +45,14 @@ final class ChatWebhookPayloadExtractor
     }
 
     /**
-     * @param  array<string, mixed>  $payload
-     * @return array<string, mixed>
+     * Extrai e normaliza os dados principais da mensagem do payload.
+     *
+     * Resolve campos como external_id, remote_jid, body, tipo, direção,
+     * URL de mídia, metadados de contato e localização a partir de diferentes
+     * estruturas de payload entre provedores.
+     *
+     * @param  array<string, mixed>  $payload  Payload bruto do webhook.
+     * @return array<string, mixed> Dados normalizados da mensagem.
      */
     public function extractMessageData(array $payload): array
     {
@@ -105,6 +119,11 @@ final class ChatWebhookPayloadExtractor
         ];
     }
 
+    /**
+     * Normaliza o tipo de mensagem para o vocabulário interno da plataforma.
+     *
+     * Exemplos: 'ptt' e 'voice' → 'audio'; 'image' e 'picture' → 'file'.
+     */
     private function normalizeType(string $type): string
     {
         if (in_array($type, ['ptt', 'audioMessage', 'voice'], true)) {
@@ -123,10 +142,16 @@ final class ChatWebhookPayloadExtractor
     }
 
     /**
-     * @param  array<string, mixed>  $message
-     * @param  array<string, mixed>  $content
-     * @param  array<string, mixed>  $rawContent
-     * @param  array<string, mixed>  $rawMessage
+     * Determina se a mensagem deve ser tratada como contato (vCard).
+     *
+     * Verifica o tipo declarado e a presença de conteúdo de contato em
+     * diferentes chaves do payload (content, media, raw).
+     *
+     * @param  array<string, mixed>  $message  Dados da mensagem.
+     * @param  array<string, mixed>  $content  Conteúdo da mensagem.
+     * @param  array<string, mixed>  $rawContent  Conteúdo bruto aninhado.
+     * @param  array<string, mixed>  $rawMessage  Mensagem bruta do provedor.
+     * @param  string  $type  Tipo normalizado da mensagem.
      */
     private function shouldTreatAsContact(array $message, array $content, array $rawContent, array $rawMessage, string $type): bool
     {
@@ -153,8 +178,13 @@ final class ChatWebhookPayloadExtractor
     }
 
     /**
-     * @param  array<string, mixed>  $message
-     * @return array<string, mixed>|null
+     * Extrai metadados estruturados de uma mensagem de contato (vCard).
+     *
+     * Suporta três formatos: vcardJson (array estruturado), contacts (array Meta)
+     * e vcard (string vCard raw). Retorna null se nenhum dado de contato for encontrado.
+     *
+     * @param  array<string, mixed>  $message  Dados da mensagem com chave rawMessage incluída.
+     * @return array<string, mixed>|null Metadados normalizados do contato.
      */
     private function extractContactMetadata(array $message): ?array
     {
@@ -244,8 +274,13 @@ final class ChatWebhookPayloadExtractor
     }
 
     /**
-     * @param  array<string, mixed>  $message
-     * @return array<string, mixed>|null
+     * Extrai metadados de localização da mensagem.
+     *
+     * Retorna latitude, longitude, nome e endereço quando disponíveis.
+     * Retorna null se as coordenadas não forem encontradas.
+     *
+     * @param  array<string, mixed>  $message  Dados da mensagem.
+     * @return array<string, mixed>|null Metadados de localização ou null.
      */
     private function extractLocationMetadata(array $message): ?array
     {
@@ -267,7 +302,12 @@ final class ChatWebhookPayloadExtractor
     }
 
     /**
-     * @return array<string, mixed>|null
+     * Faz parse de uma string vCard para extração de nome, telefone, organização e email.
+     *
+     * Retorna null se não houver ao menos nome ou telefone.
+     *
+     * @param  string  $vcard  String vCard no formato padrão.
+     * @return array<string, mixed>|null Dados extraídos do vCard.
      */
     private function parseVcard(string $vcard): ?array
     {
@@ -301,6 +341,14 @@ final class ChatWebhookPayloadExtractor
         ]);
     }
 
+    /**
+     * Infere a extensão de arquivo a partir do MIME type.
+     *
+     * Retorna string vazia se o MIME type não for reconhecido.
+     *
+     * @param  string  $mimeType  MIME type do arquivo.
+     * @return string Extensão com ponto (ex.: '.jpg') ou string vazia.
+     */
     private function guessExtensionFromMimeType(string $mimeType): string
     {
         $map = [

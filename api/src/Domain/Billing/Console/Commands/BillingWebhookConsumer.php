@@ -55,7 +55,7 @@ final class BillingWebhookConsumer extends Command
     }
 
     /**
-     * Execute the console command.
+     * Executa o loop de consumo do stream Redis de billing.
      */
     public function handle(): int
     {
@@ -88,7 +88,9 @@ final class BillingWebhookConsumer extends Command
     }
 
     /**
-     * @param  array<string, string>  $fields
+     * Processa uma entrada do stream: decodifica payload, resolve tenant e executa a action de webhook.
+     *
+     * @param  array<string, string>  $fields  Campos da entrada do Redis Stream
      */
     private function processEntry(string $id, array $fields): void
     {
@@ -140,6 +142,10 @@ final class BillingWebhookConsumer extends Command
     }
 
     /**
+     * Decodifica os campos da entrada do Redis Stream em um array associativo.
+     *
+     * Campos que parecem JSON são decodificados automaticamente.
+     *
      * @param  array<string, string>  $fields
      * @return array<string, mixed>
      */
@@ -153,6 +159,7 @@ final class BillingWebhookConsumer extends Command
         return $payload;
     }
 
+    /** Tenta decodificar um valor JSON; retorna a string original se não for JSON válido. */
     private function tryDecode(string $value): mixed
     {
         $trim = trim($value);
@@ -177,6 +184,8 @@ final class BillingWebhookConsumer extends Command
     }
 
     /**
+     * Lê mensagens pendentes do grupo no Redis Stream, compatível com Predis e PhpRedis.
+     *
      * @return array<string, array<string, array<string, string>>>|null
      */
     private function readMessages(string $consumer): ?array
@@ -216,9 +225,7 @@ final class BillingWebhookConsumer extends Command
         );
     }
 
-    /**
-     * Acknowledges a stream entry by ID (Predis-compatible).
-     */
+    /** Confirma (ACK) o processamento de uma entrada do stream pelo seu ID (compatível com Predis). */
     private function ackEntry(string $stream, string $id): void
     {
         $connection = Redis::connection('gateway');
@@ -231,6 +238,7 @@ final class BillingWebhookConsumer extends Command
         }
     }
 
+    /** Cria o grupo de consumidores no stream se ainda não existir (MKSTREAM). */
     private function ensureGroupExists(): void
     {
         try {
@@ -256,6 +264,8 @@ final class BillingWebhookConsumer extends Command
     }
 
     /**
+     * Normaliza a resposta crua do Predis para o formato associativo padrão do PhpRedis.
+     *
      * @param  array<int, mixed>|null  $raw
      * @return array<string, array<string, array<string, string>>>|null
      */
@@ -301,12 +311,15 @@ final class BillingWebhookConsumer extends Command
         return $messages === [] ? null : $messages;
     }
 
+    /** Verifica se a coluna stream_id existe na tabela shared_webhook_events. */
     private function hasStreamIdColumn(): bool
     {
         return Schema::hasColumn('shared_webhook_events', 'stream_id');
     }
 
     /**
+     * Registra métricas de processamento do evento, incluindo lag calculado a partir de received_at.
+     *
      * @param  array<string, mixed>  $payload
      */
     private function logMetrics(string $streamId, BillingWebhookDTO $dto, array $payload): void

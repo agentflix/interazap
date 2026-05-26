@@ -9,7 +9,7 @@ export * from './command-palette.model';
 
 
 /**
- * AfCommandPaletteComponent — Searchable command palette (⌘K / Ctrl+K).
+ * Paleta de comandos pesquisável acionada por ⌘K / Ctrl+K.
  *
  * @example
  * ```html
@@ -24,16 +24,16 @@ export * from './command-palette.model';
   templateUrl: './command-palette.html',
 })
 export class AfCommandPaletteComponent {
-  /** Whether palette is open */
+  /** Indica se a paleta está aberta */
   readonly open = input(false);
 
-  /** Available commands */
+  /** Comandos disponíveis */
   readonly items = input<AfCommandItem[]>([]);
 
-  /** Emitted when an item is selected */
+  /** Emitido quando um item é selecionado */
   readonly itemSelected = output<string>();
 
-  /** Emitted when palette should close */
+  /** Emitido quando a paleta deve ser fechada */
   readonly closed = output<void>();
 
   protected readonly searchCtrl = new FormControl('', { nonNullable: true });

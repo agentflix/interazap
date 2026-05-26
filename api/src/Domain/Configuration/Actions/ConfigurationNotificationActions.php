@@ -298,6 +298,7 @@ final class ConfigurationNotificationActions
         return true;
     }
 
+    /** Resolve o tenant_id do usuário ou usa o padrão configurado na aplicação. */
     private function tenantId(AuthUser $user): string
     {
         return $user->tenant_id ?? (string) config('app.default_tenant_id');

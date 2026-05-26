@@ -29,6 +29,7 @@ final class BillingCollectionMail extends Mailable
         public readonly ?BillingPurgeReport $purgeReport = null,
     ) {}
 
+    /** Retorna o envelope do email com o assunto resolvido pelo templateId. */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -36,6 +37,7 @@ final class BillingCollectionMail extends Mailable
         );
     }
 
+    /** Retorna o conteúdo do email com a view Blade e os dados de contexto. */
     public function content(): Content
     {
         return new Content(
@@ -52,6 +54,8 @@ final class BillingCollectionMail extends Mailable
     }
 
     /**
+     * Sem anexos para emails de cobrança.
+     *
      * @return array<int, string>
      */
     public function attachments(): array
@@ -59,6 +63,7 @@ final class BillingCollectionMail extends Mailable
         return [];
     }
 
+    /** Resolve o nome da view Blade a partir do templateId. */
     private function viewByTemplate(string $templateId): string
     {
         return match ($templateId) {
@@ -72,6 +77,7 @@ final class BillingCollectionMail extends Mailable
         };
     }
 
+    /** Resolve o assunto do email a partir do templateId. */
     private function subjectByTemplate(string $templateId): string
     {
         return match ($templateId) {

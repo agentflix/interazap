@@ -5,12 +5,10 @@ import { environment } from '@env/environment';
 import { type DashboardData } from '../models/dashboard.model';
 
 /**
- * Service for dashboard data aggregation.
+ * Service de agregação de dados do dashboard.
  *
- * Provides KPIs and metrics for the main dashboard view,
- * including revenue, pipeline, tickets, CSAT, and activity data.
- *
- * @class DashboardService
+ * Fornece KPIs e métricas para a visão principal do dashboard,
+ * incluindo receita, pipeline, tickets, CSAT e atividades.
  */
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -18,12 +16,11 @@ export class DashboardService {
   private readonly baseUrl = `${environment.apiUrl}/dashboard`;
 
   /**
-   * Retrieves aggregated dashboard data for a given date range or period.
-   *
-   * @param dateFrom - Start date in ISO 8601 format (YYYY-MM-DD)
-   * @param dateTo - End date in ISO 8601 format (YYYY-MM-DD)
-   * @param period - Number of days (alternative to dateFrom/dateTo)
-   * @returns Observable with the dashboard data response
+   * Recupera dados agregados do dashboard para um intervalo de datas ou período.
+   * @param dateFrom Data de início no formato ISO 8601 (AAAA-MM-DD)
+   * @param dateTo Data de fim no formato ISO 8601 (AAAA-MM-DD)
+   * @param period Quantidade de dias (alternativa a dateFrom/dateTo)
+   * @returns Observable com a resposta de dados do dashboard
    */
   getData(
     dateFrom?: string,
@@ -37,7 +34,7 @@ export class DashboardService {
     } else if (period) {
       params = params.set('period', String(period));
     } else {
-      params = params.set('period', '30'); // Default fallback
+      params = params.set('period', '30'); // Fallback padrão
     }
 
     return this.http.get<{ data: DashboardData }>(this.baseUrl, { params });

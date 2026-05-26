@@ -8,7 +8,7 @@ use Carbon\CarbonInterface;
 use Domain\Auth\Models\AuthUser;
 
 /**
- * DTO representing the authenticated user ready for response.
+ * DTO do usuário autenticado pronto para resposta.
  *
  * @readonly
  */
@@ -26,7 +26,7 @@ final readonly class AuthAuthenticatedUserDTO
     ) {}
 
     /**
-     * Create DTO from model.
+     * Cria DTO a partir do model do usuário.
      */
     public static function fromModel(AuthUser $user): self
     {
@@ -46,6 +46,8 @@ final readonly class AuthAuthenticatedUserDTO
     }
 
     /**
+     * Serializa o DTO para array de resposta.
+     *
      * @return array{id:string,tenant_id:?string,name:string,email:string,email_verified_at:?string,avatar_url:?string,two_factor_enabled:bool,force_password_change:bool}
      */
     public function toArray(): array

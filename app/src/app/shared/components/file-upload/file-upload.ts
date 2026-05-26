@@ -5,10 +5,8 @@ import type { AfUploadFile } from './file-upload.model';
 export * from './file-upload.model';
 
 /**
- * File upload component for InteraZap UI Kit.
- *
- * @description Drag & drop zone with file list, progress bars,
- * and cancel buttons. Supports single and multi-file upload.
+ * Área de drag & drop para upload de arquivos com lista, barras de progresso
+ * e botões de cancelamento. Suporta upload de arquivo único ou múltiplos arquivos.
  *
  * @example
  * ```html
@@ -28,31 +26,31 @@ export * from './file-upload.model';
   templateUrl: './file-upload.html',
 })
 export class AfFileUploadComponent {
-  /** Unique id used to bind the label and file input */
+  /** ID único para vinculação do rótulo ao input de arquivo */
   protected readonly inputId = `af-file-upload-${Math.random().toString(36).slice(2, 10)}`;
 
-  /** Label text */
+  /** Texto do rótulo */
   readonly label = input<string>();
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string>('mb-4');
 
-  /** Accept file types */
+  /** Tipos de arquivo aceitos */
   readonly accept = input<string>('');
 
-  /** Allow multiple files */
+  /** Permite múltiplos arquivos */
   readonly multiple = input(false);
 
-  /** Emitted when files are selected */
+  /** Emitido quando arquivos são selecionados */
   readonly filesSelected = output<File[]>();
 
-  /** Internal file list */
+  /** Lista interna de arquivos */
   protected readonly files = signal<AfUploadFile[]>([]);
 
-  /** Whether drag is active */
+  /** Indica se um arraste está ativo sobre a zona */
   private readonly isDragging = signal(false);
 
-  /** Dynamic dropzone classes */
+  /** Classes dinâmicas da zona de drop */
   protected readonly dropzoneClasses = computed(() => {
     if (this.isDragging()) {
       return 'border-accent-500 bg-accent-50/50 dark:bg-accent-950/20';
@@ -60,28 +58,28 @@ export class AfFileUploadComponent {
     return 'border-neutral-300 dark:border-neutral-600 hover:border-accent-400 dark:hover:border-accent-500 bg-white dark:bg-neutral-900';
   });
 
-  /** Hint text from accept attribute */
+  /** Texto de dica gerado a partir do atributo accept */
   protected readonly acceptHint = computed(() => {
     const a = this.accept();
     if (!a) return this.multiple() ? 'Envie múltiplos arquivos' : 'Qualquer tipo de arquivo';
     return `Formatos aceitos: ${a}`;
   });
 
-  /** Handle drag over */
+  /** Trata o evento de arraste sobre a zona */
   protected onDragOver(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
     this.isDragging.set(true);
   }
 
-  /** Handle drag leave */
+  /** Trata a saída do arraste da zona */
   protected onDragLeave(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
     this.isDragging.set(false);
   }
 
-  /** Handle drop */
+  /** Trata o soltar dos arquivos na zona */
   protected onDrop(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -93,7 +91,7 @@ export class AfFileUploadComponent {
     }
   }
 
-  /** Handle native file input change */
+  /** Trata a seleção de arquivo pelo input nativo */
   protected onFileSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files) {
@@ -102,7 +100,7 @@ export class AfFileUploadComponent {
     }
   }
 
-  /** Cancel a file upload */
+  /** Cancela o upload de um arquivo */
   protected cancelFile(id: string, event: Event): void {
     event.stopPropagation();
     this.files.update((files) =>
@@ -110,20 +108,20 @@ export class AfFileUploadComponent {
     );
   }
 
-  /** Remove a file from the list */
+  /** Remove um arquivo da lista */
   protected removeFile(id: string, event: Event): void {
     event.stopPropagation();
     this.files.update((files) => files.filter((f) => f.id !== id));
   }
 
-  /** Format file size to human readable */
+  /** Formata o tamanho do arquivo para exibição legível */
   protected formatSize(bytes: number): string {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / 1048576).toFixed(1)} MB`;
   }
 
-  /** Add files to the list and simulate upload */
+  /** Adiciona arquivos à lista e simula o progresso de upload */
   private addFiles(fileList: File[]): void {
     const filesToAdd = this.multiple() ? fileList : [fileList[0]];
     const newFiles: AfUploadFile[] = filesToAdd.map((file) => ({
@@ -149,7 +147,7 @@ export class AfFileUploadComponent {
     }
   }
 
-  /** Simulate file upload progress */
+  /** Simula o progresso de upload de um arquivo */
   private simulateUpload(id: string): void {
     let progress = 0;
     const interval = setInterval(() => {

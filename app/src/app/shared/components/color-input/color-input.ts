@@ -20,10 +20,10 @@ import type { AfInputSize } from './color-input.model';
 export * from './color-input.model';
 
 /**
- * Color picker input for InteraZap UI Kit.
+ * Campo de seleção de cor com amostra circular e input de hex.
  *
- * @description Swatch circle + hex text input. The swatch opens the native
- * browser color picker. Both directions stay in sync via FormControl.
+ * A amostra abre o seletor de cor nativo do navegador.
+ * Ambas as direções permanecem sincronizadas via FormControl.
  *
  * @example
  * ```html
@@ -41,55 +41,55 @@ export * from './color-input.model';
   templateUrl: './color-input.html',
 })
 export class AfColorInputComponent implements OnInit {
-  /** FormControl for the hex color value */
+  /** FormControl para o valor hexadecimal da cor */
   readonly control = input.required<FormControl<string>>();
 
-  /** Label text */
+  /** Texto do rótulo */
   readonly label = input<string>();
 
-  /** Container CSS class */
+  /** Classe CSS do contêiner */
   readonly classContainer = input<string | null>(null);
 
-  /** Enables/disables default vertical spacing */
+  /** Ativa/desativa o espaçamento vertical padrão */
   readonly spacing = input(true);
 
-  /** Optional helper text displayed below the input */
+  /** Texto auxiliar exibido abaixo do campo */
   readonly helpText = input<string>();
 
-  /** Placeholder */
+  /** Placeholder do campo de texto */
   readonly placeholder = input('#000000');
 
-  /** Optional helper text (legacy compatibility). */
+  /** Texto auxiliar (compatibilidade legada) */
   readonly hint = input<string>();
 
-  /** Required asterisk */
+  /** Exibe asterisco de campo obrigatório */
   readonly required = input(false);
 
-  /** Error message */
+  /** Mensagem de erro */
   readonly errorMessage = input('Cor inválida.');
 
-  /** data-test attribute */
+  /** Atributo data-test */
   readonly dataTest = input<string>();
 
-  /** Input size: sm for compact fields, md for the default comfortable field */
+  /** Tamanho do campo: sm para compacto, md para o padrão */
   readonly size = input<AfInputSize>('md');
 
-  /** Current color for the swatch */
+  /** Cor atual exibida na amostra */
   protected readonly currentColor = signal('#000000');
 
-  /** Unique ID */
+  /** ID único do campo */
   protected readonly inputId = `color-${Math.random().toString(36).slice(2, 9)}`;
 
   private readonly colorPickerRef = viewChild.required<ElementRef<HTMLInputElement>>('colorPicker');
 
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Whether to show error */
+  /** Classes CSS do contêiner */
   protected readonly containerClasses = computed(() =>
     resolveInputContainerClass(this.classContainer(), this.spacing()),
   );
 
-  /** Dynamic CSS classes for color swatch based on size */
+  /** Classes CSS dinâmicas da amostra de cor baseadas no tamanho */
   protected readonly swatchClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'size-8' : 'size-10';
     return [
@@ -99,7 +99,7 @@ export class AfColorInputComponent implements OnInit {
     ].join(' ');
   });
 
-  /** Dynamic CSS classes for hex input based on size */
+  /** Classes CSS dinâmicas do campo hex baseadas no tamanho */
   protected readonly inputClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'h-8 px-2.5 text-xs' : 'h-10 px-3 text-sm';
     return [
@@ -112,7 +112,7 @@ export class AfColorInputComponent implements OnInit {
     ].join(' ');
   });
 
-  /** Whether to show error */
+  /** Indica se o erro deve ser exibido */
   protected readonly showError = computed(() => this.control()?.invalid && this.control()?.touched);
 
   ngOnInit(): void {
@@ -131,12 +131,12 @@ export class AfColorInputComponent implements OnInit {
     }
   }
 
-  /** Open native color picker */
+  /** Abre o seletor de cor nativo do navegador */
   protected openPicker(): void {
     this.colorPickerRef().nativeElement.click();
   }
 
-  /** Handle native color picker change */
+  /** Trata mudança no seletor de cor nativo */
   protected onNativeColorChange(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.currentColor.set(value);
@@ -144,7 +144,7 @@ export class AfColorInputComponent implements OnInit {
     this.control().markAsTouched();
   }
 
-  /** Handle text input change */
+  /** Trata mudança no campo de texto hexadecimal */
   protected onTextInput(): void {
     const value = this.control().value;
     if (value && /^#[0-9a-fA-F]{6}$/.test(value)) {

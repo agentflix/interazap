@@ -13,15 +13,15 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class UpdateSchedulingSettingRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    /** Verifica se o usuário está autorizado a realizar esta requisição. */
     public function authorize(): bool
     {
         return true;
     }
 
     /**
+     * Retorna as regras de validação aplicadas à requisição.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -35,6 +35,8 @@ class UpdateSchedulingSettingRequest extends FormRequest
     }
 
     /**
+     * Retorna as mensagens de validação personalizadas.
+     *
      * @return array<string, string>
      */
     public function messages(): array

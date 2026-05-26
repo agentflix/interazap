@@ -14,12 +14,24 @@ use Domain\Shared\Http\Controllers\BaseController;
 use Illuminate\Http\JsonResponse;
 
 /**
- * Controlador para valores de campos personalizados.
+ * Controller para valores de campos personalizados do CRM.
+ *
+ * Gerencia a gravação de valores de campos customizados em contatos, empresas e negociações. Requer autenticação Sanctum.
  */
 final class CRMCustomFieldValueController extends BaseController
 {
+    /**
+     * @param  CRMCustomFieldValueActions  $actions  Ação de upsert de valores de campos personalizados.
+     */
     public function __construct(private readonly CRMCustomFieldValueActions $actions) {}
 
+    /**
+     * Cria ou atualiza valor de campo personalizado para um contato.
+     *
+     * @param  CRMCustomFieldValueRequest  $request  Dados da requisição com ID do campo e valor.
+     * @param  string  $contactId  ID do contato.
+     * @return JsonResponse Valor do campo salvo.
+     */
     public function upsertForContact(CRMCustomFieldValueRequest $request, string $contactId): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -36,6 +48,13 @@ final class CRMCustomFieldValueController extends BaseController
         return $this->success($value->toArray(), 'Campo salvo para contato');
     }
 
+    /**
+     * Cria ou atualiza valor de campo personalizado para uma empresa.
+     *
+     * @param  CRMCustomFieldValueRequest  $request  Dados da requisição com ID do campo e valor.
+     * @param  string  $companyId  ID da empresa.
+     * @return JsonResponse Valor do campo salvo.
+     */
     public function upsertForCompany(CRMCustomFieldValueRequest $request, string $companyId): JsonResponse
     {
         $tenantId = $this->tenantId();
@@ -52,6 +71,13 @@ final class CRMCustomFieldValueController extends BaseController
         return $this->success($value->toArray(), 'Campo salvo para empresa');
     }
 
+    /**
+     * Cria ou atualiza valor de campo personalizado para uma negociação.
+     *
+     * @param  CRMCustomFieldValueRequest  $request  Dados da requisição com ID do campo e valor.
+     * @param  string  $negotiationId  ID da negociação.
+     * @return JsonResponse Valor do campo salvo.
+     */
     public function upsertForNegotiation(CRMCustomFieldValueRequest $request, string $negotiationId): JsonResponse
     {
         $tenantId = $this->tenantId();

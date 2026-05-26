@@ -75,7 +75,7 @@ class SharedWebhookEvent extends Model
     ];
 
     /**
-     * Inicializar o modelo e definir comportamentos automaticos.
+     * Inicializa o modelo registrando geração automática de UUID na criação.
      */
     protected static function booted(): void
     {

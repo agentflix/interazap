@@ -154,7 +154,7 @@ final class CRMNegotiationTaskSeeder extends Seeder
         return match ($status) {
             CRMTaskStatus::PENDING => now()->addDays(random_int(1, 15)),
             CRMTaskStatus::IN_PROGRESS => now()->addDays(random_int(1, 7)),
-            CRMTaskStatus::DONE => now()->subDays(random_int(1, 30)),
+            CRMTaskStatus::DONE, CRMTaskStatus::COMPLETED => now()->subDays(random_int(1, 30)),
         };
     }
 }

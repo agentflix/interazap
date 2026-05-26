@@ -38,6 +38,11 @@ final class CRMCompanyActions
             ->paginate();
     }
 
+    /**
+     * Cria uma empresa garantindo unicidade de nome no tenant.
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando o nome já existe
+     */
     public function create(string $tenantId, CRMCompanyDTO $dto): CRMCompany
     {
         $this->guardUniqueName(CRMCompany::class, $tenantId, $dto->name, 'Empresa já cadastrada para este tenant.');
@@ -49,6 +54,9 @@ final class CRMCompanyActions
         ]);
     }
 
+    /**
+     * Atualiza dados de uma empresa, verificando unicidade de nome se alterado.
+     */
     public function update(string $tenantId, string $id, CRMCompanyDTO $dto): CRMCompany
     {
         $company = $this->find($tenantId, $id);
@@ -62,6 +70,7 @@ final class CRMCompanyActions
         return $company->load(['contacts', 'customFieldValues']);
     }
 
+    /** Remove uma empresa pelo ID, com soft delete. */
     public function delete(string $tenantId, string $id): void
     {
         $company = $this->find($tenantId, $id);
@@ -81,6 +90,7 @@ final class CRMCompanyActions
             ->get();
     }
 
+    /** Retorna uma empresa pelo ID, lançando 404 se não pertencer ao tenant. */
     public function find(string $tenantId, string $id): CRMCompany
     {
         return CRMCompany::query()

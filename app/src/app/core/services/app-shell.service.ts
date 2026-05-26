@@ -1,41 +1,32 @@
 import { Injectable, signal } from '@angular/core';
 
 /**
- * Service for controlling app shell visibility and scroll behavior.
+ * Controla a visibilidade do rodapé e o comportamento de scroll do app shell.
  *
- * @remarks
- * Manages footer visibility and content scrollability states,
- * typically used for modal dialogs and full-screen experiences.
+ * Gerencia o estado de visibilidade do footer e a capacidade de scroll do conteúdo,
+ * usualmente acionado por diálogos modais ou experiências em tela cheia.
  */
 @Injectable({ providedIn: 'root' })
 export class AppShellService {
   readonly footerVisible = signal(true);
   readonly contentScrollable = signal(true);
 
-  /**
-   * Shows the app shell footer.
-   */
+  /** Exibe o rodapé do app shell. */
   showFooter(): void {
     this.footerVisible.set(true);
   }
 
-  /**
-   * Hides the app shell footer.
-   */
+  /** Oculta o rodapé do app shell. */
   hideFooter(): void {
     this.footerVisible.set(false);
   }
 
-  /**
-   * Enables scrolling on the main content area.
-   */
+  /** Habilita o scroll na área principal de conteúdo. */
   enableContentScroll(): void {
     this.contentScrollable.set(true);
   }
 
-  /**
-   * Disables scrolling on the main content area.
-   */
+  /** Desabilita o scroll na área principal de conteúdo. */
   disableContentScroll(): void {
     this.contentScrollable.set(false);
   }

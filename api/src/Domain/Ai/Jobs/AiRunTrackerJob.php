@@ -16,6 +16,13 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
+/**
+ * Job que rastreia e atualiza o estado de um run do Autopilot a partir do payload do stream Redis.
+ *
+ * Recebe o payload publicado pelo gateway no stream ai.run.response, persiste o status
+ * e output no banco e registra o uso em AiUsageLog. Ao final, emite eventos de ciclo
+ * de vida no chat (processing_completed, processing_failed, processing_rejected).
+ */
 final class AiRunTrackerJob implements ShouldQueue
 {
     use Dispatchable;
@@ -35,6 +42,9 @@ final class AiRunTrackerJob implements ShouldQueue
      */
     public function __construct(private readonly array $payload, private readonly ?ChatAiActivityService $chatAiActivity = null) {}
 
+    /**
+     * Atualiza o status do run, registra uso e emite evento de ciclo de vida.
+     */
     public function handle(): void
     {
         $runId = (string) ($this->payload['run_id'] ?? '');
@@ -77,6 +87,9 @@ final class AiRunTrackerJob implements ShouldQueue
         }
     }
 
+    /**
+     * Marca o run como falho quando todas as tentativas do job são esgotadas.
+     */
     public function failed(Throwable $exception): void
     {
         $runId = (string) ($this->payload['run_id'] ?? '');

@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 /**
- * Validacao para atualizacao de tenant da plataforma.
+ * Validação para atualização de tenant da plataforma.
  */
 final class PlatformTenantUpdateRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
      */
     public function authorize(): bool
     {
@@ -31,7 +31,7 @@ final class PlatformTenantUpdateRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
+     * Prepara e normaliza os dados antes da validação (estado em maiúsculas).
      */
     protected function prepareForValidation(): void
     {
@@ -43,6 +43,8 @@ final class PlatformTenantUpdateRequest extends FormRequest
     }
 
     /**
+     * Regras de validação para atualização de tenant.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -72,6 +74,8 @@ final class PlatformTenantUpdateRequest extends FormRequest
     }
 
     /**
+     * Mensagens customizadas para erros de validação.
+     *
      * @return array<string, string>
      */
     public function messages(): array

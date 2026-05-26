@@ -10,15 +10,18 @@ import type {
 } from '@core/models/product-service.model';
 
 /**
- * Service for managing CRM products and services.
- * Preserved verbatim from source — no business logic changes.
+ * Gerencia produtos e serviços do CRM com operações de CRUD e filtragem.
  */
 @Injectable({ providedIn: 'root' })
 export class ProductServiceService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/crm/products`;
 
-  /** List products/services with filters. */
+  /**
+   * Lista produtos/serviços com filtros e paginação.
+   * @param filters Filtros: search, type, is_active, categoria, paginação, ordenação
+   * @returns Observable com lista paginada de produtos/serviços
+   */
   list(filters: ProductServiceFilters = {}): Observable<ProductServiceListResponse> {
     let params = new HttpParams();
     params = this.appendTrimmedString(params, 'search', filters.search);
@@ -32,22 +35,39 @@ export class ProductServiceService {
     return this.http.get<ProductServiceListResponse>(this.baseUrl, { params });
   }
 
-  /** Show a single product/service by ID. */
+  /**
+   * Retorna um produto/serviço pelo ID.
+   * @param id Identificador do produto/serviço
+   * @returns Observable com dados do produto/serviço
+   */
   show(id: string): Observable<ProductServiceResponse> {
     return this.http.get<ProductServiceResponse>(`${this.baseUrl}/${id}`);
   }
 
-  /** Create a new product/service. */
+  /**
+   * Cria um novo produto/serviço no CRM.
+   * @param data Dados do produto/serviço (nome, preço, tipo, categoria)
+   * @returns Observable com o produto/serviço criado
+   */
   create(data: Partial<ProductService>): Observable<ProductServiceResponse> {
     return this.http.post<ProductServiceResponse>(this.baseUrl, data);
   }
 
-  /** Update an existing product/service. */
+  /**
+   * Atualiza um produto/serviço existente.
+   * @param id Identificador do produto/serviço
+   * @param data Dados atualizados do produto/serviço
+   * @returns Observable com o produto/serviço atualizado
+   */
   update(id: string, data: Partial<ProductService>): Observable<ProductServiceResponse> {
     return this.http.put<ProductServiceResponse>(`${this.baseUrl}/${id}`, data);
   }
 
-  /** Delete a product/service. */
+  /**
+   * Exclui um produto/serviço do CRM.
+   * @param id Identificador do produto/serviço
+   * @returns Observable que completa após a exclusão
+   */
   delete(id: string): Observable<null> {
     return this.http.delete<null>(`${this.baseUrl}/${id}`);
   }

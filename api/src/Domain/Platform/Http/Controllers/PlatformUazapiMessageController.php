@@ -58,6 +58,9 @@ final class PlatformUazapiMessageController extends BaseController
         return $this->success($response, 'Arquivo enviado');
     }
 
+    /**
+     * Resolve e autoriza o token da instância pelo identificador de rota.
+     */
     private function resolveAuthorizedInstanceToken(string $token): string
     {
         $instance = PlatformUazapiInstance::query()

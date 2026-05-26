@@ -7,7 +7,10 @@ namespace Domain\Shared\DTOs;
 use Domain\Shared\Http\Requests\GlobalSearchRequest;
 
 /**
- * DTO for global search input payload.
+ * DTO com os parâmetros de entrada para a busca global.
+ *
+ * Carrega o tenant, o termo pesquisado, os tipos de entidade
+ * a incluir e o limite de resultados por tipo.
  *
  * @readonly
  */
@@ -23,6 +26,12 @@ final readonly class GlobalSearchDTO
         public int $perType,
     ) {}
 
+    /**
+     * Constrói o DTO a partir de um FormRequest validado.
+     *
+     * @param  GlobalSearchRequest  $request  Requisição HTTP validada.
+     * @return self DTO populado com os dados da requisição.
+     */
     public static function fromRequest(GlobalSearchRequest $request): self
     {
         /** @var list<string>|null $types */
@@ -37,7 +46,10 @@ final readonly class GlobalSearchDTO
     }
 
     /**
-     * @param  array<string, mixed>  $data
+     * Constrói o DTO a partir de um array associativo.
+     *
+     * @param  array<string, mixed>  $data  Dados brutos de entrada.
+     * @return self DTO populado com os dados informados.
      */
     public static function fromArray(array $data): self
     {
@@ -52,6 +64,12 @@ final readonly class GlobalSearchDTO
         );
     }
 
+    /**
+     * Verifica se o tipo informado deve ser incluído na busca.
+     *
+     * @param  string  $type  Nome do tipo de entidade (ex: 'contacts', 'tickets').
+     * @return bool Verdadeiro se o tipo está na lista selecionada.
+     */
     public function shouldSearch(string $type): bool
     {
         return in_array($type, $this->types, true);

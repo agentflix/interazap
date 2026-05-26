@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Domain\Ai\DTOs;
 
 /**
- * DTO for agent channel payloads.
+ * DTO que representa um canal de comunicação configurado para um agente de IA.
+ *
+ * Utilizado nos fluxos de criação e edição de agentes para definir por quais
+ * canais (WhatsApp, webchat, API, etc.) o agente pode receber e enviar mensagens.
  *
  * @readonly
  */

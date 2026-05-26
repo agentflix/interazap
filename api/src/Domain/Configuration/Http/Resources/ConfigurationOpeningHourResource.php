@@ -8,11 +8,13 @@ use Domain\Shared\Http\Resources\BaseJsonResource;
 use Illuminate\Http\Request;
 
 /**
- * Resource for Opening Hours serialization.
+ * Resource de serialização de horários de funcionamento.
  */
 final class ConfigurationOpeningHourResource extends BaseJsonResource
 {
     /**
+     * Retorna os atributos do horário de funcionamento para serialização.
+     *
      * @return array<string, mixed>
      */
     protected function data(Request $request): array

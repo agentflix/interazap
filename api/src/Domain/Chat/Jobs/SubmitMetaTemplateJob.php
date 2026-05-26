@@ -30,6 +30,10 @@ final class SubmitMetaTemplateJob implements ShouldQueue
 
     public int $timeout = 30;
 
+    /**
+     * @param  string  $templateId  ID do template no banco de dados local.
+     * @param  string  $tenantId  Identificador do tenant dono do template.
+     */
     public function __construct(
         private readonly string $templateId,
         private readonly string $tenantId,
@@ -47,6 +51,9 @@ final class SubmitMetaTemplateJob implements ShouldQueue
         return [30, 120, 300];
     }
 
+    /**
+     * Submete o template ao Gateway e atualiza `external_id` e `status` conforme resposta.
+     */
     public function handle(): void
     {
         $template = ChatMessageTemplate::query()->where('tenant_id', $this->tenantId)->find($this->templateId);
@@ -116,6 +123,9 @@ final class SubmitMetaTemplateJob implements ShouldQueue
         ])->save();
     }
 
+    /**
+     * Trata a falha definitiva marcando o template como `rejected` com o motivo do erro.
+     */
     public function failed(Throwable $exception): void
     {
         $template = ChatMessageTemplate::query()->where('tenant_id', $this->tenantId)->find($this->templateId);
@@ -127,6 +137,9 @@ final class SubmitMetaTemplateJob implements ShouldQueue
         $this->markRejected($template, $exception->getMessage());
     }
 
+    /**
+     * Marca o template como rejeitado, registrando o motivo.
+     */
     private function markRejected(ChatMessageTemplate $template, string $reason): void
     {
         $template->forceFill([
@@ -135,6 +148,9 @@ final class SubmitMetaTemplateJob implements ShouldQueue
         ])->save();
     }
 
+    /**
+     * Lê uma chave de configuração garantindo retorno do tipo string.
+     */
     private function stringConfig(string $key): string
     {
         $value = config($key);

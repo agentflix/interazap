@@ -1,7 +1,10 @@
 import { CircuitOptions } from '../../shared/services/circuit-breaker';
 
 /**
- * Named keys used to look up circuit breaker configurations for external services.
+ * Chaves nomeadas para identificar as configurações de circuit breaker por serviço externo.
+ *
+ * Contexto: módulo core/config. Utilizado em conjunto com CIRCUIT_BREAKER_CONFIG
+ * e getCircuitBreakerOptions para resolver opções por serviço.
  */
 export type CircuitBreakerKey =
   | 'openai'
@@ -11,12 +14,12 @@ export type CircuitBreakerKey =
   | 'minimax';
 
 /**
- * Default circuit breaker options per external service.
+ * Configurações padrão do circuit breaker por serviço externo.
  *
- * @remarks
- * failureThreshold: number of consecutive failures before opening the circuit.
- * successThreshold: number of consecutive successes required to close the circuit.
- * resetTimeout: ms to wait before attempting to close an open circuit.
+ * Contexto: módulo core/config.
+ * - `failureThreshold`: número de falhas consecutivas antes de abrir o circuito
+ * - `successThreshold`: número de sucessos consecutivos para fechar o circuito
+ * - `resetTimeout`: tempo em ms antes de tentar fechar um circuito aberto
  */
 export const CIRCUIT_BREAKER_CONFIG: Record<CircuitBreakerKey, CircuitOptions> =
   {
@@ -48,11 +51,11 @@ export const CIRCUIT_BREAKER_CONFIG: Record<CircuitBreakerKey, CircuitOptions> =
   };
 
 /**
- * Returns the circuit breaker options for a given key, optionally merged with overrides.
- *
- * @param key - The external service whose config to retrieve.
- * @param overrides - Partial options to deep-merge over the defaults.
- * @returns Full CircuitOptions object combining defaults with any overrides.
+ * Retorna as opções de circuit breaker para um serviço externo,
+ * mesclando opcionalmente com overrides fornecidos.
+ * @param key Chave do serviço externo (ex: `openai`, `whatsapp`)
+ * @param overrides Opções parciais a sobrescrever sobre os padrões
+ * @returns Objeto CircuitOptions completo combinando defaults e overrides
  */
 export const getCircuitBreakerOptions = (
   key: CircuitBreakerKey,

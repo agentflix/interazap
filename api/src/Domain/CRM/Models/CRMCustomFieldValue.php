@@ -13,10 +13,10 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
 
 /**
- * Value of a Custom Field for CRM entities.
+ * Valor de campo personalizado para uma entidade CRM.
  *
- * Stores the actual value of a custom field for a specific
- * entity (contact, company, or negotiation).
+ * Armazena o valor efetivo de um campo personalizado para uma entidade
+ * específica (contato, empresa ou negociação), com relacionamento polimórfico.
  *
  * @property string $id
  * @property string $tenant_id

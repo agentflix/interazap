@@ -10,13 +10,20 @@ use Domain\Shared\Support\SearchSanitizer;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Applies reusable CRM negotiation listing filters.
+ * Aplica filtros reutilizáveis de listagem de negociações CRM.
+ *
+ * Centraliza todos os critérios de busca (status, texto, funil, etapa,
+ * contato, empresa, responsável, datas, valores, tags e tarefas pendentes)
+ * para uso em listagem paginada, kanban e exportação.
  */
 final class CRMNegotiationFilterService
 {
     /**
+     * Aplica os filtros na query de negociações com suporte a eager loading.
+     *
      * @param  Builder<CRMNegotiation>  $query
      * @param  array<string, mixed>  $filters
+     * @param  bool  $defaultOpenStatus  Quando verdadeiro, filtra apenas negociações abertas se nenhum status for informado
      */
     public function apply(Builder $query, array $filters, bool $defaultOpenStatus): void
     {
@@ -141,14 +148,14 @@ final class CRMNegotiationFilterService
     }
 
     /**
-     * Aplica filtros a uma query aggregate (GROUP BY).
+     * Aplica filtros a uma query agregada (GROUP BY) sem subqueries de relações.
      *
-     * Usa apenas condições WHERE simples (sem eager loads) para não invalidar
-     * a clause GROUP BY. Equivale ao apply() mas sem os filtros que usam subqueries
-     * que dependam de relações carregadas.
+     * Usa apenas condições WHERE simples para não invalidar a cláusula GROUP BY.
+     * Equivale ao apply() mas sem filtros que dependam de relações carregadas via subquery.
      *
      * @param  Builder<CRMNegotiation>  $query
      * @param  array<string, mixed>  $filters
+     * @param  bool  $defaultOpenStatus  Quando verdadeiro, filtra apenas negociações abertas por padrão
      */
     public function applyForAggregate(Builder $query, array $filters, bool $defaultOpenStatus = true): void
     {

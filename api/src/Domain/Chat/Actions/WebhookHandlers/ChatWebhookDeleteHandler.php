@@ -8,14 +8,21 @@ use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Services\ChatBroadcastService;
 
 /**
- * Handler para deleção de mensagens.
+ * Handler para eventos de deleção de mensagens via webhook.
+ *
+ * Realiza soft delete da mensagem no banco, marca como deletada por remetente
+ * remoto e emite evento WebSocket de deleção via ChatBroadcastService.
  */
 final class ChatWebhookDeleteHandler implements ChatWebhookHandlerInterface
 {
     public function __construct(private readonly ChatBroadcastService $broadcastService) {}
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Suporta eventos 'message.delete' e 'messages.delete'.
+     *
+     * @param  string  $eventType  Tipo do evento recebido.
+     * @param  array<string, mixed>  $payload  Payload bruto do webhook.
+     * @return bool True para eventos de deleção.
      */
     public function supports(string $eventType, array $payload): bool
     {
@@ -23,7 +30,13 @@ final class ChatWebhookDeleteHandler implements ChatWebhookHandlerInterface
     }
 
     /**
-     * @param  array<string, mixed>  $payload
+     * Processa o evento de deleção, marcando a mensagem como deletada e emitindo broadcast.
+     *
+     * Opera silenciosamente se o message_id não for encontrado no payload ou
+     * se a mensagem não existir no banco para o tenant.
+     *
+     * @param  string  $tenantId  Identificador do tenant.
+     * @param  array<string, mixed>  $payload  Payload bruto do evento de deleção.
      */
     public function handle(string $tenantId, array $payload): void
     {

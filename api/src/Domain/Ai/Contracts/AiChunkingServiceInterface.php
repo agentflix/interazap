@@ -7,21 +7,24 @@ namespace Domain\Ai\Contracts;
 use Domain\Ai\Enums\AiDocumentType;
 
 /**
- * Interface for chunking service.
+ * Contrato para o serviço de chunking de documentos.
+ *
+ * Define a interface para fragmentação de texto em chunks com overlap,
+ * utilizado no pipeline de processamento da Knowledge Base RAG.
  */
 interface AiChunkingServiceInterface
 {
     /**
-     * Chunk text into smaller pieces with overlap.
+     * Fragmenta o texto em pedaços menores com overlap.
      *
-     * @param  string  $text  The text to chunk
-     * @param  AiDocumentType|null  $type  Document type for type-aware chunking
+     * @param  string  $text  Texto a ser fragmentado.
+     * @param  AiDocumentType|null  $type  Tipo do documento para chunking específico por tipo.
      * @return list<\Domain\Ai\DTOs\ChunkDTO>
      */
     public function chunk(string $text, ?AiDocumentType $type = null): array;
 
     /**
-     * Estimate token count for a text.
+     * Estima a contagem de tokens de um texto.
      */
     public function estimateTokens(string $text): int;
 }
