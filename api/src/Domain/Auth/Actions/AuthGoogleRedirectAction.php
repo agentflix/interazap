@@ -33,7 +33,7 @@ final class AuthGoogleRedirectAction
 
         $state = json_encode($stateData);
 
-        /** @var RedirectResponse */
-        return Socialite::driver('google')->stateless()->with(['state' => $state])->redirect();
+        /** @phpstan-ignore-next-line method.notFound — stateless() existe em AbstractProvider, não declarado na interface Contract */
+        return Socialite::driver('google')->stateless()->with(['state' => $state])->redirect(); /** @var RedirectResponse */
     }
 }
