@@ -12,6 +12,10 @@ import {
   AsaasPixResponse,
   AsaasPaymentStatusResponse,
   AsaasProductResponse,
+  AsaasPaymentMethodPayload,
+  AsaasPaymentMethodResponse,
+  AsaasChargeWithTokenPayload,
+  AsaasChargeWithTokenResponse,
 } from '../../models/asaas-client.model';
 
 /**
@@ -145,17 +149,17 @@ export class AsaasClient extends AbstractHttpClient {
   }
 
   /**
-   * NO-OP: Asaas v3 does not expose a `/products` endpoint. The previous
-   * implementation hit a non-existent route and returned 404 in production
-   * (silently degraded to `null` in the Laravel caller).
+   * NO-OP: a API Asaas v3 não expõe o endpoint `/products`.
+   * A implementação anterior acessava uma rota inexistente e retornava 404 em produção
+   * (degradado silenciosamente para `null` no chamador Laravel).
    *
-   * Plan ↔ Asaas synchronization, when needed, must be modelled on top of
-   * `/subscriptions` or `/checkouts`. Until that work lands, we resolve with
-   * a stub so callers do not raise — `asaas_product_id` will simply remain
-   * `null` for the plan, which all current call-sites already tolerate.
+   * A sincronização Plano ↔ Asaas, quando necessária, deverá ser modelada sobre
+   * `/subscriptions` ou `/checkouts`. Até isso ser implementado, retorna um stub
+   * para não lançar exceção — `asaas_product_id` permanecerá `null` para o plano,
+   * o que todos os call-sites atuais já toleram.
    *
-   * @param payload - Product payload (kept for API stability)
-   * @returns Stub response with `id: null`
+   * @param payload - Payload do produto (mantido para estabilidade de API)
+   * @returns Resposta stub com `id: null`
    */
 
   async createProduct(
@@ -168,10 +172,11 @@ export class AsaasClient extends AbstractHttpClient {
   }
 
   /**
-   * NO-OP: see `createProduct` for context.
+   * NO-OP: consulte `createProduct` para contexto.
+   * A API Asaas v3 não expõe o endpoint `/products`.
    *
-   * @param productId - Product ID (kept for API stability)
-   * @param payload - Product payload (kept for API stability)
+   * @param _productId - ID do produto (mantido para estabilidade de API)
+   * @param _payload - Payload do produto (mantido para estabilidade de API)
    */
 
   async updateProduct(
@@ -182,6 +187,72 @@ export class AsaasClient extends AbstractHttpClient {
       '[Asaas] updateProduct is a no-op: Asaas v3 has no /products endpoint',
     );
     return Promise.resolve();
+  }
+
+  /**
+   * Consulta metadados de um cartão tokenizado no Asaas sem cobrar.
+   *
+   * @param token - Token do cartão emitido pelo Asaas.js SDK
+   * @param customer - ID do cliente no Asaas
+   * @returns Metadados do cartão (brand, last4, expiry)
+   */
+  async getPaymentMethod(
+    token: string,
+    customer: string,
+  ): Promise<AsaasPaymentMethodResponse> {
+    this.assertApiKeyConfigured();
+
+    try {
+      // Asaas tokenization: fetch card metadata via credit card tokenization endpoint
+      const payload: AsaasPaymentMethodPayload = { token, customer };
+      const response = await this.axiosInstance.post<AsaasPaymentMethodResponse>(
+        '/creditCards/tokenize',
+        payload,
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError('getPaymentMethod', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cria cobrança usando token de cartão salvo, sem PAN trafegando.
+   *
+   * @param customerId - ID do cliente no Asaas
+   * @param token - Token do cartão previamente tokenizado
+   * @param amount - Valor da cobrança em reais
+   * @param metadata - Metadados adicionais (description, externalReference)
+   * @returns Resultado da cobrança com paymentId, status e dados do cartão
+   */
+  async chargeWithToken(
+    customerId: string,
+    token: string,
+    amount: number,
+    metadata: { description?: string; externalReference?: string } = {},
+  ): Promise<AsaasChargeWithTokenResponse> {
+    this.assertApiKeyConfigured();
+
+    try {
+      const payload: AsaasChargeWithTokenPayload = {
+        customer: customerId,
+        billingType: 'CREDIT_CARD',
+        value: amount,
+        dueDate: new Date().toISOString().split('T')[0],
+        description: metadata.description ?? 'Assinatura InteraZap',
+        externalReference: metadata.externalReference ?? '',
+        creditCardToken: token,
+      };
+
+      const response = await this.axiosInstance.post<AsaasChargeWithTokenResponse>(
+        '/payments',
+        payload,
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError('chargeWithToken', error);
+      throw error;
+    }
   }
 
   /**
@@ -202,6 +273,11 @@ export class AsaasClient extends AbstractHttpClient {
     this.logger.error(`[Asaas] ${method} failed with unknown error`, error);
   }
 
+  /**
+   * Garante que a API key do Asaas está configurada antes de realizar chamadas.
+   *
+   * @throws Error se `ASAAS_API_KEY` não estiver configurada
+   */
   private assertApiKeyConfigured(): void {
     if (!this.config.apiKey || this.config.apiKey.trim() === '') {
       throw new Error('ASAAS_API_KEY is not configured');

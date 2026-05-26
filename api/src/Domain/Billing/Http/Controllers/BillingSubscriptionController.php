@@ -62,7 +62,9 @@ final class BillingSubscriptionController extends BaseController
 
         $anchorDay = $currentTenant?->billing_cycle_anchor_day ?? 1;
         $now = CarbonImmutable::now();
-        $cycle = $this->cycleCalculator->calculate($anchorDay, $now);
+        // Pass cycle_days for trial plans (FEAT-005); null falls back to monthly anchor behavior
+        $cycleDays = $currentPlan?->cycle_days ?? null;
+        $cycle = $this->cycleCalculator->calculate($anchorDay, $now, $cycleDays);
         $cycleStartStr = $cycle['cycle_start']->toDateString();
         $cycleEndStr = $cycle['cycle_end']->toDateString();
 
@@ -130,6 +132,8 @@ final class BillingSubscriptionController extends BaseController
                 'ai_enabled' => (bool) $currentPlan->ai_enabled,
                 'negotiations_mode' => $currentPlan->negotiations_mode->value,
                 'negotiations_limit' => $currentPlan->negotiations_limit,
+                'cycle_days' => (int) ($currentPlan->cycle_days ?? 30),
+                'is_trial' => (bool) ($currentPlan->is_trial ?? false),
             ] : null,
             'usage' => [
                 'users' => [
@@ -255,6 +259,11 @@ final class BillingSubscriptionController extends BaseController
         }
     }
 
+    /**
+     * Verifica se o usuário tem acesso aos endpoints de assinatura, abortando com 401/403 se não tiver.
+     *
+     * @param  bool  $requiresManage  Se verdadeiro, exige a permissão billing.plan.manage adicionalmente
+     */
     private function assertPlanAccess(?AuthUser $user, bool $requiresManage): void
     {
         if ($user === null) {
@@ -276,6 +285,7 @@ final class BillingSubscriptionController extends BaseController
         abort(403, 'Forbidden');
     }
 
+    /** Calcula a porcentagem de uso arredondada para uma casa decimal, ou null se não houver limite. */
     private function percentage(int $current, ?int $limit): ?float
     {
         if (! is_numeric($limit) || (int) $limit <= 0) {
@@ -287,6 +297,7 @@ final class BillingSubscriptionController extends BaseController
         return round($value, 1);
     }
 
+    /** Formata bytes para unidade legível (B, KB, MB, GB, TB). */
     private function formatBytes(int $bytes): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];

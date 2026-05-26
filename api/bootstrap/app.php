@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         Domain\Platform\Console\Commands\QueueHealthCommand::class,
         Domain\Platform\Console\Commands\TenantBootstrapDefaultsCommand::class,
         Domain\Platform\Console\Commands\ChatMessagesPartitionMaintenanceCommand::class,
+        // FEAT-005: Trial management commands
+        Domain\Billing\Console\Commands\CloseExpiredTrialsCommand::class,
+        Domain\Billing\Console\Commands\SendTrialEndingSoonCommand::class,
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',

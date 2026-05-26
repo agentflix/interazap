@@ -17,6 +17,8 @@ export interface SubscriptionPlan {
   message_limit_monthly: number | null;
   overage_mode: 'stop' | 'overage';
   overage_price_per_message: number | null;
+  cycle_days: number;
+  is_trial: boolean;
   is_current?: boolean;
   features?: SubscriptionPlanFeature[];
 }

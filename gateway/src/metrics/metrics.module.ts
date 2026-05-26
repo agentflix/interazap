@@ -3,18 +3,20 @@ import { InternalApiKeyGuard } from '../domains/realtime/guards/internal-api-key
 import { MetricsController } from './metrics.controller';
 import { MetricsService } from './metrics.service';
 import { BillingUsageMetrics } from './billing-usage.metrics';
+import { BillingTrialMetrics } from './billing-trial.metrics';
 
 /**
- * MetricsModule
+ * Módulo global que inicializa o subsistema de métricas Prometheus do gateway.
  *
- * Global NestJS module that bootstraps the Prometheus metrics subsystem.
- * Registers MetricsController and MetricsService, both exported for use
- * across the gateway application.
+ * Contexto: módulo metrics. Registra MetricsController (scraping endpoint),
+ * MetricsService (registry centralizado) e as métricas de domínio
+ * BillingUsageMetrics e BillingTrialMetrics.
+ * `@Global()` disponibiliza MetricsService para injeção em qualquer módulo.
  */
 @Global()
 @Module({
   controllers: [MetricsController],
-  providers: [MetricsService, BillingUsageMetrics, InternalApiKeyGuard],
-  exports: [MetricsService, BillingUsageMetrics],
+  providers: [MetricsService, BillingUsageMetrics, BillingTrialMetrics, InternalApiKeyGuard],
+  exports: [MetricsService, BillingUsageMetrics, BillingTrialMetrics],
 })
 export class MetricsModule {}

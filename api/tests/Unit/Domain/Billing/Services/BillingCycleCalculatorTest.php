@@ -65,4 +65,17 @@ class BillingCycleCalculatorTest extends TestCase
         $this->assertSame('2026-01-01', $result['cycle_start']->toDateString());
         $this->assertSame('2026-01-31', $result['cycle_end']->toDateString());
     }
+
+    #[Test]
+    public function test_calculate_with_cycle_days_returns_n_days_window(): void
+    {
+        $result = $this->calculator->calculate(
+            anchorDay: 1,
+            reference: CarbonImmutable::parse('2026-01-15'),
+            cycleDays: 7
+        );
+
+        $this->assertSame('2026-01-15', $result['cycle_start']->toDateString());
+        $this->assertSame('2026-01-21', $result['cycle_end']->toDateString());
+    }
 }

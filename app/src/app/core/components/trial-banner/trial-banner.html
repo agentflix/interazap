@@ -1,0 +1,41 @@
+@if (!isLoading && bannerState) {
+  <div
+    class="trial-banner"
+    [class.trial-banner--normal]="bannerState === 'normal'"
+    [class.trial-banner--alert]="bannerState === 'alert'"
+    [class.trial-banner--expired]="bannerState === 'expired'"
+    role="banner"
+    aria-label="Status do trial"
+  >
+    <div class="trial-banner__content">
+      <span class="trial-banner__icon" aria-hidden="true">
+        @if (bannerState === 'normal') { 🎁 }
+        @if (bannerState === 'alert') { ⚠️ }
+        @if (bannerState === 'expired') { 🔴 }
+      </span>
+
+      <span class="trial-banner__text">
+        @if (bannerState === 'expired') {
+          Trial expirado · IA pausada
+        } @else {
+          Trial ativo · {{ daysLeft }} {{ daysLeft === 1 ? 'dia restante' : 'dias restantes' }} · {{ messageCount }}/{{ messageLimit }} msgs IA
+        }
+      </span>
+
+      @if (bannerState === 'alert') {
+        <div class="trial-banner__progress" role="progressbar" [attr.aria-valuenow]="messagePercentage" aria-valuemin="0" aria-valuemax="100">
+          <div class="trial-banner__progress-fill" [style.width.%]="messagePercentage"></div>
+        </div>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="trial-banner__cta"
+      [class.trial-banner__cta--pulse]="bannerState === 'expired'"
+      (click)="openUpgradeModal()"
+    >
+      {{ bannerState === 'expired' ? 'Contratar agora →' : 'Contratar →' }}
+    </button>
+  </div>
+}

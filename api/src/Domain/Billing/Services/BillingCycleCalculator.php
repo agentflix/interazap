@@ -7,22 +7,40 @@ namespace Domain\Billing\Services;
 use Carbon\CarbonImmutable;
 
 /**
- * Calculates billing cycle boundaries based on an anchor day.
+ * Calcula os limites do ciclo de billing com base em um dia âncora mensal ou duração fixa.
+ *
+ * Planos regulares usam âncora mensal (1–28); planos trial usam duração fixa em dias.
  */
 final class BillingCycleCalculator
 {
     /**
-     * Calculate cycle boundaries for a given anchor day and reference date.
+     * Calcula o início e fim do ciclo para um dia âncora e data de referência.
      *
-     * The anchor day is capped at 28 to avoid February overflow issues.
+     * O dia âncora é limitado a 28 para evitar estouro em fevereiro.
      *
-     * @param  int  $anchorDay  Day of month for cycle start (1-31, capped at 28)
-     * @param  CarbonImmutable  $reference  Reference date for calculation
+     * Quando `$cycleDays` é fornecido, o ciclo é calculado como uma janela de
+     * duração fixa a partir da data de referência (modo trial). Quando nulo,
+     * usa o comportamento padrão de âncora mensal.
+     *
+     * @param  int  $anchorDay  Dia do mês para início do ciclo (1-31, limitado a 28); ignorado quando $cycleDays está definido
+     * @param  CarbonImmutable  $reference  Data de referência para o cálculo
+     * @param  int|null  $cycleDays  Duração fixa do ciclo em dias (ex: 7 para trial). Nulo = modo âncora mensal.
      * @return array{cycle_start: CarbonImmutable, cycle_end: CarbonImmutable}
      */
-    public function calculate(int $anchorDay, CarbonImmutable $reference): array
+    public function calculate(int $anchorDay, CarbonImmutable $reference, ?int $cycleDays = null): array
     {
-        // Cap anchor to max 28 to avoid Feb issues
+        // Fixed-duration mode: trial plans use cycle_days instead of monthly anchor
+        if ($cycleDays !== null) {
+            $cycleStart = $reference->startOfDay();
+            $cycleEnd = $cycleStart->addDays($cycleDays)->subSecond();
+
+            return [
+                'cycle_start' => $cycleStart,
+                'cycle_end' => $cycleEnd,
+            ];
+        }
+
+        // Monthly anchor mode (legacy behavior): cap anchor to max 28 to avoid Feb issues
         $anchor = min($anchorDay, 28);
 
         // Determine cycle_start: same month if reference.day >= anchor, else previous month

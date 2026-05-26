@@ -195,6 +195,34 @@ export class AuthService {
    *
    * @internal
    */
+
+  /**
+   * Cadastra um novo usuário via formulário público de signup.
+   * Cria tenant + user + plano trial em uma única requisição.
+   *
+   * @param payload - Dados de cadastro (name, email, password, accept_terms)
+   * @returns Observable com dados do usuário, token e plano trial ativo
+   */
+  signup(payload: { name: string; email: string; password: string; accept_terms: boolean }): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.baseUrl}/auth/signup`, payload, { withCredentials: true })
+      .pipe(switchMap((response) => this.persistToken(response)));
+  }
+
+  /**
+   * Processa o token recebido após callback do Google OAuth.
+   * Persiste o token e busca dados do usuário autenticado via GET /auth/me.
+   *
+   * @param token - Token Sanctum emitido pelo backend no callback OAuth
+   * @returns Observable com dados completos do usuário autenticado
+   */
+  handleGoogleToken(token: string): Observable<AuthResponse> {
+    return from(this.authStorage.set(token)).pipe(
+      switchMap(() => this.me()),
+      switchMap((response) => this.persistToken(response)),
+    );
+  }
+
   private buildLoginPayload<T extends Record<string, unknown>>(payload: T): Observable<T & { device_name?: string }> {
     if (!this.platform.isMobile) {
       return of(payload);

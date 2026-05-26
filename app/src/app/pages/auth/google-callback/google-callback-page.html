@@ -1,0 +1,15 @@
+<div class="google-callback">
+  @if (isLoading) {
+    <div class="google-callback__loading">
+      <div class="spinner" aria-label="Autenticando..."></div>
+      <p>Autenticando com Google...</p>
+    </div>
+  }
+
+  @if (hasError) {
+    <div class="google-callback__error" role="alert">
+      <p>{{ errorMessage }}</p>
+      <a routerLink="/login">Voltar para login</a>
+    </div>
+  }
+</div>

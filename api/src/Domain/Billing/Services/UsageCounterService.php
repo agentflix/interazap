@@ -12,12 +12,35 @@ use Domain\Billing\Models\TenantMessageUsage;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Gerencia contagem de uso de mensagens IA por tenant e ciclo de billing.
+ *
+ * Usa o {@see BillingCycleCalculator} para determinar o ciclo atual,
+ * suportando planos mensais com âncora customizada e planos trial com
+ * duração fixa em dias.
+ */
 final class UsageCounterService
 {
     public function __construct(
         private readonly BillingCycleCalculator $cycleCalculator,
     ) {}
 
+    /**
+     * Verifica e incrementa o uso de mensagens IA para o ciclo atual do tenant.
+     *
+     * Executa dentro de uma transação com `lockForUpdate` para serializar
+     * requisições concorrentes do mesmo tenant e evitar race conditions.
+     *
+     * Fluxo de idempotência (em ordem de verificação):
+     *  1. Chave em `ai_usage_idempotency_keys` → retorna resultado cacheado
+     *  2. Log reconciliado em `ai_message_usage_failed_logs` → marca como permitido
+     *  3. Caso novo → incrementa contador e persiste chave de idempotência
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  string  $channel  Canal de origem da mensagem (ex: whatsapp, webchat)
+     * @param  string  $aiTurnId  ID único do turno de IA (chave de idempotência)
+     * @return CheckAndIncrementResult Resultado com allowed, current, limit, mode e isOverage
+     */
     public function checkAndIncrement(
         string $tenantId,
         string $channel,
@@ -31,7 +54,9 @@ final class UsageCounterService
 
             $anchorDay = $tenant->billing_cycle_anchor_day ?? 1;
             $now = CarbonImmutable::now();
-            $cycle = $this->cycleCalculator->calculate($anchorDay, $now);
+            // Only trial plans use fixed-duration cycles; regular plans keep monthly anchor behavior
+            $cycleDays = ($plan !== null && $plan->is_trial) ? ($plan->cycle_days ?? null) : null;
+            $cycle = $this->cycleCalculator->calculate($anchorDay, $now, $cycleDays);
             $cycleStart = $cycle['cycle_start']->toDateString();
             $cycleEnd = $cycle['cycle_end']->toDateString();
 

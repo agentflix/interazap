@@ -25,7 +25,18 @@ final class BillingChangePlanAction
     ) {}
 
     /**
-     * @return array<string, mixed>
+     * Executa a troca de plano do tenant com idempotência via cache.
+     *
+     * Para upgrade: gera fatura pro-rata no mês corrente caso haja diferença de valor.
+     * Para downgrade: desativa usuários e instâncias excedentes e registra crédito
+     * na próxima fatura pendente.
+     *
+     * @param  string  $tenantId  UUID do tenant
+     * @param  string  $userId  UUID do usuário que solicitou a troca
+     * @param  BillingChangePlanDTO  $dto  Dados da troca (planId, senha opcional)
+     * @return array<string, mixed> Resultado com tipo da troca, novo plano e efeitos financeiros
+     *
+     * @throws \Illuminate\Validation\ValidationException Quando a senha atual está incorreta
      */
     public function execute(string $tenantId, string $userId, BillingChangePlanDTO $dto): array
     {
@@ -46,10 +57,12 @@ final class BillingChangePlanAction
 
             $user = \Domain\Auth\Models\AuthUser::query()->where('id', $userId)->firstOrFail();
 
-            if (! Hash::check((string) $dto->currentPassword, (string) $user->password)) {
-                throw ValidationException::withMessages([
-                    'current_password' => ['A senha atual está incorreta.'],
-                ]);
+            if (! $dto->bypassPassword) {
+                if (! Hash::check((string) $dto->currentPassword, (string) $user->password)) {
+                    throw ValidationException::withMessages([
+                        'current_password' => ['A senha atual está incorreta.'],
+                    ]);
+                }
             }
 
             $preview = $this->previewAction->execute($tenantId, $dto->planId);
@@ -162,6 +175,7 @@ final class BillingChangePlanAction
         return $result;
     }
 
+    /** Constrói a chave de cache de idempotência para a operação de troca de plano. */
     private function buildIdempotencyKey(string $tenantId, string $userId, string $planId): string
     {
         return sprintf('billing:plan-change:%s', sha1($tenantId.'|'.$userId.'|'.$planId));

@@ -29,6 +29,14 @@ Route::middleware(['auth:sanctum', 'billing.delinquency'])
         Route::post('/plan-change', [BillingSubscriptionController::class, 'change']);
     });
 
+// FEAT-005: Trial upgrade + payment method management
+Route::middleware(['auth:sanctum'])
+    ->prefix('billing')
+    ->group(function (): void {
+        Route::post('/upgrade-from-trial', [\Domain\Billing\Http\Controllers\BillingUpgradeFromTrialController::class, 'store']);
+        Route::post('/payment-method', [\Domain\Billing\Http\Controllers\BillingPaymentMethodController::class, 'store']);
+    });
+
 Route::middleware(['auth:sanctum'])
     ->prefix('admin/billing/delinquent')
     ->group(function (): void {

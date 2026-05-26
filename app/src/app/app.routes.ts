@@ -84,6 +84,26 @@ export const routes: Routes = [
         canDeactivate: [forceChangePasswordCanDeactivate],
         data: { title: 'Redefinir Senha' },
       },
+      // ─── Signup público (FEAT-005) ─────────────────────────────────────────
+      {
+        path: 'signup',
+        loadComponent: () =>
+          import('./pages/auth/signup/signup-page').then((m) => m.SignupPageComponent),
+        data: { title: 'Criar Conta Grátis' },
+      },
+      {
+        path: 'auth/signup',
+        loadComponent: () =>
+          import('./pages/auth/signup/signup-page').then((m) => m.SignupPageComponent),
+        data: { title: 'Criar Conta Grátis' },
+      },
+      // ─── Google OAuth callback (FEAT-005) ──────────────────────────────────
+      {
+        path: 'auth/google-callback',
+        loadComponent: () =>
+          import('./pages/auth/google-callback/google-callback-page').then((m) => m.GoogleCallbackPageComponent),
+        data: { title: 'Autenticando...' },
+      },
     ],
   },
   {

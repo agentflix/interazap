@@ -120,6 +120,37 @@ class BillingChangePlanTest extends TestCase
         $this->assertGreaterThan(499.0, (float) $updatedInvoice->amount);
     }
 
+    public function test_execute_bypasses_password_when_dto_flag_true(): void
+    {
+        [$tenant, $admin] = $this->createTenantAdmin();
+
+        $currentPlan = PlatformPlan::factory()->create([
+            'slug' => 'starter-'.\Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6)),
+            'price_monthly' => 99,
+            'limit_users' => 10,
+        ]);
+
+        $targetPlan = PlatformPlan::factory()->create([
+            'slug' => 'pro-'.\Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6)),
+            'price_monthly' => 199,
+            'limit_users' => 25,
+        ]);
+
+        $tenant->plan_id = $currentPlan->id;
+        $tenant->save();
+
+        $action = app(\Domain\Billing\Actions\BillingChangePlanAction::class);
+        $dto = new \Domain\Billing\DTOs\BillingChangePlanDTO(
+            planId: $targetPlan->id,
+            currentPassword: null,
+            bypassPassword: true
+        );
+
+        $result = $action->execute($tenant->id, $admin->id, $dto);
+
+        $this->assertSame($targetPlan->id, $result['new_plan']['id']);
+    }
+
     private function createTenantAdmin(): array
     {
         $tenant = PlatformTenant::factory()->create();

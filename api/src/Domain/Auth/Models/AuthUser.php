@@ -54,18 +54,24 @@ class AuthUser extends Authenticatable implements AuditableContract
 
     protected $keyType = 'string';
 
+    /**
+     * Envia notificação de redefinição de senha com URL apontando para o frontend SPA.
+     *
+     * @param  mixed  $token  Token de redefinição gerado pelo Password broker.
+     */
     public function sendPasswordResetNotification($token): void
     {
         $frontendUrl = config('app.frontend_url', 'http://localhost:4200');
         $email = $this->email;
 
         \Domain\Auth\Notifications\ResetPasswordNotification::createUrlUsing(
-            static fn () => $frontendUrl . '/auth/reset-password?token=' . $token . '&email=' . urlencode($email)
+            static fn () => $frontendUrl.'/auth/reset-password?token='.$token.'&email='.urlencode($email)
         );
 
         $this->notify(new \Domain\Auth\Notifications\ResetPasswordNotification($token));
     }
 
+    /** Verifica se o usuário possui o perfil de super-admin (Administrador). */
     public function isSuperAdmin(): bool
     {
         return $this->hasRoleId(AuthRole::ADMINISTRADOR_ID);
@@ -129,6 +135,8 @@ class AuthUser extends Authenticatable implements AuditableContract
         'two_factor_recovery_codes',
         'email_verified_at',
         'preferences',
+        'provider',
+        'provider_id',
     ];
 
     /**
@@ -179,6 +187,8 @@ class AuthUser extends Authenticatable implements AuditableContract
     }
 
     /**
+     * Retorna os tokens APN (iOS) ativos para envio de push notification.
+     *
      * @return array<int, string>
      */
     public function routeNotificationForApn(object $notification): array
@@ -187,6 +197,8 @@ class AuthUser extends Authenticatable implements AuditableContract
     }
 
     /**
+     * Retorna os tokens FCM (Android) ativos para envio de push notification.
+     *
      * @return array<int, string>
      */
     public function routeNotificationForFcm(object $notification): array
@@ -194,20 +206,18 @@ class AuthUser extends Authenticatable implements AuditableContract
         return $this->activeDeviceTokensByPlatform('android');
     }
 
-    /**
-     * Criar uma nova instância da Factory para testes.
-     *
-     * @return AuthUserFactory Instância configurada da fábrica.
-     */
+    /** Cria a instância da factory para uso em testes. */
     protected static function newFactory(): AuthUserFactory
     {
         return AuthUserFactory::new();
     }
 
     /**
-     * Override default permission check to honor scoped personal access tokens.
-     */
-    /**
+     * Sobrescreve a verificação de permissão para super-admin e tokens com escopo.
+     *
+     * Super-admins tem acesso total. Para demais usuarios, respeita os escopos
+     * do personal access token Sanctum antes de delegar para o RBAC do Spatie.
+     *
      * @param  string|iterable<string>  $abilities
      * @param  mixed  $arguments
      */
@@ -224,6 +234,7 @@ class AuthUser extends Authenticatable implements AuditableContract
         return parent::can($abilities, $arguments);
     }
 
+    /** Verifica se o token atual possui o escopo da permissão solicitada. */
     private function tokenAllows(string $permission): bool
     {
         $token = $this->currentAccessToken();
@@ -236,6 +247,9 @@ class AuthUser extends Authenticatable implements AuditableContract
     }
 
     /**
+     * Retorna tokens ativos de uma plataforma específica para push notifications.
+     *
+     * @param  string  $platform  'ios' ou 'android'.
      * @return array<int, string>
      */
     private function activeDeviceTokensByPlatform(string $platform): array

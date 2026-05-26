@@ -3,6 +3,7 @@ import { BillingWebhookController } from './controllers/billing-webhook.controll
 import { BillingController } from './controllers/billing.controller';
 import { BillingCollectionController } from './controllers/billing-collection.controller';
 import { PlatformProductsController } from './controllers/platform-products.controller';
+import { PaymentMethodController } from './controllers/payment-method.controller';
 import { BillingWebhookService } from './services/billing-webhook.service';
 import { BillingCollectionService } from './services/billing-collection.service';
 import { BillingTenantResolverService } from './services/billing-tenant-resolver.service';
@@ -12,6 +13,14 @@ import { InternalApiKeyGuard } from '../realtime/guards/internal-api-key.guard';
 import { ChatModule } from '../chat/chat.module';
 import { QueueModule } from '../../shared/services/queue/queue.module';
 
+/**
+ * Módulo raiz do domínio de billing.
+ *
+ * Registra controllers para recebimento de webhooks, gerenciamento de cobranças,
+ * envio de notificações de cobrança via WhatsApp e sincronização de produtos.
+ * Exporta o AsaasNormalizer para uso em outros módulos que precisam normalizar
+ * eventos de pagamento.
+ */
 @Module({
   imports: [ChatModule, QueueModule],
   controllers: [
@@ -19,6 +28,7 @@ import { QueueModule } from '../../shared/services/queue/queue.module';
     BillingController,
     BillingCollectionController,
     PlatformProductsController,
+    PaymentMethodController,
   ],
   providers: [
     BillingWebhookService,
@@ -30,10 +40,4 @@ import { QueueModule } from '../../shared/services/queue/queue.module';
   ],
   exports: [AsaasNormalizer],
 })
-/**
- * Root module for the Billing domain.
- *
- * Provides controllers for webhooks, billing management, collection notifications,
- * and platform product synchronization. Exports AsaasNormalizer for use in other modules.
- */
 export class BillingModule {}

@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
         $this->call(PlatformPlanSeeder::class);
         // PlatformPlanExtraSeeder is intentionally empty — all tiers are in PlatformPlanSeeder
         $this->call(PlatformPlanExtraSeeder::class);
+        // Trial plan (FEAT-005) — must run AFTER PlatformPlanSeeder (needs cycle_days column)
+        $this->call(PlatformPlanTrialSeeder::class);
         $defaultPlan = \Domain\Platform\Models\PlatformPlan::query()->where('slug', 'business')->first();
 
         // ── Default tenant + admin user ───────────────────────────────────

@@ -1,0 +1,134 @@
+<div class="quick-upgrade-modal">
+  <!-- Header -->
+  <div class="quick-upgrade-modal__header">
+    @if (step() === 'plan') {
+      <h2>Escolha seu plano</h2>
+    } @else if (step() === 'card') {
+      <h2>Dados do cartão</h2>
+    } @else if (step() === 'processing') {
+      <h2>Processando...</h2>
+    } @else if (step() === 'success') {
+      <h2>Assinatura ativada!</h2>
+    } @else if (step() === 'error') {
+      <h2>Pagamento recusado</h2>
+    }
+    <button type="button" class="quick-upgrade-modal__close" (click)="close()" aria-label="Fechar">×</button>
+  </div>
+
+  <!-- Step 1: Escolha de plano -->
+  @if (step() === 'plan') {
+    <div class="quick-upgrade-modal__body">
+      <p class="quick-upgrade-modal__trial-info">
+        🎁 Trial: {{ messageCount }}/{{ messageLimit }} mensagens usadas.
+        Suas conversas e contatos serão preservados.
+      </p>
+
+      @if (isLoadingPlans()) {
+        <div class="quick-upgrade-modal__loading">Carregando planos...</div>
+      } @else {
+        <div class="quick-upgrade-modal__plans">
+          @for (plan of plans(); track plan.id) {
+            <div class="quick-upgrade-modal__plan-wrapper" [class.recommended]="plan.slug === 'professional'">
+              @if (plan.slug === 'professional') {
+                <div class="quick-upgrade-modal__badge">⭐ Recomendado</div>
+              }
+              <app-plan-card
+                [plan]="plan"
+                [currentPlanPrice]="currentPlanPrice"
+                (selected)="selectPlan($event)"
+              />
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Step 2: Form de cartão -->
+  @if (step() === 'card') {
+    <div class="quick-upgrade-modal__body">
+      <p class="quick-upgrade-modal__plan-selected">
+        Plano selecionado: <strong>{{ selectedPlan()?.name }}</strong>
+        — R$ {{ selectedPlan()?.price_monthly }}/mês
+      </p>
+
+      <form [formGroup]="cardForm" (ngSubmit)="submitCard()">
+        <div class="space-y-4">
+          <div class="form-group">
+            <label>Nome no cartão</label>
+            <input type="text" formControlName="holderName" placeholder="Nome como no cartão" autocomplete="cc-name" />
+          </div>
+
+          <div class="form-group">
+            <label>Número do cartão</label>
+            <input type="text" formControlName="number" placeholder="1234 5678 9012 3456" autocomplete="cc-number" maxlength="19" />
+          </div>
+
+          <div class="form-group form-group--row">
+            <div class="form-group">
+              <label>Mês</label>
+              <input type="text" formControlName="expiryMonth" placeholder="MM" maxlength="2" autocomplete="cc-exp-month" />
+            </div>
+            <div class="form-group">
+              <label>Ano</label>
+              <input type="text" formControlName="expiryYear" placeholder="AAAA" maxlength="4" autocomplete="cc-exp-year" />
+            </div>
+            <div class="form-group">
+              <label>CVV</label>
+              <input type="text" formControlName="ccv" placeholder="123" maxlength="4" autocomplete="cc-csc" />
+            </div>
+          </div>
+
+          <label class="flex items-start gap-2 cursor-pointer text-sm">
+            <input type="checkbox" formControlName="accept_terms" class="mt-0.5 rounded" />
+            <span>Autorizo a cobrança e aceito os <a href="/terms" target="_blank">termos de uso</a></span>
+          </label>
+        </div>
+
+        <div class="quick-upgrade-modal__actions">
+          <button type="button" class="btn btn--secondary" (click)="goBackToPlan()">← Voltar</button>
+          <button
+            type="submit"
+            class="btn btn--primary"
+            [disabled]="cardForm.invalid || isSubmitting()"
+          >
+            Pagar e ativar
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Step 3: Processando -->
+  @if (step() === 'processing') {
+    <div class="quick-upgrade-modal__body quick-upgrade-modal__body--center">
+      <div class="spinner" aria-label="Processando pagamento..."></div>
+      <p>Processando seu pagamento...</p>
+    </div>
+  }
+
+  <!-- Step 4: Sucesso -->
+  @if (step() === 'success') {
+    <div class="quick-upgrade-modal__body quick-upgrade-modal__body--center">
+      <div class="quick-upgrade-modal__success-icon">✅</div>
+      <h3>Plano ativado com sucesso!</h3>
+      @if (nextBillingDate()) {
+        <p>Próxima fatura: <strong>{{ nextBillingDate() }}</strong></p>
+      }
+      <button type="button" class="btn btn--primary mt-4" (click)="closeAfterSuccess()">
+        Continuar
+      </button>
+    </div>
+  }
+
+  <!-- Step Erro -->
+  @if (step() === 'error') {
+    <div class="quick-upgrade-modal__body">
+      <af-alert variant="danger" [message]="errorMessage() ?? 'Pagamento recusado.'" />
+      <div class="quick-upgrade-modal__actions mt-4">
+        <button type="button" class="btn btn--secondary" (click)="close()">Fechar</button>
+        <button type="button" class="btn btn--primary" (click)="retryCard()">Trocar cartão</button>
+      </div>
+    </div>
+  }
+</div>

@@ -100,4 +100,11 @@ return [
         'credentials_json' => env('FCM_CREDENTIALS_JSON'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+        'app_redirect_url' => env('GOOGLE_APP_REDIRECT_URL', 'http://localhost:4200/auth/google-callback'),
+    ],
+
 ];

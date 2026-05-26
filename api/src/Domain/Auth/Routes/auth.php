@@ -27,6 +27,18 @@ Route::prefix('auth')
         Route::post('/reset-password', [AuthPasswordResetController::class, 'reset']);
     });
 
+// Public signup — rate-limited at 10 req/min/IP
+Route::prefix('auth')
+    ->middleware(['throttle:public'])
+    ->group(function (): void {
+        Route::post('/signup', [\Domain\Auth\Http\Controllers\AuthSignupController::class, 'store']);
+
+        // Google OAuth
+        Route::get('/google/redirect', [\Domain\Auth\Http\Controllers\AuthGoogleController::class, 'redirect']);
+        Route::get('/google/callback', [\Domain\Auth\Http\Controllers\AuthGoogleController::class, 'callback'])
+            ->middleware(['throttle:login']);
+    });
+
 Route::middleware(['auth:sanctum'])
     ->prefix('auth')
     ->group(function (): void {

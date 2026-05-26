@@ -15,10 +15,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 /**
- * Subscription plan for the platform.
+ * Plano de assinatura da plataforma.
  *
- * Defines tiers with limits on users, storage, integrations,
- * and features like AI and negotiations.
+ * Define os tiers de contratação com limites de usuários, armazenamento,
+ * canais de chat, negociações e funcionalidades como IA e excedentes.
  *
  * @property string $id
  * @property string $name
@@ -37,6 +37,8 @@ use Illuminate\Support\Str;
  * @property \Domain\Platform\Enums\PlatformReportsMode $reports_mode
  * @property float|null $price_monthly
  * @property string|null $asaas_product_id
+ * @property int $cycle_days
+ * @property bool $is_trial
  * @property bool $is_active
  */
 final class PlatformPlan extends Model
@@ -44,13 +46,24 @@ final class PlatformPlan extends Model
     use HasFactory;
     use SoftDeletes;
 
+    /**
+     * Tabela associada ao modelo.
+     */
     protected $table = 'platform_plans';
 
+    /**
+     * Chave primária não auto-incrementa (UUID).
+     */
     public $incrementing = false;
 
+    /**
+     * Tipo da chave primária.
+     */
     protected $keyType = 'string';
 
     /**
+     * Atributos atribuíveis em massa.
+     *
      * @var list<string>
      */
     protected $fillable = [
@@ -70,11 +83,15 @@ final class PlatformPlan extends Model
         'negotiations_limit',
         'reports_mode',
         'price_monthly',
+        'cycle_days',
+        'is_trial',
         'asaas_product_id',
         'is_active',
     ];
 
     /**
+     * Casts de atributos.
+     *
      * @var array<string, string>
      */
     protected $casts = [
@@ -91,9 +108,14 @@ final class PlatformPlan extends Model
         'negotiations_limit' => 'integer',
         'reports_mode' => PlatformReportsMode::class,
         'price_monthly' => 'decimal:2',
+        'cycle_days' => 'integer',
+        'is_trial' => 'boolean',
         'is_active' => 'boolean',
     ];
 
+    /**
+     * Hooks do ciclo de vida do modelo.
+     */
     protected static function booted(): void
     {
         self::creating(function (self $plan): void {
@@ -107,16 +129,25 @@ final class PlatformPlan extends Model
         });
     }
 
+    /**
+     * Verifica se o plano tem limite de armazenamento configurado.
+     */
     public function isStorageLimited(): bool
     {
         return $this->storage_mode === PlatformStorageMode::LIMITED;
     }
 
+    /**
+     * Verifica se o plano tem limite de negociações configurado.
+     */
     public function isNegotiationsLimited(): bool
     {
         return $this->negotiations_mode === PlatformNegotiationsMode::LIMITED;
     }
 
+    /**
+     * Cria uma nova instância da Factory para testes.
+     */
     protected static function newFactory(): PlatformPlanFactory
     {
         return PlatformPlanFactory::new();

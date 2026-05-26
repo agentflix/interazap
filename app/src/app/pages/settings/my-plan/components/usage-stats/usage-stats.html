@@ -1,4 +1,27 @@
 
+    @if (isTrial) {
+      <div class="rounded-xl border border-violet-200 dark:border-violet-700 bg-violet-50 dark:bg-violet-950 p-4 mb-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-violet-800 dark:text-violet-200">
+              🎁 Trial · termina em {{ trialDaysLeft }} {{ trialDaysLeft === 1 ? 'dia' : 'dias' }} ({{ trialEndFormatted }})
+            </p>
+            <p class="text-xs text-violet-600 dark:text-violet-400 mt-1">
+              {{ usage().ai_messages.current }}/{{ usage().ai_messages.limit ?? 100 }} msgs IA utilizadas
+            </p>
+          </div>
+          <button
+            type="button"
+            class="text-xs font-medium px-3 py-1.5 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
+            (click)="openUpgradeModal()"
+          >
+            Contratar plano completo
+          </button>
+        </div>
+      </div>
+    }
+
+
     <div
       class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4"
     >

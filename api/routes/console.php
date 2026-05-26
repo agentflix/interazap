@@ -21,3 +21,7 @@ Schedule::call(function (): void {
         ->where('created_at', '<', now()->subDays(90))
         ->delete();
 })->dailyAt('05:00')->name('prune-ai-usage-idempotency-keys');
+
+// FEAT-005: Trial management schedules
+Schedule::command('billing:close-expired-trials')->dailyAt('03:00')->name('billing-close-expired-trials')->withoutOverlapping();
+Schedule::command('billing:send-trial-ending-soon')->dailyAt('09:00')->name('billing-send-trial-ending-soon')->withoutOverlapping();

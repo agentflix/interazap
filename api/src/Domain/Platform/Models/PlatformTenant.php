@@ -45,6 +45,10 @@ use Illuminate\Support\Str;
  * @property int $media_transcription_video_max_seconds
  * @property string|null $overage_mode_override
  * @property int|null $billing_cycle_anchor_day
+ * @property bool $has_used_trial
+ * @property string|null $payment_method_token
+ * @property string|null $payment_method_brand
+ * @property string|null $payment_method_last4
  * @property-read AiPromptSegment|null $segment
  * @property-read AiPromptTenant|null $aiPrompt
  * @property-read PlatformPlan|null $plan
@@ -104,6 +108,10 @@ final class PlatformTenant extends Model
         'settings_chat',
         'overage_mode_override',
         'billing_cycle_anchor_day',
+        'has_used_trial',
+        'payment_method_token',
+        'payment_method_brand',
+        'payment_method_last4',
     ];
 
     /**
@@ -128,6 +136,7 @@ final class PlatformTenant extends Model
         'settings_chat' => 'array',
         'overage_mode_override' => 'string',
         'billing_cycle_anchor_day' => 'integer',
+        'has_used_trial' => 'boolean',
     ];
 
     protected static function booted(): void

@@ -1,0 +1,14 @@
+<div class="chat-ai-paused-banner" role="alert">
+  <div class="chat-ai-paused-banner__icon" aria-hidden="true">🤖</div>
+  <div class="chat-ai-paused-banner__content">
+    <p class="chat-ai-paused-banner__title">{{ title }}</p>
+    <p class="chat-ai-paused-banner__description">{{ description }}</p>
+  </div>
+  <button
+    type="button"
+    class="chat-ai-paused-banner__cta"
+    (click)="openUpgradeModal()"
+  >
+    Contratar plano
+  </button>
+</div>

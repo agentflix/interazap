@@ -31,10 +31,16 @@ import {
   AfTextInputComponent,
 } from '@shared/components';
 import { AuthPageWrapperComponent } from '@layout/auth-layout/auth-page-wrapper.component';
+import { GoogleLoginButtonComponent } from '@core/components/google-login-button/google-login-button';
 
 /**
- * Login page component for the Auth module.
- * @selector app-login
+ * Página de login. Gerencia autenticação padrão e fluxo de verificação em dois fatores (2FA).
+ *
+ * Estado controlado por Signals: `isLoading`, `twoFactorPendingEmail`, `twoFactorCode`.
+ * Um `effect()` vincula o estado de loading ao enable/disable do formulário reativo.
+ *
+ * @see AuthService para as chamadas HTTP
+ * @see AuthStoreService para persistência do token após autenticação
  */
 @Component({
   selector: 'app-login',
@@ -50,6 +56,7 @@ import { AuthPageWrapperComponent } from '@layout/auth-layout/auth-page-wrapper.
     AfLoadingButtonComponent,
     AfAlertComponent,
     AuthPageWrapperComponent,
+    GoogleLoginButtonComponent,
   ],
   templateUrl: './login.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -130,12 +137,17 @@ export default class LoginComponent implements OnInit {
     });
   }
 
+  /** Inicializa o componente. Redireciona para dashboard se já autenticado. */
   ngOnInit(): void {
     if (this.authStore.isAuthenticated()) {
       void this.router.navigate(['/dashboard']);
     }
   }
 
+  /**
+   * Despacha o login. Se desafio 2FA ativo, delega para {@link submitTwoFactor}.
+   * Marca formulário como touched em caso de dados inválidos.
+   */
   submit(): void {
     if (this.hasTwoFactorChallenge()) {
       this.submitTwoFactor();
@@ -177,6 +189,11 @@ export default class LoginComponent implements OnInit {
       });
   }
 
+  /**
+   * Retorna true se o botão de submit deve ficar desabilitado.
+   * Em modo 2FA: exige código com exatamente 6 dígitos.
+   * Em modo normal: bloqueia enquanto formulário inválido.
+   */
   isSubmitDisabled(): boolean {
     if (this.hasTwoFactorChallenge()) {
       return this.twoFactorCode().length !== 6;
@@ -185,11 +202,16 @@ export default class LoginComponent implements OnInit {
     return this.form.invalid;
   }
 
+  /**
+   * Atualiza o código 2FA conforme digitado e limpa mensagens de erro.
+   * @param code Código de 6 dígitos emitido pelo AfOtpInputComponent
+   */
   onTwoFactorCodeCompleted(code: string): void {
     this.twoFactorCode.set(code);
     this.message.set(null);
   }
 
+  /** Cancela o desafio 2FA e limpa todos os estados relacionados. */
   cancelTwoFactorChallenge(): void {
     this.twoFactorPendingEmail.set(null);
     this.twoFactorCode.set('');

@@ -6,18 +6,19 @@ import { FooterComponent } from '../components/footer/footer';
 import { ImpersonationBannerComponent } from '../components/impersonation-banner/impersonation-banner';
 import { AppShellService } from '../../core/services/app-shell.service';
 import { SearchSpotlightComponent } from '../../shared/components/search-spotlight/search-spotlight';
+import { TrialBannerComponent } from '../../core/components/trial-banner/trial-banner';
 
 /**
- * Main application shell layout.
- * Orchestrates the sidebar, topbar, content area, and footer.
- * All authenticated pages render inside the `<router-outlet>`.
+ * Shell principal da aplicação autenticada.
+ * Orquestra sidebar, topbar, área de conteúdo e rodapé.
+ * Todas as páginas autenticadas são renderizadas dentro do `<router-outlet>`.
  *
- * Uses `AppShellService` to allow child pages (e.g. Chat) to hide
- * the footer and disable the content scroll for full-height layouts.
+ * Usa `AppShellService` para permitir que páginas filhas (ex: Chat) ocultem
+ * o rodapé e desabilitem o scroll do conteúdo para layouts de altura total.
  *
  * @example
  * ```ts
- * // In app.routes.ts:
+ * // Em app.routes.ts:
  * { path: '', component: MainLayoutComponent, children: [...] }
  * ```
  */
@@ -31,6 +32,7 @@ import { SearchSpotlightComponent } from '../../shared/components/search-spotlig
     FooterComponent,
     ImpersonationBannerComponent,
     SearchSpotlightComponent,
+    TrialBannerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './main-layout.html',
