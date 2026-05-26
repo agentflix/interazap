@@ -53,6 +53,7 @@ Route::middleware(['auth:sanctum'])
         Route::get('/me', [AuthLoginController::class, 'me']);
         Route::post('/logout', [AuthLoginController::class, 'logout']);
         Route::put('/force-password-change', [AuthProfileController::class, 'forcePasswordChange']);
+        Route::post('/complete-signup', [AuthProfileController::class, 'completeSignup']);
 
         // Demais rotas protegidas pelo middleware de troca obrigatória de senha
         Route::middleware(['force.password.change'])->group(function (): void {

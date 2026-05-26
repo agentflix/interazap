@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Domain\Auth\Http\Controllers;
 
+use Domain\Auth\Actions\AuthCompleteSignupAction;
 use Domain\Auth\Actions\AuthProfileActions;
 use Domain\Auth\Actions\GetUserPreferencesAction;
 use Domain\Auth\Actions\UpdateUserPreferencesAction;
 use Domain\Auth\DTOs\AuthProfileDTO;
 use Domain\Auth\DTOs\AuthUpdatePasswordDTO;
+use Domain\Auth\Http\Requests\AuthCompleteSignupRequest;
 use Domain\Auth\Http\Requests\AuthForcePasswordChangeRequest;
 use Domain\Auth\Http\Requests\AuthPasswordUpdateRequest;
 use Domain\Auth\Http\Requests\AuthProfileImageRequest;
@@ -37,7 +39,21 @@ final class AuthProfileController extends BaseController
         private readonly AuthProfileActions $profileActions,
         private readonly GetUserPreferencesAction $getUserPreferences,
         private readonly UpdateUserPreferencesAction $updateUserPreferences,
+        private readonly AuthCompleteSignupAction $completeSignupAction,
     ) {}
+
+    /**
+     * Completa cadastro de usuário criado via Google OAuth.
+     * Define senha, telefone e nome da empresa.
+     */
+    public function completeSignup(AuthCompleteSignupRequest $request): JsonResponse
+    {
+        /** @var AuthUser $user */
+        $user = $request->user();
+        $updated = $this->completeSignupAction->execute($user, $request->validated());
+
+        return $this->success(new AuthUserResource($updated), 'Cadastro concluído');
+    }
 
     /**
      * Obter dados do perfil do usuário autenticado.

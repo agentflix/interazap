@@ -97,6 +97,15 @@ export const routes: Routes = [
           import('./pages/auth/signup/signup-page').then((m) => m.SignupPageComponent),
         data: { title: 'Criar Conta Grátis' },
       },
+      // ─── Completar cadastro pós-Google OAuth ──────────────────────────────
+      {
+        path: 'auth/complete-signup',
+        loadComponent: () =>
+          import('./pages/auth/complete-signup/complete-signup-page').then(
+            (m) => m.CompleteSignupPageComponent,
+          ),
+        data: { title: 'Completar Cadastro' },
+      },
       // ─── Google OAuth callback (FEAT-005) ──────────────────────────────────
       {
         path: 'auth/google-callback',

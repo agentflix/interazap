@@ -204,19 +204,21 @@
         </section>
 
         <!-- ── Google account card ───────────────────────────────────────────── -->
-        <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
-        >
-          <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
-            Conta Google
-          </h2>
-          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
-            Vincule sua conta Google para entrar sem precisar de senha.
-          </p>
-          <div class="max-w-xs">
-            <app-google-login-button intent="link" />
-          </div>
-        </section>
+        @if (!authStore.user()?.provider) {
+          <section
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          >
+            <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+              Conta Google
+            </h2>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+              Vincule sua conta Google para entrar sem precisar de senha.
+            </p>
+            <div class="max-w-xs">
+              <app-google-login-button intent="link" />
+            </div>
+          </section>
+        }
       }
     </div>
   

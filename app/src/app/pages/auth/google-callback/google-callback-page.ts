@@ -72,7 +72,8 @@ export class GoogleCallbackPageComponent implements OnInit {
             token,
           );
         }
-        void this.router.navigate(['/dashboard']);
+        const target = user?.has_password === false ? '/auth/complete-signup' : '/dashboard';
+        void this.router.navigate([target]);
       },
       error: (err: unknown) => {
         this.isLoading = false;

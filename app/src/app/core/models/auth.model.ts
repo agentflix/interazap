@@ -35,6 +35,10 @@ export interface AuthUser {
   } | null;
   /** Lista de permissões concedidas ao usuário. */
   permissions: string[];
+  /** Provedor OAuth vinculado à conta (ex: 'google'), nulo se login por senha. */
+  provider?: string | null;
+  /** Indica se o usuário possui senha definida (false para contas criadas via OAuth). */
+  has_password?: boolean;
   /** Indica se a sessão atual é de impersonação de tenant. */
   is_impersonating?: boolean;
   /** Dados do tenant impersonado quando em modo de impersonação. */
@@ -68,6 +72,8 @@ export interface AuthResponse {
       avatar_url?: string | null;
       two_factor_enabled?: boolean;
       force_password_change?: boolean;
+      provider?: string | null;
+      has_password?: boolean;
     };
     tenant_plan?: {
       id: string;

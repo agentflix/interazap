@@ -34,6 +34,8 @@ final class AuthUserResource extends BaseJsonResource
                 'document' => $this->tenant->document,
             ] : null),
             'roles' => $this->whenLoaded('roles', fn () => $this->roles->pluck('name')->toArray()),
+            'provider'          => $this->provider,
+            'has_password'      => $this->password !== null,
             'email_verified_at' => $this->iso($this->email_verified_at),
             'created_at' => $this->iso($this->created_at),
             'updated_at' => $this->iso($this->updated_at),
