@@ -14,7 +14,7 @@
   font-weight: 500;
   letter-spacing: 0.25px;
   cursor: pointer;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
   &:hover {
     background-color: #f8f9fa;
@@ -32,5 +32,20 @@
 
   .google-logo {
     flex-shrink: 0;
+  }
+}
+
+:host-context(.dark) .google-login-btn {
+  background-color: #262626;
+  border-color: #525252;
+  color: #e5e5e5;
+
+  &:hover {
+    background-color: #333333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  &:active {
+    background-color: #1a1a1a;
   }
 }
