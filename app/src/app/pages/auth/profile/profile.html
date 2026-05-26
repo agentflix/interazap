@@ -204,7 +204,7 @@
         </section>
 
         <!-- ── Google account card ───────────────────────────────────────────── -->
-        @if (!authStore.user()?.provider) {
+        @if (!hasLinkedProvider()) {
           <section
             class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
           >

@@ -114,6 +114,7 @@ export class Profile implements OnInit {
 
   readonly displayName = computed(() => this.authStore.user()?.name ?? '');
   readonly initials = computed(() => this.getInitials(this.displayName()));
+  readonly hasLinkedProvider = computed(() => !!this.authStore.user()?.provider);
 
   ngOnInit(): void {
     this.avatarFileControl.valueChanges
