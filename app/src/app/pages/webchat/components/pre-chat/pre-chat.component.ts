@@ -12,7 +12,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';
-import { AfPhoneInputComponent, AfLoadingButtonComponent } from '@shared/components';
+import { AfPhoneInputComponent, AfLoadingButtonComponent, AfTextInputComponent } from '@shared/components';
 import { WebChatService } from '../../services/webchat.service';
 import { type PreChatFormState } from '../../webchat.model';
 
@@ -23,7 +23,7 @@ import { type PreChatFormState } from '../../webchat.model';
 @Component({
   selector: 'app-pre-chat',
   standalone: true,
-  imports: [ReactiveFormsModule, AfPhoneInputComponent, AfLoadingButtonComponent],
+  imports: [ReactiveFormsModule, AfPhoneInputComponent, AfLoadingButtonComponent, AfTextInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pre-chat.component.html',
 })
