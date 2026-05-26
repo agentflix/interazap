@@ -103,10 +103,12 @@ final class BillingUpgradeFromTrialAction
                 throw new \RuntimeException($this->billingGatewayService->getLastError() ?? 'Cobrança recusada pelo gateway.');
             }
 
-            if (! in_array($chargeResult['status'], ['CONFIRMED', 'RECEIVED', 'PENDING'], true)) {
-                throw ValidationException::withMessages([
-                    'payment' => ['Pagamento não autorizado. Status: '.($chargeResult['status'] ?? 'desconhecido')],
-                ]);
+            if (! in_array($chargeResult['status'], ['CONFIRMED', 'RECEIVED'], true)) {
+                $userMessage = $chargeResult['status'] === 'PENDING'
+                    ? 'Pagamento em análise pelo banco. Aguarde alguns minutos e tente novamente.'
+                    : 'Pagamento não autorizado. Status: '.($chargeResult['status'] ?? 'desconhecido');
+
+                throw ValidationException::withMessages(['payment' => [$userMessage]]);
             }
 
             // Change plan (bypasses password validation)

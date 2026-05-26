@@ -42,7 +42,6 @@ final readonly class BillingChangePlanDTO
         return new self(
             planId: (string) $payload['plan_id'],
             currentPassword: isset($payload['current_password']) ? (string) $payload['current_password'] : null,
-            bypassPassword: (bool) ($payload['bypass_password'] ?? false),
         );
     }
 
