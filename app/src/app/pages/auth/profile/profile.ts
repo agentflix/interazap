@@ -40,6 +40,7 @@ import { TwoFactorService } from '@core/services/two-factor.service';
 import { AuthStoreService } from '@core/services/auth-store.service';
 import { ToastService } from '@core/services/toast.service';
 import { getInitials } from '@shared/utils/string.utils';
+import { GoogleLoginButtonComponent } from '@core/components/google-login-button/google-login-button';
 
 /**
  * Página de perfil — informações pessoais, alteração de senha, upload de avatar e status do 2FA.
@@ -62,6 +63,7 @@ import { getInitials } from '@shared/utils/string.utils';
     AfLoadingButtonComponent,
     AfAlertComponent,
     AfStatusBadgeComponent,
+    GoogleLoginButtonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile.html',

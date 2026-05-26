@@ -6,6 +6,12 @@
     </div>
   }
 
+  @if (successMessage) {
+    <div class="google-callback__success" role="status">
+      <p>{{ successMessage }}</p>
+    </div>
+  }
+
   @if (hasError) {
     <div class="google-callback__error" role="alert">
       <p>{{ errorMessage }}</p>

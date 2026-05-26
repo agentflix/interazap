@@ -17,11 +17,23 @@ final class AuthGoogleRedirectAction
     /**
      * Gera e retorna o redirect para o Google OAuth consent screen.
      *
-     * Escopos solicitados: email, profile (padrão do driver Google).
+     * O intent é codificado no state OAuth para que o callback saiba o contexto
+     * sem depender de sessão (fluxo stateless).
+     *
+     * @param  string  $intent  'login' | 'signup' | 'link'
+     * @param  string|null  $userId  Obrigatório quando intent='link'
      */
-    public function execute(): RedirectResponse
+    public function execute(string $intent = 'login', ?string $userId = null): RedirectResponse
     {
+        $stateData = ['intent' => $intent];
+
+        if ($intent === 'link' && $userId !== null) {
+            $stateData['user_id'] = $userId;
+        }
+
+        $state = json_encode($stateData);
+
         /** @var RedirectResponse */
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->stateless()->with(['state' => $state])->redirect();
     }
 }

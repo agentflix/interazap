@@ -117,6 +117,15 @@ default_tenant_id: ''
 asaas_api_key: ''
 
 # =====================================================
+# GOOGLE OAUTH (Self-Signup / Login social)
+# =====================================================
+# Criar credenciais em: https://console.cloud.google.com/apis/credentials
+# Tipo: OAuth 2.0 Client ID / Web application
+
+google_client_id: ''
+google_client_secret: ''
+
+# =====================================================
 # MAIL
 # =====================================================
 

@@ -33,10 +33,17 @@ Route::prefix('auth')
     ->group(function (): void {
         Route::post('/signup', [\Domain\Auth\Http\Controllers\AuthSignupController::class, 'store']);
 
-        // Google OAuth
+        // Google OAuth — public (login/signup)
         Route::get('/google/redirect', [\Domain\Auth\Http\Controllers\AuthGoogleController::class, 'redirect']);
         Route::get('/google/callback', [\Domain\Auth\Http\Controllers\AuthGoogleController::class, 'callback'])
             ->middleware(['throttle:login']);
+    });
+
+// Google OAuth — link provider to authenticated user
+Route::prefix('auth')
+    ->middleware(['auth:sanctum', 'throttle:public'])
+    ->group(function (): void {
+        Route::get('/google/link', [\Domain\Auth\Http\Controllers\AuthGoogleController::class, 'redirectForLink']);
     });
 
 Route::middleware(['auth:sanctum'])

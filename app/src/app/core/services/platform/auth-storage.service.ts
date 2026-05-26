@@ -7,8 +7,10 @@ const TOKEN_KEY = 'auth_token';
 /**
  * Persiste o token de autenticação de forma adequada à plataforma.
  *
- * - **Web:** no-op (cookies HttpOnly emitidos pelo backend são autoritativos;
- *   o navegador os envia automaticamente quando `withCredentials: true`).
+ * - **Web (cookie flow):** no-op na maioria dos logins — cookies HttpOnly emitidos
+ *   pelo backend são autoritativos e enviados automaticamente via `withCredentials`.
+ * - **Web (OAuth flow):** quando o backend retorna um Bearer token (ex: Google OAuth),
+ *   persiste em `localStorage` + cache em memória para uso pelo `bearerInterceptor`.
  * - **Mobile (iOS/Android via Capacitor):** usa `@capacitor/preferences`,
  *   que internamente mapeia para Keychain (iOS) e EncryptedSharedPreferences
  *   (Android), garantindo armazenamento seguro do PAT (Personal Access Token).
@@ -20,7 +22,7 @@ const TOKEN_KEY = 'auth_token';
  * @example
  * ```ts
  * await authStorage.hydrate();           // boot do app
- * await authStorage.set(token);          // após login bem-sucedido
+ * await authStorage.set(token);          // após login bem-sucedido (OAuth ou mobile)
  * const token = authStorage.getSync();   // dentro do interceptor
  * await authStorage.clear();             // logout
  * ```
@@ -34,13 +36,15 @@ export class AuthStorageService {
   /**
    * Hidrata o cache em memória a partir do storage nativo.
    * Deve ser chamado no boot do app (antes do primeiro request autenticado).
-   * No web, é no-op imediato.
+   * Em web, carrega token de `localStorage` (persistido após OAuth).
    */
   async hydrate(): Promise<void> {
     if (this.hydrated) {
       return;
     }
     if (!this.platform.isMobile) {
+      const stored = localStorage.getItem(TOKEN_KEY);
+      this.memoryToken = stored && stored.trim() !== '' ? stored : null;
       this.hydrated = true;
       return;
     }
@@ -54,34 +58,37 @@ export class AuthStorageService {
   }
 
   /**
-   * Persiste o token. Em web é no-op (cookies já contêm a sessão).
+   * Persiste o token. Em web, salva em `localStorage` para sobreviver a refreshes.
+   * Usado no fluxo OAuth onde o backend retorna Bearer token em vez de cookie.
    */
   async set(token: string): Promise<void> {
+    this.memoryToken = token;
     if (!this.platform.isMobile) {
+      localStorage.setItem(TOKEN_KEY, token);
       return;
     }
-    this.memoryToken = token;
     await this.writeTokenToStorage(token);
   }
 
   /**
-   * Remove o token persistido. Em web é no-op.
+   * Remove o token persistido (web + mobile).
    */
   async clear(): Promise<void> {
     this.memoryToken = null;
     if (!this.platform.isMobile) {
+      localStorage.removeItem(TOKEN_KEY);
       return;
     }
     await this.removeTokenFromStorage();
   }
 
   /**
-   * Leitura assíncrona do token (consulta storage nativo se necessário).
-   * Em web retorna sempre `null` — cookies não são acessíveis ao JS.
+   * Leitura assíncrona do token.
+   * Em web retorna `memoryToken` (populado após OAuth ou hydrate).
    */
   async get(): Promise<string | null> {
     if (!this.platform.isMobile) {
-      return null;
+      return this.memoryToken;
     }
     if (this.memoryToken !== null) {
       return this.memoryToken;
@@ -111,12 +118,9 @@ export class AuthStorageService {
   /**
    * Leitura síncrona do cache em memória — usada pelo `bearerInterceptor`.
    * Requer que {@link hydrate} tenha sido executado previamente.
-   * Em web sempre retorna `null`.
+   * Retorna token tanto em mobile quanto em web (após OAuth).
    */
   getSync(): string | null {
-    if (!this.platform.isMobile) {
-      return null;
-    }
     return this.memoryToken;
   }
 }
