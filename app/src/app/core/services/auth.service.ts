@@ -203,7 +203,7 @@ export class AuthService {
    * @param payload - Dados de cadastro (name, email, password, accept_terms)
    * @returns Observable com dados do usuário, token e plano trial ativo
    */
-  completeSignup(payload: { company_name: string; phone: string; password: string }): Observable<{ data: AuthUser }> {
+  completeSignup(payload: { company_name: string; phone: string; password?: string }): Observable<{ data: AuthUser }> {
     return this.http.post<{ data: AuthUser }>(`${this.baseUrl}/auth/complete-signup`, payload, {
       withCredentials: true,
     });

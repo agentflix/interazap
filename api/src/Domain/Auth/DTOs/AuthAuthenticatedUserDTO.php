@@ -23,6 +23,7 @@ final readonly class AuthAuthenticatedUserDTO
         public ?string $avatarUrl,
         public bool $twoFactorEnabled,
         public bool $forcePasswordChange = false,
+        public bool $hasPassword = true,
     ) {}
 
     /**
@@ -42,13 +43,14 @@ final readonly class AuthAuthenticatedUserDTO
             avatarUrl: $user->avatar_url,
             twoFactorEnabled: (bool) ($user->two_factor_enabled ?? false),
             forcePasswordChange: (bool) ($user->force_password_change ?? false),
+            hasPassword: $user->password !== null,
         );
     }
 
     /**
      * Serializa o DTO para array de resposta.
      *
-     * @return array{id:string,tenant_id:?string,name:string,email:string,email_verified_at:?string,avatar_url:?string,two_factor_enabled:bool,force_password_change:bool}
+     * @return array{id:string,tenant_id:?string,name:string,email:string,email_verified_at:?string,avatar_url:?string,two_factor_enabled:bool,force_password_change:bool,has_password:bool}
      */
     public function toArray(): array
     {
@@ -61,6 +63,7 @@ final readonly class AuthAuthenticatedUserDTO
             'avatar_url' => $this->avatarUrl,
             'two_factor_enabled' => $this->twoFactorEnabled,
             'force_password_change' => $this->forcePasswordChange,
+            'has_password' => $this->hasPassword,
         ];
     }
 }

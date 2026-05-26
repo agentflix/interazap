@@ -2,8 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  effect,
   inject,
   signal,
+  computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -44,11 +46,25 @@ export class CompleteSignupPageComponent {
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
+  readonly needsPassword = computed(() => this.authStore.user()?.has_password === false);
+
   readonly form = this.fb.nonNullable.group({
     company_name: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]),
     phone: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(30)]),
-    password: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(8), Validators.maxLength(255)]),
+    password: this.fb.nonNullable.control('', [Validators.minLength(8), Validators.maxLength(255)]),
   });
+
+  constructor() {
+    effect(() => {
+      const ctrl = this.form.controls.password;
+      if (this.needsPassword()) {
+        ctrl.addValidators(Validators.required);
+      } else {
+        ctrl.removeValidators(Validators.required);
+      }
+      ctrl.updateValueAndValidity();
+    });
+  }
 
   protected fieldError(field: 'company_name' | 'phone' | 'password'): string {
     const c = this.form.controls[field];
@@ -72,8 +88,14 @@ export class CompleteSignupPageComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
+    const { company_name, phone, password } = this.form.getRawValue();
+    const payload: { company_name: string; phone: string; password?: string } = { company_name, phone };
+    if (this.needsPassword() && password) {
+      payload.password = password;
+    }
+
     this.authService
-      .completeSignup(this.form.getRawValue())
+      .completeSignup(payload)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isLoading.set(false)),

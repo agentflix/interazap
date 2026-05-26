@@ -38,13 +38,15 @@
         [errorMessage]="fieldError('phone')"
       />
 
-      <af-password-input
-        [control]="form.controls.password"
-        label="Senha (mín. 8 caracteres)"
-        placeholder="Crie uma senha segura"
-        autocomplete="new-password"
-        [errorMessage]="fieldError('password')"
-      />
+      @if (needsPassword()) {
+        <af-password-input
+          [control]="form.controls.password"
+          label="Senha (mín. 8 caracteres)"
+          placeholder="Crie uma senha segura"
+          autocomplete="new-password"
+          [errorMessage]="fieldError('password')"
+        />
+      }
     </div>
 
     <div class="mt-6">

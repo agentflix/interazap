@@ -8,6 +8,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '@core/services/auth.service';
+import { AuthStoreService } from '@core/services/auth-store.service';
 import { GoogleLoginButtonComponent } from '@core/components/google-login-button/google-login-button';
 import {
   AfAlertComponent,
@@ -43,6 +44,7 @@ import { AuthPageWrapperComponent } from '@layout/auth-layout/auth-page-wrapper.
 export class SignupPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStoreService);
   private readonly router = inject(Router);
 
   readonly isLoading = signal(false);
@@ -67,8 +69,15 @@ export class SignupPageComponent {
     this.authService.signup({ name, email, password, accept_terms }).pipe(
       finalize(() => this.isLoading.set(false)),
     ).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
+      next: (response) => {
+        const user = response.data?.user;
+        if (user) {
+          this.authStore.setAuth(
+            { ...user, permissions: response.data?.permissions ?? [], tenant_plan: response.data?.tenant_plan ?? null },
+            response.data?.token ?? '',
+          );
+        }
+        void this.router.navigate(['/auth/complete-signup']);
       },
       error: (err: { status?: number; error?: { errors?: Record<string, string[]>; message?: string } }) => {
         if (err.status === 422) {

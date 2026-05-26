@@ -19,7 +19,7 @@ final class AuthCompleteSignupRequest extends FormRequest
         return [
             'company_name' => ['required', 'string', 'min:2', 'max:255'],
             'phone' => ['required', 'string', 'max:30'],
-            'password' => ['required', 'string', 'min:8', 'max:255'],
+            'password' => ['nullable', 'string', 'min:8', 'max:255'],
         ];
     }
 }
