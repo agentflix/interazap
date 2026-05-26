@@ -1,9 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -37,6 +39,7 @@ export class CompleteSignupPageComponent {
   private readonly authService = inject(AuthService);
   private readonly authStore = inject(AuthStoreService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -71,13 +74,13 @@ export class CompleteSignupPageComponent {
 
     this.authService
       .completeSignup(this.form.getRawValue())
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isLoading.set(false)),
+      )
       .subscribe({
         next: (response) => {
-          const user = response.data?.user;
-          if (user) {
-            this.authStore.updateUser({ ...user });
-          }
+          this.authStore.updateUser(response.data);
           void this.router.navigate(['/dashboard']);
         },
         error: (err: { error?: { message?: string } }) => {

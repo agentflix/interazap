@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Device } from '@capacitor/device';
 import { catchError, from, of, switchMap, tap, type Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { type AuthResponse, type MenuResponse } from '@core/models/auth.model';
+import { type AuthResponse, type AuthUser, type MenuResponse } from '@core/models/auth.model';
 import { AuthStorageService } from './platform/auth-storage.service';
 import { PlatformService } from './platform/platform.service';
 import { PushService } from './platform/push.service';
@@ -203,8 +203,8 @@ export class AuthService {
    * @param payload - Dados de cadastro (name, email, password, accept_terms)
    * @returns Observable com dados do usuário, token e plano trial ativo
    */
-  completeSignup(payload: { company_name: string; phone: string; password: string }): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/complete-signup`, payload, {
+  completeSignup(payload: { company_name: string; phone: string; password: string }): Observable<{ data: AuthUser }> {
+    return this.http.post<{ data: AuthUser }>(`${this.baseUrl}/auth/complete-signup`, payload, {
       withCredentials: true,
     });
   }

@@ -73,13 +73,13 @@ final class AuthGoogleController extends BaseController
             if (is_string($result)) {
                 return match ($result) {
                     'linked' => redirect("{$appRedirectUrl}?linked=true"),
-                    default  => redirect("{$appRedirectUrl}?error={$result}"),
+                    default => redirect("{$appRedirectUrl}?error={$result}"),
                 };
             }
 
             /** @var AuthSessionDTO $session */
             $session = $result;
-            $token   = $session->token;
+            $token = $session->token;
 
             Log::info('auth.google.callback.success', [
                 'user_id' => $session->user->id ?? null,

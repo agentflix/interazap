@@ -38,15 +38,16 @@ final class AuthGoogleCallbackAction
     public function execute(Request $request): AuthSessionDTO|string
     {
         /** @var SocialiteUser $googleUser */
+        // @phpstan-ignore-next-line — stateless() existe em AbstractProvider mas não está na interface Contract
         $googleUser = Socialite::driver('google')->stateless()->user();
 
-        $email    = strtolower(trim((string) $googleUser->getEmail()));
+        $email = strtolower(trim((string) $googleUser->getEmail()));
         $googleId = (string) $googleUser->getId();
-        $name     = (string) ($googleUser->getName() ?? $email);
+        $name = (string) ($googleUser->getName() ?? $email);
 
-        $rawState  = $request->query('state', '{}');
+        $rawState = $request->query('state', '{}');
         $stateData = json_decode((string) $rawState, true) ?? [];
-        $intent    = $stateData['intent'] ?? 'login';
+        $intent = $stateData['intent'] ?? 'login';
 
         $lockKey = "google-oauth-lock:{$email}";
 
@@ -54,8 +55,8 @@ final class AuthGoogleCallbackAction
             return DB::transaction(function () use ($email, $googleId, $name, $intent, $stateData): AuthSessionDTO|string {
                 return match ($intent) {
                     'signup' => $this->handleSignup($email, $googleId, $name),
-                    'link'   => $this->handleLink($email, $googleId, $stateData),
-                    default  => $this->handleLogin($email, $googleId),
+                    'link' => $this->handleLink($email, $googleId, $stateData),
+                    default => $this->handleLogin($email, $googleId),
                 };
             });
         });
@@ -70,7 +71,7 @@ final class AuthGoogleCallbackAction
 
         if ($byProvider) {
             Log::info('auth.google.login.existing_provider', [
-                'user_id'     => $byProvider->id,
+                'user_id' => $byProvider->id,
                 'provider_id' => $googleId,
             ]);
 
@@ -98,19 +99,19 @@ final class AuthGoogleCallbackAction
         Log::info('auth.google.signup', ['email' => $email]);
 
         return $this->signupAction->execute([
-            'name'              => $name,
-            'email'             => $email,
-            'password'          => null,
+            'name' => $name,
+            'email' => $email,
+            'password' => null,
             'email_verified_at' => now()->toIso8601String(),
-            'provider'          => 'google',
-            'provider_id'       => $googleId,
+            'provider' => 'google',
+            'provider_id' => $googleId,
         ]);
     }
 
     /**
      * @param  array<string, mixed>  $stateData
      */
-    private function handleLink(string $email, string $googleId, array $stateData): AuthSessionDTO|string
+    private function handleLink(string $email, string $googleId, array $stateData): string
     {
         $userId = $stateData['user_id'] ?? null;
 
@@ -136,7 +137,7 @@ final class AuthGoogleCallbackAction
             return 'already_linked';
         }
 
-        $currentUser->provider    = 'google';
+        $currentUser->provider = 'google';
         $currentUser->provider_id = $googleId;
 
         if (! $currentUser->email_verified_at) {
@@ -146,7 +147,7 @@ final class AuthGoogleCallbackAction
         $currentUser->save();
 
         Log::info('auth.google.link.success', [
-            'user_id'     => $currentUser->id,
+            'user_id' => $currentUser->id,
             'provider_id' => $googleId,
         ]);
 

@@ -8,6 +8,7 @@ use Domain\Auth\Models\AuthUser;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 final class AuthCompleteSignupAction
 {
@@ -20,8 +21,14 @@ final class AuthCompleteSignupAction
      */
     public function execute(AuthUser $user, array $data): AuthUser
     {
+        if ($user->password !== null) {
+            throw ValidationException::withMessages([
+                'error' => ['Cadastro já foi concluído.'],
+            ]);
+        }
+
         DB::transaction(function () use ($user, $data): void {
-            $user->phone    = $data['phone'];
+            $user->phone = $data['phone'];
             $user->password = Hash::make($data['password']);
             $user->save();
 

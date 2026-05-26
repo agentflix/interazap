@@ -34,11 +34,11 @@ class AuthGoogleCallbackTest extends TestCase
         );
 
         $this->trialPlan = PlatformPlan::factory()->create([
-            'slug'          => 'trial',
-            'is_trial'      => true,
-            'is_active'     => true,
+            'slug' => 'trial',
+            'is_trial' => true,
+            'is_active' => true,
             'price_monthly' => 0.00,
-            'cycle_days'    => 7,
+            'cycle_days' => 7,
         ]);
 
         // Seed bootstrap data required by PlatformTenantBootstrapAction
@@ -96,8 +96,8 @@ class AuthGoogleCallbackTest extends TestCase
         $response->assertRedirect();
 
         $this->assertDatabaseHas('auth_users', [
-            'email'       => 'novo@example.com',
-            'provider'    => 'google',
+            'email' => 'novo@example.com',
+            'provider' => 'google',
             'provider_id' => 'google-123',
         ]);
 
@@ -126,8 +126,8 @@ class AuthGoogleCallbackTest extends TestCase
     public function test_google_callback_faz_login_se_provider_id_ja_existe(): void
     {
         AuthUser::factory()->create([
-            'email'       => 'linked@example.com',
-            'provider'    => 'google',
+            'email' => 'linked@example.com',
+            'provider' => 'google',
             'provider_id' => 'google-789',
         ]);
 
@@ -157,8 +157,8 @@ class AuthGoogleCallbackTest extends TestCase
     public function test_login_rejeita_email_sem_google_vinculado(): void
     {
         AuthUser::factory()->create([
-            'email'       => 'semgoogle@example.com',
-            'provider'    => null,
+            'email' => 'semgoogle@example.com',
+            'provider' => null,
             'provider_id' => null,
         ]);
 
@@ -182,8 +182,8 @@ class AuthGoogleCallbackTest extends TestCase
     public function test_signup_rejeita_email_ja_cadastrado(): void
     {
         AuthUser::factory()->create([
-            'email'       => 'jaexiste@example.com',
-            'provider'    => null,
+            'email' => 'jaexiste@example.com',
+            'provider' => null,
             'provider_id' => null,
         ]);
 
@@ -203,8 +203,8 @@ class AuthGoogleCallbackTest extends TestCase
     public function test_google_callback_vincula_provider_ao_user_autenticado(): void
     {
         $existingUser = AuthUser::factory()->create([
-            'email'       => 'existing@example.com',
-            'provider'    => null,
+            'email' => 'existing@example.com',
+            'provider' => null,
             'provider_id' => null,
         ]);
 
@@ -226,14 +226,14 @@ class AuthGoogleCallbackTest extends TestCase
     public function test_link_rejeita_provider_ja_vinculado_a_outro_user(): void
     {
         AuthUser::factory()->create([
-            'email'       => 'outro@example.com',
-            'provider'    => 'google',
+            'email' => 'outro@example.com',
+            'provider' => 'google',
             'provider_id' => 'google-dup',
         ]);
 
         $targetUser = AuthUser::factory()->create([
-            'email'       => 'target@example.com',
-            'provider'    => null,
+            'email' => 'target@example.com',
+            'provider' => null,
             'provider_id' => null,
         ]);
 
