@@ -7,6 +7,7 @@ namespace Domain\Ai\Tools;
 use Domain\Ai\Contracts\AiToolInterface;
 use Domain\Ai\DTOs\ToolInputDTO;
 use Domain\Ai\DTOs\ToolResultDTO;
+use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Chat\Actions\SendChatMessageAction;
 use Domain\Chat\DTOs\ChatMessageDTO;
 use Domain\Chat\Models\ChatTicket;
@@ -55,6 +56,28 @@ final class SendMessageTool implements AiToolInterface
 
         if ($ticket->status === 'closed') {
             return ToolResultDTO::failure('Cannot send message to a closed ticket');
+        }
+
+        // Race guard: human took over AFTER this AI run started — suppress reply
+        $runId = $input->context['current_run_id'] ?? null;
+        if (is_string($runId) && $runId !== '' && $ticket->human_takeover_at !== null) {
+            $run = AiAutopilotRun::query()
+                ->where('tenant_id', $tenantId)
+                ->find($runId);
+            $runStartedAt = $run?->started_at ?? $run?->created_at;
+            if ($runStartedAt && $ticket->human_takeover_at->gt($runStartedAt)) {
+                logger()->info('[SendMessageTool] Suppressing AI reply: human took over after run started', [
+                    'ticket_id' => $ticketId,
+                    'run_id' => $runId,
+                    'run_started_at' => $runStartedAt->toIso8601String(),
+                    'human_takeover_at' => $ticket->human_takeover_at->toIso8601String(),
+                ]);
+
+                return ToolResultDTO::failure(
+                    'Human takeover detected after run started; suppressing AI reply',
+                    ['reason' => 'human_takeover']
+                );
+            }
         }
 
         $dto = ChatMessageDTO::fromArray([

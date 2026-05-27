@@ -7,6 +7,7 @@ namespace Domain\Ai\Jobs;
 use Carbon\Carbon;
 use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Ai\Models\AiUsageLog;
+use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatAiActivityService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -68,6 +69,35 @@ final class AiRunTrackerJob implements ShouldQueue
 
             if (in_array((string) $run->status, ['completed', 'failed'], true)) {
                 return;
+            }
+
+            // Race guard: cancel run if human took over after it started
+            $ticketId = (string) (data_get($run->input_context, 'ticket_id') ?? '');
+            if ($ticketId !== '') {
+                $ticket = ChatTicket::query()
+                    ->where('tenant_id', $tenantId)
+                    ->find($ticketId);
+                $runStartedAt = $run->started_at ?? $run->created_at;
+                if ($ticket?->human_takeover_at !== null
+                    && $runStartedAt !== null
+                    && $ticket->human_takeover_at->gt($runStartedAt)
+                ) {
+                    logger()->info('[AiRunTrackerJob] Cancelling AI run: human took over after start', [
+                        'run_id' => $runId,
+                        'ticket_id' => $ticketId,
+                        'run_started_at' => $runStartedAt->toIso8601String(),
+                        'human_takeover_at' => $ticket->human_takeover_at->toIso8601String(),
+                    ]);
+                    $output = is_array($run->output) ? $run->output : [];
+                    $output['reason'] = 'human_takeover';
+                    $run->status = 'cancelled';
+                    $run->output = $output;
+                    $run->completed_at = now();
+                    $run->save();
+                    $updatedRun = $run;
+
+                    return;
+                }
             }
 
             $run->status = (string) ($this->payload['status'] ?? $run->status);
