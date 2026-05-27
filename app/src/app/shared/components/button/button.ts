@@ -60,7 +60,7 @@ export class AfButtonComponent {
 
   protected readonly buttonClasses = computed(() => {
     const base = [
-      'inline-flex items-center justify-center gap-2',
+      'inline-flex items-center justify-center gap-2 whitespace-nowrap',
       'font-semibold rounded-sm',
       'transition-colors duration-150',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
