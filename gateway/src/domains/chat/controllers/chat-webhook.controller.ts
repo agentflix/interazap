@@ -7,8 +7,6 @@ import {
   Req,
   UseGuards,
   UseInterceptors,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ChatWebhookService } from '../services/chat-webhook.service';
@@ -54,19 +52,14 @@ export class ChatWebhookController {
    * Recebe webhook, aplica pre-check de idempotencia e responde ACK sem bloqueio.
    */
   @Post()
-  @UsePipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  )
   @UseInterceptors(WebhookNormalizationInterceptor)
   async handleWebhook(
     @Param('provider') provider: string,
     @Param('instance_webhook_token') token: string,
-    @Body() payload: WebhookEventDto,
+    @Body() rawPayload: Record<string, unknown>,
     @Req() request: Request,
   ): Promise<{ success: boolean }> {
+    const payload = rawPayload as unknown as WebhookEventDto;
     const ackStartedAt = Date.now();
     const providerLabel = this.normalizeMetricLabel(provider);
     let tenantLabel = 'unknown';
