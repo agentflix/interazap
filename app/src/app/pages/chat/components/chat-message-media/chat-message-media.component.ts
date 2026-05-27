@@ -28,7 +28,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChatMediaLoaderService } from 'src/app/core/services/chat-media-loader.service';
 import { CalledMessageService } from 'src/app/core/services/called-message.service';
 import { type ChatMediaGalleryItem } from './chat-message-media.component.model';
-import 'photoswipe/style.css';
 import type PhotoSwipeLightbox from 'photoswipe/lightbox';
 
 export * from './chat-message-media.component.model';
