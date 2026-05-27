@@ -4,10 +4,9 @@ import {
   IsOptional,
   IsString,
   registerDecorator,
-  ValidateNested,
   ValidationOptions,
 } from 'class-validator';
-import { Expose, Transform, Type } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 
 /**
  * Valida que um valor, quando serializado como JSON, não ultrapasse `maxBytes`.
@@ -146,19 +145,13 @@ export class WebhookEventDto {
   direction?: string;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => WebhookMessageDto)
   message?: WebhookMessageDto;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => WebhookInstanceDto)
   instance?: WebhookInstanceDto;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => WebhookStatusDto)
-  status?: WebhookStatusDto;
+  status?: WebhookStatusDto | string;
 
   @IsOptional()
   @IsString()
