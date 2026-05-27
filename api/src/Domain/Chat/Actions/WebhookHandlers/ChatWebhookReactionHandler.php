@@ -46,8 +46,27 @@ final class ChatWebhookReactionHandler implements ChatWebhookHandlerInterface
             return true;
         }
 
-        return data_get($payload, 'message.reaction') !== null
-            || data_get($payload, 'raw.message.reaction') !== null;
+        return $this->hasReactionContent(data_get($payload, 'message.reaction'))
+            || $this->hasReactionContent(data_get($payload, 'raw.message.reaction'));
+    }
+
+    /**
+     * Considera reação apenas valores não-vazios. Uazapi inclui `reaction: ""`
+     * em toda mensagem comum, então strings vazias e arrays vazios devem ser ignorados.
+     */
+    private function hasReactionContent(mixed $value): bool
+    {
+        if ($value === null) {
+            return false;
+        }
+        if (is_string($value)) {
+            return trim($value) !== '';
+        }
+        if (is_array($value)) {
+            return $value !== [];
+        }
+
+        return true;
     }
 
     /**
