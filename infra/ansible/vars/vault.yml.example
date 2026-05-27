@@ -56,6 +56,13 @@ gateway_internal_api_key_production: ''
 # Chave API interna - STAGING (gerar com: uuidgen)
 gateway_internal_api_key_staging: ''
 
+# Gateway Secret (Authorization Bearer) - PRODUÇÃO (gerar com: uuidgen)
+# Compartilhado entre gateway/.env e api/.env (middleware gateway.secret)
+gateway_secret_production: ''
+
+# Gateway Secret (Authorization Bearer) - STAGING (gerar com: uuidgen)
+gateway_secret_staging: ''
+
 # JWT Secret - PRODUÇÃO (gerar com: openssl rand -hex 32)
 gateway_jwt_secret_production: ''
 

@@ -51,6 +51,8 @@
                 - interazap_secret_key_staging is defined
                 - gateway_internal_api_key_production is defined
                 - gateway_internal_api_key_staging is defined
+                - gateway_secret_production is defined
+                - gateway_secret_staging is defined
                 - gateway_jwt_secret_production is defined
                 - gateway_jwt_secret_staging is defined
                 - webchat_jwt_secret_production is defined
