@@ -1,16 +1,16 @@
 
     @if (loading() && files().length === 0) {
       <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
       >
         <div class="grid grid-cols-1 md:grid-cols-3 gap-0" style="min-height: 540px">
-          <div class="p-4 space-y-3 border-r border-neutral-200 dark:border-neutral-700">
+          <div class="p-4 space-y-3 border-r border-neutral-200 dark:border-white/10">
             @for (i of [0, 1, 2, 3, 4, 5]; track i) {
-              <div class="animate-pulse h-14 bg-neutral-100 dark:bg-neutral-800 rounded-lg"></div>
+              <div class="animate-pulse h-14 bg-neutral-100 dark:bg-[#191d1a] rounded-lg"></div>
             }
           </div>
           <div class="md:col-span-2 p-4">
-            <div class="animate-pulse h-full bg-neutral-100 dark:bg-neutral-800 rounded-lg"></div>
+            <div class="animate-pulse h-full bg-neutral-100 dark:bg-[#191d1a] rounded-lg"></div>
           </div>
         </div>
       </div>
@@ -28,13 +28,13 @@
       </div>
     } @else {
       <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
       >
         <div class="grid grid-cols-1 md:grid-cols-3 gap-0" style="min-height: 540px">
           <!-- Left: File List -->
-          <div class="flex flex-col border-r border-neutral-200 dark:border-neutral-700">
+          <div class="flex flex-col border-r border-neutral-200 dark:border-white/10">
             <div
-              class="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-neutral-800"
+              class="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
             >
               <div class="flex items-center gap-2">
                 <lucide-icon
@@ -46,7 +46,7 @@
                   Arquivos
                 </h3>
                 <span
-                  class="text-xs px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
+                  class="text-xs px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-[#191d1a] text-neutral-500 dark:text-neutral-400"
                 >
                   {{ files().length }}
                 </span>
@@ -97,7 +97,7 @@
                   [class]="
                     selectedFile()?.slug === file.slug
                       ? 'bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 shadow-sm'
-                      : 'border border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                      : 'border border-transparent hover:bg-neutral-50 dark:hover:bg-[#191d1a]'
                   "
                   (click)="selectFile(file)"
                 >
@@ -106,7 +106,7 @@
                     [class]="
                       selectedFile()?.slug === file.slug
                         ? 'bg-primary-100 dark:bg-primary-900/40'
-                        : 'bg-neutral-100 dark:bg-neutral-800'
+                        : 'bg-neutral-100 dark:bg-[#191d1a]'
                     "
                   >
                     <lucide-icon
@@ -147,7 +147,7 @@
             @if (selectedFile()) {
               <!-- Editor Header -->
               <div
-                class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+                class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
               >
                 <div class="flex items-center gap-2">
                   <lucide-icon
@@ -185,14 +185,14 @@
               <div class="flex-1 p-4">
                 <textarea
                   [formControl]="editorControl"
-                  class="w-full h-full min-h-96 px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 text-sm text-neutral-800 dark:text-neutral-100 font-mono resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  class="w-full h-full min-h-96 px-4 py-3 rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-neutral-950 text-sm text-neutral-800 dark:text-neutral-100 font-mono resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   placeholder="Conteúdo do arquivo..."
                 ></textarea>
               </div>
             } @else {
               <div class="flex flex-col items-center justify-center h-full text-center py-16">
                 <div
-                  class="size-16 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-4"
+                  class="size-16 rounded-full bg-neutral-100 dark:bg-[#191d1a] flex items-center justify-center mb-4"
                 >
                   <lucide-icon
                     name="file-text"

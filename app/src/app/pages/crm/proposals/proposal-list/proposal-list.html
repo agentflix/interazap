@@ -1,5 +1,5 @@
 <section
-  class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6"
+  class="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-6"
 >
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div>
@@ -18,7 +18,7 @@
     @if (isLoading()) {
       <div class="space-y-3">
         @for (row of [0, 1, 2, 3, 4]; track row) {
-          <div class="h-12 rounded-lg bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+          <div class="h-12 rounded-lg bg-neutral-200 dark:bg-[#232823] animate-pulse"></div>
         }
       </div>
     } @else if (errorMessage()) {
@@ -27,7 +27,7 @@
       </div>
     } @else if (proposals().length === 0) {
       <div
-        class="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/40 p-6 text-sm text-neutral-500 dark:text-neutral-400"
+        class="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#191d1a]/40 p-6 text-sm text-neutral-500 dark:text-neutral-400"
       >
         <lucide-icon
           name="clipboard-list"
@@ -40,7 +40,7 @@
       <div class="space-y-3">
         @for (proposal of proposals(); track trackById($index, proposal)) {
           <div
-            class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800 p-4"
+            class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50/70 dark:bg-[#191d1a] p-4"
           >
             <div>
               <div class="flex items-center gap-2">

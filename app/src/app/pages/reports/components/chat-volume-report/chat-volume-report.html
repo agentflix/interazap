@@ -106,7 +106,7 @@
 
         <!-- Heatmap -->
         <af-card>
-          <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+          <div header class="px-5 py-3 border-b border-neutral-200 dark:border-white/10">
             <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
               Mapa de Calor (Dia x Hora)
             </h6>
@@ -122,13 +122,13 @@
 
         <!-- Channel Table -->
         <af-card [padded]="false">
-          <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+          <div header class="px-5 py-3 border-b border-neutral-200 dark:border-white/10">
             <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Por Canal</h6>
           </div>
             <div class="overflow-x-auto">
               <table class="w-full text-sm tabular-nums">
               <thead>
-                <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                <tr class="border-b border-neutral-200 dark:border-white/10">
                   <th
                     class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
                   >
@@ -144,7 +144,7 @@
               <tbody>
                 @for (ch of data()?.by_channel ?? []; track ch.channel) {
                   <tr
-                    class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                    class="border-b border-neutral-100 dark:border-white/[0.07] hover:bg-neutral-50 dark:hover:bg-[#191d1a]"
                   >
                     <td class="py-3 px-4 capitalize">{{ ch.channel }}</td>
                     <td class="text-right py-3 px-4">{{ ch.count }}</td>

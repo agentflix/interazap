@@ -171,7 +171,12 @@ describe('ChatStore', () => {
         of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
       );
       store.selectCalled('1');
-      store.setWindowStatus({ canSendFreeText: true, lastMessageAt: new Date() });
+      store.setWindowStatus({
+        canSendFreeText: true,
+        lastMessageAt: new Date(),
+        expiresAt: null,
+        windowType: null,
+      });
       expect(store.composerMode()).toBe('mixed');
     });
 
@@ -181,18 +186,83 @@ describe('ChatStore', () => {
         of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
       );
       store.selectCalled('1');
-      store.setWindowStatus({ canSendFreeText: false, lastMessageAt: null });
+      store.setWindowStatus({
+        canSendFreeText: false,
+        lastMessageAt: null,
+        expiresAt: null,
+        windowType: null,
+      });
       expect(store.composerMode()).toBe('template-only');
     });
   });
 
   describe('windowStatus', () => {
     it('sets and clears window status', () => {
-      store.setWindowStatus({ canSendFreeText: true, lastMessageAt: new Date() });
+      store.setWindowStatus({
+        canSendFreeText: true,
+        lastMessageAt: new Date(),
+        expiresAt: null,
+        windowType: null,
+      });
       expect(store.windowStatus()?.canSendFreeText).toBe(true);
 
       store.clearWindowStatus();
       expect(store.windowStatus()).toBeNull();
+    });
+  });
+
+  describe('windowBadge', () => {
+    it('is not visible when ticket has no instance_id', () => {
+      store.instanceProviders.set({});
+      calledServiceSpy.get.mockReturnValue(of({ data: createCalled({ id: '1' }) }));
+      store.selectCalled('1');
+      expect(store.windowBadge().visible).toBe(false);
+    });
+
+    it('is not visible when instance provider is not meta', () => {
+      store.instanceProviders.set({ i1: 'uazapi' });
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
+      store.selectCalled('1');
+      expect(store.windowBadge().visible).toBe(false);
+    });
+
+    it('is visible with windowType and expiresAt as ISO strings when provider is meta', () => {
+      store.instanceProviders.set({ i1: 'meta' });
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
+      store.selectCalled('1');
+
+      const expiresAt = new Date('2026-07-22T10:00:00Z');
+      const lastMessageAt = new Date('2026-07-21T10:00:00Z');
+      store.setWindowStatus({
+        canSendFreeText: true,
+        lastMessageAt,
+        expiresAt,
+        windowType: '72h',
+      });
+
+      const badge = store.windowBadge();
+      expect(badge.visible).toBe(true);
+      expect(badge.windowType).toBe('72h');
+      expect(badge.expiresAt).toBe(expiresAt.toISOString());
+      expect(badge.lastInboundAt).toBe(lastMessageAt.toISOString());
+    });
+
+    it('has null fields when meta provider but no windowStatus loaded yet', () => {
+      store.instanceProviders.set({ i1: 'meta' });
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
+      store.selectCalled('1');
+
+      const badge = store.windowBadge();
+      expect(badge.visible).toBe(true);
+      expect(badge.windowType).toBeNull();
+      expect(badge.expiresAt).toBeNull();
+      expect(badge.lastInboundAt).toBeNull();
     });
   });
 });

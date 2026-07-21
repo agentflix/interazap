@@ -62,10 +62,10 @@ export class AfChatListItemComponent {
   /** Classes dinâmicas baseadas no estado ativo */
   protected readonly itemClasses = computed(() => {
     const base =
-      'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors cursor-pointer border-b border-neutral-100 dark:border-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500/50';
+      'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors cursor-pointer border-b border-neutral-100 dark:border-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500/50';
     const activeClass = this.active()
       ? 'bg-accent-50 dark:bg-accent-950/30'
-      : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/50';
+      : 'hover:bg-neutral-50 dark:hover:bg-[#191d1a]/50';
     return `${base} ${activeClass}`;
   });
 }

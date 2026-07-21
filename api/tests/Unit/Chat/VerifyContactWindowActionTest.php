@@ -189,4 +189,56 @@ class VerifyContactWindowActionTest extends TestCase
         // Deve usar a mensagem mais recente (1h atrás), que está dentro da janela
         $this->assertTrue($result->canSendFreeText);
     }
+
+    public function test_persisted_meta_window_in_the_future_is_authoritative(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
+        $expiresAt = \Illuminate\Support\Facades\Date::now()->addHours(50)->startOfSecond();
+
+        ChatTicket::factory()->create([
+            'tenant_id' => $tenant->id,
+            'contact_id' => $contact->id,
+            'status' => 'open',
+            'meta_window_expires_at' => $expiresAt,
+            'meta_window_type' => '72h',
+        ]);
+
+        // Sem nenhuma mensagem no banco — o campo persistido deve bastar (Branch 1).
+        $result = $this->action->execute($tenant->id, $contact->id);
+
+        $this->assertTrue($result->canSendFreeText);
+        $this->assertSame('72h', $result->windowType);
+        $this->assertNotNull($result->expiresAt);
+        $this->assertTrue($result->expiresAt->equalTo($expiresAt));
+    }
+
+    public function test_persisted_meta_window_in_the_past_falls_back_to_message_calculation(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
+
+        $ticket = ChatTicket::factory()->create([
+            'tenant_id' => $tenant->id,
+            'contact_id' => $contact->id,
+            'status' => 'open',
+            'meta_window_expires_at' => \Illuminate\Support\Facades\Date::now()->subHours(3),
+            'meta_window_type' => '24h',
+        ]);
+
+        // Inbound recente (1h atrás) — a janela persistida está no passado,
+        // então o fallback por mensagens deve prevalecer (Branch 2).
+        ChatMessage::factory()->create([
+            'tenant_id' => $tenant->id,
+            'ticket_id' => $ticket->id,
+            'contact_id' => $contact->id,
+            'is_from_contact' => true,
+            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(1),
+        ]);
+
+        $result = $this->action->execute($tenant->id, $contact->id);
+
+        $this->assertTrue($result->canSendFreeText);
+        $this->assertSame('24h', $result->windowType);
+    }
 }

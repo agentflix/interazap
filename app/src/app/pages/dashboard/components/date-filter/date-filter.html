@@ -3,9 +3,9 @@
       <button
         trigger
         type="button"
-        class="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 
+        class="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-200 dark:border-white/10 
                bg-white dark:bg-neutral-900 text-sm font-medium text-neutral-700 dark:text-neutral-200
-               hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+               hover:bg-neutral-50 dark:hover:bg-[#191d1a] transition-colors"
       >
         <lucide-icon name="calendar" [size]="16" class="text-neutral-400" />
         <span>{{ currentLabel() }}</span>
@@ -22,14 +22,14 @@
             [class.dark:bg-accent-950/30]="selectedOption() === opt.value"
             [class.dark:text-accent-400]="selectedOption() === opt.value"
             [class.hover:bg-neutral-100]="selectedOption() !== opt.value"
-            [class.dark:hover:bg-neutral-800]="selectedOption() !== opt.value"
+            [class.dark:hover:bg-[#191d1a]]="selectedOption() !== opt.value"
             (click)="selectOption(opt.value)"
           >
             {{ opt.label }}
           </button>
         }
 
-        <div class="my-1 border-t border-neutral-100 dark:border-neutral-800"></div>
+        <div class="my-1 border-t border-neutral-100 dark:border-white/[0.07]"></div>
 
         <button
           type="button"
@@ -39,14 +39,14 @@
           [class.dark:bg-accent-950/30]="selectedOption() === 'custom'"
           [class.dark:text-accent-400]="selectedOption() === 'custom'"
           [class.hover:bg-neutral-100]="selectedOption() !== 'custom'"
-          [class.dark:hover:bg-neutral-800]="selectedOption() !== 'custom'"
+          [class.dark:hover:bg-[#191d1a]]="selectedOption() !== 'custom'"
           (click)="selectOption('custom')"
         >
           Personalizado
         </button>
 
         @if (selectedOption() === 'custom') {
-          <div class="mt-3 p-2 bg-neutral-50 dark:bg-neutral-800 rounded-lg flex flex-col gap-3">
+          <div class="mt-3 p-2 bg-neutral-50 dark:bg-[#191d1a] rounded-lg flex flex-col gap-3">
             <af-date-range-picker [startControl]="customStart" [endControl]="customEnd" />
             <af-button
               variant="primary"

@@ -57,8 +57,8 @@ export class AfLoadingButtonComponent {
   protected readonly buttonClasses = computed(() => {
     const base = [
       'relative inline-flex items-center justify-center gap-2',
-      'font-semibold rounded-sm',
-      'transition-colors duration-150',
+      'font-bold rounded-full',
+      'transition-all duration-150',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'disabled:opacity-60 disabled:cursor-not-allowed',
       'cursor-pointer select-none',
@@ -72,7 +72,7 @@ export class AfLoadingButtonComponent {
 
     const variants: Record<string, string> = {
       primary:
-        'bg-primary-400 text-neutral-900 hover:bg-primary-500 focus-visible:ring-primary-500/50',
+        'bg-primary-500 text-white hover:bg-primary-400 active:bg-primary-600 shadow-[0_8px_26px_rgba(47,200,90,0.28)] hover:shadow-[0_10px_30px_rgba(47,200,90,0.36)] disabled:shadow-none focus-visible:ring-primary-500/50',
       secondary:
         'bg-primary-900 text-white hover:bg-primary-700 focus-visible:ring-primary-900/50',
       danger: 'bg-danger text-white hover:bg-danger-600 focus-visible:ring-danger/50',

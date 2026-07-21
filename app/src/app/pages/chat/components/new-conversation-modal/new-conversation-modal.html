@@ -23,7 +23,7 @@
       />
 
       <af-scroll-area
-        class="mt-2 overflow-hidden rounded-md border border-hairline dark:border-neutral-700"
+        class="mt-2 overflow-hidden rounded-md border border-hairline dark:border-white/10"
         maxHeight="12rem"
       >
         @if (!isContactSearchReady()) {
@@ -43,9 +43,9 @@
           @for (contact of contacts(); track contact.id) {
             <button
               type="button"
-              class="w-full px-3 py-2 text-left transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+              class="w-full px-3 py-2 text-left transition-colors hover:bg-neutral-50 dark:hover:bg-[#191d1a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
               [class.bg-neutral-50]="selectedContactId() === contact.id + ''"
-              [class.dark:bg-neutral-800]="selectedContactId() === contact.id + ''"
+              [class.dark:bg-[#191d1a]]="selectedContactId() === contact.id + ''"
               (click)="selectContact(contact.id)"
             >
               <div class="flex items-center justify-between gap-2">

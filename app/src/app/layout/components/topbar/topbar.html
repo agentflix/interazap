@@ -1,13 +1,13 @@
 
     <header
-      class="relative z-40 flex items-center justify-between h-17.5 px-4 sm:px-6 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200/60 dark:border-neutral-800/60 pt-safe pl-safe pr-safe"
+      class="relative z-40 flex items-center justify-between h-17.5 px-4 sm:px-6 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200/60 dark:border-white/[0.05] pt-safe pl-safe pr-safe"
     >
       <!-- Left: Mobile menu + Search -->
       <div class="flex items-center gap-3">
         <!-- Mobile hamburger -->
         <button
           (click)="theme.toggleMobileSidebar()"
-          class="lg:hidden size-9 inline-flex items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+          class="lg:hidden size-9 inline-flex items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-[#191d1a] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           type="button"
           aria-label="Abrir menu"
         >
@@ -17,7 +17,7 @@
         <!-- Desktop sidebar toggle -->
         <button
           (click)="theme.toggleSidebar()"
-          class="hidden lg:inline-flex size-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+          class="hidden lg:inline-flex size-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-[#191d1a] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           type="button"
           aria-label="Alternar barra lateral"
         >
@@ -26,7 +26,7 @@
 
         <!-- Search bar -->
         <div
-          class="hidden sm:flex items-center gap-2 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg w-64 lg:w-80 group cursor-pointer hover:bg-neutral-200/70 dark:hover:bg-neutral-700/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+          class="hidden sm:flex items-center gap-2 px-3 py-2 bg-neutral-100 dark:bg-[#191d1a] rounded-lg w-64 lg:w-80 group cursor-pointer hover:bg-neutral-200/70 dark:hover:bg-[#232823]/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           (click)="openSearch()"
           role="button"
           tabindex="0"
@@ -40,7 +40,7 @@
           />
           <span class="text-sm text-neutral-400 dark:text-neutral-500">Buscar...</span>
           <kbd
-            class="ml-auto hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium text-neutral-400 dark:text-neutral-500 bg-white dark:bg-neutral-700 rounded border border-neutral-200 dark:border-neutral-600"
+            class="ml-auto hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium text-neutral-400 dark:text-neutral-500 bg-white dark:bg-[#232823] rounded border border-neutral-200 dark:border-white/[0.14]"
           >
             ⌘K
           </kbd>
@@ -51,7 +51,7 @@
       <div class="flex items-center gap-1">
         <af-theme-toggler />
         <af-notification-dropdown />
-        <div class="w-px h-6 bg-neutral-200 dark:bg-neutral-700 mx-2 hidden sm:block"></div>
+        <div class="w-px h-6 bg-neutral-200 dark:bg-[#232823] mx-2 hidden sm:block"></div>
         <af-user-profile />
       </div>
     </header>

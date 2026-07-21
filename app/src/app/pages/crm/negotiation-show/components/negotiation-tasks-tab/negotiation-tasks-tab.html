@@ -20,7 +20,7 @@
     <p class="text-sm text-neutral-500 dark:text-neutral-400">Carregando tarefas...</p>
   } @else if (taskCount() === 0) {
     <div
-      class="rounded-lg border border-dashed border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-6 text-center text-sm text-neutral-500 dark:text-neutral-400"
+      class="rounded-lg border border-dashed border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#191d1a] p-6 text-center text-sm text-neutral-500 dark:text-neutral-400"
     >
       Nenhuma tarefa cadastrada para esta negociação.
     </div>
@@ -28,7 +28,7 @@
     <div class="space-y-3">
       @for (task of tasks(); track task.id) {
         <div
-          class="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4"
+          class="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-4"
         >
           <div class="flex items-start gap-3">
             <app-button variant="outline" size="sm" (clicked)="toggleTask(task)">
@@ -37,7 +37,7 @@
             <div>
               <div class="flex items-center gap-2">
                 <span
-                  class="inline-flex size-6 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
+                  class="inline-flex size-6 items-center justify-center rounded-full bg-neutral-100 dark:bg-[#191d1a] text-neutral-500 dark:text-neutral-400"
                 >
                   <lucide-icon
                     [name]="getTaskActionMeta(task.action_type).icon"
@@ -148,7 +148,7 @@
       classContainer="pb-4"
     />
     <div
-      class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-4"
+      class="rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#191d1a] p-4"
     >
       <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
         Canais de notificação

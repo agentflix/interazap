@@ -114,7 +114,7 @@
         <!-- Chart + Table -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <af-card>
-            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-white/10">
               <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
                 Funil por Etapa
               </h6>
@@ -130,7 +130,7 @@
           </af-card>
 
           <af-card [padded]="false">
-            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
+            <div header class="px-5 py-3 border-b border-neutral-200 dark:border-white/10">
               <h6 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
                 Detalhamento por Etapa
               </h6>
@@ -138,7 +138,7 @@
             <div class="overflow-x-auto">
               <table class="w-full text-sm tabular-nums">
                 <thead>
-                  <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                  <tr class="border-b border-neutral-200 dark:border-white/10">
                     <th
                       class="text-left py-3 px-4 font-medium text-neutral-500 dark:text-neutral-400"
                     >
@@ -174,7 +174,7 @@
                 <tbody>
                   @for (step of data()!.steps; track step.step_name) {
                     <tr
-                      class="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                      class="border-b border-neutral-100 dark:border-white/[0.07] hover:bg-neutral-50 dark:hover:bg-[#191d1a]"
                     >
                       <td class="py-3 px-4">
                         <div class="flex items-center gap-2">

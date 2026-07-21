@@ -8,15 +8,15 @@ import {
   ForbiddenException,
   Logger,
   Body,
+  HttpCode,
+  HttpStatus,
+  type RawBodyRequest,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
 import * as crypto from 'crypto';
 import { ChatWebhookService } from '../services/chat-webhook.service';
-import { WebhookEventDto } from '../dto/webhook-event.dto';
-import { MetaWebhookPayload } from '../contracts/meta-provider.interface';
-import { MetaWebhookDto } from '../dto/meta-webhook.dto';
-import { BadRequestException } from '@nestjs/common';
+import { MetaAdapter } from '../providers/meta/meta.adapter';
 
 /**
  * MetaWebhookController
@@ -31,6 +31,7 @@ export class MetaWebhookController {
   constructor(
     private readonly configService: ConfigService,
     private readonly chatWebhookService: ChatWebhookService,
+    private readonly metaAdapter: MetaAdapter,
   ) {}
 
   /**
@@ -60,12 +61,28 @@ export class MetaWebhookController {
   /**
    * Recebe eventos de webhook da Meta com validacao HMAC.
    * POST /webhooks/meta
+   *
+   * O `@Body()` é tipado como `Record<string, unknown>` (NÃO uma classe DTO)
+   * de proposito: o `ValidationPipe` global (`main.ts`) roda `whitelist` +
+   * `forbidNonWhitelisted` apenas quando o metatype declarado é uma classe.
+   * Um DTO parcial aqui faria o pipe (a) rejeitar com 400 qualquer payload
+   * real da Meta que traga campos não declarados (`value.messages`,
+   * `value.statuses`, etc. — exatamente o 4xx que a Meta usa como gatilho de
+   * reentrega em loop), ou (b) silenciosamente remover esses campos do body
+   * antes do handler rodar, descartando toda mensagem sem erro nenhum. Mesmo
+   * padrão de `ChatWebhookController` (`chat-webhook.controller.ts`).
+   *
+   * Sempre responde `200 OK` após a assinatura ser validada — mesmo quando o
+   * `phone_number_id` é desconhecido, o payload tem forma inesperada, ou não
+   * produz eventos resolvíveis. A Meta reentrega em loop diante de qualquer
+   * 4xx/5xx, então qualquer problema de roteamento/forma é só logado.
    */
   @Post()
+  @HttpCode(HttpStatus.OK)
   async handleWebhook(
     @Headers('x-hub-signature-256') signature: string,
-    @Body() payload: MetaWebhookDto,
-    @Req() req: Request,
+    @Body() rawPayload: Record<string, unknown>,
+    @Req() req: RawBodyRequest<Request>,
   ): Promise<{ success: boolean }> {
     const appSecret = this.configService.get<string>('meta.appSecret') ?? '';
 
@@ -75,14 +92,15 @@ export class MetaWebhookController {
       throw new ForbiddenException('Missing signature');
     }
 
-    // 2. Obtem body bruto para calculo do HMAC
-    const rawBody =
-      typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    // 2. Calcula o HMAC sobre o corpo BRUTO da requisicao (req.rawBody), nunca
+    // sobre JSON.stringify(req.body) — o body-parser pode reordenar chaves e
+    // quebrar a assinatura calculada pela Meta sobre os bytes originais.
+    const rawBody = req.rawBody ?? Buffer.from(JSON.stringify(rawPayload));
 
     // 3. Calcula a assinatura esperada
     const expectedSig = `sha256=${crypto
       .createHmac('sha256', appSecret)
-      .update(rawBody, 'utf-8')
+      .update(rawBody)
       .digest('hex')}`;
 
     // 4. Compara assinaturas usando comparacao de tempo constante (timing-safe)
@@ -99,32 +117,54 @@ export class MetaWebhookController {
 
     this.logger.debug('Webhook HMAC signature verified');
 
-    // 5. Extrai phone_number_id do payload para roteamento
-    const phoneNumberId =
-      payload.entry?.[0]?.changes?.[0]?.value?.metadata?.phone_number_id;
+    // 5. Checagem de forma minima — nunca lanca 4xx, so ACK+log quando o
+    // payload nao parece um webhook da Meta (defesa contra corpo malformado
+    // que o ValidationPipe generico deixaria passar sem erro).
+    if (!this.hasMinimalMetaShape(rawPayload)) {
+      this.logger.warn(
+        'Meta webhook payload missing object/entry[] — acking without processing',
+      );
+      return { success: true };
+    }
 
-    if (!phoneNumberId) {
-      this.logger.warn('Webhook payload missing phone_number_id for routing');
-      throw new BadRequestException(
-        'Invalid payload: missing metadata.phone_number_id',
+    // 6. Adapter resolve tenant/instancia por phone_number_id/waba_id e
+    // normaliza o lote completo (entry[] -> changes[] -> messages[]|statuses[]).
+    // Instancia desconhecida ou payload sem eventos resolviveis apenas gera
+    // warning — nunca um erro 4xx que provocaria reentrega em loop da Meta.
+    try {
+      const events = await this.metaAdapter.normalizeWebhookBatch(rawPayload);
+
+      if (events.length === 0) {
+        this.logger.warn(
+          'Meta webhook did not produce any resolvable event (unknown phone_number_id/waba_id or empty payload)',
+        );
+        return { success: true };
+      }
+
+      // Cada evento e processado de forma independente — falha em um item
+      // nao aborta o processamento dos demais (ver ChatWebhookService.handleNormalizedEvents).
+      await this.chatWebhookService.handleNormalizedEvents(events);
+    } catch (error) {
+      this.logger.error(
+        `Failed to process Meta webhook payload: ${error instanceof Error ? error.message : String(error)}`,
+        error instanceof Error ? error.stack : undefined,
       );
     }
 
-    // 6. Constroi o evento de webhook
-    const event: WebhookEventDto = {
-      event_type: 'messages',
-      raw: payload as unknown as Record<string, unknown>,
-    };
-
-    // 7. Encaminha para o ChatWebhookService para processamento
-    // Nota: phoneNumberId e usado como webhookToken para a Meta pois ela nao usa tokens na URL
-    await this.chatWebhookService.handle(
-      'meta',
-      phoneNumberId, // phone_number_id usado como token para lookup
-      event,
-      null,
-    );
-
     return { success: true };
+  }
+
+  /**
+   * Checagem de forma mínima do payload — apenas o suficiente para descartar
+   * corpos claramente malformados sem exigir um shape completo (isso é papel
+   * do `MetaWebhookPayload`/`MetaProvider.normalizeAll`, não deste guard).
+   */
+  private hasMinimalMetaShape(
+    payload: Record<string, unknown>,
+  ): payload is Record<string, unknown> & { entry: unknown[] } {
+    return (
+      payload.object === 'whatsapp_business_account' &&
+      Array.isArray(payload.entry)
+    );
   }
 }

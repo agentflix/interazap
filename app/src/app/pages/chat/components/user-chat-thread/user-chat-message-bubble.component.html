@@ -252,7 +252,7 @@
             <div class="relative">
               <button
                 type="button"
-                class="size-7 rounded-full flex items-center justify-center text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all"
+                class="size-7 rounded-full flex items-center justify-center text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#232823] transition-all"
                 aria-label="Reagir"
                 (click)="toggleEmojiPicker()"
               >
@@ -278,7 +278,7 @@
                   (click)="emojiPickerOpen.set(false)"
                 ></button>
                 <div
-                  class="absolute bottom-8 z-30 flex items-center gap-1 bg-white dark:bg-neutral-800 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-lg px-2.5 py-1.5"
+                  class="absolute bottom-8 z-30 flex items-center gap-1 bg-white dark:bg-[#191d1a] rounded-full border border-neutral-200 dark:border-white/10 shadow-lg px-2.5 py-1.5"
                   [class.left-0]="!isOutgoing()"
                   [class.right-0]="isOutgoing()"
                 >
@@ -300,7 +300,7 @@
           <!-- Botão reply -->
           <button
             type="button"
-            class="size-7 rounded-full flex items-center justify-center text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all"
+            class="size-7 rounded-full flex items-center justify-center text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#232823] transition-all"
             aria-label="Responder"
             (click)="onReply()"
           >

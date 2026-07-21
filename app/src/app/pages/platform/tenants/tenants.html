@@ -360,7 +360,7 @@
 
     <!-- Detail side-panel -->
     <div
-      class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-neutral-700 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-lg w-full z-80 overflow-hidden"
+      class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-white/10 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-lg w-full z-80 overflow-hidden"
       [class.hidden]="!isDetailsOpen()"
       [class.flex]="isDetailsOpen()"
       [class.translate-x-full]="!isDetailsOpen()"
@@ -371,7 +371,7 @@
       [attr.aria-hidden]="!isDetailsOpen()"
     >
       <div
-        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-hairline dark:border-neutral-700 px-6 gap-3"
+        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-hairline dark:border-white/10 px-6 gap-3"
       >
         <h5 class="text-base grow">Detalhes do inquilino</h5>
         <af-icon-button label="Fechar detalhes" variant="ghost" size="sm" (click)="closeDetails()">
@@ -384,7 +384,7 @@
           @if (isDetailsLoading()) {
             <div class="space-y-4 animate-pulse">
               @for (_ of [1, 2, 3, 4, 5]; track $index) {
-                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4"></div>
+                <div class="h-4 bg-neutral-200 dark:bg-[#232823] rounded w-3/4"></div>
               }
             </div>
           } @else if (detailsError()) {
@@ -476,7 +476,7 @@
             </div>
 
             <!-- Divider -->
-            <hr class="border-hairline dark:border-neutral-700" />
+            <hr class="border-hairline dark:border-white/10" />
 
             <!-- Section: Plano contratado -->
             <div class="space-y-3">
@@ -520,7 +520,7 @@
             </div>
 
             <!-- Divider -->
-            <hr class="border-hairline dark:border-neutral-700" />
+            <hr class="border-hairline dark:border-white/10" />
 
             <!-- Section: Recursos disponíveis -->
             <div class="space-y-4">
@@ -542,7 +542,7 @@
                   </p>
                 </div>
                 @if (tenantDetails()!.resources.users.limit !== null) {
-                  <div class="h-2 rounded-full bg-surface-100 dark:bg-neutral-700">
+                  <div class="h-2 rounded-full bg-surface-100 dark:bg-[#232823]">
                     <div
                       class="h-2 rounded-full transition-all"
                       [class]="
@@ -576,7 +576,7 @@
                   </p>
                 </div>
                 @if (tenantDetails()!.resources.instances.limit !== null) {
-                  <div class="h-2 rounded-full bg-surface-100 dark:bg-neutral-700">
+                  <div class="h-2 rounded-full bg-surface-100 dark:bg-[#232823]">
                     <div
                       class="h-2 rounded-full transition-all"
                       [class]="
@@ -613,7 +613,7 @@
                   tenantDetails()!.resources.storage.mode === 'LIMITED' &&
                   tenantDetails()!.resources.storage.limit_gb !== null
                 ) {
-                  <div class="h-2 rounded-full bg-surface-100 dark:bg-neutral-700">
+                  <div class="h-2 rounded-full bg-surface-100 dark:bg-[#232823]">
                     <div
                       class="h-2 rounded-full transition-all"
                       [class]="
@@ -665,7 +665,7 @@
                   tenantDetails()!.resources.negotiations.mode === 'LIMITED' &&
                   tenantDetails()!.resources.negotiations.limit !== null
                 ) {
-                  <div class="h-2 rounded-full bg-surface-100 dark:bg-neutral-700">
+                  <div class="h-2 rounded-full bg-surface-100 dark:bg-[#232823]">
                     <div
                       class="h-2 rounded-full transition-all"
                       [class]="

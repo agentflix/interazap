@@ -74,7 +74,7 @@ export class AfSearchInputComponent {
       'placeholder:text-neutral-400 dark:placeholder:text-neutral-500',
       'transition-colors duration-150',
       'focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500',
-      'border-neutral-300 dark:border-neutral-600',
+      'border-neutral-300 dark:border-white/[0.14]',
       sizeClasses,
     ].join(' ');
   });

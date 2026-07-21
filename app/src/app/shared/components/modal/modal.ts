@@ -67,7 +67,7 @@ export class AfModalComponent {
       'relative z-10 w-full',
       'bg-white dark:bg-neutral-900',
       'rounded-lg shadow-xl',
-      'border border-neutral-200 dark:border-neutral-700',
+      'border border-neutral-200 dark:border-white/10',
       'animate-in fade-in zoom-in-95 duration-200',
     ];
 

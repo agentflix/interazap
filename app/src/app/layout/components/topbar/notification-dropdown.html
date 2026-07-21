@@ -2,7 +2,7 @@
     <div class="relative">
       <button
         (click)="toggle()"
-        class="relative size-9 inline-flex items-center justify-center rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+        class="relative size-9 inline-flex items-center justify-center rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#191d1a] hover:text-neutral-700 dark:hover:text-neutral-200 transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
         type="button"
         aria-label="Notificações"
       >
@@ -17,10 +17,10 @@
 
       @if (open()) {
         <div
-          class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-neutral-800 rounded-xl shadow-xl border border-neutral-200 dark:border-neutral-700 z-50 overflow-hidden"
+          class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-[#191d1a] rounded-xl shadow-xl border border-neutral-200 dark:border-white/10 z-50 overflow-hidden"
         >
           <div
-            class="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-neutral-700"
+            class="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-white/10"
           >
             <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
               Notificações
@@ -34,7 +34,7 @@
             @if (loading()) {
               <div class="flex items-center justify-center py-10">
                 <div
-                  class="size-6 rounded-full border-2 border-neutral-200 dark:border-neutral-600 border-t-accent-500 animate-spin"
+                  class="size-6 rounded-full border-2 border-neutral-200 dark:border-white/[0.14] border-t-accent-500 animate-spin"
                 ></div>
               </div>
             } @else if (error()) {
@@ -69,7 +69,7 @@
                 @for (notification of notifications(); track notification.id) {
                   <button
                     (click)="handleNotificationClick(notification)"
-                    class="flex items-start gap-3 px-4 py-3 text-left hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors border-b border-neutral-100 dark:border-neutral-700 last:border-b-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+                    class="flex items-start gap-3 px-4 py-3 text-left hover:bg-neutral-50 dark:hover:bg-[#232823] transition-colors border-b border-neutral-100 dark:border-white/10 last:border-b-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                     type="button"
                   >
                     <div class="mt-0.5 shrink-0">

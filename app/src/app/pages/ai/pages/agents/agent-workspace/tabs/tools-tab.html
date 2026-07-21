@@ -1,10 +1,10 @@
 
     @if (loading()) {
       <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5 space-y-3"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-5 space-y-3"
       >
         @for (i of [0, 1, 2, 3, 4]; track i) {
-          <div class="animate-pulse h-14 bg-neutral-100 dark:bg-neutral-800 rounded-lg"></div>
+          <div class="animate-pulse h-14 bg-neutral-100 dark:bg-[#191d1a] rounded-lg"></div>
         }
       </div>
     } @else if (error()) {
@@ -29,7 +29,7 @@
       <div class="space-y-5">
         <!-- Header Card -->
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-5"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -60,7 +60,7 @@
 
           <!-- Preset Loader -->
           <div
-            class="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-end gap-3"
+            class="mt-4 pt-4 border-t border-neutral-100 dark:border-white/[0.07] flex items-end gap-3"
           >
             <div class="flex-1 max-w-xs">
               <af-select-input
@@ -84,7 +84,7 @@
           <!-- Linked tools badges -->
           @if (linkedToolNames().length > 0) {
             <div
-              class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800"
+              class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-neutral-100 dark:border-white/[0.07]"
             >
               @for (name of linkedToolNames(); track name) {
                 <span
@@ -108,10 +108,10 @@
         <!-- Catalog by category -->
         @for (category of categories(); track category) {
           <div
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
           >
             <div
-              class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+              class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
             >
               <lucide-icon
                 [name]="getCategoryIcon(category)"
@@ -124,7 +124,7 @@
                 {{ formatCategory(category) }}
               </h4>
               <span
-                class="text-[10px] px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
+                class="text-[10px] px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-[#191d1a] text-neutral-500 dark:text-neutral-400"
               >
                 {{ toolsByCategory(category).length }}
               </span>
@@ -139,7 +139,7 @@
                       ? 'bg-primary-50 dark:bg-primary-900/15 border border-primary-200 dark:border-primary-700'
                       : tool.locked
                         ? 'border border-transparent opacity-40 cursor-not-allowed'
-                        : 'border border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:border-neutral-200 dark:hover:border-neutral-700'
+                        : 'border border-transparent hover:bg-neutral-50 dark:hover:bg-[#191d1a] hover:border-neutral-200 dark:hover:border-neutral-700'
                   "
                   [disabled]="tool.locked === true"
                   (click)="toggleTool(tool.name)"
@@ -154,7 +154,7 @@
                         </div>
                       } @else {
                         <div
-                          class="size-5 rounded-md border-2 border-neutral-300 dark:border-neutral-600 group-hover:border-neutral-400 dark:group-hover:border-neutral-500 transition-colors"
+                          class="size-5 rounded-md border-2 border-neutral-300 dark:border-white/[0.14] group-hover:border-neutral-400 dark:group-hover:border-neutral-500 transition-colors"
                         ></div>
                       }
                     </div>

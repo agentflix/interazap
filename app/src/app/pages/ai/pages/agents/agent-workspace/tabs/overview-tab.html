@@ -2,10 +2,10 @@
     <form [formGroup]="form" class="space-y-6">
       <!-- Identity Section -->
       <section
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
       >
         <div
-          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
         >
           <lucide-icon name="user" [size]="16" class="text-primary-500 dark:text-primary-400" />
           <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Identidade</h3>
@@ -35,10 +35,10 @@
 
       <!-- Role & Scope Section -->
       <section
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
       >
         <div
-          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
         >
           <lucide-icon
             name="briefcase"
@@ -64,10 +64,10 @@
 
       <!-- AI Model Section -->
       <section
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
       >
         <div
-          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
         >
           <lucide-icon name="cpu" [size]="16" class="text-primary-500 dark:text-primary-400" />
           <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Modelo de IA</h3>
@@ -101,10 +101,10 @@
 
       <!-- Behavior Section -->
       <section
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
       >
         <div
-          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
         >
           <lucide-icon
             name="shield-alert"
@@ -123,7 +123,7 @@
             [spacing]="false"
           />
           <div
-            class="flex items-center justify-between p-4 rounded-lg bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+            class="flex items-center justify-between p-4 rounded-lg bg-neutral-50 dark:bg-[#191d1a] border border-neutral-200 dark:border-white/10"
           >
             <div class="flex items-center gap-3">
               <div
@@ -131,7 +131,7 @@
                 [class]="
                   form.controls.is_active.value
                     ? 'bg-emerald-100 dark:bg-emerald-900/30'
-                    : 'bg-neutral-100 dark:bg-neutral-800'
+                    : 'bg-neutral-100 dark:bg-[#191d1a]'
                 "
               >
                 <lucide-icon

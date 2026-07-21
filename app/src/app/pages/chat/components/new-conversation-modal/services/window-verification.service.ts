@@ -3,7 +3,11 @@ import { inject, Injectable } from '@angular/core';
 import { type Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '@env/environment';
-import { type WindowStatus, type WindowStatusResponse } from 'src/app/core/models/window-status.model';
+import {
+  type WindowStatus,
+  type WindowStatusApiPayload,
+  type WindowStatusResponse,
+} from 'src/app/core/models/window-status.model';
 
 interface CacheEntry {
   status: WindowStatus;
@@ -43,7 +47,7 @@ export class WindowVerificationService {
     }
 
     return this.http.get<WindowStatusResponse>(`${this.baseUrl}/${contactId}/window-status`).pipe(
-      map((response) => response.data),
+      map((response) => this.parseStatus(response.data)),
       tap((status) => {
         this.setCache(contactId, status);
       }),
@@ -52,6 +56,8 @@ export class WindowVerificationService {
         const fallback: WindowStatus = {
           canSendFreeText: false,
           lastMessageAt: null,
+          expiresAt: null,
+          windowType: null,
         };
         return of(fallback);
       }),
@@ -93,5 +99,19 @@ export class WindowVerificationService {
       status,
       timestamp: Date.now(),
     });
+  }
+
+  /**
+   * Converte o payload bruto da API (datas como string ISO) para `WindowStatus` (datas como `Date`).
+   *
+   * @param raw - Payload bruto retornado pelo endpoint `GET /chat/contacts/{id}/window-status`.
+   */
+  private parseStatus(raw: WindowStatusApiPayload): WindowStatus {
+    return {
+      canSendFreeText: raw.canSendFreeText,
+      lastMessageAt: raw.lastMessageAt ? new Date(raw.lastMessageAt) : null,
+      expiresAt: raw.expiresAt ? new Date(raw.expiresAt) : null,
+      windowType: raw.windowType ?? null,
+    };
   }
 }

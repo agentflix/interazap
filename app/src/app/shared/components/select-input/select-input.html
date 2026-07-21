@@ -38,14 +38,14 @@
         <!-- Dropdown -->
         @if (isOpen()) {
           <div
-            class="fixed z-9999 rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg overflow-hidden"
+            class="fixed z-9999 rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 shadow-lg overflow-hidden"
             [style.top.px]="dropdownPos().top"
             [style.left.px]="dropdownPos().left"
             [style.width.px]="dropdownPos().width"
           >
             <!-- Search filter -->
             @if (searchable()) {
-              <div class="p-2 border-b border-neutral-200 dark:border-neutral-700">
+              <div class="p-2 border-b border-neutral-200 dark:border-white/10">
                 <div class="relative">
                   <div
                     class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-neutral-500 dark:text-neutral-400"
@@ -54,7 +54,7 @@
                   </div>
                   <input
                     type="text"
-                    class="w-full h-8 pl-8 pr-3 text-xs rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-accent-500"
+                    class="w-full h-8 pl-8 pr-3 text-xs rounded border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#191d1a] text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-accent-500"
                     placeholder="Pesquisar..."
                     [value]="searchQuery()"
                     (input)="onSearch($event)"
@@ -75,7 +75,7 @@
                 @for (opt of filteredOptions(); track opt.value) {
                   <button
                     type="button"
-                    class="w-full flex items-center justify-between px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#191d1a] cursor-pointer transition-colors"
                     [class.bg-accent-50]="isSelected(opt.value)"
                     [class.dark:bg-accent-950]="isSelected(opt.value)"
                     [class.font-medium]="isSelected(opt.value)"

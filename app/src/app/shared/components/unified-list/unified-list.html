@@ -2,7 +2,7 @@
     <div class="card">
       <!-- Header bar -->
       <div
-        class="flex items-center gap-3 px-5 py-3 border-b border-neutral-200 dark:border-neutral-700"
+        class="flex items-center gap-3 px-5 py-3 border-b border-neutral-200 dark:border-white/10"
       >
         <div class="relative flex-1 max-w-xs">
           <lucide-icon
@@ -14,8 +14,8 @@
             type="text"
             [formControl]="searchControl"
             [placeholder]="searchPlaceholder()"
-            class="w-full pl-9 pr-3 py-1.5 rounded-md border border-neutral-300 dark:border-neutral-600
-              bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-neutral-50
+            class="w-full pl-9 pr-3 py-1.5 rounded-md border border-neutral-300 dark:border-white/[0.14]
+              bg-white dark:bg-[#191d1a] text-sm text-neutral-900 dark:text-neutral-50
               placeholder:text-neutral-400 focus:outline-none focus:ring-2
               focus:ring-accent-500/30 focus:border-accent-500"
           />
@@ -49,7 +49,7 @@
           <af-empty-state [title]="emptyTitle()" [description]="emptyDescription()" [icon]="true" />
         } @else {
           <table class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
-            <thead class="bg-neutral-50 dark:bg-neutral-800/50">
+            <thead class="bg-neutral-50 dark:bg-[#191d1a]/50">
               <ng-container *ngTemplateOutlet="headerTpl()" />
             </thead>
             <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -61,7 +61,7 @@
 
       <!-- Footer pagination -->
       <div
-        class="flex items-center justify-between px-5 py-3 border-t border-neutral-200 dark:border-neutral-700 text-sm text-neutral-500"
+        class="flex items-center justify-between px-5 py-3 border-t border-neutral-200 dark:border-white/10 text-sm text-neutral-500"
       >
         <span>{{ showingFrom() }}–{{ showingTo() }} de {{ total() }}</span>
         <div class="flex items-center gap-1">
@@ -83,7 +83,7 @@
               [class.text-neutral-600]="p !== currentPage()"
               [class.hover:bg-neutral-100]="p !== currentPage()"
               [class.dark:text-neutral-300]="p !== currentPage()"
-              [class.dark:hover:bg-neutral-800]="p !== currentPage()"
+              [class.dark:hover:bg-[#191d1a]]="p !== currentPage()"
               (click)="pageChange.emit(p)"
             >
               {{ p }}

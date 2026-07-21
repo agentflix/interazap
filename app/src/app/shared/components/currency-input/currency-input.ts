@@ -102,7 +102,7 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
   protected readonly wrapperClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'h-8' : 'h-10';
     return [
-      'flex items-center rounded-md border border-neutral-300 dark:border-neutral-600',
+      'flex items-center rounded-md border border-neutral-300 dark:border-white/[0.14]',
       'bg-white dark:bg-neutral-900',
       'focus-within:ring-2 focus-within:ring-accent-500/30 focus-within:border-accent-500',
       'transition-colors',
@@ -116,7 +116,7 @@ export class AfCurrencyInputComponent implements ControlValueAccessor, AfterView
     return [
       sizeClasses,
       'text-neutral-500 dark:text-neutral-400 select-none border-r',
-      'border-neutral-300 dark:border-neutral-600',
+      'border-neutral-300 dark:border-white/[0.14]',
     ].join(' ');
   });
 

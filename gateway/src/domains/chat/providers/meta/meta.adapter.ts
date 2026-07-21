@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../../../../infrastructure/redis/redis.service';
 import { MetaClient } from './meta.client';
-import { MetaProvider } from './meta.provider';
-import type { MetaTemplateCreatePayload } from './meta.dto';
+import { MetaProvider, NormalizedMetaEvent } from './meta.provider';
+import type {
+  MetaTemplateCreatePayload,
+  InstanceLookupResult,
+} from './meta.dto';
 import { MetaLookupService } from '../../http/meta-lookup.service';
 import {
   MetaWhatsAppProvider,
@@ -37,21 +40,32 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   ) {}
 
   /**
-   * Envia mensagem de texto (nao suportado pela Meta fora da janela 24h).
-   * Lanca erro indicando que deve usar sendTemplate.
+   * Envia mensagem de texto livre via Meta Cloud API.
+   * Só é aceita pela Meta enquanto a janela de atendimento (24h/72h) estiver
+   * aberta — fora dela, a Meta rejeita com o código 131047 (re-engagement),
+   * tratado pelo `MetaClient.sendText` com mensagem clara indicando o uso de template.
+   *
+   * @param instanceToken - Token no formato 'phoneNumberId:accessToken'
+   * @param request - Dados da mensagem de texto
+   * @returns Resultado normalizado do envio
    */
   sendText(
-    _instanceToken: string,
-
-    _request: SendTextRequest,
+    instanceToken: string,
+    request: SendTextRequest,
   ): Promise<SendMessageResult> {
-    this.logger.warn(
-      `sendText called on Meta adapter - this should use sendTemplate for Meta.`,
-    );
-    return Promise.resolve({
-      success: false,
-      error:
-        'Meta provider requires sendTemplate for outbound messages. Use sendTemplate instead.',
+    const { phoneNumberId, accessToken } =
+      this.parseInstanceToken(instanceToken);
+
+    if (!accessToken) {
+      return Promise.resolve({
+        success: false,
+        error: 'Invalid instance token format',
+      });
+    }
+
+    return this.client.sendText(phoneNumberId, accessToken, {
+      to: request.to,
+      body: request.text,
     });
   }
 
@@ -282,87 +296,168 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   }
 
   /**
+   * Normaliza o payload bruto do webhook da Meta, processando o **lote completo**
+   * (`entry[] -> changes[] -> messages[]|statuses[]`), produzindo UM evento por
+   * mensagem/status. A instância é resolvida **apenas** por `phone_number_id`
+   * (via `MetaLookupService.resolvePhoneNumberId`) — ou por `entry.id` (WABA ID)
+   * via `resolveWabaId` no ramo `message_template_status_update`. Não há
+   * validação de "webhook token" contra o `phone_number_id`: o campo
+   * `instanceWebhookToken` do evento vem diretamente da instância resolvida.
+   *
+   * Cada `change` do lote é processado de forma independente — falha ao
+   * resolver uma instância (phone_number_id/waba_id desconhecido) apenas
+   * descarta aquele evento com um log de warning, sem abortar os demais.
+   *
+   * @param rawPayload - Payload bruto do webhook (lote completo da Meta)
+   * @returns Lista de eventos normalizados, um por mensagem/status/template do lote
+   */
+  async normalizeWebhookBatch(
+    rawPayload: unknown,
+  ): Promise<NormalizedWebhookEvent[]> {
+    const payload = rawPayload as MetaWebhookPayload;
+    const results: NormalizedWebhookEvent[] = [];
+
+    for (const entry of payload.entry ?? []) {
+      for (const change of entry.changes ?? []) {
+        const field = change.field ?? 'messages';
+        // Payload sintetico contendo apenas esta entry/change, para que o
+        // MetaProvider normalize exatamente o subconjunto deste change
+        // (preserva o metodo unico normalizeAll como fonte de verdade da
+        // extracao de mensagens/status/template).
+        const singleChangePayload: MetaWebhookPayload = {
+          object: payload.object,
+          entry: [{ id: entry.id, time: entry.time, changes: [change] }],
+        };
+
+        if (field === 'message_template_status_update') {
+          const events = await this.buildTemplateEvents(
+            entry.id ?? '',
+            singleChangePayload,
+          );
+          results.push(...events);
+          continue;
+        }
+
+        const phoneNumberId = change.value?.metadata?.phone_number_id ?? '';
+        if (!phoneNumberId) {
+          this.logger.warn(
+            'phone_number_id not found in webhook change — event discarded',
+          );
+          continue;
+        }
+
+        const instance =
+          await this.lookupService.resolvePhoneNumberId(phoneNumberId);
+        if (!instance) {
+          this.logger.warn(
+            `Instance not found for phone_number_id: ${phoneNumberId} — event discarded`,
+          );
+          continue;
+        }
+
+        const normalizedEvents =
+          this.provider.normalizeAll(singleChangePayload);
+        for (const normalized of normalizedEvents) {
+          results.push(
+            this.buildNormalizedWebhookEvent(
+              normalized,
+              instance,
+              singleChangePayload,
+            ),
+          );
+        }
+      }
+    }
+
+    return results;
+  }
+
+  /**
    * Normaliza payload do webhook da Meta.
-   * Metodo ASSINCRONO que resolve phone_number_id via HTTP para o Backend.
+   * Preservado por compatibilidade — delega para o primeiro evento de
+   * `normalizeWebhookBatch()`. Especificações existentes (`meta.adapter.spec.ts`)
+   * dependem deste método para o caminho de evento único.
    *
-   * Eventos `message_template_status_update` NÃO trazem phone_number_id;
-   * são roteados pelo `entry.id` (WABA ID) via `MetaLookupService.resolveWabaId`.
-   *
-   * @param webhookToken - Token do webhook da instancia
+   * @param _webhookToken - Não utilizado; mantido apenas para satisfazer o contrato `MetaWhatsAppProvider`
    * @param rawPayload - Payload bruto do webhook
-   * @returns Evento normalizado
+   * @returns Primeiro evento normalizado do lote
    */
   async normalizeWebhook(
-    webhookToken: string,
+    _webhookToken: string,
     rawPayload: unknown,
   ): Promise<NormalizedWebhookEvent> {
-    const payload = rawPayload as MetaWebhookPayload;
-    const entry = payload.entry?.[0];
-    const change = entry?.changes?.[0];
-    const field = change?.field ?? 'messages';
+    const events = await this.normalizeWebhookBatch(rawPayload);
+    const [first] = events;
 
-    // Ramo: template_status_update — sem phone_number_id, lookup por waba_id
-    if (field === 'message_template_status_update') {
-      const wabaId = entry?.id ?? '';
-      if (!wabaId) {
-        throw new Error(
-          'waba_id (entry.id) not found in template_status_update payload',
-        );
-      }
+    if (!first) {
+      throw new Error('No resolvable event produced from Meta webhook payload');
+    }
 
-      const wabaInstance = await this.lookupService.resolveWabaId(wabaId);
-      if (!wabaInstance) {
-        throw new Error(`Instance not found for waba_id: ${wabaId}`);
-      }
+    return first;
+  }
 
-      const normalized = this.provider.normalize(payload);
+  /**
+   * Constroi os eventos normalizados para o ramo `message_template_status_update`,
+   * resolvendo a instância pelo `entry.id` (WABA ID).
+   */
+  private async buildTemplateEvents(
+    wabaId: string,
+    singleChangePayload: MetaWebhookPayload,
+  ): Promise<NormalizedWebhookEvent[]> {
+    if (!wabaId) {
+      this.logger.warn(
+        'waba_id (entry.id) not found in template_status_update payload — event discarded',
+      );
+      return [];
+    }
 
-      return {
+    const wabaInstance = await this.lookupService.resolveWabaId(wabaId);
+    if (!wabaInstance) {
+      this.logger.warn(
+        `Instance not found for waba_id: ${wabaId} — event discarded`,
+      );
+      return [];
+    }
+
+    const [normalized] = this.provider.normalizeAll(singleChangePayload);
+    if (!normalized) {
+      return [];
+    }
+
+    return [
+      {
         tenantId: wabaInstance.tenantId,
         instanceId: wabaInstance.instanceId,
-        instanceWebhookToken: webhookToken,
+        // WabaLookupResult não expõe webhookToken (apenas InstanceLookupResult,
+        // usado no lookup por phone_number_id, o faz) — divergência conhecida.
+        instanceWebhookToken: '',
         provider: 'meta',
         eventType: normalized.event_type,
         direction: 'template_status',
         template: normalized.template,
-        rawPayload: payload as unknown as Record<string, unknown>,
+        rawPayload: singleChangePayload as unknown as Record<string, unknown>,
         idempotencyKey: this.buildTemplateIdempotencyKey(
           wabaId,
           normalized.template,
         ),
         receivedAt: new Date(),
-      };
-    }
+      },
+    ];
+  }
 
-    // Ramo padrao: messages / statuses — usa phone_number_id
-    const phoneNumberId = change?.value?.metadata?.phone_number_id ?? '';
-
-    if (!phoneNumberId) {
-      throw new Error('phone_number_id not found in webhook payload');
-    }
-
-    // Resolve instancia via HTTP para o Backend
-    const instance =
-      await this.lookupService.resolvePhoneNumberId(phoneNumberId);
-
-    if (!instance) {
-      throw new Error(
-        `Instance not found for phone_number_id: ${phoneNumberId}`,
-      );
-    }
-
-    // Valida o token do webhook
-    if (instance.webhookToken !== webhookToken) {
-      throw new Error('Webhook token mismatch');
-    }
-
-    // Normaliza usando o provider
-    const normalized = this.provider.normalize(payload);
-
+  /**
+   * Constroi o `NormalizedWebhookEvent` final a partir de um `NormalizedMetaEvent`
+   * (mensagem ou status) e da instância já resolvida por `phone_number_id`.
+   */
+  private buildNormalizedWebhookEvent(
+    normalized: NormalizedMetaEvent,
+    instance: InstanceLookupResult,
+    singleChangePayload: MetaWebhookPayload,
+  ): NormalizedWebhookEvent {
     return {
       tenantId: instance.tenantId,
       instanceId: instance.instanceId,
-      instanceWebhookToken: webhookToken,
+      instanceWebhookToken: instance.webhookToken,
       provider: 'meta',
       eventType: normalized.event_type,
       direction: normalized.direction,
@@ -376,12 +471,37 @@ export class MetaAdapter implements MetaWhatsAppProvider {
               | 'read'
               | 'failed',
             timestamp: normalized.status.timestamp,
+            window: normalized.status.window,
+            errors: normalized.status.errors,
           }
         : undefined,
-      rawPayload: payload as unknown as Record<string, unknown>,
-      idempotencyKey: `${webhookToken}:${payload.entry[0]?.id ?? 'unknown'}:${Date.now()}`,
+      rawPayload: singleChangePayload as unknown as Record<string, unknown>,
+      idempotencyKey: this.buildMessageIdempotencyKey(
+        instance.instanceId,
+        normalized,
+      ),
       receivedAt: new Date(),
     };
+  }
+
+  /**
+   * Constroi a chave de idempotência determinística para mensagens/status,
+   * sem depender de timestamp — a reentrega da Meta deve produzir a mesma chave.
+   * `meta:{instanceId}:{wamid}` para mensagens; `meta:{instanceId}:{statusId}:{status}` para status.
+   */
+  private buildMessageIdempotencyKey(
+    instanceId: string,
+    normalized: NormalizedMetaEvent,
+  ): string {
+    if (normalized.status) {
+      return `meta:${instanceId}:${normalized.status.messageId}:${normalized.status.status}`;
+    }
+
+    if (normalized.message?.id) {
+      return `meta:${instanceId}:${normalized.message.id}`;
+    }
+
+    return `meta:${instanceId}:${normalized.event_type}:${normalized.phone_number_id}`;
   }
 
   /**

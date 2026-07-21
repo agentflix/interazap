@@ -194,6 +194,8 @@ export class Chat implements OnInit, OnDestroy {
 
   readonly activeTab = signal<'chat' | 'contact' | 'negotiation'>('chat');
   readonly composerMode = this.chatStore.composerMode;
+  /** View model do badge de janela Meta exibido acima do composer (visível só para provider `meta`). */
+  readonly windowBadge = this.chatStore.windowBadge;
   readonly ticketFilter = signal<'pending' | 'open' | 'all'>('pending');
   readonly emergencyFilter = signal<CalledSentiment | null>(null);
   readonly isEmergencyMenuOpen = signal(false);

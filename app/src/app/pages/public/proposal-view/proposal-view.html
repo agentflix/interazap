@@ -34,7 +34,7 @@
         <af-alert variant="danger" [message]="errorMessage() ?? ''" />
       } @else if (proposal()) {
         <section
-          class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6"
+          class="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-6"
         >
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -58,7 +58,7 @@
 
           @if (proposal()?.notes) {
             <div
-              class="mt-4 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-4 text-sm text-neutral-600 dark:text-neutral-300"
+              class="mt-4 rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#191d1a] p-4 text-sm text-neutral-600 dark:text-neutral-300"
             >
               {{ proposal()?.notes }}
             </div>
@@ -75,7 +75,7 @@
             <div class="space-y-2">
               @for (item of proposal()?.items || []; track trackById($index, item)) {
                 <div
-                  class="flex items-center justify-between rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/70 p-3 text-sm"
+                  class="flex items-center justify-between rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50/70 dark:bg-[#191d1a]/70 p-3 text-sm"
                 >
                   <div>
                     <p class="font-semibold text-neutral-900 dark:text-neutral-50">

@@ -6,13 +6,13 @@
 
   @if (loading()) {
     <div
-      class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 space-y-6"
+      class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-6 space-y-6"
     >
-      <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
-      <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
-      <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
-      <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
-      <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+      <div class="h-5 w-48 bg-neutral-200 dark:bg-[#232823] rounded animate-pulse"></div>
+      <div class="h-4 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
+      <div class="h-10 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
+      <div class="h-10 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
+      <div class="h-10 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
     </div>
   } @else if (error()) {
     <af-empty-state title="Erro ao carregar configurações" [description]="error()!">
@@ -39,10 +39,10 @@
     <form (ngSubmit)="save()" class="space-y-6">
       <!-- Audio -->
       <section
-        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+        class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 overflow-hidden"
       >
         <div
-          class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
         >
           <div class="flex items-center gap-2">
             <lucide-icon
@@ -80,10 +80,10 @@
 
       <!-- Image -->
       <section
-        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+        class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 overflow-hidden"
       >
         <div
-          class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
         >
           <div class="flex items-center gap-2">
             <lucide-icon name="image" [size]="16" class="text-primary-500 dark:text-primary-400" />
@@ -117,10 +117,10 @@
 
       <!-- Video -->
       <section
-        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+        class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 overflow-hidden"
       >
         <div
-          class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+          class="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
         >
           <div class="flex items-center gap-2">
             <lucide-icon name="video" [size]="16" class="text-primary-500 dark:text-primary-400" />

@@ -68,7 +68,7 @@ export class TagFormComponent {
 
   readonly form = this.fb.group({
     name: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
-    color: this.fb.control('#6366f1', { nonNullable: true, validators: [Validators.required] }),
+    color: this.fb.control('#2fc85a', { nonNullable: true, validators: [Validators.required] }),
     category: this.fb.control('', { nonNullable: true }),
     is_active: this.fb.control(true, { nonNullable: true }),
   });
@@ -140,7 +140,7 @@ export class TagFormComponent {
   private resetForm(): void {
     this.form.reset({
       name: '',
-      color: '#6366f1',
+      color: '#2fc85a',
       category: '',
       is_active: true,
     });

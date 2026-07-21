@@ -1,9 +1,11 @@
-<div class="h-full bg-neutral-50 flex flex-col">
+<div class="h-full bg-neutral-50 dark:bg-neutral-900 flex flex-col">
   @if (!currentContact()) {
     <div class="flex-1 flex items-center justify-center text-center px-8">
       <div>
-        <h4 class="text-lg font-semibold text-neutral-900">Selecione um contato</h4>
-        <p class="mt-2 text-sm text-neutral-500">
+        <h4 class="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+          Selecione um contato
+        </h4>
+        <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
           Abra um atendimento e escolha a aba “Negociação” para visualizar os negócios vinculados.
         </p>
       </div>
@@ -30,7 +32,7 @@
 
       <section class="flex flex-col min-h-0">
         @if (isLoadingDetail()) {
-          <div class="flex-1 flex items-center justify-center text-neutral-500">
+          <div class="flex-1 flex items-center justify-center text-neutral-500 dark:text-neutral-400">
             <ng-icon name="lucideLoader2" class="size-5 animate-spin me-2"></ng-icon>
             Carregando negociação...
           </div>
@@ -43,7 +45,7 @@
             </div>
           </div>
         } @else if (!selectedNegotiation()) {
-          <div class="flex-1 flex items-center justify-center text-neutral-500">
+          <div class="flex-1 flex items-center justify-center text-neutral-500 dark:text-neutral-400">
             Escolha uma negociação para visualizar os detalhes.
           </div>
         } @else {

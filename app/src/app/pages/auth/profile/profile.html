@@ -4,7 +4,7 @@
 
       @if (isLoading()) {
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6"
         >
           <div class="space-y-4">
             <af-skeleton variant="text" width="30%" height="1rem" />
@@ -14,7 +14,7 @@
         </section>
       } @else if (hasLoadError()) {
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6 space-y-4"
         >
           <af-alert
             variant="danger"
@@ -27,7 +27,7 @@
         </section>
       } @else if (isEmpty()) {
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6"
         >
           <af-empty-state
             title="Perfil indisponível"
@@ -37,7 +37,7 @@
       } @else {
         <!-- ── Avatar card ───────────────────────────────────────────────────── -->
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6"
         >
           <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
             Foto de perfil
@@ -70,7 +70,7 @@
 
         <!-- ── Personal info card ────────────────────────────────────────────── -->
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6"
         >
           <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
             Informações pessoais
@@ -117,7 +117,7 @@
 
         <!-- ── Change password card ──────────────────────────────────────────── -->
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6"
         >
           <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
             Alterar senha
@@ -175,7 +175,7 @@
 
         <!-- ── Two-factor card ───────────────────────────────────────────────── -->
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6"
         >
           <div class="flex items-center justify-between">
             <div>
@@ -206,7 +206,7 @@
         <!-- ── Google account card ───────────────────────────────────────────── -->
         @if (!hasLinkedProvider()) {
           <section
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6"
           >
             <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
               Conta Google

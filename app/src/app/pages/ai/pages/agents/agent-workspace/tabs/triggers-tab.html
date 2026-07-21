@@ -1,10 +1,10 @@
 
     @if (loading()) {
       <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5 space-y-3"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-5 space-y-3"
       >
         @for (i of [0, 1, 2]; track i) {
-          <div class="animate-pulse h-16 bg-neutral-100 dark:bg-neutral-800 rounded-lg"></div>
+          <div class="animate-pulse h-16 bg-neutral-100 dark:bg-[#191d1a] rounded-lg"></div>
         }
       </div>
     } @else if (error()) {
@@ -22,7 +22,7 @@
       <div class="space-y-5">
         <!-- Header -->
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-5"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -59,10 +59,10 @@
         <!-- Empty State -->
         @if (triggers().length === 0) {
           <div
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 py-16 text-center"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 py-16 text-center"
           >
             <div
-              class="size-14 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto mb-4"
+              class="size-14 rounded-full bg-neutral-100 dark:bg-[#191d1a] flex items-center justify-center mx-auto mb-4"
             >
               <lucide-icon name="zap" [size]="24" class="text-neutral-300 dark:text-neutral-600" />
             </div>
@@ -78,11 +78,11 @@
         <!-- Triggers List -->
         @if (triggers().length > 0) {
           <div
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden divide-y divide-neutral-100 dark:divide-neutral-800"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden divide-y divide-neutral-100 dark:divide-neutral-800"
           >
             @for (trigger of triggers(); track trigger.id) {
               <div
-                class="flex items-center justify-between px-5 py-4 hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors"
+                class="flex items-center justify-between px-5 py-4 hover:bg-neutral-50 dark:hover:bg-[#191d1a]/30 transition-colors"
               >
                 <div class="flex items-center gap-4">
                   <div
@@ -107,13 +107,13 @@
                       class="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 mt-0.5"
                     >
                       <span
-                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-medium"
+                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-[#191d1a] text-neutral-600 dark:text-neutral-400 font-medium"
                       >
                         {{ formatTriggerType(trigger.type) }}
                       </span>
                       @if (trigger.type === 'cron' && trigger.config['cron_expression']) {
                         <code
-                          class="text-xs px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 font-mono text-neutral-700 dark:text-neutral-300"
+                          class="text-xs px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-[#191d1a] font-mono text-neutral-700 dark:text-neutral-300"
                         >
                           {{ trigger.config['cron_expression'] }}
                         </code>

@@ -1,54 +1,92 @@
 modules:
   api:
-    description: API REST principal — domain, business logic, migrations, autenticação
-    tech: PHP 8.3 + Laravel 12
+    description: Núcleo de domínio — business logic, persistência, migrations, autenticação, filas Horizon
+    tech: PHP 8.2+ + Laravel 12
     path: api/
     exposes:
-      - REST endpoints (JSON)
-      - Artisan commands (migrations, jobs)
+      - REST /api (Sanctum)
+      - REST /internal (consumido pelo gateway com INTERNAL_API_KEY)
+      - Webhooks uazapi e Telegram
+      - Artisan commands e jobs Horizon
     consumes:
       - PostgreSQL 17
-      - Redis 7
+      - Redis 7 (cache, filas Horizon, Streams para o gateway)
+    bounded_contexts:
+      - Ai            # agentes, autopilot, runs, tools, skills, knowledge
+      - Auth          # usuários, sessões, permissões
+      - Billing       # planos, cotas, cobrança, trial
+      - Chat          # tickets, mensagens, instâncias, webhooks de canal
+      - Configuration # preferências e configurações do tenant
+      - CRM           # contatos, negociações, funil
+      - Dashboard     # agregações da home
+      - Gateway       # client de saída para o gateway (Redis Streams)
+      - Platform      # super admin, tenants, planos da plataforma
+      - Reports       # relatórios e exports
+      - Shared        # base comum (concerns, scopes, filtros, jobs base)
     owned_by: backend
 
   gateway:
-    description: Gateway de realtime, filas e AI — WebSocket, BullMQ, integrações externas
+    description: Execução e realtime — WebSocket, BullMQ, inferência de IA, envio outbound, métricas
     tech: Node.js + NestJS 11
     path: gateway/
     exposes:
-      - WebSocket (Socket.io)
-      - REST endpoints internos
-      - BullMQ producers/consumers
+      - WebSocket /ws (Socket.io)
+      - REST interno para o app e para a api
+      - Webhook da Meta (WABA)
+      - /metrics (Prometheus)
     consumes:
       - api (HTTP interno)
-      - Redis 7 (BullMQ)
-      - Google Generative AI
+      - Redis 7 (BullMQ + Streams)
+      - Google Gemini, OpenAI, MiniMax
       - AWS Secrets Manager
-      - WhatsApp API
+      - Meta Graph API
+    bounded_contexts:
+      - ai        # providers, consumers, classifier, batch
+      - billing   # integração de cobrança
+      - chat      # outbound, canais, webhooks Meta, uazapi
+      - internal  # endpoints internos
+      - realtime  # Socket.io, webchat público, broadcast
+      - webhooks  # entrega de webhooks para terceiros
     owned_by: backend
 
   app:
-    description: Frontend web — interface do operador/admin
-    tech: TypeScript + Angular 20
+    description: Frontend web — painel do operador, admin e webchat
+    tech: TypeScript + Angular 20 (standalone, signals)
     path: app/
     exposes: []
     consumes:
-      - gateway (WebSocket + REST)
-      - api (REST direto para alguns endpoints)
+      - api (REST /api)
+      - gateway (WebSocket /ws)
+    areas:
+      - admin · ai · auth · billing · chat · configuration · crm
+      - dashboard · platform · public · reports · settings · ui-kit · webchat
     owned_by: frontend
 
   landing:
-    description: Landing page institucional
-    tech: HTML/CSS/JS estático
+    description: Landing institucional estática
+    tech: HTML/CSS/JS
     path: landing/
     exposes: []
     consumes: []
     owned_by: frontend
 
   landing-clinicas:
-    description: Landing page vertical clínicas
-    tech: HTML/CSS/JS estático
+    description: Landing vertical clínicas
+    tech: HTML/CSS/JS
     path: landing-clinicas/
     exposes: []
     consumes: []
     owned_by: frontend
+
+  landing-new:
+    description: Nova landing em construção
+    tech: HTML/CSS/JS
+    path: landing-new/
+    exposes: []
+    consumes: []
+    owned_by: frontend
+
+  infra:
+    description: Provisionamento e deploy (Ansible, Nginx, Docker)
+    path: infra/
+    owned_by: infra

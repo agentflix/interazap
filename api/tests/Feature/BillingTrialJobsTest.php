@@ -43,7 +43,7 @@ class BillingTrialJobsTest extends TestCase
 
     private function createUsage(string $tenantId, string $cycleStart, string $cycleEnd, ?string $trialExpired = null): TenantMessageUsage
     {
-        return TenantMessageUsage::create([
+        return TenantMessageUsage::query()->create([
             'id' => (string) Str::orderedUuid(),
             'tenant_id' => $tenantId,
             'cycle_start' => $cycleStart,

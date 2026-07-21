@@ -93,7 +93,7 @@ export class FunnelFormComponent {
 
   readonly stepForm = this.fb.group({
     name: this.fb.control('', { nonNullable: true, validators: [Validators.required] }),
-    color: this.fb.control('#3b82f6', { nonNullable: true }),
+    color: this.fb.control('#2fc85a', { nonNullable: true }),
     is_active: this.fb.control(true, { nonNullable: true }),
   });
 
@@ -186,7 +186,7 @@ export class FunnelFormComponent {
   }
 
   openCreateStep(): void {
-    this.stepForm.reset({ color: '#3b82f6', is_active: true });
+    this.stepForm.reset({ color: '#2fc85a', is_active: true });
     this.editingStep.set(null);
     this.isStepModalOpen.set(true);
   }
@@ -195,7 +195,7 @@ export class FunnelFormComponent {
     this.editingStep.set(step);
     this.stepForm.patchValue({
       name: step.name,
-      color: step.color || '#3b82f6',
+      color: step.color || '#2fc85a',
       is_active: step.is_active ?? true,
     });
     this.isStepModalOpen.set(true);

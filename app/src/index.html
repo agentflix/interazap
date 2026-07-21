@@ -12,8 +12,8 @@
           var t = localStorage.getItem('af-theme');
           var dark =
             t === 'dark' ||
-            ((t === 'system' || t === null) &&
-              window.matchMedia('(prefers-color-scheme: dark)').matches);
+            t === null ||
+            (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
           if (dark) document.documentElement.classList.add('dark');
         } catch (_) {}
       })();
@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>

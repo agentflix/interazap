@@ -83,7 +83,7 @@ export class AfPaginationComponent {
     'inline-flex items-center justify-center size-9 rounded-md text-sm font-semibold bg-accent-500 text-white cursor-default';
 
   protected readonly inactivePageClass =
-    'inline-flex items-center justify-center size-9 rounded-md text-sm font-medium border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer';
+    'inline-flex items-center justify-center size-9 rounded-md text-sm font-medium border border-neutral-300 dark:border-white/[0.14] text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#191d1a] transition-colors cursor-pointer';
 
   protected goTo(page: number): void {
     if (page >= 1 && page <= this.lastPage() && page !== this.currentPage()) {

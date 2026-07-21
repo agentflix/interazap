@@ -23,7 +23,7 @@
 
 
     <div
-      class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4"
+      class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-4"
     >
       <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">
         Estatísticas de uso
@@ -37,7 +37,7 @@
               {{ usage().users.current }}/{{ usage().users.limit ?? '∞' }}
             </span>
           </div>
-          <div class="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+          <div class="h-2 bg-neutral-100 dark:bg-[#191d1a] rounded-full overflow-hidden">
             <div
               class="h-full bg-primary-500"
               [style.width.%]="usage().users.percentage ?? 0"
@@ -52,7 +52,7 @@
               {{ usage().instances.current }}/{{ usage().instances.limit ?? '∞' }}
             </span>
           </div>
-          <div class="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+          <div class="h-2 bg-neutral-100 dark:bg-[#191d1a] rounded-full overflow-hidden">
             <div
               class="h-full bg-accent-500"
               [style.width.%]="usage().instances.percentage ?? 0"
@@ -67,7 +67,7 @@
               {{ usage().storage.used_formatted }}/{{ usage().storage.limit_formatted }}
             </span>
           </div>
-          <div class="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+          <div class="h-2 bg-neutral-100 dark:bg-[#191d1a] rounded-full overflow-hidden">
             <div class="h-full bg-warning" [style.width.%]="usage().storage.percentage ?? 0"></div>
           </div>
         </div>
@@ -88,7 +88,7 @@
                 }
               </span>
             </div>
-            <div class="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+            <div class="h-2 bg-neutral-100 dark:bg-[#191d1a] rounded-full overflow-hidden">
               <div
                 class="h-full transition-all"
                 [class]="aiMsgBarColor()"

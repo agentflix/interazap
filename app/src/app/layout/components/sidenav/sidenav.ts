@@ -28,15 +28,15 @@ export class SidenavComponent {
   /** Retorna as classes CSS da sidebar dependendo do estado recolhido/expandido. */
   protected sidebarClasses(): string {
     return this.theme.sidebarCollapsed()
-      ? 'w-[68px] bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800'
-      : 'w-[260px] bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800';
+      ? 'w-[68px] bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-white/[0.07]'
+      : 'w-[260px] bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-white/[0.07]';
   }
 
   /** Retorna as classes CSS dos itens de menu do sidebar. */
   protected menuItemClasses(): string {
     return [
       'flex items-center gap-3 px-3 py-2 text-sm',
-      'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:text-neutral-50 dark:hover:bg-neutral-800',
+      'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:text-neutral-50 dark:hover:bg-[#191d1a]',
       'rounded-md transition-colors duration-150 cursor-pointer',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-900',
     ].join(' ');

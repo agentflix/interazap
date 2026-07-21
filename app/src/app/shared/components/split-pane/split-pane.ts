@@ -32,7 +32,7 @@ export class AfSplitPaneComponent {
 
   protected readonly dividerClasses = computed(() => {
     return this.direction() === 'horizontal'
-      ? 'w-px bg-neutral-200 dark:bg-neutral-700'
-      : 'h-px bg-neutral-200 dark:bg-neutral-700';
+      ? 'w-px bg-neutral-200 dark:bg-[#232823]'
+      : 'h-px bg-neutral-200 dark:bg-[#232823]';
   });
 }

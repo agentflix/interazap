@@ -39,14 +39,14 @@
               {{ item.label }}
             </div>
           } @else {
-            <div class="my-3 mx-2 h-px bg-neutral-200 dark:bg-neutral-800"></div>
+            <div class="my-3 mx-2 h-px bg-neutral-200 dark:bg-[#191d1a]"></div>
           }
         }
 
         @if (item.type === 'item') {
           <a
             [routerLink]="item.link"
-            routerLinkActive="bg-neutral-100 text-primary-700 dark:bg-neutral-800 dark:text-neutral-50 font-medium"
+            routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400 font-medium"
             [routerLinkActiveOptions]="{ exact: item.link === '/dashboard' }"
             [class]="menuItemClasses()"
             [title]="theme.sidebarCollapsed() ? item.label : ''"
@@ -85,7 +85,7 @@
 
             @if (isAccordionOpen(item.label) && !theme.sidebarCollapsed() && item.children) {
               <div
-                class="ml-5 pl-3 border-l border-neutral-200 dark:border-neutral-700 mt-1 space-y-0.5"
+                class="ml-5 pl-3 border-l border-neutral-200 dark:border-white/10 mt-1 space-y-0.5"
               >
                 @for (child of item.children; track child.label) {
                   @if (child.type === 'accordion' && child.children) {
@@ -103,12 +103,12 @@
                     </button>
                     @if (isAccordionOpen(child.label)) {
                       <div
-                        class="ml-4 pl-3 border-l border-neutral-200 dark:border-neutral-700 mt-0.5 space-y-0.5"
+                        class="ml-4 pl-3 border-l border-neutral-200 dark:border-white/10 mt-0.5 space-y-0.5"
                       >
                         @for (grandchild of child.children; track grandchild.label) {
                           <a
                             [routerLink]="grandchild.link"
-                            routerLinkActive="text-primary-700 dark:text-accent-400 font-medium"
+                            routerLinkActive="text-primary-700 dark:text-primary-400 font-medium"
                             class="flex items-center gap-2.5 px-3 py-1.5 text-[12px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150"
                           >
                             <span class="truncate">{{ grandchild.label }}</span>
@@ -119,7 +119,7 @@
                   } @else {
                     <a
                       [routerLink]="child.link"
-                      routerLinkActive="text-primary-700 dark:text-accent-400 font-medium"
+                      routerLinkActive="text-primary-700 dark:text-primary-400 font-medium"
                       class="flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150"
                     >
                       <span class="truncate">{{ child.label }}</span>
@@ -147,14 +147,18 @@
       aria-label="Fechar menu lateral"
     ></div>
     <aside
-      class="absolute left-0 top-0 h-full w-72 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col shadow-xl animate-in slide-in-from-left duration-200 pt-safe pb-safe pl-safe"
+      class="absolute left-0 top-0 h-full w-72 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-white/[0.07] flex flex-col shadow-xl animate-in slide-in-from-left duration-200 pt-safe pb-safe pl-safe"
     >
       <!-- Same content as desktop but always expanded -->
       <div class="flex items-center justify-between h-17.5 px-4">
         <div class="flex items-center">
-          <img src="/logo-interazap.png" alt="InteraZap" class="h-7 object-contain dark:hidden" />
           <img
             src="/logo-interazap-light.png"
+            alt="InteraZap"
+            class="h-7 object-contain dark:hidden"
+          />
+          <img
+            src="/logo-interazap-dark.png"
             alt="InteraZap"
             class="h-7 object-contain hidden dark:block"
           />
@@ -183,9 +187,9 @@
             @if (item.type === 'item') {
               <a
                 [routerLink]="item.link"
-                routerLinkActive="bg-neutral-100 text-primary-700 dark:bg-neutral-800 dark:text-neutral-50 font-medium"
+                routerLinkActive="bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400 font-medium"
                 (click)="theme.closeMobileSidebar()"
-                class="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-50 dark:hover:bg-neutral-800 rounded-md transition-colors duration-150"
+                class="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-50 dark:hover:bg-[#191d1a] rounded-md transition-colors duration-150"
               >
                 @if (item.iconName) {
                   <lucide-icon [name]="item.iconName" [size]="16" class="shrink-0" />
@@ -197,7 +201,7 @@
             @if (item.type === 'accordion' && item.children) {
               <button
                 (click)="toggleAccordion(item.label)"
-                class="w-full flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-50 dark:hover:bg-neutral-800 rounded-md transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+                class="w-full flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-50 dark:hover:bg-[#191d1a] rounded-md transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
                 type="button"
                 [attr.aria-label]="'Expandir seção ' + item.label"
                 [attr.aria-expanded]="isAccordionOpen(item.label)"
@@ -215,7 +219,7 @@
 
               @if (isAccordionOpen(item.label)) {
                 <div
-                  class="ml-5 pl-3 border-l border-neutral-200 dark:border-neutral-700 mt-1 space-y-0.5"
+                  class="ml-5 pl-3 border-l border-neutral-200 dark:border-white/10 mt-1 space-y-0.5"
                 >
                   @for (child of item.children; track child.label) {
                     @if (child.type === 'accordion' && child.children) {
@@ -235,12 +239,12 @@
                       </button>
                       @if (isAccordionOpen(child.label)) {
                         <div
-                          class="ml-4 pl-3 border-l border-neutral-200 dark:border-neutral-700 mt-0.5 space-y-0.5"
+                          class="ml-4 pl-3 border-l border-neutral-200 dark:border-white/10 mt-0.5 space-y-0.5"
                         >
                           @for (grandchild of child.children; track grandchild.label) {
                             <a
                               [routerLink]="grandchild.link"
-                              routerLinkActive="text-primary-700 dark:text-accent-400 font-medium"
+                              routerLinkActive="text-primary-700 dark:text-primary-400 font-medium"
                               (click)="theme.closeMobileSidebar()"
                               class="flex items-center gap-2.5 px-3 py-1.5 text-[12px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150"
                             >
@@ -252,7 +256,7 @@
                     } @else {
                       <a
                         [routerLink]="child.link"
-                        routerLinkActive="text-primary-700 dark:text-accent-400 font-medium"
+                        routerLinkActive="text-primary-700 dark:text-primary-400 font-medium"
                         (click)="theme.closeMobileSidebar()"
                         class="flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50 rounded-md transition-colors duration-150"
                       >

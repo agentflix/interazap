@@ -64,19 +64,24 @@ final class SendMessageTool implements AiToolInterface
             $run = AiAutopilotRun::query()
                 ->where('tenant_id', $tenantId)
                 ->find($runId);
-            $runStartedAt = $run?->started_at ?? $run?->created_at;
-            if ($runStartedAt && $ticket->human_takeover_at->gt($runStartedAt)) {
-                logger()->info('[SendMessageTool] Suppressing AI reply: human took over after run started', [
-                    'ticket_id' => $ticketId,
-                    'run_id' => $runId,
-                    'run_started_at' => $runStartedAt->toIso8601String(),
-                    'human_takeover_at' => $ticket->human_takeover_at->toIso8601String(),
-                ]);
 
-                return ToolResultDTO::failure(
-                    'Human takeover detected after run started; suppressing AI reply',
-                    ['reason' => 'human_takeover']
-                );
+            // $run pode ser null (run não encontrada/de outro tenant); nesse caso não há
+            // como comparar timestamps, então a suppressão simplesmente não se aplica.
+            if ($run !== null) {
+                $runStartedAt = $run->started_at ?? $run->created_at;
+                if ($runStartedAt && $ticket->human_takeover_at->gt($runStartedAt)) {
+                    logger()->info('[SendMessageTool] Suppressing AI reply: human took over after run started', [
+                        'ticket_id' => $ticketId,
+                        'run_id' => $runId,
+                        'run_started_at' => $runStartedAt->toIso8601String(),
+                        'human_takeover_at' => $ticket->human_takeover_at->toIso8601String(),
+                    ]);
+
+                    return ToolResultDTO::failure(
+                        'Human takeover detected after run started; suppressing AI reply',
+                        ['reason' => 'human_takeover']
+                    );
+                }
             }
         }
 

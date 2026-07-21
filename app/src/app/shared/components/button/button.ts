@@ -61,8 +61,8 @@ export class AfButtonComponent {
   protected readonly buttonClasses = computed(() => {
     const base = [
       'inline-flex items-center justify-center gap-2 whitespace-nowrap',
-      'font-semibold rounded-sm',
-      'transition-colors duration-150',
+      'font-bold rounded-full',
+      'transition-all duration-150',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
       'cursor-pointer select-none',
@@ -77,9 +77,11 @@ export class AfButtonComponent {
 
     const variants: Record<string, string> = {
       primary: [
-        'bg-primary-400 text-neutral-900',
-        'hover:bg-primary-500',
+        'bg-primary-500 text-white',
+        'hover:bg-primary-400',
         'active:bg-primary-600',
+        'shadow-[0_8px_26px_rgba(47,200,90,0.28)] hover:shadow-[0_10px_30px_rgba(47,200,90,0.36)]',
+        'disabled:shadow-none',
         'focus-visible:ring-primary-500/50',
       ].join(' '),
       secondary: [
@@ -90,8 +92,8 @@ export class AfButtonComponent {
       ].join(' '),
       ghost: [
         'bg-transparent text-neutral-700 dark:text-neutral-300',
-        'hover:bg-neutral-100 dark:hover:bg-neutral-800',
-        'active:bg-neutral-200 dark:active:bg-neutral-700',
+        'hover:bg-neutral-100 dark:hover:bg-[#191d1a]',
+        'active:bg-neutral-200 dark:active:bg-[#232823]',
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
       danger: [
@@ -101,10 +103,10 @@ export class AfButtonComponent {
         'focus-visible:ring-danger/50',
       ].join(' '),
       outline: [
-        'border border-hairline-strong dark:border-neutral-600',
+        'border border-hairline-strong dark:border-white/[0.14]',
         'bg-transparent text-neutral-700 dark:text-neutral-300',
-        'hover:bg-surface-50 dark:hover:bg-neutral-800',
-        'active:bg-neutral-100 dark:active:bg-neutral-700',
+        'hover:bg-surface-50 dark:hover:bg-[#191d1a]',
+        'active:bg-neutral-100 dark:active:bg-[#232823]',
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
       success: [
@@ -115,8 +117,8 @@ export class AfButtonComponent {
       ].join(' '),
       default: [
         'bg-transparent text-neutral-700 dark:text-neutral-300',
-        'hover:bg-neutral-100 dark:hover:bg-neutral-800',
-        'active:bg-neutral-200 dark:active:bg-neutral-700',
+        'hover:bg-neutral-100 dark:hover:bg-[#191d1a]',
+        'active:bg-neutral-200 dark:active:bg-[#232823]',
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
     };

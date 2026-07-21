@@ -14,7 +14,7 @@
               [class.border-2]="i === currentStep()"
               [class.border-accent-500]="i === currentStep()"
               [class.bg-neutral-200]="i > currentStep()"
-              [class.dark:bg-neutral-700]="i > currentStep()"
+              [class.dark:bg-[#232823]]="i > currentStep()"
               [class.text-neutral-500]="i > currentStep()"
             >
               @if (i < currentStep()) {
@@ -42,7 +42,7 @@
               class="w-8 sm:w-16 h-0.5 mx-1"
               [class.bg-accent-500]="i < currentStep()"
               [class.bg-neutral-200]="i >= currentStep()"
-              [class.dark:bg-neutral-700]="i >= currentStep()"
+              [class.dark:bg-[#232823]]="i >= currentStep()"
             ></div>
           }
         </div>

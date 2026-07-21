@@ -98,7 +98,7 @@ export class AfPasswordInputComponent {
   protected readonly inputClasses = computed(() => {
     const borderColor = this.showError()
       ? 'border-red-500 dark:border-red-400'
-      : 'border-neutral-300 dark:border-neutral-600';
+      : 'border-neutral-300 dark:border-white/[0.14]';
 
     const sizeClasses =
       this.size() === 'sm' ? 'h-8 pl-2.5 pr-9 text-xs' : 'h-10 pl-3 pr-10 text-sm';

@@ -2,7 +2,7 @@
     <div class="space-y-5">
       <!-- Header Card -->
       <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-5"
       >
         <div class="flex items-center gap-3">
           <div
@@ -33,10 +33,10 @@
             class="relative flex items-center gap-4 px-5 py-4 rounded-xl border text-left transition-all group"
             [class]="
               channel.disabled
-                ? 'border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50 opacity-60 cursor-not-allowed'
+                ? 'border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900/50 opacity-60 cursor-not-allowed'
                 : isEnabled(channel.key)
                   ? 'border-primary-400 dark:border-primary-600 bg-primary-50/50 dark:bg-primary-900/15 shadow-sm ring-1 ring-primary-200 dark:ring-primary-800'
-                  : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-sm'
+                  : 'border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-sm'
             "
             [disabled]="channel.disabled"
             (click)="!channel.disabled && toggleChannel(channel.key)"
@@ -58,7 +58,7 @@
                 </span>
                 @if (channel.disabled) {
                   <span
-                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-200 dark:bg-[#232823] text-neutral-500 dark:text-neutral-400"
                   >
                     <lucide-icon name="lock" [size]="10" class="block" />
                     Em breve
@@ -72,7 +72,7 @@
             <div class="shrink-0">
               @if (channel.disabled) {
                 <div
-                  class="size-6 rounded-full border-2 border-neutral-200 dark:border-neutral-700"
+                  class="size-6 rounded-full border-2 border-neutral-200 dark:border-white/10"
                 ></div>
               } @else if (isEnabled(channel.key)) {
                 <div
@@ -82,7 +82,7 @@
                 </div>
               } @else {
                 <div
-                  class="size-6 rounded-full border-2 border-neutral-300 dark:border-neutral-600 group-hover:border-neutral-400 dark:group-hover:border-neutral-500 transition-colors"
+                  class="size-6 rounded-full border-2 border-neutral-300 dark:border-white/[0.14] group-hover:border-neutral-400 dark:group-hover:border-neutral-500 transition-colors"
                 ></div>
               }
             </div>

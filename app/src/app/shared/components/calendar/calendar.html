@@ -1,14 +1,14 @@
 
     <div
-      class="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+      class="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-white/10 overflow-hidden"
     >
       <!-- Header -->
       <div
-        class="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-700"
+        class="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-white/10"
       >
         <button
           type="button"
-          class="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded cursor-pointer"
+          class="p-1 hover:bg-neutral-100 dark:hover:bg-[#191d1a] rounded cursor-pointer"
           (click)="prevMonth()"
         >
           <lucide-icon name="chevron-left" [size]="18" />
@@ -18,14 +18,14 @@
         }}</span>
         <button
           type="button"
-          class="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded cursor-pointer"
+          class="p-1 hover:bg-neutral-100 dark:hover:bg-[#191d1a] rounded cursor-pointer"
           (click)="nextMonth()"
         >
           <lucide-icon name="chevron-right" [size]="18" />
         </button>
       </div>
       <!-- Weekday headers -->
-      <div class="grid grid-cols-7 border-b border-neutral-200 dark:border-neutral-700">
+      <div class="grid grid-cols-7 border-b border-neutral-200 dark:border-white/10">
         @for (day of weekdays; track day) {
           <div class="text-center text-xs font-medium text-neutral-500 py-2">{{ day }}</div>
         }
@@ -34,8 +34,8 @@
       <div class="grid grid-cols-7">
         @for (cell of calendarDays(); track $index) {
           <div
-            class="min-h-15 p-1 border-r border-b border-neutral-100 dark:border-neutral-800
-              last:border-r-0 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+            class="min-h-15 p-1 border-r border-b border-neutral-100 dark:border-white/[0.07]
+              last:border-r-0 cursor-pointer hover:bg-neutral-50 dark:hover:bg-[#191d1a]/50"
             [class.opacity-40]="!cell.currentMonth"
             (click)="dateSelected.emit(cell.dateStr)"
             (keydown.enter)="dateSelected.emit(cell.dateStr)"

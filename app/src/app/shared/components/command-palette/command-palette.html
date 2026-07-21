@@ -10,11 +10,11 @@
         ></div>
         <div
           class="relative z-10 w-full max-w-lg bg-white dark:bg-neutral-900 rounded-xl
-          border border-neutral-200 dark:border-neutral-700 shadow-2xl overflow-hidden"
+          border border-neutral-200 dark:border-white/10 shadow-2xl overflow-hidden"
         >
           <!-- Search -->
           <div
-            class="flex items-center gap-3 px-4 py-3 border-b border-neutral-200 dark:border-neutral-700"
+            class="flex items-center gap-3 px-4 py-3 border-b border-neutral-200 dark:border-white/10"
           >
             <lucide-icon name="search" [size]="18" class="text-neutral-400" />
             <input
@@ -32,7 +32,7 @@
                 <button
                   type="button"
                   class="w-full flex items-center gap-3 px-4 py-2.5 text-left
-                    hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                    hover:bg-neutral-100 dark:hover:bg-[#191d1a] transition-colors"
                   (click)="selectItem(item)"
                 >
                   @if (item.icon) {

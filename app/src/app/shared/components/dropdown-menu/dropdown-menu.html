@@ -5,14 +5,14 @@
       </div>
       @if (isOpen()) {
         <div
-          class="absolute z-30 mt-1 w-48 rounded-lg border border-neutral-200 dark:border-neutral-700
+          class="absolute z-30 mt-1 w-48 rounded-lg border border-neutral-200 dark:border-white/10
             bg-white dark:bg-neutral-900 shadow-md py-1"
           [class.right-0]="align() === 'end'"
           [class.left-0]="align() === 'start'"
         >
           @for (item of items(); track item.value) {
             @if (item.divider) {
-              <div class="my-1 border-t border-neutral-200 dark:border-neutral-700"></div>
+              <div class="my-1 border-t border-neutral-200 dark:border-white/10"></div>
             } @else {
               <button
                 type="button"
@@ -24,7 +24,7 @@
                 [class.text-neutral-700]="!item.destructive"
                 [class.dark:text-neutral-200]="!item.destructive"
                 [class.hover:bg-neutral-100]="true"
-                [class.dark:hover:bg-neutral-800]="true"
+                [class.dark:hover:bg-[#191d1a]]="true"
                 (click)="select(item)"
               >
                 @if (item.icon) {

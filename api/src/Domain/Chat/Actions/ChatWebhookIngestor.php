@@ -14,7 +14,9 @@ use Domain\Chat\Events\MetaTemplateStatusUpdated;
 use Domain\Chat\Jobs\ChatMediaDownloadJob;
 use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
+use Domain\Chat\Models\ChatTicket;
 use Domain\Chat\Services\ChatBroadcastService;
+use Domain\Chat\Services\MetaWindowService;
 use Domain\Configuration\Models\ConfigurationOpeningHour;
 use Domain\Platform\Models\PlatformUazapiInstance;
 
@@ -33,11 +35,13 @@ final class ChatWebhookIngestor
      * @param  ChatTicketActions  $ticketActions  Casos de uso de tickets.
      * @param  SendChatMessageAction  $messageActions  Action de envio de mensagens.
      * @param  ChatBroadcastService  $broadcastService  Serviço de mensageria em tempo real.
+     * @param  \Domain\Chat\Services\MetaWindowService  $metaWindowService  Serviço da janela de atendimento Meta (24h/72h CTWA).
      */
     public function __construct(
         private readonly ChatTicketActions $ticketActions,
         private readonly SendChatMessageAction $messageActions,
         private readonly ChatBroadcastService $broadcastService,
+        private readonly MetaWindowService $metaWindowService,
         ChatWebhookReactionHandler $reactionHandler,
         ChatWebhookDeleteHandler $deleteHandler,
         ChatWebhookEditHandler $editHandler,
@@ -184,6 +188,8 @@ final class ChatWebhookIngestor
                 $statusMessage = [
                     'id' => $statusMessageId,
                     'status' => $statusValue,
+                    'window' => is_array($statusPayload['window'] ?? null) ? $statusPayload['window'] : null,
+                    'errors' => is_array($statusPayload['errors'] ?? null) ? $statusPayload['errors'] : null,
                 ];
 
                 $updated = $this->updateExistingMessageStatus(
@@ -387,6 +393,8 @@ final class ChatWebhookIngestor
             if ($isFirstInteraction) {
                 $this->dispatchBusinessHoursAutomation($tenantId, $ticket);
             }
+
+            $this->renewMetaWindowFromInbound($ticket, $type, $message);
 
             MessagePersisted::dispatch(
                 $tenantId,
@@ -604,6 +612,9 @@ final class ChatWebhookIngestor
                 'deleted' => 'deleted',
                 'revoke' => 'deleted',
                 'revoked' => 'deleted',
+                // Status 'failed' da Meta NUNCA é mascarado como 'sent' —
+                // ver ~/Documents/prompts/SKILLS/meta-whatsapp-expert.
+                'failed' => 'failed',
             ];
             $existing->status = $map[strtolower($ack)] ?? $existing->status;
             if ($existing->status === 'sent' && ! $existing->sent_at) {
@@ -624,9 +635,16 @@ final class ChatWebhookIngestor
                     $existing->metadata = $metadata;
                 }
             }
+            if ($existing->status === 'failed' && is_array($message['errors'] ?? null)) {
+                $metadata = $existing->metadata ?? [];
+                $metadata['errors'] = $message['errors'];
+                $existing->metadata = $metadata;
+            }
         }
 
         $existing->save();
+
+        $this->applyMetaWindowFromStatus($existing, $message);
 
         logger()->debug('[ChatWebhookIngestor] Message status updated', [
             'message_id' => $existing->id,
@@ -705,6 +723,85 @@ final class ChatWebhookIngestor
                 'outside_business_hours_message',
                 'outside_business_hours_message'
             );
+        }
+    }
+
+    /**
+     * Renova a janela de atendimento Meta (24h/72h CTWA) a partir de um inbound.
+     *
+     * Só se aplica a instâncias do provedor `meta` e mensagens de conteúdo
+     * real (nunca `type === 'system'`). Roda em try/catch: qualquer falha
+     * apenas loga e segue — nunca pode derrubar a ingestão da mensagem,
+     * pois isso é produção viva.
+     *
+     * @param  array<string, mixed>  $message  Payload da mensagem inbound normalizada.
+     */
+    private function renewMetaWindowFromInbound(ChatTicket $ticket, string $type, array $message): void
+    {
+        try {
+            $instance = $ticket->instance;
+
+            if (! $instance instanceof ChatInstance || $instance->provider !== 'meta') {
+                return;
+            }
+
+            if ($type === 'system') {
+                return;
+            }
+
+            $timestamp = $message['timestamp'] ?? null;
+            $referral = is_array($message['referral'] ?? null) ? $message['referral'] : null;
+
+            $this->metaWindowService->renewFromInbound(
+                $ticket,
+                is_string($timestamp) ? $timestamp : null,
+                $referral,
+            );
+        } catch (\Throwable $exception) {
+            logger()->error('[ChatWebhookIngestor] Falha ao renovar janela Meta a partir do inbound', [
+                'ticket_id' => (string) $ticket->id,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Aplica a janela de atendimento Meta a partir de `status.window`, quando presente.
+     *
+     * Chamado após a atualização de status da mensagem existente. Roda em
+     * try/catch: falha aqui apenas loga e segue — nunca derruba o
+     * processamento do status da mensagem.
+     *
+     * @param  array<string, mixed>  $statusPayload  Payload de status normalizado (pode conter `window`).
+     */
+    private function applyMetaWindowFromStatus(ChatMessage $chatMessage, array $statusPayload): void
+    {
+        $window = is_array($statusPayload['window'] ?? null) ? $statusPayload['window'] : null;
+
+        if ($window === null) {
+            return;
+        }
+
+        $expiresAt = $window['expiresAt'] ?? null;
+        $windowType = $window['type'] ?? null;
+
+        if (! is_string($expiresAt) || ! is_string($windowType)) {
+            return;
+        }
+
+        try {
+            $ticket = $chatMessage->ticket;
+
+            if (! $ticket instanceof ChatTicket) {
+                return;
+            }
+
+            $this->metaWindowService->applyFromStatus($ticket, $expiresAt, $windowType);
+        } catch (\Throwable $exception) {
+            logger()->error('[ChatWebhookIngestor] Falha ao aplicar janela Meta a partir do status', [
+                'message_id' => (string) $chatMessage->id,
+                'error' => $exception->getMessage(),
+            ]);
         }
     }
 

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tenant_message_usage', function (Blueprint $table) {
+        Schema::table('tenant_message_usage', function (Blueprint $table): void {
             $table->timestamp('trial_expired_notified_at')->nullable()->after('alert_100_sent_at');
             $table->timestamp('trial_ending_soon_notified_at')->nullable()->after('trial_expired_notified_at');
         });
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tenant_message_usage', function (Blueprint $table) {
+        Schema::table('tenant_message_usage', function (Blueprint $table): void {
             $table->dropColumn(['trial_expired_notified_at', 'trial_ending_soon_notified_at']);
         });
     }

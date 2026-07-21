@@ -2,7 +2,7 @@
     @if (loading()) {
       <div class="space-y-5">
         @for (i of [0, 1, 2]; track i) {
-          <div class="animate-pulse h-24 bg-neutral-100 dark:bg-neutral-800 rounded-xl"></div>
+          <div class="animate-pulse h-24 bg-neutral-100 dark:bg-[#191d1a] rounded-xl"></div>
         }
       </div>
     } @else if (error()) {
@@ -20,10 +20,10 @@
       <form [formGroup]="voiceForm" class="space-y-6">
         <!-- Response Mode -->
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
         >
           <div
-            class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+            class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
           >
             <lucide-icon
               name="audio-lines"
@@ -43,7 +43,7 @@
                   [class]="
                     voiceForm.controls.voice_response_mode.value === mode.value
                       ? 'border-primary-400 dark:border-primary-600 bg-primary-50/50 dark:bg-primary-900/15 shadow-sm ring-1 ring-primary-200 dark:ring-primary-800'
-                      : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-sm'
+                      : 'border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-sm'
                   "
                   (click)="voiceForm.controls.voice_response_mode.setValue(mode.value)"
                 >
@@ -52,7 +52,7 @@
                     [class]="
                       voiceForm.controls.voice_response_mode.value === mode.value
                         ? 'bg-primary-100 dark:bg-primary-900/30'
-                        : 'bg-neutral-100 dark:bg-neutral-800 group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700'
+                        : 'bg-neutral-100 dark:bg-[#191d1a] group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700'
                     "
                   >
                     <lucide-icon
@@ -89,10 +89,10 @@
 
         <!-- STT Settings -->
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
         >
           <div
-            class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+            class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
           >
             <lucide-icon name="mic" [size]="16" class="text-primary-500 dark:text-primary-400" />
             <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
@@ -124,10 +124,10 @@
 
         <!-- TTS Settings -->
         <section
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
         >
           <div
-            class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-neutral-800"
+            class="flex items-center gap-2 px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]"
           >
             <lucide-icon
               name="volume-2"

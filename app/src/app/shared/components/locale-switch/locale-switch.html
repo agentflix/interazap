@@ -10,7 +10,7 @@
           [class.dark:text-accent-300]="current() === locale.code"
           [class.text-neutral-500]="current() !== locale.code"
           [class.hover:bg-neutral-100]="current() !== locale.code"
-          [class.dark:hover:bg-neutral-800]="current() !== locale.code"
+          [class.dark:hover:bg-[#191d1a]]="current() !== locale.code"
           [title]="locale.label"
           (click)="localeChange.emit(locale.code)"
         >

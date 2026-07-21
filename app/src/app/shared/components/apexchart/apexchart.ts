@@ -154,7 +154,7 @@ export class AfApexchartComponent implements OnDestroy {
           height: opts.height,
           toolbar: { show: false },
           background: 'transparent',
-          fontFamily: 'Inter, system-ui, sans-serif',
+          fontFamily: 'Figtree, system-ui, sans-serif',
         },
         series: opts.series,
         xaxis: {

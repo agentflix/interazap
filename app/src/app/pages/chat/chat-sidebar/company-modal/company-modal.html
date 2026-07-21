@@ -23,13 +23,13 @@
         <div class="space-y-2">
           @for (row of [1, 2, 3]; track row) {
             <div
-              class="h-12 rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 animate-pulse"
+              class="h-12 rounded border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-[#191d1a] animate-pulse"
             ></div>
           }
         </div>
       } @else if (showPlaceholder()) {
         <div
-          class="rounded border border-dashed border-neutral-200 dark:border-neutral-700 p-6 text-center"
+          class="rounded border border-dashed border-neutral-200 dark:border-white/10 p-6 text-center"
         >
           <p class="text-sm text-neutral-500 dark:text-neutral-400">
             Digite o nome ou CNPJ para buscar uma empresa.
@@ -37,7 +37,7 @@
         </div>
       } @else if (showEmpty()) {
         <div
-          class="rounded border border-dashed border-neutral-200 dark:border-neutral-700 p-4 text-center"
+          class="rounded border border-dashed border-neutral-200 dark:border-white/10 p-4 text-center"
         >
           <p class="text-sm text-neutral-600 dark:text-neutral-300">Nenhuma empresa encontrada.</p>
         </div>
@@ -47,7 +47,7 @@
             @for (company of companies(); track company.id) {
               <button
                 type="button"
-                class="flex w-full items-start justify-between rounded border border-neutral-200 dark:border-neutral-700 px-3 py-2 text-left hover:bg-primary/5"
+                class="flex w-full items-start justify-between rounded border border-neutral-200 dark:border-white/10 px-3 py-2 text-left hover:bg-primary/5"
                 (click)="selectCompany(company)"
                 [disabled]="isSaving()"
               >

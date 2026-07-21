@@ -1,5 +1,12 @@
 import { MetaProvider } from './meta.provider';
 import { MetaWebhookPayload } from '../../contracts/meta-provider.interface';
+import {
+  metaMultiEntryBatchPayload,
+  metaQuotedMessagePayload,
+  metaStatusWindow72hPayload,
+  metaStatusWindow24hPayload,
+  metaStatusFailedPayload,
+} from './__fixtures__';
 
 describe('MetaProvider.normalize', () => {
   let provider: MetaProvider;
@@ -198,6 +205,91 @@ describe('MetaProvider.normalize', () => {
       const result = provider.normalize(buildTemplatePayload());
       expect(result.message).toBeUndefined();
       expect(result.status).toBeUndefined();
+    });
+  });
+
+  describe('normalizeAll', () => {
+    it('produces one event per message when a change carries multiple messages', () => {
+      const payload = baseEntry('messages', {
+        messaging_product: 'whatsapp',
+        metadata: {
+          display_phone_number: '5511999999999',
+          phone_number_id: 'PHN_ID',
+        },
+        messages: [
+          {
+            from: '5511888888888',
+            id: 'wamid.1',
+            timestamp: '1700000000',
+            type: 'text',
+            text: { body: 'primeira' },
+          },
+          {
+            from: '5511888888889',
+            id: 'wamid.2',
+            timestamp: '1700000001',
+            type: 'text',
+            text: { body: 'segunda' },
+          },
+        ],
+      });
+
+      const events = provider.normalizeAll(payload);
+
+      expect(events).toHaveLength(2);
+      expect(events[0].message?.id).toBe('wamid.1');
+      expect(events[1].message?.id).toBe('wamid.2');
+    });
+
+    it('produces one event per entry across a multi-entry batch (fixture real da Meta: 2 entries x 2 messages)', () => {
+      const events = provider.normalizeAll(metaMultiEntryBatchPayload);
+
+      expect(events).toHaveLength(4);
+      expect(events.map((e) => e.message?.id)).toEqual([
+        'wamid.BATCH_A',
+        'wamid.BATCH_B',
+        'wamid.BATCH_C',
+        'wamid.BATCH_D',
+      ]);
+    });
+
+    it('extracts quotedMessageId from messages[].context.id', () => {
+      const [event] = provider.normalizeAll(metaQuotedMessagePayload);
+
+      expect(event.message?.quotedMessageId).toBe('wamid.ORIGINAL_1');
+    });
+
+    it('marks window as 72h from status.conversation.origin.type === referral_conversion', () => {
+      const [event] = provider.normalizeAll(metaStatusWindow72hPayload);
+
+      expect(event.status?.window).toEqual({
+        expiresAt: new Date(1700259200 * 1000),
+        type: '72h',
+      });
+    });
+
+    it('marks window as 24h when origin.type is not referral_conversion', () => {
+      const [event] = provider.normalizeAll(metaStatusWindow24hPayload);
+
+      expect(event.status?.window).toEqual({
+        expiresAt: new Date(1700086400 * 1000),
+        type: '24h',
+      });
+    });
+
+    it('propagates failed status with errors, never masking as sent', () => {
+      const [event] = provider.normalizeAll(metaStatusFailedPayload);
+
+      expect(event.status?.status).toBe('failed');
+      expect(event.status?.errors).toEqual([
+        {
+          code: 131047,
+          title: 'Re-engagement message',
+          message:
+            'Message failed to send because more than 24 hours have passed since the customer last replied to this number.',
+          details: 'Outside the 24-hour customer service window',
+        },
+      ]);
     });
   });
 });

@@ -2,9 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import {
+  MetaApiError,
   MetaGraphTemplatesResponse,
   MetaSendTemplatePayload,
   MetaSendTemplateResponse,
+  MetaSendTextPayload,
   ListTemplatesFilters,
   MetaTemplateCreatePayload,
 } from './meta.dto';
@@ -13,6 +15,9 @@ import {
   SendTemplateRequest,
   SendMessageResult,
 } from '../../contracts/meta-provider.interface';
+
+/** Código de erro da Meta para reengajamento fora da janela de atendimento de 24h. */
+const RE_ENGAGEMENT_ERROR_CODE = 131047;
 
 /**
  * Configuracao do provider Meta carregada das variaveis de ambiente.
@@ -71,11 +76,11 @@ export class MetaClient {
     return {
       baseUrl:
         this.configService.get<string>('meta.graphApiUrl') ??
-        'https://graph.facebook.com/v18.0',
+        'https://graph.facebook.com/v25.0',
       appSecret: this.configService.get<string>('meta.appSecret') ?? '',
       graphApiUrl:
         this.configService.get<string>('meta.graphApiUrl') ??
-        'https://graph.facebook.com/v18.0',
+        'https://graph.facebook.com/v25.0',
     };
   }
 
@@ -174,6 +179,11 @@ export class MetaClient {
         },
       );
 
+      // A Meta pode retornar HTTP 200 com `errors[]` preenchido no corpo.
+      if (response.data.errors && response.data.errors.length > 0) {
+        return this.buildErrorResult(response.data.errors, 'template');
+      }
+
       const messageId = response.data.messages?.[0]?.id;
 
       return {
@@ -181,20 +191,117 @@ export class MetaClient {
         messageId,
       };
     } catch (error) {
-      const axiosError = error as AxiosError;
-      const errorMessage =
-        axiosError.response?.data &&
-        typeof axiosError.response.data === 'object'
-          ? JSON.stringify(axiosError.response.data)
-          : axiosError.message;
+      return this.handleSendError(error, 'template');
+    }
+  }
 
-      this.logger.error(`Failed to send template: ${errorMessage}`);
+  /**
+   * Envia mensagem de texto livre via Meta Cloud API.
+   * Só é aceita pela Meta enquanto a janela de atendimento (24h/72h) estiver
+   * aberta — fora dela, a Meta retorna o código 131047 (re-engagement),
+   * mapeado para uma mensagem clara indicando o uso de template.
+   *
+   * @param phoneNumberId - ID do numero de telefone na Meta
+   * @param accessToken - Token de acesso da aplicacao Meta
+   * @param request - Destinatario e corpo da mensagem de texto
+   * @returns Resultado do envio
+   */
+  async sendText(
+    phoneNumberId: string,
+    accessToken: string,
+    request: { to: string; body: string },
+  ): Promise<SendMessageResult> {
+    const payload: MetaSendTextPayload = {
+      messaging_product: 'whatsapp',
+      to: request.to,
+      type: 'text',
+      text: { body: request.body },
+    };
+
+    try {
+      const response = await this.http.post<MetaSendTemplateResponse>(
+        `/${phoneNumberId}/messages`,
+        payload,
+        {
+          params: { access_token: accessToken },
+        },
+      );
+
+      // A Meta pode retornar HTTP 200 com `errors[]` preenchido no corpo
+      // (ex.: 131047 quando o texto livre é enviado fora da janela de 24h).
+      if (response.data.errors && response.data.errors.length > 0) {
+        return this.buildErrorResult(response.data.errors, 'text');
+      }
+
+      const messageId = response.data.messages?.[0]?.id;
 
       return {
+        success: true,
+        messageId,
+      };
+    } catch (error) {
+      return this.handleSendError(error, 'text');
+    }
+  }
+
+  /**
+   * Trata erro de requisicao HTTP (nao-2xx) no envio de mensagem, extraindo
+   * `errors[]` do corpo da resposta da Meta quando disponivel.
+   */
+  private handleSendError(
+    error: unknown,
+    context: 'template' | 'text',
+  ): SendMessageResult {
+    const axiosError = error as AxiosError<{ error?: MetaApiError }>;
+    const metaError = axiosError.response?.data?.error;
+
+    if (metaError) {
+      return this.buildErrorResult([metaError], context);
+    }
+
+    const errorMessage =
+      axiosError.response?.data && typeof axiosError.response.data === 'object'
+        ? JSON.stringify(axiosError.response.data)
+        : axiosError.message;
+
+    this.logger.error(`Failed to send ${context} message: ${errorMessage}`);
+
+    return {
+      success: false,
+      error: errorMessage,
+    };
+  }
+
+  /**
+   * Constroi o resultado de erro a partir de `errors[]` retornado pela Meta.
+   * Mapeia o código 131047 (re-engagement / fora da janela de 24h) para uma
+   * mensagem clara indicando o uso de template — nunca mascara a falha.
+   */
+  private buildErrorResult(
+    errors: MetaApiError[],
+    context: 'template' | 'text',
+  ): SendMessageResult {
+    const primary = errors[0];
+    this.logger.error(
+      `Failed to send ${context} message: code=${primary.code} title=${primary.title}`,
+      JSON.stringify(errors),
+    );
+
+    if (primary.code === RE_ENGAGEMENT_ERROR_CODE) {
+      return {
         success: false,
-        error: errorMessage,
+        error: `Fora da janela de atendimento de 24h (code ${primary.code}): envie um template aprovado para reengajar o contato.`,
       };
     }
+
+    const details = primary.error_data?.details;
+    const messagePart = primary.message ? `: ${primary.message}` : '';
+    const detailsPart = details ? ` (${details})` : '';
+
+    return {
+      success: false,
+      error: `${primary.title}${messagePart}${detailsPart} (code ${primary.code})`,
+    };
   }
 
   /**

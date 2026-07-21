@@ -29,9 +29,9 @@
       />
 
       <!-- Steps section -->
-      <div class="border-t border-neutral-200 dark:border-neutral-700 pt-4 mt-4">
+      <div class="border-t border-neutral-200 dark:border-white/10 pt-4 mt-4">
         <div
-          class="flex items-center justify-between pb-3 mb-3 border-b border-neutral-100 dark:border-neutral-800"
+          class="flex items-center justify-between pb-3 mb-3 border-b border-neutral-100 dark:border-white/[0.07]"
         >
           <div class="flex items-center gap-2">
             <lucide-icon name="layers" [size]="16" class="text-neutral-500 dark:text-neutral-400" />
@@ -53,7 +53,7 @@
           </div>
         } @else if (steps().length === 0) {
           <div
-            class="text-center py-6 text-neutral-500 text-sm border border-dashed border-neutral-200 dark:border-neutral-700 rounded-lg"
+            class="text-center py-6 text-neutral-500 text-sm border border-dashed border-neutral-200 dark:border-white/10 rounded-lg"
           >
             <p>Nenhuma etapa cadastrada.</p>
             <p class="text-xs mt-1">Adicione etapas para organizar seu funil.</p>
@@ -62,7 +62,7 @@
           <div class="space-y-2">
             @for (step of steps(); track step.id; let idx = $index) {
               <div
-                class="flex items-center gap-3 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 cursor-move hover:border-primary-500/50 transition-colors"
+                class="flex items-center gap-3 p-3 bg-neutral-50 dark:bg-[#191d1a] rounded-lg border border-neutral-200 dark:border-white/10 cursor-move hover:border-primary-500/50 transition-colors"
                 draggable="true"
                 (dragstart)="onDragStart(idx)"
                 (dragover)="onDragOver($event, idx)"
@@ -75,7 +75,7 @@
                 </span>
                 <div
                   class="size-4 rounded"
-                  [style.background-color]="step.color || '#3b82f6'"
+                  [style.background-color]="step.color || '#2fc85a'"
                 ></div>
                 <span class="flex-1 text-sm font-medium text-neutral-800 dark:text-neutral-200">{{
                   step.name

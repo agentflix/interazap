@@ -9,25 +9,26 @@
 
 @theme {
   /* ── Typography ──────────────────────────────────────────
-   * Inter (open-source substitute for Circular/Euclid)       */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+   * Figtree (mesma fonte da landing InteraZap)               */
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
   --font-mono:
     'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
     'Courier New', monospace;
 
-  /* ── Brand / Primary (Emerald) ───────────────────────────
-   * primary: #3ecf8e  |  primary-deep: #24b47e              */
-  --color-primary-50: #eefbf5;
-  --color-primary-100: #d5f5e7;
-  --color-primary-200: #aeebd3;
-  --color-primary-300: #76dbb6;
-  --color-primary-400: #3ecf8e;
-  --color-primary-500: #24b47e;
-  --color-primary-600: #1a9466;
-  --color-primary-700: #167753;
-  --color-primary-800: #145f43;
-  --color-primary-900: #124f38;
-  --color-primary-950: #0a2e21;
+  /* ── Brand / Primary (verde InteraZap — landing) ─────────
+   * base: #2fc85a (500)  |  brilho/hover: #3de86e (400)
+   * texto-sobre-verde: #05230f (950)                        */
+  --color-primary-50: #eafaf0;
+  --color-primary-100: #ccf3dc;
+  --color-primary-200: #9fe8bd;
+  --color-primary-300: #6fdd9d;
+  --color-primary-400: #3de86e;
+  --color-primary-500: #2fc85a;
+  --color-primary-600: #26a349;
+  --color-primary-700: #1f803a;
+  --color-primary-800: #1a632f;
+  --color-primary-900: #144d26;
+  --color-primary-950: #05230f;
 
   /* ── Accent (reserved for secondary highlights) ───────── */
   --color-accent-50: #f0fdf4;
@@ -53,8 +54,8 @@
   --color-neutral-600: #525252;
   --color-neutral-700: #404040;
   --color-neutral-800: #262626;
-  --color-neutral-900: #171717;
-  --color-neutral-950: #0a0a0a;
+  --color-neutral-900: #111412; /* superfície dark = landing card rgb(17,20,18) */
+  --color-neutral-950: #0a0b0a; /* canvas dark = landing */
 
   /* ── Surface / Canvas ────────────────────────────────────
    * canvas: #ffffff  |  canvas-soft: #fafafa                  */
@@ -185,7 +186,7 @@
   /* ── Card ────────────────────────────────────────────────
    * radius-lg (12px), hairline border, canvas bg             */
   .card {
-    @apply relative rounded-lg bg-white flex flex-col wrap-break-word bg-clip-border h-fit shadow-sm dark:bg-neutral-900 border border-hairline dark:border-neutral-700 dark:shadow-none;
+    @apply relative rounded-lg bg-white flex flex-col wrap-break-word bg-clip-border h-fit shadow-sm dark:bg-neutral-900 border border-hairline dark:border-white/[0.07] dark:shadow-none;
   }
 
   .card-body {
@@ -195,7 +196,7 @@
   /* ── Form Input ──────────────────────────────────────────
     * radius-sm (6px), hairline-strong border                  */
   .form-input {
-    @apply block w-full rounded-sm border border-hairline-strong bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500;
+    @apply block w-full rounded-sm border border-hairline-strong bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-white/[0.14] dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500;
   }
 
   .form-input-sm {
@@ -203,19 +204,20 @@
   }
 
   /* ── Buttons (CSS utility classes) ───────────────────────
-    * radius-sm (6px), dark text on primary green             */
+    * pill (rounded-full), texto branco sobre verde, glow      */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-sm
-      bg-primary-400 text-neutral-900
-      hover:bg-primary-500 active:bg-primary-600
+    @apply inline-flex items-center justify-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-full
+      bg-primary-500 text-white
+      hover:bg-primary-400 active:bg-primary-600
+      shadow-[0_8px_26px_rgba(47,200,90,0.28)] hover:shadow-[0_10px_30px_rgba(47,200,90,0.36)]
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
-      disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:shadow-none
       cursor-pointer select-none
-      transition-colors duration-150;
+      transition-all duration-150;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-sm
+    @apply inline-flex items-center justify-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-full
       bg-primary-900 text-white
       hover:bg-primary-700 active:bg-primary-950
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-900 focus-visible:ring-offset-2

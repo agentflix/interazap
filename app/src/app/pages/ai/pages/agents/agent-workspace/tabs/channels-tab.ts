@@ -77,7 +77,7 @@ export class AgentChannelsTabComponent {
       label: 'Interno',
       description: 'Agente disponível apenas via API interna',
       icon: 'lock',
-      iconClass: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
+      iconClass: 'bg-neutral-100 text-neutral-600 dark:bg-[#191d1a] dark:text-neutral-400',
       activeIconClass: 'bg-neutral-600 text-white dark:bg-neutral-500',
       disabled: true,
     },

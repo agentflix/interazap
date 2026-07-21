@@ -1,5 +1,5 @@
 
-    <div class="border-b border-neutral-200 dark:border-neutral-700">
+    <div class="border-b border-neutral-200 dark:border-white/10">
       <nav class="flex gap-0 -mb-px" [class.w-full]="fullWidth()" role="tablist">
         @for (tab of tabs(); track tab.id) {
           <button
@@ -31,7 +31,7 @@
               }
               @if (tab.badge !== undefined && tab.badge !== null) {
                 <span
-                  class="rounded-full px-1.5 py-0.5 text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300"
+                  class="rounded-full px-1.5 py-0.5 text-[10px] bg-neutral-100 dark:bg-[#191d1a] text-neutral-600 dark:text-neutral-300"
                 >
                   {{ tab.badge }}
                 </span>

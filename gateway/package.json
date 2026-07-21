@@ -90,7 +90,7 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/dist/",
-      "\\.real\\.e2e-spec\\.ts$"
+      "\\.e2e-spec\\.ts$"
     ],
     "setupFiles": [
       "<rootDir>/test/jest.setup.ts"

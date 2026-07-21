@@ -6,28 +6,28 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
         @for (item of [1, 2, 3, 4]; track item) {
           <div
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 animate-pulse"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6 animate-pulse"
           >
-            <div class="h-4 w-24 bg-neutral-200 dark:bg-neutral-700 rounded mb-3"></div>
-            <div class="h-8 w-32 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
+            <div class="h-4 w-24 bg-neutral-200 dark:bg-[#232823] rounded mb-3"></div>
+            <div class="h-8 w-32 bg-neutral-200 dark:bg-[#232823] rounded"></div>
           </div>
         }
       </div>
       <!-- Loading skeleton: secondary row -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div
-          class="lg:col-span-2 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 animate-pulse"
+          class="lg:col-span-2 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6 animate-pulse"
         >
-          <div class="h-5 w-32 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
-          <div class="h-6 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
-          <div class="h-20 bg-neutral-200 dark:bg-neutral-700 rounded"></div>
+          <div class="h-5 w-32 bg-neutral-200 dark:bg-[#232823] rounded mb-4"></div>
+          <div class="h-6 bg-neutral-200 dark:bg-[#232823] rounded mb-4"></div>
+          <div class="h-20 bg-neutral-200 dark:bg-[#232823] rounded"></div>
         </div>
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 animate-pulse"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6 animate-pulse"
         >
-          <div class="h-5 w-32 bg-neutral-200 dark:bg-neutral-700 rounded mb-4"></div>
+          <div class="h-5 w-32 bg-neutral-200 dark:bg-[#232823] rounded mb-4"></div>
           @for (row of [0, 1, 2, 3, 4]; track row) {
-            <div class="h-10 bg-neutral-200 dark:bg-neutral-700 rounded mb-2"></div>
+            <div class="h-10 bg-neutral-200 dark:bg-[#232823] rounded mb-2"></div>
           }
         </div>
       </div>
@@ -38,7 +38,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
         <!-- Documents -->
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6"
         >
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-neutral-500">Total de documentos</span>
@@ -58,7 +58,7 @@
 
         <!-- Chunks -->
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6"
         >
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-neutral-500">Total de chunks</span>
@@ -76,7 +76,7 @@
 
         <!-- Storage -->
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6"
         >
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-neutral-500">Storage usado</span>
@@ -91,7 +91,7 @@
           </span>
           <p class="text-xs text-neutral-500 mt-1">de {{ kbStats.storage_limit_formatted }}</p>
           <div
-            class="w-full h-1.5 mt-2 bg-neutral-100 dark:bg-neutral-700 rounded-full overflow-hidden"
+            class="w-full h-1.5 mt-2 bg-neutral-100 dark:bg-[#232823] rounded-full overflow-hidden"
           >
             <div
               class="h-1.5 rounded-full transition-colors"
@@ -105,7 +105,7 @@
 
         <!-- Failed -->
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6"
         >
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-neutral-500">Documentos com falha</span>
@@ -133,7 +133,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <!-- Status Distribution -->
         <div
-          class="lg:col-span-2 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
+          class="lg:col-span-2 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6"
         >
           <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
             Distribuição de Status
@@ -142,7 +142,7 @@
           @if (statusDistribution().length > 0) {
             <!-- Segmented bar -->
             <div
-              class="w-full h-4 rounded-full overflow-hidden flex bg-neutral-100 dark:bg-neutral-700"
+              class="w-full h-4 rounded-full overflow-hidden flex bg-neutral-100 dark:bg-[#232823]"
             >
               @for (segment of statusDistribution(); track segment.label) {
                 @if (segment.pct > 0) {
@@ -174,7 +174,7 @@
 
         <!-- Recent Documents -->
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6"
         >
           <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
             Documentos recentes
@@ -193,7 +193,7 @@
               @for (doc of recentDocs(); track doc.id) {
                 <div class="flex items-center gap-3">
                   <span
-                    class="size-8 shrink-0 flex items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500"
+                    class="size-8 shrink-0 flex items-center justify-center rounded-lg bg-neutral-100 dark:bg-[#232823] text-neutral-500"
                   >
                     <lucide-icon [name]="getTypeIcon(doc.content_type)" [size]="16" />
                   </span>

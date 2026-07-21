@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -188,6 +189,31 @@ export class NewConversationModalComponent {
       .subscribe((value) => {
         this.startMessage.set(value);
       });
+
+    // Reverifica a janela Meta sempre que o contato OU a instância selecionada mudar.
+    // Fonte única para a checagem — substitui as chamadas manuais que existiam em
+    // selectContact()/selectInstance() e cobre o caso de trocar a instância depois
+    // de já ter escolhido o contato (a janela ficava desatualizada nesse caso).
+    effect(() => {
+      const contactId = this.selectedContactId();
+      const instanceId = this.selectedInstanceId();
+
+      if (!contactId || !instanceId) {
+        return;
+      }
+
+      if (!this.isMetaProvider()) {
+        // Canal não-Meta: sempre texto livre, nenhuma janela para verificar.
+        this.sendMode.set('freeText');
+        return;
+      }
+
+      // Invalida o cache de 30s antes de reconsultar — o cache é chaveado só por
+      // contactId, então sem isso um resultado antigo poderia "vazar" para a
+      // instância recém-selecionada.
+      this.windowVerificationService.invalidateCache(contactId);
+      this.checkWindowStatus(contactId);
+    });
   }
 
   /**
@@ -236,11 +262,8 @@ export class NewConversationModalComponent {
    */
   selectContact(id: string | number): void {
     this.selectedContactId.set(String(id));
-
-    // If Meta provider is selected, check window status
-    if (this.isMetaProvider()) {
-      this.checkWindowStatus(String(id));
-    }
+    // A verificação da janela Meta é reativa (ver effect no constructor) —
+    // dispara sozinha quando contactId + instanceId estão definidos e o provider é Meta.
   }
 
   /**
@@ -471,11 +494,8 @@ export class NewConversationModalComponent {
     if (this.instanceControl.value !== value) {
       this.instanceControl.setValue(value, { emitEvent: false });
     }
-
-    // Se provider Meta e contato já selecionado, reverifica status da janela
-    if (this.isMetaProvider() && this.selectedContactId()) {
-      this.checkWindowStatus(this.selectedContactId());
-    }
+    // A verificação da janela Meta é reativa (ver effect no constructor) —
+    // dispara sozinha quando contactId + instanceId estão definidos e o provider é Meta.
   }
 
   /** Restaura a instância persistida no localStorage. */

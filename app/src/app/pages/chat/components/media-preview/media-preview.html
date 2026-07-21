@@ -1,10 +1,10 @@
 @if (open()) {
   <div class="fixed inset-0 z-80 bg-black/60 backdrop-blur-sm">
     <div
-      class="absolute inset-3 sm:inset-6 lg:inset-10 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-xl flex flex-col overflow-hidden"
+      class="absolute inset-3 sm:inset-6 lg:inset-10 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-2xl border border-neutral-200 dark:border-white/10 shadow-xl flex flex-col overflow-hidden"
     >
       <div
-        class="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900"
+        class="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900"
       >
         <div class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
           Pré-visualização de mídia
@@ -35,13 +35,13 @@
         </div>
       </div>
 
-      <div class="h-1 w-full bg-neutral-200 dark:bg-neutral-800">
+      <div class="h-1 w-full bg-neutral-200 dark:bg-[#191d1a]">
         <div class="h-full bg-primary transition-all" [style.width.%]="progressPercent()"></div>
       </div>
 
       <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[1fr_320px]">
         <div
-          class="flex flex-col min-h-0 border-e border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950"
+          class="flex flex-col min-h-0 border-e border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-neutral-950"
         >
           <div class="flex-1 min-h-0 flex items-center justify-center p-4">
             @if (selectedItem(); as selected) {
@@ -68,7 +68,7 @@
                   class="flex flex-col items-center gap-2 text-neutral-700 dark:text-neutral-200"
                 >
                   <div
-                    class="size-14 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center"
+                    class="size-14 rounded-full bg-neutral-200 dark:bg-[#191d1a] flex items-center justify-center"
                   >
                     <ng-icon name="lucideFile" size="26"></ng-icon>
                   </div>
@@ -84,14 +84,14 @@
             }
           </div>
           <div
-            class="border-t border-neutral-200 dark:border-neutral-700 p-4 bg-white dark:bg-neutral-900"
+            class="border-t border-neutral-200 dark:border-white/10 p-4 bg-white dark:bg-neutral-900"
           >
             <div class="text-xs text-neutral-600 dark:text-neutral-300 mb-2">Legenda</div>
             <app-text-input
               [control]="captionControl"
               placeholder="Adicionar legenda..."
               [spacing]="false"
-              [classInput]="'bg-white dark:bg-neutral-950 border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-400'"
+              [classInput]="'bg-white dark:bg-neutral-950 border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-400'"
             />
           </div>
         </div>
@@ -100,7 +100,7 @@
           <div class="text-xs text-neutral-600 dark:text-neutral-300">Detalhes</div>
           @if (selectedItem(); as selected) {
             <div
-              class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 p-3 text-xs"
+              class="rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-neutral-950 p-3 text-xs"
             >
               <div class="text-neutral-900 dark:text-neutral-100 font-medium truncate">
                 {{ selected.file.name }}
@@ -133,7 +133,7 @@
             @for (item of items(); track item.id) {
               <button
                 type="button"
-                class="relative size-16 rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 hover:border-primary/60 transition"
+                class="relative size-16 rounded-lg overflow-hidden border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-neutral-950 hover:border-primary/60 transition"
                 [class.ring-2]="item.id === selectedId()"
                 [class.ring-primary]="item.id === selectedId()"
                 (click)="itemSelected.emit(item.id)"

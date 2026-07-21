@@ -1,18 +1,27 @@
-version: "1.0.0"
-generated: "2026-05-19"
-generator: "PREVEC Bootstrap V7"
+version: "2.0.0"
+generated: "2026-07-21"
+generator: "PREVEC Bootstrap V7 — regeneração completa a partir do código"
 
 files:
-  architecture.md: "1.0.0"
-  modules.yaml: "1.0.0"
-  modules.md: "1.0.0"
-  dependencies.yaml: "1.0.0"
-  project-state.yaml: "1.0.0"
-  project-brain.yaml: "1.0.0"
-  user-flow.md: "1.0.0"
-  context-snapshot.md: "1.0.0"
+  architecture.md: "2.0.0"
+  modules.yaml: "2.0.0"
+  modules.md: "2.0.0"
+  dependencies.yaml: "2.0.0"
+  project-state.yaml: "2.0.0"
+  project-brain.yaml: "2.0.0"
+  user-flow.md: "2.0.0"
+  context-snapshot.md: "2.0.0"
+  canonicals.md: "2.0.0"
 
 changelog:
+  - version: "2.0.0"
+    date: "2026-07-21"
+    note: >
+      Documentação recriada do zero a partir do código real. Correções relevantes:
+      canal api→gateway é Redis Streams (não HTTP); webhooks uazapi e Telegram entram na api
+      e o da Meta no gateway; existem duas infraestruturas de fila (Horizon + BullMQ);
+      provedores de LLM são Gemini, OpenAI e MiniMax; a api chama OpenAI diretamente em
+      AiMediaTranscriptionService e AiGuardianService; testes são Pest, Jest e Vitest.
   - version: "1.0.0"
     date: "2026-05-19"
     note: "Setup inicial PREVEC V7 — stack inferida do código"

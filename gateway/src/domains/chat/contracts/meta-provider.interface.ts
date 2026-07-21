@@ -116,6 +116,12 @@ export interface MetaWebhookPayload {
             sha256: string;
             filename: string;
           };
+          sticker?: {
+            id: string;
+            mime_type: string;
+            sha256: string;
+            animated?: boolean;
+          };
           location?: {
             latitude: number;
             longitude: number;
@@ -127,6 +133,47 @@ export interface MetaWebhookPayload {
             profile: { name: string };
             phones: Array<{ phone: string; type?: string }>;
           }>;
+          /**
+           * Presente quando a mensagem responde/cita outra mensagem.
+           * `context.id` = id (wamid) da mensagem citada.
+           */
+          context?: {
+            id: string;
+            from?: string;
+            forwarded?: boolean;
+          };
+          /**
+           * Presente quando a conversa se originou de um anúncio Click-to-WhatsApp (CTWA).
+           * Marca a abertura da janela de atendimento de 72h.
+           */
+          referral?: {
+            source_id?: string;
+            source_type?: string;
+            source_url?: string;
+            headline?: string;
+            body?: string;
+            media_type?: string;
+            image_url?: string;
+            video_url?: string;
+            thumbnail_url?: string;
+            ctwa_clid?: string;
+          };
+          /** Presente quando `type === 'reaction'` — reações não viram mensagem persistida. */
+          reaction?: {
+            message_id: string;
+            emoji: string;
+          };
+          /** Presente quando `type === 'button'` (resposta a template com quick reply). */
+          button?: {
+            text: string;
+            payload: string;
+          };
+          /** Presente quando `type === 'interactive'` (resposta a lista/botão interativo). */
+          interactive?: {
+            type: string;
+            button_reply?: { id: string; title: string };
+            list_reply?: { id: string; title: string; description?: string };
+          };
         }>;
         statuses?: Array<{
           id: string;
@@ -136,13 +183,21 @@ export interface MetaWebhookPayload {
           conversation?: {
             id: string;
             origin: { type: string };
-            expiry?: string;
+            /** Unix seconds — expiracao absoluta da janela de atendimento corrente. */
+            expiration_timestamp?: string;
           };
           pricing?: {
             billable: boolean;
             pricing_model: string;
             category: string;
           };
+          /** Presente quando `status === 'failed'` — nunca deve ser descartado/mascarado. */
+          errors?: Array<{
+            code: number;
+            title: string;
+            message?: string;
+            error_data?: { details?: string };
+          }>;
         }>;
       };
       field: string;

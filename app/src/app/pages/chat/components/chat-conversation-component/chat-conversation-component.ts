@@ -29,8 +29,9 @@ import {
 import { ContactSectionComponent } from '../../chat-sidebar/contact-section/contact-section';
 import { CRMSectionComponent } from '../../chat-sidebar/crm-section/crm-section';
 import { UserChat } from '../user-chat/user-chat';
-import { type ComposerMode } from '../../chat.store';
+import { type ComposerMode, type WindowBadgeInfo } from '../../chat.store';
 import { AfEmptyStateComponent } from 'src/app/shared/components/empty-state/empty-state';
+import { MetaWindowBadgeComponent } from '../meta-window-badge/meta-window-badge';
 
 /**
  * Área principal de conversa extraída do componente de chat.
@@ -62,6 +63,7 @@ import { AfEmptyStateComponent } from 'src/app/shared/components/empty-state/emp
     ContactSectionComponent,
     CRMSectionComponent,
     AfEmptyStateComponent,
+    MetaWindowBadgeComponent,
   ],
   templateUrl: './chat-conversation-component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -105,6 +107,13 @@ export class ChatConversationComponent {
   readonly messageControl = input.required<FormControl<string>>();
   readonly isSendingMessage = input.required<boolean>();
   readonly composerMode = input<ComposerMode>('free');
+  /** View model do badge de janela Meta, derivado de `ChatStore.windowBadge`. */
+  readonly windowBadge = input<WindowBadgeInfo>({
+    visible: false,
+    windowType: null,
+    expiresAt: null,
+    lastInboundAt: null,
+  });
   readonly chatInstanceId = input<string | null>(null);
   readonly selectedTemplate = input<TemplateSelectedEvent | null>(null);
 

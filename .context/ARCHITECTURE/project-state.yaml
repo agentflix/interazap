@@ -1,17 +1,19 @@
 project:
   name: InteraZap
-  version: "1.0.0"
-  updated: "2026-05-19"
+  version: "2.0.0"
+  updated: "2026-07-21"
 
 stack:
-  backend_api: "PHP 8.3 + Laravel 12"
-  backend_gateway: "Node.js + NestJS 11"
+  backend_api: "PHP 8.2+ + Laravel 12 (Sanctum, Horizon)"
+  backend_gateway: "Node.js + NestJS 11 (Socket.io, BullMQ)"
   frontend: "TypeScript + Angular 20"
   database: "PostgreSQL 17"
-  cache_queue: "Redis 7 + BullMQ"
-  ai: "Google Generative AI"
-  infra: "Ansible + Nginx + AWS Secrets Manager"
-  package_manager: "pnpm (gateway + app)"
+  cache_queue: "Redis 7 — Streams, BullMQ, cache"
+  ai: "Google Gemini · OpenAI · MiniMax (factory no gateway)"
+  channels: "uazapi (WhatsApp) · Meta WABA · Telegram · webchat"
+  infra: "Ansible + Nginx + Docker + AWS Secrets Manager"
+  package_manager: "pnpm workspace (app + gateway) · composer (api)"
+  observability: "Prometheus /metrics no gateway · Sentry no app"
 
 modules:
   active:
@@ -21,16 +23,24 @@ modules:
   static:
     - landing
     - landing-clinicas
+    - landing-new
 
 metrics:
-  tasks_completed: 0
-  tasks_in_progress: 0
-  features_completed: 0
-  last_validation: "2026-05-19"
+  php_files_api: 1079
+  ts_files_gateway: 399
+  ts_files_app: 805
+  migrations: 70
+  test_files_api: 507
+  last_validation: "2026-07-21"
 
-ci:
-  api_tests: "php artisan test"
+gates:
+  api_fast: "cd api && composer gate:fast"
+  api_full: "cd api && composer gate:all"
+  api_tests: "cd api && composer test"
+  api_e2e: "cd api && composer test:e2e"
   gateway_tests: "pnpm --filter gateway test"
-  app_tests: "pnpm --filter app test"
   gateway_build: "pnpm --filter gateway build"
+  gateway_lint: "pnpm --filter gateway lint"
+  app_tests: "pnpm --filter app test:run"
   app_build: "pnpm --filter app build"
+  app_lint: "pnpm --filter app lint"

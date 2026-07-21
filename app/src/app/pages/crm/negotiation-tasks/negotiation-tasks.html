@@ -2,7 +2,7 @@
   <app-page-title title="Tarefas" subtitle="CRM" />
 
   <div
-    class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm"
+    class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 shadow-sm"
   >
     <div class="p-5 sm:p-6 flex flex-col gap-5 h-[calc(100vh-210px)] min-h-96">
       <!-- Header -->
@@ -31,12 +31,12 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             @for (i of [0, 1, 2]; track i) {
               <div
-                class="animate-pulse rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 p-4"
+                class="animate-pulse rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-[#191d1a] p-4"
               >
-                <div class="h-4 w-24 rounded bg-neutral-200 dark:bg-neutral-700 mb-3"></div>
+                <div class="h-4 w-24 rounded bg-neutral-200 dark:bg-[#232823] mb-3"></div>
                 <div class="space-y-3">
-                  <div class="h-20 rounded-lg bg-neutral-200 dark:bg-neutral-700"></div>
-                  <div class="h-20 rounded-lg bg-neutral-200 dark:bg-neutral-700"></div>
+                  <div class="h-20 rounded-lg bg-neutral-200 dark:bg-[#232823]"></div>
+                  <div class="h-20 rounded-lg bg-neutral-200 dark:bg-[#232823]"></div>
                 </div>
               </div>
             }
@@ -57,7 +57,7 @@
             <div cdkDropListGroup class="grid h-full grid-cols-3 gap-4 min-w-0">
               @for (column of columns; track column.id) {
                 <div
-                  class="flex h-full flex-col rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-3 min-w-0"
+                  class="flex h-full flex-col rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#191d1a] p-3 min-w-0"
                   [ngClass]="column.tone"
                 >
                   <div class="flex items-center gap-2 mb-3 min-w-0">
@@ -68,7 +68,7 @@
                       {{ column.label }}
                     </p>
                     <span
-                      class="ml-auto inline-flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 px-1.5 text-[10px] font-medium text-neutral-600 dark:text-neutral-300 min-w-5 h-5 shrink-0"
+                      class="ml-auto inline-flex items-center justify-center rounded-full bg-neutral-200 dark:bg-[#232823] px-1.5 text-[10px] font-medium text-neutral-600 dark:text-neutral-300 min-w-5 h-5 shrink-0"
                     >
                       {{ getColumnTasks(column.id).length }}
                     </span>
@@ -85,7 +85,7 @@
                   >
                     @for (task of getColumnTasks(column.id); track task.id) {
                       <div
-                        class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md min-w-0"
+                        class="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-3 shadow-sm cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md min-w-0"
                         cdkDrag
                         [cdkDragData]="task"
                       >

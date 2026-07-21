@@ -85,7 +85,7 @@ class BillingUpgradeFromTrialTest extends TestCase
         $this->admin->refresh();
 
         // Seed a trial usage row
-        TenantMessageUsage::create([
+        TenantMessageUsage::query()->create([
             'id' => (string) Str::orderedUuid(),
             'tenant_id' => $this->tenant->id,
             'cycle_start' => CarbonImmutable::today()->toDateString(),

@@ -4,14 +4,14 @@
     <div class="flex items-center gap-2">
       <!-- View mode toggle -->
       <div
-        class="inline-flex rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 p-0.5"
+        class="inline-flex rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-[#191d1a] p-0.5"
       >
         <button
           type="button"
           class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
           [class]="
             viewMode() === 'list'
-              ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-sm'
+              ? 'bg-white dark:bg-[#232823] text-neutral-900 dark:text-neutral-50 shadow-sm'
               : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
           "
           dataTest="negotiation-toggle-list"
@@ -25,7 +25,7 @@
           class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
           [class]="
             viewMode() === 'kanban'
-              ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-sm'
+              ? 'bg-white dark:bg-[#232823] text-neutral-900 dark:text-neutral-50 shadow-sm'
               : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
           "
           dataTest="negotiation-toggle-kanban"
@@ -93,7 +93,7 @@
   <!-- ═══════════════ LIST VIEW ═══════════════ -->
   @if (viewMode() === 'list') {
     <div
-      class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+      class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 overflow-hidden"
     >
       @if (isListLoading()) {
         <af-skeleton-table-row [columns]="6" [rows]="6" />
@@ -255,7 +255,7 @@
   <!-- ═══════════════ KANBAN VIEW ═══════════════ -->
   @if (viewMode() === 'kanban') {
     <section
-      class="flex flex-1 flex-col rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+      class="flex flex-1 flex-col rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 overflow-hidden"
     >
       @if (isKanbanLoading()) {
         <div class="flex flex-1 items-center justify-center">
@@ -267,7 +267,7 @@
       } @else if (kanbanSteps().length === 0) {
         <div class="flex flex-1 flex-col items-center justify-center gap-4 py-16">
           <div
-            class="flex size-14 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800"
+            class="flex size-14 items-center justify-center rounded-full bg-neutral-100 dark:bg-[#191d1a]"
           >
             <lucide-icon
               name="handshake"
@@ -292,11 +292,11 @@
         <div cdkDropListGroup class="flex flex-1 gap-0 overflow-x-auto">
           @for (step of kanbanSteps(); track step.id) {
             <div
-              class="flex min-w-72 max-w-80 flex-1 flex-col border-r border-neutral-200 dark:border-neutral-700 last:border-r-0"
+              class="flex min-w-72 max-w-80 flex-1 flex-col border-r border-neutral-200 dark:border-white/10 last:border-r-0"
             >
               <!-- Column header -->
               <div
-                class="sticky top-0 flex items-center justify-between gap-2 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/80 px-4 py-3"
+                class="sticky top-0 flex items-center justify-between gap-2 border-b border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-neutral-900/80 px-4 py-3"
                 [style.borderLeftWidth]="'3px'"
                 [style.borderLeftStyle]="'solid'"
                 [style.borderLeftColor]="step.color || '#6b7280'"
@@ -316,7 +316,7 @@
                   </p>
                 </div>
                 <span
-                  class="inline-flex min-w-6 items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 text-xs font-semibold text-neutral-600 dark:text-neutral-300"
+                  class="inline-flex min-w-6 items-center justify-center rounded-full bg-neutral-200 dark:bg-[#232823] px-1.5 py-0.5 text-xs font-semibold text-neutral-600 dark:text-neutral-300"
                 >
                   {{ step.total_count ?? (step.negotiations || []).length }}
                 </span>
@@ -333,7 +333,7 @@
               >
                 @for (negotiation of step.negotiations || []; track negotiation.id) {
                     <div
-                      class="group rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-md cursor-grab active:cursor-grabbing min-w-0"
+                      class="group rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-3 shadow-sm transition-all hover:border-neutral-300 dark:hover:border-neutral-600 hover:shadow-md cursor-grab active:cursor-grabbing min-w-0"
                       cdkDrag
                       [cdkDragData]="negotiation"
                     >
@@ -374,7 +374,7 @@
                     </div>
                 } @empty {
                   <div
-                    class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-neutral-200 dark:border-neutral-700 p-6 text-center"
+                    class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-neutral-200 dark:border-white/10 p-6 text-center"
                   >
                     <lucide-icon
                       name="handshake"
@@ -391,7 +391,7 @@
                 @if (step.has_more) {
                   <button
                     type="button"
-                    class="mt-1 w-full rounded-lg border border-dashed border-neutral-300 dark:border-neutral-600 px-3 py-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                    class="mt-1 w-full rounded-lg border border-dashed border-neutral-300 dark:border-white/[0.14] px-3 py-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
                     [disabled]="isStepLoading(step.id)"
                     (click)="loadMoreStep(step)"
                   >

@@ -97,7 +97,7 @@ it('POST /webhook-events retorna 422 com payload inválido', function (): void {
 // ── PATCH webhook-events/{id}/stream-id ─────────────────────────────────────
 
 it('PATCH /stream-id atualiza stream_id de evento existente', function (): void {
-    $event = BillingWebhookEvent::create([
+    $event = BillingWebhookEvent::query()->create([
         'id' => (string) Str::orderedUuid(),
         'tenant_id' => (string) $this->tenant->id,
         'event_type' => 'PAYMENT_RECEIVED',

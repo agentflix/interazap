@@ -1,35 +1,39 @@
 # Context Snapshot
-> Cache gerado pelo bootstrap. Regenerar quando context-version.yaml mudar.
+> Cache lean. Regenerar quando `context-version.yaml` mudar.
 > Fonte: project-brain.yaml + architecture.md + modules.yaml + dependencies.yaml
 
 ## Stack
-Backend: PHP 8.3 + Laravel 12 (api/) | Gateway: Node.js + NestJS 11 (gateway/)
-Frontend: TypeScript + Angular 20 (app/) | Database: PostgreSQL 17 + Redis 7
-Testes: Pest --parallel (api) · Jest (gateway + app) | Queue: BullMQ
-Arquitetura: Microservices | Camadas: Presentation → Gateway → Domain/Application → Infrastructure
+api: PHP 8.2+ · Laravel 12 · Sanctum · Horizon | gateway: NestJS 11 · Socket.io · BullMQ
+app: Angular 20 · TypeScript | Dados: PostgreSQL 17 · Redis 7 (Streams + BullMQ)
+IA: Gemini · OpenAI · MiniMax (factory no gateway) | Canais: uazapi · Meta WABA · Telegram · webchat
+Testes: Pest (api) · Jest (gateway) · Vitest (app)
+Arquitetura: Microservices | Presentation → Domain/Application → Execution/Realtime → Infrastructure
+Integração: api→gateway por Redis Streams · gateway→api por HTTP /internal
 
 ## Regras Invioláveis
-1. Gateway nunca acessa PostgreSQL diretamente — sempre via api REST
-2. Migrations somente em api/ via Laravel Artisan
-3. BullMQ queues definidas e processadas somente em gateway/
-4. AI (Google Generative AI) integrada somente em gateway/
-5. Secrets (AWS Secrets Manager) consumidos somente em gateway/
-6. Frontend (app/) nunca acessa banco ou Redis diretamente
-7. PSR-12 obrigatório para todo PHP em api/
-8. Angular Style Guide obrigatório para todo TypeScript em app/
-9. Conventional Commits: tipo(escopo): descrição em português
-10. Tenant isolation: toda query deve filtrar por tenant_id
-11. Sessão de chat expirada não pode ser reaberta
-12. Webhook WhatsApp processado via BullMQ para garantir idempotência
-13. Rate limiting no gateway por tenant para chamadas de AI
+1. Gateway nunca acessa PostgreSQL — todo dado passa pela api
+2. Migrations só em `api/database/migrations` via `php artisan make:migration`
+3. BullMQ só em gateway/; jobs Horizon só em `api/src/Domain/*/Jobs`
+4. Secrets AWS só em gateway/
+5. Frontend nunca acessa banco, Redis ou LLM diretamente
+6. Business logic em Action; Controller só orquestra
+7. Validação de entrada em FormRequest; nunca em Action
+8. Toda query multi-tenant filtra por tenant
+9. PSR-12 (Pint) em PHP; Angular Style Guide em TS; zero `any`
+10. Conventional Commits em português
+11. Janela de 24h do WhatsApp define resposta livre vs. template
+12. Humano assumiu o ticket → resposta da IA é bloqueada
+13. Cobrança por mensagem de IA com cota mensal e modo stop|overage
+14. Webhook de canal é idempotente
+15. Frontend consulta `.context/DESIGN/` antes de implementar UI
 
 ## Módulos e Dependências
-| Módulo | Pode importar | Proibido |
+| Módulo | Pode consumir | Proibido |
 |---|---|---|
-| gateway | api (HTTP), Redis, Google AI, AWS, WhatsApp | PostgreSQL direto |
-| api | PostgreSQL, Redis | Google AI, WhatsApp, gateway |
-| app | gateway (WS+REST), api (REST) | PostgreSQL, Redis direto |
-| landing | — | api, gateway, banco |
-| landing-clinicas | — | api, gateway, banco |
+| api | PostgreSQL, Redis, gateway (Streams) | envio outbound de canal; LLM (exceto transcrição e guardian) |
+| gateway | api (/internal), Redis, LLMs, AWS, Meta | PostgreSQL |
+| app | api (/api), gateway (/ws) | PostgreSQL, Redis, LLM |
+| landing* | — | api, gateway, banco |
 
-Gates: api=`composer gate:all` · gateway=`pnpm --filter gateway build && test` · app=`pnpm --filter app build && test`
+## Gates
+api: `cd api && composer gate:all` (rápido: `gate:fast`) · gateway: `pnpm --filter gateway test && pnpm --filter gateway build` · app: `pnpm --filter app test:run && pnpm --filter app build`

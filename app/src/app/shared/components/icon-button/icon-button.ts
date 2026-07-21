@@ -82,19 +82,19 @@ export class AfIconButtonComponent {
     const variants: Record<string, string> = {
       default: [
         'text-neutral-600 dark:text-neutral-400',
-        'hover:bg-neutral-100 dark:hover:bg-neutral-800',
+        'hover:bg-neutral-100 dark:hover:bg-[#191d1a]',
         'hover:text-neutral-900 dark:hover:text-neutral-100',
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
       ghost: [
         'text-neutral-500 dark:text-neutral-400',
-        'hover:bg-neutral-100 dark:hover:bg-neutral-800',
+        'hover:bg-neutral-100 dark:hover:bg-[#191d1a]',
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
       outline: [
-        'border border-hairline-strong dark:border-neutral-600',
+        'border border-hairline-strong dark:border-white/[0.14]',
         'text-neutral-600 dark:text-neutral-400',
-        'hover:bg-surface-50 dark:hover:bg-neutral-800',
+        'hover:bg-surface-50 dark:hover:bg-[#191d1a]',
         'focus-visible:ring-neutral-400/50',
       ].join(' '),
       danger: [

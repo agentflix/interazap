@@ -37,7 +37,7 @@ export class AfSkeletonComponent {
   });
 
   protected readonly skeletonClasses = computed(() => {
-    const base = 'animate-pulse bg-neutral-200 dark:bg-neutral-700';
+    const base = 'animate-pulse bg-neutral-200 dark:bg-[#232823]';
     const shapes: Record<string, string> = {
       text: 'rounded',
       circular: 'rounded-full',

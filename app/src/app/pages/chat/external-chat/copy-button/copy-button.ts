@@ -23,7 +23,7 @@ import { LucideAngularModule } from 'lucide-angular';
       (click)="copy()"
       [disabled]="isCopying()"
       class="p-1.5 rounded-md text-neutral-500 dark:text-neutral-400
-             hover:bg-neutral-100 dark:hover:bg-neutral-800
+             hover:bg-neutral-100 dark:hover:bg-[#191d1a]
              disabled:opacity-50 disabled:cursor-not-allowed
              transition-colors duration-150"
       [attr.data-test]="'copy-btn'"

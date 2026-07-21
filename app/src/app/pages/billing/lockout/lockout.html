@@ -7,13 +7,13 @@
 
     @if (lockoutData(); as data) {
       <div
-        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 space-y-3"
+        class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-4 space-y-3"
       >
         <p class="text-neutral-900 dark:text-neutral-50">{{ data.message }}</p>
 
         @if (firstInvoice(); as invoice) {
           <div
-            class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-3 space-y-1"
+            class="rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#191d1a] p-3 space-y-1"
           >
             <p class="text-sm text-neutral-700 dark:text-neutral-300">
               Referência: <strong>{{ invoice.reference_month }}</strong>

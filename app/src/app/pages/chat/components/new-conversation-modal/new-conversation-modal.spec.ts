@@ -9,6 +9,8 @@ import { ContactService } from 'src/app/core/services/contact.service';
 import { CalledService } from 'src/app/core/services/called.service';
 import { CalledMessageService } from 'src/app/core/services/called-message.service';
 import { InstanceService, type Instance } from 'src/app/core/services/instance.service';
+import { WindowVerificationService } from './services/window-verification.service';
+import { type WindowStatus } from 'src/app/core/models/window-status.model';
 import { environment } from '@env/environment';
 import type { Contact } from 'src/app/core/models/contact.model';
 import type { TemplateSelectedEvent } from '@shared/components/template-selector/template-selector';
@@ -328,5 +330,98 @@ describe('NewConversationModalComponent', () => {
     component.instanceControl.setValue('', { emitEvent: false });
     component.selectedInstanceId.set('');
     expect(component.requiresInstanceSelection()).toBe(true);
+  });
+
+  // -------------------------------------------------------------------------
+  // Re-verificação da janela Meta ao trocar de instância (TASK-4.1.3)
+  // -------------------------------------------------------------------------
+
+  describe('re-verificação da janela ao trocar de instância', () => {
+    const makeWindowStatus = (overrides: Partial<WindowStatus> = {}): WindowStatus => ({
+      canSendFreeText: true,
+      lastMessageAt: null,
+      expiresAt: null,
+      windowType: null,
+      ...overrides,
+    });
+
+    it('invalida o cache e reconsulta a janela ao trocar entre duas instâncias Meta', () => {
+      const instanceService = TestBed.inject(InstanceService) as unknown as InstanceServiceStub;
+      instanceService.list.mockReturnValue(
+        of({
+          data: [
+            makeInstance({ id: '1', connection_status: 'connected', provider: 'meta' }),
+            makeInstance({ id: '2', connection_status: 'connected', provider: 'meta' }),
+          ],
+        }),
+      );
+
+      const windowVerificationService = TestBed.inject(WindowVerificationService);
+      const invalidateSpy = vi.spyOn(windowVerificationService, 'invalidateCache');
+      const checkStatusSpy = vi
+        .spyOn(windowVerificationService, 'checkStatus')
+        .mockReturnValue(of(makeWindowStatus()));
+
+      component.open();
+      fixture.detectChanges();
+
+      component.selectContact('contact-1');
+      fixture.detectChanges();
+      // Ainda sem instância selecionada (duas conectadas, nenhuma auto-selecionada) — não dispara.
+      expect(checkStatusSpy).not.toHaveBeenCalled();
+
+      component.instanceControl.setValue('1');
+      fixture.detectChanges();
+      expect(invalidateSpy).toHaveBeenCalledWith('contact-1');
+      expect(checkStatusSpy).toHaveBeenCalledWith('contact-1');
+      expect(checkStatusSpy).toHaveBeenCalledTimes(1);
+
+      component.instanceControl.setValue('2');
+      fixture.detectChanges();
+      expect(invalidateSpy).toHaveBeenCalledTimes(2);
+      expect(checkStatusSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('não consulta a janela quando o provider da instância não é meta', () => {
+      const instanceService = TestBed.inject(InstanceService) as unknown as InstanceServiceStub;
+      instanceService.list.mockReturnValue(
+        of({ data: [makeInstance({ id: '1', connection_status: 'connected', provider: 'uazapi' })] }),
+      );
+
+      const windowVerificationService = TestBed.inject(WindowVerificationService);
+      const invalidateSpy = vi.spyOn(windowVerificationService, 'invalidateCache');
+      const checkStatusSpy = vi.spyOn(windowVerificationService, 'checkStatus');
+
+      component.open();
+      fixture.detectChanges();
+
+      component.selectContact('contact-1');
+      fixture.detectChanges();
+
+      expect(invalidateSpy).not.toHaveBeenCalled();
+      expect(checkStatusSpy).not.toHaveBeenCalled();
+      expect(component.sendMode()).toBe('freeText');
+    });
+
+    it('atualiza sendMode para template quando a janela Meta está fechada', () => {
+      const instanceService = TestBed.inject(InstanceService) as unknown as InstanceServiceStub;
+      instanceService.list.mockReturnValue(
+        of({ data: [makeInstance({ id: '1', connection_status: 'connected', provider: 'meta' })] }),
+      );
+
+      const windowVerificationService = TestBed.inject(WindowVerificationService);
+      vi.spyOn(windowVerificationService, 'invalidateCache');
+      vi.spyOn(windowVerificationService, 'checkStatus').mockReturnValue(
+        of(makeWindowStatus({ canSendFreeText: false })),
+      );
+
+      component.open();
+      fixture.detectChanges();
+
+      component.selectContact('contact-1');
+      fixture.detectChanges();
+
+      expect(component.sendMode()).toBe('template');
+    });
   });
 });

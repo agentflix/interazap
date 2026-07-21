@@ -96,6 +96,12 @@ class ChatTicket extends Model
         'sla_resolution_breached',
         'tags',
         'metadata',
+        'meta_window_expires_at',
+        'meta_window_type',
+        'meta_referral_source_id',
+        'meta_referral_source_type',
+        'meta_referral_headline',
+        'meta_referral_ctwa_clid',
     ];
 
     /**
@@ -116,6 +122,7 @@ class ChatTicket extends Model
         'closed_at' => 'datetime',
         'sentiment_score' => 'integer',
         'sentiment_updated_at' => 'datetime',
+        'meta_window_expires_at' => 'datetime',
     ];
 
     /**

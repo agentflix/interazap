@@ -84,8 +84,8 @@ export class AfDocumentInputComponent {
   protected readonly inputClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'h-8 px-2.5 text-xs' : 'h-10 px-3 text-sm';
     return [
-      'w-full rounded-md border border-neutral-300 dark:border-neutral-600',
-      'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50',
+      'w-full rounded-md border border-neutral-300 dark:border-white/[0.14]',
+      'bg-white dark:bg-[#191d1a] text-neutral-900 dark:text-neutral-50',
       'placeholder:text-neutral-400 dark:placeholder:text-neutral-500',
       'transition-colors focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500',
       'disabled:opacity-50 disabled:cursor-not-allowed',

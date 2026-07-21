@@ -132,7 +132,7 @@ export class AfTextInputComponent {
 
     const borderColor = this.showError()
       ? 'border-red-500 dark:border-red-400'
-      : 'border-neutral-300 dark:border-neutral-600';
+      : 'border-neutral-300 dark:border-white/[0.14]';
 
     const extra = this.classInput();
 

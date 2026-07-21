@@ -9,6 +9,7 @@ use Domain\Ai\Models\AiAutopilotRun;
 use Domain\Ai\Models\AiUsageLog;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 use Mockery;
 use Tests\TestCase;
 
@@ -18,16 +19,18 @@ final class AiRunTrackerJobTest extends TestCase
 
     public function test_updates_completed_run_and_emits_completed_chat_activity(): void
     {
+        $ticketId = (string) Str::orderedUuid();
+
         $run = AiAutopilotRun::factory()->create([
             'status' => 'queued',
             'input_context' => [
-                'ticket_id' => 'ticket-1',
+                'ticket_id' => $ticketId,
                 'message_id' => 'message-1',
             ],
             'completed_at' => null,
         ]);
 
-        $this->expectChatActivityPublish('ai.processing.completed', (string) $run->tenant_id, 'ticket-1', 'message-1');
+        $this->expectChatActivityPublish('ai.processing.completed', (string) $run->tenant_id, $ticketId, 'message-1');
 
         (new AiRunTrackerJob([
             'run_id' => (string) $run->id,
@@ -45,16 +48,18 @@ final class AiRunTrackerJobTest extends TestCase
 
     public function test_updates_failed_run_and_emits_failed_chat_activity(): void
     {
+        $ticketId = (string) Str::orderedUuid();
+
         $run = AiAutopilotRun::factory()->create([
             'status' => 'queued',
             'input_context' => [
-                'ticket_id' => 'ticket-2',
+                'ticket_id' => $ticketId,
                 'message_id' => 'message-2',
             ],
             'completed_at' => null,
         ]);
 
-        $this->expectChatActivityPublish('ai.processing.failed', (string) $run->tenant_id, 'ticket-2', 'message-2', 'Gateway timeout');
+        $this->expectChatActivityPublish('ai.processing.failed', (string) $run->tenant_id, $ticketId, 'message-2', 'Gateway timeout');
 
         (new AiRunTrackerJob([
             'run_id' => (string) $run->id,
@@ -72,16 +77,18 @@ final class AiRunTrackerJobTest extends TestCase
 
     public function test_maps_blocked_run_to_rejected_chat_activity(): void
     {
+        $ticketId = (string) Str::orderedUuid();
+
         $run = AiAutopilotRun::factory()->create([
             'status' => 'queued',
             'input_context' => [
-                'ticket_id' => 'ticket-3',
+                'ticket_id' => $ticketId,
                 'message_id' => 'message-3',
             ],
             'completed_at' => null,
         ]);
 
-        $this->expectChatActivityPublish('ai.processing.rejected', (string) $run->tenant_id, 'ticket-3', 'message-3', null, 'blocked');
+        $this->expectChatActivityPublish('ai.processing.rejected', (string) $run->tenant_id, $ticketId, 'message-3', null, 'blocked');
 
         (new AiRunTrackerJob([
             'run_id' => (string) $run->id,
@@ -162,7 +169,7 @@ final class AiRunTrackerJobTest extends TestCase
         $run = AiAutopilotRun::factory()->create([
             'status' => 'queued',
             'input_context' => [
-                'ticket_id' => 'ticket-5',
+                'ticket_id' => (string) Str::orderedUuid(),
                 'message_id' => 'message-5',
             ],
         ]);

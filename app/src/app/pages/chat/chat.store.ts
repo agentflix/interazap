@@ -22,6 +22,25 @@ export type { ChatState, ComposerMode } from '@chat/models/chat-state.model';
  */
 
 /**
+ * View model bruto do badge de janela Meta exibido acima do composer.
+ *
+ * @remarks
+ * Carrega apenas os dados crus necessários — o cálculo de tom/tempo restante/label
+ * fica inteiramente em `MetaWindowBadgeComponent` (fonte única dessa lógica, para não
+ * duplicar o cômputo de countdown em dois lugares). Ver `.context/DESIGN/meta-window-badge.md`.
+ */
+export interface WindowBadgeInfo {
+  /** `false` quando o provider da instância não é `meta` — o badge não deve renderizar. */
+  visible: boolean;
+  /** Tipo de janela vindo do backend, ou `null`. */
+  windowType: '24h' | '72h' | null;
+  /** Expiração autoritativa da janela (ISO string), ou `null`. */
+  expiresAt: string | null;
+  /** Última mensagem inbound (ISO string) — fallback usado pelo badge, ou `null`. */
+  lastInboundAt: string | null;
+}
+
+/**
  * Interface representing the chat state for managing selected called/ticket information.
  */
 
@@ -87,6 +106,31 @@ export class ChatStore {
       return 'mixed';
     }
     return 'template-only';
+  });
+
+  /**
+   * View model do badge de janela Meta exibido acima do composer.
+   *
+   * Visível apenas quando o provider da instância do ticket selecionado é `meta`
+   * (mesma checagem usada por `composerMode`). Repassa os dados crus de `windowStatus()`
+   * para o `MetaWindowBadgeComponent`, que calcula tom/tempo restante/label.
+   */
+  readonly windowBadge = computed<WindowBadgeInfo>(() => {
+    const ticket = this.selectedCalled();
+    const instanceId = ticket?.instance_id ? String(ticket.instance_id) : null;
+    const provider = instanceId ? this.instanceProviders()[instanceId] : null;
+
+    if (provider !== 'meta') {
+      return { visible: false, windowType: null, expiresAt: null, lastInboundAt: null };
+    }
+
+    const ws = this.windowStatus();
+    return {
+      visible: true,
+      windowType: ws?.windowType ?? null,
+      expiresAt: ws?.expiresAt ? ws.expiresAt.toISOString() : null,
+      lastInboundAt: ws?.lastMessageAt ? ws.lastMessageAt.toISOString() : null,
+    };
   });
 
   constructor() {

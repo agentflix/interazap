@@ -190,14 +190,14 @@ export class ProposalListComponent implements OnInit {
 
   statusClass(status: string): string {
     const map: Record<string, string> = {
-      draft: 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300',
+      draft: 'bg-neutral-100 dark:bg-[#191d1a] text-neutral-700 dark:text-neutral-300',
       sent: 'bg-info/10 text-info',
       accepted: 'bg-success/10 text-success',
       rejected: 'bg-danger/10 text-danger',
     };
 
     return (
-      map[status] ?? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
+      map[status] ?? 'bg-neutral-100 dark:bg-[#191d1a] text-neutral-700 dark:text-neutral-300'
     );
   }
 

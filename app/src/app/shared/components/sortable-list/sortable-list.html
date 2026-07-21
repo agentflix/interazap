@@ -3,7 +3,7 @@
       @for (item of items(); track item.id; let i = $index) {
         <li
           class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-neutral-900
-            border border-neutral-200 dark:border-neutral-700 shadow-sm"
+            border border-neutral-200 dark:border-white/10 shadow-sm"
           draggable="true"
           (dragstart)="onDragStart(i)"
           (dragover)="onDragOver($event, i)"

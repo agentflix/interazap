@@ -100,7 +100,7 @@ export class AfChatBubbleComponent {
     const base = 'px-3.5 py-2 rounded-2xl max-w-[95%] overflow-hidden';
     return this.direction() === 'out'
       ? `${base} bg-accent-500 text-white rounded-br-md`
-      : `${base} bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 rounded-bl-md`;
+      : `${base} bg-neutral-100 dark:bg-[#191d1a] text-neutral-900 dark:text-neutral-50 rounded-bl-md`;
   });
 
   /**

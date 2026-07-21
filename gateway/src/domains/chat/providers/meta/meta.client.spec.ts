@@ -38,7 +38,7 @@ describe('MetaClient', () => {
           useValue: {
             get: jest.fn((key: string) => {
               if (key === 'meta.graphApiUrl') {
-                return 'https://graph.facebook.com/v18.0';
+                return 'https://graph.facebook.com/v25.0';
               }
               return '';
             }),

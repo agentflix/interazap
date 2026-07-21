@@ -221,7 +221,7 @@
 
     <!-- Detail side-panel -->
     <div
-      class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-neutral-700 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-md w-full z-80 overflow-hidden"
+      class="bg-white dark:bg-neutral-900 border-s border-neutral-200 dark:border-white/10 flex-col fixed inset-y-0 inset-e-0 bottom-0 transition-all duration-300 transform max-w-md w-full z-80 overflow-hidden"
       [class.hidden]="!isDetailsOpen()"
       [class.flex]="isDetailsOpen()"
       [class.translate-x-full]="!isDetailsOpen()"
@@ -232,7 +232,7 @@
       [attr.aria-hidden]="!isDetailsOpen()"
     >
       <div
-        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-dashed border-neutral-200 dark:border-neutral-700 px-6 gap-3"
+        class="min-h-16 flex items-center text-neutral-600 dark:text-neutral-400 border-b border-dashed border-neutral-200 dark:border-white/10 px-6 gap-3"
       >
         <h5 class="text-base grow">Detalhes do produto/serviço</h5>
         <af-button variant="ghost" size="sm" (click)="closeDetails()">Fechar</af-button>

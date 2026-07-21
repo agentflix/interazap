@@ -79,7 +79,7 @@ export class AfCheckboxGroupComponent {
     ];
     const state = isChecked
       ? 'bg-accent-500 border-accent-500'
-      : 'bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-600';
+      : 'bg-white dark:bg-neutral-900 border-neutral-300 dark:border-white/[0.14]';
     return [...base, state].join(' ');
   }
 }

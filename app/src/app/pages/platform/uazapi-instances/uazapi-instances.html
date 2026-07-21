@@ -88,7 +88,7 @@
                       />
                     } @else {
                       <div
-                        class="w-8 h-8 rounded-full bg-surface-100 dark:bg-neutral-700 flex items-center justify-center flex-shrink-0"
+                        class="w-8 h-8 rounded-full bg-surface-100 dark:bg-[#232823] flex items-center justify-center flex-shrink-0"
                       >
                         <span class="text-xs font-medium text-neutral-500">{{
                           displayName(instance).charAt(0).toUpperCase()
@@ -233,7 +233,7 @@
           } @else {
             @for (item of statusResultEntries(); track item.key) {
               <div
-                class="flex items-start justify-between gap-3 border-b border-hairline dark:border-neutral-700 pb-2"
+                class="flex items-start justify-between gap-3 border-b border-hairline dark:border-white/10 pb-2"
               >
                 <span class="text-neutral-500">{{ item.key }}</span>
                 <span class="text-right break-all">{{ item.value }}</span>
@@ -281,7 +281,7 @@
               <img [src]="picUrl" alt="Avatar atual" class="w-16 h-16 rounded-full object-cover" />
             } @else {
               <div
-                class="w-16 h-16 rounded-full bg-surface-100 dark:bg-neutral-700 flex items-center justify-center"
+                class="w-16 h-16 rounded-full bg-surface-100 dark:bg-[#232823] flex items-center justify-center"
               >
                 <span class="text-lg font-medium text-neutral-500">{{
                   displayName(target).charAt(0).toUpperCase()

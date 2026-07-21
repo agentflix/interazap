@@ -1,16 +1,18 @@
-<div class="h-full bg-neutral-50 flex flex-col min-h-0">
+<div class="h-full bg-neutral-50 dark:bg-neutral-900 flex flex-col min-h-0">
   @if (!hasSelection()) {
     <div class="flex-1 flex items-center justify-center text-center px-6">
       <div>
-        <h4 class="text-lg font-semibold text-neutral-800">Selecione um contato para editar</h4>
-        <p class="mt-2 text-sm text-neutral-500">
+        <h4 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100">
+          Selecione um contato para editar
+        </h4>
+        <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
           Escolha um atendimento na coluna à esquerda para visualizar e atualizar as informações do
           contato.
         </p>
       </div>
     </div>
   } @else {
-    <div class="px-8 py-6 border-b border-neutral-200 bg-card">
+    <div class="px-8 py-6 border-b border-neutral-200 dark:border-white/[0.07] bg-card">
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <div
@@ -19,10 +21,12 @@
             {{ form.value.name ? form.value.name.slice(0, 2).toUpperCase() : 'CT' }}
           </div>
           <div>
-            <h3 class="text-lg font-semibold text-neutral-900">
+            <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
               {{ form.value.name || 'Contato sem nome' }}
             </h3>
-            <p class="text-sm text-neutral-500">Atualize os dados para manter a base organizada.</p>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">
+              Atualize os dados para manter a base organizada.
+            </p>
           </div>
         </div>
       </div>
@@ -130,7 +134,9 @@
       </form>
     </af-scroll-area>
 
-    <div class="px-8 py-5 border-t border-neutral-200 bg-card flex items-center justify-end">
+    <div
+      class="px-8 py-5 border-t border-neutral-200 dark:border-white/[0.07] bg-card flex items-center justify-end"
+    >
       <app-loading-button
         variant="primary"
         size="sm"

@@ -67,6 +67,10 @@ function resolveLogLevels(level: string | undefined): LogLevel[] {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
+    // Expõe req.rawBody (Buffer) — necessário para validar o HMAC do webhook
+    // Meta sobre o corpo exatamente como recebido, sem risco de o
+    // body-parser reordenar chaves do JSON antes da assinatura ser calculada.
+    rawBody: true,
   });
 
   const configService = app.get(ConfigService);

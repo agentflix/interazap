@@ -14,8 +14,8 @@
         class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors"
         [class]="
           state.isFilterMenuOpen()
-            ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100'
-            : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+            ? 'bg-neutral-200 dark:bg-[#232823] text-neutral-800 dark:text-neutral-100'
+            : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#191d1a]'
         "
         (click)="state.isFilterMenuOpen.set(!state.isFilterMenuOpen())"
       >
@@ -35,7 +35,7 @@
         ></button>
 
         <div
-          class="absolute top-full right-0 mt-1 w-56 z-50 rounded-lg bg-white dark:bg-neutral-900 shadow-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+          class="absolute top-full right-0 mt-1 w-56 z-50 rounded-lg bg-white dark:bg-neutral-900 shadow-xl border border-neutral-200 dark:border-white/10 overflow-hidden"
         >
           <div class="px-3 pt-3 pb-1">
             <div
@@ -49,8 +49,8 @@
                 class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded transition-colors"
                 [class]="
                   state.sentimentFilter() === null
-                    ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 font-medium'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                    ? 'bg-neutral-100 dark:bg-[#191d1a] text-neutral-800 dark:text-neutral-100 font-medium'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-[#191d1a]'
                 "
                 (click)="state.setSentimentFilter(null); state.isFilterMenuOpen.set(false)"
               >
@@ -65,7 +65,7 @@
                 [class]="
                   state.sentimentFilter() === 'critical'
                     ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 font-medium'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-[#191d1a]'
                 "
                 (click)="state.setSentimentFilter('critical'); state.isFilterMenuOpen.set(false)"
               >
@@ -83,7 +83,7 @@
                 [class]="
                   state.sentimentFilter() === 'negative'
                     ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-medium'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-[#191d1a]'
                 "
                 (click)="state.setSentimentFilter('negative'); state.isFilterMenuOpen.set(false)"
               >
@@ -98,7 +98,7 @@
             </div>
           </div>
 
-          <div class="mx-3 my-1.5 border-t border-neutral-100 dark:border-neutral-800"></div>
+          <div class="mx-3 my-1.5 border-t border-neutral-100 dark:border-white/[0.07]"></div>
 
           <div class="px-3 pt-1 pb-3">
             <div
@@ -112,8 +112,8 @@
                 class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded transition-colors"
                 [class]="
                   state.sortBy() === 'last_message_at'
-                    ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 font-medium'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                    ? 'bg-neutral-100 dark:bg-[#191d1a] text-neutral-800 dark:text-neutral-100 font-medium'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-[#191d1a]'
                 "
                 (click)="
                   state.sortBy.set('last_message_at');
@@ -131,8 +131,8 @@
                 class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded transition-colors"
                 [class]="
                   state.sortBy() === 'sentiment_score'
-                    ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 font-medium'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                    ? 'bg-neutral-100 dark:bg-[#191d1a] text-neutral-800 dark:text-neutral-100 font-medium'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-[#191d1a]'
                 "
                 (click)="
                   state.sortBy.set('sentiment_score');

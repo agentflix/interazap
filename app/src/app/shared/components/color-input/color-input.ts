@@ -16,7 +16,7 @@ import { AfFormLabelComponent } from '../form-label/form-label';
 import { AfFormErrorComponent } from '../form-error/form-error';
 import { resolveInputContainerClass } from '../input-container.util';
 
-import type { AfInputSize } from './color-input.model';
+import { type AfInputSize, CRM_COLOR_PRESETS } from './color-input.model';
 export * from './color-input.model';
 
 /**
@@ -74,6 +74,9 @@ export class AfColorInputComponent implements OnInit {
   /** Tamanho do campo: sm para compacto, md para o padrão */
   readonly size = input<AfInputSize>('md');
 
+  /** Amostras de atalho exibidas abaixo do campo (paleta harmônica do CRM por padrão) */
+  readonly presets = input<readonly string[]>(CRM_COLOR_PRESETS);
+
   /** Cor atual exibida na amostra */
   protected readonly currentColor = signal('#000000');
 
@@ -93,7 +96,7 @@ export class AfColorInputComponent implements OnInit {
   protected readonly swatchClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'size-8' : 'size-10';
     return [
-      'rounded-md border-2 border-neutral-300 dark:border-neutral-600',
+      'rounded-md border-2 border-neutral-300 dark:border-white/[0.14]',
       'cursor-pointer transition-shadow hover:ring-2 hover:ring-accent-500/30 shrink-0',
       sizeClasses,
     ].join(' ');
@@ -103,7 +106,7 @@ export class AfColorInputComponent implements OnInit {
   protected readonly inputClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'h-8 px-2.5 text-xs' : 'h-10 px-3 text-sm';
     return [
-      'flex-1 rounded-md border border-neutral-300 dark:border-neutral-600',
+      'flex-1 rounded-md border border-neutral-300 dark:border-white/[0.14]',
       'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50',
       'placeholder:text-neutral-400 dark:placeholder:text-neutral-500',
       'focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500',
@@ -134,6 +137,18 @@ export class AfColorInputComponent implements OnInit {
   /** Abre o seletor de cor nativo do navegador */
   protected openPicker(): void {
     this.colorPickerRef().nativeElement.click();
+  }
+
+  /** Aplica uma cor da paleta de atalhos */
+  protected selectPreset(hex: string): void {
+    this.currentColor.set(hex);
+    this.control().setValue(hex);
+    this.control().markAsTouched();
+  }
+
+  /** Normaliza para comparação de cor selecionada (case-insensitive) */
+  protected isSelected(hex: string): boolean {
+    return (this.currentColor() || '').toLowerCase() === hex.toLowerCase();
   }
 
   /** Trata mudança no seletor de cor nativo */

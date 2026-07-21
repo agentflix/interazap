@@ -1,6 +1,6 @@
 
-    <aside class="flex flex-col h-full min-h-0 overflow-hidden bg-white dark:bg-neutral-900 border-r border-hairline dark:border-neutral-700">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-hairline dark:border-neutral-700">
+    <aside class="flex flex-col h-full min-h-0 overflow-hidden bg-white dark:bg-neutral-900 border-r border-hairline dark:border-white/10">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-hairline dark:border-white/10">
         <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">Chat</h2>
 
         <div class="flex items-center gap-1 shrink-0">
@@ -14,7 +14,7 @@
 
           <button
             type="button"
-            class="size-8 inline-flex items-center justify-center rounded-md transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-900"
+            class="size-8 inline-flex items-center justify-center rounded-md transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#191d1a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-900"
             aria-label="Recarregar atendimentos"
             (click)="refreshList.emit()"
           >
@@ -39,8 +39,8 @@
               class="inline-flex size-8 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-neutral-900"
               [class]="
                 isEmergencyMenuOpen()
-                  ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50'
-                  : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  ? 'bg-neutral-200 dark:bg-[#232823] text-neutral-900 dark:text-neutral-50'
+                  : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#191d1a]'
               "
               (click)="toggleEmergencyMenu.emit()"
               aria-label="Filtro de emergência"
@@ -60,7 +60,7 @@
               ></button>
 
               <div
-                class="absolute top-full right-0 mt-1 w-52 z-50 rounded-lg bg-white dark:bg-neutral-900 shadow-lg border border-hairline dark:border-neutral-700 overflow-hidden"
+                class="absolute top-full right-0 mt-1 w-52 z-50 rounded-lg bg-white dark:bg-neutral-900 shadow-lg border border-hairline dark:border-white/10 overflow-hidden"
               >
                 <div class="px-3 pt-3 pb-1">
                   <div
@@ -74,8 +74,8 @@
                       class="flex items-center justify-between w-full px-2 py-1.5 text-xs rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
                       [class]="
                         emergencyFilter() === null
-                          ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 font-medium'
-                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                          ? 'bg-neutral-100 dark:bg-[#191d1a] text-neutral-900 dark:text-neutral-50 font-medium'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-[#191d1a]'
                       "
                       (click)="setEmergencyFilter.emit(null)"
                     >
@@ -91,7 +91,7 @@
                       [class]="
                         emergencyFilter() === 'critical'
                           ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 font-medium'
-                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-[#191d1a]'
                       "
                       (click)="setEmergencyFilter.emit('critical')"
                     >
@@ -110,7 +110,7 @@
                       [class]="
                         emergencyFilter() === 'negative'
                           ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-medium'
-                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-[#191d1a]'
                       "
                       (click)="setEmergencyFilter.emit('negative')"
                     >

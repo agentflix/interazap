@@ -6,7 +6,7 @@
 
     @if (loading()) {
       <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6"
       >
         <p class="text-sm text-neutral-500">Carregando documento...</p>
       </div>
@@ -21,7 +21,7 @@
     } @else if (document(); as doc) {
       <!-- Document Info Card -->
       <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6 mb-4"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6 mb-4"
       >
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -89,7 +89,7 @@
 
       <!-- Chunks Card -->
       <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6"
+        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-6"
       >
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Chunks</h3>
@@ -106,7 +106,7 @@
         } @else {
           <div class="space-y-2">
             @for (chunk of chunks(); track chunk.id) {
-              <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
+              <div class="rounded-lg border border-neutral-200 dark:border-white/10 p-3">
                 <div class="flex items-center justify-between gap-2 mb-1">
                   <p class="text-xs text-neutral-500">Chunk #{{ chunk.chunk_index }}</p>
                   <p class="text-xs text-neutral-500 tabular-nums">Tokens: {{ chunk.token_count }}</p>
@@ -134,7 +134,7 @@
           </div>
 
           <div
-            class="flex items-center justify-end gap-2 pt-4 mt-2 border-t border-neutral-200 dark:border-neutral-700"
+            class="flex items-center justify-end gap-2 pt-4 mt-2 border-t border-neutral-200 dark:border-white/10"
           >
             <af-button
               variant="ghost"

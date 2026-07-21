@@ -2,7 +2,7 @@
     <div #mediaContainer class="relative overflow-hidden rounded-lg">
       <!-- Error state -->
       @if (hasError()) {
-        <div class="flex items-center gap-3 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-3">
+        <div class="flex items-center gap-3 rounded-lg bg-neutral-100 dark:bg-[#191d1a] p-3">
           <div
             class="size-10 shrink-0 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center"
           >
@@ -18,7 +18,7 @@
             <!-- ══════ IMAGE ══════ -->
             @case ('image') {
               <div
-                class="relative min-w-48 min-h-32 bg-neutral-200 dark:bg-neutral-700 rounded-lg overflow-hidden"
+                class="relative min-w-48 min-h-32 bg-neutral-200 dark:bg-[#232823] rounded-lg overflow-hidden"
               >
                 @if (!isLoaded()) {
                   <div class="absolute inset-0 flex items-center justify-center">
@@ -72,11 +72,11 @@
             <!-- ══════ VIDEO ══════ -->
             @case ('video') {
               <div
-                class="relative min-w-56 max-w-xs rounded-xl overflow-hidden bg-neutral-200 dark:bg-neutral-700 shadow-sm"
+                class="relative min-w-56 max-w-xs rounded-xl overflow-hidden bg-neutral-200 dark:bg-[#232823] shadow-sm"
               >
                 @if (!isLoaded()) {
                   <div
-                    class="absolute inset-0 z-10 flex items-center justify-center bg-neutral-200/60 dark:bg-neutral-700/60"
+                    class="absolute inset-0 z-10 flex items-center justify-center bg-neutral-200/60 dark:bg-[#232823]/60"
                   >
                     <div
                       class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"
@@ -222,7 +222,7 @@
             <!-- ══════ DOCUMENT ══════ -->
             @case ('document') {
               <div
-                class="flex items-center gap-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-3 min-w-56 max-w-72"
+                class="flex items-center gap-3 rounded-xl bg-neutral-100 dark:bg-[#191d1a] border border-neutral-200 dark:border-white/10 px-3 py-3 min-w-56 max-w-72"
               >
                 <div
                   class="size-11 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-primary"
@@ -258,7 +258,7 @@
             <!-- ══════ FILE ══════ -->
             @case ('file') {
               <div
-                class="flex items-center gap-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-3 min-w-56 max-w-72"
+                class="flex items-center gap-3 rounded-xl bg-neutral-100 dark:bg-[#191d1a] border border-neutral-200 dark:border-white/10 px-3 py-3 min-w-56 max-w-72"
               >
                 <div
                   class="size-11 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-primary"
@@ -293,7 +293,7 @@
 
             @default {
               <div
-                class="flex items-center gap-3 rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2.5 min-w-48"
+                class="flex items-center gap-3 rounded-lg bg-neutral-100 dark:bg-[#191d1a] px-3 py-2.5 min-w-48"
               >
                 <ng-icon name="lucideFile" class="size-5 text-neutral-400"></ng-icon>
                 <span class="text-xs text-neutral-500">Mídia não suportada</span>

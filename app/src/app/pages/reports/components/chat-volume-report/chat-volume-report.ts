@@ -85,6 +85,7 @@ export class ChatVolumeReportComponent extends BaseReportComponent<ChatVolumeRep
     this.chartExtra.set({
       chart: { type: 'heatmap' },
       dataLabels: { enabled: false },
+      stroke: { width: 0 },
       plotOptions: { heatmap: { shadeIntensity: 0.5, radius: 2 } },
       grid: { padding: { top: -10, bottom: -10 } },
     });

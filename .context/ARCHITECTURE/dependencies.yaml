@@ -3,45 +3,72 @@ rules:
     from: gateway
     to: postgresql
     allowed: false
-    reason: gateway não acessa PostgreSQL diretamente — usa api via HTTP
+    reason: gateway não tem driver de banco — todo dado passa pela api
 
   - id: R02
     from: app
     to: postgresql
     allowed: false
-    reason: frontend nunca acessa banco diretamente
 
   - id: R03
     from: app
     to: redis
     allowed: false
-    reason: frontend nunca acessa Redis diretamente
 
   - id: R04
+    from: app
+    to: provedores_llm
+    allowed: false
+    reason: chave de LLM nunca chega ao browser
+
+  - id: R05
     from: landing
     to: api
     allowed: false
-    reason: landing pages são estáticas — sem chamadas server-side
 
-  - id: R05
+  - id: R06
     from: landing-clinicas
     to: api
     allowed: false
-    reason: landing pages são estáticas — sem chamadas server-side
-
-  - id: R06
-    from: api
-    to: google_ai
-    allowed: false
-    reason: integração AI centralizada apenas no gateway
 
   - id: R07
-    from: api
-    to: whatsapp_api
+    from: landing-new
+    to: api
     allowed: false
-    reason: integrações externas centralizadas no gateway
+
+  - id: R08
+    from: api
+    to: provedores_llm
+    allowed: exceptions_only
+    reason: inferência conversacional vai pelo gateway
+    exceptions:
+      - api/src/Domain/Ai/Services/AiMediaTranscriptionService.php
+      - api/src/Domain/Ai/Services/AiGuardianService.php
+
+  - id: R09
+    from: api
+    to: uazapi_meta_telegram
+    allowed: exceptions_only
+    reason: envio outbound é do gateway; a api só recebe webhooks de uazapi e Telegram
+
+  - id: R10
+    from: gateway
+    to: api
+    allowed: true
+    channel: HTTP /internal com INTERNAL_API_KEY
+
+  - id: R11
+    from: api
+    to: gateway
+    allowed: true
+    channel: Redis Streams via api/src/Domain/Gateway/Services/RedisGatewayClient.php
 
 layer_rules:
-  - rule: migrations só em api/ via Laravel Artisan
-  - rule: BullMQ producers e consumers só em gateway/
-  - rule: secrets AWS consumidos só em gateway/ via @aws-sdk/client-secrets-manager
+  - migrations só em api/database/migrations via php artisan make:migration
+  - BullMQ (producers e consumers) só em gateway/
+  - jobs de domínio (Horizon) só em api/src/Domain/*/Jobs
+  - AWS Secrets Manager só em gateway/
+  - Controller não contém business logic — vai em Action
+  - Action não valida payload — validação em FormRequest
+  - toda query multi-tenant filtra por tenant
+  - app não duplica interface — model centralizado em core/models ou models do domínio

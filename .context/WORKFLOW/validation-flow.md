@@ -1,107 +1,102 @@
 # Validation Flow — InteraZap
 
-Gates executados pelo REVIEWER (modo VALIDATION) após cada task implementada.
+Gates reais da stack. Executados pelo `/prevec-phase-close` (REVIEWER → `reviewer-code`).
+Rode apenas os gates da camada tocada na fase; `composer gate:all` só na última fase.
 
 ---
 
-## API — Laravel 12 (api/)
+## api — Laravel 12
 
 ```bash
-# Gate oficial completo (inclui Pest com --parallel --exclude-testsuite=E2E)
+# Fase intermediária — feedback rápido
+cd api && composer gate:fast
+
+# Última fase — obrigatório (format + analyse + test + refactor)
 cd api && composer gate:all
 
-# Quando precisar isolar falha
-cd api && composer format
-cd api && composer analyse
-cd api && composer test
-
-# E2E (se necessário para a task)
-cd api && composer test:e2e
-cd api && composer refactor
-
-# Testes com coverage (opcional)
+# Isolar falha
+cd api && composer format        # Pint (PSR-12)
+cd api && composer format:test   # só verifica
+cd api && composer analyse       # Larastan
+cd api && composer analyse:changed
+cd api && composer test          # Pest --parallel, exclui E2E
+cd api && composer test:e2e      # suíte E2E, separada
+cd api && composer refactor:dry  # Rector, sem escrever
 cd api && composer test:coverage
-
-# Verificar migration sem erros
-cd api && php artisan migrate:fresh --seed
-
-# Static analysis (se configurado)
-cd api && composer analyse
+cd api && composer gate:pci      # lint de dados de cartão em logs
 ```
 
-**Gates mínimos:** `cd api && composer gate:all` deve passar sem falhas.
+**Mínimo para fechar a última fase:** `composer gate:all` verde.
 
 ---
 
-## Gateway — NestJS 11 (gateway/)
+## gateway — NestJS 11
 
 ```bash
-# Build (detecta erros de tipo TypeScript)
-pnpm --filter gateway build
-
-# Testes unitários
-pnpm --filter gateway test
-
-# Testes com coverage
+pnpm --filter gateway test       # Jest
 pnpm --filter gateway test:cov
-
-# Lint
-pnpm --filter gateway lint
+pnpm --filter gateway test:e2e
+pnpm --filter gateway build      # nest build — pega erro de tipo
+pnpm --filter gateway lint       # eslint --fix
 ```
 
-**Gates mínimos:** `pnpm --filter gateway build` + `pnpm --filter gateway test` sem falhas.
+**Mínimo:** `test` + `test:e2e` + `build` sem falhas. (`test:e2e` passou a ser obrigatório aqui porque
+`test` não roda mais `test/**/*.e2e-spec.ts` — esses specs sobem a `AppModule` real com BullMQ/ioredis
+reais e vazavam conexão entre suítes paralelas do Jest unitário, causando flakiness cruzada
+não-determinística. Ver `testPathIgnorePatterns` em `gateway/package.json`.)
 
 ---
 
-## App — Angular 20 (app/)
+## app — Angular 20
 
 ```bash
-# Build de produção (detecta erros de tipo e template)
-pnpm --filter app build
-
-# Testes unitários
-pnpm --filter app test
-
-# Lint
+pnpm --filter app test:run       # Vitest, sem watch
+pnpm --filter app test:coverage
+pnpm --filter app build          # ng build — pega erro de tipo e de template
 pnpm --filter app lint
 ```
 
-**Gates mínimos:** `pnpm --filter app build` + `pnpm --filter app test` sem falhas.
+**Mínimo:** `test:run` + `build` sem falhas.
+Nunca use `pnpm --filter app test` em automação — entra em watch.
 
 ---
 
-## Code Review — code-review-confiavel
+## Code review — code-review-confiavel
 
 ```bash
-# 1. Ler a skill
 cat .context/skills/code-review-confiavel/SKILL.md
-
-# 2. Abrir 7 subagents (um por revisor em references/reviewers.md)
-# 3. Consolidar achados com severidade
-# 4. Executar meta-review (descartar especulativos)
 ```
 
-**Achados bloqueantes:** task volta para BUILDER com lista de correções.
-**Sem bloqueantes:** avançar para CONFIRM.
+1. 7 subagents, um por revisor de `references/reviewers.md`
+2. Consolidação dos achados por severidade
+3. Meta-review descarta o especulativo (achado sem evidência não é achado)
+
+**Bloqueante encontrado:** volta ao BUILDER com a lista. **Nenhum:** segue para o commit/PR.
 
 ---
 
-## Verificação de Dependências (antes do commit)
+## Verificação de fronteiras arquiteturais
 
 ```bash
-# Verificar que gateway não importa módulos de DB diretamente
-grep -r "pg\|postgres\|knex\|typeorm\|prisma" gateway/src/ --include="*.ts" | grep -v "node_modules"
+# gateway não pode ter driver de banco
+grep -rE "from '(pg|typeorm|prisma|knex)'" gateway/src || echo "OK — sem driver de banco"
 
-# Verificar que migrations existem apenas em api/
-find gateway/ -name "*migration*" -o -name "*migrate*" | grep -v "node_modules"
+# migrations só na api
+find gateway app -name "*migration*" -not -path "*/node_modules/*" | grep . && echo "VIOLACAO" || echo "OK"
+
+# frontend não fala com provedor de LLM
+grep -rE "api\.openai\.com|generativelanguage" app/src && echo "VIOLACAO" || echo "OK"
+
+# TypeScript sem any explícito nos arquivos tocados
+git diff --name-only origin/develop...HEAD -- '*.ts' | xargs -r grep -n ": any" | grep . && echo "REVISAR" || echo "OK"
 ```
 
 ---
 
-## Ordem de Execução
+## Ordem de execução no phase-close
 
-1. Gates isolados da task (BUILDER — testes do arquivo modificado)
-2. `code-review-confiavel` em subagent (REVIEWER — 7 revisores)
-3. Gates completos da camada afetada (REVIEWER)
-4. Verificação de dependências (REVIEWER)
-5. CONFIRM se tudo passou
+1. Testes da fase (camada tocada)
+2. `code-review-confiavel` em subagent distinto — última fase
+3. `composer gate:all` + build do gateway/app — última fase
+4. Verificação de fronteiras arquiteturais
+5. Commit da fase; PR quando a feature fecha

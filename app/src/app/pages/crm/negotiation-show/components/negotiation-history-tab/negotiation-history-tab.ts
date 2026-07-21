@@ -134,7 +134,7 @@ export class NegotiationHistoryTabComponent implements OnInit {
         return {
           label: 'Sistema',
           icon: 'settings',
-          tone: 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400',
+          tone: 'bg-neutral-100 dark:bg-[#191d1a] text-neutral-600 dark:text-neutral-400',
         };
       case 'status':
         return { label: 'Status', icon: 'circle-alert', tone: 'bg-warning/10 text-warning' };
@@ -148,7 +148,7 @@ export class NegotiationHistoryTabComponent implements OnInit {
         return {
           label: 'Nota',
           icon: 'message-square',
-          tone: 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400',
+          tone: 'bg-neutral-100 dark:bg-[#191d1a] text-neutral-600 dark:text-neutral-400',
         };
     }
   }

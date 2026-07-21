@@ -295,14 +295,19 @@ class MediaTranscriptionTest extends TestCase
             ->assertJsonStructure([
                 'success',
                 'data' => [
-                    'summary' => ['total_transcriptions', 'total_tokens', 'total_cost', 'avg_latency_ms'],
-                    'by_type',
-                    'by_model',
-                    'daily_cost',
+                    'data' => [
+                        'summary' => ['total_transcriptions', 'total_tokens', 'total_cost', 'avg_latency_ms'],
+                        'by_type',
+                        'by_model',
+                        'daily_cost',
+                    ],
+                    'meta',
                 ],
             ]);
 
-        $data = $response->json('data');
+        // Contrato dos endpoints de relatório é duplamente aninhado (data.data),
+        // conforme BaseController::success() e BaseReportComponent (frontend).
+        $data = $response->json('data.data');
         $this->assertSame(5, $data['summary']['total_transcriptions']);
     }
 
@@ -329,7 +334,7 @@ class MediaTranscriptionTest extends TestCase
 
         $response = $this->getJson('/api/ai/usage/transcription?start_date='.now()->startOfMonth()->format('Y-m-d').'&end_date='.now()->format('Y-m-d'));
 
-        $data = $response->json('data');
+        $data = $response->json('data.data');
         // Should only see this tenant's 3 logs, not the other tenant's 5
         $this->assertSame(3, $data['summary']['total_transcriptions']);
     }

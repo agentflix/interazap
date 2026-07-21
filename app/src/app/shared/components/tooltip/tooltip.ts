@@ -28,7 +28,7 @@ export class AfTooltipComponent {
     const base = [
       'absolute z-50 px-2.5 py-1.5',
       'text-xs font-medium text-white',
-      'bg-neutral-900 dark:bg-neutral-700',
+      'bg-neutral-900 dark:bg-[#232823]',
       'rounded-md shadow-lg',
       'whitespace-nowrap pointer-events-none',
       'opacity-0 group-hover:opacity-100',

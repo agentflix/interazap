@@ -115,7 +115,7 @@ export class AfPasswordStrengthComponent implements OnInit {
   protected readonly inputClasses = computed(() => {
     const borderColor = this.showError()
       ? 'border-red-500 dark:border-red-400'
-      : 'border-neutral-300 dark:border-neutral-600';
+      : 'border-neutral-300 dark:border-white/[0.14]';
 
     return [
       'w-full h-10 pl-3 pr-10 text-sm rounded-md border',

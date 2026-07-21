@@ -2,7 +2,7 @@
     <div class="relative">
       <button
         (click)="open.set(!open())"
-        class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+        class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-[#191d1a] transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
         type="button"
         aria-label="Menu do usuário"
       >
@@ -20,9 +20,9 @@
 
       @if (open()) {
         <div
-          class="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-neutral-800 rounded-xl shadow-xl border border-neutral-200 dark:border-neutral-700 z-50 overflow-hidden py-1"
+          class="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-[#191d1a] rounded-xl shadow-xl border border-neutral-200 dark:border-white/10 z-50 overflow-hidden py-1"
         >
-          <div class="px-4 py-2.5 border-b border-neutral-100 dark:border-neutral-700">
+          <div class="px-4 py-2.5 border-b border-neutral-100 dark:border-white/10">
             <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
               {{ userName() }}
             </p>
@@ -31,27 +31,27 @@
 
           <a
             [routerLink]="['/settings/profile']"
-            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-[#232823]/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
           >
             <lucide-icon name="user" [size]="16" class="text-neutral-400" />
             Minha Conta
           </a>
           <a
             [routerLink]="['/settings/preferences']"
-            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-[#232823]/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
           >
             <lucide-icon name="settings" [size]="16" class="text-neutral-400" />
             Preferências
           </a>
           <a
             [routerLink]="['/settings/my-plan']"
-            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+            class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-[#232823]/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
           >
             <lucide-icon name="credit-card" [size]="16" class="text-neutral-400" />
             Meu Plano
           </a>
 
-          <div class="h-px bg-neutral-100 dark:bg-neutral-700 my-1"></div>
+          <div class="h-px bg-neutral-100 dark:bg-[#232823] my-1"></div>
 
           <button
             type="button"

@@ -1,6 +1,6 @@
 
     <div
-      class="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-3 min-w-[280px] max-w-[320px] flex flex-col h-full"
+      class="bg-neutral-50 dark:bg-[#191d1a]/50 rounded-xl p-3 min-w-[280px] max-w-[320px] flex flex-col h-full"
     >
       <!-- Header -->
       <div class="flex items-center justify-between mb-3">
@@ -10,14 +10,14 @@
             title()
           }}</span>
           <span
-            class="text-xs text-neutral-400 bg-neutral-200 dark:bg-neutral-700 rounded-full px-2 py-0.5"
+            class="text-xs text-neutral-400 bg-neutral-200 dark:bg-[#232823] rounded-full px-2 py-0.5"
           >
             {{ cards().length }}
           </span>
         </div>
         <button
           type="button"
-          class="p-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded cursor-pointer"
+          class="p-1 hover:bg-neutral-200 dark:hover:bg-[#232823] rounded cursor-pointer"
           (click)="addClicked.emit()"
         >
           <lucide-icon name="plus" [size]="16" class="text-neutral-500" />
@@ -28,7 +28,7 @@
         @for (card of cards(); track card.id) {
           <div
             class="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200
-              dark:border-neutral-700 p-3 cursor-pointer hover:shadow-md transition-shadow"
+              dark:border-white/10 p-3 cursor-pointer hover:shadow-md transition-shadow"
             (click)="cardClicked.emit(card.id)"
             (keydown.enter)="cardClicked.emit(card.id)"
             tabindex="0"

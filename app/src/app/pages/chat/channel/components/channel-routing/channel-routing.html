@@ -7,11 +7,11 @@
   <div class="space-y-6">
     @if (loading()) {
       <div
-        class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 space-y-6"
+        class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-6 space-y-6"
       >
-        <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
-        <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
-        <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+        <div class="h-5 w-48 bg-neutral-200 dark:bg-[#232823] rounded animate-pulse"></div>
+        <div class="h-4 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
+        <div class="h-10 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
       </div>
     } @else if (error()) {
       <af-alert variant="danger" title="Erro ao carregar" [message]="error()!" />
@@ -39,7 +39,7 @@
       @if (!overrideEnabled()) {
         <div class="flex items-center gap-2">
           <span
-            class="inline-flex items-center rounded-md bg-neutral-100 dark:bg-neutral-800 px-2 py-1 text-xs font-medium text-neutral-600 dark:text-neutral-300"
+            class="inline-flex items-center rounded-md bg-neutral-100 dark:bg-[#191d1a] px-2 py-1 text-xs font-medium text-neutral-600 dark:text-neutral-300"
           >
             Usando configuração global
           </span>
@@ -47,9 +47,9 @@
       } @else {
         <!-- Queue settings -->
         <section
-          class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+          class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 overflow-hidden"
         >
-          <div class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800">
+          <div class="px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07]">
             <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
               Configuração da fila
             </h3>
@@ -104,10 +104,10 @@
 
         <!-- Agents -->
         <section
-          class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+          class="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 overflow-hidden"
         >
           <div
-            class="px-5 py-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between"
+            class="px-5 py-3 border-b border-neutral-100 dark:border-white/[0.07] flex items-center justify-between"
           >
             <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
               Agentes da fila

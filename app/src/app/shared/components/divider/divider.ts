@@ -25,15 +25,15 @@ export class AfDividerComponent {
 
   protected readonly lineClasses = computed(() => {
     if (this.orientation() === 'vertical') {
-      return 'flex-1 w-px bg-neutral-200 dark:bg-neutral-700';
+      return 'flex-1 w-px bg-neutral-200 dark:bg-[#232823]';
     }
-    return 'flex-1 h-px bg-neutral-200 dark:bg-neutral-700';
+    return 'flex-1 h-px bg-neutral-200 dark:bg-[#232823]';
   });
 
   protected readonly simpleLineClasses = computed(() => {
     if (this.orientation() === 'vertical') {
-      return 'w-px h-full bg-neutral-200 dark:bg-neutral-700';
+      return 'w-px h-full bg-neutral-200 dark:bg-[#232823]';
     }
-    return 'w-full h-px bg-neutral-200 dark:bg-neutral-700';
+    return 'w-full h-px bg-neutral-200 dark:bg-[#232823]';
   });
 }

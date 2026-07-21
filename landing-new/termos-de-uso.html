@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <title>Termos de Uso — InteraZap</title>
+  <meta name="description" content="Termos e condições de uso da plataforma InteraZap. Leia antes de contratar ou usar nossos serviços." />
+  <meta name="robots" content="index, follow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #0F1117; background: #fff; -webkit-font-smoothing: antialiased; }
+    :root {
+      --green: #16A34A; --green-mid: #22C55E; --green-light: #DCFCE7; --green-dark: #166534; --neon: #4ADE80;
+      --dark: #0C0E14; --dark-2: #181B26; --dark-3: #22263A;
+      --gray: #6B7280; --gray-light: #F5F5F3; --border: #E5E7EB;
+      --r-sm: 8px; --r: 12px; --r-lg: 20px;
+    }
+    .l-header { background: var(--dark); border-bottom: 1px solid rgba(255,255,255,.08); position: sticky; top: 0; z-index: 50; }
+    .l-header-inner { max-width: 1160px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .l-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .l-logo-icon { width: 32px; height: 32px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .l-logo-icon svg { width: 20px; height: 20px; color: #fff; }
+    .l-logo-text { font-size: 18px; font-weight: 800; color: #fff; }
+    .l-logo-img { height: 28px; object-fit: contain; }
+    .l-back { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.5); text-decoration: none; transition: color .15s; }
+    .l-back:hover { color: #fff; }
+    .l-back svg { width: 16px; height: 16px; }
+    .l-hero { background: var(--dark); padding: 48px 24px 56px; text-align: center; }
+    .l-hero-inner { max-width: 800px; margin: 0 auto; }
+    .l-eyebrow { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--neon); margin-bottom: 12px; }
+    .l-hero h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.03em; line-height: 1.15; color: #fff; margin-bottom: 12px; }
+    .l-hero p { font-size: 14px; color: rgba(255,255,255,.45); }
+    .l-content { max-width: 780px; margin: 0 auto; padding: 64px 24px 80px; }
+    .l-content h2 { font-size: 1.25rem; font-weight: 700; color: var(--dark); margin-top: 2rem; margin-bottom: .75rem; }
+    .l-content h3 { font-size: 1rem; font-weight: 600; color: var(--dark); margin-top: 1.5rem; margin-bottom: .5rem; }
+    .l-content p { color: #374151; line-height: 1.75; margin-bottom: 1rem; }
+    .l-content ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+    .l-content ul li { color: #374151; line-height: 1.75; margin-bottom: .25rem; }
+    .l-content ol { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+    .l-content ol li { color: #374151; line-height: 1.75; margin-bottom: .25rem; }
+    .l-content a { color: var(--green); text-decoration: underline; }
+    .l-content a:hover { color: var(--green-mid); }
+    .l-content strong { color: var(--dark); }
+    .callout { background: var(--green-light); border-left: 4px solid var(--green); padding: 1rem 1.25rem; border-radius: 0 var(--r-sm) var(--r-sm) 0; margin-bottom: 1.5rem; }
+    .callout p { margin-bottom: 0; color: var(--green-dark); }
+    .l-footer { background: var(--dark); border-top: 1px solid rgba(255,255,255,.06); padding: 40px 24px; }
+    .l-footer-inner { max-width: 1160px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+    .l-footer-copy { font-size: 12px; color: rgba(255,255,255,.3); }
+    .l-footer-nav { display: flex; flex-wrap: wrap; gap: 16px; }
+    .l-footer-nav a { font-size: 12px; color: rgba(255,255,255,.4); text-decoration: none; transition: color .15s; }
+    .l-footer-nav a:hover { color: #fff; }
+    .l-footer-nav a.active { color: var(--neon); font-weight: 600; }
+    @media (max-width: 600px) { .l-footer-inner { flex-direction: column; align-items: flex-start; } }
+  </style>
+</head>
+<body>
+
+<header class="l-header">
+  <div class="l-header-inner">
+    <a href="index.html" class="l-logo">
+      <img src="logo-interazap.png" alt="InteraZap" class="l-logo-img">
+    </a>
+    <a href="index.html" class="l-back"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>Voltar ao site</a>
+  </div>
+</header>
+
+<section class="l-hero">
+  <div class="l-hero-inner">
+    <span class="l-eyebrow">Legal</span>
+    <h1>Termos de Uso</h1>
+    <p>Última atualização: 26 de abril de 2026</p>
+  </div>
+</section>
+
+<main class="l-content">
+
+  <p>Estes Termos de Uso ("Termos") regulam o acesso e a utilização da plataforma <strong>InteraZap</strong>, operada pela empresa InteraZap Tecnologia Ltda. ("InteraZap", "nós" ou "nosso"). Ao criar uma conta ou utilizar qualquer funcionalidade da plataforma, você ("Usuário" ou "Cliente") declara ter lido, compreendido e concordado integralmente com estes Termos.</p>
+  <p>Caso não concorde com algum dos termos aqui estabelecidos, não utilize a plataforma.</p>
+
+  <h2>1. Definições</h2>
+  <ul>
+    <li><strong>Plataforma:</strong> conjunto de sistemas, aplicativos, APIs e interfaces disponibilizados pela InteraZap.</li>
+    <li><strong>Usuário:</strong> qualquer pessoa física ou jurídica que acesse ou utilize a Plataforma.</li>
+    <li><strong>Cliente:</strong> Usuário que contratou um plano pago da InteraZap.</li>
+    <li><strong>Conta:</strong> credenciais de acesso criadas pelo Usuário para utilizar a Plataforma.</li>
+    <li><strong>Canal:</strong> canal de comunicação conectado à Plataforma (ex.: WhatsApp Business API, WhatsApp via QR Code, Telegram, etc.).</li>
+    <li><strong>Dados:</strong> informações inseridas, processadas ou geradas pelo Usuário na Plataforma.</li>
+  </ul>
+
+  <h2>2. Aceitação e elegibilidade</h2>
+  <p>O uso da plataforma InteraZap é permitido exclusivamente para <strong>pessoas jurídicas</strong> ou pessoas físicas maiores de 18 anos atuando em nome de uma empresa. Ao aceitar estes Termos, o Usuário garante que tem capacidade legal para contratar e que utilizará a Plataforma para fins lícitos e de acordo com a legislação brasileira vigente.</p>
+
+  <h2>3. Cadastro e segurança da conta</h2>
+  <ul>
+    <li>O Usuário é responsável pela veracidade das informações fornecidas no cadastro.</li>
+    <li>É dever do Usuário manter as credenciais de acesso confidenciais e não compartilhá-las com terceiros.</li>
+    <li>Qualquer atividade realizada por meio da Conta é de responsabilidade do Usuário titular.</li>
+    <li>Em caso de suspeita de acesso não autorizado, o Usuário deve notificar imediatamente a InteraZap pelo e-mail <a href="mailto:contato@interazap.com.br">contato@interazap.com.br</a>.</li>
+  </ul>
+
+  <h2>4. Uso aceitável da plataforma</h2>
+  <p>O Usuário compromete-se a utilizar a Plataforma somente para fins legítimos e de acordo com estes Termos. É <strong>expressamente proibido</strong>:</p>
+  <ul>
+    <li>Utilizar a Plataforma para envio de spam, mensagens não solicitadas ou comunicações em massa sem consentimento dos destinatários.</li>
+    <li>Disseminar conteúdo ilegal, ofensivo, discriminatório, fraudulento ou que viole direitos de terceiros.</li>
+    <li>Tentar acessar sistemas, dados ou recursos da Plataforma sem autorização.</li>
+    <li>Realizar engenharia reversa, descompilar ou modificar qualquer componente da Plataforma.</li>
+    <li>Violar as políticas de uso do WhatsApp, Telegram, Instagram ou qualquer outra plataforma de mensagens integrada.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Sobre as integrações com WhatsApp:</strong> A InteraZap oferece duas modalidades de integração — via <strong>API Oficial do WhatsApp Business (WABA)</strong> e via <strong>conexão por QR Code</strong>. Cada modalidade tem características, custos e perfis de risco diferentes. Antes de escolher, leia nossa página <a href="whatsapp-nao-oficial.html">WhatsApp Oficial e Não Oficial</a> para entender as diferenças e tomar a melhor decisão para o seu negócio.</p>
+  </div>
+
+  <h2>5. Planos, pagamentos e cancelamento</h2>
+  <h3>5.1 Planos disponíveis</h3>
+  <p>A InteraZap oferece planos mensais conforme descrito na página de <a href="index.html#precos">Preços</a>. Os valores, limites de usuários e recursos de cada plano estão sujeitos a alteração mediante aviso prévio de 30 dias.</p>
+  <h3>5.2 Pagamento</h3>
+  <ul>
+    <li>Os planos são cobrados mensalmente, de forma antecipada, no dia de vencimento definido no contrato.</li>
+    <li>O não pagamento em até 5 dias corridos após o vencimento pode resultar em suspensão temporária do acesso.</li>
+    <li>Após 30 dias de inadimplência, a conta poderá ser cancelada com exclusão dos dados, conforme a política de retenção.</li>
+  </ul>
+  <h3>5.3 Cancelamento</h3>
+  <ul>
+    <li>O Cliente pode cancelar o plano a qualquer momento pelo painel da plataforma ou pelo e-mail <a href="mailto:contato@interazap.com.br">contato@interazap.com.br</a>.</li>
+    <li>O cancelamento tem efeito ao final do ciclo de cobrança vigente, sem reembolso proporcional.</li>
+    <li>Após o cancelamento, os dados serão retidos por 90 dias para eventual reativação, após o que serão excluídos definitivamente.</li>
+  </ul>
+
+  <h2>6. Propriedade intelectual</h2>
+  <p>Todos os direitos sobre a Plataforma InteraZap — incluindo software, design, marca, logotipo, documentação e funcionalidades — são de propriedade exclusiva da InteraZap Tecnologia Ltda. O Usuário não adquire nenhum direito de propriedade sobre a Plataforma ao contratá-la.</p>
+  <p>Os <strong>Dados inseridos pelo Usuário</strong> permanecem de sua propriedade. A InteraZap não reivindica propriedade sobre o conteúdo do Cliente e trata esses dados apenas conforme descrito na <a href="politica-de-privacidade.html">Política de Privacidade</a>.</p>
+
+  <h2>7. Disponibilidade e SLA</h2>
+  <p>A InteraZap envidará melhores esforços para manter a Plataforma disponível 24 horas por dia, 7 dias por semana. No entanto, não garantimos disponibilidade ininterrupta. Manutenções programadas serão comunicadas com pelo menos 24 horas de antecedência via e-mail e painel da plataforma.</p>
+  <p>Clientes dos planos Professional e Business têm direito a SLA de 99,5% de disponibilidade mensal, com crédito proporcional em caso de descumprimento documentado.</p>
+
+  <h2>8. Limitação de responsabilidade</h2>
+  <p>A InteraZap não se responsabiliza por:</p>
+  <ul>
+    <li>Danos causados por uso inadequado da Plataforma pelo Usuário.</li>
+    <li>Suspensão ou banimento de canais de comunicação (ex.: WhatsApp) decorrentes de violação das políticas dos provedores pelo Usuário ou do modelo operacional escolhido pelo Cliente.</li>
+    <li>Indisponibilidade de serviços de terceiros integrados à Plataforma (ex.: WhatsApp Business API, operadoras de telefonia).</li>
+    <li>Perda de dados causada por falha do próprio Usuário (ex.: exclusão acidental de contatos ou conversas).</li>
+    <li>Lucros cessantes, danos indiretos ou consequenciais de qualquer natureza.</li>
+  </ul>
+
+  <h2>9. Dados e privacidade</h2>
+  <p>O tratamento de dados pessoais realizado pela InteraZap está descrito em detalhes na <a href="politica-de-privacidade.html">Política de Privacidade</a>, que integra estes Termos por referência. Ao aceitar estes Termos, o Usuário também concorda com a Política de Privacidade.</p>
+
+  <h2>10. Integrações com canais de terceiros</h2>
+  <p>A integração com canais de comunicação como WhatsApp, Telegram e Instagram está sujeita às políticas de uso de cada plataforma. O Usuário é inteiramente responsável por:</p>
+  <ul>
+    <li>Cumprir as políticas de uso do canal contratado e de seus respectivos provedores.</li>
+    <li>Obter consentimento dos destinatários antes de enviar mensagens via qualquer canal.</li>
+    <li>Compreender e aceitar os riscos operacionais da modalidade de integração escolhida.</li>
+  </ul>
+  <p>Para a integração via <strong>conexão por QR Code</strong> (WhatsApp não oficial), o Cliente declara estar ciente de que essa modalidade não é homologada pela Meta e que existe risco de banimento do número pelo WhatsApp. Esse risco é inerente ao modelo operacional escolhido pelo Cliente e <strong>não é responsabilidade da InteraZap</strong>. Para entender os detalhes, leia nossa página: <a href="whatsapp-nao-oficial.html"><strong>WhatsApp Oficial e Não Oficial — Entenda as diferenças</strong></a>.</p>
+
+  <h2>11. Alterações nos termos</h2>
+  <p>A InteraZap reserva-se o direito de alterar estes Termos a qualquer momento. Alterações substanciais serão comunicadas com pelo menos <strong>15 dias de antecedência</strong> por e-mail. O uso continuado da Plataforma após a vigência das alterações implica na aceitação dos novos Termos no que se refere a condições comerciais e operacionais. Alterações que impactem a base legal ou a finalidade do tratamento de dados pessoais requererão consentimento expresso do titular, conforme a <a href="politica-de-privacidade.html">Política de Privacidade</a>.</p>
+
+  <h2>12. Rescisão</h2>
+  <p>A InteraZap pode suspender ou encerrar o acesso de qualquer Usuário que viole estes Termos, sem aviso prévio e sem direito a reembolso, em casos de:</p>
+  <ul>
+    <li>Uso da Plataforma para atividades ilegais ou fraudulentas.</li>
+    <li>Violação reiterada das políticas de uso dos canais de comunicação integrados.</li>
+    <li>Tentativa de comprometer a segurança ou integridade da Plataforma.</li>
+  </ul>
+
+  <h2>13. Foro e legislação aplicável</h2>
+  <p>Estes Termos são regidos pelas leis da República Federativa do Brasil. Qualquer disputa oriunda deste instrumento será submetida ao foro da Comarca de São Paulo — SP, com renúncia expressa a qualquer outro, por mais privilegiado que seja.</p>
+
+  <h2>14. Contato</h2>
+  <p>Dúvidas sobre estes Termos podem ser enviadas para:</p>
+  <ul>
+    <li><strong>E-mail:</strong> <a href="mailto:contato@interazap.com.br">contato@interazap.com.br</a></li>
+    <li><strong>Assunto:</strong> "Termos de Uso — [seu nome/empresa]"</li>
+  </ul>
+
+</main>
+
+<footer class="l-footer">
+  <div class="l-footer-inner">
+    <p class="l-footer-copy">&copy; 2026 InteraZap. Todos os direitos reservados.</p>
+    <nav class="l-footer-nav">
+      <a href="politica-de-privacidade.html">Política de Privacidade</a>
+      <a href="termos-de-uso.html" class="active">Termos de Uso</a>
+      <a href="lgpd.html">LGPD</a>
+      <a href="whatsapp-nao-oficial.html">WhatsApp Não Oficial</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

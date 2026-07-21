@@ -1,12 +1,12 @@
 <a
   [routerLink]="['/chat', called().id]"
-  class="flex w-full gap-3 py-4 px-4 hover:bg-neutral-150 dark:hover:bg-neutral-700 border-b border-neutral-100 dark:border-neutral-800 transition-colors cursor-pointer"
+  class="flex w-full gap-3 py-4 px-4 hover:bg-neutral-150 dark:hover:bg-[#232823] border-b border-neutral-100 dark:border-white/[0.07] transition-colors cursor-pointer"
   [class.bg-neutral-200]="active()"
-  [class.dark:bg-neutral-800]="active()"
+  [class.dark:bg-[#191d1a]]="active()"
   [style.view-transition-name]="'chat-ticket-' + called().id"
 >
   <div
-    class="relative shrink-0 flex items-center justify-center font-semibold rounded-full size-10 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 overflow-hidden"
+    class="relative shrink-0 flex items-center justify-center font-semibold rounded-full size-10 bg-neutral-200 dark:bg-[#232823] text-neutral-700 dark:text-neutral-200 overflow-hidden"
   >
     @if (called().profile_picture_url) {
       <img
@@ -46,7 +46,7 @@
 
     @if (called().assigned_user) {
       <div
-        class="mt-1 inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 max-w-full"
+        class="mt-1 inline-flex items-center gap-1 bg-neutral-100 dark:bg-[#191d1a] rounded px-1.5 py-0.5 max-w-full"
       >
         <ng-icon name="lucideUser" size="10" class="text-neutral-500"></ng-icon>
         <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium truncate">
@@ -55,7 +55,7 @@
       </div>
     } @else if (called().user?.department) {
       <div
-        class="mt-1 inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 max-w-full"
+        class="mt-1 inline-flex items-center gap-1 bg-neutral-100 dark:bg-[#191d1a] rounded px-1.5 py-0.5 max-w-full"
       >
         <ng-icon name="lucideUsers" size="10" class="text-neutral-500"></ng-icon>
         <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium truncate">

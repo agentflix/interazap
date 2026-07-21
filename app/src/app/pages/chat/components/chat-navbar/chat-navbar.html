@@ -1,8 +1,8 @@
-<div class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-800">
+<div class="px-5 py-3 border-b border-neutral-200 dark:border-white/[0.07]">
   <div class="gap-3 flex justify-between items-center">
     <div class="flex gap-3 items-center">
       <button
-        class="lg:hidden size-8 rounded-md flex justify-center items-center bg-neutral-100 dark:bg-neutral-800"
+        class="lg:hidden size-8 rounded-md flex justify-center items-center bg-neutral-100 dark:bg-[#191d1a]"
         aria-haspopup="dialog"
         aria-expanded="false"
         aria-controls="hs-offcanvas-left"
@@ -14,7 +14,7 @@
       </button>
 
       <div
-        class="rounded-full size-10 bg-neutral-100 dark:bg-neutral-800 overflow-hidden flex items-center justify-center text-sm font-semibold text-neutral-600 dark:text-neutral-300"
+        class="rounded-full size-10 bg-neutral-100 dark:bg-[#191d1a] overflow-hidden flex items-center justify-center text-sm font-semibold text-neutral-600 dark:text-neutral-300"
       >
         {{ contactInitials }}
       </div>
@@ -96,7 +96,7 @@
         [options]="departmentOptions()"
         placeholder="Selecione um departamento..."
         [spacing]="false"
-        [classSelect]="'dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-100'"
+        [classSelect]="'dark:bg-[#191d1a] dark:border-white/10 dark:text-neutral-100'"
       />
     </div>
 
@@ -108,7 +108,7 @@
         [options]="userOptions()"
         placeholder="Selecione um usuário..."
         [spacing]="false"
-        [classSelect]="'dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-100'"
+        [classSelect]="'dark:bg-[#191d1a] dark:border-white/10 dark:text-neutral-100'"
       />
     </div>
 

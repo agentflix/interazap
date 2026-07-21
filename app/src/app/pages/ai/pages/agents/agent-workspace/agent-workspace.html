@@ -29,13 +29,13 @@
       <div class="space-y-6">
         <!-- Agent Header Card -->
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 p-5"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/10 p-5"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
               <button
                 type="button"
-                class="size-9 flex items-center justify-center rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                class="size-9 flex items-center justify-center rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#191d1a] transition-colors"
                 (click)="goBack()"
               >
                 <lucide-icon name="arrow-left" [size]="18" class="block" />
@@ -92,7 +92,7 @@
                   [class]="
                     activeTab() === tab.key
                       ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-700 shadow-sm'
-                      : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-200 border border-transparent'
+                      : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-[#191d1a] hover:text-neutral-900 dark:hover:text-neutral-200 border border-transparent'
                   "
                   (click)="activeTab.set(tab.key)"
                 >
@@ -127,7 +127,7 @@
           <!-- Mobile Tab Bar -->
           <div class="md:hidden w-full">
             <div
-              class="flex gap-1 overflow-x-auto border-b border-neutral-200 dark:border-neutral-700 mb-4 -mx-1 px-1 pb-2"
+              class="flex gap-1 overflow-x-auto border-b border-neutral-200 dark:border-white/10 mb-4 -mx-1 px-1 pb-2"
             >
               @for (tab of tabs; track tab.key) {
                 <button

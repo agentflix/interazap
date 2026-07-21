@@ -1,9 +1,9 @@
 <div
-  class="border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-4 py-3"
+  class="border-t border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 px-4 py-3"
 >
   <div #composerRoot class="relative">
     <div
-      class="flex items-center gap-2 rounded-xl border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800 px-2 py-2 transition-colors focus-within:ring-2 focus-within:ring-accent-500/30 focus-within:border-accent-500"
+      class="flex items-center gap-2 rounded-xl border border-neutral-300 dark:border-white/[0.14] bg-neutral-50 dark:bg-[#191d1a] px-2 py-2 transition-colors focus-within:ring-2 focus-within:ring-accent-500/30 focus-within:border-accent-500"
     >
       <div class="relative">
         <af-icon-button
@@ -18,12 +18,12 @@
 
         @if (attachmentMenuOpen()) {
           <div
-            class="absolute left-0 bottom-10 z-20 w-52 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg p-1"
+            class="absolute left-0 bottom-10 z-20 w-52 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 shadow-lg p-1"
           >
             @for (option of attachmentOptions; track option.type) {
               <button
                 type="button"
-                class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#191d1a]"
                 (click)="selectAttachment(option.type)"
               >
                 <lucide-icon [name]="option.icon" [size]="16" class="text-accent-500" />

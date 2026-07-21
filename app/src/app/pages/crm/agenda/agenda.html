@@ -4,14 +4,14 @@
         <app-page-title title="Agenda" subtitle="CRM">
           <div class="flex items-center gap-2">
             <div
-              class="inline-flex rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 p-0.5"
+              class="inline-flex rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-[#191d1a] p-0.5"
             >
               <button
                 type="button"
                 class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
                 [class]="
                   viewMode() === 'calendar'
-                    ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-sm'
+                    ? 'bg-white dark:bg-[#232823] text-neutral-900 dark:text-neutral-50 shadow-sm'
                     : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
                 "
                 (click)="setView('calendar')"
@@ -24,7 +24,7 @@
                 class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
                 [class]="
                   viewMode() === 'list'
-                    ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 shadow-sm'
+                    ? 'bg-white dark:bg-[#232823] text-neutral-900 dark:text-neutral-50 shadow-sm'
                     : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200'
                 "
                 (click)="setView('list')"
@@ -35,7 +35,7 @@
             </div>
 
             <div
-              class="inline-flex rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 p-0.5"
+              class="inline-flex rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-[#191d1a] p-0.5"
             >
               <af-button-group spacing="xs">
                 <app-button

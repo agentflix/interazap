@@ -35,6 +35,17 @@ export interface MetaGraphTemplatesResponse {
 }
 
 /**
+ * Erro reportado pela Meta Graph API no corpo de uma resposta de envio.
+ * A Meta pode retornar HTTP 200 com `errors[]` preenchido no corpo.
+ */
+export interface MetaApiError {
+  code: number;
+  title: string;
+  message?: string;
+  error_data?: { details?: string };
+}
+
+/**
  * Resposta da API Graph da Meta para envio de mensagem via template.
  */
 export interface MetaSendTemplateResponse {
@@ -46,6 +57,18 @@ export interface MetaSendTemplateResponse {
   messages: Array<{
     id: string;
   }>;
+  /** Presente quando a Meta retorna HTTP 200 com erro no corpo (ex.: 131047). */
+  errors?: MetaApiError[];
+}
+
+/**
+ * Payload para envio de mensagem de texto livre via API Graph.
+ */
+export interface MetaSendTextPayload {
+  messaging_product: 'whatsapp';
+  to: string;
+  type: 'text';
+  text: { body: string };
 }
 
 /**

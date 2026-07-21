@@ -1,13 +1,13 @@
 <button
   type="button"
-  class="w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors border-b border-hairline dark:border-neutral-700 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+  class="w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-[#191d1a]/60 transition-colors border-b border-hairline dark:border-white/10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
   [class.bg-neutral-100]="active()"
-  [class.dark:bg-neutral-800]="active()"
+  [class.dark:bg-[#191d1a]]="active()"
   (click)="onSelect()"
 >
   <!-- Avatar -->
   <div
-    class="relative shrink-0 flex items-center justify-center font-semibold rounded-full size-10 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 overflow-hidden"
+    class="relative shrink-0 flex items-center justify-center font-semibold rounded-full size-10 bg-neutral-100 dark:bg-[#191d1a] text-neutral-600 dark:text-neutral-300 overflow-hidden"
   >
     <span class="text-xs">{{ getInitials(ticket()) }}</span>
     @if (getProfilePicture(ticket()); as src) {
@@ -43,21 +43,21 @@
     <div class="mt-1 flex items-center flex-wrap gap-1">
       @if (ticket().status === 'in_progress') {
         <div
-          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-md px-1.5 py-0.5"
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-[#191d1a] rounded-md px-1.5 py-0.5"
         >
           <ng-icon name="lucideUser" size="10" class="text-neutral-500 shrink-0"></ng-icon>
           <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium">Humano</span>
         </div>
       } @else if (ticket().is_bot_active && ticket().current_ai_agent_id) {
         <div
-          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-md px-1.5 py-0.5"
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-[#191d1a] rounded-md px-1.5 py-0.5"
         >
           <ng-icon name="lucideBot" size="10" class="text-neutral-500 shrink-0"></ng-icon>
           <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium">IA</span>
         </div>
       } @else if (ticket().is_bot_active) {
         <div
-          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-md px-1.5 py-0.5"
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-[#191d1a] rounded-md px-1.5 py-0.5"
         >
           <ng-icon name="lucideBot" size="10" class="text-neutral-500 shrink-0"></ng-icon>
           <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium">Chatbot</span>
@@ -66,7 +66,7 @@
 
       @if (ticket().assigned_user) {
         <div
-          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-md px-1.5 py-0.5 max-w-full"
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-[#191d1a] rounded-md px-1.5 py-0.5 max-w-full"
         >
           <ng-icon name="lucideUser" size="10" class="text-neutral-500 shrink-0"></ng-icon>
           <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium truncate">
@@ -75,7 +75,7 @@
         </div>
       } @else if (ticket().user?.department) {
         <div
-          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-md px-1.5 py-0.5 max-w-full"
+          class="inline-flex items-center gap-1 bg-neutral-100 dark:bg-[#191d1a] rounded-md px-1.5 py-0.5 max-w-full"
         >
           <ng-icon name="lucideUsers" size="10" class="text-neutral-500 shrink-0"></ng-icon>
           <span class="text-[10px] text-neutral-600 dark:text-neutral-300 font-medium truncate">

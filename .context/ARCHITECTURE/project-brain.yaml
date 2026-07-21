@@ -1,52 +1,72 @@
 identity:
   name: InteraZap
   description: >
-    Plataforma de atendimento conversacional via WhatsApp e webchat,
-    com AI generativa para automação de respostas, agendamento e suporte a clínicas.
-  domain: Conversational AI + CRM para pequenas e médias empresas
+    Plataforma de atendimento conversacional multicanal (WhatsApp via uazapi e Meta WABA,
+    Telegram e webchat) com agentes de IA, autopilot, CRM e cobrança por uso.
+  domain: Conversational AI + CRM multi-tenant para pequenas e médias empresas
 
 architecture:
   pattern: Microservices
   layers:
     - Presentation (Angular 20 — app/)
-    - Gateway (NestJS 11 — realtime, filas, AI)
-    - Domain/Application (Laravel 12 — business logic, REST)
+    - Domain/Application (Laravel 12 — api/)
+    - Execution/Realtime (NestJS 11 — gateway/)
     - Infrastructure (PostgreSQL 17, Redis 7)
+  integration:
+    api_to_gateway: Redis Streams (XADD + resposta por correlationId)
+    gateway_to_api: HTTP /internal com INTERNAL_API_KEY
+    app_to_api: REST /api com Sanctum
+    app_to_gateway: WebSocket /ws (Socket.io)
 
 decisions:
   - id: D01
-    title: Gateway separado da API principal
-    decision: NestJS 11 como gateway de realtime — Laravel fica exclusivo para domain/business
-    rationale: Separação de responsabilidades; NestJS nativo para WebSocket e BullMQ
+    title: Gateway separado da api
+    decision: NestJS executa realtime, filas e inferência; Laravel guarda domínio e dados
+    rationale: WebSocket e BullMQ são nativos no Node; a api fica livre de I/O de longa duração
 
   - id: D02
-    title: BullMQ para processamento assíncrono
-    decision: Todas as filas em Redis via BullMQ no gateway
-    rationale: Suporte a retry, dead-letter, concorrência configurável por queue
+    title: Redis Streams como canal api → gateway
+    decision: RedisGatewayClient publica no stream do domínio e aguarda resposta por correlationId
+    rationale: desacopla os serviços sem exigir que a api conheça a topologia HTTP do gateway
 
   - id: D03
-    title: AI centralizada no gateway
-    decision: Google Generative AI integrado apenas no gateway
-    rationale: Isolamento de custo e rate-limiting; api fica agnóstica de AI
+    title: Duas infraestruturas de fila
+    decision: Horizon na api para jobs de domínio; BullMQ no gateway para execução e outbound
+    rationale: cada serviço retenta no seu runtime, com DLQ e rate limit próprios
+
+  - id: D04
+    title: Múltiplos provedores de LLM
+    decision: ai-provider.factory no gateway seleciona Gemini, OpenAI ou MiniMax
+    rationale: custo e disponibilidade variam por tarefa; troca sem tocar no domínio
+
+  - id: D05
+    title: Webhooks de entrada divididos por canal
+    decision: uazapi e Telegram entram na api; Meta WABA entra no gateway
+    rationale: uazapi/Telegram exigem lookup de instância no banco; Meta exige verificação de assinatura no edge
 
 inviolable_rules:
-  - Gateway nunca acessa PostgreSQL diretamente — sempre via api REST
-  - Migrations somente em api/ via Laravel Artisan
-  - BullMQ queues definidas e processadas somente em gateway/
-  - AI (Google Generative AI) integrada somente em gateway/
-  - Secrets (AWS Secrets Manager) consumidos somente em gateway/
-  - Frontend (app/) nunca acessa banco ou Redis diretamente
-  - PSR-12 obrigatório para todo PHP em api/
-  - Angular Style Guide obrigatório para todo TypeScript em app/
-  - Conventional Commits obrigatório em todos os commits
+  - Gateway nunca acessa PostgreSQL — todo dado passa pela api
+  - Migrations somente em api/database/migrations via php artisan make:migration
+  - BullMQ definido e processado somente em gateway/
+  - Secrets do AWS Secrets Manager consumidos somente em gateway/
+  - Frontend nunca acessa banco, Redis ou provedor de LLM diretamente
+  - Business logic em Action; Controller só orquestra
+  - Validação de entrada em FormRequest; nunca em Action
+  - Toda query multi-tenant filtra por tenant
+  - PSR-12 (Pint) em todo PHP; Angular Style Guide em todo TypeScript
+  - Conventional Commits em português
+  - Nenhum `any` em TypeScript
+  - Frontend consulta .context/DESIGN/ antes de implementar UI
 
 business_rules:
-  - Tenant isolation: toda query deve filtrar por tenant_id
-  - Sessões de chat têm TTL; sessão expirada não pode ser reaberta
-  - Webhook de WhatsApp processado via BullMQ para garantir idempotência
-  - Rate limiting no gateway por tenant para chamadas de AI
+  - Isolamento por tenant é obrigatório em toda leitura e escrita
+  - Janela de 24h do WhatsApp controla se a resposta pode ser livre ou exige template
+  - Reação vazia recebida do uazapi é ignorada (remoção de reação)
+  - Quando um humano assume o ticket durante um run, a resposta da IA é bloqueada
+  - Cobrança é por mensagem de IA, com cota mensal por aniversário e modo stop|overage
+  - Webhook de canal é idempotente — reprocessar o mesmo evento não duplica mensagem
 
 testing:
-  api: PHPUnit (php artisan test)
-  gateway: Jest (pnpm --filter gateway test)
-  app: Jest + Angular Testing Library (pnpm --filter app test)
+  api: Pest — composer test (--parallel, exclui E2E); E2E em composer test:e2e
+  gateway: Jest — pnpm --filter gateway test
+  app: Vitest via Angular builder — pnpm --filter app test:run

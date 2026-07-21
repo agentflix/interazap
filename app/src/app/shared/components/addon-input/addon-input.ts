@@ -73,11 +73,11 @@ export class AfAddonInputComponent {
   protected readonly addonClasses = computed(() =>
     [
       'inline-flex items-center gap-1.5 px-3',
-      'bg-neutral-100 dark:bg-neutral-800',
-      'border border-r-0 border-neutral-300 dark:border-neutral-600',
+      'bg-neutral-100 dark:bg-[#191d1a]',
+      'border border-r-0 border-neutral-300 dark:border-white/[0.14]',
       'rounded-l-md text-sm font-medium',
       'text-neutral-600 dark:text-neutral-300',
-      'hover:bg-neutral-200 dark:hover:bg-neutral-700',
+      'hover:bg-neutral-200 dark:hover:bg-[#232823]',
       'transition-colors duration-150 cursor-pointer',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/30',
     ].join(' '),
@@ -87,7 +87,7 @@ export class AfAddonInputComponent {
   protected readonly inputClasses = computed(() => {
     const borderColor = this.showError()
       ? 'border-red-500 dark:border-red-400'
-      : 'border-neutral-300 dark:border-neutral-600';
+      : 'border-neutral-300 dark:border-white/[0.14]';
 
     return [
       'flex-1 h-10 px-3 text-sm',

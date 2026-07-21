@@ -133,9 +133,9 @@ export class AfPhoneInputComponent {
   protected readonly buttonClasses = computed(() => {
     const sizeClasses = this.size() === 'sm' ? 'h-8 px-2 text-xs' : 'h-10 px-3 text-sm';
     return [
-      'flex items-center gap-1 rounded-l-md border border-r-0 border-neutral-300 dark:border-neutral-600',
-      'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300',
-      'hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer',
+      'flex items-center gap-1 rounded-l-md border border-r-0 border-neutral-300 dark:border-white/[0.14]',
+      'bg-neutral-100 dark:bg-[#191d1a] text-neutral-700 dark:text-neutral-300',
+      'hover:bg-neutral-200 dark:hover:bg-[#232823] transition-colors cursor-pointer',
       sizeClasses,
     ].join(' ');
   });
@@ -145,7 +145,7 @@ export class AfPhoneInputComponent {
     const sizeClasses = this.size() === 'sm' ? 'h-8 px-2 text-xs' : 'h-10 px-3 text-sm';
     const borderColor = this.showError()
       ? 'border-red-500 dark:border-red-400'
-      : 'border-neutral-300 dark:border-neutral-600';
+      : 'border-neutral-300 dark:border-white/[0.14]';
 
     return [
       'flex-1 rounded-r-md',

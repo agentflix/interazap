@@ -132,7 +132,7 @@ export class AgentTriggersTabComponent implements OnInit {
       event: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
     };
     return (
-      classes[type] ?? 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
+      classes[type] ?? 'bg-neutral-100 text-neutral-600 dark:bg-[#191d1a] dark:text-neutral-400'
     );
   }
 

@@ -121,7 +121,7 @@ export class AfSwitchInputComponent {
       'disabled:opacity-50 disabled:cursor-not-allowed',
     ];
 
-    const bg = this.isChecked() ? 'bg-accent-500' : 'bg-neutral-200 dark:bg-neutral-700';
+    const bg = this.isChecked() ? 'bg-accent-500' : 'bg-neutral-200 dark:bg-[#232823]';
 
     return [...base, bg].join(' ');
   });

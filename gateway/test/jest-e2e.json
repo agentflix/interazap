@@ -3,6 +3,11 @@
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
+  "testPathIgnorePatterns": [
+    "/node_modules/",
+    "/dist/",
+    "\\.real\\.e2e-spec\\.ts$"
+  ],
   "setupFiles": ["<rootDir>/jest.setup.ts"],
   "transform": {
     "^.+\\.(t|j)s$": ["@swc/jest"]

@@ -390,6 +390,9 @@ final class ChatMessageGatewayDispatcher
      * Resolve o token de autenticação da instância para chamadas ao gateway.
      *
      * Para Z-API combina instance_id e token_id das configurações.
+     * Para Meta combina phone_number_id e access_token no formato
+     * `phoneNumberId:accessToken`, esperado pelo adapter do gateway
+     * ({@see \Domain\Chat\Http\Requests\ChatInstanceRequest} valida esses campos).
      * Para demais provedores retorna webhook_token diretamente.
      *
      * @param  ChatInstance|null  $instance  Instância de chat do ticket.
@@ -414,6 +417,18 @@ final class ChatMessageGatewayDispatcher
 
             if ($instanceId && $tokenId) {
                 return $instanceId.':'.$tokenId;
+            }
+
+            return null;
+        }
+
+        if ($instance->provider === 'meta') {
+            $settings = $instance->settings_json ?? [];
+            $phoneNumberId = $settings['phone_number_id'] ?? null;
+            $accessToken = $settings['access_token'] ?? null;
+
+            if ($phoneNumberId && $accessToken) {
+                return $phoneNumberId.':'.$accessToken;
             }
 
             return null;

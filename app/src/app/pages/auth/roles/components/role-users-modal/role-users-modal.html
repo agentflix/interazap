@@ -61,7 +61,7 @@
                 />
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 transition-colors"
+                  class="inline-flex items-center justify-center rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-neutral-400 dark:hover:bg-[#191d1a] dark:hover:text-neutral-200 transition-colors"
                   [title]="user.is_active ? 'Inativar' : 'Ativar'"
                   (click)="openToggleStatus(user)"
                 >
@@ -73,7 +73,7 @@
                 </button>
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-red-600 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-red-400 transition-colors"
+                  class="inline-flex items-center justify-center rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-red-600 dark:text-neutral-400 dark:hover:bg-[#191d1a] dark:hover:text-red-400 transition-colors"
                   title="Desvincular perfil"
                   (click)="openRemoveRole(user)"
                 >
@@ -88,7 +88,7 @@
 
     <!-- Pagination -->
     @if (meta().last_page > 1) {
-      <div class="flex items-center justify-between border-t border-neutral-200 dark:border-neutral-700 px-4 py-3">
+      <div class="flex items-center justify-between border-t border-neutral-200 dark:border-white/10 px-4 py-3">
         <p class="text-sm text-neutral-500 dark:text-neutral-400">
           Mostrando {{ users().length }} de {{ meta().total }} usuários
         </p>
@@ -99,7 +99,7 @@
               class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-medium transition-colors {{
                 ($index + 1) === meta().current_page
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
-                  : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'
+                  : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-[#191d1a]'
               }}"
               (click)="loadPage($index + 1)"
             >

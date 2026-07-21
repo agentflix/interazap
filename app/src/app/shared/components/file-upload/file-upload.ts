@@ -55,7 +55,7 @@ export class AfFileUploadComponent {
     if (this.isDragging()) {
       return 'border-accent-500 bg-accent-50/50 dark:bg-accent-950/20';
     }
-    return 'border-neutral-300 dark:border-neutral-600 hover:border-accent-400 dark:hover:border-accent-500 bg-white dark:bg-neutral-900';
+    return 'border-neutral-300 dark:border-white/[0.14] hover:border-accent-400 dark:hover:border-accent-500 bg-white dark:bg-neutral-900';
   });
 
   /** Texto de dica gerado a partir do atributo accept */

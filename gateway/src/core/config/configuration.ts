@@ -235,7 +235,7 @@ export const metaConfig = registerAs(
     appSecret: process.env.META_APP_SECRET ?? '',
     webhookCallbackUrl: process.env.META_WEBHOOK_CALLBACK_URL ?? '',
     graphApiUrl:
-      process.env.META_GRAPH_API_URL ?? 'https://graph.facebook.com/v18.0',
+      process.env.META_GRAPH_API_URL ?? 'https://graph.facebook.com/v25.0',
   }),
 );
 

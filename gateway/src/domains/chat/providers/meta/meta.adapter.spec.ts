@@ -6,6 +6,14 @@ import { MetaLookupService } from '../../http/meta-lookup.service';
 import { RedisService } from '../../../../infrastructure/redis/redis.service';
 import { MetaTemplate } from '../../contracts/meta-provider.interface';
 import type { MetaTemplateCreatePayload } from './meta.dto';
+import {
+  metaMultiEntryBatchPayload,
+  metaCtwaReferralPayload,
+  metaStatusWindow72hPayload,
+  metaStatusWindow24hPayload,
+  metaStatusFailedPayload,
+  metaDuplicateDeliveryPayload,
+} from './__fixtures__';
 
 describe('MetaAdapter', () => {
   let adapter: MetaAdapter;
@@ -25,7 +33,7 @@ describe('MetaAdapter', () => {
     resolvePhoneNumberId: jest.Mock;
     resolveWabaId: jest.Mock;
   };
-  let provider: { normalize: jest.Mock };
+  let provider: { normalize: jest.Mock; normalizeAll: jest.Mock };
 
   const token = 'phoneId:accessToken';
   const approvedTemplate: MetaTemplate = {
@@ -63,7 +71,7 @@ describe('MetaAdapter', () => {
       resolvePhoneNumberId: jest.fn(),
       resolveWabaId: jest.fn(),
     };
-    provider = { normalize: jest.fn() };
+    provider = { normalize: jest.fn(), normalizeAll: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -311,23 +319,25 @@ describe('MetaAdapter', () => {
         tenantId: 'tenant-1',
         instanceId: 'inst-1',
       });
-      provider.normalize.mockReturnValue({
-        provider: 'meta',
-        event_type: 'meta.template.status_updated',
-        direction: 'template_status',
-        phone_number_id: '',
-        display_phone_number: '',
-        template: {
-          external_id: '111',
-          name: 'welcome',
-          language: 'pt_BR',
-          event: 'APPROVED',
-          status: 'approved',
-          reason: null,
-          mmlite_status: null,
+      provider.normalizeAll.mockReturnValue([
+        {
+          provider: 'meta',
+          event_type: 'meta.template.status_updated',
+          direction: 'template_status',
+          phone_number_id: '',
+          display_phone_number: '',
+          template: {
+            external_id: '111',
+            name: 'welcome',
+            language: 'pt_BR',
+            event: 'APPROVED',
+            status: 'approved',
+            reason: null,
+            mmlite_status: null,
+          },
+          raw: buildTemplatePayload(),
         },
-        raw: buildTemplatePayload(),
-      });
+      ]);
 
       const result = await adapter.normalizeWebhook(
         webhookToken,
@@ -339,7 +349,6 @@ describe('MetaAdapter', () => {
       expect(result).toMatchObject({
         tenantId: 'tenant-1',
         instanceId: 'inst-1',
-        instanceWebhookToken: webhookToken,
         provider: 'meta',
         eventType: 'meta.template.status_updated',
         direction: 'template_status',
@@ -358,51 +367,56 @@ describe('MetaAdapter', () => {
       );
     });
 
-    it('throws when wabaId lookup returns null for template event', async () => {
+    it('discards event (no throw) when wabaId lookup returns null for template event', async () => {
       lookupService.resolveWabaId.mockResolvedValue(null);
 
       await expect(
         adapter.normalizeWebhook(webhookToken, buildTemplatePayload()),
-      ).rejects.toThrow(/Instance not found for waba_id/);
+      ).rejects.toThrow(/No resolvable event produced/);
     });
 
-    it('throws when entry.id is missing on template event', async () => {
+    it('discards event (no throw) when entry.id is missing on template event', async () => {
       const payload = buildTemplatePayload();
       payload.entry[0].id = '';
 
       await expect(
         adapter.normalizeWebhook(webhookToken, payload),
-      ).rejects.toThrow(/waba_id .* not found/);
+      ).rejects.toThrow(/No resolvable event produced/);
       expect(lookupService.resolveWabaId).not.toHaveBeenCalled();
     });
 
-    it('routes regular messages via phone_number_id lookup', async () => {
+    it('routes regular messages via phone_number_id lookup and never validates webhookToken against it', async () => {
       lookupService.resolvePhoneNumberId.mockResolvedValue({
         tenantId: 'tenant-2',
         instanceId: 'inst-2',
-        webhookToken,
+        webhookToken: 'real-webhook-token-from-instance',
       });
-      provider.normalize.mockReturnValue({
-        provider: 'meta',
-        event_type: 'message_received',
-        direction: 'inbound',
-        phone_number_id: 'PHN_ID',
-        display_phone_number: '5511999999999',
-        message: {
-          id: 'wamid.X',
-          from: '5511888888888',
-          to: '5511999999999',
-          type: 'text',
-          text: 'olá',
-          timestamp: new Date(1700000000000),
-          isFromMe: false,
-          isGroup: false,
+      provider.normalizeAll.mockReturnValue([
+        {
+          provider: 'meta',
+          event_type: 'message_received',
+          direction: 'inbound',
+          phone_number_id: 'PHN_ID',
+          display_phone_number: '5511999999999',
+          message: {
+            id: 'wamid.X',
+            from: '5511888888888',
+            to: '5511999999999',
+            type: 'text',
+            text: 'olá',
+            timestamp: new Date(1700000000000),
+            isFromMe: false,
+            isGroup: false,
+          },
+          raw: buildMessagesPayload(),
         },
-        raw: buildMessagesPayload(),
-      });
+      ]);
 
+      // O `webhookToken` recebido (na verdade um phone_number_id, per bug
+      // histórico) NÃO é comparado contra a instância resolvida — apenas
+      // usado como parâmetro legado do contrato `MetaWhatsAppProvider`.
       const result = await adapter.normalizeWebhook(
-        webhookToken,
+        'PHN_ID', // phone_number_id, nao um webhookToken real — nao deve causar mismatch
         buildMessagesPayload(),
       );
 
@@ -410,6 +424,218 @@ describe('MetaAdapter', () => {
       expect(lookupService.resolveWabaId).not.toHaveBeenCalled();
       expect(result.direction).toBe('inbound');
       expect(result.template).toBeUndefined();
+      // instanceWebhookToken vem da instância resolvida, não do parâmetro de entrada
+      expect(result.instanceWebhookToken).toBe(
+        'real-webhook-token-from-instance',
+      );
+      expect(result.idempotencyKey).toBe('meta:inst-2:wamid.X');
+    });
+  });
+
+  describe('normalizeWebhookBatch (integração com MetaProvider real)', () => {
+    let realAdapter: MetaAdapter;
+
+    const buildMessageChange = (
+      phoneNumberId: string,
+      messages: Array<Record<string, unknown>>,
+    ) => ({
+      field: 'messages',
+      value: {
+        messaging_product: 'whatsapp',
+        metadata: {
+          display_phone_number: '5511999999999',
+          phone_number_id: phoneNumberId,
+        },
+        messages,
+      },
+    });
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          MetaAdapter,
+          { provide: MetaClient, useValue: client },
+          { provide: RedisService, useValue: redisService },
+          { provide: MetaLookupService, useValue: lookupService },
+          MetaProvider,
+        ],
+      }).compile();
+
+      realAdapter = module.get<MetaAdapter>(MetaAdapter);
+    });
+
+    it('processes a batch of 2 entries x 2 messages into 4 events (fixture real da Meta)', async () => {
+      lookupService.resolvePhoneNumberId.mockResolvedValue({
+        tenantId: 'tenant-1',
+        instanceId: 'inst-1',
+        webhookToken: 'whk-1',
+      });
+
+      const events = await realAdapter.normalizeWebhookBatch(
+        metaMultiEntryBatchPayload,
+      );
+
+      expect(events).toHaveLength(4);
+      expect(events.map((e) => e.message?.id)).toEqual([
+        'wamid.BATCH_A',
+        'wamid.BATCH_B',
+        'wamid.BATCH_C',
+        'wamid.BATCH_D',
+      ]);
+      expect(events.every((e) => e.tenantId === 'tenant-1')).toBe(true);
+    });
+
+    it('produces a stable idempotencyKey across two identical calls (reentrega duplicada da Meta)', async () => {
+      lookupService.resolvePhoneNumberId.mockResolvedValue({
+        tenantId: 'tenant-1',
+        instanceId: 'inst-1',
+        webhookToken: 'whk-1',
+      });
+
+      const first = await realAdapter.normalizeWebhookBatch(
+        metaDuplicateDeliveryPayload,
+      );
+      const second = await realAdapter.normalizeWebhookBatch(
+        metaDuplicateDeliveryPayload,
+      );
+
+      expect(first[0].idempotencyKey).toBe(second[0].idempotencyKey);
+      expect(first[0].idempotencyKey).toBe('meta:inst-1:wamid.DUP_RETRY');
+    });
+
+    it('marks window.type as 72h when inbound message carries referral (CTWA fixture)', async () => {
+      lookupService.resolvePhoneNumberId.mockResolvedValue({
+        tenantId: 'tenant-1',
+        instanceId: 'inst-1',
+        webhookToken: 'whk-1',
+      });
+
+      const [event] = await realAdapter.normalizeWebhookBatch(
+        metaCtwaReferralPayload,
+      );
+
+      expect(event.message?.referral).toEqual({
+        source_id: '120210000000000',
+        source_type: 'ad',
+        headline: 'Promoção de Verão',
+        ctwa_clid: 'AfeI3clidExemplo',
+      });
+    });
+
+    it('captures window.expiresAt from status.conversation.expiration_timestamp (72h for referral_conversion)', async () => {
+      lookupService.resolvePhoneNumberId.mockResolvedValue({
+        tenantId: 'tenant-1',
+        instanceId: 'inst-1',
+        webhookToken: 'whk-1',
+      });
+
+      const [event] = await realAdapter.normalizeWebhookBatch(
+        metaStatusWindow72hPayload,
+      );
+
+      expect(event.status?.window).toEqual({
+        expiresAt: new Date(1700259200 * 1000),
+        type: '72h',
+      });
+    });
+
+    it('captures window.expiresAt from status.conversation.expiration_timestamp (24h without referral_conversion)', async () => {
+      lookupService.resolvePhoneNumberId.mockResolvedValue({
+        tenantId: 'tenant-1',
+        instanceId: 'inst-1',
+        webhookToken: 'whk-1',
+      });
+
+      const [event] = await realAdapter.normalizeWebhookBatch(
+        metaStatusWindow24hPayload,
+      );
+
+      expect(event.status?.window).toEqual({
+        expiresAt: new Date(1700086400 * 1000),
+        type: '24h',
+      });
+    });
+
+    it('propagates failed status as failed (never masked as sent) with errors', async () => {
+      lookupService.resolvePhoneNumberId.mockResolvedValue({
+        tenantId: 'tenant-1',
+        instanceId: 'inst-1',
+        webhookToken: 'whk-1',
+      });
+
+      const [event] = await realAdapter.normalizeWebhookBatch(
+        metaStatusFailedPayload,
+      );
+
+      expect(event.status?.status).toBe('failed');
+      expect(event.status?.errors).toEqual([
+        {
+          code: 131047,
+          title: 'Re-engagement message',
+          message:
+            'Message failed to send because more than 24 hours have passed since the customer last replied to this number.',
+          details: 'Outside the 24-hour customer service window',
+        },
+      ]);
+      expect(event.idempotencyKey).toBe(
+        'meta:inst-1:wamid.STATUS_FAILED:failed',
+      );
+    });
+
+    it('discards events (no 4xx) when phone_number_id is unknown, without aborting other entries', async () => {
+      lookupService.resolvePhoneNumberId.mockImplementation(
+        (phoneNumberId: string) =>
+          Promise.resolve(
+            phoneNumberId === 'KNOWN_PHN'
+              ? {
+                  tenantId: 'tenant-1',
+                  instanceId: 'inst-1',
+                  webhookToken: 'whk-1',
+                }
+              : null,
+          ),
+      );
+
+      const payload = {
+        object: 'whatsapp_business_account' as const,
+        entry: [
+          {
+            id: 'WABA_1',
+            time: 1700000000,
+            changes: [
+              buildMessageChange('UNKNOWN_PHN', [
+                {
+                  from: '5511888888881',
+                  id: 'wamid.UNKNOWN',
+                  timestamp: '1700000000',
+                  type: 'text',
+                  text: { body: 'ignored' },
+                },
+              ]),
+            ],
+          },
+          {
+            id: 'WABA_1',
+            time: 1700000001,
+            changes: [
+              buildMessageChange('KNOWN_PHN', [
+                {
+                  from: '5511888888882',
+                  id: 'wamid.KNOWN',
+                  timestamp: '1700000001',
+                  type: 'text',
+                  text: { body: 'processed' },
+                },
+              ]),
+            ],
+          },
+        ],
+      };
+
+      const events = await realAdapter.normalizeWebhookBatch(payload);
+
+      expect(events).toHaveLength(1);
+      expect(events[0].message?.id).toBe('wamid.KNOWN');
     });
   });
 });

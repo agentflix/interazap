@@ -11,7 +11,7 @@
           @for (event of upcomingEvents(); track event.id) {
             <button
               type="button"
-              class="flex items-start gap-2.5 p-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-left w-full cursor-pointer"
+              class="flex items-start gap-2.5 p-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-[#191d1a] transition-colors text-left w-full cursor-pointer"
               (click)="eventClicked.emit(event)"
             >
               <span

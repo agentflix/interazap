@@ -2,7 +2,7 @@
     <div class="w-full animate-pulse" role="status" aria-label="Carregando dados...">
       <!-- Header row -->
       <div
-        class="flex items-center gap-4 px-4 py-3 border-b border-neutral-200 dark:border-neutral-700"
+        class="flex items-center gap-4 px-4 py-3 border-b border-neutral-200 dark:border-white/10"
       >
         @for (col of columnsArray(); track col) {
           <div [class]="columnWidthClass(col)">
@@ -14,7 +14,7 @@
       <!-- Data rows -->
       @for (row of rowsArray(); track row) {
         <div
-          class="flex items-center gap-4 px-4 py-3.5 border-b border-neutral-100 dark:border-neutral-800"
+          class="flex items-center gap-4 px-4 py-3.5 border-b border-neutral-100 dark:border-white/[0.07]"
         >
           @for (col of columnsArray(); track col) {
             <div [class]="columnWidthClass(col)">

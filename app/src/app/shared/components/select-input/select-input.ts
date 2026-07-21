@@ -148,7 +148,7 @@ export class AfSelectInputComponent implements OnDestroy {
   protected readonly triggerClasses = computed(() => {
     const borderColor = this.showError()
       ? 'border-red-500 dark:border-red-400'
-      : 'border-neutral-300 dark:border-neutral-600';
+      : 'border-neutral-300 dark:border-white/[0.14]';
 
     const sizeClasses = this.size() === 'sm' ? 'h-8 px-3 text-xs' : 'h-10 px-3 text-sm';
 

@@ -1,7 +1,7 @@
 <div class="flex flex-col h-[100dvh] bg-white dark:bg-neutral-950 overflow-hidden">
   <!-- Header -->
   <header
-    class="flex items-center justify-between gap-2 px-4 py-3 border-b border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 shrink-0"
+    class="flex items-center justify-between gap-2 px-4 py-3 border-b border-hairline dark:border-white/10 bg-white dark:bg-neutral-900 shrink-0"
   >
     <div class="flex items-center gap-3 min-w-0 flex-1">
       <!-- Chat icon -->
@@ -35,7 +35,7 @@
           }
           @if (protocol()) {
             <span
-              class="inline-flex shrink-0 items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 leading-none"
+              class="inline-flex shrink-0 items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-neutral-100 dark:bg-[#191d1a] text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-white/10 leading-none"
             >
               #{{ protocol() }}
             </span>
@@ -77,7 +77,7 @@
   <!-- Connection Error Banner -->
   @if (connectionState() === 'error') {
     <div
-      class="flex items-center gap-2 px-4 py-2 bg-danger-50 dark:bg-neutral-800 border-b border-danger-500/30 dark:border-danger-600/30"
+      class="flex items-center gap-2 px-4 py-2 bg-danger-50 dark:bg-[#191d1a] border-b border-danger-500/30 dark:border-danger-600/30"
       role="alert"
       aria-live="assertive"
     >
@@ -103,7 +103,7 @@
 
   @if (closeError()) {
     <div
-      class="flex items-center gap-2 px-4 py-2 bg-danger-50 dark:bg-neutral-800 border-b border-danger-500/30 dark:border-danger-600/30"
+      class="flex items-center gap-2 px-4 py-2 bg-danger-50 dark:bg-[#191d1a] border-b border-danger-500/30 dark:border-danger-600/30"
       role="alert"
       aria-live="assertive"
     >
@@ -141,7 +141,7 @@
       @if (messages().length === 0 && isConnected()) {
         <div class="flex justify-center my-8">
           <div
-            class="max-w-[80%] px-4 py-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-sm text-neutral-600 dark:text-neutral-300 text-center"
+            class="max-w-[80%] px-4 py-3 rounded-xl bg-neutral-100 dark:bg-[#191d1a] text-sm text-neutral-600 dark:text-neutral-300 text-center"
           >
             Olá, {{ visitorName() }}! Como posso ajudar hoje?
           </div>
@@ -173,7 +173,7 @@
       @if (isAiTyping()) {
         <div class="flex justify-start" aria-live="polite" aria-label="Atendente digitando">
           <div
-            class="flex items-center gap-2 px-3 py-2 rounded-xl bg-neutral-100 dark:bg-neutral-800"
+            class="flex items-center gap-2 px-3 py-2 rounded-xl bg-neutral-100 dark:bg-[#191d1a]"
           >
             <span class="flex gap-1" aria-hidden="true">
               <span
@@ -231,13 +231,13 @@
         (change)="onFileSelected($event)"
       />
       @if (uploadError()) {
-        <div class="px-4 py-2 text-xs text-danger-600 dark:text-danger-400 bg-danger-50 dark:bg-neutral-800" role="alert" aria-live="polite">
+        <div class="px-4 py-2 text-xs text-danger-600 dark:text-danger-400 bg-danger-50 dark:bg-[#191d1a]" role="alert" aria-live="polite">
           {{ uploadError() }}
         </div>
       }
     } @else if (sessionId() && isClosed()) {
       <div
-        class="px-4 py-4 text-center bg-neutral-50 dark:bg-neutral-900 border-t border-hairline dark:border-neutral-700 flex flex-col items-center gap-3"
+        class="px-4 py-4 text-center bg-neutral-50 dark:bg-neutral-900 border-t border-hairline dark:border-white/10 flex flex-col items-center gap-3"
       >
         <p class="text-sm text-neutral-500 dark:text-neutral-400">Este chamado foi encerrado.</p>
         <af-button variant="outline" size="sm" (clicked)="ticketClosed.emit()">
@@ -246,7 +246,7 @@
       </div>
     } @else {
       <div
-        class="px-4 py-3 text-center text-sm text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-900 border-t border-hairline dark:border-neutral-700"
+        class="px-4 py-3 text-center text-sm text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-900 border-t border-hairline dark:border-white/10"
         aria-live="polite"
       >
         @switch (connectionState()) {

@@ -18,7 +18,7 @@
         } @else {
           @for (tag of appliedTagsSignal(); track tag.id) {
             <span
-              class="flex items-center gap-1 rounded-full bg-neutral-150 dark:bg-neutral-800 px-2 py-1 text-xs"
+              class="flex items-center gap-1 rounded-full bg-neutral-150 dark:bg-[#191d1a] px-2 py-1 text-xs"
             >
               {{ tag.name }}
               <button
@@ -46,7 +46,7 @@
           @for (tag of suggestedTags(); track tag.id) {
             <button
               type="button"
-              class="rounded-full border border-neutral-200 dark:border-neutral-700 px-3 py-1 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-primary/10"
+              class="rounded-full border border-neutral-200 dark:border-white/10 px-3 py-1 text-xs text-neutral-600 dark:text-neutral-300 hover:bg-primary/10"
               [style.backgroundColor]="tag.color"
               (click)="addTag(tag)"
               [disabled]="isSaving()"

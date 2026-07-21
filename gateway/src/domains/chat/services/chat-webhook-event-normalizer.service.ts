@@ -394,6 +394,8 @@ export class ChatWebhookEventNormalizer {
         fromMe: normalized.message.isFromMe,
         isGroup: normalized.message.isGroup,
         senderPhoto: normalized.message.senderPhoto,
+        quotedMessageId: normalized.message.quotedMessageId,
+        referral: normalized.message.referral,
       };
     }
 
@@ -403,6 +405,8 @@ export class ChatWebhookEventNormalizer {
         status: normalized.status.status,
         timestamp: normalized.status.timestamp,
         error: normalized.status.error,
+        window: normalized.status.window,
+        errors: normalized.status.errors,
       };
 
       if (!basePayload.message && normalized.status.messageId) {

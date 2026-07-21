@@ -8,9 +8,9 @@
   <!-- Roteamento automático (Round Robin)                                -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <section
-    class="rounded-xl border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+    class="rounded-xl border border-hairline dark:border-white/10 bg-white dark:bg-neutral-900 overflow-hidden"
   >
-    <div class="px-5 py-3 border-b border-hairline dark:border-neutral-700">
+    <div class="px-5 py-3 border-b border-hairline dark:border-white/10">
       <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
         Roteamento automático
       </h3>
@@ -19,9 +19,9 @@
     <div class="p-5">
       @if (loading()) {
         <div class="space-y-4">
-          <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
-          <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
-          <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+          <div class="h-5 w-48 bg-neutral-200 dark:bg-[#232823] rounded animate-pulse"></div>
+          <div class="h-4 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
+          <div class="h-10 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
         </div>
       } @else if (error()) {
         <div class="space-y-3">
@@ -71,7 +71,7 @@
           }
 
           <!-- Agentes da fila -->
-          <div class="mt-6 pt-4 border-t border-hairline dark:border-neutral-700">
+          <div class="mt-6 pt-4 border-t border-hairline dark:border-white/10">
             <div class="flex items-center justify-between mb-4">
               <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-50">
                 Agentes da fila
@@ -115,9 +115,9 @@
   <!-- Auto-fechamento por inatividade                                    -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <section
-    class="rounded-xl border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden"
+    class="rounded-xl border border-hairline dark:border-white/10 bg-white dark:bg-neutral-900 overflow-hidden"
   >
-    <div class="px-5 py-3 border-b border-hairline dark:border-neutral-700">
+    <div class="px-5 py-3 border-b border-hairline dark:border-white/10">
       <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
         Auto-fechamento por inatividade
       </h3>
@@ -126,9 +126,9 @@
     <div class="p-5">
       @if (isAutoCloseLoading()) {
         <div class="space-y-4">
-          <div class="h-5 w-48 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse"></div>
-          <div class="h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
-          <div class="h-10 w-full bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse"></div>
+          <div class="h-5 w-48 bg-neutral-200 dark:bg-[#232823] rounded animate-pulse"></div>
+          <div class="h-4 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
+          <div class="h-10 w-full bg-neutral-100 dark:bg-[#191d1a] rounded animate-pulse"></div>
         </div>
       } @else if (autoCloseError()) {
         <div class="space-y-3">
@@ -187,7 +187,7 @@
           </div>
         }
 
-        <div class="flex justify-end mt-6 pt-4 border-t border-hairline dark:border-neutral-700">
+        <div class="flex justify-end mt-6 pt-4 border-t border-hairline dark:border-white/10">
           <af-loading-button
             variant="primary"
             [loading]="isAutoCloseSaving()"

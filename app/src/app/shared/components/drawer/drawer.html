@@ -12,7 +12,7 @@
       <!-- Panel -->
       <div
         class="fixed z-50 flex flex-col bg-white dark:bg-neutral-900
-          border-l border-neutral-200 dark:border-neutral-700 shadow-xl
+          border-l border-neutral-200 dark:border-white/10 shadow-xl
           transition-transform duration-300"
         [class.inset-y-0]="true"
         [class.right-0]="side() === 'right'"
@@ -23,7 +23,7 @@
       >
         <!-- Header -->
         <div
-          class="flex items-center justify-between px-5 py-4 border-b border-dashed border-neutral-200 dark:border-neutral-700"
+          class="flex items-center justify-between px-5 py-4 border-b border-dashed border-neutral-200 dark:border-white/10"
         >
           <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">
             {{ title() }}
@@ -41,7 +41,7 @@
         </af-scroll-area>
 
         <!-- Footer -->
-        <div class="border-t border-neutral-200 dark:border-neutral-700 px-5 py-3">
+        <div class="border-t border-neutral-200 dark:border-white/10 px-5 py-3">
           <ng-content select="[footer]" />
         </div>
       </div>

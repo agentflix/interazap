@@ -18,7 +18,7 @@
           type="button"
           [disabled]="currentPage() <= 1"
           (click)="goTo(currentPage() - 1)"
-          class="inline-flex items-center justify-center size-9 rounded-md border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          class="inline-flex items-center justify-center size-9 rounded-md border border-neutral-300 dark:border-white/[0.14] text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#191d1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
           aria-label="Página anterior"
         >
           <lucide-icon name="chevron-left" [size]="16" />
@@ -48,7 +48,7 @@
           type="button"
           [disabled]="currentPage() >= lastPage()"
           (click)="goTo(currentPage() + 1)"
-          class="inline-flex items-center justify-center size-9 rounded-md border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          class="inline-flex items-center justify-center size-9 rounded-md border border-neutral-300 dark:border-white/[0.14] text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#191d1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
           aria-label="Próxima página"
         >
           <lucide-icon name="chevron-right" [size]="16" />

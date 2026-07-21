@@ -33,6 +33,32 @@ export interface MessagePayload {
   isGroup: boolean;
   quotedMessageId?: string;
   senderPhoto?: string;
+  /**
+   * Presente quando a mensagem inbound se originou de um anúncio Click-to-WhatsApp (CTWA).
+   * Ausência do campo indica conversa iniciada organicamente (sem CTWA).
+   */
+  referral?: {
+    source_id?: string;
+    source_type?: string;
+    headline?: string;
+    ctwa_clid?: string;
+  };
+}
+
+/** Janela de atendimento (customer service window) associada a um evento de status. */
+export interface MessageWindow {
+  /** Expiracao absoluta da janela, calculada a partir do dado oficial da Meta. */
+  expiresAt: Date;
+  /** Tipo da janela: 24h (padrao) ou 72h (CTWA / referral_conversion). */
+  type: '24h' | '72h';
+}
+
+/** Erro reportado pela Meta associado a uma mensagem/status. */
+export interface MessageDeliveryError {
+  code: number;
+  title: string;
+  message?: string;
+  details?: string;
 }
 
 /** Payload normalizado de status de entrega de mensagem. */
@@ -41,6 +67,10 @@ export interface StatusPayload {
   status: 'sent' | 'delivered' | 'read' | 'failed';
   timestamp: Date;
   error?: string;
+  /** Janela de atendimento capturada de `conversation.expiration_timestamp`/`origin.type`. */
+  window?: MessageWindow;
+  /** Erros reportados pela Meta quando `status === 'failed'`. */
+  errors?: MessageDeliveryError[];
 }
 
 /** Requisicao de envio de mensagem de texto para um provedor WhatsApp. */

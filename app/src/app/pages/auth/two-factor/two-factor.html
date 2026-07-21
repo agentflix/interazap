@@ -4,13 +4,13 @@
 
       @if (isLoading()) {
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-8 flex justify-center"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-8 flex justify-center"
         >
           <lucide-icon name="loader-circle" [size]="28" class="text-neutral-400 animate-spin" />
         </div>
       } @else if (loadError()) {
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6 space-y-4"
         >
           <af-alert
             variant="danger"
@@ -21,7 +21,7 @@
         </div>
       } @else if (!status()) {
         <div
-          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6"
+          class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6"
         >
           <af-empty-state
             title="Status indisponível"
@@ -32,7 +32,7 @@
         <!-- ── STATUS step ────────────────────────────────────────────────── -->
         @if (step() === 'status') {
           <div
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6 space-y-4"
           >
             @if (errorMessage()) {
               <af-alert variant="danger" [message]="errorMessage()" />
@@ -95,7 +95,7 @@
         <!-- ── SETUP step ─────────────────────────────────────────────────── -->
         @if (step() === 'setup') {
           <div
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6 space-y-4"
           >
             <div>
               <p class="font-medium text-neutral-800 dark:text-neutral-200 mb-1">
@@ -111,7 +111,7 @@
             <div class="flex flex-col items-center gap-3">
               @if (qrCodeDataUrl()) {
                 <div
-                  class="rounded-md border border-neutral-200 dark:border-neutral-700 bg-white p-3"
+                  class="rounded-md border border-neutral-200 dark:border-white/10 bg-white p-3"
                 >
                   <img
                     [src]="qrCodeDataUrl()"
@@ -126,7 +126,7 @@
                 </p>
               } @else {
                 <div
-                  class="flex h-44 w-44 items-center justify-center rounded-md border border-dashed border-neutral-300 dark:border-neutral-700 text-xs text-neutral-500 dark:text-neutral-400"
+                  class="flex h-44 w-44 items-center justify-center rounded-md border border-dashed border-neutral-300 dark:border-white/10 text-xs text-neutral-500 dark:text-neutral-400"
                 >
                   QR Code indisponível
                 </div>
@@ -175,7 +175,7 @@
         <!-- ── VERIFY step ────────────────────────────────────────────────── -->
         @if (step() === 'verify') {
           <div
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6 space-y-4"
           >
             <div>
               <p class="font-medium text-neutral-800 dark:text-neutral-200 mb-1">
@@ -227,7 +227,7 @@
         <!-- ── RECOVERY step ──────────────────────────────────────────────── -->
         @if (step() === 'recovery') {
           <div
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6 space-y-4"
           >
             <div>
               <p class="font-medium text-neutral-800 dark:text-neutral-200 mb-1">
@@ -238,7 +238,7 @@
               </p>
             </div>
 
-            <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4">
+            <div class="bg-neutral-50 dark:bg-[#191d1a] rounded-lg p-4">
               <div class="grid grid-cols-2 gap-2">
                 @for (code of recoveryCodes(); track code) {
                   <span
@@ -287,7 +287,7 @@
         <!-- ── COMPLETE step ──────────────────────────────────────────────── -->
         @if (step() === 'complete') {
           <div
-            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-4 text-center"
+            class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-white/[0.07] p-6 space-y-4 text-center"
           >
             <div class="flex justify-center">
               <div class="w-14 h-14 rounded-full bg-success/10 flex items-center justify-center">

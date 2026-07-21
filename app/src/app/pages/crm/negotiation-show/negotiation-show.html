@@ -3,13 +3,13 @@
 
   @if (isLoading()) {
     <section
-      class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-sm"
+      class="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-6 shadow-sm"
     >
       <div class="text-sm text-neutral-500 dark:text-neutral-400">Carregando negociação...</div>
     </section>
   } @else if (errorMessage()) {
     <section
-      class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-sm"
+      class="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 p-6 shadow-sm"
     >
       <div class="rounded-lg border border-danger/20 bg-danger/10 p-4 text-sm text-danger">
         {{ errorMessage() }}
@@ -59,9 +59,9 @@
     </section>
 
     <section
-      class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900"
+      class="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900"
     >
-      <div class="border-b border-neutral-200 dark:border-neutral-700 px-6 pt-5">
+      <div class="border-b border-neutral-200 dark:border-white/10 px-6 pt-5">
         <nav class="flex flex-wrap gap-2" aria-label="Tabs">
           @for (tab of tabs; track tab.id) {
             <app-button

@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { WindowVerificationService } from './window-verification.service';
-import { type WindowStatus } from 'src/app/core/models/window-status.model';
+import { type WindowStatus, type WindowStatusApiPayload } from 'src/app/core/models/window-status.model';
 
 class HttpClientStub {
   get = vi.fn();
@@ -36,29 +36,56 @@ describe('WindowVerificationService', () => {
   });
 
   it('checkStatus() returns WindowStatus from API', () => {
-    const mockStatus: WindowStatus = {
+    const apiPayload: WindowStatusApiPayload = {
       canSendFreeText: true,
-      lastMessageAt: new Date('2026-04-11T10:00:00Z'),
+      lastMessageAt: '2026-04-11T10:00:00Z',
+      expiresAt: null,
+      windowType: null,
     };
-    http.get.mockReturnValue(of({ data: mockStatus }));
+    http.get.mockReturnValue(of({ data: apiPayload }));
 
     let result: WindowStatus | null = null;
     service.checkStatus('contact-1').subscribe((status) => {
       result = status;
     });
 
-    expect(result).toEqual(mockStatus);
+    expect(result).toEqual({
+      canSendFreeText: true,
+      lastMessageAt: new Date('2026-04-11T10:00:00Z'),
+      expiresAt: null,
+      windowType: null,
+    });
     expect(http.get).toHaveBeenCalledWith(
       'https://api.interazap.com.br/api/chat/contacts/contact-1/window-status',
     );
   });
 
-  it('checkStatus() returns cached result within stale time', () => {
-    const mockStatus: WindowStatus = {
+  it('checkStatus() parses expiresAt and windowType (72h CTWA) from API', () => {
+    const apiPayload: WindowStatusApiPayload = {
       canSendFreeText: true,
-      lastMessageAt: new Date(),
+      lastMessageAt: '2026-04-11T10:00:00Z',
+      expiresAt: '2026-04-14T10:00:00Z',
+      windowType: '72h',
     };
-    http.get.mockReturnValue(of({ data: mockStatus }));
+    http.get.mockReturnValue(of({ data: apiPayload }));
+
+    let result!: WindowStatus;
+    service.checkStatus('contact-1').subscribe((status) => {
+      result = status;
+    });
+
+    expect(result.expiresAt).toEqual(new Date('2026-04-14T10:00:00Z'));
+    expect(result.windowType).toBe('72h');
+  });
+
+  it('checkStatus() returns cached result within stale time', () => {
+    const apiPayload: WindowStatusApiPayload = {
+      canSendFreeText: true,
+      lastMessageAt: new Date().toISOString(),
+      expiresAt: null,
+      windowType: null,
+    };
+    http.get.mockReturnValue(of({ data: apiPayload }));
 
     service.checkStatus('contact-1').subscribe();
     service.checkStatus('contact-1').subscribe();
@@ -66,7 +93,7 @@ describe('WindowVerificationService', () => {
     expect(http.get).toHaveBeenCalledTimes(1);
   });
 
-  it('checkStatus() returns fallback on error', () => {
+  it('checkStatus() returns fallback (with null window fields) on error', () => {
     http.get.mockReturnValue(throwError(() => new Error('network')));
 
     let result: WindowStatus | null = null;
@@ -77,15 +104,19 @@ describe('WindowVerificationService', () => {
     expect(result).toEqual({
       canSendFreeText: false,
       lastMessageAt: null,
+      expiresAt: null,
+      windowType: null,
     });
   });
 
   it('invalidateCache() removes cached entry', () => {
-    const mockStatus: WindowStatus = {
+    const apiPayload: WindowStatusApiPayload = {
       canSendFreeText: true,
-      lastMessageAt: new Date(),
+      lastMessageAt: new Date().toISOString(),
+      expiresAt: null,
+      windowType: null,
     };
-    http.get.mockReturnValue(of({ data: mockStatus }));
+    http.get.mockReturnValue(of({ data: apiPayload }));
 
     service.checkStatus('contact-1').subscribe();
     expect(http.get).toHaveBeenCalledTimes(1);
@@ -97,11 +128,13 @@ describe('WindowVerificationService', () => {
   });
 
   it('clearCache() removes all cached entries', () => {
-    const mockStatus: WindowStatus = {
+    const apiPayload: WindowStatusApiPayload = {
       canSendFreeText: true,
-      lastMessageAt: new Date(),
+      lastMessageAt: new Date().toISOString(),
+      expiresAt: null,
+      windowType: null,
     };
-    http.get.mockReturnValue(of({ data: mockStatus }));
+    http.get.mockReturnValue(of({ data: apiPayload }));
 
     service.checkStatus('contact-1').subscribe();
     service.checkStatus('contact-2').subscribe();

@@ -25,7 +25,7 @@ return new class extends Migration
 
         // Add unique index only if it doesn't already exist
         $indexExists = collect(Schema::getIndexes('auth_users'))
-            ->contains(fn ($index) => $index['name'] === 'uq_provider');
+            ->contains(fn ($index): bool => $index['name'] === 'uq_provider');
 
         if (! $indexExists) {
             Schema::table('auth_users', function (Blueprint $table): void {
@@ -42,7 +42,7 @@ return new class extends Migration
 
             // Drop index before columns
             $indexExists = collect(Schema::getIndexes('auth_users'))
-                ->contains(fn ($index) => $index['name'] === 'uq_provider');
+                ->contains(fn ($index): bool => $index['name'] === 'uq_provider');
 
             if ($indexExists) {
                 $table->dropUnique('uq_provider');

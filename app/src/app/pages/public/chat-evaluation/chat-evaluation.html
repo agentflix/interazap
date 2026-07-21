@@ -4,7 +4,7 @@
     >
       @if (isLoading()) {
         <section
-          class="w-full max-w-lg rounded-xl border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-sm"
+          class="w-full max-w-lg rounded-xl border border-hairline dark:border-white/10 bg-white dark:bg-neutral-900 p-6 shadow-sm"
         >
           <af-skeleton variant="text" width="60%" height="28px" />
           <af-skeleton variant="text" width="90%" height="16px" class="mt-2" />
@@ -23,7 +23,7 @@
         />
       } @else if (alreadySubmitted()) {
         <section
-          class="w-full max-w-lg rounded-xl border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-sm text-center"
+          class="w-full max-w-lg rounded-xl border border-hairline dark:border-white/10 bg-white dark:bg-neutral-900 p-6 shadow-sm text-center"
         >
           <div
             class="mx-auto flex size-16 items-center justify-center rounded-full bg-accent-500/10 text-accent-500"
@@ -47,7 +47,7 @@
         </section>
       } @else if (submitted()) {
         <section
-          class="w-full max-w-lg rounded-xl border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-sm text-center"
+          class="w-full max-w-lg rounded-xl border border-hairline dark:border-white/10 bg-white dark:bg-neutral-900 p-6 shadow-sm text-center"
         >
           <div
             class="mx-auto flex size-16 items-center justify-center rounded-full bg-accent-500/10 text-accent-500"
@@ -71,7 +71,7 @@
         </section>
       } @else {
         <section
-          class="w-full max-w-lg rounded-xl border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 shadow-sm"
+          class="w-full max-w-lg rounded-xl border border-hairline dark:border-white/10 bg-white dark:bg-neutral-900 p-6 shadow-sm"
         >
           <h1 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
             Como foi seu atendimento?
@@ -113,7 +113,7 @@
             </label>
             <textarea
               id="comment"
-              class="w-full rounded-lg border border-hairline dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/30 focus:outline-none"
+              class="w-full rounded-lg border border-hairline dark:border-white/10 bg-white dark:bg-[#191d1a] px-3 py-2 text-sm text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/30 focus:outline-none"
               rows="4"
               placeholder="Conte mais sobre sua experiência"
               maxlength="1000"

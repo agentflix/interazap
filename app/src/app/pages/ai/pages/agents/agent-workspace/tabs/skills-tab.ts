@@ -135,7 +135,7 @@ export class AgentSkillsTabComponent implements OnInit {
     };
     return (
       classes[safeType] ??
-      'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
+      'bg-neutral-100 text-neutral-600 dark:bg-[#191d1a] dark:text-neutral-400'
     );
   }
 

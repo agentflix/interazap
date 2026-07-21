@@ -45,6 +45,14 @@
           "mainEntity": [
             {
               "@type": "Question",
+              "name": "Consigo ver o InteraZap funcionando antes de assinar?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sim. Você testa a IA agora mesmo no chat deste site, sem cadastro, e pode agendar uma demonstração para ver o Autopiloto na sua operação. Você só assina quando fizer sentido — planos mensais, sem fidelidade."
+              }
+            },
+            {
+              "@type": "Question",
               "name": "Preciso instalar algum software?",
               "acceptedAnswer": {
                 "@type": "Answer",
@@ -126,6 +134,27 @@
           ]
         }
         </script>
+
+        <!-- TRACKING SCAFFOLD (Meta Pixel + GA4) — gated por consentimento -->
+        <script>
+        (function(){
+          function consentAll(){ try{ var d=JSON.parse(localStorage.getItem('iz_cookie_consent')); return d && d.consent==='all'; }catch(_){ return false; } }
+          window.izTracking = { pixelId:'[INSERIR_META_PIXEL_ID]', ga4Id:'[INSERIR_GA4_ID]', loaded:false };
+          window.izLoadTracking = function(){
+            if (window.izTracking.loaded) return;
+            if (!consentAll()) return;
+            window.izTracking.loaded = true;
+            // Meta Pixel
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', window.izTracking.pixelId); fbq('track','PageView');
+            // GA4
+            var g=document.createElement('script'); g.async=true; g.src='https://www.googletagmanager.com/gtag/js?id='+window.izTracking.ga4Id; document.head.appendChild(g);
+            window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments)}; gtag('js', new Date()); gtag('config', window.izTracking.ga4Id);
+          };
+          // tenta carregar já (se consent salvo) e expõe pra ser chamado quando o usuário aceitar todos
+          document.addEventListener('DOMContentLoaded', function(){ window.izLoadTracking(); });
+        })();
+        </script>
     </head>
     <body>
         <!-- NAVBAR -->
@@ -139,7 +168,7 @@
                     <a href="#casos">Casos de uso</a>
                     <a href="#como">Como funciona</a>
                     <a href="#precos">Preços</a>
-                    <a href="#precos" class="nav-cta" data-iz-demo-cta="true">Demonstração gratuita</a>
+                    <a href="#precos" class="nav-cta" data-iz-demo-cta="true">Agendar demonstração</a>
                 </div>
                 <button
                     id="nav-menu-btn"
@@ -168,7 +197,7 @@
                 <a href="#casos" class="nav-mobile-link">Casos de uso</a>
                 <a href="#como" class="nav-mobile-link">Como funciona</a>
                 <a href="#precos" class="nav-mobile-link">Preços</a>
-                <a href="#precos" class="nav-mobile-cta" data-iz-demo-cta="true">Demonstração gratuita</a>
+                <a href="#precos" class="nav-mobile-cta" data-iz-demo-cta="true">Agendar demonstração</a>
             </div>
         </nav>
 
@@ -200,12 +229,13 @@
             <div class="hero-inner">
                 <div class="hero-copy">
                     <div class="hero-badge">
-                        <span class="hero-badge-dot"></span>Autopiloto com IA para WhatsApp · Feito no Brasil
+                        <span class="hero-badge-dot"></span>Atendente virtual com IA para WhatsApp · Feito no Brasil
                     </div>
-                    <h1 class="hero-headline">Seu WhatsApp em modo Autopiloto com IA para <em>vender e atender melhor.</em></h1>
+                    <h1 class="hero-headline">Responde na hora. Entende o cliente. <em>Não para às 18h.</em></h1>
                     <p class="hero-sub">
-                        O InteraZap organiza conversas, automatiza dúvidas repetitivas, acompanha leads no CRM e ajuda
-                        sua equipe a responder com mais contexto, controle e atendimento humano quando necessário.
+                        O InteraZap atende seu WhatsApp automaticamente: responde na hora, entende o que o cliente
+                        quer, tira dúvidas e qualifica cada conversa — a qualquer hora do dia ou da noite — e passa pra
+                        sua equipe quando a conversa precisa de uma pessoa.
                     </p>
                     <div class="hero-ctas">
                         <a href="#precos" class="btn-primary" data-iz-demo-cta="true">
@@ -221,18 +251,19 @@
                             </svg>
                             Agendar demonstração
                         </a>
-                        <a href="#demo" class="btn-ghost">
+                        <a class="btn-ghost" data-iz-demo-cta="true">
                             <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M8 5.14v14l11-7-11-7z" />
                             </svg>
-                            Ver demo em 3 minutos
+                            Testar a IA agora
                         </a>
                     </div>
+                    <p class="hero-cta-micro">Veja a IA atendendo agora · Demonstração sem compromisso</p>
                     <div class="hero-trust">
                         <div class="hero-trust-item">
                             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg
-                            >Cobrança mensal recorrente
+                            >Demonstração sem compromisso
                         </div>
                         <div class="hero-trust-item">
                             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -286,6 +317,16 @@
             </div>
         </section>
 
+        <!-- FAIXA DE PROVA -->
+        <section id="prova-faixa" class="proof-strip">
+            <div class="proof-strip-inner">
+                <div class="ps-item"><strong>[INSERIR nº]</strong><span>empresas no autopiloto</span></div>
+                <div class="ps-item"><strong>[INSERIR %]</strong><span>das dúvidas sem humano</span></div>
+                <div class="ps-item"><strong>[INSERIR X min]</strong><span>de resposta média</span></div>
+                <div class="ps-item"><strong>Brasil · LGPD</strong><span>dados no país</span></div>
+            </div>
+        </section>
+
         <!-- TRUST BAR — ⚠️ Trocar .tb-logo pelos <img> reais -->
         <div id="trust-bar">
             <div class="trust-bar-inner">
@@ -305,37 +346,53 @@
             <div class="section-inner">
                 <div class="section-header">
                     <div class="eyebrow">O problema</div>
-                    <h2 class="section-title">Quando o WhatsApp cresce sem processo,<br />sua equipe perde contexto.</h2>
+                    <h2 class="section-title">Todo dia, cliente chamando —<br />e resposta que não chega a tempo.</h2>
                     <p class="section-sub">
-                        Leads ficam sem retorno, conversas importantes se misturam com dúvidas simples e oportunidades
-                        podem parar no funil por falta de organização.
+                        Quando o atendimento depende de alguém disponível, mensagem fica sem resposta, o cliente espera
+                        e a conversa esfria.
                     </p>
                 </div>
                 <div class="pain-grid">
                     <div class="pain-card">
                         <div class="pain-num">01</div>
-                        <div class="pain-title">Leads podem ficar sem retorno.</div>
+                        <div class="pain-title">Cliente chama fora do horário.</div>
                         <div class="pain-text">
-                            Quando a resposta demora ou a conversa não tem dono, a oportunidade esfria e o próximo
-                            passo fica sem acompanhamento.
+                            Chega mensagem à noite, no fim de semana, na hora do almoço. Quando alguém vê, o cliente já
+                            esperou horas — ou desistiu.
                         </div>
                     </div>
                     <div class="pain-card">
                         <div class="pain-num">02</div>
-                        <div class="pain-title">O atendimento repetitivo toma tempo.</div>
+                        <div class="pain-title">A resposta demora e o cliente esfria.</div>
                         <div class="pain-text">
-                            "Qual o preço?" "Tem disponível?" "Como funciona?" As mesmas perguntas dezenas de vezes por
-                            dia, ocupando quem deveria estar fechando vendas.
+                            Alguns minutos parado já bastam pro cliente perder o interesse ou procurar outro lugar.
+                            Atendimento lento custa conversa.
                         </div>
                     </div>
                     <div class="pain-card">
                         <div class="pain-num">03</div>
-                        <div class="pain-title">Sem histórico, sem contexto, sem funil claro.</div>
+                        <div class="pain-title">Tudo depende de ter gente disponível.</div>
                         <div class="pain-text">
-                            Conversas no celular pessoal, sem contexto. Quando o lead avança, ninguém sabe o que foi
-                            prometido. O negócio escorrega por falta de informação.
+                            Equipe sobrecarregada respondendo sempre as mesmas perguntas, atendimento desigual e
+                            mensagens ficando no vácuo quando o time não dá conta.
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MECANISMO ÚNICO -->
+        <section id="mecanismo" class="section">
+            <div class="section-inner">
+                <div class="section-header">
+                    <div class="eyebrow">Como o InteraZap resolve</div>
+                    <h2 class="section-title">Atende na hora, entende o cliente<br />e chama você quando precisa.</h2>
+                    <p class="section-sub">Um atendente virtual com IA que atende de verdade, entende o cliente e sabe a hora de passar pra uma pessoa — não um robô de respostas prontas.</p>
+                </div>
+                <div class="mech-grid">
+                    <div class="mech-card"><div class="mech-num">1</div><div class="mech-title">Atende e responde na hora</div><div class="mech-text">Responde toda conversa em segundos, 24 horas por dia — inclusive fora do expediente e no fim de semana.</div></div>
+                    <div class="mech-card"><div class="mech-num">2</div><div class="mech-title">Entende e qualifica</div><div class="mech-text">Entende o que o cliente quer, tira dúvidas com base no seu conteúdo e organiza a conversa no CRM.</div></div>
+                    <div class="mech-card"><div class="mech-num">3</div><div class="mech-title">Passa pro humano quando precisa</div><div class="mech-text">Quando a conversa pede uma pessoa, transfere pra sua equipe com todo o contexto pronto — sem o cliente repetir nada.</div></div>
                 </div>
             </div>
         </section>
@@ -345,10 +402,10 @@
             <div class="section-inner">
                 <div class="section-header">
                     <div class="eyebrow">A solução</div>
-                    <h2 class="section-title">Autopiloto com IA para WhatsApp,<br />com sua equipe no controle.</h2>
+                    <h2 class="section-title">Seu WhatsApp atendido na hora,<br />sem depender de alguém o tempo todo.</h2>
                     <p class="section-sub">
-                        Não é apenas chatbot, CRM ou sistema de atendimento. É uma plataforma que combina IA, automação
-                        e histórico para ajudar sua equipe a vender e atender melhor.
+                        O InteraZap assume o atendimento repetitivo e mantém o cliente respondido. Sua equipe entra
+                        quando a conversa precisa de gente.
                     </p>
                 </div>
                 <div class="agent-grid">
@@ -369,10 +426,9 @@
                                 />
                             </svg>
                         </div>
-                        <div class="agent-title">Identificação de intenção de compra</div>
+                        <div class="agent-title">Responde na hora, 24/7</div>
                         <div class="agent-text">
-                            A IA ajuda a entender quando uma conversa tem potencial comercial e sinaliza leads que
-                            merecem prioridade.
+                            Toda mensagem recebe resposta na hora, a qualquer hora — sem cliente esperando.
                         </div>
                     </div>
                     <div class="agent-card">
@@ -392,10 +448,9 @@
                                 />
                             </svg>
                         </div>
-                        <div class="agent-title">Respostas com base no seu conteúdo</div>
+                        <div class="agent-title">Responde com base no seu conteúdo</div>
                         <div class="agent-text">
-                            Conecte produtos, tabelas, FAQs e documentos para apoiar respostas mais consistentes no
-                            WhatsApp.
+                            Conecte produtos, tabelas, preços e FAQs para a IA responder certo, do seu jeito.
                         </div>
                     </div>
                     <div class="agent-card">
@@ -415,10 +470,10 @@
                                 />
                             </svg>
                         </div>
-                        <div class="agent-title">CRM conectado ao WhatsApp</div>
+                        <div class="agent-title">Entende o que o cliente quer</div>
                         <div class="agent-text">
-                            Conversas viram contatos, leads e oportunidades acompanhadas com histórico, etapa e próximo
-                            passo.
+                            Lê a conversa e identifica o que a pessoa precisa, para dar a resposta certa e agilizar o
+                            atendimento.
                         </div>
                     </div>
                     <div class="agent-card">
@@ -438,10 +493,10 @@
                                 />
                             </svg>
                         </div>
-                        <div class="agent-title">Detecção de sentimento e urgência</div>
+                        <div class="agent-title">Qualifica a conversa</div>
                         <div class="agent-text">
-                            O Autopiloto ajuda a perceber sinais de frustração, urgência ou interesse para orientar a
-                            prioridade da equipe.
+                            Organiza cada contato no CRM, com histórico e etapa, para sua equipe saber com quem está
+                            falando.
                         </div>
                     </div>
                     <div class="agent-card">
@@ -461,10 +516,9 @@
                                 />
                             </svg>
                         </div>
-                        <div class="agent-title">IA como apoio da equipe</div>
+                        <div class="agent-title">Agiliza o repetitivo</div>
                         <div class="agent-text">
-                            Acompanhe sugestões, respostas e próximos passos com mais clareza, mantendo a equipe no
-                            controle.
+                            As mesmas perguntas de sempre respondidas na hora, liberando sua equipe do operacional.
                         </div>
                     </div>
                     <div class="agent-card">
@@ -484,10 +538,9 @@
                                 />
                             </svg>
                         </div>
-                        <div class="agent-title">Humano assume quando necessário</div>
+                        <div class="agent-title">Chama o humano na hora certa</div>
                         <div class="agent-text">
-                            Quando o agente detecta que precisa de um humano, a conversa é transferida com todo o
-                            contexto já disponível — sem repetição.
+                            Quando a conversa precisa de uma pessoa, transfere com o contexto pronto — sem repetição.
                         </div>
                     </div>
                 </div>
@@ -506,7 +559,14 @@
                 </div>
                 <div class="cases-grid">
                     <div class="case-card">
-                        <div class="case-icon">🏢</div>
+                        <div class="case-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+                                <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+                                <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+                                <path d="M10 6h4" /><path d="M10 10h4" /><path d="M10 14h4" /><path d="M10 18h4" />
+                            </svg>
+                        </div>
                         <div class="case-title">Imobiliárias</div>
                         <div class="case-text">
                             Qualifica interesse, pergunta sobre faixa de preço e localização, agenda visita e cria o
@@ -514,7 +574,14 @@
                         </div>
                     </div>
                     <div class="case-card">
-                        <div class="case-icon">🏥</div>
+                        <div class="case-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M11 2v2" /><path d="M5 2v2" />
+                                <path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1" />
+                                <path d="M8 15a6 6 0 0 0 12 0v-3" />
+                                <circle cx="20" cy="10" r="2" />
+                            </svg>
+                        </div>
                         <div class="case-title">Clínicas e saúde</div>
                         <div class="case-text">
                             Organiza dúvidas, agendamentos, retornos e histórico de pacientes pelo WhatsApp com apoio
@@ -522,7 +589,12 @@
                         </div>
                     </div>
                     <div class="case-card">
-                        <div class="case-icon">🛒</div>
+                        <div class="case-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
+                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                            </svg>
+                        </div>
                         <div class="case-title">E-commerce</div>
                         <div class="case-text">
                             Apoia dúvidas sobre produtos, pedidos e trocas, mantendo histórico e sinalizando conversas
@@ -530,7 +602,11 @@
                         </div>
                     </div>
                     <div class="case-card">
-                        <div class="case-icon">💻</div>
+                        <div class="case-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16" />
+                            </svg>
+                        </div>
                         <div class="case-title">SaaS e serviços</div>
                         <div class="case-text">
                             Ajuda a organizar dúvidas, trial, documentação e oportunidades para o time comercial ou de
@@ -762,35 +838,34 @@
                 <div class="how-layout">
                     <div>
                         <div class="eyebrow">Como funciona</div>
-                        <h2 class="section-title">Do primeiro contato ao CRM<br />com mais contexto.</h2>
+                        <h2 class="section-title">Do contato ao CRM,<br />com mais contexto.</h2>
                         <div class="steps-list">
                             <div class="step">
                                 <div class="step-num">1</div>
                                 <div>
-                                    <div class="step-title">Cliente chama no WhatsApp</div>
+                                    <div class="step-title">Cliente chama no WhatsApp — a qualquer hora</div>
                                     <div class="step-text">
-                                        Conecte o WhatsApp e centralize conversas em uma inbox com histórico e contexto
-                                        para sua equipe.
+                                        Conecte seu WhatsApp e a IA passa a responder toda conversa na hora, dia e noite.
                                     </div>
                                 </div>
                             </div>
                             <div class="step">
                                 <div class="step-num">2</div>
                                 <div>
-                                    <div class="step-title">A IA entende a conversa</div>
+                                    <div class="step-title">A IA responde e entende o cliente</div>
                                     <div class="step-text">
-                                        Configure produtos, FAQs e regras para que a IA identifique intenção, sentimento
-                                        e possíveis próximos passos.
+                                        Tira dúvidas com base no seu conteúdo, entende o que a pessoa precisa e qualifica
+                                        a conversa.
                                     </div>
                                 </div>
                             </div>
                             <div class="step">
                                 <div class="step-num">3</div>
                                 <div>
-                                    <div class="step-title">O Autopiloto organiza, responde ou sinaliza</div>
+                                    <div class="step-title">Sua equipe entra quando precisa</div>
                                     <div class="step-text">
-                                        O InteraZap automatiza o repetitivo, atualiza o CRM e sinaliza quando um humano
-                                        deve assumir a conversa.
+                                        A IA resolve o repetitivo e passa pra um humano quando a conversa pede — com todo
+                                        o contexto.
                                     </div>
                                 </div>
                             </div>
@@ -1140,6 +1215,17 @@
             </div>
         </section>
 
+        <!-- GARANTIA -->
+        <section id="garantia" class="guarantee">
+            <div class="guarantee-inner">
+                <div class="guarantee-badge">🛡️</div>
+                <h2>Veja funcionando antes de decidir.</h2>
+                <p>Você não assina no escuro. Teste a IA agora mesmo no chat aqui do site — sem cadastro e sem cartão — e agende uma demonstração para ver o Autopiloto na sua operação real.</p>
+                <p>Quando fizer sentido, você entra num plano mensal, sem contrato de fidelidade e sem multa. Cancela quando quiser, direto pelo painel.</p>
+                <p class="guarantee-foot">Sem fidelidade · Cancele quando quiser · Planos mensais</p>
+            </div>
+        </section>
+
         <!-- DEPOIMENTOS -->
         <section id="depoimentos" class="section">
             <div class="section-inner">
@@ -1191,6 +1277,73 @@
             </div>
         </section>
 
+        <!-- OBJEÇÕES -->
+        <section id="objecoes" class="section">
+            <div class="section-inner">
+                <div class="section-header" style="text-align: center">
+                    <div class="eyebrow" style="justify-content: center">Ainda em dúvida?</div>
+                    <h2 class="section-title">A gente já ouviu essa.</h2>
+                </div>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <button class="faq-question" aria-expanded="false">
+                            <span>A IA vai responder besteira pro meu cliente?</span>
+                            <svg class="faq-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer" role="region">
+                            <p>Ela só responde dentro do que você configura: seus produtos, suas regras, suas FAQs. No que foge disso, não inventa — sinaliza e passa pro seu time. Você decide o quanto ela age sozinha.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" aria-expanded="false">
+                            <span>Minha equipe não vai querer usar mais uma ferramenta.</span>
+                            <svg class="faq-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer" role="region">
+                            <p>É o contrário: a IA tira delas a parte chata (o repetitivo). O time abre o InteraZap e vê só o que importa, com contexto pronto. Menos trabalho manual, não mais.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" aria-expanded="false">
+                            <span>Já tenho um chatbot / outra ferramenta.</span>
+                            <svg class="faq-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer" role="region">
+                            <p>Chatbot segue fluxo. O InteraZap entende intenção e sentimento e decide sozinho quando te chamar. É a diferença entre um formulário automático e um vendedor que lê a conversa. Veja a IA funcionando agora no chat do site e compare lado a lado.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" aria-expanded="false">
+                            <span>É caro?</span>
+                            <svg class="faq-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer" role="region">
+                            <p>Uma venda perdida por demora custa mais que uma mensalidade. O InteraZap começa em R$97, com planos mensais e sem fidelidade. E você vê a IA funcionando antes de assinar.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" aria-expanded="false">
+                            <span>Meu número vai ser banido?</span>
+                            <svg class="faq-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer" role="region">
+                            <p>Você conecta pela API Oficial da Meta (Cloud API) ou integrações homologadas. Dados no Brasil, LGPD.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- FAQ -->
         <section id="faq" class="section">
             <div class="section-inner">
@@ -1202,6 +1355,17 @@
                     </p>
                 </div>
                 <div class="faq-list">
+                    <div class="faq-item">
+                        <button class="faq-question" aria-expanded="false">
+                            <span>Consigo ver o InteraZap funcionando antes de assinar?</span>
+                            <svg class="faq-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer" role="region">
+                            <p>Sim. Você testa a IA agora mesmo no chat deste site, sem cadastro, e pode agendar uma demonstração para ver o Autopiloto na sua operação. Você só assina quando fizer sentido — planos mensais, sem fidelidade.</p>
+                        </div>
+                    </div>
                     <div class="faq-item">
                         <button class="faq-question" aria-expanded="false">
                             <span>Preciso instalar algum software?</span>
@@ -1277,7 +1441,7 @@
             <div class="final-inner">
                 <h2>Pronto para colocar seu WhatsApp em modo Autopiloto com IA?</h2>
                 <p>Organize conversas, leads e atendimentos com mais contexto e sua equipe no controle.</p>
-                <a href="#precos" class="btn-white"
+                <a href="#precos" class="btn-white" data-iz-demo-cta="true"
                     >Agendar demonstração
                     <svg
                         width="16"
@@ -1306,6 +1470,7 @@
                         >Cancele quando quiser
                     </div>
                 </div>
+                <p class="final-ps"><strong>P.S.</strong> — Enquanto você lê isto, tem conversa esperando resposta no seu WhatsApp. Uma delas pode ser a venda do mês. O InteraZap põe a IA pra atender, qualificar e te chamar na hora certa — e você vê funcionando no chat antes de assinar. O único jeito de perder essa venda é continuar respondendo tudo na mão.</p>
             </div>
         </section>
 
@@ -2005,6 +2170,7 @@
                             .then(function (res) {
                                 if (!res.ok) throw Object.assign(new Error('http_error'), { status: res.status });
                                 markLeadSubmitted();
+                                try{ window.dispatchEvent(new CustomEvent('iz:lead_submitted_success')); }catch(_){}
                                 exitFormWrapper.style.display = 'none';
                                 exitSuccess.classList.add('show');
                                 setTimeout(closeModal, 4000);
@@ -2076,6 +2242,7 @@
                     if (btnAll)
                         btnAll.addEventListener('click', function () {
                             setConsent('all');
+                            if (window.izLoadTracking) window.izLoadTracking();
                             hideBanner();
                         });
                     if (btnEssential)
@@ -2144,6 +2311,94 @@
                     }
                 });
             });
+        })();
+        </script>
+
+        <!-- STICKY MOBILE CTA -->
+        <a id="sticky-cta" class="sticky-cta" data-iz-demo-cta="true" href="#precos">Agendar demonstração</a>
+
+        <!-- CONVERSION EVENTS JS -->
+        <script>
+        (function(){
+          function fire(){ try{ if(window.fbq) fbq('track','Contact'); if(window.gtag) gtag('event','contact'); }catch(_){}}
+          document.addEventListener('click', function(e){ var t=e.target.closest && e.target.closest('[data-iz-demo-cta]'); if(t) fire(); }, true);
+          // Lead capture (exit form success): observa o container de sucesso do modal
+          window.addEventListener('iz:lead_submitted_success', function(){ try{ if(window.fbq) fbq('track','Lead'); if(window.gtag) gtag('event','generate_lead'); }catch(_){}});
+        })();
+        </script>
+
+        <!-- HERO MOCKUP — conversa animada ao vivo -->
+        <script>
+        (function () {
+            'use strict';
+            var body = document.querySelector('#hero .mockup-body');
+            var mockup = document.querySelector('#hero .mockup');
+            if (!body || !mockup) return;
+
+            var m1 = body.querySelector('.m1');
+            var reasoning = body.querySelector('.reasoning');
+            var m2 = body.querySelector('.m2');
+            var notif = body.querySelector('.notif');
+            var steps = [m1, reasoning, m2, notif].filter(Boolean);
+            if (steps.length < 4) return;
+
+            body.classList.add('iz-anim');
+
+            function makeTyping(kind) {
+                var w = document.createElement('div');
+                w.className = 'msg ' + (kind === 'in' ? 'msg-in' : 'msg-out') + ' iz-typingmsg';
+                w.innerHTML = '<div class="msg-bubble"><div class="iz-typing"><span></span><span></span><span></span></div></div>';
+                w.style.display = 'none';
+                return w;
+            }
+            var typeIn = makeTyping('in');
+            var typeOut = makeTyping('out');
+            m1.parentNode.insertBefore(typeIn, m1);
+            m2.parentNode.insertBefore(typeOut, m2);
+
+            function toBottom() { body.scrollTop = body.scrollHeight; }
+            function hide(el) { el.style.display = 'none'; el.classList.remove('iz-reveal'); }
+            function show(el) { el.style.display = ''; void el.offsetWidth; el.classList.add('iz-reveal'); toBottom(); }
+            function showTyping(t) { t.style.display = ''; toBottom(); }
+            function resetAll() {
+                steps.forEach(hide);
+                typeIn.style.display = 'none';
+                typeOut.style.display = 'none';
+                body.scrollTop = 0;
+            }
+
+            var timers = [];
+            function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+
+            function play() {
+                // roda UMA vez, sem loop, num ritmo mais calmo
+                at(900, function () { showTyping(typeIn); });                          // cliente digitando
+                at(3000, function () { typeIn.style.display = 'none'; show(m1); });     // pergunta aparece
+                at(4200, function () { show(reasoning); });                            // raciocínio da IA
+                at(5600, function () { showTyping(typeOut); });                        // IA digitando
+                at(8000, function () { typeOut.style.display = 'none'; show(m2); });    // resposta da IA
+                at(9200, function () { show(notif); });                                // oportunidade sinalizada
+            }
+
+            var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduce) {
+                steps.forEach(function (e) { e.style.display = ''; });
+                typeIn.remove();
+                typeOut.remove();
+                return;
+            }
+
+            resetAll();
+            var played = false;
+            var io = new IntersectionObserver(function (entries) {
+                var e = entries[0];
+                if (e && e.isIntersecting && !played) {
+                    played = true;
+                    io.disconnect();
+                    play();
+                }
+            }, { threshold: 0.4 });
+            io.observe(mockup);
         })();
         </script>
     </body>

@@ -3,7 +3,11 @@
  */
 import { WebhookEventDto } from '../dto/webhook-event.dto';
 import { UazapiProvider } from '../providers/uazapi/uazapi.provider';
-import { NormalizedTemplateStatusPayload } from '../contracts/provider.interface';
+import {
+  MessageDeliveryError,
+  MessageWindow,
+  NormalizedTemplateStatusPayload,
+} from '../contracts/provider.interface';
 
 /** Base compartilhada por todos os payloads de stream do chat. */
 export type StreamPayloadBase = {
@@ -47,6 +51,15 @@ export type ZapiStreamPayload = StreamPayloadBase & {
     isGroup?: boolean;
     senderPhoto?: string;
     status?: string;
+    /** ID (wamid) da mensagem citada — vindo de `messages[].context.id` (Meta). */
+    quotedMessageId?: string;
+    /** Dados do anúncio Click-to-WhatsApp (CTWA) quando a mensagem se originou de um. */
+    referral?: {
+      source_id?: string;
+      source_type?: string;
+      headline?: string;
+      ctwa_clid?: string;
+    };
   };
   /** Dados de status de entrega quando o evento for de atualizacao de status. */
   status?: {
@@ -55,6 +68,10 @@ export type ZapiStreamPayload = StreamPayloadBase & {
     timestamp?: string | Date;
     error?: string;
     connected?: boolean;
+    /** Janela de atendimento (24h/72h) capturada de `conversation` (Meta). */
+    window?: MessageWindow;
+    /** Erros de entrega reportados pela Meta quando `status === 'failed'`. */
+    errors?: MessageDeliveryError[];
   };
   /** Dados de conexao quando o evento for de conexao/desconexao. */
   connection?: {

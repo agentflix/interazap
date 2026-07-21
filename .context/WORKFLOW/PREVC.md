@@ -2,117 +2,124 @@
 
 **PREVC:** Pré-Planning → Review → Execution → Validation → Confirm
 
+O ORCHESTRATOR é o ponto de entrada padrão: recebe o pedido, classifica o escopo e delega.
+Nenhum agent implementa fora da fase que lhe pertence.
+
+---
+
+## Roteamento inicial (ORCHESTRATOR)
+
+| Escopo do pedido | Rota |
+|---|---|
+| Ideia nova, feature, mudança de arquitetura | PLANNER via `/prevec-decompose-plan` |
+| Feature já decomposta em tasks | BUILDER via `/prevec-execute-task` |
+| 1–2 arquivos, um único bounded context, sem arquivo novo | VIBE-CODER |
+| Código pronto aguardando revisão | REVIEWER |
+
+> Regra: 3+ arquivos, múltiplos bounded contexts ou criação de arquivos → sempre passa pelo planejamento formal.
+
 ---
 
 ## Fases
 
-### PRÉ-PLANNING
-**Agent:** PLANNER (modo BRANDING)
-**Quando:** Ideia bruta sem escopo definido
-**Output:** PRD em `.context/DOCS/PRDS/NNNN-PRD-<topic>.md`
-
-```
-/prevec-new-plan [ideia]
-```
-
----
-
-### PLANNING
-**Agent:** PLANNER (modo PM + ARCHITECT + DESIGNER)
-**Quando:** PRD aprovado
-**Output:**
+### PLANNING — PLANNER
+**Entrada:** ideia bruta ou PRD existente
+**Comando:** `/prevec-decompose-plan [ideia|prd]`
+**Saída (o que for pedido no início da skill):**
+- PRD em `.context/DOCS/PRDS/NNNN-PRD-<topic-kebab>.md`
 - Feature doc em `.context/DOCS/FEATURES/[feature].md`
-- Tasks em `.context/DOCS/TASKS/[feature]-tasks.md`
-- Design (se Frontend) em `.context/DESIGN/[feature]-*.md`
+- Tasks T.A.C.E por fase em `.context/DOCS/TASKS/[feature]-tasks.md`
+- Design em `.context/DESIGN/[feature]-[tipo].md` quando houver UI
 
-```
-/prevec-decompose-plan [prd]
-/prevec-decompose-task [feature]
-```
+A skill é o ponto de entrada unificado — absorve `/prevec-new-plan` e `/prevec-decompose-task`,
+que permanecem disponíveis como atalhos para etapas isoladas.
 
 ---
 
-### REVIEW (pré-execução)
-**Agent:** REVIEWER (modo REVIEW)
-**Quando:** Feature doc e tasks prontas
-**Output:** Feature doc e tasks aprovados ou com lista de ajustes
+### REVIEW (pré-execução) — REVIEWER → reviewer-doc
+**Quando:** feature doc e tasks prontas, antes de qualquer código
+**Verifica:** completude do T.A.C.E, consistência com `.context/ARCHITECTURE/`, ordem e dependências entre tasks
+**Saída:** aprovado, ou lista de ajustes de volta para o PLANNER
 
 ---
 
-### EXECUTION (por task)
-**Agent:** BUILDER
-**Quando:** Feature doc e tasks aprovados pelo REVIEWER
-**Output:** Código implementado + BUILDER Log no session
+### EXECUTION (por task) — BUILDER
+**Comando:** `/prevec-execute-task [feature] TASK-X.Y.Z`
+**Saída:** código implementado + BUILDER Log no session file da feature
 
-```
-/prevec-execute-task [feature] TASK-X.Y.Z
-```
+O BUILDER é um router:
 
-Repetir para todas as tasks da fase. Sem testes por task.
+| Subagent | Quando |
+|---|---|
+| `builder-explore` | precisa entender o código antes de escrever — mapeia canônicos e padrões |
+| `builder-write` | plano claro, arquivos mapeados — escreve código, migrations, componentes, testes |
+| `builder-debug` | `builder-write` falhou, bug multifatorial ou causa raiz não óbvia |
 
----
-
-### PHASE-CLOSE (por fase)
-**Agent:** —
-**Quando:** Todas as tasks da fase estão implementadas
-**Output:** Testes da fase ✅ + commit da fase + (última fase: review + gates + PR)
-
-```
-/prevec-phase-close [feature] [N]
-```
-
-Gates da fase:
-- API: `composer gate:fast`
-- Gateway: `pnpm --filter gateway test` + `pnpm --filter gateway build`
-- App: `pnpm --filter app test` + `pnpm --filter app build`
-
-Se testes falharem → BUILDER corrige → rodar novamente.
-
-**Última fase:** review automático com 7 subagents + `composer gate:all` + Builder fix loop + PR.
+Sem testes por task — os testes rodam no fechamento da fase.
 
 ---
 
-### VALIDATION + CONFIRM (embutidos em phase-close)
+### PHASE-CLOSE (por fase) — REVIEWER
+**Comando:** `/prevec-phase-close [feature] [N]`
+**Saída:** testes da fase ✅ + 1 commit por fase; na última fase também review completo, gates e PR
 
-Não são mais comandos separados por task.
-- Validação: executada pelo phase-close na última fase (7 subagents)
-- Confirmação: fase intermediária = commit da fase; última fase = PR
+Gates da fase (só a camada tocada):
+
+| Camada | Comando |
+|---|---|
+| api | `cd api && composer gate:fast` |
+| gateway | `pnpm --filter gateway test && pnpm --filter gateway build` |
+| app | `pnpm --filter app test:run && pnpm --filter app build` |
+
+Falhou → volta para o BUILDER → roda de novo. Fase não fecha com gate vermelho.
+
+**Última fase:** `reviewer-code` executa `code-review-confiavel` com 7 subagents +
+`cd api && composer gate:all` + loop de correção do BUILDER + abertura do PR.
+
+---
+
+### VALIDATION + CONFIRM
+Embutidos no `phase-close`. Não existem mais como comandos por task.
+- Validação: 7 subagents na última fase, em subagent distinto para não contaminar contexto
+- Confirmação: fase intermediária = commit; última fase = PR
+
+> `/prevec-review-execution` e `/prevec-finalize-execution` continuam disponíveis para
+> revisar ou fechar uma task isolada fora do fluxo de fases.
 
 ---
 
 ## Checklist de PHASE-CLOSE (obrigatório)
 
-- [ ] Todas as tasks da fase estão 🔄 Em Progresso (nenhuma ⏳ Pendente)
+- [ ] Nenhuma task da fase ainda ⏳ Pendente
+- [ ] BUILDER Log preenchido no session file para cada task
 - [ ] Testes da fase passando
-- [ ] BUILDER Log preenchido no session para cada task
-- [ ] 1 commit por fase com todas as tasks
-- [ ] MEMORY atualizado se houve decisão técnica
+- [ ] 1 commit por fase, Conventional Commits em português
+- [ ] MEMORY escrito se houve decisão, armadilha ou aprendizado
 - [ ] `project-state.yaml` atualizado
 - [ ] **Última fase:** review 7 subagents + `composer gate:all` + PR
 
 ---
 
-## Regra Inviolável
+## Regras Invioláveis
 
-> Fase não fecha sem testes da fase passando — nunca commitar com gates vermelhos.
-
-O review final (7 subagents) executa em **subagent distinto** na última fase para não contaminar o contexto.
+1. Fase não fecha sem os testes da fase passando — nunca commitar com gate vermelho.
+2. Task implementada não vai para CONFIRM sem aprovação explícita do REVIEWER.
+3. O review roda em subagent distinto do BUILDER.
+4. Todo agent termina mostrando o próximo comando com argumentos reais.
 
 ---
 
 ## Fluxo Completo
 
 ```
-/prevec-new-plan [ideia]
-  → PLANNER cria PRD
-    → /prevec-decompose-plan [prd]
-      → PLANNER cria feature doc + tasks T.A.C.E por fase
-        → REVIEWER revisa (modo REVIEW) — inalterado
-          → Para cada task da fase em ordem:
-              /prevec-execute-task [feature] TASK-X.Y.Z
-              → BUILDER implementa (sem testes)
-            → Ao final de cada fase:
-              /prevec-phase-close [feature] [N]
-              → Testes da fase → 1 commit
-              → Se última fase: review 7 subagents + gates finais + Builder fix + PR
+/prevec-decompose-plan [ideia|prd]
+  → PLANNER: PRD → feature doc → tasks T.A.C.E por fase
+    → REVIEWER (reviewer-doc) valida tasks
+      → Para cada task da fase:
+          /prevec-execute-task [feature] TASK-X.Y.Z
+          → BUILDER: explore → write (→ debug se travar)
+        → Ao fim da fase:
+          /prevec-phase-close [feature] [N]
+          → testes da fase → 1 commit
+          → última fase: 7 subagents + composer gate:all + fix loop + PR
 ```

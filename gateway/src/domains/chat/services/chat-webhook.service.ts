@@ -22,6 +22,7 @@ import {
 import { WebhookIdempotencyService } from './webhook-idempotency.service';
 import { ChatWebhookEventNormalizer } from './chat-webhook-event-normalizer.service';
 import { ChatWebhookRealtimeProcessor } from './chat-webhook-realtime-processor.service';
+import { NormalizedWebhookEvent } from '../contracts/provider.interface';
 
 /**
  * Orquestra normalizacao, idempotencia e publicacao de eventos de webhook do chat.
@@ -140,6 +141,45 @@ export class ChatWebhookService {
       message: event.message,
     };
     await this.processStreamPayload(fallbackPayload, resolved);
+  }
+
+  /**
+   * Processa uma lista de eventos JÁ normalizados e com instância já resolvida
+   * (usado pelo `MetaWebhookController`, cujo `MetaAdapter.normalizeWebhookBatch`
+   * resolve tenant/instância por `phone_number_id`/`waba_id` antes de chamar aqui).
+   *
+   * Evita a dupla resolução via `resolveByWebhookToken` — que quebra para a Meta,
+   * pois o "token" recebido no path é na verdade um `phone_number_id`.
+   *
+   * Cada evento do lote é processado de forma independente: falha em um item
+   * é logada e não aborta o processamento dos demais.
+   *
+   * @param events - Eventos normalizados do lote (um por mensagem/status/template)
+   */
+  async handleNormalizedEvents(
+    events: NormalizedWebhookEvent[],
+  ): Promise<void> {
+    for (const event of events) {
+      try {
+        const resolved: ResolvedInstance = {
+          tenant_id: event.tenantId,
+          instance_id: event.instanceId,
+          provider: event.provider,
+        };
+
+        const streamPayload =
+          this.eventNormalizer.mapZapiNormalizedToStream(event);
+
+        await this.processStreamPayload(streamPayload, resolved);
+      } catch (error) {
+        this.logger.error(
+          `Failed to process normalized event (eventType=${event.eventType}): ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+          error instanceof Error ? error.stack : undefined,
+        );
+      }
+    }
   }
 
   /**

@@ -36,6 +36,25 @@
         />
       </div>
 
+      @if (presets().length) {
+        <div class="mt-2 flex flex-wrap gap-1.5">
+          @for (preset of presets(); track preset) {
+            <button
+              type="button"
+              class="size-6 rounded-full border border-white/10 cursor-pointer transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+              [class.ring-2]="isSelected(preset)"
+              [class.ring-primary-500]="isSelected(preset)"
+              [class.ring-offset-2]="isSelected(preset)"
+              [class.dark:ring-offset-neutral-900]="isSelected(preset)"
+              [style.background-color]="preset"
+              (click)="selectPreset(preset)"
+              [attr.aria-label]="'Selecionar cor ' + preset"
+              [attr.aria-pressed]="isSelected(preset)"
+            ></button>
+          }
+        </div>
+      }
+
       @if (helpText() && !showError()) {
         <p class="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{{ helpText() }}</p>
       }

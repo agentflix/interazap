@@ -12,12 +12,12 @@
 
     <div class="relative z-10 flex justify-center px-4 pt-[8vh]">
       <div
-        class="w-full max-w-3xl rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-2xl transition-all duration-150"
+        class="w-full max-w-3xl rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-900 shadow-2xl transition-all duration-150"
         (keydown)="onKeydown($event)"
         tabindex="0"
       >
         <div
-          class="flex items-center gap-2 border-b border-neutral-200 dark:border-neutral-700 p-3"
+          class="flex items-center gap-2 border-b border-neutral-200 dark:border-white/10 p-3"
         >
           <div class="flex-1">
             <af-search-input
@@ -89,7 +89,7 @@
             <div class="space-y-4 p-2">
               @for (group of ['Contatos', 'Empresas', 'Negociações']; track group) {
                 <div
-                  class="space-y-2 rounded-lg border border-neutral-200 dark:border-neutral-700 p-3"
+                  class="space-y-2 rounded-lg border border-neutral-200 dark:border-white/10 p-3"
                 >
                   <p
                     class="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
@@ -98,7 +98,7 @@
                   </p>
                   @for (row of [1, 2, 3]; track row) {
                     <div
-                      class="h-10 animate-pulse rounded-md bg-neutral-100 dark:bg-neutral-800"
+                      class="h-10 animate-pulse rounded-md bg-neutral-100 dark:bg-[#191d1a]"
                     ></div>
                   }
                 </div>
@@ -110,9 +110,9 @@
             <div class="space-y-3 p-2">
               @for (group of groups(); track group.key) {
                 @if (group.items.length > 0) {
-                  <section class="rounded-lg border border-neutral-200 dark:border-neutral-700">
+                  <section class="rounded-lg border border-neutral-200 dark:border-white/10">
                     <div
-                      class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-700 px-3 py-2"
+                      class="flex items-center justify-between border-b border-neutral-200 dark:border-white/10 px-3 py-2"
                     >
                       <h4
                         class="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
@@ -131,7 +131,7 @@
                           [block]="true"
                           class="w-full"
                           [class.bg-neutral-100]="flatIndexByItem(item) === selectedIndex()"
-                          [class.dark:bg-neutral-800]="flatIndexByItem(item) === selectedIndex()"
+                          [class.dark:bg-[#191d1a]]="flatIndexByItem(item) === selectedIndex()"
                           (clicked)="navigateTo(item)"
                         >
                           <div class="w-full px-1 text-left">
