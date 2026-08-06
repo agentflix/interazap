@@ -1,6 +1,6 @@
 # Meta WhatsApp — Hardening de webhook, janela e envio
 
-**Status:** [ ] Em planejamento | [x] Em execução | [ ] Concluída
+**Status:** [ ] Em planejamento | [ ] Em execução | [x] Concluída
 **Data:** 2026-08-04
 **PRD:** — *(correção evolutiva da FEAT-006, orientada pela skill `meta-whatsapp-expert`)*
 
