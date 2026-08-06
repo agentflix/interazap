@@ -102,7 +102,7 @@ export class ChatWebhookService {
       );
 
       const streamPayload =
-        this.eventNormalizer.mapZapiNormalizedToStream(normalized);
+        this.eventNormalizer.mapNormalizedToStream(normalized);
       this.logger.debug(
         `Normalized webhook: ${JSON.stringify({ event_type: streamPayload.event_type, message_id: streamPayload.message?.id })}`,
       );
@@ -120,7 +120,7 @@ export class ChatWebhookService {
       );
 
       const streamPayload =
-        this.eventNormalizer.mapZapiNormalizedToStream(normalized);
+        this.eventNormalizer.mapNormalizedToStream(normalized);
       this.logger.debug(
         `Normalized webhook: ${JSON.stringify({ event_type: streamPayload.event_type, message_id: streamPayload.message?.id })}`,
       );
@@ -168,7 +168,7 @@ export class ChatWebhookService {
         };
 
         const streamPayload =
-          this.eventNormalizer.mapZapiNormalizedToStream(event);
+          this.eventNormalizer.mapNormalizedToStream(event);
 
         await this.processStreamPayload(streamPayload, resolved);
       } catch (error) {
@@ -200,7 +200,22 @@ export class ChatWebhookService {
       instance_id: resolvedInstanceId,
     };
 
-    const idempotencyDescriptor = this.buildIdempotencyKey(enrichedPayload);
+    // Chave de idempotência fornecida pelo adapter (Meta/Z-API) é a fonte
+    // canônica — preserva a semântica do provedor até o stream. Somente quando
+    // ausente, compõe fallback determinístico a partir do payload.
+    const providerIdempotencyKey =
+      'idempotency_key' in enrichedPayload &&
+      typeof enrichedPayload.idempotency_key === 'string' &&
+      enrichedPayload.idempotency_key.trim() !== ''
+        ? enrichedPayload.idempotency_key
+        : null;
+
+    const idempotencyDescriptor = providerIdempotencyKey
+      ? {
+          ...this.buildIdempotencyKey(enrichedPayload),
+          key: this.normalizeIdempotencyKey(providerIdempotencyKey),
+        }
+      : this.buildIdempotencyKey(enrichedPayload);
 
     this.fileLogger.info('WEBHOOK RECEIVED', {
       eventType: idempotencyDescriptor.eventType,
@@ -301,6 +316,25 @@ export class ChatWebhookService {
   }
 
   /**
+   * Normaliza a chave de idempotencia truncando via hash quando excede 255 chars.
+   */
+  private normalizeIdempotencyKey(key: string): string {
+    const MAX_LENGTH = 255;
+    if (key.length <= MAX_LENGTH) {
+      return key;
+    }
+
+    const hashedKey = `idempo_hash:${composeIdempotencyKey([key])}`;
+
+    this.fileLogger.info('Idempotency key truncated via hash', {
+      originalLength: key.length,
+      hashedKey,
+    });
+
+    return hashedKey;
+  }
+
+  /**
    * Constroi o descritor de idempotencia delegando para o servico especializado.
    */
   private buildIdempotencyKey(payload: StreamPayload): IdempotencyDescriptor {
@@ -326,26 +360,6 @@ export class ChatWebhookService {
       .join(':')}`;
 
     return this.normalizeIdempotencyKey(rawKey);
-  }
-
-  /**
-   * Normaliza a chave de idempotencia truncando via hash quando excede 255 chars.
-   * Mantido para compatibilidade com testes de metodos privados.
-   */
-  private normalizeIdempotencyKey(key: string): string {
-    const MAX_LENGTH = 255;
-    if (key.length <= MAX_LENGTH) {
-      return key;
-    }
-
-    const hashedKey = `idempo_hash:${composeIdempotencyKey([key])}`;
-
-    this.fileLogger.info('Idempotency key truncated via hash', {
-      originalLength: key.length,
-      hashedKey,
-    });
-
-    return hashedKey;
   }
 
   /**

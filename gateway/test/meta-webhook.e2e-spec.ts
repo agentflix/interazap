@@ -5,6 +5,8 @@ import * as crypto from 'crypto';
 import { AppModule } from '../src/app.module';
 import { RedisService } from '../src/infrastructure/redis/redis.service';
 import { MetaLookupService } from '../src/domains/chat/http/meta-lookup.service';
+import { BullMQQueueFactory } from '../src/shared/services/queue/bullmq-queue-factory.service';
+import type { MetaWebhookQueueJob } from '../src/domains/chat/services/meta-webhook-queue.service';
 
 /**
  * Teste de nivel HTTP para o webhook da Meta.
@@ -18,8 +20,9 @@ import { MetaLookupService } from '../src/domains/chat/http/meta-lookup.service'
  * qualquer payload real da Meta, que sempre traz `value.messages`/`statuses`
  * não declarados no DTO. Este teste sobe a `AppModule` real com o MESMO
  * ValidationPipe do bootstrap e com `rawBody: true`, faz POST de um payload
- * real da Meta (com `value.messages` preenchido) e prova: responde 200 E o
- * evento chega ao processamento (stream Redis publicado).
+ * real da Meta (com `value.messages` preenchido) e prova: responde 200
+ * APÓS o enqueue durável (fila BullMQ), e o job processa o lote até o
+ * stream Redis publicado com `provider=meta`.
  */
 describe('Meta Webhook (e2e)', () => {
   let app: INestApplication;
@@ -33,6 +36,32 @@ describe('Meta Webhook (e2e)', () => {
 
   const resolvePhoneNumberId = jest.fn();
   const resolveWabaId = jest.fn();
+
+  // Fila BullMQ fake: captura jobs enfileirados e o processor do worker
+  // para que o teste prove ACK-após-enqueue e o processamento do lote.
+  const enqueuedJobs: MetaWebhookQueueJob[] = [];
+  let capturedProcessor:
+    | ((job: { data: MetaWebhookQueueJob }) => Promise<void>)
+    | null = null;
+
+  const queueFactoryMock = {
+    createQueue: jest.fn().mockReturnValue({
+      add: jest.fn().mockImplementation(
+        async (_name: string, data: MetaWebhookQueueJob) => {
+          enqueuedJobs.push(data);
+          return 'job-id';
+        },
+      ),
+    }),
+    createWorker: jest
+      .fn()
+      .mockImplementation(
+        (_name: string, processor: (job: { data: MetaWebhookQueueJob }) => Promise<void>) => {
+          capturedProcessor = processor;
+          return { close: jest.fn() };
+        },
+      ),
+  };
 
   const getRequestTarget = (
     application: INestApplication,
@@ -79,6 +108,8 @@ describe('Meta Webhook (e2e)', () => {
         resolvePhoneNumberId,
         resolveWabaId,
       })
+      .overrideProvider(BullMQQueueFactory)
+      .useValue(queueFactoryMock)
       .compile();
 
     // Reproduz exatamente o bootstrap de main.ts relevante para este bug:
@@ -107,9 +138,11 @@ describe('Meta Webhook (e2e)', () => {
     ensureIdempotent.mockClear();
     resolvePhoneNumberId.mockReset();
     resolveWabaId.mockReset();
+    enqueuedJobs.length = 0;
+    capturedProcessor = null;
   });
 
-  it('accepts a real Meta payload (value.messages present) with 200 and publishes it to the stream', async () => {
+  it('accepts a real Meta payload with 200 only AFTER durable enqueue and processes the job to the stream with provider=meta', async () => {
     resolvePhoneNumberId.mockResolvedValue({
       tenantId: 'tenant-http-e2e',
       instanceId: 'inst-http-e2e',
@@ -164,6 +197,17 @@ describe('Meta Webhook (e2e)', () => {
       .expect(200);
 
     expect(res.body).toEqual({ success: true });
+
+    // ACK ocorre após o enqueue durável — e o processamento NÃO é inline
+    expect(enqueuedJobs).toHaveLength(1);
+    expect(enqueuedJobs[0].payload).toEqual(payload);
+    expect(publishStream).not.toHaveBeenCalled();
+    expect(resolvePhoneNumberId).not.toHaveBeenCalled();
+
+    // O job enfileirado é processado pelo worker (processor real)
+    expect(capturedProcessor).not.toBeNull();
+    await capturedProcessor!({ data: enqueuedJobs[0] });
+
     // Prova que o payload NÃO foi filtrado/rejeitado pelo ValidationPipe e
     // efetivamente chegou ao processamento (stream Redis publicado).
     expect(resolvePhoneNumberId).toHaveBeenCalledWith('PHN_HTTP_ID');
@@ -173,12 +217,13 @@ describe('Meta Webhook (e2e)', () => {
       Record<string, unknown>,
     ];
     expect(streamRecord).toMatchObject({
+      provider: 'meta',
       tenant_id: 'tenant-http-e2e',
       instance_id: 'inst-http-e2e',
     });
   });
 
-  it('acks 200 without a 4xx even when phone_number_id is unknown (never triggers Meta retry loop)', async () => {
+  it('acks 200 after enqueue even when phone_number_id is unknown (processor discards without 4xx retry loop)', async () => {
     resolvePhoneNumberId.mockResolvedValue(null);
 
     const payload = {
@@ -223,6 +268,7 @@ describe('Meta Webhook (e2e)', () => {
       .expect(200);
 
     expect(res.body).toEqual({ success: true });
+    expect(enqueuedJobs).toHaveLength(1);
     expect(publishStream).not.toHaveBeenCalled();
   });
 
@@ -236,6 +282,7 @@ describe('Meta Webhook (e2e)', () => {
       .send(JSON.stringify(payload))
       .expect(403);
 
+    expect(enqueuedJobs).toHaveLength(0);
     expect(publishStream).not.toHaveBeenCalled();
   });
 

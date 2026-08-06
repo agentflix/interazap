@@ -9,9 +9,9 @@ import {
 } from '../../../shared/utils/type-guards';
 import {
   FallbackStreamPayload,
+  NormalizedStreamPayload,
   PayloadSemanticMetadata,
   StreamPayload,
-  ZapiStreamPayload,
 } from './chat-webhook.types';
 import { PayloadSemanticsResolver } from './payload-semantics-resolver.service';
 import { NormalizedWebhookEvent } from '../contracts/provider.interface';
@@ -339,14 +339,17 @@ export class ChatWebhookEventNormalizer {
   }
 
   /**
-   * Mapeia o evento normalizado da Z-API para o formato de stream interno.
+   * Mapeia o evento normalizado do adapter (Z-API/Meta) para o formato de stream interno.
    *
-   * @param normalized - Evento normalizado pelo ZapiAdapter
-   * @returns Payload de stream no formato Z-API
+   * Mapper neutro: preserva o `provider` informado pelo adapter e a chave de
+   * idempotência determinística que ele já calculou, sem hardcode de provider.
+   *
+   * @param normalized - Evento normalizado pelo adapter do provedor
+   * @returns Payload de stream no formato interno normalizado
    */
-  mapZapiNormalizedToStream(
+  mapNormalizedToStream(
     normalized: NormalizedWebhookEvent,
-  ): ZapiStreamPayload {
+  ): NormalizedStreamPayload {
     const directionMap: Record<typeof normalized.direction, string> = {
       inbound: 'incoming',
       outbound: 'outgoing',
@@ -364,8 +367,8 @@ export class ChatWebhookEventNormalizer {
             ? 'messages'
             : normalized.eventType;
 
-    const basePayload: ZapiStreamPayload = {
-      provider: 'zapi',
+    const basePayload: NormalizedStreamPayload = {
+      provider: normalized.provider,
       event_type: eventType,
       direction: directionMap[normalized.direction],
       instance_webhook_token: normalized.instanceWebhookToken,
@@ -373,6 +376,10 @@ export class ChatWebhookEventNormalizer {
       instance_id: normalized.instanceId,
       raw: normalized.rawPayload,
     };
+
+    if (normalized.idempotencyKey) {
+      basePayload.idempotency_key = normalized.idempotencyKey;
+    }
 
     if (normalized.template) {
       basePayload.template = normalized.template;
@@ -445,6 +452,10 @@ export class ChatWebhookEventNormalizer {
     record.change_kind = semantics.changeKind;
     record.event_name = semantics.eventName;
     record.message_reference_id = semantics.messageReferenceId;
+
+    if ('idempotency_key' in payload && payload.idempotency_key) {
+      record.idempotency_key = payload.idempotency_key;
+    }
 
     if (record.message && isRecord(record.message)) {
       const photo = getString(record.message, 'senderPhoto');

@@ -139,4 +139,101 @@ describe('MetaClient', () => {
       ).rejects.toThrow('Template not found');
     });
   });
+
+  describe('sendText', () => {
+    const phoneNumberId = 'phone-1';
+    const accessToken = 'token-xyz';
+    const request = { to: '5511999999999', body: 'Olá' };
+
+    it('POSTs to /{phoneNumberId}/messages with only the access token', async () => {
+      httpInstance.post.mockResolvedValue({
+        data: { messages: [{ id: 'wamid.OK' }] },
+      });
+
+      const result = await client.sendText(phoneNumberId, accessToken, request);
+
+      expect(httpInstance.post).toHaveBeenCalledWith(
+        `/${phoneNumberId}/messages`,
+        {
+          messaging_product: 'whatsapp',
+          to: request.to,
+          type: 'text',
+          text: { body: request.body },
+        },
+        { params: { access_token: accessToken } },
+      );
+      expect(result).toEqual({ success: true, messageId: 'wamid.OK' });
+    });
+
+    it('rejects 200 response without messages[0].id (contract violation)', async () => {
+      httpInstance.post.mockResolvedValue({ data: { messages: [] } });
+
+      const result = await client.sendText(phoneNumberId, accessToken, request);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('messages[0].id');
+    });
+
+    it('maps errors[] from a 200 response to failure result', async () => {
+      httpInstance.post.mockResolvedValue({
+        data: {
+          errors: [
+            { code: 131047, title: 'Re-engagement', message: 'window' },
+          ],
+        },
+      });
+
+      const result = await client.sendText(phoneNumberId, accessToken, request);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('131047');
+    });
+  });
+
+  describe('sendTemplate', () => {
+    const phoneNumberId = 'phone-1';
+    const accessToken = 'token-xyz';
+    const request = {
+      to: '5511999999999',
+      templateName: 'welcome',
+      language: 'pt_BR',
+      templateParams: ['Rafael'],
+    };
+
+    it('POSTs template payload and returns message id', async () => {
+      httpInstance.post.mockResolvedValue({
+        data: { messages: [{ id: 'wamid.TPL' }] },
+      });
+
+      const result = await client.sendTemplate(
+        phoneNumberId,
+        accessToken,
+        request,
+      );
+
+      expect(httpInstance.post).toHaveBeenCalledWith(
+        `/${phoneNumberId}/messages`,
+        expect.objectContaining({
+          messaging_product: 'whatsapp',
+          type: 'template',
+          template: expect.objectContaining({ name: 'welcome' }),
+        }),
+        { params: { access_token: accessToken } },
+      );
+      expect(result).toEqual({ success: true, messageId: 'wamid.TPL' });
+    });
+
+    it('rejects 200 response without messages[0].id (contract violation)', async () => {
+      httpInstance.post.mockResolvedValue({ data: {} });
+
+      const result = await client.sendTemplate(
+        phoneNumberId,
+        accessToken,
+        request,
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('messages[0].id');
+    });
+  });
 });

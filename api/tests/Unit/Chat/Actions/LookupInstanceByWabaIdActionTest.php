@@ -63,7 +63,7 @@ it('ignora instâncias inativas', function (): void {
     expect($this->action->execute('INACTIVE'))->toBeNull();
 });
 
-it('retorna a primeira instância ativa quando múltiplas compartilham o mesmo waba_id', function (): void {
+it('rejeita segunda instância Meta ativa com o mesmo waba_id (fail-closed 3.2.1)', function (): void {
     $first = ChatInstance::factory()->create([
         'tenant_id' => (string) $this->tenant->id,
         'provider' => 'meta',
@@ -72,16 +72,44 @@ it('retorna a primeira instância ativa quando múltiplas compartilham o mesmo w
         'created_at' => now()->subMinutes(10),
     ]);
 
-    ChatInstance::factory()->create([
-        'tenant_id' => (string) $this->tenant->id,
-        'provider' => 'meta',
-        'is_active' => true,
-        'settings_json' => ['waba_id' => 'SHARED'],
-        'created_at' => now(),
-    ]);
+    // A migration 3.2.1 (uq_chat_instances_meta_waba_active) impede configuração
+    // Meta ambígua: o banco REJEITA a segunda instância ativa com o mesmo waba_id.
+    // SAVEPOINT para a transação do teste não ficar aborted após a violação.
+    \Illuminate\Support\Facades\DB::statement('SAVEPOINT before_conflict');
+    try {
+        ChatInstance::factory()->create([
+            'tenant_id' => (string) $this->tenant->id,
+            'provider' => 'meta',
+            'is_active' => true,
+            'settings_json' => ['waba_id' => 'SHARED'],
+            'created_at' => now(),
+        ]);
+        $this->fail('Deveria lançar QueryException por violação do índice único');
+    } catch (\Illuminate\Database\QueryException $exception) {
+        \Illuminate\Support\Facades\DB::statement('ROLLBACK TO SAVEPOINT before_conflict');
+        expect($exception->getMessage())->toContain('uq_chat_instances_meta_waba_active');
+    }
 
     $result = $this->action->execute('SHARED');
 
     expect($result)->not->toBeNull()
         ->and($result['instance_id'])->toBe((string) $first->id);
+});
+
+it('permite instância inativa reutilizar o waba_id da ativa (unicidade só entre ativas)', function (): void {
+    ChatInstance::factory()->create([
+        'tenant_id' => (string) $this->tenant->id,
+        'provider' => 'meta',
+        'is_active' => false,
+        'settings_json' => ['waba_id' => 'REUSED'],
+    ]);
+
+    ChatInstance::factory()->create([
+        'tenant_id' => (string) $this->tenant->id,
+        'provider' => 'meta',
+        'is_active' => true,
+        'settings_json' => ['waba_id' => 'REUSED'],
+    ]);
+
+    expect($this->action->execute('REUSED'))->not->toBeNull();
 });

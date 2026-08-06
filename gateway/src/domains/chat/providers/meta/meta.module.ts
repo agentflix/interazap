@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MetaClient } from './meta.client';
 import { MetaProvider } from './meta.provider';
 import { MetaAdapter } from './meta.adapter';
+import { MetaConfigService } from './meta.config';
 import { MetaLookupService } from '../../http/meta-lookup.service';
 
 /**
@@ -12,7 +13,7 @@ import { MetaLookupService } from '../../http/meta-lookup.service';
  * e adaptador implementando a interface MetaWhatsAppProvider.
  */
 @Module({
-  providers: [MetaClient, MetaProvider, MetaAdapter, MetaLookupService],
-  exports: [MetaAdapter, MetaClient, MetaLookupService],
+  providers: [MetaClient, MetaProvider, MetaAdapter, MetaConfigService, MetaLookupService],
+  exports: [MetaAdapter, MetaClient, MetaConfigService, MetaLookupService],
 })
 export class MetaModule {}

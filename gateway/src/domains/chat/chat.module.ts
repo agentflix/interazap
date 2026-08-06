@@ -40,6 +40,8 @@ import { ProviderFactory } from './providers/provider.factory';
 import { MetaModule } from './providers/meta/meta.module';
 import { MetaWebhookController } from './controllers/meta-webhook.controller';
 import { ChannelsController } from './channels.controller';
+import { MetaWebhookQueueService } from './services/meta-webhook-queue.service';
+import { MetaWebhookProcessor } from './processors/meta-webhook.processor';
 
 // Outbound
 import { SendMessageService } from './outbound/send-message.service';
@@ -103,6 +105,8 @@ import { UpdateConnectionStatusProcessor } from './processors/update-connection-
     SendMessageConsumer,
     // Processadores
     UpdateConnectionStatusProcessor,
+    MetaWebhookQueueService,
+    MetaWebhookProcessor,
   ],
   exports: [ProviderFactory, SendMessageService],
 })

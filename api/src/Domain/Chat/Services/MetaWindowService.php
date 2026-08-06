@@ -6,6 +6,7 @@ namespace Domain\Chat\Services;
 
 use Domain\Chat\Models\ChatTicket;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Serviço da janela de atendimento (customer service window) da Meta Cloud API.
@@ -113,63 +114,78 @@ final class MetaWindowService
     }
 
     /**
-     * Aplica a nova janela calculada ao ticket, respeitando GREATEST e o guard
-     * de escrita redundante, e grava os campos de referral na mesma operação.
+     * Aplica a nova janela calculada ao ticket com UPDATE SQL ATÔMICO.
+     *
+     * A expiração e o tipo são decididos no banco em uma única instrução
+     * (`GREATEST` + `CASE`), eliminando o lost update do antigo
+     * read/compare/save quando duas reentregas concorrem:
+     *
+     * - `expires_at = GREATEST(COALESCE(atual, nova), nova)` — nunca encurta.
+     * - O tipo `'72h'` só é preservado enquanto a janela vigente de 72h ainda
+     *   for MAIOR que a nova calculada; caso contrário o tipo novo vence.
+     * - O WHERE guarda mudança real (`IS DISTINCT FROM`) — janela idêntica
+     *   não gera escrita (0 linhas afetadas), preservando o comportamento de
+     *   não disparar realtime/custo desnecessário.
+     * - Os campos de referral são gravados na mesma instrução quando presentes.
+     * - O UPDATE é sempre escopado por `tenant_id + id` — nunca global.
      *
      * @param  array<string, mixed>|null  $referral  Dados de referral CTWA a persistir, quando presentes.
      */
     private function applyWindow(ChatTicket $ticket, Carbon $newExpiresAt, string $newType, ?array $referral): void
     {
-        /** @var Carbon|null $currentExpiresAt */
-        $currentExpiresAt = $ticket->meta_window_expires_at;
-        $currentType = $ticket->meta_window_type;
+        $newExpiresAtFormatted = $newExpiresAt->format('Y-m-d H:i:s');
 
-        $currentIsGreater = $currentExpiresAt !== null && $currentExpiresAt->greaterThan($newExpiresAt);
+        $expiresExpr = 'GREATEST(COALESCE(meta_window_expires_at, ?), ?)';
+        $typeExpr = "CASE WHEN meta_window_type = '72h' AND meta_window_expires_at > ? THEN '72h' ELSE ? END";
 
-        $finalExpiresAt = $currentIsGreater ? $currentExpiresAt : $newExpiresAt;
+        $referralValues = $referral === null ? [] : [
+            $referral['source_id'] ?? null,
+            $referral['source_type'] ?? null,
+            $referral['headline'] ?? null,
+            $referral['ctwa_clid'] ?? null,
+        ];
 
-        // O tipo '72h' só é preservado enquanto a janela de 72h vigente ainda
-        // for maior que a nova janela calculada nesta chamada.
-        $finalType = ($currentType === '72h' && $currentIsGreater) ? '72h' : $newType;
+        $referralSetSql = $referral === null
+            ? ''
+            : ', meta_referral_source_id = ?, meta_referral_source_type = ?, meta_referral_headline = ?, meta_referral_ctwa_clid = ?';
 
-        // Comparação por segundo (a coluna é timestamp(0) — sem frações de segundo)
-        // para não disparar save() por ruído de microssegundos do parsing.
-        $expiresAtChanged = $currentExpiresAt === null
-            || $currentExpiresAt->format('Y-m-d H:i:s') !== $finalExpiresAt->format('Y-m-d H:i:s');
-        $typeChanged = $finalType !== $currentType;
+        $referralGuardSql = $referral === null
+            ? ''
+            : ' OR meta_referral_source_id IS DISTINCT FROM ? OR meta_referral_source_type IS DISTINCT FROM ? OR meta_referral_headline IS DISTINCT FROM ? OR meta_referral_ctwa_clid IS DISTINCT FROM ?';
 
-        $dirty = $expiresAtChanged || $typeChanged;
+        $sql = sprintf(
+            'UPDATE chat_tickets
+             SET meta_window_expires_at = %s,
+                 meta_window_type = %s,
+                 updated_at = NOW()%s
+             WHERE tenant_id = ? AND id = ?
+               AND (meta_window_expires_at IS DISTINCT FROM %s
+                    OR meta_window_type IS DISTINCT FROM %s%s)',
+            $expiresExpr,
+            $typeExpr,
+            $referralSetSql,
+            $expiresExpr,
+            $typeExpr,
+            $referralGuardSql,
+        );
 
-        if ($referral !== null) {
-            $referralFields = [
-                'meta_referral_source_id' => $referral['source_id'] ?? null,
-                'meta_referral_source_type' => $referral['source_type'] ?? null,
-                'meta_referral_headline' => $referral['headline'] ?? null,
-                'meta_referral_ctwa_clid' => $referral['ctwa_clid'] ?? null,
-            ];
-
-            foreach ($referralFields as $field => $value) {
-                if ($ticket->{$field} !== $value) {
-                    $dirty = true;
-                }
-            }
-        }
-
-        if (! $dirty) {
-            return;
-        }
-
-        $ticket->meta_window_expires_at = $finalExpiresAt;
-        $ticket->meta_window_type = $finalType;
-
-        if ($referral !== null) {
-            $ticket->meta_referral_source_id = $referral['source_id'] ?? null;
-            $ticket->meta_referral_source_type = $referral['source_type'] ?? null;
-            $ticket->meta_referral_headline = $referral['headline'] ?? null;
-            $ticket->meta_referral_ctwa_clid = $referral['ctwa_clid'] ?? null;
-        }
-
-        $ticket->save();
+        DB::update($sql, [
+            // SET
+            $newExpiresAtFormatted,
+            $newExpiresAtFormatted,
+            $newExpiresAtFormatted,
+            $newType,
+            ...$referralValues,
+            // WHERE tenant + id
+            (string) $ticket->tenant_id,
+            (string) $ticket->id,
+            // Guard
+            $newExpiresAtFormatted,
+            $newExpiresAtFormatted,
+            $newExpiresAtFormatted,
+            $newType,
+            ...$referralValues,
+        ]);
     }
 
     /**

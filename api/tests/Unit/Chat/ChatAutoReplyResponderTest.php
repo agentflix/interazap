@@ -19,6 +19,7 @@ use Domain\Chat\Services\ChatAutoReplyResponder;
 use Domain\Chat\Services\ChatBroadcastService;
 use Domain\Chat\Services\ChatGatewayService;
 use Domain\Chat\Services\WebChatRedisPublisher;
+use Domain\CRM\Models\CRMContact;
 use Domain\Platform\Models\PlatformTenant;
 use Domain\Platform\Services\UazapiGatewayService;
 use Domain\Shared\Infrastructure\Gateway\GatewayHttpClient;
@@ -469,5 +470,63 @@ class ChatAutoReplyResponderTest extends TestCase
         $service->respond($tenant->id, $ticket->id, 'menu 1', isFirstInteraction: false);
 
         $this->assertDatabaseCount('chat_messages', 0);
+    }
+
+    public function test_respond_bot_text_is_blocked_when_meta_window_closed_without_throwing(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $instance = ChatInstance::factory()->create([
+            'tenant_id' => $tenant->id,
+            'provider' => 'meta',
+            'webhook_token' => 'tok-meta-guard',
+            'settings_json' => [
+                'phone_number_id' => '1234567',
+                'access_token' => 'secret',
+            ],
+        ]);
+        $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
+        $ticket = ChatTicket::factory()->forTenant($tenant->id)->create([
+            'instance_id' => $instance->id,
+            'contact_id' => $contact->id,
+            'status' => 'open',
+        ]);
+
+        // Única mensagem do contato há 25h — janela Meta FECHADA.
+        ChatMessage::factory()->create([
+            'tenant_id' => $tenant->id,
+            'ticket_id' => $ticket->id,
+            'contact_id' => $contact->id,
+            'is_from_contact' => true,
+            'created_at' => now()->subHours(25),
+        ]);
+
+        ChatAutoReplyRule::query()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Promo',
+            'trigger_text' => 'promo',
+            'response_text' => 'Temos promoções!',
+            'is_active' => true,
+        ]);
+
+        Event::fake();
+
+        $uazapi = Mockery::mock(UazapiGatewayService::class);
+        $uazapi->shouldReceive('sendText')->never();
+
+        Http::fake();
+        $gateway = new ChatGatewayService(
+            $uazapi,
+            Mockery::mock(GatewayHttpClient::class),
+        );
+        $broadcast = new ChatBroadcastService(new GatewayBroadcastService);
+        $activityBroadcast = new ChatActivityBroadcastService($broadcast);
+        $ticketActions = $this->makeTicketActions($gateway, $activityBroadcast);
+        $messageActions = $this->makeMessageActions($gateway, $ticketActions, $activityBroadcast);
+
+        $service = new ChatAutoReplyResponder($messageActions);
+        // Não deve lançar — BOT fora da janela é bloqueado silenciosamente.
+        $service->respond($tenant->id, $ticket->id, 'Quero promo');
+
+        $this->assertSame(0, ChatMessage::query()->where('source', 'bot')->count());
     }
 }

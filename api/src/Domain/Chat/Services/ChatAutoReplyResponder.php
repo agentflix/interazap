@@ -85,14 +85,7 @@ final class ChatAutoReplyResponder
                 continue;
             }
 
-            $this->messageActions->create($tenantId, new ChatMessageDTO(
-                ticketId: $ticketId,
-                content: $rule->response_text,
-                direction: 'outgoing',
-                type: 'text',
-                isFromContact: false,
-                source: ChatMessageDTO::SOURCE_BOT
-            ));
+            $this->createBotMessage($tenantId, $ticketId, (string) $rule->id, $rule->response_text);
         }
     }
 
@@ -125,14 +118,7 @@ final class ChatAutoReplyResponder
             'rule_id' => $welcomeRule->id,
         ]);
 
-        $this->messageActions->create($tenantId, new ChatMessageDTO(
-            ticketId: $ticketId,
-            content: $welcomeRule->response_text,
-            direction: 'outgoing',
-            type: 'text',
-            isFromContact: false,
-            source: ChatMessageDTO::SOURCE_BOT
-        ));
+        $this->createBotMessage($tenantId, $ticketId, (string) $welcomeRule->id, $welcomeRule->response_text);
     }
 
     /**
@@ -164,14 +150,37 @@ final class ChatAutoReplyResponder
             'rule_id' => $welcomeRule->id,
         ]);
 
-        $this->messageActions->create($tenantId, new ChatMessageDTO(
-            ticketId: $ticketId,
-            content: $welcomeRule->response_text,
-            direction: 'outgoing',
-            type: 'text',
-            isFromContact: false,
-            source: ChatMessageDTO::SOURCE_BOT
-        ));
+        $this->createBotMessage($tenantId, $ticketId, (string) $welcomeRule->id, $welcomeRule->response_text);
+    }
+
+    /**
+     * Cria uma mensagem de texto do BOT via SendChatMessageAction, tolerando
+     * o guard de janela Meta (texto livre fora da janela é bloqueado — o
+     * atendimento continua possível via template aprovado).
+     */
+    private function createBotMessage(
+        string $tenantId,
+        string $ticketId,
+        string $ruleId,
+        string $responseText,
+    ): void {
+        try {
+            $this->messageActions->create($tenantId, new ChatMessageDTO(
+                ticketId: $ticketId,
+                content: $responseText,
+                direction: 'outgoing',
+                type: 'text',
+                isFromContact: false,
+                source: ChatMessageDTO::SOURCE_BOT
+            ));
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            logger()->info('[ChatAutoReplyResponder] Resposta do BOT bloqueada pelo guard de janela', [
+                'tenant_id' => $tenantId,
+                'ticket_id' => $ticketId,
+                'rule_id' => $ruleId,
+                'reason' => $exception->validator->errors()->first('message'),
+            ]);
+        }
     }
 
     /**

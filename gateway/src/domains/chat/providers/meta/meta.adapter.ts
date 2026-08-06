@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { RedisService } from '../../../../infrastructure/redis/redis.service';
 import { MetaClient } from './meta.client';
 import { MetaProvider, NormalizedMetaEvent } from './meta.provider';
@@ -125,15 +126,26 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     instanceToken: string,
     includeAll = false,
   ): Promise<MetaTemplate[]> {
-    const cacheKey = includeAll
-      ? `meta:templates:all:${instanceToken}`
-      : `meta:templates:approved:${instanceToken}`;
+    const { phoneNumberId, accessToken } =
+      this.parseInstanceToken(instanceToken);
+
+    if (!accessToken) {
+      this.logger.warn(
+        `listTemplates called with invalid token format for phone_number_id ${phoneNumberId || '(empty)'}`,
+      );
+      return [];
+    }
+
+    // Cache keyed por hash do token — o access token nunca aparece em chave Redis
+    const cacheKey = this.templatesCacheKey(includeAll, instanceToken);
 
     // Verifica cache primeiro
     try {
       const cached = await this.redisService.getClient().get(cacheKey);
       if (cached) {
-        this.logger.debug(`Templates cache hit for instance ${instanceToken}`);
+        this.logger.debug(
+          `Templates cache hit for phone_number_id ${phoneNumberId}`,
+        );
         return JSON.parse(cached) as MetaTemplate[];
       }
     } catch (error) {
@@ -142,11 +154,11 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       );
     }
 
-    // Busca na Meta API
+    // Busca na Meta API — o Graph recebe apenas o access token, nunca o token composto
     this.logger.debug(
-      `Fetching templates from Meta API for instance ${instanceToken}`,
+      `Fetching templates from Meta API for phone_number_id ${phoneNumberId}`,
     );
-    const templates = await this.client.getTemplates(instanceToken, {
+    const templates = await this.client.getTemplates(accessToken, {
       status: includeAll ? undefined : 'APPROVED',
     });
 
@@ -225,14 +237,32 @@ export class MetaAdapter implements MetaWhatsAppProvider {
       await this.redisService
         .getClient()
         .del(
-          `meta:templates:approved:${instanceToken}`,
-          `meta:templates:all:${instanceToken}`,
+          this.templatesCacheKey(false, instanceToken),
+          this.templatesCacheKey(true, instanceToken),
         );
     } catch (error) {
       this.logger.warn(
         `Failed to invalidate templates cache: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
+  }
+
+  /**
+   * Compoe a chave de cache de templates com hash do token composto.
+   * Nunca usa o access token literal na chave Redis.
+   */
+  private templatesCacheKey(
+    includeAll: boolean,
+    instanceToken: string,
+  ): string {
+    const identifier = createHash('sha256')
+      .update(instanceToken)
+      .digest('hex')
+      .slice(0, 32);
+
+    return includeAll
+      ? `meta:templates:all:${identifier}`
+      : `meta:templates:approved:${identifier}`;
   }
 
   /**

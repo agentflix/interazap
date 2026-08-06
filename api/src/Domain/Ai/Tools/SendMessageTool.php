@@ -99,7 +99,19 @@ final class SendMessageTool implements AiToolInterface
             'metadata' => $agentName ? ['ai_agent_name' => $agentName] : [],
         ]);
 
-        $message = $this->messageActions->create((string) $tenantId, $dto);
+        try {
+            $message = $this->messageActions->create((string) $tenantId, $dto);
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            // Janela Meta fora do horário (ou contexto desconhecido): a IA não
+            // despacha texto livre — retorna failure para o LLM, que pode
+            // optar por template aprovado.
+            $firstMessage = $exception->validator->errors()->first('message');
+
+            return ToolResultDTO::failure(
+                $firstMessage ?: 'Message blocked by window guard',
+                ['reason' => 'window_guard'],
+            );
+        }
 
         return ToolResultDTO::success(
             message: 'Message sent successfully',

@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Tests\Unit\Chat;
 
 use Domain\Chat\Actions\VerifyContactWindowAction;
+use Domain\Chat\Models\ChatInstance;
 use Domain\Chat\Models\ChatMessage;
 use Domain\Chat\Models\ChatTicket;
 use Domain\CRM\Models\CRMContact;
 use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Date;
 use Tests\TestCase;
 
 /**
@@ -20,6 +22,9 @@ use Tests\TestCase;
  * - 24h00m → FORA (canSendFreeText = false)
  * - 24h01m → FORA (canSendFreeText = false)
  * - Sem mensagens → FORA (canSendFreeText = false)
+ * - Contexto ausente → FORA (fail-closed)
+ * - system nunca abre fallback
+ * - ticket de outra instância/canal não autoriza
  */
 class VerifyContactWindowActionTest extends TestCase
 {
@@ -33,11 +38,32 @@ class VerifyContactWindowActionTest extends TestCase
         $this->action = new VerifyContactWindowAction;
     }
 
+    private function makeContext(
+        string $tenantId,
+        string $contactId,
+        ?string $channel = 'meta',
+    ): ChatTicket {
+        $instance = ChatInstance::factory()->create([
+            'tenant_id' => $tenantId,
+            'provider' => 'meta',
+            'webhook_token' => 'whk-'.uniqid(),
+            'settings_json' => ['phone_number_id' => '9999'.uniqid()],
+        ]);
+
+        return ChatTicket::factory()->create([
+            'tenant_id' => $tenantId,
+            'contact_id' => $contactId,
+            'instance_id' => $instance->id,
+            'channel' => $channel,
+            'status' => 'open',
+        ]);
+    }
+
     public function test_contact_with_message_23h59m_ago_can_send_free_text(): void
     {
         $tenant = PlatformTenant::factory()->create();
         $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
-        $ticket = ChatTicket::factory()->create(['tenant_id' => $tenant->id]);
+        $ticket = $this->makeContext((string) $tenant->id, (string) $contact->id);
 
         // Mensagem há 23h59m (1 minuto antes do cutoff)
         ChatMessage::factory()->create([
@@ -45,10 +71,10 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(23)->subMinutes(59),
+            'created_at' => Date::now()->subHours(23)->subMinutes(59),
         ]);
 
-        $result = $this->action->execute($tenant->id, $contact->id);
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id, (string) $ticket->id, (string) $ticket->instance_id);
 
         $this->assertTrue($result->canSendFreeText);
         $this->assertNotNull($result->lastMessageAt);
@@ -58,7 +84,7 @@ class VerifyContactWindowActionTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
-        $ticket = ChatTicket::factory()->create(['tenant_id' => $tenant->id]);
+        $ticket = $this->makeContext((string) $tenant->id, (string) $contact->id);
 
         // Mensagem há exatamente 24h (no cutoff, deve ser FORA)
         ChatMessage::factory()->create([
@@ -66,10 +92,10 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(24),
+            'created_at' => Date::now()->subHours(24),
         ]);
 
-        $result = $this->action->execute($tenant->id, $contact->id);
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id, (string) $ticket->id, (string) $ticket->instance_id);
 
         $this->assertFalse($result->canSendFreeText);
         $this->assertNotNull($result->lastMessageAt);
@@ -79,7 +105,7 @@ class VerifyContactWindowActionTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
-        $ticket = ChatTicket::factory()->create(['tenant_id' => $tenant->id]);
+        $ticket = $this->makeContext((string) $tenant->id, (string) $contact->id);
 
         // Mensagem há 24h01m (apos cutoff)
         ChatMessage::factory()->create([
@@ -87,10 +113,10 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(24)->subMinutes(1),
+            'created_at' => Date::now()->subHours(24)->subMinutes(1),
         ]);
 
-        $result = $this->action->execute($tenant->id, $contact->id);
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id, (string) $ticket->id, (string) $ticket->instance_id);
 
         $this->assertFalse($result->canSendFreeText);
         $this->assertNotNull($result->lastMessageAt);
@@ -100,31 +126,88 @@ class VerifyContactWindowActionTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
+        $ticket = $this->makeContext((string) $tenant->id, (string) $contact->id);
 
-        $result = $this->action->execute($tenant->id, $contact->id);
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id, (string) $ticket->id, (string) $ticket->instance_id);
 
         $this->assertFalse($result->canSendFreeText);
         $this->assertNull($result->lastMessageAt);
     }
 
-    public function test_contact_from_different_tenant_is_not_found(): void
+    public function test_missing_context_fails_closed(): void
     {
-        $tenant1 = PlatformTenant::factory()->create();
-        $tenant2 = PlatformTenant::factory()->create();
-        $contact = CRMContact::factory()->create(['tenant_id' => $tenant1->id]);
-        $ticket = ChatTicket::factory()->create(['tenant_id' => $tenant1->id]);
+        $tenant = PlatformTenant::factory()->create();
+        $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
 
-        // Mensagem pertence ao tenant1
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id);
+
+        $this->assertFalse($result->canSendFreeText);
+        $this->assertNull($result->lastMessageAt);
+    }
+
+    public function test_ticket_from_other_instance_does_not_authorize(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
+
+        // Ticket do contexto (instância A) com mensagem recente.
+        $ticketA = $this->makeContext((string) $tenant->id, (string) $contact->id);
         ChatMessage::factory()->create([
-            'tenant_id' => $tenant1->id,
-            'ticket_id' => $ticket->id,
+            'tenant_id' => $tenant->id,
+            'ticket_id' => $ticketA->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(1),
+            'created_at' => Date::now()->subHours(1),
         ]);
 
-        // Buscando como tenant2 deve retornar sem mensagens
-        $result = $this->action->execute($tenant2->id, $contact->id);
+        // Ticket de OUTRA instância (canal telegram — não autoriza Meta).
+        $ticketB = $this->makeContext((string) $tenant->id, (string) $contact->id, 'telegram');
+        ChatMessage::factory()->create([
+            'tenant_id' => $tenant->id,
+            'ticket_id' => $ticketB->id,
+            'contact_id' => $contact->id,
+            'is_from_contact' => true,
+            'created_at' => Date::now()->subMinutes(30),
+        ]);
+
+        // Pedindo a janela da instância B (telegram) com o ticket A → contexto
+        // divergente: ticket A não pertence ao instance B → não autoriza.
+        $result = $this->action->execute(
+            (string) $tenant->id,
+            (string) $contact->id,
+            (string) $ticketA->id,
+            (string) $ticketB->instance_id,
+        );
+
+        $this->assertFalse($result->canSendFreeText);
+
+        // Pedindo o ticket A com a instância A → autoriza.
+        $resultOk = $this->action->execute(
+            (string) $tenant->id,
+            (string) $contact->id,
+            (string) $ticketA->id,
+            (string) $ticketA->instance_id,
+        );
+        $this->assertTrue($resultOk->canSendFreeText);
+    }
+
+    public function test_system_message_never_opens_fallback(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
+        $ticket = $this->makeContext((string) $tenant->id, (string) $contact->id);
+
+        // Única mensagem do contato é type=system — nunca abre fallback.
+        ChatMessage::factory()->create([
+            'tenant_id' => $tenant->id,
+            'ticket_id' => $ticket->id,
+            'contact_id' => $contact->id,
+            'type' => 'system',
+            'is_from_contact' => true,
+            'created_at' => Date::now()->subMinutes(5),
+        ]);
+
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id, (string) $ticket->id, (string) $ticket->instance_id);
 
         $this->assertFalse($result->canSendFreeText);
         $this->assertNull($result->lastMessageAt);
@@ -134,7 +217,7 @@ class VerifyContactWindowActionTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
-        $ticket = ChatTicket::factory()->create(['tenant_id' => $tenant->id]);
+        $ticket = $this->makeContext((string) $tenant->id, (string) $contact->id);
 
         // Mensagem do agente (is_from_contact = false) - não deve contar
         ChatMessage::factory()->create([
@@ -142,7 +225,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => false,
-            'created_at' => \Illuminate\Support\Facades\Date::now()->subMinutes(30),
+            'created_at' => Date::now()->subMinutes(30),
         ]);
 
         // Mensagem do contato (is_from_contact = true) - deve contar
@@ -151,10 +234,10 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(1),
+            'created_at' => Date::now()->subHours(1),
         ]);
 
-        $result = $this->action->execute($tenant->id, $contact->id);
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id, (string) $ticket->id, (string) $ticket->instance_id);
 
         $this->assertTrue($result->canSendFreeText);
         $this->assertNotNull($result->lastMessageAt);
@@ -164,7 +247,7 @@ class VerifyContactWindowActionTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
-        $ticket = ChatTicket::factory()->create(['tenant_id' => $tenant->id]);
+        $ticket = $this->makeContext((string) $tenant->id, (string) $contact->id);
 
         // Mensagem antiga há 25h (seria fora da janela sozinha)
         ChatMessage::factory()->create([
@@ -172,7 +255,7 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(25),
+            'created_at' => Date::now()->subHours(25),
         ]);
 
         // Mensagem recente há 1h (dentro da janela)
@@ -181,10 +264,10 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(1),
+            'created_at' => Date::now()->subHours(1),
         ]);
 
-        $result = $this->action->execute($tenant->id, $contact->id);
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id, (string) $ticket->id, (string) $ticket->instance_id);
 
         // Deve usar a mensagem mais recente (1h atrás), que está dentro da janela
         $this->assertTrue($result->canSendFreeText);
@@ -194,18 +277,16 @@ class VerifyContactWindowActionTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
-        $expiresAt = \Illuminate\Support\Facades\Date::now()->addHours(50)->startOfSecond();
+        $ticket = $this->makeContext((string) $tenant->id, (string) $contact->id);
+        $expiresAt = Date::now()->addHours(50)->startOfSecond();
 
-        ChatTicket::factory()->create([
-            'tenant_id' => $tenant->id,
-            'contact_id' => $contact->id,
-            'status' => 'open',
+        $ticket->update([
             'meta_window_expires_at' => $expiresAt,
             'meta_window_type' => '72h',
         ]);
 
         // Sem nenhuma mensagem no banco — o campo persistido deve bastar (Branch 1).
-        $result = $this->action->execute($tenant->id, $contact->id);
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id, (string) $ticket->id, (string) $ticket->instance_id);
 
         $this->assertTrue($result->canSendFreeText);
         $this->assertSame('72h', $result->windowType);
@@ -217,12 +298,10 @@ class VerifyContactWindowActionTest extends TestCase
     {
         $tenant = PlatformTenant::factory()->create();
         $contact = CRMContact::factory()->create(['tenant_id' => $tenant->id]);
+        $ticket = $this->makeContext((string) $tenant->id, (string) $contact->id);
 
-        $ticket = ChatTicket::factory()->create([
-            'tenant_id' => $tenant->id,
-            'contact_id' => $contact->id,
-            'status' => 'open',
-            'meta_window_expires_at' => \Illuminate\Support\Facades\Date::now()->subHours(3),
+        $ticket->update([
+            'meta_window_expires_at' => Date::now()->subHours(3),
             'meta_window_type' => '24h',
         ]);
 
@@ -233,10 +312,10 @@ class VerifyContactWindowActionTest extends TestCase
             'ticket_id' => $ticket->id,
             'contact_id' => $contact->id,
             'is_from_contact' => true,
-            'created_at' => \Illuminate\Support\Facades\Date::now()->subHours(1),
+            'created_at' => Date::now()->subHours(1),
         ]);
 
-        $result = $this->action->execute($tenant->id, $contact->id);
+        $result = $this->action->execute((string) $tenant->id, (string) $contact->id, (string) $ticket->id, (string) $ticket->instance_id);
 
         $this->assertTrue($result->canSendFreeText);
         $this->assertSame('24h', $result->windowType);

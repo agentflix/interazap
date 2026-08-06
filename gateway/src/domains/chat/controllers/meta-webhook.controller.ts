@@ -6,6 +6,7 @@ import {
   Headers,
   Req,
   ForbiddenException,
+  InternalServerErrorException,
   Logger,
   Body,
   HttpCode,
@@ -15,8 +16,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
 import * as crypto from 'crypto';
-import { ChatWebhookService } from '../services/chat-webhook.service';
 import { MetaAdapter } from '../providers/meta/meta.adapter';
+import { MetaConfigService } from '../providers/meta/meta.config';
+import { MetaWebhookQueueService } from '../services/meta-webhook-queue.service';
 
 /**
  * MetaWebhookController
@@ -30,8 +32,9 @@ export class MetaWebhookController {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly chatWebhookService: ChatWebhookService,
     private readonly metaAdapter: MetaAdapter,
+    private readonly metaConfig: MetaConfigService,
+    private readonly metaWebhookQueue: MetaWebhookQueueService,
   ) {}
 
   /**
@@ -44,8 +47,15 @@ export class MetaWebhookController {
     @Query('hub.verify_token') token: string,
     @Query('hub.challenge') challenge: string,
   ): string {
-    const verifyToken =
-      this.configService.get<string>('meta.verifyToken') ?? '';
+    // Fail-closed: sem META_VERIFY_TOKEN configurado, o handshake nunca é aceito.
+    if (!this.metaConfig.isConfigured()) {
+      this.logger.error(
+        'Webhook verification rejected: META_VERIFY_TOKEN/META_APP_SECRET not configured',
+      );
+      throw new ForbiddenException('Webhook not configured');
+    }
+
+    const verifyToken = this.configService.get<string>('meta.verifyToken') ?? '';
 
     this.logger.debug(`Webhook verification request: mode=${mode}`);
 
@@ -72,10 +82,14 @@ export class MetaWebhookController {
    * antes do handler rodar, descartando toda mensagem sem erro nenhum. Mesmo
    * padrão de `ChatWebhookController` (`chat-webhook.controller.ts`).
    *
-   * Sempre responde `200 OK` após a assinatura ser validada — mesmo quando o
-   * `phone_number_id` é desconhecido, o payload tem forma inesperada, ou não
-   * produz eventos resolvíveis. A Meta reentrega em loop diante de qualquer
-   * 4xx/5xx, então qualquer problema de roteamento/forma é só logado.
+   * Após a assinatura ser validada, o payload é ENFILEIRADO numa fila BullMQ
+   * durável (retry/DLQ) e o ACK 200 é devolvido — o lookup de instância,
+   * normalização e publicação no Redis Stream acontecem no processor
+   * assíncrono. Falha de enqueue lança 500 — nunca um falso ACK.
+   *
+   * Payloads sem forma mínima ou sem eventos resolvíveis são apenas
+   * logados/descartados no processor, nunca um 4xx que provocaria reentrega
+   * em loop da Meta.
    */
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -84,6 +98,14 @@ export class MetaWebhookController {
     @Body() rawPayload: Record<string, unknown>,
     @Req() req: RawBodyRequest<Request>,
   ): Promise<{ success: boolean }> {
+    // Fail-closed: sem META_APP_SECRET, a assinatura nunca é validada com chave vazia.
+    if (!this.metaConfig.isConfigured()) {
+      this.logger.error(
+        'Webhook rejected: META_APP_SECRET/META_VERIFY_TOKEN not configured',
+      );
+      throw new ForbiddenException('Webhook not configured');
+    }
+
     const appSecret = this.configService.get<string>('meta.appSecret') ?? '';
 
     // 1. Valida assinatura HMAC
@@ -127,28 +149,17 @@ export class MetaWebhookController {
       return { success: true };
     }
 
-    // 6. Adapter resolve tenant/instancia por phone_number_id/waba_id e
-    // normaliza o lote completo (entry[] -> changes[] -> messages[]|statuses[]).
-    // Instancia desconhecida ou payload sem eventos resolviveis apenas gera
-    // warning — nunca um erro 4xx que provocaria reentrega em loop da Meta.
+    // 6. Enfileira o payload validado para processamento assíncrono.
+    // O ACK só é devolvido após o enqueue durável — falha aqui NÃO produz
+    // falso ACK (a Meta reentregaria o evento até a fila aceitar).
     try {
-      const events = await this.metaAdapter.normalizeWebhookBatch(rawPayload);
-
-      if (events.length === 0) {
-        this.logger.warn(
-          'Meta webhook did not produce any resolvable event (unknown phone_number_id/waba_id or empty payload)',
-        );
-        return { success: true };
-      }
-
-      // Cada evento e processado de forma independente — falha em um item
-      // nao aborta o processamento dos demais (ver ChatWebhookService.handleNormalizedEvents).
-      await this.chatWebhookService.handleNormalizedEvents(events);
+      await this.metaWebhookQueue.enqueue(rawPayload);
     } catch (error) {
       this.logger.error(
-        `Failed to process Meta webhook payload: ${error instanceof Error ? error.message : String(error)}`,
+        `Failed to enqueue Meta webhook payload: ${error instanceof Error ? error.message : String(error)}`,
         error instanceof Error ? error.stack : undefined,
       );
+      throw new InternalServerErrorException('Failed to enqueue webhook event');
     }
 
     return { success: true };

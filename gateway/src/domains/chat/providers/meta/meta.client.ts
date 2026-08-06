@@ -186,6 +186,16 @@ export class MetaClient {
 
       const messageId = response.data.messages?.[0]?.id;
 
+      if (!messageId) {
+        this.logger.error(
+          'Meta API returned 200 without messages[0].id (template) — contract violation',
+        );
+        return {
+          success: false,
+          error: 'Meta API response missing messages[0].id',
+        };
+      }
+
       return {
         success: true,
         messageId,
@@ -234,6 +244,16 @@ export class MetaClient {
       }
 
       const messageId = response.data.messages?.[0]?.id;
+
+      if (!messageId) {
+        this.logger.error(
+          'Meta API returned 200 without messages[0].id (text) — contract violation',
+        );
+        return {
+          success: false,
+          error: 'Meta API response missing messages[0].id',
+        };
+      }
 
       return {
         success: true,

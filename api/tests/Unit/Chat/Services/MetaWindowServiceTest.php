@@ -62,6 +62,10 @@ class MetaWindowServiceTest extends TestCase
 
     public function test_closed_window_reopens_at_24h_from_message_timestamp(): void
     {
+        // Congela o relógio: a expiração inicial (now - 2h) e o timestamp da
+        // mensagem passam a ser determinísticos — o teste roda em QUALQUER data.
+        Date::setTestNow(Date::parse('2026-07-21T12:00:00Z'));
+
         $ticket = $this->makeTicket([
             'meta_window_expires_at' => Date::now()->subHours(2),
             'meta_window_type' => '24h',
@@ -77,6 +81,8 @@ class MetaWindowServiceTest extends TestCase
         $this->assertTrue(
             $ticket->meta_window_expires_at->equalTo(Date::parse('2026-07-21T10:00:00Z')->addHours(24))
         );
+
+        Date::setTestNow();
     }
 
     public function test_referral_opens_72h_window_and_persists_referral_fields(): void
@@ -127,7 +133,7 @@ class MetaWindowServiceTest extends TestCase
         );
     }
 
-    public function test_identical_value_does_not_trigger_save(): void
+    public function test_identical_value_does_not_persist_an_update(): void
     {
         $timestamp = Date::parse('2026-07-21T10:00:00Z');
         $ticket = $this->makeTicket([
@@ -137,69 +143,48 @@ class MetaWindowServiceTest extends TestCase
         $ticket->refresh();
         $originalUpdatedAt = $ticket->updated_at;
 
-        // Avança o relógio para garantir que um save() real mudaria updated_at
-        // caso a query fosse de fato disparada.
+        // Avança o relógio para garantir que um UPDATE real mudaria updated_at
+        // caso uma linha fosse de fato afetada.
         Date::setTestNow($timestamp->copy()->addMinute());
-
-        // Evidência dura: espiona as queries SQL reais disparadas contra o
-        // banco. Uma renovação com o MESMO valor não pode gerar nenhum
-        // UPDATE em chat_tickets — isso é o que evita amplificação de
-        // escrita e disparo de eventos de realtime redundantes.
-        \Illuminate\Support\Facades\DB::enableQueryLog();
-        \Illuminate\Support\Facades\DB::flushQueryLog();
 
         $this->service->renewFromInbound($ticket, $timestamp->toIso8601String(), null);
 
-        $queryLog = \Illuminate\Support\Facades\DB::getQueryLog();
-        \Illuminate\Support\Facades\DB::disableQueryLog();
-
-        $updateQueriesOnChatTickets = array_filter(
-            $queryLog,
-            fn (array $entry): bool => str_starts_with(strtolower((string) $entry['query']), 'update')
-                && str_contains(strtolower((string) $entry['query']), 'chat_tickets')
-        );
-
-        $this->assertCount(
-            0,
-            $updateQueriesOnChatTickets,
-            'renewFromInbound() com valor idêntico não deve disparar nenhum UPDATE em chat_tickets. Queries: '
-                .json_encode(array_values($updateQueriesOnChatTickets))
-        );
-
+        // Evidência dura: o guard de mudança vive no WHERE do UPDATE atômico
+        // (`IS DISTINCT FROM`) — um valor idêntico afeta 0 linhas, então
+        // updated_at permanece intocado. Isso é o que evita amplificação de
+        // escrita e disparo de eventos de realtime redundantes.
         $ticket->refresh();
         $this->assertTrue($originalUpdatedAt->equalTo($ticket->updated_at));
 
         Date::setTestNow();
     }
 
-    public function test_changed_value_does_trigger_a_single_update_on_chat_tickets(): void
+    public function test_changed_value_does_persist_window_and_referral_in_a_single_update(): void
     {
         // Contraprova do teste acima: quando o valor de fato muda, DEVE
-        // haver exatamente 1 UPDATE em chat_tickets (nunca zero, nunca dois
-        // — ver regra 6: janela e referral gravados na MESMA operação).
+        // persistir janela E referral — regra 6: janela e referral gravados na
+        // MESMA operação atômica.
+        Date::setTestNow(Date::parse('2026-07-21T12:00:00Z'));
+
         $timestamp = Date::parse('2026-07-21T10:00:00Z');
         $ticket = $this->makeTicket([
             'meta_window_expires_at' => Date::now()->subHours(2),
             'meta_window_type' => '24h',
         ]);
 
-        \Illuminate\Support\Facades\DB::enableQueryLog();
-        \Illuminate\Support\Facades\DB::flushQueryLog();
-
         $this->service->renewFromInbound($ticket, $timestamp->toIso8601String(), [
             'ctwa_clid' => 'clid-1',
         ]);
 
-        $queryLog = \Illuminate\Support\Facades\DB::getQueryLog();
-        \Illuminate\Support\Facades\DB::disableQueryLog();
+        $ticket->refresh();
 
-        $updateQueriesOnChatTickets = array_values(array_filter(
-            $queryLog,
-            fn (array $entry): bool => str_starts_with(strtolower((string) $entry['query']), 'update')
-                && str_contains(strtolower((string) $entry['query']), 'chat_tickets')
-        ));
+        $this->assertTrue(
+            $ticket->meta_window_expires_at->equalTo($timestamp->copy()->addHours(72))
+        );
+        $this->assertSame('72h', $ticket->meta_window_type);
+        $this->assertSame('clid-1', $ticket->meta_referral_ctwa_clid);
 
-        $this->assertCount(1, $updateQueriesOnChatTickets);
+        Date::setTestNow();
     }
 
     public function test_missing_or_invalid_timestamp_falls_back_to_now(): void
@@ -286,5 +271,67 @@ class MetaWindowServiceTest extends TestCase
 
         $this->assertTrue($ticket->meta_window_expires_at->equalTo($expiresAt));
         $this->assertSame('72h', $ticket->meta_window_type);
+    }
+
+    public function test_interleaving_24h_and_72h_writes_never_shrink_the_window(): void
+    {
+        Date::setTestNow(Date::parse('2026-07-21T12:00:00Z'));
+
+        // Interleaving concorrente: primeiro a janela 24h (base 10:00 → expira 11:00 do dia 22),
+        // depois uma 72h CTWA (base 12:00 → expira 12:00 do dia 24). A ordem de escrita
+        // não pode encurtar a janela — o GREATEST atômico decide no banco.
+        $ticket = $this->makeTicket();
+
+        $this->service->renewFromInbound(
+            $ticket,
+            Date::parse('2026-07-21T10:00:00Z')->toIso8601String(),
+            null,
+        );
+
+        $this->service->renewFromInbound(
+            $ticket,
+            Date::parse('2026-07-21T12:00:00Z')->toIso8601String(),
+            ['ctwa_clid' => 'clid-interleaving'],
+        );
+
+        $ticket->refresh();
+
+        $this->assertSame('72h', $ticket->meta_window_type);
+        $this->assertTrue(
+            $ticket->meta_window_expires_at->equalTo(Date::parse('2026-07-21T12:00:00Z')->addHours(72))
+        );
+
+        Date::setTestNow();
+    }
+
+    public function test_interleaving_in_reverse_order_still_preserves_72h_while_it_is_greater(): void
+    {
+        Date::setTestNow(Date::parse('2026-07-21T12:00:00Z'));
+
+        // Ordem inversa: 72h primeiro, depois um inbound simples 24h cuja base
+        // é uma hora depois. A janela de 72h vigente continua MAIOR que a nova
+        // de 24h — tipo e expiração precisam ser preservados (nunca rebaixar).
+        $ticket = $this->makeTicket();
+
+        $this->service->renewFromInbound(
+            $ticket,
+            Date::parse('2026-07-21T10:00:00Z')->toIso8601String(),
+            ['ctwa_clid' => 'clid-reverse'],
+        );
+
+        $this->service->renewFromInbound(
+            $ticket,
+            Date::parse('2026-07-21T11:00:00Z')->toIso8601String(),
+            null,
+        );
+
+        $ticket->refresh();
+
+        $this->assertSame('72h', $ticket->meta_window_type);
+        $this->assertTrue(
+            $ticket->meta_window_expires_at->equalTo(Date::parse('2026-07-21T10:00:00Z')->addHours(72))
+        );
+
+        Date::setTestNow();
     }
 }

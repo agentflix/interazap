@@ -27,7 +27,11 @@ final class ChatWindowController extends BaseController
 
     /**
      * Verifica se o contato está dentro da janela de 24h.
-     * GET /api/chat/contacts/{id}/window-status
+     * GET /api/chat/contacts/{id}/window-status?ticket_id=&instance_id=
+     *
+     * O contexto (ticket_id/instance_id) é obrigatório para liberar texto
+     * livre — sem ele, a verificação falha fechado (nunca autoriza por
+     * tenant + contato sozinhos).
      *
      * @param  Request  $request  Solicitação HTTP.
      * @param  string  $id  UUID do contato.
@@ -37,7 +41,15 @@ final class ChatWindowController extends BaseController
     {
         $tenantId = $request->user()->tenant_id;
 
-        $result = $this->verifyWindowAction->execute($tenantId, $id);
+        $ticketId = $request->query('ticket_id');
+        $instanceId = $request->query('instance_id');
+
+        $result = $this->verifyWindowAction->execute(
+            $tenantId,
+            $id,
+            is_string($ticketId) && $ticketId !== '' ? $ticketId : null,
+            is_string($instanceId) && $instanceId !== '' ? $instanceId : null,
+        );
 
         return $this->success($result->toArray());
     }

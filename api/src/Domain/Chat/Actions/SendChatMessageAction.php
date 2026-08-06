@@ -289,14 +289,24 @@ final readonly class SendChatMessageAction
 
     /**
      * Bloqueia envio de texto livre quando o ticket é Meta e a janela 24h expirou.
-     * Só aplica para mensagens outgoing/agent/text — templates, webhooks e outros tipos passam livre.
+     * Aplica a AGENTE, BOT e IA — a mesma decisão por ticket/instância, sem
+     * bypass por source. Template aprovado (type != text) continua permitido.
+     *
+     * Fail-closed: contexto desconhecido (ticket/instância ausentes ou sem
+     * contato) NUNCA libera texto livre.
      */
     private function guardMetaWindow(string $tenantId, ChatMessageDTO $dto): void
     {
-        if ($dto->direction !== 'outgoing'
-            || $dto->source !== ChatMessageDTO::SOURCE_AGENT
-            || $dto->type !== 'text'
-        ) {
+        if ($dto->direction !== 'outgoing' || $dto->type !== 'text') {
+            return;
+        }
+
+        $guardedSources = [
+            ChatMessageDTO::SOURCE_AGENT,
+            ChatMessageDTO::SOURCE_BOT,
+            ChatMessageDTO::SOURCE_AI,
+        ];
+        if (! in_array($dto->source, $guardedSources, true)) {
             return;
         }
 
@@ -306,8 +316,11 @@ final readonly class SendChatMessageAction
             ->with('instance')
             ->first();
 
+        // Fail-closed: ticket ausente não libera envio.
         if (! $ticket instanceof ChatTicket) {
-            return;
+            throw ValidationException::withMessages([
+                'message' => ['Ticket não encontrado — envio bloqueado'],
+            ]);
         }
 
         $instance = $ticket->instance;
@@ -316,11 +329,19 @@ final readonly class SendChatMessageAction
         }
 
         $contactId = is_string($ticket->contact_id) ? $ticket->contact_id : '';
+        // Fail-closed: sem contato, texto livre não é despachado.
         if ($contactId === '') {
-            return;
+            throw ValidationException::withMessages([
+                'message' => ['Janela 24h expirada — use template'],
+            ]);
         }
 
-        $windowStatus = $this->verifyWindowAction->execute($tenantId, $contactId);
+        $windowStatus = $this->verifyWindowAction->execute(
+            $tenantId,
+            $contactId,
+            (string) $ticket->id,
+            (string) $ticket->instance_id,
+        );
         if (! $windowStatus->canSendFreeText) {
             throw ValidationException::withMessages([
                 'message' => ['Janela 24h expirada — use template'],

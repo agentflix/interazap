@@ -51,6 +51,18 @@ describe('MetaAdapter', () => {
     components: [],
   };
 
+  /** Chave de cache esperada (hash sha256 do token composto, 32 chars). */
+  const cacheKeyFor = (includeAll: boolean) => {
+    const { createHash } = require('crypto') as typeof import('crypto');
+    const identifier = createHash('sha256')
+      .update(token)
+      .digest('hex')
+      .slice(0, 32);
+    return includeAll
+      ? `meta:templates:all:${identifier}`
+      : `meta:templates:approved:${identifier}`;
+  };
+
   beforeEach(async () => {
     client = {
       getTemplates: jest.fn(),
@@ -96,14 +108,12 @@ describe('MetaAdapter', () => {
       const result = await adapter.listTemplates(token);
 
       expect(result).toEqual([approvedTemplate]);
-      expect(client.getTemplates).toHaveBeenCalledWith(token, {
+      expect(client.getTemplates).toHaveBeenCalledWith('accessToken', {
         status: 'APPROVED',
       });
-      expect(redisClient.get).toHaveBeenCalledWith(
-        `meta:templates:approved:${token}`,
-      );
+      expect(redisClient.get).toHaveBeenCalledWith(cacheKeyFor(false));
       expect(redisClient.setex).toHaveBeenCalledWith(
-        `meta:templates:approved:${token}`,
+        cacheKeyFor(false),
         900,
         JSON.stringify([approvedTemplate]),
       );
@@ -118,14 +128,12 @@ describe('MetaAdapter', () => {
       const result = await adapter.listTemplates(token, true);
 
       expect(result).toEqual([approvedTemplate, pendingTemplate]);
-      expect(client.getTemplates).toHaveBeenCalledWith(token, {
+      expect(client.getTemplates).toHaveBeenCalledWith('accessToken', {
         status: undefined,
       });
-      expect(redisClient.get).toHaveBeenCalledWith(
-        `meta:templates:all:${token}`,
-      );
+      expect(redisClient.get).toHaveBeenCalledWith(cacheKeyFor(true));
       expect(redisClient.setex).toHaveBeenCalledWith(
-        `meta:templates:all:${token}`,
+        cacheKeyFor(true),
         900,
         JSON.stringify([approvedTemplate, pendingTemplate]),
       );
@@ -143,7 +151,7 @@ describe('MetaAdapter', () => {
     it('keeps approved and all caches independent', async () => {
       // approved cache hits, all cache must still go to client
       redisClient.get.mockImplementation((key: string) => {
-        if (key === `meta:templates:approved:${token}`) {
+        if (key === cacheKeyFor(false)) {
           return Promise.resolve(JSON.stringify([approvedTemplate]));
         }
         return Promise.resolve(null);
@@ -159,9 +167,31 @@ describe('MetaAdapter', () => {
       expect(cached).toEqual([approvedTemplate]);
       expect(all).toEqual([approvedTemplate, pendingTemplate]);
       expect(client.getTemplates).toHaveBeenCalledTimes(1);
-      expect(client.getTemplates).toHaveBeenCalledWith(token, {
+      expect(client.getTemplates).toHaveBeenCalledWith('accessToken', {
         status: undefined,
       });
+    });
+
+    it('does not expose the access token in redis cache keys', async () => {
+      client.getTemplates.mockResolvedValue([approvedTemplate]);
+
+      await adapter.listTemplates(token);
+
+      for (const call of [
+        ...redisClient.get.mock.calls,
+        ...redisClient.setex.mock.calls,
+      ]) {
+        expect(JSON.stringify(call)).not.toContain('accessToken');
+      }
+      expect(redisClient.get.mock.calls[0][0]).toContain('meta:templates:');
+    });
+
+    it('returns empty list when token has no access token part', async () => {
+      const result = await adapter.listTemplates('only-phone-id');
+
+      expect(result).toEqual([]);
+      expect(client.getTemplates).not.toHaveBeenCalled();
+      expect(redisClient.get).not.toHaveBeenCalled();
     });
   });
 
@@ -170,8 +200,11 @@ describe('MetaAdapter', () => {
       await adapter.invalidateTemplatesCache(token);
 
       expect(redisClient.del).toHaveBeenCalledWith(
-        `meta:templates:approved:${token}`,
-        `meta:templates:all:${token}`,
+        cacheKeyFor(false),
+        cacheKeyFor(true),
+      );
+      expect(JSON.stringify(redisClient.del.mock.calls)).not.toContain(
+        'accessToken',
       );
     });
 

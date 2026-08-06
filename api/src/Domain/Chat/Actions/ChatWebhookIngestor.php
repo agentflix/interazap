@@ -19,6 +19,8 @@ use Domain\Chat\Services\ChatBroadcastService;
 use Domain\Chat\Services\MetaWindowService;
 use Domain\Configuration\Models\ConfigurationOpeningHour;
 use Domain\Platform\Models\PlatformUazapiInstance;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Serviço de Ingestão de Dados de Webhooks.
@@ -134,10 +136,11 @@ final class ChatWebhookIngestor
 
             if (count($messageIds) > 0 && $typeValue !== null) {
                 $updatedAny = false;
+                $instanceIdForStatus = $this->stringOrNull($payload['instance_id'] ?? null);
                 foreach ($messageIds as $msgId) {
                     if (is_string($msgId) || is_numeric($msgId)) {
                         $statusPayload = ['id' => (string) $msgId, 'status' => $typeValue];
-                        if ($this->updateExistingMessageStatus($tenantId, (string) $msgId, $statusPayload)) {
+                        if ($this->updateExistingMessageStatus($tenantId, (string) $msgId, $statusPayload, $instanceIdForStatus)) {
                             $updatedAny = true;
                         }
                     }
@@ -149,14 +152,15 @@ final class ChatWebhookIngestor
 
             // Se tem message object, usar seu id como fallback
             if ($message !== null) {
+                $instanceIdForStatus = $this->stringOrNull($payload['instance_id'] ?? null);
                 $externalId = $message['id'] ?? $message['messageid'] ?? null;
-                if ($externalId && $this->updateExistingMessageStatus($tenantId, (string) $externalId, $message)) {
+                if ($externalId && $this->updateExistingMessageStatus($tenantId, (string) $externalId, $message, $instanceIdForStatus)) {
                     return;
                 }
 
                 if ($externalId && $typeValue !== null) {
                     $statusPayload = ['id' => $externalId, 'status' => $typeValue];
-                    if ($this->updateExistingMessageStatus($tenantId, (string) $externalId, $statusPayload)) {
+                    if ($this->updateExistingMessageStatus($tenantId, (string) $externalId, $statusPayload, $instanceIdForStatus)) {
                         return;
                     }
                 }
@@ -196,6 +200,7 @@ final class ChatWebhookIngestor
                     $tenantId,
                     (string) $statusMessageId,
                     $statusMessage,
+                    $this->stringOrNull($payload['instance_id'] ?? null),
                 );
 
                 if ($updated) {
@@ -210,7 +215,12 @@ final class ChatWebhookIngestor
 
         if ($externalId) {
             $statusUpdatePayload = $message;
-            if ($this->updateExistingMessageStatus($tenantId, $externalId, $statusUpdatePayload)) {
+            if ($this->updateExistingMessageStatus(
+                $tenantId,
+                $externalId,
+                $statusUpdatePayload,
+                $this->stringOrNull($payload['instance_id'] ?? null),
+            )) {
                 return;
             }
         }
@@ -317,13 +327,46 @@ final class ChatWebhookIngestor
         /**
          * Verificação de Idempotência.
          *
-         * Evita a duplicação de mensagens se o gateway reenviar o mesmo webhook.
+         * Com `instance_id` válido: reserva atômica na tabela de identidade
+         * (tenant + instância + external ID). INSERT ... ON CONFLICT DO
+         * NOTHING é a fronteira atômica: duas reentregas concorrentes do mesmo
+         * WAMID disputam a MESMA chave única e apenas uma vence. O mesmo
+         * external_id em instâncias distintas NÃO colide.
+         *
+         * Sem `instance_id` (payloads legados uazapi sem instância resolvida):
+         * cai no `exists()` por tenant + external_id — sem atomicidade, mas
+         * preserva o comportamento histórico e evita gravar '' numa coluna UUID.
          */
-        if ($externalId && ChatMessage::query()
-            ->where('tenant_id', $tenantId)
-            ->where('external_id', $externalId)
-            ->exists()) {
-            return;
+        if ($externalId) {
+            $instanceIdForIdentity = $this->stringOrNull($payload['instance_id'] ?? null);
+
+            if ($instanceIdForIdentity === null || $instanceIdForIdentity === '') {
+                if (ChatMessage::query()
+                    ->where('tenant_id', $tenantId)
+                    ->where('external_id', $externalId)
+                    ->exists()) {
+                    return;
+                }
+            } else {
+                $reserved = DB::table('chat_message_identities')->insertOrIgnore([
+                    'id' => (string) Str::uuid(),
+                    'tenant_id' => $tenantId,
+                    'instance_id' => $instanceIdForIdentity,
+                    'external_id' => (string) $externalId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                if ($reserved === 0) {
+                    logger()->debug('[ChatWebhookIngestor] Duplicate identity reserved — skipping message', [
+                        'tenant_id' => $tenantId,
+                        'instance_id' => $instanceIdForIdentity,
+                        'external_id' => $externalId,
+                    ]);
+
+                    return;
+                }
+            }
         }
 
         $ticketDto = ChatTicketDTO::fromArray([
@@ -371,6 +414,18 @@ final class ChatWebhookIngestor
         ]);
 
         $createdMessage = $this->messageActions->create($tenantId, $messageDto);
+
+        // Vincula a mensagem persistida à identidade reservada atomicamente.
+        if ($externalId) {
+            $instanceIdForIdentity = $this->stringOrNull($payload['instance_id'] ?? null);
+            if ($instanceIdForIdentity !== null && $instanceIdForIdentity !== '') {
+                DB::table('chat_message_identities')
+                    ->where('tenant_id', $tenantId)
+                    ->where('instance_id', $instanceIdForIdentity)
+                    ->where('external_id', (string) $externalId)
+                    ->update(['message_id' => (string) $createdMessage->id]);
+            }
+        }
 
         // Disparar job de download assíncrono se necessário
         if ($needsAsyncDownload) {
@@ -565,20 +620,37 @@ final class ChatWebhookIngestor
     /**
      * Atualiza os carimbos de entrega e leitura para mensagens existentes.
      *
+     * A busca é escopada por tenant + instância (via ticket) + external ID:
+     * o mesmo WAMID em duas instâncias distintas nunca atualiza a mensagem
+     * da instância errada.
+     *
      * @param  string  $tenantId  Identificador do tenant.
      * @param  string  $externalId  ID da mensagem no provedor externo.
      * @param  array<string, mixed>  $message  Dados da mensagem no payload.
+     * @param  string|null  $instanceId  Instância de origem, quando disponível.
      * @return bool True se a mensagem foi encontrada e atualizada.
      */
-    private function updateExistingMessageStatus(string $tenantId, string $externalId, array $message): bool
-    {
-        $existing = ChatMessage::query()
+    private function updateExistingMessageStatus(
+        string $tenantId,
+        string $externalId,
+        array $message,
+        ?string $instanceId = null,
+    ): bool {
+        $query = ChatMessage::query()
             ->where('tenant_id', $tenantId)
-            ->where('external_id', $externalId)
-            ->first();
+            ->where('external_id', $externalId);
+
+        if ($instanceId !== null && $instanceId !== '') {
+            $query->whereHas('ticket', function ($ticketQuery) use ($instanceId): void {
+                $ticketQuery->where('instance_id', $instanceId);
+            });
+        }
+
+        $existing = $query->first();
 
         logger()->debug('[ChatWebhookIngestor] updateExistingMessageStatus lookup', [
             'tenant_id' => $tenantId,
+            'instance_id' => $instanceId,
             'external_id_query' => $externalId,
             'found' => $existing !== null,
             'ack_value' => $message['ack'] ?? $message['status'] ?? null,

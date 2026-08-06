@@ -22,14 +22,16 @@ export type UazapiStreamPayload = StreamPayloadBase &
     tenant_id: string;
   };
 
-/** Payload de stream normalizado para eventos da Z-API. */
-export type ZapiStreamPayload = StreamPayloadBase & {
-  /** Identificador canônico do provedor. */
-  provider: 'zapi';
+/** Payload de stream normalizado para eventos Z-API/Meta (contrato neutro do adapter). */
+export type NormalizedStreamPayload = StreamPayloadBase & {
+  /** Identificador canônico do provedor (zapi/meta/…), preservado do adapter. */
+  provider: string;
   /** Tipo do evento normalizado. */
   event_type: string;
   /** Direcao do evento (incoming/outgoing/status/connection). */
   direction?: string;
+  /** Chave de idempotência determinística fornecida pelo adapter do provedor. */
+  idempotency_key?: string;
   /** Token do webhook da instancia. */
   instance_webhook_token: string;
   /** Identificador do tenant dono da instancia. */
@@ -110,7 +112,7 @@ export type FallbackStreamPayload = StreamPayloadBase & {
 /** Uniao discriminada de todos os tipos de payload de stream suportados. */
 export type StreamPayload =
   | UazapiStreamPayload
-  | ZapiStreamPayload
+  | NormalizedStreamPayload
   | FallbackStreamPayload;
 
 /** Metadados semanticos calculados a partir de um payload de stream. */
