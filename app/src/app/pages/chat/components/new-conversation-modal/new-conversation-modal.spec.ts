@@ -2,7 +2,7 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NewConversationModalComponent } from './new-conversation-modal';
 import { ContactService } from 'src/app/core/services/contact.service';
@@ -75,6 +75,8 @@ describe('NewConversationModalComponent', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(async () => {
+    localStorage.clear();
+
     await TestBed.configureTestingModule({
       imports: [NewConversationModalComponent],
       providers: [
@@ -421,6 +423,50 @@ describe('NewConversationModalComponent', () => {
       component.selectContact('contact-1');
       fixture.detectChanges();
 
+      expect(component.sendMode()).toBe('template');
+    });
+
+    it('descarta resposta obsoleta da instância anterior (ordem invertida de respostas)', () => {
+      const instanceService = TestBed.inject(InstanceService) as unknown as InstanceServiceStub;
+      instanceService.list.mockReturnValue(
+        of({
+          data: [
+            makeInstance({ id: '1', connection_status: 'connected', provider: 'meta' }),
+            makeInstance({ id: '2', connection_status: 'connected', provider: 'meta' }),
+          ],
+        }),
+      );
+
+      const windowVerificationService = TestBed.inject(WindowVerificationService);
+      vi.spyOn(windowVerificationService, 'invalidateCache');
+
+      const subjectInst1 = new Subject<WindowStatus>();
+      const subjectInst2 = new Subject<WindowStatus>();
+      const checkStatusSpy = vi
+        .spyOn(windowVerificationService, 'checkStatus')
+        .mockReturnValueOnce(subjectInst1.asObservable())
+        .mockReturnValueOnce(subjectInst2.asObservable());
+
+      component.open();
+      fixture.detectChanges();
+
+      // Seleciona contato + instância 1 → consulta disparada (resposta em voo).
+      component.selectContact('contact-1');
+      component.selectedInstanceId.set('1');
+      fixture.detectChanges();
+      expect(checkStatusSpy).toHaveBeenCalledTimes(1);
+
+      // Troca para instância 2 ANTES da resposta da 1 chegar → nova consulta.
+      component.selectedInstanceId.set('2');
+      fixture.detectChanges();
+      expect(checkStatusSpy).toHaveBeenCalledTimes(2);
+
+      // Resposta da instância 2 chega primeiro: janela fechada → template.
+      subjectInst2.next(makeWindowStatus({ canSendFreeText: false }));
+      expect(component.sendMode()).toBe('template');
+
+      // Resposta TARDIA da instância 1: janela aberta — NÃO pode sobrescrever.
+      subjectInst1.next(makeWindowStatus({ canSendFreeText: true }));
       expect(component.sendMode()).toBe('template');
     });
   });

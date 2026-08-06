@@ -16,7 +16,7 @@ import {
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { debounceTime } from 'rxjs/operators';
-import { filter, startWith } from 'rxjs';
+import { filter, finalize, of, startWith, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -308,19 +308,52 @@ export class Chat implements OnInit, OnDestroy {
       }
     });
 
-    // Verifica janela 24h quando ticket Meta é selecionado
+    // Verifica janela 24h quando ticket Meta é selecionado.
+    // switchMap cancela a resposta do ticket anterior: ao trocar A→B, a
+    // resposta tardia de A é descartada — só o contexto atual atualiza o store.
     effect(() => {
       const ticket = this.selectedTicket();
+      const ticketId = ticket?.id ? String(ticket.id) : null;
       const contactId = ticket?.contact?.id ? String(ticket.contact.id) : null;
       const instanceId = ticket?.instance_id ? String(ticket.instance_id) : null;
       const provider = instanceId ? this.chatStore.instanceProviders()[instanceId] : null;
 
       if (contactId && provider === 'meta') {
+        this.chatStore.setWindowStatusLoading(true);
         this.windowVerification
           .checkStatus(contactId)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe((status) => {
-            this.chatStore.setWindowStatus(status);
+          .pipe(
+            takeUntilDestroyed(this.destroyRef),
+            switchMap((status) => {
+              // Descarta a resposta se o contexto mudou enquanto a requisição
+              // estava em voo (ticket/contact/instance atuais são os únicos
+              // que podem gravar o store).
+              const current = this.selectedTicket();
+              const currentTicketId = current?.id ? String(current.id) : null;
+              const currentContactId = current?.contact?.id ? String(current.contact.id) : null;
+              const currentInstanceId = current?.instance_id ? String(current.instance_id) : null;
+              if (
+                currentTicketId !== ticketId ||
+                currentContactId !== contactId ||
+                currentInstanceId !== instanceId
+              ) {
+                return of(null);
+              }
+              return of(status);
+            }),
+            finalize(() => this.chatStore.setWindowStatusLoading(false)),
+          )
+          .subscribe({
+            next: (status) => {
+              if (status !== null) {
+                this.chatStore.setWindowStatus(status);
+                this.chatStore.setWindowStatusError(false);
+              }
+            },
+            error: () => {
+              // Fail-closed: janela em erro nunca libera texto livre.
+              this.chatStore.setWindowStatusError(true);
+            },
           });
       } else {
         this.chatStore.clearWindowStatus();

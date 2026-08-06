@@ -1,5 +1,12 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { finalize } from 'rxjs';
+import {
+  computed,
+  DestroyRef,
+  inject,
+  Injectable,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, interval } from 'rxjs';
 import { type Called, CalledService } from 'src/app/core/services/called.service';
 import {
   type CalledMessage,
@@ -72,11 +79,23 @@ export class ChatStore {
   readonly replyingTo = signal<CalledMessage | null>(null);
   readonly isMediaBatchSending = signal(false);
 
-  /** Mapa de instâncias carregadas (instance_id → provider). */
-  readonly instanceProviders = signal<Record<string, string>>({});
-
   /** Status da janela 24h para o contato do ticket selecionado. */
   readonly windowStatus = signal<WindowStatus | null>(null);
+
+  /** Relógio compartilhado do chat — tick a cada 60s para decisões temporais. */
+  readonly now = signal(Date.now());
+
+  /** True enquanto o mapa de providers de instância ainda está carregando. */
+  readonly isProviderMapLoading = signal(true);
+
+  /** True quando a busca de window-status para o ticket atual está em voo. */
+  readonly isWindowStatusLoading = signal(false);
+
+  /** True quando a última busca de window-status falhou (fail-closed). */
+  readonly hasWindowStatusError = signal(false);
+
+  /** Mapa de instâncias carregadas (instance_id → provider). */
+  readonly instanceProviders = signal<Record<string, string>>({});
 
   // Computed Selectors
   readonly hasSelection = computed(() => Boolean(this.selectedCalledId()));
@@ -90,6 +109,11 @@ export class ChatStore {
    * - `free`: canal não-Meta ou Meta sem restrição de janela
    * - `mixed`: Meta dentro da janela 24h (pode enviar texto + template)
    * - `template-only`: Meta fora da janela 24h (só template)
+   *
+   * Fail-closed:
+   * - Provider ainda carregando → `template-only` (nunca `free`).
+   * - Janela Meta em loading/erro → `template-only` (nunca `free`).
+   * - Relógio passou do `expiresAt` → `template-only` mesmo sem nova requisição.
    */
   readonly composerMode = computed<ComposerMode>(() => {
     const ticket = this.selectedCalled();
@@ -97,12 +121,31 @@ export class ChatStore {
     if (!instanceId) {
       return 'free';
     }
+
     const provider = this.instanceProviders()[instanceId];
+
+    // Provider desconhecido (mapa carregando/erro) — nunca libera texto livre.
+    if (!provider || this.isProviderMapLoading()) {
+      return 'template-only';
+    }
+
     if (provider !== 'meta') {
       return 'free';
     }
+
     const ws = this.windowStatus();
-    if (ws?.canSendFreeText) {
+
+    // Janela Meta em loading ou erro — nunca libera texto livre.
+    if (!ws || this.isWindowStatusLoading() || this.hasWindowStatusError()) {
+      return 'template-only';
+    }
+
+    // Reativo ao relógio: deadline já passou → fecha composer sem nova request.
+    if (ws.expiresAt && ws.expiresAt.getTime() <= this.now()) {
+      return 'template-only';
+    }
+
+    if (ws.canSendFreeText) {
       return 'mixed';
     }
     return 'template-only';
@@ -134,8 +177,14 @@ export class ChatStore {
   });
 
   constructor() {
+    interval(60_000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.now.set(Date.now()));
+
     this.loadInstanceProviders();
   }
+
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * Carrega a lista de instâncias e constrói o mapa instance_id → provider.
@@ -152,9 +201,12 @@ export class ChatStore {
             }
           }
           this.instanceProviders.set(map);
+          this.isProviderMapLoading.set(false);
         },
         error: () => {
-          // Silencioso — o fallback é tratar como 'free'
+          // Fail-closed: mapa indisponível → composer permanece template-only
+          // (nunca trata provider desconhecido como 'free').
+          this.isProviderMapLoading.set(false);
         },
       });
   }
@@ -266,9 +318,25 @@ export class ChatStore {
   }
 
   /**
+   * Controla o estado de loading da busca de janela (fail-closed).
+   */
+  setWindowStatusLoading(isLoading: boolean): void {
+    this.isWindowStatusLoading.set(isLoading);
+  }
+
+  /**
+   * Marca erro na busca de janela (fail-closed — nunca libera texto livre).
+   */
+  setWindowStatusError(hasError: boolean): void {
+    this.hasWindowStatusError.set(hasError);
+  }
+
+  /**
    * Limpa o status da janela 24h (ex: ao trocar de ticket).
    */
   clearWindowStatus(): void {
     this.windowStatus.set(null);
+    this.hasWindowStatusError.set(false);
+    this.isWindowStatusLoading.set(false);
   }
 }

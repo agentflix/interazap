@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { Observable, Subject, of } from 'rxjs';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AppShellService } from 'src/app/core/services/app-shell.service';
-import { CalledService } from 'src/app/core/services/called.service';
+import { type Called, CalledService } from 'src/app/core/services/called.service';
 import { ChatRefreshService } from 'src/app/core/services/chat-refresh.service';
 import { RealtimeService } from 'src/app/core/services/realtime.service';
 import { type ChatQuickAnswer } from './models/chat-quick-answer.model';
@@ -19,6 +19,10 @@ import { ChatMediaBatchService } from 'src/app/core/services/chat-media-batch.se
 import { NativeBridgeService } from 'src/app/core/services/platform/native-bridge.service';
 import { PlatformService } from 'src/app/core/services/platform/platform.service';
 import { MessageSendService } from './services/message-send.service';
+import { ChatStore } from './chat.store';
+import { WindowVerificationService } from './components/new-conversation-modal/services/window-verification.service';
+import { ChatTicketListService } from './services/chat-ticket-list.service';
+import { type WindowStatus } from 'src/app/core/models/window-status.model';
 
 class AppShellServiceStub {
   hideFooter = vi.fn();
@@ -45,6 +49,7 @@ class CalledServiceStub {
 
 class ChatRefreshServiceStub {
   request = vi.fn();
+  refreshTick = signal(0);
 }
 
 class ChatPresenceServiceStub {
@@ -126,6 +131,12 @@ class MessageSendServiceStub {
   );
 }
 
+class WindowVerificationServiceStub {
+  checkStatus = vi.fn().mockReturnValue(of(null));
+  invalidateCache = vi.fn();
+  clearCache = vi.fn();
+}
+
 describe('Chat', () => {
   let component: Chat;
   let quickAnswerService: ChatQuickAnswerServiceStub;
@@ -156,6 +167,7 @@ describe('Chat', () => {
         { provide: NativeBridgeService, useClass: NativeBridgeServiceStub },
         { provide: PlatformService, useClass: PlatformServiceStub },
         { provide: MessageSendService, useClass: MessageSendServiceStub },
+        { provide: WindowVerificationService, useClass: WindowVerificationServiceStub },
       ],
     });
 
@@ -261,5 +273,71 @@ describe('Chat', () => {
     });
 
     expect(chatRefresh.request).toHaveBeenCalledTimes(1);
+  });
+
+  it('discards the late window-status response from the previously selected ticket (race A→B)', () => {
+    const chatStore = TestBed.inject(ChatStore);
+    const windowVerification = TestBed.inject(
+      WindowVerificationService,
+    ) as unknown as WindowVerificationServiceStub;
+    const calledService = TestBed.inject(CalledService) as unknown as CalledServiceStub;
+    const ticketList = TestBed.inject(ChatTicketListService);
+
+    chatStore.instanceProviders.set({ 'inst-meta': 'meta' });
+    chatStore.isProviderMapLoading.set(false);
+
+    const subjectA = new Subject<WindowStatus>();
+    const subjectB = new Subject<WindowStatus>();
+    windowVerification.checkStatus
+      .mockReturnValueOnce(subjectA.asObservable())
+      .mockReturnValueOnce(subjectB.asObservable());
+
+    const ticketA: Called = {
+      id: 'ticket-A',
+      company_id: 'company-1',
+      status: 'in_progress',
+      channel: 'whatsapp',
+      instance_id: 'inst-meta',
+      contact: { id: 'contact-A', name: 'A' },
+    };
+    const ticketB: Called = {
+      id: 'ticket-B',
+      company_id: 'company-1',
+      status: 'in_progress',
+      channel: 'whatsapp',
+      instance_id: 'inst-meta',
+      contact: { id: 'contact-B', name: 'B' },
+    };
+
+    calledService.get.mockReturnValue(of({ data: ticketA }));
+    ticketList.tickets.set([ticketA]);
+    chatStore.selectCalled('ticket-A');
+    TestBed.flushEffects();
+
+    // Troca A→B antes da resposta de A chegar.
+    calledService.get.mockReturnValue(of({ data: ticketB }));
+    ticketList.tickets.set([ticketB]);
+    chatStore.selectCalled('ticket-B');
+    TestBed.flushEffects();
+
+    // B responde primeiro — janela aberta.
+    subjectB.next({
+      canSendFreeText: true,
+      lastMessageAt: new Date(),
+      expiresAt: null,
+      windowType: null,
+    });
+    expect(chatStore.windowStatus()?.canSendFreeText).toBe(true);
+
+    // A responde TARDE — janela fechada. Não pode sobrescrever B.
+    subjectA.next({
+      canSendFreeText: false,
+      lastMessageAt: null,
+      expiresAt: null,
+      windowType: null,
+    });
+
+    expect(chatStore.windowStatus()?.canSendFreeText).toBe(true);
+    expect(chatStore.windowStatus()).not.toBeNull();
   });
 });

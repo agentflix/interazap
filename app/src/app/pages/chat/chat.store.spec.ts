@@ -151,6 +151,7 @@ describe('ChatStore', () => {
   describe('composerMode', () => {
     it('returns "free" when ticket has no instance_id', () => {
       store.instanceProviders.set({});
+      store.isProviderMapLoading.set(false);
       calledServiceSpy.get.mockReturnValue(of({ data: createCalled({ id: '1' }) }));
       store.selectCalled('1');
       expect(store.composerMode()).toBe('free');
@@ -158,6 +159,7 @@ describe('ChatStore', () => {
 
     it('returns "free" when instance provider is not meta', () => {
       store.instanceProviders.set({ i1: 'uazapi' });
+      store.isProviderMapLoading.set(false);
       calledServiceSpy.get.mockReturnValue(
         of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
       );
@@ -167,6 +169,7 @@ describe('ChatStore', () => {
 
     it('returns "mixed" when meta provider and window is open', () => {
       store.instanceProviders.set({ i1: 'meta' });
+      store.isProviderMapLoading.set(false);
       calledServiceSpy.get.mockReturnValue(
         of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
       );
@@ -182,6 +185,7 @@ describe('ChatStore', () => {
 
     it('returns "template-only" when meta provider and window is expired', () => {
       store.instanceProviders.set({ i1: 'meta' });
+      store.isProviderMapLoading.set(false);
       calledServiceSpy.get.mockReturnValue(
         of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
       );
@@ -193,6 +197,81 @@ describe('ChatStore', () => {
         windowType: null,
       });
       expect(store.composerMode()).toBe('template-only');
+    });
+
+    it('is "template-only" while provider map is still loading (fail-closed)', () => {
+      store.instanceProviders.set({});
+      store.isProviderMapLoading.set(true);
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
+      store.selectCalled('1');
+      expect(store.composerMode()).toBe('template-only');
+    });
+
+    it('is "template-only" when meta window status is loading (fail-closed)', () => {
+      store.instanceProviders.set({ i1: 'meta' });
+      store.isProviderMapLoading.set(false);
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
+      store.selectCalled('1');
+      store.setWindowStatus(null);
+      store.setWindowStatusLoading(true);
+      expect(store.composerMode()).toBe('template-only');
+    });
+
+    it('is "template-only" when meta window status errored (fail-closed)', () => {
+      store.instanceProviders.set({ i1: 'meta' });
+      store.isProviderMapLoading.set(false);
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
+      store.selectCalled('1');
+      store.setWindowStatus(null);
+      store.setWindowStatusError(true);
+      expect(store.composerMode()).toBe('template-only');
+    });
+
+    it('flips from "mixed" to "template-only" when the clock passes the deadline', () => {
+      store.instanceProviders.set({ i1: 'meta' });
+      store.isProviderMapLoading.set(false);
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
+      store.selectCalled('1');
+
+      const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+      store.setWindowStatus({
+        canSendFreeText: true,
+        lastMessageAt: new Date(),
+        expiresAt,
+        windowType: '24h',
+      });
+      expect(store.composerMode()).toBe('mixed');
+
+      // Relógio compartilhado avança além do deadline — sem nova requisição.
+      store.now.set(expiresAt.getTime() + 1000);
+      expect(store.composerMode()).toBe('template-only');
+    });
+
+    it('does not flip from "mixed" while still before the deadline', () => {
+      store.instanceProviders.set({ i1: 'meta' });
+      store.isProviderMapLoading.set(false);
+      calledServiceSpy.get.mockReturnValue(
+        of({ data: createCalled({ id: '1', instance_id: 'i1' }) }),
+      );
+      store.selectCalled('1');
+
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+      store.setWindowStatus({
+        canSendFreeText: true,
+        lastMessageAt: new Date(),
+        expiresAt,
+        windowType: '24h',
+      });
+      store.now.set(Date.now() + 30 * 60 * 1000);
+      expect(store.composerMode()).toBe('mixed');
     });
   });
 

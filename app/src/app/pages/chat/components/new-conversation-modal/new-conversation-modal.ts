@@ -212,7 +212,7 @@ export class NewConversationModalComponent {
       // contactId, então sem isso um resultado antigo poderia "vazar" para a
       // instância recém-selecionada.
       this.windowVerificationService.invalidateCache(contactId);
-      this.checkWindowStatus(contactId);
+      this.checkWindowStatus(contactId, instanceId);
     });
   }
 
@@ -277,13 +277,25 @@ export class NewConversationModalComponent {
   /**
    * Verifica o status da janela 24h para o contato.
    * Atualiza o modo de envio baseado no resultado.
+   *
+   * A resposta só é aplicada se o contexto (contactId + instanceId) ainda for
+   * o corrente — resposta obsoleta de uma instância trocada é descartada,
+   * nunca sobrescreve o `sendMode` da combinação atual.
+   *
    * @param contactId ID do contato.
+   * @param instanceId ID da instância vigente no momento da consulta.
    */
-  private checkWindowStatus(contactId: string): void {
+  private checkWindowStatus(contactId: string, instanceId: string): void {
     this.windowVerificationService
       .checkStatus(contactId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((status) => {
+        // Contexto mudou durante a requisição (contato/instância trocados):
+        // a resposta é obsoleta e NÃO pode gravar o estado atual.
+        if (this.selectedContactId() !== contactId || this.selectedInstanceId() !== instanceId) {
+          return;
+        }
+
         if (status.canSendFreeText) {
           this.sendMode.set('freeText');
         } else {
