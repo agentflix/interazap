@@ -29,9 +29,9 @@ metrics:
   php_files_api: 1079
   ts_files_gateway: 399
   ts_files_app: 805
-  migrations: 70
+  migrations: 71
   test_files_api: 507
-  last_validation: "2026-07-21"
+  last_validation: "2026-08-06"
 
 gates:
   api_fast: "cd api && composer gate:fast"

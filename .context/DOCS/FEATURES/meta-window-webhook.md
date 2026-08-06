@@ -1,177 +1,144 @@
-# Meta WhatsApp — Janela 24h/72h CTWA, roteamento por número e correção do envio
+# Meta WhatsApp — Hardening de webhook, janela e envio
 
-**Status:** [x] Em planejamento | [ ] Em execução | [ ] Concluída
-**Data:** 2026-07-21
-**PRD:** — *(derivado de análise comparativa com `suportefy-supabase` + skill `meta-whatsapp-expert`)*
+**Status:** [ ] Em planejamento | [x] Em execução | [ ] Concluída
+**Data:** 2026-08-04
+**PRD:** — *(correção evolutiva da FEAT-006, orientada pela skill `meta-whatsapp-expert`)*
 
 ## Metadados
 
 - **ID:** FEAT-006
 - **Bounded Context:** Chat (`api/src/Domain/Chat` + `gateway/src/domains/chat` + `app/src/app/pages/chat`)
 - **Complexidade:** G
-- **Status:** 🟡 Em Planning
+- **Status:** 🟡 Reaberta em Planning após auditoria
+- **Tasks:** `.context/DOCS/TASKS/meta-window-webhook-tasks.md`
 
-## Visão Geral
+## Resumo
 
-A integração Meta Cloud API do InteraZap tem toda a estrutura montada — provider, adapter, client, controller de webhook, templates HSM, UI de composer com modo `template-only` — mas a **ligação entre as peças está quebrada** e a **janela de atendimento de 72h (CTWA) não existe**.
+A primeira entrega implementou Graph API v25.0, parsing em lote, janela 24h/72h, referral CTWA, status `failed`, envio de texto/template e badge no composer. A auditoria de 2026-08-04 encontrou riscos residuais bloqueantes no pipeline: eventos Meta publicados como Z-API, credencial composta usada e registrada indevidamente, ACK síncrono, idempotência não atômica, janela vulnerável a concorrência e autorização de texto livre com escopo incorreto.
 
-Esta feature conserta o plumbing do webhook, introduz a janela de atendimento persistida (24h/72h) com a semântica oficial da Meta, e restaura o envio (texto livre dentro da janela + template fora dela), que hoje falha em 100% dos casos.
+Este ciclo endurece o fluxo ponta a ponta sem substituir a arquitetura vigente: Gateway continua sem PostgreSQL, API permanece autoritativa para tenant/janela e App falha fechado enquanto o estado Meta não for conhecido.
 
-A referência é a implementação em produção do **suportefy-supabase** (`supabase/functions/meta-whatsapp-webhook/index.ts`), combinada com os princípios da skill `meta-whatsapp-expert` (`~/Documents/prompts/SKILLS/meta-whatsapp-expert/`), destilada de um incidente real de produção (26 conversas travadas em 3 organizações — ticket ATD-038677).
+## Baseline já entregue
 
-## Problemas confirmados com evidência
+- [x] Graph API pinada em v25.0
+- [x] HMAC sobre corpo bruto com comparação timing-safe
+- [x] Parsing completo de `entry[] → changes[] → messages[]|statuses[]`
+- [x] Resolução por `phone_number_id`/WABA via API interna
+- [x] Persistência de janela 24h/72h e referral CTWA
+- [x] Fallback de janela por última inbound
+- [x] `failed` e `errors[]` preservados no ingestor ativo
+- [x] Texto e template enviados pela Cloud API
+- [x] Badge Meta e modo `template-only`
+
+## Problemas confirmados
 
 | # | Severidade | Problema | Evidência |
 |---|---|---|---|
-| A | 🔴 Bloqueante | `phone_number_id` é passado como se fosse `webhookToken`. Duas resoluções de instância concorrentes e contraditórias — a segunda lança `Webhook token mismatch` sempre que `webhook_token != phone_number_id` | `gateway/src/domains/chat/controllers/meta-webhook.controller.ts:121` → `services/chat-webhook.service.ts:69` → `providers/meta/meta.adapter.ts:355` |
-| B | 🔴 | Só processa `entry[0].changes[0]`, `messages[0]`, `statuses[0]`. A Meta agrupa eventos em lote → mensagens perdidas silenciosamente | `providers/meta/meta.provider.ts:67-70,171,195` |
-| C | 🔴 | Janela 72h CTWA inexistente. `msg.referral` e `conversation.expiration_timestamp` são descartados pelo normalizer; não há campo persistido | `contracts/meta-provider.interface.ts:83-151`; `api/src/Domain/Chat/Actions/VerifyContactWindowAction.php` |
-| D | 🔴 | `MetaAdapter.sendText` **sempre** retorna `success:false`. Dentro da janela de 24h a Meta aceita texto livre | `providers/meta/meta.adapter.ts:43-56` |
-| E | 🔴 | `resolveInstanceToken` devolve `webhook_token` para Meta, mas o adapter espera `phoneNumberId:accessToken` → `sendTemplate` falha com "Invalid instance token format" | `api/src/Domain/Chat/Services/ChatMessageGatewayDispatcher.php:424` vs `meta.adapter.ts:407-416` |
-| F | 🟡 | Graph API pinada em **v18.0**; a skill pina **v25.0** e v18 está no fim da janela de deprecação | `gateway/src/core/config/configuration.ts:238`, `providers/meta/meta.client.ts:74,78` |
-
-## Módulos Afetados
-
-- [x] api/ (Laravel 12) — migration, model, service de janela, ingestor, action de verificação, dispatcher
-- [x] gateway/ (NestJS 11) — contrato do payload, normalizer, adapter, controller, client, config
-- [x] app/ (Angular 20) — model, store, composer, modal de nova conversa
-- [ ] Infraestrutura
+| A | 🔴 | Evento normalizado Meta vira `provider: 'zapi'` e perde a chave idempotente do adapter | `gateway/src/domains/chat/services/chat-webhook.service.ts:170`; `chat-webhook-event-normalizer.service.ts:347-375` |
+| B | 🔴 | `phoneNumberId:accessToken` inteiro é usado na listagem de templates, aparece em cache/log e respostas sem WAMID são aceitas | `gateway/src/domains/chat/providers/meta/meta.adapter.ts:124-150,179-215`; `meta.client.ts:95-125,187-192` |
+| C | 🔴 | `META_APP_SECRET` e verify token admitem vazio | `gateway/src/core/config/configuration.ts:234-235`; `meta-webhook.controller.ts:87-113` |
+| D | 🔴 | ACK aguarda lookup HTTP, Redis, realtime e stream; lote é processado serialmente | `gateway/src/domains/chat/controllers/meta-webhook.controller.ts:135-154`; `services/chat-webhook.service.ts:159-183` |
+| E | 🔴 | Idempotência na API é check-then-insert, sem unicidade por instância/canal; status busca apenas tenant + external ID | `api/src/Domain/Chat/Actions/ChatWebhookIngestor.php:317-326,573-578` |
+| F | 🔴 | `GREATEST` da janela é calculado em memória; concorrência pode encurtar CTWA | `api/src/Domain/Chat/Services/MetaWindowService.php:121-172` |
+| G | 🔴 | Fallback usa tenant + contato, podendo misturar ticket/instância/canal; inclui potencial mensagem system | `api/src/Domain/Chat/Actions/VerifyContactWindowAction.php:43-61` |
+| H | 🔴 | BOT/IA podem enviar texto livre fora da janela e ausência de ticket/contact falha aberto | `api/src/Domain/Chat/Actions/SendChatMessageAction.php:294-324`; `ChatAutoReplyResponder.php:91-173` |
+| I | 🟡 | Lookup global escolhe primeira instância sem unicidade/ambiguidade fail-closed | `LookupInstanceByPhoneNumberAction.php:27-32`; `LookupInstanceByWabaIdAction.php:34-41` |
+| J | 🔴 | Composer não reage ao instante de expiração e provider desconhecido falha aberto | `app/src/app/pages/chat/chat.store.ts:94-108,143-159` |
+| K | 🔴 | Respostas assíncronas antigas podem aplicar janela de outro ticket/instância | `app/src/app/pages/chat/chat.ts:311-328`; `new-conversation-modal.ts:193-216,282-297` |
+| L | 🟡 | Gate documentado do App está inválido para o builder Angular atual | `app/package.json` (`ng test --watch=false`) |
 
 ## Escopo
 
 ### Incluído
 
-- [ ] Roteamento correto do webhook Meta por `phone_number_id` (multi-número no mesmo App)
-- [ ] Processamento de lote completo (`entry[] → changes[] → messages[]|statuses[]`)
-- [ ] Idempotência estável por `wamid` (sem `Date.now()` na chave)
-- [ ] Janela de atendimento persistida em `chat_tickets` (24h/72h + campos CTWA)
-- [ ] Renovação da janela a **cada inbound do cliente**, com `GREATEST` e guard "só grava se mudou"
-- [ ] Captura de `conversation.expiration_timestamp` + `origin.type` nos status de saída
-- [ ] Captura de `messages[].referral` (CTWA) abrindo 72h na própria inbound
-- [ ] `VerifyContactWindowAction` com campo persistido + fallback por mensagens
-- [ ] Status `failed` como estado próprio, com `errors[].code` registrado
-- [ ] `MetaAdapter.sendText` real (texto livre dentro da janela)
-- [ ] `resolveInstanceToken` correto para Meta (`phoneNumberId:accessToken`)
-- [ ] Upgrade Graph API v18.0 → v25.0
-- [ ] Badge de janela (24h / 72h CTWA + tempo restante) no composer
+- [ ] Preservar provider Meta e idempotency key até o Redis Stream
+- [ ] Separar identificadores de credenciais; segredo nunca em logs/chaves
+- [ ] Validar configuração Meta obrigatória em startup
+- [ ] ACK rápido após enfileiramento durável no Gateway
+- [ ] Idempotência atômica e escopada por tenant + instância/canal + external ID
+- [ ] Atualização atômica da janela com `GREATEST`/guard no PostgreSQL
+- [ ] Verificação de janela por ticket/instância Meta e exclusão de system
+- [ ] Aplicar janela a todo texto livre outbound, inclusive BOT/IA, com fail-closed
+- [ ] Lookup Meta rejeitar instância inativa ou identificador ambíguo
+- [ ] Composer reagir à expiração e falhar fechado durante loading/erro
+- [ ] Cancelar/ignorar respostas antigas ao trocar ticket ou instância
+- [ ] Restaurar gate `test:run` do App
+- [ ] Cobertura regressiva cross-layer para provider, tenant, concorrência e ACK
 
 ### Fora de Escopo
 
-- Secret por instância na URL / múltiplos Apps Meta por tenant (evolução futura — decisão registrada em Notas)
-- Download de mídia inbound via `GET {GRAPH}/{media_id}` (fluxo separado)
-- Backfill de tickets travados em produção (feito depois, com dry-run + skill `db-safety-guard`)
-- Reactions e edições de mensagem via Meta
+- Envio/download de mídia Meta e voice note via `media_id`
+- Backfill ou alteração destrutiva de dados de produção
+- Múltiplos Apps Meta/secrets por tenant
+- Reactions e edições de mensagem
+- Upgrade além da Graph API v25.0
 
 ## Critérios de Aceite
 
-- [ ] Webhook com 2 `entry`, cada um com 2 `messages`, persiste 4 mensagens (hoje persiste 1)
-- [ ] Webhook cujo `phone_number_id` pertence à instância X não gera `Webhook token mismatch` e resolve tenant/instância de X
-- [ ] Inbound do cliente com janela expirada faz `meta_window_expires_at = msg.timestamp + 24h` e `meta_window_type = '24h'`
-- [ ] Inbound com `msg.referral` grava `meta_referral_*` e `meta_window_type = '72h'` com expiração `msg.timestamp + 72h`
-- [ ] Janela de 72h ainda válida **não** é rebaixada para 24h por um inbound novo (`GREATEST`)
-- [ ] `UPDATE` na janela só ocorre quando `expires_at` **ou** `type` mudam
-- [ ] `GET /api/chat/contacts/{id}/window-status` retorna `expiresAt` e `windowType`, e cai no cálculo por mensagens quando o campo persistido está ausente ou no passado
-- [ ] Status `failed` da Meta é persistido como `failed` (não mascarado como `sent`) com `errors[].code` em `metadata`
-- [ ] Envio de texto livre por instância Meta dentro da janela retorna `success:true` com `messages[0].id`
-- [ ] Envio de template por instância Meta não retorna "Invalid instance token format"
-- [ ] `grep -rn "graph.facebook.com/v" gateway/src` retorna apenas `v25.0`
-- [ ] `phone_number_id` desconhecido responde `200 OK` (nunca 4xx — evita reentrega em loop da Meta)
-
-## Design
-
-Artefato obrigatório antes das tasks de Frontend: `.context/DESIGN/meta-window-badge.md` (gerado pela TASK-2.1.1).
-
-## Tasks
-
-Ver `.context/DOCS/TASKS/meta-window-webhook-tasks.md`
+- [ ] Stream originado da Meta mantém `provider=meta` e chave `meta:{instanceId}:...`
+- [ ] Access token não aparece em log, nome de chave Redis ou mensagem de erro
+- [ ] Aplicação não inicia com secret/verify token Meta vazios quando integração está habilitada
+- [ ] POST válido retorna ACK após persistência durável, sem aguardar lookup/processamento do lote
+- [ ] Duas entregas concorrentes do mesmo WAMID geram uma única mensagem por instância
+- [ ] Mesmo WAMID em instâncias distintas não colide
+- [ ] Duas atualizações concorrentes nunca reduzem uma janela 72h válida
+- [ ] Janela consultada pertence ao ticket e à instância selecionados; system não renova fallback
+- [ ] Agente, BOT e IA fora da janela Meta só enviam template aprovado
+- [ ] Lookup ambíguo/inativo não roteia webhook para tenant arbitrário
+- [ ] Composer muda para `template-only` ao expirar sem depender de nova requisição
+- [ ] Provider em loading/erro e resposta obsoleta nunca liberam texto livre
+- [ ] `pnpm --filter app test:run` executa uma vez e retorna código correto
+- [ ] Gates finais de API, Gateway e App ficam verdes
 
 ## Dependências
 
-- **Features:** nenhuma
-- **Módulos:** `api` (PostgreSQL, Redis) · `gateway` (api via HTTP, Redis, Graph API) · `app` (api/gateway via REST/WS)
-- **Externas:** Meta Graph API v25.0 · instância Meta com `settings_json.phone_number_id` e `settings_json.access_token` preenchidos (`api/src/Domain/Chat/Http/Requests/ChatInstanceRequest.php:90-91`)
+- **Módulos:** Chat API, Chat Gateway, Chat App, Redis/BullMQ
+- **Externas:** Meta Cloud API v25.0
+- **Arquitetura:** Gateway → API apenas HTTP `/internal`; API → Gateway por Redis Streams; Gateway nunca acessa PostgreSQL
+- **Design:** `.context/DESIGN/meta-window-badge.md`
 
-## Fases Estimadas
+## Fases estimadas
 
 - [x] **Fase 1 — Planning** ✅
-- [x] **Fase 2 — Design** (badge de janela no composer) — 1 task ✅
-- [x] **Fase 3 — Backend** (gateway + api + migration) — 12 tasks ✅
-- [x] **Fase 4 — Frontend** (model, store, modal) — 3 tasks ✅
-- [x] **Fase 5 — Integration** (fixtures + E2E do webhook) — 1 task ✅
+- [ ] **Fase 2 — Tooling** — gate App executável (implementada — aguarda phase-close)
+- [ ] **Fase 3 — Backend** — Gateway + API (implementada — aguarda phase-close)
+- [ ] **Fase 4 — Frontend** — estado temporal e concorrência (implementada — aguarda phase-close)
+- [ ] **Fase 5 — Integration** — regressão cross-layer e gates finais (executada — aguarda phase-close)
 
-### Gates (medidos pelo coordenador, não apenas relatados)
+## Evidência da auditoria
 
-| Camada | Gate | Resultado |
-|---|---|---|
-| api | Pint | `{"result":"pass"}` exit 0 |
-| api | Larastan | `[OK] No errors` (1315 arquivos) exit 0 |
-| api | Pest | `3023 passed, 0 failed` exit 0 |
-| api | Rector | `[OK] Rector is done!` exit 0 |
-| gateway | `test` | `1394 passed` — 3 execuções idênticas |
-| gateway | `test:e2e` | `6 suites / 31 passed` — 3 execuções idênticas |
-| gateway | `test:e2e -- meta-webhook` | `5 passed` — prova do defeito raiz |
-| gateway | `build` | 0 erros |
-| app | specs da feature | `58 passed` (4 arquivos) |
+- Gateway Meta: 43 testes direcionados passaram, mas não cobriam provider final/token composto/ACK.
+- API Meta: 22 testes passaram; 1 teste falhou por fixture dependente da data atual.
+- App: `test:run` falhou antes de iniciar specs porque o builder rejeita `--watch=false`.
+- Convenções da skill regeneradas para o InteraZap em 2026-08-04.
 
-### 7º problema — descoberto só na verificação
+## Estado da execução (ciclo de hardening — 2026-08-05)
 
-Além dos 6 do diagnóstico inicial, a revisão encontrou o mais grave: o `ValidationPipe`
-global (`whitelist: true, forbidNonWhitelisted: true`, `gateway/src/main.ts:125-131`)
-rejeitava com **400** todo payload real da Meta, porque o `@Body()` era tipado com um
-DTO parcial que não declarava `value.messages`/`statuses`. 4xx faz a Meta reentregar em
-loop. Havia 1419 testes verdes sobre isso — nenhum exercitava a camada HTTP.
-Precedente no repo: commit `2f7e95f` corrigiu o mesmo bug na rota do uazapi.
+### Implementado
 
-### Débito herdado da branch, corrigido junto (autorizado pelo usuário)
+- [x] Mapper neutro preserva `provider: meta` e `idempotencyKey` até o Redis Stream (TASK-3.1.1)
+- [x] Token composto separado na listagem/envio; segredo fora de cache/log; resposta sem WAMID falha (TASK-3.1.2)
+- [x] `META_APP_SECRET`/`META_VERIFY_TOKEN` obrigatórios com fail-closed no controller (TASK-3.1.3)
+- [x] ACK após enqueue BullMQ durável; lookup/normalização/publicação no processor com retry/DLQ (TASK-3.1.4)
+- [x] Identidade única por tenant+instance+external_id e unicidade de phone_number_id/waba_id ativos (TASK-3.2.1)
+- [x] Ingestão e status atômicos via `chat_message_identities` (insertOrIgnore) e escopo por instância (TASK-3.2.2)
+- [x] Janela com UPDATE SQL atômico (`GREATEST` + `CASE` + guard `IS DISTINCT FROM`) (TASK-3.2.3)
+- [x] Verificação de janela por ticket/instância, excluindo `type=system`, contexto ausente falha fechado (TASK-3.2.4)
+- [x] Guard de janela aplicado a agente, BOT e IA; template aprovado é a única exceção (TASK-3.2.5)
+- [x] Composer reativo ao deadline com relógio compartilhado; loading/erro fail-closed (TASK-4.1.1)
+- [x] Race de ticket A→B descartada no effect de janela (TASK-4.1.2)
+- [x] Race de instância no modal de nova conversa descartada por validação de contexto (TASK-4.1.3)
+- [x] Gate Vitest do App restaurado (`--no-watch`) (TASK-2.1.1)
 
-- Larastan: nullsafe em `SendMessageTool.php:67` (commit `4318a35`) — corrigido com guard
-  explícito, **não** trocando `?->` por `->` (que causaria fatal, pois `find()` é nullable)
-- `AiRunTrackerJobTest`: literais não-UUID em coluna `uuid`
-- `MediaTranscriptionTest`: não seguia o contrato `data.data` já padrão no projeto
-- `PlatformPlanSeederTest`: desatualizado frente à decisão de produto do commit `55989d9`
-- `composer.json`: `process-timeout: 0` — o `gate:all` era inexecutável (timeout 300s no Larastan)
-- Gate do gateway era flaky ~40%: e2e-specs subiam `AppModule` real no run unitário e vazavam
-  conexões BullMQ entre workers do Jest. Separados via `testPathIgnorePatterns`
+### Gates deste ciclo
 
-### Riscos residuais conhecidos
-
-1. **Nada exercitou a Graph API real.** Toda evidência é unitária ou e2e com mocks.
-   Roteiro de 14 passos em `meta-window-webhook-verificacao.md` — executar antes de produção.
-2. `UpdateConnectionStatusProcessor.onModuleInit()` ainda abre `Worker` BullMQ real
-   independente de mock de `RedisService`. **Contido** no `test:e2e`, não eliminado.
-3. `.real.e2e-spec.ts` excluído do gate (depende de serviço externo); rodar sob demanda.
-
-## Notas
-
-### Decisões de arquitetura
-
-1. **Persistência da janela em `chat_tickets`** — equivalente direto de `conversations` no suportefy; já possui `instance_id` e `last_customer_message_at`. Alternativas descartadas: tabela `chat_meta_windows` por par (instância × contato) — semanticamente mais correta, mas adiciona join e tabela nova; `chat_tickets_extended` — a janela é lida a cada abertura de conversa, não é campo de baixa frequência.
-
-2. **App Meta único da plataforma** — mantém `/v1/webhooks/meta` global com `META_VERIFY_TOKEN`/`META_APP_SECRET` de ambiente. Corrige apenas o plumbing. O modelo do suportefy (secret por canal na URL, N Apps Meta) exigiria recadastrar webhooks no painel Meta de cada tenant — fica como evolução futura.
-
-3. **Janela como Service, não como WebhookHandler** — os handlers registrados em `ChatWebhookIngestor.php:95-101` fazem `return` após processar, curto-circuitando a persistência da mensagem. A renovação de janela precisa acontecer **depois** do insert, então vira `MetaWindowService` chamado pelo ingestor.
-
-4. **`normalize()` preservado** — `MetaProvider.normalize()` continua existindo delegando ao primeiro evento de `normalizeAll()`, para não quebrar as specs existentes (`meta.provider.spec.ts`, `meta.adapter.spec.ts`).
-
-### Princípios aplicados (skill `meta-whatsapp-expert`)
-
-| Princípio | Onde é aplicado |
+| Camada | Resultado |
 |---|---|
-| 1 — Janela renova a cada inbound | TASK-3.2.3, TASK-3.2.4 |
-| 2 — Nunca encurtar janela válida (`GREATEST`) | TASK-3.2.3 |
-| 3 — Backend autoritativo + fallback de frontend | TASK-3.2.5 |
-| 4 — Idempotência obrigatória | TASK-3.1.3, TASK-3.1.4 |
-| 5 — Isolamento por tenant | TASK-3.2.4 (escrita sempre por `$ticket->id` resolvido) |
-| 6 — Sistema ≠ mensagem do cliente | TASK-3.2.4 (`type !== 'system'`) |
-| 7 — Não mascarar `failed` | TASK-3.1.5, TASK-3.2.4 |
-| 8 — Produção viva (migration antes do código) | TASK-3.2.1 antes de TASK-3.2.3 |
-| 9 — Fora da janela, só template aprovado | TASK-3.1.5 (erro 131047), TASK-4.1.2 |
+| gateway | `test` 1427 ✓ · `test:e2e` 31 ✓ · `build` ✓ |
+| app | `build` ✓ · specs da feature 52 ✓ (chat.store 22, chat 7, modal 23) |
+| api | `composer gate:all` 🎉 (Pint + Larastan + Pest 3039 ✓ + Rector) |
+| fronteiras | driver banco/migrations/LLM/any → OK |
 
-### Referências
+### Falhas pré-existentes não relacionadas (fora do escopo)
 
-- Implementação de referência: `~/Documents/suportefy-supabase/supabase/functions/meta-whatsapp-webhook/index.ts`
-- Skill: `~/Documents/prompts/SKILLS/meta-whatsapp-expert/SKILL.md` + `references/`
-- Janela 24h/72h: `references/customer-service-window.md`
-- Payloads: `references/webhook-payloads.md`
-- Envio/templates/erros: `references/sending-and-templates.md`
-- Upgrade Graph API: `references/graph-api-version.md`
+- `app` — `bearer.interceptor.spec.ts` (1 teste: interceptor injeta Bearer em web quando há token em memória; falha isolada, presente sem as mudanças desta feature) e `main-layout.spec.ts` (4 testes: `TrialBannerComponent` sem mock de subscription service). Não tocadas — registrar no phase-close final.
