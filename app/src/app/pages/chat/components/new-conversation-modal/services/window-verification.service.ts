@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { type Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -34,34 +34,48 @@ export class WindowVerificationService {
    * Verifica o status da janela de 24 horas para um contato.
    *
    * @param contactId - ID do contato a verificar.
+   * @param ticketId - UUID do ticket do contexto (obrigatório para Meta).
+   * @param instanceId - UUID da instância Meta do contexto (obrigatório para Meta).
    * @returns Observable com o status da janela.
    *
    * @remarks
-   * Retorna valor em cache (30s) se disponível, caso contrário consulta a API.
-   * Em caso de erro, retorna status padrão que força o modo template.
+   * Sem ticket/instance, o backend falha fechado (canSendFreeText=false) —
+   * o contexto é obrigatório para liberar texto livre. Retorna valor em cache
+   * (30s) se disponível, caso contrário consulta a API. Em caso de erro,
+   * retorna status padrão que força o modo template.
    */
-  checkStatus(contactId: string): Observable<WindowStatus> {
+  checkStatus(
+    contactId: string,
+    ticketId: string | null,
+    instanceId: string | null,
+  ): Observable<WindowStatus> {
     const cached = this.getCached(contactId);
     if (cached) {
       return of(cached);
     }
 
-    return this.http.get<WindowStatusResponse>(`${this.baseUrl}/${contactId}/window-status`).pipe(
-      map((response) => this.parseStatus(response.data)),
-      tap((status) => {
-        this.setCache(contactId, status);
-      }),
-      catchError(() => {
-        // On error, return a default status that forces template mode
-        const fallback: WindowStatus = {
-          canSendFreeText: false,
-          lastMessageAt: null,
-          expiresAt: null,
-          windowType: null,
-        };
-        return of(fallback);
-      }),
-    );
+    let params = new HttpParams();
+    if (ticketId) params = params.set('ticket_id', ticketId);
+    if (instanceId) params = params.set('instance_id', instanceId);
+
+    return this.http
+      .get<WindowStatusResponse>(`${this.baseUrl}/${contactId}/window-status`, { params })
+      .pipe(
+        map((response) => this.parseStatus(response.data)),
+        tap((status) => {
+          this.setCache(contactId, status);
+        }),
+        catchError(() => {
+          // On error, return a default status that forces template mode
+          const fallback: WindowStatus = {
+            canSendFreeText: false,
+            lastMessageAt: null,
+            expiresAt: null,
+            windowType: null,
+          };
+          return of(fallback);
+        }),
+      );
   }
 
   /**

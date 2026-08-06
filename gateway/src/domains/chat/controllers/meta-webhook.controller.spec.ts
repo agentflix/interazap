@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { MetaWebhookController } from './meta-webhook.controller';
-import { MetaAdapter } from '../providers/meta/meta.adapter';
 import { MetaConfigService } from '../providers/meta/meta.config';
 import { MetaWebhookQueueService } from '../services/meta-webhook-queue.service';
 
@@ -14,7 +13,6 @@ describe('MetaWebhookController', () => {
   let controller: MetaWebhookController;
   let metaConfig: { isConfigured: jest.Mock };
   let configService: { get: jest.Mock };
-  let metaAdapter: { normalizeWebhookBatch: jest.Mock };
   let queueService: { enqueue: jest.Mock };
 
   const configuredMetaConfig = () => {
@@ -34,14 +32,12 @@ describe('MetaWebhookController', () => {
   beforeEach(async () => {
     metaConfig = { isConfigured: jest.fn() };
     configService = { get: jest.fn() };
-    metaAdapter = { normalizeWebhookBatch: jest.fn() };
     queueService = { enqueue: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MetaWebhookController],
       providers: [
         { provide: ConfigService, useValue: configService },
-        { provide: MetaAdapter, useValue: metaAdapter },
         { provide: MetaConfigService, useValue: metaConfig },
         { provide: MetaWebhookQueueService, useValue: queueService },
       ],
@@ -116,7 +112,6 @@ describe('MetaWebhookController', () => {
         ),
       ).rejects.toThrow(ForbiddenException);
       expect(queueService.enqueue).not.toHaveBeenCalled();
-      expect(metaAdapter.normalizeWebhookBatch).not.toHaveBeenCalled();
     });
 
     it('rejects with 403 when signature invalid — no lookup, no enqueue', async () => {
@@ -131,7 +126,6 @@ describe('MetaWebhookController', () => {
         ),
       ).rejects.toThrow(ForbiddenException);
       expect(queueService.enqueue).not.toHaveBeenCalled();
-      expect(metaAdapter.normalizeWebhookBatch).not.toHaveBeenCalled();
     });
 
     it('acks 200 without processing when payload lacks minimal shape', async () => {
@@ -148,7 +142,6 @@ describe('MetaWebhookController', () => {
 
       expect(result).toEqual({ success: true });
       expect(queueService.enqueue).not.toHaveBeenCalled();
-      expect(metaAdapter.normalizeWebhookBatch).not.toHaveBeenCalled();
     });
 
     it('acks 200 only AFTER durable enqueue — never calls lookup/normalization inline', async () => {
@@ -166,7 +159,6 @@ describe('MetaWebhookController', () => {
       expect(queueService.enqueue).toHaveBeenCalledTimes(1);
       expect(queueService.enqueue).toHaveBeenCalledWith(payload);
       // O ACK NÃO depende de lookup HTTP nem de processamento inline
-      expect(metaAdapter.normalizeWebhookBatch).not.toHaveBeenCalled();
     });
 
     it('throws 500 and does NOT ack when enqueue fails (no false ACK)', async () => {
@@ -177,7 +169,6 @@ describe('MetaWebhookController', () => {
       await expect(
         controller.handleWebhook(sign(rawBody.toString()), payload, req),
       ).rejects.toThrow(InternalServerErrorException);
-      expect(metaAdapter.normalizeWebhookBatch).not.toHaveBeenCalled();
     });
   });
 });

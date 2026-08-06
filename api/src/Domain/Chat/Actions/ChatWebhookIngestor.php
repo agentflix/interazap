@@ -358,13 +358,32 @@ final class ChatWebhookIngestor
                 ]);
 
                 if ($reserved === 0) {
-                    logger()->debug('[ChatWebhookIngestor] Duplicate identity reserved — skipping message', [
+                    // Conflito na reserva: pode ser (a) reentrega legítima da Meta
+                    // (mensagem já persistida — skip) ou (b) reserva ÓRFÃ de uma
+                    // tentativa anterior que falhou antes de criar a mensagem
+                    // (message_id nulo — reprocessar em vez de engolir o WAMID).
+                    $orphan = DB::table('chat_message_identities')
+                        ->where('tenant_id', $tenantId)
+                        ->where('instance_id', $instanceIdForIdentity)
+                        ->where('external_id', (string) $externalId)
+                        ->whereNull('message_id')
+                        ->exists();
+
+                    if (! $orphan) {
+                        logger()->debug('[ChatWebhookIngestor] Duplicate identity reserved — skipping message', [
+                            'tenant_id' => $tenantId,
+                            'instance_id' => $instanceIdForIdentity,
+                            'external_id' => $externalId,
+                        ]);
+
+                        return;
+                    }
+
+                    logger()->warning('[ChatWebhookIngestor] Orphan identity found — reprocessing message', [
                         'tenant_id' => $tenantId,
                         'instance_id' => $instanceIdForIdentity,
                         'external_id' => $externalId,
                     ]);
-
-                    return;
                 }
             }
         }

@@ -16,7 +16,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
 import * as crypto from 'crypto';
-import { MetaAdapter } from '../providers/meta/meta.adapter';
 import { MetaConfigService } from '../providers/meta/meta.config';
 import { MetaWebhookQueueService } from '../services/meta-webhook-queue.service';
 
@@ -32,7 +31,6 @@ export class MetaWebhookController {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly metaAdapter: MetaAdapter,
     private readonly metaConfig: MetaConfigService,
     private readonly metaWebhookQueue: MetaWebhookQueueService,
   ) {}

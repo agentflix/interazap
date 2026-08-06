@@ -137,7 +137,11 @@ final readonly class VerifyContactWindowAction
             ]);
 
         if ($ticketId !== null) {
-            $query->where('id', $ticketId);
+            // Coerência do contexto: o ticket informado precisa pertencer ao
+            // contato do parâmetro — divergência falha fechado (evita vazar a
+            // janela de outro contato do mesmo tenant via endpoint HTTP).
+            $query->where('id', $ticketId)
+                ->where('contact_id', $contactId);
         } else {
             $query->where('contact_id', $contactId)
                 ->where('instance_id', $instanceId);

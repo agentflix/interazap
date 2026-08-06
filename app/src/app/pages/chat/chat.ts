@@ -321,7 +321,7 @@ export class Chat implements OnInit, OnDestroy {
       if (contactId && provider === 'meta') {
         this.chatStore.setWindowStatusLoading(true);
         this.windowVerification
-          .checkStatus(contactId)
+          .checkStatus(contactId, ticketId, instanceId)
           .pipe(
             takeUntilDestroyed(this.destroyRef),
             switchMap((status) => {
@@ -341,7 +341,22 @@ export class Chat implements OnInit, OnDestroy {
               }
               return of(status);
             }),
-            finalize(() => this.chatStore.setWindowStatusLoading(false)),
+            finalize(() => {
+              // Só limpa o loading se o contexto ainda for o mesmo — senão a
+              // resposta stale limparia o flag enquanto a requisição do ticket
+              // novo ainda está em voo.
+              const current = this.selectedTicket();
+              const currentTicketId = current?.id ? String(current.id) : null;
+              const currentContactId = current?.contact?.id ? String(current.contact.id) : null;
+              const currentInstanceId = current?.instance_id ? String(current.instance_id) : null;
+              if (
+                currentTicketId === ticketId &&
+                currentContactId === contactId &&
+                currentInstanceId === instanceId
+              ) {
+                this.chatStore.setWindowStatusLoading(false);
+              }
+            }),
           )
           .subscribe({
             next: (status) => {
@@ -391,13 +406,14 @@ export class Chat implements OnInit, OnDestroy {
       .subscribe((event) => {
         const selectedId = this.selectedTicketId();
         if (event.ticketId && selectedId && String(event.ticketId) === selectedId) {
-          const contactId = this.selectedTicket()?.contact?.id
-            ? String(this.selectedTicket()!.contact!.id)
-            : null;
+          const ticket = this.selectedTicket();
+          const contactId = ticket?.contact?.id ? String(ticket.contact.id) : null;
+          const ticketId = ticket?.id ? String(ticket.id) : null;
+          const instanceId = ticket?.instance_id ? String(ticket.instance_id) : null;
           if (contactId) {
             this.windowVerification.invalidateCache(contactId);
             this.windowVerification
-              .checkStatus(contactId)
+              .checkStatus(contactId, ticketId, instanceId)
               .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe((status) => {
                 this.chatStore.setWindowStatus(status);

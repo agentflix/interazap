@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -45,7 +45,7 @@ describe('WindowVerificationService', () => {
     http.get.mockReturnValue(of({ data: apiPayload }));
 
     let result: WindowStatus | null = null;
-    service.checkStatus('contact-1').subscribe((status) => {
+    service.checkStatus('contact-1', null, null).subscribe((status) => {
       result = status;
     });
 
@@ -57,7 +57,33 @@ describe('WindowVerificationService', () => {
     });
     expect(http.get).toHaveBeenCalledWith(
       'https://api.interazap.com.br/api/chat/contacts/contact-1/window-status',
+      { params: expect.any(Object) },
     );
+  });
+
+  it('checkStatus() sends ticket_id and instance_id when provided (contrato fail-closed da API)', () => {
+    http.get.mockReturnValue(of({ data: { canSendFreeText: true } }));
+
+    service.checkStatus('contact-1', 'ticket-9', 'inst-7').subscribe();
+
+    expect(http.get).toHaveBeenCalledTimes(1);
+    const [url, options] = http.get.mock.calls[0];
+    expect(url).toBe(
+      'https://api.interazap.com.br/api/chat/contacts/contact-1/window-status',
+    );
+    const params = (options as { params: HttpParams }).params;
+    expect(params.get('ticket_id')).toBe('ticket-9');
+    expect(params.get('instance_id')).toBe('inst-7');
+  });
+
+  it('checkStatus() omits params when no context (API falha fechado — template-only)', () => {
+    http.get.mockReturnValue(of({ data: { canSendFreeText: false } }));
+
+    service.checkStatus('contact-1', null, null).subscribe();
+
+    const [, options] = http.get.mock.calls[0];
+    const params = (options as { params: HttpParams }).params;
+    expect([...params.keys()]).toHaveLength(0);
   });
 
   it('checkStatus() parses expiresAt and windowType (72h CTWA) from API', () => {
@@ -70,7 +96,7 @@ describe('WindowVerificationService', () => {
     http.get.mockReturnValue(of({ data: apiPayload }));
 
     let result!: WindowStatus;
-    service.checkStatus('contact-1').subscribe((status) => {
+    service.checkStatus('contact-1', null, null).subscribe((status) => {
       result = status;
     });
 
@@ -87,8 +113,8 @@ describe('WindowVerificationService', () => {
     };
     http.get.mockReturnValue(of({ data: apiPayload }));
 
-    service.checkStatus('contact-1').subscribe();
-    service.checkStatus('contact-1').subscribe();
+    service.checkStatus('contact-1', null, null).subscribe();
+    service.checkStatus('contact-1', null, null).subscribe();
 
     expect(http.get).toHaveBeenCalledTimes(1);
   });
@@ -97,7 +123,7 @@ describe('WindowVerificationService', () => {
     http.get.mockReturnValue(throwError(() => new Error('network')));
 
     let result: WindowStatus | null = null;
-    service.checkStatus('contact-1').subscribe((status) => {
+    service.checkStatus('contact-1', null, null).subscribe((status) => {
       result = status;
     });
 
@@ -118,11 +144,11 @@ describe('WindowVerificationService', () => {
     };
     http.get.mockReturnValue(of({ data: apiPayload }));
 
-    service.checkStatus('contact-1').subscribe();
+    service.checkStatus('contact-1', null, null).subscribe();
     expect(http.get).toHaveBeenCalledTimes(1);
 
     service.invalidateCache('contact-1');
-    service.checkStatus('contact-1').subscribe();
+    service.checkStatus('contact-1', null, null).subscribe();
 
     expect(http.get).toHaveBeenCalledTimes(2);
   });
@@ -136,13 +162,13 @@ describe('WindowVerificationService', () => {
     };
     http.get.mockReturnValue(of({ data: apiPayload }));
 
-    service.checkStatus('contact-1').subscribe();
-    service.checkStatus('contact-2').subscribe();
+    service.checkStatus('contact-1', null, null).subscribe();
+    service.checkStatus('contact-2', null, null).subscribe();
     expect(http.get).toHaveBeenCalledTimes(2);
 
     service.clearCache();
-    service.checkStatus('contact-1').subscribe();
-    service.checkStatus('contact-2').subscribe();
+    service.checkStatus('contact-1', null, null).subscribe();
+    service.checkStatus('contact-2', null, null).subscribe();
 
     expect(http.get).toHaveBeenCalledTimes(4);
   });

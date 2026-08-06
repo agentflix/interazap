@@ -51,11 +51,11 @@ describe('MetaAdapter', () => {
     components: [],
   };
 
-  /** Chave de cache esperada (hash sha256 do token composto, 32 chars). */
+  /** Chave de cache esperada (hash sha256 do ACCESS token, 32 chars). */
   const cacheKeyFor = (includeAll: boolean) => {
     const { createHash } = require('crypto') as typeof import('crypto');
     const identifier = createHash('sha256')
-      .update(token)
+      .update('accessToken')
       .digest('hex')
       .slice(0, 32);
     return includeAll
@@ -186,12 +186,42 @@ describe('MetaAdapter', () => {
       expect(redisClient.get.mock.calls[0][0]).toContain('meta:templates:');
     });
 
-    it('returns empty list when token has no access token part', async () => {
-      const result = await adapter.listTemplates('only-phone-id');
+    it('returns empty list when token is empty', async () => {
+      const result = await adapter.listTemplates('');
 
       expect(result).toEqual([]);
       expect(client.getTemplates).not.toHaveBeenCalled();
       expect(redisClient.get).not.toHaveBeenCalled();
+    });
+
+    it('accepts a raw access token (settings.access_token sem phoneNumberId:)', async () => {
+      client.getTemplates.mockResolvedValue([approvedTemplate]);
+
+      const result = await adapter.listTemplates('raw-access-token');
+
+      expect(result).toEqual([approvedTemplate]);
+      expect(client.getTemplates).toHaveBeenCalledWith('raw-access-token', {
+        status: 'APPROVED',
+      });
+      // A chave de cache usa hash do access token cru — nunca o token literal.
+      const cacheKey = redisClient.get.mock.calls[0][0];
+      expect(cacheKey).toContain('meta:templates:approved:');
+      expect(cacheKey).not.toContain('raw-access-token');
+    });
+
+    it('hashes list and invalidate caches from the same access token (raw vs wabaId:token)', async () => {
+      client.getTemplates.mockResolvedValue([approvedTemplate]);
+
+      await adapter.listTemplates('same-access-token');
+      const listKey = redisClient.get.mock.calls[0][0];
+
+      await adapter.invalidateTemplatesCache('waba-123:same-access-token');
+      const [approvedKey, allKey] = redisClient.del.mock.calls[0];
+
+      expect(approvedKey).toBe(listKey);
+      expect(approvedKey).not.toContain('waba-123');
+      expect(approvedKey).not.toContain('same-access-token');
+      expect(allKey).toContain('meta:templates:all:');
     });
   });
 

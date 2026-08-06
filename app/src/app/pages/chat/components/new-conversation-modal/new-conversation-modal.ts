@@ -287,7 +287,7 @@ export class NewConversationModalComponent {
    */
   private checkWindowStatus(contactId: string, instanceId: string): void {
     this.windowVerificationService
-      .checkStatus(contactId)
+      .checkStatus(contactId, null, instanceId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((status) => {
         // Contexto mudou durante a requisição (contato/instância trocados):

@@ -126,18 +126,21 @@ export class MetaAdapter implements MetaWhatsAppProvider {
     instanceToken: string,
     includeAll = false,
   ): Promise<MetaTemplate[]> {
-    const { phoneNumberId, accessToken } =
+    const { phoneNumberId, accessToken: parsedAccessToken } =
       this.parseInstanceToken(instanceToken);
 
+    // O settings de canal armazena o access token CRU (sem `phoneNumberId:`);
+    // o Graph API só precisa do access token. O formato composto
+    // `phoneNumberId:accessToken` também é aceito — o parse separa.
+    const accessToken = parsedAccessToken || instanceToken;
+
     if (!accessToken) {
-      this.logger.warn(
-        `listTemplates called with invalid token format for phone_number_id ${phoneNumberId || '(empty)'}`,
-      );
+      this.logger.warn('listTemplates called without an access token');
       return [];
     }
 
-    // Cache keyed por hash do token — o access token nunca aparece em chave Redis
-    const cacheKey = this.templatesCacheKey(includeAll, instanceToken);
+    // Cache keyed por hash do access token — o token nunca aparece em chave Redis
+    const cacheKey = this.templatesCacheKey(includeAll, accessToken);
 
     // Verifica cache primeiro
     try {
@@ -248,15 +251,22 @@ export class MetaAdapter implements MetaWhatsAppProvider {
   }
 
   /**
-   * Compoe a chave de cache de templates com hash do token composto.
-   * Nunca usa o access token literal na chave Redis.
+   * Compoe a chave de cache de templates com hash do ACCESS TOKEN (nunca do
+   * token composto inteiro) — listTemplates (token cru ou composto) e
+   * invalidateTemplatesCache (wabaId:accessToken) produzem o MESMO hash para
+   * o mesmo access token, então a invalidação sempre atinge a chave lida.
+   * O access token nunca aparece literal na chave Redis.
    */
   private templatesCacheKey(
     includeAll: boolean,
     instanceToken: string,
   ): string {
+    const { accessToken: parsedAccessToken } =
+      this.parseInstanceToken(instanceToken);
+    const accessToken = parsedAccessToken || instanceToken;
+
     const identifier = createHash('sha256')
-      .update(instanceToken)
+      .update(accessToken)
       .digest('hex')
       .slice(0, 32);
 

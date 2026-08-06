@@ -174,11 +174,20 @@ final class ChatAutoReplyResponder
                 source: ChatMessageDTO::SOURCE_BOT
             ));
         } catch (\Illuminate\Validation\ValidationException $exception) {
+            $reason = $exception->validator->errors()->first('message');
+
+            // Só engole o bloqueio do GUARD DE JANELA (texto livre fora da
+            // janela). Qualquer outra validação (conteúdo inválido, ticket
+            // inexistente) é relançada — não pode ser silenciada.
+            if ($reason === null || ! str_contains($reason, 'Janela 24h expirada')) {
+                throw $exception;
+            }
+
             logger()->info('[ChatAutoReplyResponder] Resposta do BOT bloqueada pelo guard de janela', [
                 'tenant_id' => $tenantId,
                 'ticket_id' => $ticketId,
                 'rule_id' => $ruleId,
-                'reason' => $exception->validator->errors()->first('message'),
+                'reason' => $reason,
             ]);
         }
     }

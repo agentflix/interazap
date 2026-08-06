@@ -375,12 +375,13 @@ describe('NewConversationModalComponent', () => {
       component.instanceControl.setValue('1');
       fixture.detectChanges();
       expect(invalidateSpy).toHaveBeenCalledWith('contact-1');
-      expect(checkStatusSpy).toHaveBeenCalledWith('contact-1');
+      expect(checkStatusSpy).toHaveBeenCalledWith('contact-1', null, '1');
       expect(checkStatusSpy).toHaveBeenCalledTimes(1);
 
       component.instanceControl.setValue('2');
       fixture.detectChanges();
       expect(invalidateSpy).toHaveBeenCalledTimes(2);
+      expect(checkStatusSpy).toHaveBeenCalledWith('contact-1', null, '2');
       expect(checkStatusSpy).toHaveBeenCalledTimes(2);
     });
 

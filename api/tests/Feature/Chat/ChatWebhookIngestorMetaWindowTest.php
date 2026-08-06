@@ -13,6 +13,7 @@ use Domain\Platform\Models\PlatformTenant;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -322,6 +323,54 @@ class ChatWebhookIngestorMetaWindowTest extends TestCase
                 ->where('external_id', 'wamid.SHARED1')
                 ->count(),
             'A identidade deve ser única por instância, não por WAMID global',
+        );
+    }
+
+    public function test_orphan_identity_without_message_is_reprocessed_not_swallowed(): void
+    {
+        $tenant = PlatformTenant::factory()->create();
+        $tenantId = (string) $tenant->id;
+        $instance = $this->createMetaInstance($tenantId);
+
+        // Reserva órfã: tentativa anterior falhou ANTES de criar a mensagem.
+        DB::table('chat_message_identities')->insert([
+            'id' => (string) Str::uuid(),
+            'tenant_id' => $tenantId,
+            'instance_id' => (string) $instance->id,
+            'external_id' => 'wamid.ORPHAN1',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $payload = [
+            'provider' => 'meta',
+            'event_type' => 'messages',
+            'instance_id' => (string) $instance->id,
+            'tenant_id' => $tenantId,
+            'direction' => 'incoming',
+            'message' => [
+                'id' => 'wamid.ORPHAN1',
+                'body' => 'Reprocessando reserva órfã',
+                'type' => 'text',
+                'chatid' => '5511922222222@wa.gw',
+                'fromMe' => false,
+                'timestamp' => '2026-07-21T10:00:00Z',
+            ],
+        ];
+
+        app(ChatWebhookIngestor::class)->ingest($tenantId, $payload);
+
+        $this->assertSame(
+            1,
+            ChatMessage::query()->where('external_id', 'wamid.ORPHAN1')->count(),
+            'Reserva órfã não pode engolir o WAMID — mensagem deve ser criada',
+        );
+        $this->assertNotNull(
+            DB::table('chat_message_identities')
+                ->where('tenant_id', $tenantId)
+                ->where('external_id', 'wamid.ORPHAN1')
+                ->value('message_id'),
+            'A identidade órfã deve ser vinculada à mensagem criada',
         );
     }
 
